@@ -38,6 +38,8 @@ import android.support.v4.app.test.LoaderActivity;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
+import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -95,7 +97,12 @@ public class LoaderTest {
             return; // can't switch orientation for square screens
         }
 
-        // Now force a garbage collection.
+        // Wait for everything to settle. We have to make sure that the old Activity
+        // is ready to be collected.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        // Force a garbage collection.
         FragmentTestUtil.forceGC();
         assertNull(weakActivity.get());
     }
@@ -207,19 +214,28 @@ public class LoaderTest {
         int currentOrientation = activity.getResources().getConfiguration().orientation;
 
         int nextOrientation;
+        int expectedOrientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             nextOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            expectedOrientation = Configuration.ORIENTATION_PORTRAIT;
         } else if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
             nextOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            expectedOrientation = Configuration.ORIENTATION_LANDSCAPE;
         } else {
             return false; // Don't know what to do with square or unknown orientations
         }
 
         // Now switch the orientation
         LoaderActivity.sResumed = new CountDownLatch(1);
+        LoaderActivity.sDestroyed = new CountDownLatch(1);
 
         activity.setRequestedOrientation(nextOrientation);
         assertTrue(LoaderActivity.sResumed.await(1, TimeUnit.SECONDS));
+        assertTrue(LoaderActivity.sDestroyed.await(1, TimeUnit.SECONDS));
+
+        int switchedOrientation =
+                LoaderActivity.sActivity.getResources().getConfiguration().orientation;
+        Assert.assertEquals(expectedOrientation, switchedOrientation);
         return true;
     }
 

@@ -33,6 +33,7 @@ public class LoaderActivity extends FragmentActivity {
     // These must be cleared after each test using clearState()
     public static LoaderActivity sActivity;
     public static CountDownLatch sResumed;
+    public static CountDownLatch sDestroyed;
 
     public TextView textView;
     public TextView textViewB;
@@ -40,6 +41,7 @@ public class LoaderActivity extends FragmentActivity {
     public static void clearState() {
         sActivity = null;
         sResumed = null;
+        sDestroyed = null;
     }
 
     @Override
@@ -61,6 +63,14 @@ public class LoaderActivity extends FragmentActivity {
         getSupportLoaderManager().initLoader(0, null, new TextLoaderCallback());
         if (sResumed != null) {
             sResumed.countDown();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (sDestroyed != null) {
+            sDestroyed.countDown();
         }
     }
 
