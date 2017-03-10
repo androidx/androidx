@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
 
-import com.android.support.lifecycle.state.RetainedStateProvider;
 import com.android.support.lifecycle.state.SavedStateProvider;
 
 import java.util.HashMap;
@@ -34,7 +33,6 @@ import java.util.Map;
 public class HolderFragment extends Fragment {
 
     private SavedStateProvider mSavedStateProvider = new SavedStateProvider();
-    private RetainedStateProvider mRetainedStateProvider = new RetainedStateProvider();
     private Map<String, ViewModel> mViewModels = new HashMap<>();
 
     public HolderFragment() {
@@ -77,9 +75,5 @@ public class HolderFragment extends Fragment {
 
     public SavedStateProvider getSavedStateProvider() {
         return mSavedStateProvider;
-    }
-
-    public RetainedStateProvider getRetainedStateProvider() {
-        return mRetainedStateProvider;
     }
 }

@@ -17,7 +17,6 @@
 package com.android.support.lifecycle.state;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.v4.app.Fragment;
@@ -28,15 +27,11 @@ import com.android.support.lifecycle.HolderFragment;
 import com.android.support.lifecycle.LifecycleProvider;
 
 /**
- * Factory and utility methods for {@link SavedStateProvider} and {@link RetainedStateProvider}.
+ * Factory and utility methods for {@link SavedStateProvider}.
  * <p>
  * {@link SavedStateProvider} provides a convenient way to create variables that are saved with the
  * owner Activity or Fragment. Using it is similar to implementing
  * {@link android.app.Activity#onSaveInstanceState(Bundle)}.
- * <p>
- * {@link RetainedStateProvider} provides a convenient way to create variables that are retained
- * across the configuration changes of the owner Activity or Fragment. Using it is similar to
- * implementing {@link Activity#onRetainNonConfigurationInstance()}.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class StateProviders {
@@ -112,44 +107,5 @@ public class StateProviders {
     @MainThread
     public static SavedStateProvider savedStateProvider(FragmentActivity activity) {
         return holderFragmentFor(activity.getSupportFragmentManager()).getSavedStateProvider();
-    }
-
-    //TODO: figure out how to handle LifecycleProvider
-    /**
-     * Returns {@link RetainedStateProvider} associated with the given LifecycleProvider.
-     *
-     * @param provider The lifecycleProvider whose RetainedStateProvider will be returned.
-     */
-    @MainThread
-    public static RetainedStateProvider retainedStateProvider(LifecycleProvider provider) {
-        if (provider instanceof Fragment) {
-            return retainedStateProvider((Fragment) provider);
-        }
-        if (provider instanceof FragmentActivity) {
-            return retainedStateProvider((FragmentActivity) provider);
-        }
-        throw new IllegalArgumentException("RetainedStateProvider for " + provider.getClass()
-                + " is not implemented yet.");
-    }
-
-    /**
-     * Returns {@link RetainedStateProvider} associated with the given fragment.
-     * <p>
-     * If this call is made after fragment saved its state, all later operations on this
-     * {@link RetainedStateProvider} will be lost if the application process is killed.
-     */
-    @MainThread
-    public static RetainedStateProvider retainedStateProvider(Fragment fragment) {
-        return holderFragmentFor(fragment.getChildFragmentManager()).getRetainedStateProvider();
-    }
-
-    /**
-     * Returns {@link RetainedStateProvider} associated with the given fragment.
-     * <p>
-     * If this call is made after fragment saved its state, all later operations on this
-     * {@link RetainedStateProvider} will be lost if the application process is killed.
-     */
-    public static RetainedStateProvider retainedStateProvider(FragmentActivity activity) {
-        return holderFragmentFor(activity.getSupportFragmentManager()).getRetainedStateProvider();
     }
 }

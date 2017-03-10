@@ -21,9 +21,9 @@ import android.os.Bundle;
 /**
  * Simple wrapper class that holds int value.
  * <p>
- * This class can be obtained from either {@link SavedStateProvider}
- * or {@link RetainedStateProvider}.
+ * This class can be obtained from {@link SavedStateProvider}.
  */
+@SuppressWarnings("WeakerAccess")
 public class IntStateValue extends Saveable {
 
     private int mValue;

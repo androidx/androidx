@@ -23,9 +23,10 @@ import android.os.Parcelable;
 /**
  * Simple wrapper class that holds T value.
  * <p>
- * This class can be obtained from {@link RetainedStateProvider}.
+ * This class can be obtained from {@link SavedStateValue}.
  * @param <T> - type of the object.
  */
+@SuppressWarnings("WeakerAccess")
 public class SavedStateValue<T extends Parcelable> extends Saveable {
 
     private T mValue;

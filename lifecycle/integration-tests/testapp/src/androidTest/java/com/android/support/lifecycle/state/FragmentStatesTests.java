@@ -17,7 +17,6 @@
 package com.android.support.lifecycle.state;
 
 import static com.android.support.lifecycle.TestUtils.recreateActivity;
-import static com.android.support.lifecycle.state.StateProviders.retainedStateProvider;
 import static com.android.support.lifecycle.state.StateProviders.savedStateProvider;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,16 +51,6 @@ public class FragmentStatesTests {
                 fragment -> {
                     IntStateValue intValue = savedStateProvider(fragment).intStateValue("key");
                     assertThat(intValue.get(), is(261));
-                });
-    }
-
-    @Test
-    public void testFragmentRetainedStateInBackStack() throws Throwable {
-        testRecreationInBackStack(false,
-                fragment -> retainedStateProvider(fragment).intStateValue("key", 261),
-                fragment -> {
-                    int value = retainedStateProvider(fragment).intStateValue("key").get();
-                    assertThat(value, is(261));
                 });
     }
 
