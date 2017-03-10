@@ -73,7 +73,6 @@ class LifecycleDispatcher {
             if (activity instanceof FragmentActivity) {
                 ((FragmentActivity) activity).getSupportFragmentManager()
                         .registerFragmentLifecycleCallbacks(mFragmentCallback, true);
-
             }
             // ProcessProvider should always correctly work and some activities may not extend
             // FragmentActivity from support lib, so we use framework fragments for activities

@@ -17,12 +17,16 @@
 package com.android.support.lifecycle;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.test.filters.SmallTest;
 import android.support.v4.app.FragmentActivity;
@@ -31,7 +35,6 @@ import android.support.v4.app.FragmentManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 @SmallTest
@@ -41,9 +44,7 @@ public class DispatcherActivityCallbackTest {
         LifecycleDispatcher.DispatcherActivityCallback callback =
                 new LifecycleDispatcher.DispatcherActivityCallback();
         Activity activity = mock(Activity.class);
-        callback.onActivityCreated(activity, mock(Bundle.class));
-        Mockito.verifyNoMoreInteractions(activity);
-        // assert no crash
+        checkReportFragment(callback, activity);
     }
 
     @Test
@@ -54,9 +55,25 @@ public class DispatcherActivityCallbackTest {
         FragmentManager fragmentManager = mock(FragmentManager.class);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
 
-        callback.onActivityCreated(activity, mock(Bundle.class));
+        checkReportFragment(callback, activity);
+
         verify(activity).getSupportFragmentManager();
         verify(fragmentManager).registerFragmentLifecycleCallbacks(
                 any(FragmentManager.FragmentLifecycleCallbacks.class), eq(true));
+    }
+
+    @SuppressLint("CommitTransaction")
+    private void checkReportFragment(LifecycleDispatcher.DispatcherActivityCallback callback,
+            Activity activity) {
+        android.app.FragmentManager fm = mock(android.app.FragmentManager.class);
+        FragmentTransaction transaction = mock(FragmentTransaction.class);
+        when(activity.getFragmentManager()).thenReturn(fm);
+        when(fm.beginTransaction()).thenReturn(transaction);
+        when(transaction.add(any(Fragment.class), anyString())).thenReturn(transaction);
+        callback.onActivityCreated(activity, mock(Bundle.class));
+        verify(activity).getFragmentManager();
+        verify(fm).beginTransaction();
+        verify(transaction).add(any(ReportFragment.class), anyString());
+        verify(transaction).commit();
     }
 }
