@@ -28,10 +28,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.media.MediaRouteSelector;
 import android.support.v7.media.MediaRouter;
 import android.support.v7.mediarouter.R;
+import android.support.v7.widget.TooltipCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SoundEffectConstants;
@@ -274,7 +274,7 @@ public class MediaRouteButton extends View {
      * button when the button is long pressed.
      */
     void setCheatSheetEnabled(boolean enable) {
-        ViewCompat.setTooltipText(this,
+        TooltipCompat.setTooltipText(this,
                 enable ? getContext().getString(R.string.mr_button_content_description) : null);
     }
 

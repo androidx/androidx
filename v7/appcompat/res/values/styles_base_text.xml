@@ -102,6 +102,10 @@
         <item name="android:textColor">?android:textColorPrimaryInverse</item>
     </style>
 
+    <style name="Base.TextAppearance.AppCompat.Tooltip">
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <!-- Deprecated text styles -->
 
     <style name="Base.TextAppearance.AppCompat.Inverse">
