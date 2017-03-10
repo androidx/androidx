@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
 
@@ -91,6 +92,9 @@ public class ChannelTest extends TestCase {
                 .setInternalProviderFlag2(0x3)
                 .setInternalProviderFlag3(0x2)
                 .setInternalProviderFlag4(0x1)
+                .setTransient(true)
+                .setBrowsable(true)
+                .setSystemApproved(true)
                 .build();
         ContentValues contentValues = fullyPopulatedChannel.toContentValues();
         compareChannel(fullyPopulatedChannel, Channel.fromCursor(getChannelCursor(contentValues)));
@@ -100,11 +104,6 @@ public class ChannelTest extends TestCase {
     }
 
     private static void compareChannel(Channel channelA, Channel channelB) {
-        assertEquals(channelA.getAppLinkColor(), channelB.getAppLinkColor());
-        assertEquals(channelA.getAppLinkIconUri(), channelB.getAppLinkIconUri());
-        assertEquals(channelA.getAppLinkIntentUri(), channelB.getAppLinkIntentUri());
-        assertEquals(channelA.getAppLinkPosterArtUri(), channelB.getAppLinkPosterArtUri());
-        assertEquals(channelA.getAppLinkText(), channelB.getAppLinkText());
         assertEquals(channelA.isSearchable(), channelB.isSearchable());
         assertEquals(channelA.getDescription(), channelB.getDescription());
         assertEquals(channelA.getDisplayName(), channelB.getDisplayName());
@@ -119,7 +118,19 @@ public class ChannelTest extends TestCase {
         assertEquals(channelA.getTransportStreamId(), channelB.getTransportStreamId());
         assertEquals(channelA.getType(), channelB.getType());
         assertEquals(channelA.getVideoFormat(), channelB.getVideoFormat());
-        assertEquals(channelA.toContentValues(), channelB.toContentValues());
+        assertEquals(channelA.isBrowsable(), channelB.isBrowsable());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertEquals(channelA.getAppLinkColor(), channelB.getAppLinkColor());
+            assertEquals(channelA.getAppLinkIconUri(), channelB.getAppLinkIconUri());
+            assertEquals(channelA.getAppLinkIntentUri(), channelB.getAppLinkIntentUri());
+            assertEquals(channelA.getAppLinkPosterArtUri(), channelB.getAppLinkPosterArtUri());
+            assertEquals(channelA.getAppLinkText(), channelB.getAppLinkText());
+        }
+        if (BuildCompat.isAtLeastO()) {
+            assertEquals(channelA.isTransient(), channelB.isTransient());
+            assertEquals(channelA.isSystemApproved(), channelB.isSystemApproved());
+            assertEquals(channelA.toContentValues(), channelB.toContentValues());
+        }
         assertEquals(channelA.toString(), channelB.toString());
     }
 
