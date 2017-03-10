@@ -1,9 +1,15 @@
 apply plugin: android.support.SupportLibraryPlugin
+apply plugin: 'org.anarres.jarjar'
 archivesBaseName = 'support-emoji'
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':support-compat')
+
+    compile jarjar.repackage {
+        from files('third_party/flatbuffers/flatbuffers-java-1.6.0.jar')
+        destinationName 'flatbuffers-java-1.6.0-repacked.jar'
+        classRename 'com.google.flatbuffers.**', 'com.google.flatbuffers.emojicompat.@1'
+    }
 
     androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
