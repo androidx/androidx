@@ -573,16 +573,16 @@ public final class Program implements Comparable<Program> {
                 && Arrays.equals(mContentRatings, program.mContentRatings)
                 && Arrays.equals(mAudioLanguages, program.mAudioLanguages)
                 && (Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-                        || Objects.equals(mSearchable, program.mSearchable)
+                        || (Objects.equals(mSearchable, program.mSearchable)
                         && Objects.equals(mInternalProviderFlag1, program.mInternalProviderFlag1)
                         && Objects.equals(mInternalProviderFlag2, program.mInternalProviderFlag2)
                         && Objects.equals(mInternalProviderFlag3, program.mInternalProviderFlag3)
-                        && Objects.equals(mInternalProviderFlag4, program.mInternalProviderFlag4))
+                        && Objects.equals(mInternalProviderFlag4, program.mInternalProviderFlag4)))
                 && (Build.VERSION.SDK_INT < Build.VERSION_CODES.N
-                        || Objects.equals(mSeasonTitle, program.mSeasonTitle)
-                        && Objects.equals(mRecordingProhibited, program.mRecordingProhibited))
+                        || (Objects.equals(mSeasonTitle, program.mSeasonTitle)
+                        && Objects.equals(mRecordingProhibited, program.mRecordingProhibited)))
                 && (!BuildCompat.isAtLeastO()
-                        || Objects.equals(mInternalProviderId, program.mInternalProviderId)
+                        || (Objects.equals(mInternalProviderId, program.mInternalProviderId)
                         && Objects.equals(mPreviewVideoUri, program.mPreviewVideoUri)
                         && Objects.equals(mLastPlaybackPositionMillis,
                                 program.mLastPlaybackPositionMillis)
@@ -606,7 +606,7 @@ public final class Program implements Comparable<Program> {
                         && Objects.equals(mInteractionCount, program.mInteractionCount)
                         && Objects.equals(mAuthor, program.mAuthor)
                         && Objects.equals(mReviewRatingStyle, program.mReviewRatingStyle)
-                        && Objects.equals(mReviewRating, program.mReviewRating));
+                        && Objects.equals(mReviewRating, program.mReviewRating)));
     }
 
     /**

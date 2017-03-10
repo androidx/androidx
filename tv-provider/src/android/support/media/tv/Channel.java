@@ -31,6 +31,7 @@ import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
 /**
  * A convenience class to access {@link TvContractCompat.Channels} entries in the system content
@@ -791,7 +792,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderData(String internalProviderData) {
-            mInternalProviderData = internalProviderData.getBytes();
+            mInternalProviderData = internalProviderData.getBytes(Charset.defaultCharset());
             return this;
         }
 
