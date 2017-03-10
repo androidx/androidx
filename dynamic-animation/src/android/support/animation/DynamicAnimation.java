@@ -538,9 +538,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
         if (mLastFrameTime == 0) {
             // First frame.
             mLastFrameTime = frameTime;
-            if (mStartValueIsSet) {
-                setPropertyValue(mValue);
-            }
+            setPropertyValue(mValue);
             return false;
         }
         long deltaT = frameTime - mLastFrameTime;
@@ -566,39 +564,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @param deltaT time elapsed in millisecond since last frame
      * @return whether the animation has finished
      */
-    boolean updateValueAndVelocity(long deltaT) {
-        if (deltaT < 0) {
-            throw new UnsupportedOperationException("Cannot play animation backwards");
-        }
-        if (deltaT == 0) {
-            return false;
-        }
-
-        // Break down the deltaT into 4ms intervals.
-        long increment = Math.min(4, deltaT);
-
-        int totalT = (int) deltaT;
-        int i = 0;
-        float velocity = mVelocity;
-        float value = mValue;
-        for (i = 0; i <= totalT; i += increment) {
-            float acceleration = getAcceleration(value, velocity);
-            float newVelocity = acceleration * increment / 1000 + velocity;
-            value += (velocity + newVelocity) / 2 * increment / 1000;
-            velocity = newVelocity;
-            if (i == totalT) {
-                break;
-            } else if (i + increment > deltaT) {
-                increment = totalT - i;
-            }
-        }
-
-        mVelocity = (float) velocity;
-        mValue = (float) value;
-
-        // TODO: need to update values to end value if true, otherwise there'll be precision loss.
-        return isAtEquilibrium(mValue, mVelocity);
-    }
+    abstract boolean updateValueAndVelocity(long deltaT);
 
     /**
      * Internal method to reset the animation states when animation is finished/canceled.
