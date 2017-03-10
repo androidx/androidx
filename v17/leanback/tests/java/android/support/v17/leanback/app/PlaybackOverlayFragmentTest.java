@@ -15,12 +15,15 @@
  */
 package android.support.v17.leanback.app;
 
+import static junit.framework.Assert.assertEquals;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
+import android.view.View;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +41,40 @@ public class PlaybackOverlayFragmentTest extends SingleFragmentTestBase {
 
         assertFalse(mActivity.findViewById(R.id.videoView).hasFocus());
         assertTrue(fragment.getView().hasFocus());
+    }
+
+    @Test
+    public void alignmentRowToBottom() throws Throwable {
+        launchAndWaitActivity(PlaybackOverlayTestFragment.class,
+                new Options().activityLayoutId(R.layout.playback_controls_with_video), 0);
+        final PlaybackOverlayTestFragment fragment = (PlaybackOverlayTestFragment)
+                mActivity.getTestFragment();
+
+        assertTrue(fragment.getAdapter().size() > 2);
+
+        View playRow = fragment.getVerticalGridView().getChildAt(0);
+        assertTrue(playRow.hasFocus());
+        assertEquals(playRow.getResources().getDimensionPixelSize(
+                R.dimen.lb_playback_controls_padding_bottom),
+                fragment.getVerticalGridView().getHeight() - playRow.getBottom());
+
+        activityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.getVerticalGridView().setSelectedPositionSmooth(
+                        fragment.getAdapter().size() - 1);
+            }
+        });
+        waitForScrollIdle(fragment.getVerticalGridView());
+
+        View lastRow = fragment.getVerticalGridView().getChildAt(
+                fragment.getVerticalGridView().getChildCount() - 1);
+        assertEquals(fragment.getAdapter().size() - 1,
+                fragment.getVerticalGridView().getChildAdapterPosition(lastRow));
+        assertTrue(lastRow.hasFocus());
+        assertEquals(lastRow.getResources().getDimensionPixelSize(
+                R.dimen.lb_playback_controls_padding_bottom),
+                fragment.getVerticalGridView().getHeight() - lastRow.getBottom());
     }
 
 }

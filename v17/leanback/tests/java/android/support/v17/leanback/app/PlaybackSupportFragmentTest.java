@@ -18,6 +18,8 @@
  */
 package android.support.v17.leanback.app;
 
+import static junit.framework.Assert.assertEquals;
+
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -25,20 +27,25 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.media.PlaybackGlue;
 import android.support.v17.leanback.testutils.PollingCheck;
+import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
+import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.view.KeyEvent;
+import android.view.View;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,7 +115,6 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         verify(selectedListener, times(0)).onItemSelected(any(Presenter.ViewHolder.class),
                 any(Object.class), any(RowPresenter.ViewHolder.class), any(Row.class));
         sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(selectedListener, times(1)).onItemSelected(itemVHCaptor.capture(),
                 itemCaptor.capture(), rowVHCaptor.capture(), rowCaptor.capture());
         assertSame("Same controls row should be passed to the listener", controlsRow,
@@ -116,7 +122,6 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertSame("The selected action should be rewind", rewind, itemCaptor.getValue());
 
         sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(selectedListener, times(2)).onItemSelected(itemVHCaptor.capture(),
                 itemCaptor.capture(), rowVHCaptor.capture(), rowCaptor.capture());
         assertSame("Same controls row should be passed to the listener", controlsRow,
@@ -127,7 +132,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         ListRow listRow0 = (ListRow) fragment.getAdapter().get(1);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
-        Thread.sleep(TRANSITION_LENGTH);
+        waitForScrollIdle(fragment.getVerticalGridView());
         verify(selectedListener, times(3)).onItemSelected(itemVHCaptor.capture(),
                 itemCaptor.capture(), rowVHCaptor.capture(), rowCaptor.capture());
         assertSame("Same list row should be passed to the listener", listRow0,
@@ -176,7 +181,6 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         verify(clickedListener, times(0)).onItemClicked(any(Presenter.ViewHolder.class),
                 any(Object.class), any(RowPresenter.ViewHolder.class), any(Row.class));
         sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(clickedListener, times(1)).onItemClicked(itemVHCaptor.capture(),
                 itemCaptor.capture(), rowVHCaptor.capture(), rowCaptor.capture());
         assertSame("Same controls row should be passed to the listener", controlsRow,
@@ -184,11 +188,9 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertSame("The clicked action should be playPause", playPause, itemCaptor.getValue());
 
         sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(clickedListener, times(1)).onItemClicked(any(Presenter.ViewHolder.class),
                 any(Object.class), any(RowPresenter.ViewHolder.class), any(Row.class));
         sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(clickedListener, times(2)).onItemClicked(itemVHCaptor.capture(),
                 itemCaptor.capture(), rowVHCaptor.capture(), rowCaptor.capture());
         assertSame("Same controls row should be passed to the listener", controlsRow,
@@ -196,11 +198,9 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertSame("The clicked action should be rewind", rewind, itemCaptor.getValue());
 
         sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(clickedListener, times(2)).onItemClicked(any(Presenter.ViewHolder.class),
                 any(Object.class), any(RowPresenter.ViewHolder.class), any(Row.class));
         sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(clickedListener, times(3)).onItemClicked(itemVHCaptor.capture(),
                 itemCaptor.capture(), rowVHCaptor.capture(), rowCaptor.capture());
         assertSame("Same controls row should be passed to the listener", controlsRow,
@@ -211,11 +211,10 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         ListRow listRow0 = (ListRow) fragment.getAdapter().get(1);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
-        Thread.sleep(TRANSITION_LENGTH);
+        waitForScrollIdle(fragment.getVerticalGridView());
         verify(clickedListener, times(3)).onItemClicked(any(Presenter.ViewHolder.class),
                 any(Object.class), any(RowPresenter.ViewHolder.class), any(Row.class));
         sendKeys(KeyEvent.KEYCODE_DPAD_CENTER);
-        Thread.sleep(TRANSITION_LENGTH);
         verify(clickedListener, times(4)).onItemClicked(itemVHCaptor.capture(),
                 itemCaptor.capture(), rowVHCaptor.capture(), rowCaptor.capture());
         assertSame("Same list row should be passed to the listener", listRow0,
@@ -226,4 +225,139 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
                 listRowItemPassed);
     }
 
+    @Test
+    public void alignmentRowToBottom() throws Throwable {
+        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        final PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+
+        assertTrue(fragment.getAdapter().size() > 2);
+
+        View playRow = fragment.getVerticalGridView().getChildAt(0);
+        assertTrue(playRow.hasFocus());
+        assertEquals(playRow.getResources().getDimensionPixelSize(
+                android.support.v17.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                fragment.getVerticalGridView().getHeight() - playRow.getBottom());
+
+        activityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.getVerticalGridView().setSelectedPositionSmooth(
+                        fragment.getAdapter().size() - 1);
+            }
+        });
+        waitForScrollIdle(fragment.getVerticalGridView());
+
+        View lastRow = fragment.getVerticalGridView().getChildAt(
+                fragment.getVerticalGridView().getChildCount() - 1);
+        assertEquals(fragment.getAdapter().size() - 1,
+                fragment.getVerticalGridView().getChildAdapterPosition(lastRow));
+        assertTrue(lastRow.hasFocus());
+        assertEquals(lastRow.getResources().getDimensionPixelSize(
+                android.support.v17.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                fragment.getVerticalGridView().getHeight() - lastRow.getBottom());
+    }
+
+    public static class PurePlaybackSupportFragment extends PlaybackSupportFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setFadingEnabled(false);
+            PlaybackControlsRow row = new PlaybackControlsRow();
+            SparseArrayObjectAdapter primaryAdapter = new SparseArrayObjectAdapter(
+                    new ControlButtonPresenterSelector());
+            primaryAdapter.set(0, new PlaybackControlsRow.SkipPreviousAction(getActivity()));
+            primaryAdapter.set(1, new PlaybackControlsRow.PlayPauseAction(getActivity()));
+            primaryAdapter.set(2, new PlaybackControlsRow.SkipNextAction(getActivity()));
+            row.setPrimaryActionsAdapter(primaryAdapter);
+            row.setSecondaryActionsAdapter(null);
+            setPlaybackRow(row);
+            setPlaybackRowPresenter(new PlaybackControlsRowPresenter());
+        }
+    }
+
+    @Test
+    public void setupRowAndPresenterWithoutGlue() {
+        launchAndWaitActivity(PurePlaybackSupportFragment.class, 1000);
+        final PurePlaybackSupportFragment fragment = (PurePlaybackSupportFragment)
+                mActivity.getTestFragment();
+
+        assertTrue(fragment.getAdapter().size() == 1);
+        View playRow = fragment.getVerticalGridView().getChildAt(0);
+        assertTrue(playRow.hasFocus());
+        assertEquals(playRow.getResources().getDimensionPixelSize(
+                android.support.v17.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                fragment.getVerticalGridView().getHeight() - playRow.getBottom());
+    }
+
+    public static class ControlGlueFragment extends PlaybackSupportFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            int[] ffspeeds = new int[] {PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0,
+                    PlaybackControlGlue.PLAYBACK_SPEED_FAST_L1};
+            PlaybackGlue glue = new PlaybackControlGlue(
+                    getActivity(), ffspeeds) {
+                @Override
+                public boolean hasValidMedia() {
+                    return true;
+                }
+
+                @Override
+                public boolean isMediaPlaying() {
+                    return false;
+                }
+
+                @Override
+                public CharSequence getMediaTitle() {
+                    return "Title";
+                }
+
+                @Override
+                public CharSequence getMediaSubtitle() {
+                    return "SubTitle";
+                }
+
+                @Override
+                public int getMediaDuration() {
+                    return 100;
+                }
+
+                @Override
+                public Drawable getMediaArt() {
+                    return null;
+                }
+
+                @Override
+                public long getSupportedActions() {
+                    return PlaybackControlGlue.ACTION_PLAY_PAUSE;
+                }
+
+                @Override
+                public int getCurrentSpeedId() {
+                    return PlaybackControlGlue.PLAYBACK_SPEED_PAUSED;
+                }
+
+                @Override
+                public int getCurrentPosition() {
+                    return 50;
+                }
+            };
+            glue.setHost(new PlaybackSupportFragmentGlueHost(this));
+        }
+    }
+
+    @Test
+    public void setupWithControlGlue() throws Throwable {
+        launchAndWaitActivity(ControlGlueFragment.class, 1000);
+        final ControlGlueFragment fragment = (ControlGlueFragment)
+                mActivity.getTestFragment();
+
+        assertTrue(fragment.getAdapter().size() == 1);
+
+        View playRow = fragment.getVerticalGridView().getChildAt(0);
+        assertTrue(playRow.hasFocus());
+        assertEquals(playRow.getResources().getDimensionPixelSize(
+                android.support.v17.leanback.test.R.dimen.lb_playback_controls_padding_bottom),
+                fragment.getVerticalGridView().getHeight() - playRow.getBottom());
+    }
 }
