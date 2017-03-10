@@ -273,7 +273,8 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
      * @return This Item so additional setters can be called.
      */
-    public MenuItem setShortcut(char numericChar, char alphaChar, int numericModifiers,
+    @Override
+    MenuItem setShortcut(char numericChar, char alphaChar, int numericModifiers,
             int alphaModifiers);
 
     /**
@@ -289,7 +290,8 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
      * @return This Item so additional setters can be called.
      */
-    public MenuItem setNumericShortcut(char numericChar, int numericModifiers);
+    @Override
+    MenuItem setNumericShortcut(char numericChar, int numericModifiers);
 
     /**
      * Return the modifiers for this menu item's numeric (12-key) shortcut.
@@ -301,7 +303,8 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return Modifier associated with the numeric shortcut.
      */
-    public int getNumericModifiers();
+    @Override
+    int getNumericModifiers();
 
     /**
      * Change the alphabetic shortcut associated with this item. The shortcut
@@ -321,7 +324,8 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *        {@link KeyEvent#META_SYM_ON}, {@link KeyEvent#META_FUNCTION_ON}.
      * @return This Item so additional setters can be called.
      */
-    public MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers);
+    @Override
+    MenuItem setAlphabeticShortcut(char alphaChar, int alphaModifiers);
 
     /**
      * Return the modifier for this menu item's alphabetic shortcut.
@@ -333,5 +337,6 @@ public interface SupportMenuItem extends android.view.MenuItem {
      *
      * @return Modifier associated with the keyboard shortcut.
      */
-    public int getAlphabeticModifiers();
+    @Override
+    int getAlphabeticModifiers();
 }
