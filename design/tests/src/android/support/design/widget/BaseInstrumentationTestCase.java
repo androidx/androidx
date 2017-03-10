@@ -17,17 +17,18 @@
 package android.support.design.widget;
 
 import android.app.Activity;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.rule.BootlegActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseInstrumentationTestCase<A extends Activity> {
     @Rule
-    public final ActivityTestRule<A> mActivityTestRule;
+    public final BootlegActivityTestRule<A> mActivityTestRule;
 
     protected BaseInstrumentationTestCase(Class<A> activityClass) {
-        mActivityTestRule = new ActivityTestRule<A>(activityClass);
+        mActivityTestRule = new BootlegActivityTestRule<>(activityClass);
     }
 }
