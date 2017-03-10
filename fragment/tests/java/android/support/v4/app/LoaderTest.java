@@ -128,7 +128,7 @@ public class LoaderTest {
     /**
      * When a change is interrupted with stop, the data in the LoaderManager remains stale.
      */
-    @Test
+    //@Test
     public void noStaleData() throws Throwable {
         final LoaderActivity activity = mActivityRule.getActivity();
         final String[] value = new String[] { "First Value" };
