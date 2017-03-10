@@ -17,7 +17,10 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import java.util.ArrayList;
 
 class ControlBar extends LinearLayout {
 
@@ -27,6 +30,7 @@ class ControlBar extends LinearLayout {
 
     private int mChildMarginFromCenter;
     private OnChildFocusedListener mOnChildFocusedListener;
+    int mLastFocusIndex = -1;
 
     public ControlBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -37,13 +41,28 @@ class ControlBar extends LinearLayout {
     }
 
     @Override
-    public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
+    protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
         if (getChildCount() > 0) {
-            if (getChildAt(getChildCount() / 2).requestFocus(direction, previouslyFocusedRect)) {
+            int index = mLastFocusIndex >= 0 && mLastFocusIndex < getChildCount()
+                    ? mLastFocusIndex : getChildCount() / 2;
+            if (getChildAt(index).requestFocus(direction, previouslyFocusedRect)) {
                 return true;
             }
         }
-        return super.requestFocus(direction, previouslyFocusedRect);
+        return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
+    }
+
+    @Override
+    public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        if ((direction == ViewGroup.FOCUS_UP || direction == ViewGroup.FOCUS_DOWN)) {
+            if (mLastFocusIndex >= 0 && mLastFocusIndex < getChildCount()) {
+                views.add(getChildAt(mLastFocusIndex));
+            } else if (getChildCount() > 0) {
+                views.add(getChildAt(getChildCount() / 2));
+            }
+        } else {
+            super.addFocusables(views, direction, focusableMode);
+        }
     }
 
     public void setOnChildFocusedListener(OnChildFocusedListener listener) {
@@ -57,6 +76,7 @@ class ControlBar extends LinearLayout {
     @Override
     public void requestChildFocus (View child, View focused) {
         super.requestChildFocus(child, focused);
+        mLastFocusIndex = indexOfChild(child);
         if (mOnChildFocusedListener != null) {
             mOnChildFocusedListener.onChildFocusedListener(child, focused);
         }
