@@ -28,19 +28,21 @@ import com.android.support.lifecycle.ReportFragment.ActivityInitializationListen
 /**
  * Class that provides lifecycle for the whole application process.
  * <p>
- *
- * You can consider this LifecycleProvider as the composite of all of your Activities:
- * ProcessProvider will dispatch {@link Lifecycle#ON_CREATE}, {@link Lifecycle#ON_START},
- * {@link Lifecycle#ON_RESUME} events, as a first activity moves through these events.
- * {@link Lifecycle#ON_PAUSE}, {@link Lifecycle#ON_STOP},
- * {@link Lifecycle#ON_DESTROY} events will be dispatched with a <b>delay</b> after a last activity
+ * You can consider this LifecycleProvider as the composite of all of your Activities, except that
+ * {@link Lifecycle#ON_CREATE} will be dispatched once and {@link Lifecycle#ON_DESTROY} will never
+ * be dispatched. Other lifecycle events will be dispatched with following rules:
+ * ProcessProvider will dispatch {@link Lifecycle#ON_START}, {@link Lifecycle#ON_RESUME} events,
+ * as a first activity moves through these events.
+ * {@link Lifecycle#ON_PAUSE}, {@link Lifecycle#ON_STOP}, events will be dispatched with a
+ * <b>delay</b> after a last activity
  * passed through them. This delay is long enough to guarantee that ProcessProvider
  * won't send any events if activities are destroyed and recreated due to a
  * configuration change.
  *
  * <p>
  * It is useful for use cases where you would like to react on your app coming to the foreground or
- * going to the background and you don't need a milliseconds accuracy in receiving lifecycle events.
+ * going to the background and you don't need a milliseconds accuracy in receiving lifecycle
+ * events.
  */
 @SuppressWarnings("WeakerAccess")
 public class ProcessProvider implements LifecycleProvider {
@@ -49,13 +51,11 @@ public class ProcessProvider implements LifecycleProvider {
     static final long TIMEOUT_MS = 700; //mls
 
     // ground truth counters
-    private int mCreatedCounter = 0;
     private int mStartedCounter = 0;
     private int mResumedCounter = 0;
 
     private boolean mPauseSent = true;
     private boolean mStopSent = true;
-    private boolean mDestroySent = true;
 
     private Handler mHandler;
     private final LifecycleRegistry mRegistry = new LifecycleRegistry(this);
@@ -65,7 +65,6 @@ public class ProcessProvider implements LifecycleProvider {
         public void run() {
             dispatchPauseIfNeeded();
             dispatchStopIfNeeded();
-            dispatchDestroyIfNeeded();
         }
     };
 
@@ -73,7 +72,6 @@ public class ProcessProvider implements LifecycleProvider {
             new ActivityInitializationListener() {
                 @Override
                 public void onCreate() {
-                    activityCreated();
                 }
 
                 @Override
@@ -101,14 +99,6 @@ public class ProcessProvider implements LifecycleProvider {
 
     static void init(Context context) {
         sInstance.attach(context);
-    }
-
-    void activityCreated() {
-        mCreatedCounter++;
-        if (mCreatedCounter == 1 && mDestroySent) {
-            mRegistry.handleLifecycleEvent(Lifecycle.ON_CREATE);
-            mDestroySent = false;
-        }
     }
 
     void activityStarted() {
@@ -157,23 +147,12 @@ public class ProcessProvider implements LifecycleProvider {
         }
     }
 
-    private void dispatchDestroyIfNeeded() {
-        if (mCreatedCounter == 0 && mStopSent) {
-            mRegistry.handleLifecycleEvent(Lifecycle.ON_DESTROY);
-            mDestroySent = true;
-        }
-    }
-
-    void activityDestroyed() {
-        mCreatedCounter--;
-        dispatchDestroyIfNeeded();
-    }
-
     private ProcessProvider() {
     }
 
     void attach(Context context) {
         mHandler = new Handler();
+        mRegistry.handleLifecycleEvent(Lifecycle.ON_CREATE);
         Application app = (Application) context.getApplicationContext();
         app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
             @Override
@@ -205,7 +184,6 @@ public class ProcessProvider implements LifecycleProvider {
 
             @Override
             public void onActivityDestroyed(Activity activity) {
-                activityDestroyed();
             }
         });
     }

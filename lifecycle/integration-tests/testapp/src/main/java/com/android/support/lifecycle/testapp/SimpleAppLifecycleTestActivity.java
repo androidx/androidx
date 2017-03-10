@@ -51,15 +51,16 @@ public class SimpleAppLifecycleTestActivity extends LifecycleActivity {
             mType = type;
         }
 
+        @SuppressWarnings("UnusedParameters")
         @OnLifecycleEvent(Lifecycle.ANY)
-        public void onEvent(LifecycleProvider provider, @Lifecycle.Event int event) {
+        void onEvent(LifecycleProvider provider, @Lifecycle.Event int event) {
             sCollectedEvents.add(new Pair<>(mType, event));
             sLatch.countDown();
         }
     }
 
     static List<Pair<TestEventType, Integer>> sCollectedEvents = new ArrayList<>();
-    static CountDownLatch sLatch = new CountDownLatch(12);
+    static CountDownLatch sLatch = new CountDownLatch(11);
 
     /**
      * start process observer

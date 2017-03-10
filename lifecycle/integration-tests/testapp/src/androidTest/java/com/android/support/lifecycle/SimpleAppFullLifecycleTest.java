@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
@@ -63,7 +62,6 @@ public class SimpleAppFullLifecycleTest {
 
                     new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_PAUSE),
                     new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_STOP),
-                    new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_DESTROY),
             };
     @Rule
     public ActivityTestRule<SimpleAppLifecycleTestActivity> activityTestRule =
@@ -88,15 +86,15 @@ public class SimpleAppFullLifecycleTest {
     @Test
     public void testFullLifecycle() throws InterruptedException {
         int currentState = ProcessProvider.get().getLifecycle().getCurrentState();
-        assertTrue("Unexpected State  " + currentState,
-                currentState == Lifecycle.INITIALIZED || currentState == Lifecycle.DESTROYED);
+        assertThat(currentState, is(Lifecycle.STOPPED));
         activityTestRule.launchActivity(null);
         List<Pair<TestEventType, Integer>> events = SimpleAppLifecycleTestActivity.awaitForEvents();
         assertThat("Failed to await for events", events, notNullValue());
+        //noinspection ConstantConditions
         assertThat(events.subList(0, 6).toArray(), is(EXPECTED_EVENTS_CONSTRUCTION));
 
         // TODO: bug 35122523
-        for (Pair<TestEventType, Integer> event: events.subList(6, 12)) {
+        for (Pair<TestEventType, Integer> event: events.subList(6, 11)) {
             assertThat(event, isIn(EXPECTED_EVENTS_DESTRUCTION));
         }
     }

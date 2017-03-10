@@ -55,13 +55,12 @@ public class ProcessProviderTest {
         volatile boolean mChangedState;
 
         @OnLifecycleEvent(Lifecycle.ANY)
-        public void onEvent() {
+        void onEvent() {
             mChangedState = true;
         }
     }
 
     private ProcessObserver mObserver = new ProcessObserver();
-
 
     @After
     public void tearDown() {
