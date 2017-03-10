@@ -28,10 +28,12 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.animation.LogAccelerateInterpolator;
 import android.support.v17.leanback.animation.LogDecelerateInterpolator;
 import android.support.v17.leanback.media.PlaybackGlueHost;
+import android.support.v17.leanback.widget.ItemAlignmentFacet;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter.DataObserver;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
+import android.support.v17.leanback.widget.PlaybackRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
@@ -105,7 +107,7 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     private static final int IN = 1;
     static final int OUT = 2;
 
-    private int mPaddingTop;
+    private int mOtherRowsCenterToBottom;
     private int mPaddingBottom;
     private View mRootView;
     private int mBackgroundType = BG_DARK;
@@ -640,35 +642,52 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     }
 
     @Override
+    protected void setupPresenter(Presenter rowPresenter) {
+        if (rowPresenter instanceof PlaybackRowPresenter) {
+            if (rowPresenter.getFacet(ItemAlignmentFacet.class) == null) {
+                ItemAlignmentFacet itemAlignment = new ItemAlignmentFacet();
+                ItemAlignmentFacet.ItemAlignmentDef def =
+                        new ItemAlignmentFacet.ItemAlignmentDef();
+                def.setItemAlignmentOffset(0);
+                def.setItemAlignmentOffsetPercent(100);
+                itemAlignment.setAlignmentDefs(new ItemAlignmentFacet.ItemAlignmentDef[]
+                        {def});
+                rowPresenter.setFacet(ItemAlignmentFacet.class, itemAlignment);
+            }
+        } else {
+            super.setupPresenter(rowPresenter);
+        }
+    }
+
+    @Override
     void setVerticalGridViewLayout(VerticalGridView listview) {
         if (listview == null) {
             return;
         }
-        // Padding affects alignment when last row is focused
-        // (last is first when there's only one row).
-        setPadding(listview, mPaddingTop, mPaddingBottom);
 
-        // Item alignment affects focused row that isn't the last.
-        listview.setItemAlignmentOffset(0);
+        // we set the base line of alignment to -paddingBottom
+        listview.setWindowAlignmentOffset(-mPaddingBottom);
+        listview.setWindowAlignmentOffsetPercent(
+                VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+
+        // align other rows that arent the last to center of screen, since our baseline is
+        // -mPaddingBottom, we need subtract that from mOtherRowsCenterToBottom.
+        listview.setItemAlignmentOffset(mOtherRowsCenterToBottom - mPaddingBottom);
         listview.setItemAlignmentOffsetPercent(50);
 
-        // Push rows to the bottom.
-        listview.setWindowAlignmentOffset(0);
-        listview.setWindowAlignmentOffsetPercent(50);
-        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE);
-    }
-
-    private static void setPadding(View view, int paddingTop, int paddingBottom) {
-        view.setPadding(view.getPaddingLeft(), paddingTop,
-                view.getPaddingRight(), paddingBottom);
+        // Push last row to the bottom padding
+        // Padding affects alignment when last row is focused
+        listview.setPadding(listview.getPaddingLeft(), listview.getPaddingTop(),
+                listview.getPaddingRight(), mPaddingBottom);
+        listview.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPaddingTop =
-                getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_padding_top);
+        mOtherRowsCenterToBottom = getResources()
+                .getDimensionPixelSize(R.dimen.lb_playback_other_rows_center_to_bottom);
         mPaddingBottom =
                 getResources().getDimensionPixelSize(R.dimen.lb_playback_controls_padding_bottom);
         mBgDarkColor =

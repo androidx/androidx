@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
@@ -62,7 +63,6 @@ public class PlaybackOverlayTestFragment extends PlaybackOverlayFragment {
 
     private PlaybackControlHelper mGlue;
     private PlaybackControlsRowPresenter mPlaybackControlsRowPresenter;
-    private ListRowPresenter mListRowPresenter;
 
     private OnItemViewClickedListener mOnItemViewClickedListener = new OnItemViewClickedListener() {
         @Override
@@ -136,19 +136,11 @@ public class PlaybackOverlayTestFragment extends PlaybackOverlayFragment {
 
         mPlaybackControlsRowPresenter = mGlue.createControlsRowAndPresenter();
         mPlaybackControlsRowPresenter.setSecondaryActionsHidden(SECONDARY_HIDDEN);
-        mListRowPresenter = new ListRowPresenter();
+        ClassPresenterSelector selector = new ClassPresenterSelector();
+        selector.addClassPresenter(ListRow.class, new ListRowPresenter());
+        selector.addClassPresenter(PlaybackControlsRow.class, mPlaybackControlsRowPresenter);
 
-        setAdapter(new SparseArrayObjectAdapter(new PresenterSelector() {
-            @Override
-            public Presenter getPresenter(Object object) {
-                if (object instanceof PlaybackControlsRow) {
-                    return mPlaybackControlsRowPresenter;
-                } else if (object instanceof ListRow) {
-                    return mListRowPresenter;
-                }
-                throw new IllegalArgumentException("Unhandled object: " + object);
-            }
-        }));
+        setAdapter(new SparseArrayObjectAdapter(selector));
 
         // Add the controls row
         getAdapter().set(ROW_CONTROLS, mGlue.getControlsRow());

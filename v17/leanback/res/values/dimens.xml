@@ -124,9 +124,11 @@
     <dimen name="lb_action_text_size">16sp</dimen>
     <dimen name="lb_action_button_corner_radius">2dp</dimen>
 
-    <dimen name="lb_playback_controls_align_bottom">58dp</dimen>
-    <dimen name="lb_playback_controls_padding_top">216dp</dimen>
+    <!-- distance of bottom of playback row to bottom edge, used for overscan protection and
+    peeking related rows-->
     <dimen name="lb_playback_controls_padding_bottom">28dp</dimen>
+    <!-- distance of other rows' center to bottom edge, half of screen by default -->
+    <dimen name="lb_playback_other_rows_center_to_bottom">270dp</dimen>
     <dimen name="lb_playback_major_fade_translate_y">200dp</dimen>
     <dimen name="lb_playback_minor_fade_translate_y">16dp</dimen>
     <dimen name="lb_playback_controls_card_height">176dp</dimen>

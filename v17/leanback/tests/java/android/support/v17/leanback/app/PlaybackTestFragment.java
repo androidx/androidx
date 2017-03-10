@@ -23,6 +23,7 @@ import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
@@ -46,8 +47,6 @@ public class PlaybackTestFragment extends PlaybackFragment {
      */
     private static final int BACKGROUND_TYPE = PlaybackFragment.BG_LIGHT;
 
-    private static final int ROW_CONTROLS = 0;
-
     /**
      * Change this to select hidden
      */
@@ -59,7 +58,6 @@ public class PlaybackTestFragment extends PlaybackFragment {
     private static final int RELATED_CONTENT_ROWS = 3;
 
     private android.support.v17.leanback.media.PlaybackControlGlue mGlue;
-    private ListRowPresenter mListRowPresenter;
     boolean mDestroyCalled;
 
     @Override
@@ -120,23 +118,10 @@ public class PlaybackTestFragment extends PlaybackFragment {
         };
 
         mGlue.setHost(new PlaybackFragmentGlueHost(this));
-       //  mGlue.setOnI
-        mListRowPresenter = new ListRowPresenter();
+        ClassPresenterSelector selector = new ClassPresenterSelector();
+        selector.addClassPresenter(ListRow.class, new ListRowPresenter());
 
-        setAdapter(new SparseArrayObjectAdapter(new PresenterSelector() {
-            @Override
-            public Presenter getPresenter(Object object) {
-                if (object instanceof PlaybackControlsRow) {
-                    return mGlue.getControlsRowPresenter();
-                } else if (object instanceof ListRow) {
-                    return mListRowPresenter;
-                }
-                throw new IllegalArgumentException("Unhandled object: " + object);
-            }
-        }));
-
-        // Add the controls row
-        getAdapter().set(ROW_CONTROLS, mGlue.getControlsRow());
+        setAdapter(new SparseArrayObjectAdapter(selector));
 
         // Add related content rows
         for (int i = 0; i < RELATED_CONTENT_ROWS; ++i) {
@@ -144,7 +129,7 @@ public class PlaybackTestFragment extends PlaybackFragment {
             listRowAdapter.add("Some related content");
             listRowAdapter.add("Other related content");
             HeaderItem header = new HeaderItem(i, "Row " + i);
-            getAdapter().set(ROW_CONTROLS + 1 + i, new ListRow(header, listRowAdapter));
+            getAdapter().set(1 + i, new ListRow(header, listRowAdapter));
         }
     }
 

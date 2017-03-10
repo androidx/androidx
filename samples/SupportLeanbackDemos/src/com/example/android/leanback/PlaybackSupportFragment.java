@@ -25,12 +25,10 @@ import android.os.Bundle;
 import android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
-import android.support.v17.leanback.widget.PlaybackControlsRow;
-import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 
@@ -60,7 +58,6 @@ public class PlaybackSupportFragment
     private static final int ROW_CONTROLS = 0;
 
     private PlaybackControlGlue mGlue;
-    private ListRowPresenter mListRowPresenter;
 
     @Override
     public SparseArrayObjectAdapter getAdapter() {
@@ -107,22 +104,10 @@ public class PlaybackSupportFragment
         };
 
         mGlue.setHost(new PlaybackSupportFragmentGlueHost(this));
-        mListRowPresenter = new ListRowPresenter();
+        ClassPresenterSelector classPresenterSelector = new ClassPresenterSelector();
+        classPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
 
-        setAdapter(new SparseArrayObjectAdapter(new PresenterSelector() {
-            @Override
-            public Presenter getPresenter(Object object) {
-                if (object instanceof PlaybackControlsRow) {
-                    return mGlue.getControlsRowPresenter();
-                } else if (object instanceof ListRow) {
-                    return mListRowPresenter;
-                }
-                throw new IllegalArgumentException("Unhandled object: " + object);
-            }
-        }));
-
-        // Add the controls row
-        getAdapter().set(ROW_CONTROLS, mGlue.getControlsRow());
+        setAdapter(new SparseArrayObjectAdapter(classPresenterSelector));
 
         // Add related content rows
         for (int i = 0; i < RELATED_CONTENT_ROWS; ++i) {
