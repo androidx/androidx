@@ -175,17 +175,6 @@ class AnimationHandler {
         }
     }
 
-    private int getCallbackSize() {
-        int count = 0;
-        int size = mAnimationCallbacks.size();
-        for (int i = size - 1; i >= 0; i--) {
-            if (mAnimationCallbacks.get(i) != null) {
-                count++;
-            }
-        }
-        return count;
-    }
-
     /**
      * Default provider of timing pulse that uses Choreographer for frame callbacks.
      */
