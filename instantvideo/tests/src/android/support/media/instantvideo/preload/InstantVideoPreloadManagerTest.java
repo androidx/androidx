@@ -15,6 +15,9 @@
  */
 package android.support.media.instantvideo.preload;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -22,8 +25,12 @@ import android.net.Uri;
 import android.support.media.instantvideo.preload.InstantVideoPreloadManager.VideoPreloader;
 import android.support.media.instantvideo.preload.InstantVideoPreloadManager.VideoPreloaderFactory;
 import android.support.test.filters.SmallTest;
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -31,43 +38,47 @@ import org.mockito.MockitoAnnotations;
  * Tests for IntentVideoPreloadManager.
  */
 @SmallTest
-public class InstantVideoPreloadManagerTest extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class InstantVideoPreloadManagerTest {
     private static final Uri PRELOAD_VIDEO_URI_1 = Uri.parse("http://test/test1.mp4");
     private static final Uri PRELOAD_VIDEO_URI_2 = Uri.parse("http://test/test2.mp4");
 
     private InstantVideoPreloadManager mPreloadManager;
-    @Mock private VideoPreloaderFactory mMockVideoPreloaderFactory;
-    @Mock private VideoPreloader mMockVideoPreloader;
+    @Mock
+    private VideoPreloaderFactory mMockVideoPreloaderFactory;
+    @Mock
+    private VideoPreloader mMockVideoPreloader;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         when(mMockVideoPreloaderFactory.createVideoPreloader(any(Uri.class)))
                 .thenReturn(mMockVideoPreloader);
         mPreloadManager = new InstantVideoPreloadManager(getContext(), mMockVideoPreloaderFactory);
     }
 
-    @Override
-    public void tearDown() throws Exception {
+    @After
+    public void tearDown() {
         mPreloadManager.clearCache();
-        super.tearDown();
     }
 
-    public void testPreload() {
+    @Test
+    public void preload() {
         mPreloadManager.preload(PRELOAD_VIDEO_URI_1);
         assertCacheSize(1);
         mPreloadManager.preload(PRELOAD_VIDEO_URI_2);
         assertCacheSize(2);
     }
 
-    public void testPreload_duplicate() {
+    @Test
+    public void preload_duplicate() {
         mPreloadManager.preload(PRELOAD_VIDEO_URI_1);
         mPreloadManager.preload(PRELOAD_VIDEO_URI_1);
         assertCacheSize(1);
     }
 
-    public void testMaxPreloadVideoCount() {
+    @Test
+    public void setMaxPreloadVideoCount() {
         mPreloadManager.setMaxPreloadVideoCount(1);
         mPreloadManager.preload(PRELOAD_VIDEO_URI_1);
         assertCacheSize(1);
@@ -75,7 +86,8 @@ public class InstantVideoPreloadManagerTest extends AndroidTestCase {
         assertCacheSize(1);
     }
 
-    public void testClearCache() {
+    @Test
+    public void clearCache() {
         mPreloadManager.preload(PRELOAD_VIDEO_URI_1);
         mPreloadManager.preload(PRELOAD_VIDEO_URI_2);
         mPreloadManager.clearCache();
