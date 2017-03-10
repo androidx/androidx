@@ -55,7 +55,7 @@ LOCAL_SRC_FILES := $(recommendation.docs.src_files)
 
 LOCAL_SDK_VERSION := 21
 LOCAL_IS_HOST_MODULE := false
-LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := build/tools/droiddoc/templates-sdk
+LOCAL_DROIDDOC_CUSTOM_TEMPLATE_DIR := external/doclava/res/assets/templates-sdk
 
 LOCAL_SHARED_ANDROID_LIBRARIES := $(recommendation.docs.java_libraries)
 
