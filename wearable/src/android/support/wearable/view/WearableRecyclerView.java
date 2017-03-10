@@ -34,7 +34,6 @@ import android.view.View;
  * #setCircularScrollingGestureEnabled(boolean)} circular scrolling} and semi-circular layouts.
  *
  * @see #setCircularScrollingGestureEnabled(boolean)
- * @see #setOffsettingHelper(OffsettingHelper)
  */
 @TargetApi(Build.VERSION_CODES.M)
 public class WearableRecyclerView extends RecyclerView {
@@ -42,23 +41,7 @@ public class WearableRecyclerView extends RecyclerView {
 
     private static final int NO_VALUE = Integer.MIN_VALUE;
 
-    /**
-     * This class defines the offsetting logic for updating layout of children in a
-     * WearableRecyclerView.
-     */
-    public abstract static class OffsettingHelper {
-
-        /**
-         * Override this method if you wish to implement custom child layout behavior on scroll.
-         *
-         * @param child  the current child to be affected.
-         * @param parent the {@link WearableRecyclerView} parent that this helper is attached to.
-         */
-        public abstract void updateChild(View child, WearableRecyclerView parent);
-    }
-
     private final ScrollManager mScrollManager = new ScrollManager();
-    private OffsettingHelper mOffsettingHelper;
     private boolean mCircularScrollingEnabled;
     private boolean mEdgeItemsCenteringEnabled;
 
@@ -103,8 +86,6 @@ public class WearableRecyclerView extends RecyclerView {
                             mScrollManager.getScrollDegreesPerScreen()));
             a.recycle();
         }
-
-        setLayoutManager(new OffsettingLinearLayoutManager(getContext()));
     }
 
     private void setupCenteredPadding() {
@@ -163,16 +144,6 @@ public class WearableRecyclerView extends RecyclerView {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mScrollManager.clearRecyclerView();
-    }
-
-    @Override
-    public void setLayoutManager(LayoutManager layoutManager) {
-        if (!(layoutManager instanceof OffsettingLinearLayoutManager)) {
-            throw new UnsupportedOperationException(
-                    "This class implements its own layout manager and does not take custom ones");
-        } else {
-            super.setLayoutManager(layoutManager);
-        }
     }
 
     /**
@@ -242,28 +213,6 @@ public class WearableRecyclerView extends RecyclerView {
     }
 
     /**
-     * Sets the {@link WearableRecyclerView.OffsettingHelper} that this {@link
-     * WearableRecyclerView} will use.
-     *
-     * @param offsettingHelper the instance of {@link OffsettingHelper} to use. Pass null if you
-     *                         wish to clear the instance used.
-     */
-    public void setOffsettingHelper(@Nullable OffsettingHelper offsettingHelper) {
-        mOffsettingHelper = offsettingHelper;
-    }
-
-    /**
-     * Return the {@link WearableRecyclerView.OffsettingHelper} currently responsible for
-     * offsetting logic for this {@link WearableRecyclerView}.
-     *
-     * @return the currently used {@link OffsettingHelper} instance.
-     */
-    @Nullable
-    public OffsettingHelper getOffsettingHelper() {
-        return mOffsettingHelper;
-    }
-
-    /**
      * Use this method to configure the {@link WearableRecyclerView} to always align the first and
      * last items with the vertical center of the screen. This effectively moves the start and end
      * of the list to the middle of the screen if the user has scrolled so far. It takes the height
@@ -290,16 +239,16 @@ public class WearableRecyclerView extends RecyclerView {
     }
 
     /**
-     * Helper class which implements a vertical linear layout manager that encapsulates the logic
-     * for updating layout of children of a WearableRecyclerView.
+     * This class defines the offsetting logic for updating layout of children in a
+     * WearableRecyclerView.
      */
-    private final class OffsettingLinearLayoutManager extends LinearLayoutManager {
+    public abstract static class OffsettingLayoutManager extends LinearLayoutManager {
         /**
          * Creates a vertical OffsettingLinearLayoutManager
          *
          * @param context Current context, will be used to access resources.
          */
-        OffsettingLinearLayoutManager(Context context) {
+        public OffsettingLayoutManager(Context context) {
             super(context, VERTICAL, false);
         }
 
@@ -323,12 +272,19 @@ public class WearableRecyclerView extends RecyclerView {
         }
 
         private void updateLayout() {
-            if (mOffsettingHelper != null) {
-                for (int count = 0; count < getChildCount(); count++) {
-                    View child = getChildAt(count);
-                    mOffsettingHelper.updateChild(child, WearableRecyclerView.this);
-                }
+            final int childCount = getChildCount();
+            for (int count = 0; count < childCount; count++) {
+                View child = getChildAt(count);
+                updateChild(child, (WearableRecyclerView) child.getParent());
             }
         }
+
+        /**
+         * Override this method if you wish to implement custom child layout behavior on scroll.
+         *
+         * @param child the current child to be affected.
+         * @param parent the {@link WearableRecyclerView} parent that this helper is attached to.
+         */
+        public abstract void updateChild(View child, WearableRecyclerView parent);
     }
 }
