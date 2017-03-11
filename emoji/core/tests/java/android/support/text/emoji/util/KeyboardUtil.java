@@ -15,8 +15,17 @@
  */
 package android.support.text.emoji.util;
 
+import android.app.Instrumentation;
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.method.QwertyKeyListener;
+import android.text.method.TextKeyListener;
 import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.widget.TextView;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Utility class for KeyEvents
@@ -65,15 +74,74 @@ public class KeyboardUtil {
         return new KeyEvent(currentTime, currentTime, KeyEvent.ACTION_DOWN, keycode, 0);
     }
 
-    public static void setComposingTextInBatch(InputConnection input, CharSequence text) {
-        input.beginBatchEdit();
-        input.setComposingText(text, 1);
-        input.endBatchEdit();
+    public static void setComposingTextInBatch(final Instrumentation instrumentation,
+            final InputConnection inputConnection, final CharSequence text)
+            throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                inputConnection.beginBatchEdit();
+                inputConnection.setComposingText(text, 1);
+                inputConnection.endBatchEdit();
+                latch.countDown();
+            }
+        });
+
+        latch.await();
+        instrumentation.waitForIdleSync();
     }
 
-    public static void deleteSurrondingText(InputConnection input, int before, int after) {
-        input.beginBatchEdit();
-        input.deleteSurroundingText(before, after);
-        input.endBatchEdit();
+    public static void deleteSurroundingText(final Instrumentation instrumentation,
+            final InputConnection inputConnection, final int before, final int after)
+            throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                inputConnection.beginBatchEdit();
+                inputConnection.deleteSurroundingText(before, after);
+                inputConnection.endBatchEdit();
+                latch.countDown();
+            }
+        });
+        latch.await();
+        instrumentation.waitForIdleSync();
+    }
+
+    public static void setSelection(Instrumentation instrumentation, final Spannable spannable,
+            final int start) throws InterruptedException {
+        setSelection(instrumentation, spannable, start, start);
+    }
+
+    public static void setSelection(Instrumentation instrumentation, final Spannable spannable,
+            final int start, final int end) throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                Selection.setSelection(spannable, start, end);
+                latch.countDown();
+            }
+        });
+        latch.await();
+        instrumentation.waitForIdleSync();
+    }
+
+    public static InputConnection initTextViewForSimulatedIme(Instrumentation instrumentation,
+            final TextView textView) throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        instrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                textView.setKeyListener(
+                        QwertyKeyListener.getInstance(false, TextKeyListener.Capitalize.NONE));
+                textView.setText("", TextView.BufferType.EDITABLE);
+                latch.countDown();
+            }
+        });
+        latch.await();
+        instrumentation.waitForIdleSync();
+        return textView.onCreateInputConnection(new EditorInfo());
     }
 }
