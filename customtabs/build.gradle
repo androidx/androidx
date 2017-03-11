@@ -12,6 +12,8 @@ dependencies {
     androidTestCompile (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
+
+    androidTestCompile project(':support-testutils')
 }
 
 android {

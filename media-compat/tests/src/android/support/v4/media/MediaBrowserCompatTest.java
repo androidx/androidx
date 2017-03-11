@@ -27,6 +27,7 @@ import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.PollingCheck;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import org.junit.Test;
