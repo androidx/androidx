@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -34,6 +35,8 @@ import android.support.v4.os.BuildCompat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -168,6 +171,25 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
 
         verifyRemoteInputArrayHasSingleResult(a.getRemoteInputs(), TEXT_RESULT_KEY);
         verifyRemoteInputArrayHasSingleResult(a.getDataOnlyRemoteInputs(), DATA_RESULT_KEY);
+    }
+
+    @Test
+    public void testMessage_setAndGetExtras() throws Throwable {
+        String extraKey = "extra_key";
+        CharSequence extraValue = "extra_value";
+        NotificationCompat.MessagingStyle.Message m =
+                new NotificationCompat.MessagingStyle.Message("text", 0 /*timestamp */, "sender");
+        m.getExtras().putCharSequence(extraKey, extraValue);
+        assertEquals(extraValue, m.getExtras().getCharSequence(extraKey));
+
+        ArrayList<NotificationCompat.MessagingStyle.Message> messages = new ArrayList<>(1);
+        messages.add(m);
+        Bundle[] bundleArray =
+                NotificationCompat.MessagingStyle.Message.getBundleArrayForMessages(messages);
+        assertEquals(1, bundleArray.length);
+        NotificationCompat.MessagingStyle.Message fromBundle =
+                NotificationCompat.MessagingStyle.Message.getMessageFromBundle(bundleArray[0]);
+        assertEquals(extraValue, fromBundle.getExtras().getCharSequence(extraKey));
     }
 
     private static RemoteInput newDataOnlyRemoteInput() {
