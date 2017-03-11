@@ -492,8 +492,8 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         final int verticalDirection = scroller.getVerticalDirection();
         final int horizontalDirection = scroller.getHorizontalDirection();
 
-        return verticalDirection != 0 && canTargetScrollVertically(verticalDirection)
-                || horizontalDirection != 0 && canTargetScrollHorizontally(horizontalDirection);
+        return (verticalDirection != 0 && canTargetScrollVertically(verticalDirection))
+                || (horizontalDirection != 0 && canTargetScrollHorizontally(horizontalDirection));
     }
 
     /**
