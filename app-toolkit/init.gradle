@@ -156,6 +156,9 @@ subprojects {
         if (task.name.startsWith("assembleAndroidTest")) {
             buildServerAnchorTask.dependsOn task
         }
+        if (task.name.startsWith("assembleDebug")) {
+            buildServerAnchorTask.dependsOn task
+        }
     }
     project.group = "com.android.support.$mavenGroup"
     project.version = flatfoot.release_version
