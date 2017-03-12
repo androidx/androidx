@@ -48,6 +48,10 @@ limitations under the License.
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ઉપશીર્ષક સક્ષમ કરો"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"વિગતવાર ઉપશીર્ષકોને અક્ષમ કરો"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"ચિત્ર મોડમાં ચિત્ર દાખલ કરો"</string>
+    <!-- no translation found for lb_playback_controls_shown (6382160135512023238) -->
+    <skip />
+    <!-- no translation found for lb_playback_controls_hidden (8940984081242033574) -->
+    <skip />
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"સમાપ્ત કરો"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"ચાલુ રાખો"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>

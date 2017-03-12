@@ -48,6 +48,8 @@ limitations under the License.
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Ενεργοποίηση υποτίτλων"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Απενεργοποίηση υποτίτλων"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Εισαγωγή εικόνας στη Λειτουργία εικόνας"</string>
+    <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Εμφάνιση στοιχείων ελέγχου μέσων"</string>
+    <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Απόκρυψη στοιχείων ελέγχου μέσων, πιέστε το d-pad για εμφάνιση"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Τέλος"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Συνέχεια"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>

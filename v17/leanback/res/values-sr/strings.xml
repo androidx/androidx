@@ -48,6 +48,8 @@ limitations under the License.
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Омогући титлове"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Онемогући титлове"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Уђи у режим Слика у слици"</string>
+    <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Контроле за медије су приказане"</string>
+    <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Контроле за медије су скривене, притисните контроле за кретање да бисте их приказали"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Доврши"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Настави"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
