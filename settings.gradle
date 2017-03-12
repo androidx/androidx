@@ -152,6 +152,15 @@ project(':support-app-navigation').projectDir = new File(samplesRoot, 'SupportAp
 
 /////////////////////////////
 //
+// Testing libraries
+//
+/////////////////////////////
+
+include ':support-testutils'
+project(':support-testutils').projectDir = new File(rootDir, 'testutils')
+
+/////////////////////////////
+//
 // External
 //
 /////////////////////////////

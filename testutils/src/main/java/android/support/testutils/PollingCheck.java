@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package android.support.customtabs;
+package android.support.testutils;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
-import java.util.concurrent.Callable;
-
+/**
+ * Utility used for testing that allows to poll for a certain condition to happen within a timeout.
+ */
 public abstract class PollingCheck {
+    private static final long DEFAULT_TIMEOUT = 3000;
     private static final long TIME_SLICE = 50;
-    private long mTimeout = 3000;
+    private final long mTimeout;
 
+    /**
+     * The condition that the PollingCheck should use to proceed successfully.
+     */
     public interface PollingCheckCondition {
+        /**
+         * @return Whether the polling condition has been met.
+         */
         boolean canProceed();
-    }
-
-    public PollingCheck() {
     }
 
     public PollingCheck(long timeout) {
@@ -37,6 +42,9 @@ public abstract class PollingCheck {
 
     protected abstract boolean check();
 
+    /**
+     * Start running the polling check.
+     */
     public void run() {
         if (check()) {
             return;
@@ -60,22 +68,12 @@ public abstract class PollingCheck {
         Assert.fail("unexpected timeout");
     }
 
-    public static void check(CharSequence message, long timeout, Callable<Boolean> condition)
-            throws Exception {
-        while (timeout > 0) {
-            if (condition.call()) {
-                return;
-            }
-
-            Thread.sleep(TIME_SLICE);
-            timeout -= TIME_SLICE;
-        }
-
-        Assert.fail(message.toString());
-    }
-
+    /**
+     * Instantiate and start polling for a given condition with a default 3000ms timeout.
+     * @param condition The condition to check for success.
+     */
     public static void waitFor(final PollingCheckCondition condition) {
-        new PollingCheck() {
+        new PollingCheck(DEFAULT_TIMEOUT) {
             @Override
             protected boolean check() {
                 return condition.canProceed();
@@ -83,6 +81,11 @@ public abstract class PollingCheck {
         }.run();
     }
 
+    /**
+     * Instantiate and start polling for a given condition.
+     * @param timeout Time out in ms
+     * @param condition The condition to check for success.
+     */
     public static void waitFor(long timeout, final PollingCheckCondition condition) {
         new PollingCheck(timeout) {
             @Override
