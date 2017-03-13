@@ -9955,6 +9955,7 @@ package android.support.v7.preference {
     method protected int getPersistedInt(int);
     method protected long getPersistedLong(long);
     method protected java.lang.String getPersistedString(java.lang.String);
+    method public android.support.v7.preference.PreferenceDataStore getPreferenceDataStore();
     method public android.support.v7.preference.PreferenceManager getPreferenceManager();
     method public android.content.SharedPreferences getSharedPreferences();
     method public boolean getShouldDisableView();
@@ -10003,6 +10004,7 @@ package android.support.v7.preference {
     method public void setOnPreferenceClickListener(android.support.v7.preference.Preference.OnPreferenceClickListener);
     method public void setOrder(int);
     method public void setPersistent(boolean);
+    method public void setPreferenceDataStore(android.support.v7.preference.PreferenceDataStore);
     method public void setSelectable(boolean);
     method public void setShouldDisableView(boolean);
     method public void setSummary(java.lang.CharSequence);
@@ -10036,6 +10038,20 @@ package android.support.v7.preference {
     ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet, int);
     ctor public PreferenceCategory(android.content.Context, android.util.AttributeSet);
     ctor public PreferenceCategory(android.content.Context);
+  }
+
+  public abstract class PreferenceDataStore {
+    ctor public PreferenceDataStore();
+    method public boolean getBoolean(java.lang.String, boolean);
+    method public float getFloat(java.lang.String, float);
+    method public int getInt(java.lang.String, int);
+    method public long getLong(java.lang.String, long);
+    method public java.lang.String getString(java.lang.String, java.lang.String);
+    method public void putBoolean(java.lang.String, boolean);
+    method public void putFloat(java.lang.String, float);
+    method public void putInt(java.lang.String, int);
+    method public void putLong(java.lang.String, long);
+    method public void putString(java.lang.String, java.lang.String);
   }
 
   public abstract class PreferenceDialogFragmentCompat extends android.support.v4.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
@@ -10117,6 +10133,7 @@ package android.support.v7.preference {
     method public android.support.v7.preference.PreferenceManager.OnNavigateToScreenListener getOnNavigateToScreenListener();
     method public android.support.v7.preference.PreferenceManager.OnPreferenceTreeClickListener getOnPreferenceTreeClickListener();
     method public android.support.v7.preference.PreferenceManager.PreferenceComparisonCallback getPreferenceComparisonCallback();
+    method public android.support.v7.preference.PreferenceDataStore getPreferenceDataStore();
     method public android.support.v7.preference.PreferenceScreen getPreferenceScreen();
     method public android.content.SharedPreferences getSharedPreferences();
     method public int getSharedPreferencesMode();
@@ -10129,6 +10146,7 @@ package android.support.v7.preference {
     method public void setOnNavigateToScreenListener(android.support.v7.preference.PreferenceManager.OnNavigateToScreenListener);
     method public void setOnPreferenceTreeClickListener(android.support.v7.preference.PreferenceManager.OnPreferenceTreeClickListener);
     method public void setPreferenceComparisonCallback(android.support.v7.preference.PreferenceManager.PreferenceComparisonCallback);
+    method public void setPreferenceDataStore(android.support.v7.preference.PreferenceDataStore);
     method public boolean setPreferences(android.support.v7.preference.PreferenceScreen);
     method public void setSharedPreferencesMode(int);
     method public void setSharedPreferencesName(java.lang.String);
