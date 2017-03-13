@@ -1354,8 +1354,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
          * @see #EXTRA_RECENT
          * @see #EXTRA_OFFLINE
          * @see #EXTRA_SUGGESTED
-         * @deprecated Use {@link MediaBrowserCompat#search(String, Bundle,
-         *             MediaBrowserCompat.SearchCallback)} instead.
+         * @deprecated The search functionality is now supported by the methods
+         *             {@link MediaBrowserCompat#search} and {@link #onSearch}. Use those methods
+         *             instead.
          */
         @Deprecated
         public static final String EXTRA_SUGGESTION_KEYWORDS
