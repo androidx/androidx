@@ -33,8 +33,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.test.filters.LargeTest;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
@@ -943,13 +941,11 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 delegateCompat.onInitializeAccessibilityEvent(mRecyclerView, event);
             }
         });
-        final AccessibilityRecordCompat record = AccessibilityEventCompat
-                .asRecord(event);
         assertEquals("result should have first position",
-                record.getFromIndex(),
+                event.getFromIndex(),
                 mLayoutManager.findFirstVisibleItemPosition());
         assertEquals("result should have last position",
-                record.getToIndex(),
+                event.getToIndex(),
                 mLayoutManager.findLastVisibleItemPosition());
     }
 }

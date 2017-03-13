@@ -23,7 +23,6 @@ android {
     sourceSets {
         main.java.srcDirs = [
                 'ics',
-                'ics-mr1',
                 'jellybean',
                 'jellybean-mr1',
                 'jellybean-mr2',

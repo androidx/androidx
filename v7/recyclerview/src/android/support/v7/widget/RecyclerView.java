@@ -51,7 +51,6 @@ import android.support.v4.view.ScrollingView;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.support.v7.recyclerview.R;
 import android.support.v7.widget.RecyclerView.ItemAnimator.ItemHolderInfo;
@@ -9689,18 +9688,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          */
         public void onInitializeAccessibilityEvent(Recycler recycler, State state,
                 AccessibilityEvent event) {
-            final AccessibilityRecordCompat record = AccessibilityEventCompat
-                    .asRecord(event);
-            if (mRecyclerView == null || record == null) {
+            if (mRecyclerView == null || event == null) {
                 return;
             }
-            record.setScrollable(mRecyclerView.canScrollVertically(1)
+            event.setScrollable(mRecyclerView.canScrollVertically(1)
                     || mRecyclerView.canScrollVertically(-1)
                     || mRecyclerView.canScrollHorizontally(-1)
                     || mRecyclerView.canScrollHorizontally(1));
 
             if (mRecyclerView.mAdapter != null) {
-                record.setItemCount(mRecyclerView.mAdapter.getItemCount());
+                event.setItemCount(mRecyclerView.mAdapter.getItemCount());
             }
         }
 

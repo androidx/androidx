@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -616,9 +617,9 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
         // Stay consistent with framework behavior by sending ENTER/EXIT pairs
         // in reverse order. This is accurate as of API 18.
-        sendEventForVirtualView(virtualViewId, AccessibilityEventCompat.TYPE_VIEW_HOVER_ENTER);
+        sendEventForVirtualView(virtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_ENTER);
         sendEventForVirtualView(
-                previousVirtualViewId, AccessibilityEventCompat.TYPE_VIEW_HOVER_EXIT);
+                previousVirtualViewId, AccessibilityEvent.TYPE_VIEW_HOVER_EXIT);
     }
 
     /**
@@ -673,16 +674,15 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      */
     private AccessibilityEvent createEventForChild(int virtualViewId, int eventType) {
         final AccessibilityEvent event = AccessibilityEvent.obtain(eventType);
-        final AccessibilityRecordCompat record = AccessibilityEventCompat.asRecord(event);
         final AccessibilityNodeInfoCompat node = obtainAccessibilityNodeInfo(virtualViewId);
 
         // Allow the client to override these properties,
-        record.getText().add(node.getText());
-        record.setContentDescription(node.getContentDescription());
-        record.setScrollable(node.isScrollable());
-        record.setPassword(node.isPassword());
-        record.setEnabled(node.isEnabled());
-        record.setChecked(node.isChecked());
+        event.getText().add(node.getText());
+        event.setContentDescription(node.getContentDescription());
+        event.setScrollable(node.isScrollable());
+        event.setPassword(node.isPassword());
+        event.setEnabled(node.isEnabled());
+        event.setChecked(node.isChecked());
 
         // Allow the client to populate the event.
         onPopulateEventForVirtualView(virtualViewId, event);
@@ -694,8 +694,8 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
 
         // Don't allow the client to override these properties.
-        record.setClassName(node.getClassName());
-        record.setSource(mHost, virtualViewId);
+        event.setClassName(node.getClassName());
+        AccessibilityRecordCompat.setSource(event, mHost, virtualViewId);
         event.setPackageName(mHost.getContext().getPackageName());
 
         return event;
@@ -1101,7 +1101,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * <li>package name, set to the package of the host view's
      * {@link Context}, see {@link AccessibilityEvent#setPackageName}
      * <li>event source, set to the host view and virtual view identifier,
-     * see {@link AccessibilityRecordCompat#setSource(View, int)}
+     * see {@link AccessibilityRecordCompat#setSource(AccessibilityRecord, View, int)}
      * </ul>
      *
      * @param virtualViewId The virtual view id for the item for which to

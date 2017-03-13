@@ -35,7 +35,6 @@ import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ScrollingView;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.AttributeSet;
@@ -1945,13 +1944,12 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             super.onInitializeAccessibilityEvent(host, event);
             final NestedScrollView nsvHost = (NestedScrollView) host;
             event.setClassName(ScrollView.class.getName());
-            final AccessibilityRecordCompat record = AccessibilityEventCompat.asRecord(event);
             final boolean scrollable = nsvHost.getScrollRange() > 0;
-            record.setScrollable(scrollable);
-            record.setScrollX(nsvHost.getScrollX());
-            record.setScrollY(nsvHost.getScrollY());
-            record.setMaxScrollX(nsvHost.getScrollX());
-            record.setMaxScrollY(nsvHost.getScrollRange());
+            event.setScrollable(scrollable);
+            event.setScrollX(nsvHost.getScrollX());
+            event.setScrollY(nsvHost.getScrollY());
+            AccessibilityRecordCompat.setMaxScrollX(event, nsvHost.getScrollX());
+            AccessibilityRecordCompat.setMaxScrollY(event, nsvHost.getScrollRange());
         }
     }
 }

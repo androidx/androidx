@@ -32,9 +32,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.view.accessibility.AccessibilityRecordCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -1266,8 +1264,6 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         if (getChildCount() > 0) {
-            final AccessibilityRecordCompat record = AccessibilityEventCompat
-                    .asRecord(event);
             final View start = findFirstVisibleItemClosestToStart(false);
             final View end = findFirstVisibleItemClosestToEnd(false);
             if (start == null || end == null) {
@@ -1276,11 +1272,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             final int startPos = getPosition(start);
             final int endPos = getPosition(end);
             if (startPos < endPos) {
-                record.setFromIndex(startPos);
-                record.setToIndex(endPos);
+                event.setFromIndex(startPos);
+                event.setToIndex(endPos);
             } else {
-                record.setFromIndex(endPos);
-                record.setToIndex(startPos);
+                event.setFromIndex(endPos);
+                event.setToIndex(startPos);
             }
         }
     }
