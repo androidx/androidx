@@ -17,6 +17,7 @@ package android.support.media.tv;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -62,6 +63,7 @@ import java.nio.charset.Charset;
  * }
  * </pre>
  */
+@TargetApi(21)
 public final class Channel {
     /**
      * @hide
@@ -357,6 +359,18 @@ public final class Channel {
      * TV Input Framework database.
      */
     public ContentValues toContentValues() {
+        return toContentValues(false);
+    }
+
+    /**
+     * Returns fields of the Channel in the ContentValues format to be easily inserted into the
+     * TV Input Framework database.
+     *
+     * @param includeProtectedFields Whether the fields protected by system is included or not.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = new ContentValues();
         if (mId != INVALID_CHANNEL_ID) {
             values.put(Channels._ID, mId);
@@ -408,8 +422,6 @@ public final class Channel {
         values.put(Channels.COLUMN_NETWORK_AFFILIATION, mNetworkAffiliation);
         values.put(Channels.COLUMN_SEARCHABLE, mSearchable);
         values.put(Channels.COLUMN_SERVICE_TYPE, mServiceType);
-        values.put(Channels.COLUMN_BROWSABLE, mBrowsable);
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             values.put(Channels.COLUMN_APP_LINK_COLOR, mAppLinkColor);
@@ -449,7 +461,13 @@ public final class Channel {
         }
         if (BuildCompat.isAtLeastO()) {
             values.put(Channels.COLUMN_TRANSIENT, mTransient);
-            values.put(Channels.COLUMN_SYSTEM_APPROVED, mSystemApproved);
+        }
+
+        if (includeProtectedFields) {
+            values.put(Channels.COLUMN_BROWSABLE, mBrowsable);
+            if (BuildCompat.isAtLeastO()) {
+                values.put(Channels.COLUMN_SYSTEM_APPROVED, mSystemApproved);
+            }
         }
         return values;
     }

@@ -16,12 +16,15 @@
 
 package android.support.media.tv;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.media.tv.TvContentRating;
 import android.net.Uri;
 import android.support.media.tv.TvContractCompat.WatchNextPrograms;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.v4.os.BuildCompat;
 
@@ -39,6 +42,13 @@ import java.util.Objects;
  */
 @SmallTest
 public class WatchNextProgramTest extends TestCase {
+
+    @Override
+    protected void tearDown() {
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        resolver.delete(WatchNextPrograms.CONTENT_URI, null, null);
+    }
+
     @Test
     public void testEmptyPreviewProgram() {
         // TODO: Use @SdkSuppress once Build.VERSION_CODES.O has a right value.
@@ -46,9 +56,10 @@ public class WatchNextProgramTest extends TestCase {
             return;
         }
         WatchNextProgram emptyProgram = new WatchNextProgram.Builder().build();
-        ContentValues contentValues = emptyProgram.toContentValues();
+        ContentValues contentValues = emptyProgram.toContentValues(true);
         compareProgram(emptyProgram,
-                WatchNextProgram.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)));
+                WatchNextProgram.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)),
+                false);
     }
 
     @Test
@@ -63,13 +74,13 @@ public class WatchNextProgramTest extends TestCase {
                 .setSeasonNumber("The Final Season", 7)
                 .setThumbnailUri(Uri.parse("http://www.example.com/programs/poster.png"))
                 .build();
-        ContentValues contentValues = sampleProgram.toContentValues();
+        ContentValues contentValues = sampleProgram.toContentValues(true);
         compareProgram(sampleProgram,
                 WatchNextProgram.fromCursor(
-                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)));
+                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)), false);
 
         WatchNextProgram clonedSampleProgram = new WatchNextProgram.Builder(sampleProgram).build();
-        compareProgram(sampleProgram, clonedSampleProgram);
+        compareProgram(sampleProgram, clonedSampleProgram, false);
     }
 
     @Test
@@ -77,62 +88,32 @@ public class WatchNextProgramTest extends TestCase {
         if (!BuildCompat.isAtLeastO()) {
             return;
         }
-        WatchNextProgram fullyPopulatedProgram = new WatchNextProgram.Builder()
-                .setTitle("Google")
-                .setInternalProviderId("ID-4321")
-                .setPreviewVideoUri(Uri.parse("http://example.com/preview-video.mpg"))
-                .setLastPlaybackPositionMillis(0)
-                .setDurationMillis(60 * 1000)
-                .setAppLinkIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
-                        Intent.URI_INTENT_SCHEME)))
-                .setTransient(false)
-                .setType(WatchNextPrograms.TYPE_MOVIE)
-                .setWatchNextType(WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
-                .setPosterArtAspectRatio(WatchNextPrograms.ASPECT_RATIO_2_3)
-                .setThumbnailAspectRatio(WatchNextPrograms.ASPECT_RATIO_16_9)
-                .setLogoUri(Uri.parse("http://example.com/program-logo.mpg"))
-                .setAvailability(WatchNextPrograms.AVAILABILITY_AVAILABLE)
-                .setStartingPrice("12.99 USD")
-                .setOfferPrice("4.99 USD")
-                .setReleaseDate("1997")
-                .setItemCount(3)
-                .setLive(false)
-                .setInteractionType(WatchNextPrograms.INTERACTION_TYPE_LIKES)
-                .setInteractionCount(10200)
-                .setAuthor("author_name")
-                .setReviewRatingStyle(WatchNextPrograms.REVIEW_RATING_STYLE_STARS)
-                .setReviewRating("4.5")
-                .setSearchable(false)
-                .setThumbnailUri(Uri.parse("http://example.com/thumbnail.png"))
-                .setAudioLanguages(new String [] {"eng", "kor"})
-                .setCanonicalGenres(new String[] {TvContractCompat.Programs.Genres.MOVIES})
-                .setContentRatings(new TvContentRating[] {
-                        TvContentRating.createRating("com.android.tv", "US_TV", "US_TV_Y7")})
-                .setDescription("This is a sample program")
-                .setEpisodeNumber("Pilot", 0)
-                .setEpisodeTitle("Hello World")
-                .setLongDescription("This is a longer description than the previous description")
-                .setPosterArtUri(Uri.parse("http://example.com/poster.png"))
-                .setSeasonNumber("The Final Season", 7)
-                .setSeasonTitle("The Final Season")
-                .setVideoHeight(1080)
-                .setVideoWidth(1920)
-                .setInternalProviderFlag1(0x4)
-                .setInternalProviderFlag2(0x3)
-                .setInternalProviderFlag3(0x2)
-                .setInternalProviderFlag4(0x1)
-                .setBrowsable(true)
-                .setContentId("CID-8442")
-                .build();
-
-        ContentValues contentValues = fullyPopulatedProgram.toContentValues();
+        WatchNextProgram fullyPopulatedProgram = createFullyPopulatedWatchNextProgram();
+        ContentValues contentValues = fullyPopulatedProgram.toContentValues(true);
         compareProgram(fullyPopulatedProgram,
                 WatchNextProgram.fromCursor(
-                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)));
+                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)), false);
 
         WatchNextProgram clonedFullyPopulatedProgram =
                 new WatchNextProgram.Builder(fullyPopulatedProgram).build();
-        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram);
+        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram, false);
+    }
+
+    @Test
+    public void testChannelWithSystemContentProvider() {
+        WatchNextProgram fullyPopulatedProgram = createFullyPopulatedWatchNextProgram();
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        Uri previewProgramUri = resolver.insert(WatchNextPrograms.CONTENT_URI,
+                fullyPopulatedProgram.toContentValues());
+
+        WatchNextProgram programFromSystemDb;
+        try (Cursor cursor = resolver.query(previewProgramUri, null, null, null, null)) {
+            assertNotNull(cursor);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToNext();
+            programFromSystemDb = WatchNextProgram.fromCursor(cursor);
+        }
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, true);
     }
 
     @Test
@@ -198,16 +179,68 @@ public class WatchNextProgramTest extends TestCase {
                 WatchNextPrograms.COLUMN_REVIEW_RATING,
         };
 
-        ContentValues contentValues = previewProgram.toContentValues();
+        ContentValues contentValues = previewProgram.toContentValues(true);
         compareProgram(previewProgram,
-                WatchNextProgram.fromCursor(getProgramCursor(partialProjection, contentValues)));
+                WatchNextProgram.fromCursor(getProgramCursor(partialProjection, contentValues)),
+                false);
 
         WatchNextProgram clonedFullyPopulatedProgram =
                 new WatchNextProgram.Builder(previewProgram).build();
-        compareProgram(previewProgram, clonedFullyPopulatedProgram);
+        compareProgram(previewProgram, clonedFullyPopulatedProgram, false);
     }
 
-    private static void compareProgram(WatchNextProgram programA, WatchNextProgram programB) {
+    private static WatchNextProgram createFullyPopulatedWatchNextProgram() {
+        return new WatchNextProgram.Builder()
+                .setTitle("Google")
+                .setInternalProviderId("ID-4321")
+                .setPreviewVideoUri(Uri.parse("http://example.com/preview-video.mpg"))
+                .setLastPlaybackPositionMillis(0)
+                .setDurationMillis(60 * 1000)
+                .setAppLinkIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
+                        Intent.URI_INTENT_SCHEME)))
+                .setTransient(false)
+                .setType(WatchNextPrograms.TYPE_MOVIE)
+                .setWatchNextType(WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
+                .setPosterArtAspectRatio(WatchNextPrograms.ASPECT_RATIO_2_3)
+                .setThumbnailAspectRatio(WatchNextPrograms.ASPECT_RATIO_16_9)
+                .setLogoUri(Uri.parse("http://example.com/program-logo.mpg"))
+                .setAvailability(WatchNextPrograms.AVAILABILITY_AVAILABLE)
+                .setStartingPrice("12.99 USD")
+                .setOfferPrice("4.99 USD")
+                .setReleaseDate("1997")
+                .setItemCount(3)
+                .setLive(false)
+                .setInteractionType(WatchNextPrograms.INTERACTION_TYPE_LIKES)
+                .setInteractionCount(10200)
+                .setAuthor("author_name")
+                .setReviewRatingStyle(WatchNextPrograms.REVIEW_RATING_STYLE_STARS)
+                .setReviewRating("4.5")
+                .setSearchable(false)
+                .setThumbnailUri(Uri.parse("http://example.com/thumbnail.png"))
+                .setAudioLanguages(new String [] {"eng", "kor"})
+                .setCanonicalGenres(new String[] {TvContractCompat.Programs.Genres.MOVIES})
+                .setContentRatings(new TvContentRating[] {
+                        TvContentRating.createRating("com.android.tv", "US_TV", "US_TV_Y7")})
+                .setDescription("This is a sample program")
+                .setEpisodeNumber("Pilot", 0)
+                .setEpisodeTitle("Hello World")
+                .setLongDescription("This is a longer description than the previous description")
+                .setPosterArtUri(Uri.parse("http://example.com/poster.png"))
+                .setSeasonNumber("The Final Season", 7)
+                .setSeasonTitle("The Final Season")
+                .setVideoHeight(1080)
+                .setVideoWidth(1920)
+                .setInternalProviderFlag1(0x4)
+                .setInternalProviderFlag2(0x3)
+                .setInternalProviderFlag3(0x2)
+                .setInternalProviderFlag4(0x1)
+                .setBrowsable(true)
+                .setContentId("CID-8442")
+                .build();
+    }
+
+    private static void compareProgram(WatchNextProgram programA, WatchNextProgram programB,
+            boolean fromSystemDb) {
         assertTrue(Arrays.equals(programA.getAudioLanguages(), programB.getAudioLanguages()));
         assertTrue(Arrays.deepEquals(programA.getCanonicalGenres(), programB.getCanonicalGenres()));
         assertTrue(Arrays.deepEquals(programA.getContentRatings(), programB.getContentRatings()));
@@ -216,7 +249,6 @@ public class WatchNextProgramTest extends TestCase {
         assertEquals(programA.getEpisodeTitle(), programB.getEpisodeTitle());
         assertEquals(programA.getLongDescription(), programB.getLongDescription());
         assertEquals(programA.getPosterArtUri(), programB.getPosterArtUri());
-        assertEquals(programA.getId(), programB.getId());
         assertEquals(programA.getSeasonNumber(), programB.getSeasonNumber());
         assertEquals(programA.getThumbnailUri(), programB.getThumbnailUri());
         assertEquals(programA.getTitle(), programB.getTitle());
@@ -251,12 +283,17 @@ public class WatchNextProgramTest extends TestCase {
         assertEquals(programA.getAuthor(), programB.getAuthor());
         assertEquals(programA.getReviewRatingStyle(), programB.getReviewRatingStyle());
         assertEquals(programA.getReviewRating(), programB.getReviewRating());
-        assertEquals(programA.isBrowsable(), programB.isBrowsable());
         assertEquals(programA.getContentId(), programB.getContentId());
-
-        assertEquals(programA.toContentValues(), programB.toContentValues());
         assertEquals(programA.toString(), programB.toString());
-        assertEquals(programA, programB);
+        if (!fromSystemDb) {
+            // Skip row ID since the one from system DB has the valid ID while the other does not.
+            assertEquals(programA.getId(), programB.getId());
+            // When we insert a channel using toContentValues() to the system, we drop some
+            // protected fields since they only can be modified by system apps.
+            assertEquals(programA.isBrowsable(), programB.isBrowsable());
+            assertEquals(programA.toContentValues(), programB.toContentValues());
+            assertEquals(programA, programB);
+        }
     }
 
     private static MatrixCursor getProgramCursor(String[] projection, ContentValues contentValues) {
