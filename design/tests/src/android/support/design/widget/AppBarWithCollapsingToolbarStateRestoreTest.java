@@ -18,30 +18,53 @@ package android.support.design.widget;
 
 import static android.support.design.testutils.AppBarLayoutMatchers.isCollapsed;
 import static android.support.design.testutils.SwipeUtils.swipeUp;
-import static android.support.design.testutils.TestUtils.rotateOrientation;
 import static android.support.design.testutils.TestUtilsMatchers.hasZ;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.support.design.test.R;
 import android.support.test.filters.LargeTest;
+import android.support.testutils.PollingCheck;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 @LargeTest
 public class AppBarWithCollapsingToolbarStateRestoreTest
         extends BaseInstrumentationTestCase<AppBarLayoutCollapsePinTestActivity> {
 
+    private Activity mActivity;
+    private int mOldOrientation;
+
     public AppBarWithCollapsingToolbarStateRestoreTest() {
         super(AppBarLayoutCollapsePinTestActivity.class);
     }
 
+    @Before
+    public void setup() {
+        mActivity = mActivityTestRule.getActivity();
+        mOldOrientation = mActivity.getResources().getConfiguration().orientation;
+    }
+
+    @After
+    public void tearDown() {
+        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mActivity.getResources().getConfiguration().orientation == mOldOrientation;
+            }
+        });
+    }
+
     @Test
     public void testRotateAndRestore() {
-        Activity activity = mActivityTestRule.getActivity();
-        final AppBarLayout appBar = (AppBarLayout) activity.findViewById(R.id.app_bar);
+        final AppBarLayout appBar = (AppBarLayout) mActivity.findViewById(R.id.app_bar);
 
         // Swipe up and collapse the AppBarLayout
         onView(withId(R.id.coordinator_layout))
@@ -54,7 +77,16 @@ public class AppBarWithCollapsingToolbarStateRestoreTest
                 .check(matches(isCollapsed()));
 
         // Now rotate the Activity
-        rotateOrientation(activity);
+        final int newOrientation = mOldOrientation == Configuration.ORIENTATION_PORTRAIT
+                ? Configuration.ORIENTATION_LANDSCAPE
+                : Configuration.ORIENTATION_PORTRAIT;
+        mActivity.setRequestedOrientation(toActivityInfoConfiguration(newOrientation));
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mActivity.getResources().getConfiguration().orientation == newOrientation;
+            }
+        });
 
         // And check that the app bar still is restored correctly
         onView(withId(R.id.app_bar))
@@ -62,4 +94,9 @@ public class AppBarWithCollapsingToolbarStateRestoreTest
                 .check(matches(isCollapsed()));
     }
 
+    private static int toActivityInfoConfiguration(int configuration) {
+        return configuration == Configuration.ORIENTATION_PORTRAIT
+                ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    }
 }
