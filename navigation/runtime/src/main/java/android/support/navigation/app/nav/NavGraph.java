@@ -16,21 +16,37 @@
 
 package android.support.navigation.app.nav;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.util.AttributeSet;
 import android.util.SparseArray;
+
+import com.android.support.navigation.R;
 
 /**
  * NavGraph is a collection of {@link NavDestination} nodes fetchable by ID.
  */
 public class NavGraph extends NavDestination {
     private final SparseArray<NavDestination> mNodes = new SparseArray<>();
+    private int mStartDestId;
 
     /**
      * NavGraphs should be created via {@link NavController#createGraph}
      */
     public NavGraph(@NonNull Navigator navigator) {
         super(navigator);
+    }
+
+    @Override
+    public void onInflate(Context context, AttributeSet attrs) {
+        super.onInflate(context, attrs);
+        TypedArray a = context.getResources().obtainAttributes(attrs,
+                R.styleable.NavGraph);
+        setStartDestination(
+                a.getResourceId(R.styleable.NavGraph_startDestination, 0));
+        a.recycle();
     }
 
     /**
@@ -65,5 +81,14 @@ public class NavGraph extends NavDestination {
         for (int i = 0, size = other.mNodes.size(); i < size; i++) {
             mNodes.put(other.mNodes.keyAt(i), other.mNodes.valueAt(i));
         }
+    }
+
+    @IdRes
+    public int getStartDestination() {
+        return mStartDestId;
+    }
+
+    public void setStartDestination(@IdRes int startDestId) {
+        mStartDestId = startDestId;
     }
 }

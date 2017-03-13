@@ -27,7 +27,7 @@ import android.util.AttributeSet;
 /**
  * ActivityNavigator implements cross-activity navigation.
  */
-public class ActivityNavigator extends Navigator<ActivityNavigator.Params> {
+public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> {
     public static final String NAME = "activity";
 
     private static final String EXTRA_NAV_SOURCE =
@@ -47,6 +47,11 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Params> {
     }
 
     @Override
+    public Destination createDestination() {
+        return new Destination(this);
+    }
+
+    @Override
     public boolean popBackStack() {
         if (mHostActivity != null) {
             int destId = 0;
@@ -62,20 +67,8 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Params> {
     }
 
     @Override
-    public Params generateDefaultParams() {
-        return new Params();
-    }
-
-    @Override
-    public Params inflateParams(Context context, AttributeSet attrs) {
-        // TODO Implement me!
-        return generateDefaultParams();
-    }
-
-    @Override
-    public boolean navigate(NavDestination destination, Bundle args, NavOptions navOptions) {
-        final Params params = (Params) destination.getNavigatorParams();
-        Intent intent = new Intent(params.getIntent());
+    public boolean navigate(Destination destination, Bundle args, NavOptions navOptions) {
+        Intent intent = new Intent(destination.getIntent());
         if (args != null) {
             intent.getExtras().putAll(args);
         }
@@ -112,10 +105,20 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Params> {
     }
 
     /**
-     * Params for activity navigation
+     * NavDestination for activity navigation
      */
-    public static class Params extends Navigator.Params {
+    public static class Destination extends NavDestination {
         private Intent mIntent;
+
+        Destination(ActivityNavigator navigator) {
+            super(navigator);
+        }
+
+        @Override
+        public void onInflate(Context context, AttributeSet attrs) {
+            super.onInflate(context, attrs);
+            // TODO Implement me!
+        }
 
         public void setIntent(Intent intent) {
             mIntent = intent;

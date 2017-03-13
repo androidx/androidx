@@ -16,13 +16,13 @@
         <attr name="android:id"/>
     </declare-styleable>
 
-    <declare-styleable name="NavGraphNavigatorParams">
-        <attr name="nav_startDestination" format="reference" />
+    <declare-styleable name="NavGraph">
+        <attr name="startDestination" format="reference" />
     </declare-styleable>
 
-    <declare-styleable name="FragmentNavigatorParams">
-        <attr name="nav_fragment" format="string" />
-        <attr name="nav_flow" format="string" />
+    <declare-styleable name="FragmentDestination">
+        <attr name="android:name" />
+        <attr name="flow" format="string" />
     </declare-styleable>
 
     <declare-styleable name="NavArgument">

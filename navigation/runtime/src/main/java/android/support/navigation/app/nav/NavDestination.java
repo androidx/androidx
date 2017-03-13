@@ -19,6 +19,7 @@ package android.support.navigation.app.nav;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
@@ -54,7 +55,7 @@ public class NavDestination {
     /**
      * NavDestinations should be created via {@link Navigator#createDestination}.
      */
-    public NavDestination(@NonNull Navigator navigator) {
+    public NavDestination(@NonNull Navigator<? extends NavDestination> navigator) {
         mNavigator = navigator;
     }
 
@@ -64,13 +65,12 @@ public class NavDestination {
      * @param context local context performing inflation
      * @param attrs attrs to parse during inflation
      */
+    @CallSuper
     public void onInflate(Context context, AttributeSet attrs) {
         final TypedArray a = context.getResources().obtainAttributes(attrs,
                 R.styleable.NavDestination);
         setId(a.getResourceId(R.styleable.NavDestination_android_id, 0));
         a.recycle();
-
-        setNavigatorParams(mNavigator.inflateParams(context, attrs));
     }
 
     /**
@@ -101,33 +101,6 @@ public class NavDestination {
      */
     public Navigator getNavigator() {
         return mNavigator;
-    }
-
-    /**
-     * Sets the destination's {@link Navigator.Params}.
-     *
-     * <p>The params object will be checked for validity by the
-     * {@link #getNavigator() current navigator}. If the params are not valid, the navigator
-     * will be asked to convert them.</p>
-     *
-     * @param params params to set
-     */
-    public void setNavigatorParams(Navigator.Params params) {
-        if (!mNavigator.checkParams(params)) {
-            Navigator.Params newParams = mNavigator.generateDefaultParams();
-            newParams.copyFrom(params);
-            params = newParams;
-        }
-        mNavParams = params;
-    }
-
-    /**
-     * Returns the destination's {@link Navigator.Params}.
-     *
-     * @return this destination's params
-     */
-    public Navigator.Params getNavigatorParams() {
-        return mNavParams;
     }
 
     /**

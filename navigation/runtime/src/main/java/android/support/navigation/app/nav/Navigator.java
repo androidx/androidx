@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
-import android.util.AttributeSet;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -36,9 +35,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * destinations that belong to that navigator. The {@link NavController} manages a back stack of
  * navigators representing the current navigation stack across all navigators.</p>
  *
- * @param <P> the subclass of {@link Params} unique to the Navigator subclass
+ * @param <D> the subclass of {@link NavDestination} used with this Navigator which can be used
+ *           to hold any special data that will be needed to navigate to that destination.
+ *           Examples include information about an intent to navigate to other activities,
+ *           or a fragment class name to instantiate and swap to a new fragment.
  */
-public abstract class Navigator<P extends Navigator.Params> {
+public abstract class Navigator<D extends NavDestination> {
     private final CopyOnWriteArrayList<OnNavigatorNavigatedListener> mOnNavigatedListeners =
             new CopyOnWriteArrayList<>();
 
@@ -46,43 +48,7 @@ public abstract class Navigator<P extends Navigator.Params> {
      * Construct a new NavDestination associated with this Navigator.
      * @return a new NavDestination
      */
-    public NavDestination createDestination() {
-        return new NavDestination(this);
-    }
-
-    /**
-     * Create and return a {@link Params navigator params} object with default values
-     * for this navigator.
-     * @return a new {@link Params} with default values
-     */
-    public abstract P generateDefaultParams();
-
-    /**
-     * Inflate a {@link Params} object from a resource.
-     *
-     * <p>Parses the navigator params from a {@link NavDestination destination} node
-     * of a navigation graph resource. Navigator param attributes should have the prefix
-     * {@code nav_}.</p>
-     *
-     * @param context Context used to resolve attrs
-     * @param attrs attrs to parse
-     * @return a new {@link Params} instance parsed from attrs
-     */
-    public abstract P inflateParams(Context context, AttributeSet attrs);
-
-    /**
-     * Check if a {@link Params} object is valid for this navigator.
-     *
-     * <p>Returns {@code true} if the given params object is of the right type and
-     * properties are in range. If this method returns false, callers may use
-     * {@link #generateDefaultParams()} to obtain valid params instead.</p>
-     *
-     * @param params params to check for validity
-     * @return {@code true} if the given params are valid
-     */
-    public boolean checkParams(Navigator.Params params) {
-        return true;
-    }
+    public abstract D createDestination();
 
     /**
      * Navigate to a destination.
@@ -96,7 +62,7 @@ public abstract class Navigator<P extends Navigator.Params> {
      * @param navOptions additional options for navigation
      * @return true if navigation created a back stack entry that should be tracked
      */
-    public abstract boolean navigate(NavDestination destination, Bundle args,
+    public abstract boolean navigate(D destination, Bundle args,
                                      NavOptions navOptions);
 
     /**

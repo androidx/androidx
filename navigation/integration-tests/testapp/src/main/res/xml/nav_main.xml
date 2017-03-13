@@ -13,14 +13,14 @@
   -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:nav_startDestination="@+id/launcher_home">
+    app:startDestination="@+id/launcher_home">
     <fragment android:id="@+id/launcher_home"
-        app:nav_fragment="com.android.support.navigation.testapp.MainFragment">
+        android:name="com.android.support.navigation.testapp.MainFragment">
         <default-argument app:argname="myarg" app:argvalue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
     </fragment>
     <fragment android:id="@+id/next_fragment"
-        app:nav_fragment="com.android.support.navigation.testapp.MainFragment">
+        android:name="com.android.support.navigation.testapp.MainFragment">
         <default-argument app:argname="myarg" app:argvalue="two" />
         <action android:id="@+id/next" app:destination="@+id/launcher_home"/>
     </fragment>

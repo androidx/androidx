@@ -36,7 +36,7 @@ import java.util.HashMap;
  * destination using this Navigator must set a valid Fragment class name with
  * <code>app:nav_fragment</code>.
  */
-public class FragmentNavigator extends Navigator<FragmentNavigator.Params> {
+public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> {
     public static final String NAME = "fragment";
 
     private Context mContext;
@@ -73,20 +73,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Params> {
     }
 
     @Override
-    public Params generateDefaultParams() {
-        return new Params();
-    }
-
-    @Override
-    public Params inflateParams(Context context, AttributeSet attrs) {
-        Params p = generateDefaultParams();
-        TypedArray a = context.getResources().obtainAttributes(attrs,
-                R.styleable.FragmentNavigatorParams);
-        p.setFragmentClass(getFragmentClassByName(a.getString(
-                R.styleable.FragmentNavigatorParams_nav_fragment)));
-        p.setFlow(a.getString(R.styleable.FragmentNavigatorParams_nav_flow));
-        a.recycle();
-        return p;
+    public Destination createDestination() {
+        return new Destination(this);
     }
 
     Class<? extends Fragment> getFragmentClassByName(String name) {
@@ -102,14 +90,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Params> {
         }
         return clazz;
     }
-
     @Override
-    public boolean navigate(NavDestination destination, Bundle args,
+    public boolean navigate(Destination destination, Bundle args,
                             NavOptions navOptions) {
-        final Params params = (Params) destination.getNavigatorParams();
         String flowName = navOptions != null ? navOptions.getFlowName() : null;
         if (flowName == null) {
-            flowName = params.getFlow();
+            flowName = destination.getFlow();
         }
 
         // If the first non-null back stack entry name we find matches our flow name, we're still
@@ -128,7 +114,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Params> {
                 }
             }
         }
-        final Fragment frag = params.createFragment(args);
+        final Fragment frag = destination.createFragment(args);
         final FragmentTransaction ft = mFragmentManager.beginTransaction()
                 .replace(mContainerId, frag);
 
@@ -163,22 +149,26 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Params> {
     }
 
     /**
-     * Params specific to {@link FragmentNavigator}
+     * NavDestination specific to {@link FragmentNavigator}
      */
-    public static class Params extends Navigator.Params {
+    public static class Destination extends NavDestination {
         private Class<? extends Fragment> mFragmentClass;
         private String mFlow;
 
-        public Params() {
+        public Destination(FragmentNavigator fragmentNavigator) {
+            super(fragmentNavigator);
         }
 
         @Override
-        public void copyFrom(Navigator.Params other) {
-            super.copyFrom(other);
-            if (other instanceof Params) {
-                setFragmentClass(((Params) other).getFragmentClass());
-                setFlow(((Params) other).getFlow());
-            }
+        public void onInflate(Context context, AttributeSet attrs) {
+            super.onInflate(context, attrs);
+            TypedArray a = context.getResources().obtainAttributes(attrs,
+                    R.styleable.FragmentDestination);
+            setFragmentClass(((FragmentNavigator) getNavigator())
+                    .getFragmentClassByName(a.getString(
+                            R.styleable.FragmentDestination_android_name)));
+            setFlow(a.getString(R.styleable.FragmentDestination_flow));
+            a.recycle();
         }
 
         public void setFragmentClass(Class<? extends Fragment> clazz) {
