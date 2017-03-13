@@ -118,7 +118,7 @@ subprojects {
     if (mavenGroup != "room" && mavenGroup != "lifecycle" && mavenGroup != "apptoolkit-core") {
         return
     }
-    if (project.getPath().contains("integration-tests") || mavenGroup == "navigation") {
+    if (project.getPath().contains("integration-tests")) {
         // disable upload tasks
         project.tasks.whenTaskAdded { task ->
             if (task instanceof Upload || task.name == "generateSourceProps") {
