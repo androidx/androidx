@@ -26,7 +26,9 @@ import static org.mockito.Mockito.verify;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.media.PlaybackControlGlue;
 import android.support.v17.leanback.media.PlaybackGlue;
@@ -223,6 +225,8 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
                 listRowItemPassed);
     }
 
+    @FlakyTest
+    @Suppress
     @Test
     public void alignmentRowToBottom() throws Throwable {
         launchAndWaitActivity(PlaybackTestFragment.class, 1000);
