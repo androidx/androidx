@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.support.annotation.GuardedBy;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -339,7 +340,7 @@ public class FileProvider extends ContentProvider {
 
     private static final File DEVICE_ROOT = new File("/");
 
-    // @GuardedBy("sCache")
+    @GuardedBy("sCache")
     private static HashMap<String, PathStrategy> sCache = new HashMap<String, PathStrategy>();
 
     private PathStrategy mStrategy;

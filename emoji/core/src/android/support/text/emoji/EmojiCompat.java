@@ -21,6 +21,7 @@ import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.AnyThread;
+import android.support.annotation.GuardedBy;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
@@ -90,13 +91,16 @@ public class EmojiCompat {
             "android.support.text.emoji.emojiCompat_replaceAll";
 
     private static final Object sInstanceLock = new Object();
-    // @GuardedBy("sInstanceLock")
+
+    @GuardedBy("sInstanceLock")
     private static volatile EmojiCompat sInstance;
 
     private final ReadWriteLock mInitLock;
-    // @GuardedBy("mInitLock")
+
+    @GuardedBy("mInitLock")
     private final Set<InitCallback> mInitCallbacks;
-    // @GuardedBy("mInitLock")
+
+    @GuardedBy("mInitLock")
     @LoadState
     private int mLoadState;
 
