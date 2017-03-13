@@ -22,7 +22,7 @@
               android:layout_height="match_parent" android:weightSum="1">
 
     <android.support.v7.widget.AppCompatImageView
-        app:srcCompat="@drawable/animation_vector_drawable_grouping_1"
+        app:srcCompat="@drawable/ic_signal_airplane_v2_animation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" android:id="@+id/imageView"/>
     <TextView
@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" android:id="@+id/textView2"/>
     <android.support.v7.widget.AppCompatImageView
-        app:srcCompat="@drawable/btn_radio_on_to_off_bundle"
+        app:srcCompat="@drawable/ic_hourglass_animation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" android:id="@+id/imageView2"/>
     <TextView

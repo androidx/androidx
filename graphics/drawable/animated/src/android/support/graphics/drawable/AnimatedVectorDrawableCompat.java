@@ -15,7 +15,6 @@
 package android.support.graphics.drawable;
 
 import android.animation.Animator;
-import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
@@ -57,14 +56,89 @@ import java.util.List;
  * For older API version, this class uses {@link android.animation.ObjectAnimator} and
  * {@link android.animation.AnimatorSet} to animate the properties of a
  * {@link VectorDrawableCompat} to create an animated drawable.
- * <p>
- * AnimatedVectorDrawableCompat are defined in the same XML format as {@link
- * AnimatedVectorDrawable}.
- * </p>
+ * <p/>
+ * AnimatedVectorDrawableCompat are defined in the same XML format as
+ * {@link AnimatedVectorDrawable}.
+ * <p/>
+ * Here are all the animatable attributes in {@link VectorDrawableCompat}:
+ * <table border="2" align="center" cellpadding="5">
+ *     <thead>
+ *         <tr>
+ *             <th>Element Name</th>
+ *             <th>Animatable attribute name</th>
+ *         </tr>
+ *     </thead>
+ *     <tr>
+ *         <td>&lt;vector&gt;</td>
+ *         <td>alpha</td>
+ *     </tr>
+ *     <tr>
+ *         <td rowspan="7">&lt;group&gt;</td>
+ *         <td>rotation</td>
+ *     </tr>
+ *     <tr>
+ *         <td>pivotX</td>
+ *     </tr>
+ *     <tr>
+ *         <td>pivotY</td>
+ *     </tr>
+ *     <tr>
+ *         <td>scaleX</td>
+ *     </tr>
+ *     <tr>
+ *         <td>scaleY</td>
+ *     </tr>
+ *     <tr>
+ *         <td>translateX</td>
+ *     </tr>
+ *     <tr>
+ *         <td>translateY</td>
+ *     </tr>
+ *     <tr>
+ *         <td rowspan="8">&lt;path&gt;</td>
+ *         <td>fillColor</td>
+ *     </tr>
+ *     <tr>
+ *         <td>pathData</td>
+ *     </tr>
+ *     <tr>
+ *         <td>strokeColor</td>
+ *     </tr>
+ *     <tr>
+ *         <td>strokeWidth</td>
+ *     </tr>
+ *     <tr>
+ *         <td>strokeAlpha</td>
+ *     </tr>
+ *     <tr>
+ *         <td>fillAlpha</td>
+ *     </tr>
+ *     <tr>
+ *         <td>trimPathStart</td>
+ *     </tr>
+ *     <tr>
+ *         <td>trimPathOffset</td>
+ *     </tr>
+ * </table>
+ * <p/>
  * You can always create a AnimatedVectorDrawableCompat object and use it as a Drawable by the Java
  * API. In order to refer to AnimatedVectorDrawableCompat inside a XML file, you can use
  * app:srcCompat attribute in AppCompat library's ImageButton or ImageView.
+ * <p/>
+ * Note that the animation in AnimatedVectorDrawableCompat now can support the following features:
+ * <ul>
+ * <li>Path Morphing (PathType evaluator). This is used for morphing one path into another.</li>
+ * <li>Path Interpolation. This is used to defined a flexible interpolator (represented as a path)
+ * instead of the system defined ones like LinearInterpolator.</li>
+ * </ul>
+ * <p/>
+ * But not support this one feature yet:
+ * <ul>
+ * <li>Animating 2 values in one ObjectAnimator according to one path's X value and Y value. One
+ * usage is moving one object in both X and Y dimensions along an path.</li> *
+ * </ul>
  */
+
 @SuppressLint("NewApi")
 public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
         implements Animatable2Compat {
@@ -375,11 +449,11 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
                 }
                 if (ANIMATED_VECTOR.equals(tagName)) {
                     final TypedArray a =
-                            VectorDrawableCommon.obtainAttributes(res, theme, attrs,
-                                    AndroidResources.styleable_AnimatedVectorDrawable);
+                            TypedArrayUtils.obtainAttributes(res, theme, attrs,
+                                    AndroidResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE);
 
                     int drawableRes = a.getResourceId(
-                            AndroidResources.styleable_AnimatedVectorDrawable_drawable, 0);
+                            AndroidResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_DRAWABLE, 0);
                     if (DBG_ANIMATION_VECTOR_DRAWABLE) {
                         Log.v(LOGTAG, "drawableRes is " + drawableRes);
                     }
@@ -397,15 +471,19 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
                 } else if (TARGET.equals(tagName)) {
                     final TypedArray a =
                             res.obtainAttributes(attrs,
-                                    AndroidResources.styleable_AnimatedVectorDrawableTarget);
+                                    AndroidResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET);
                     final String target = a.getString(
-                            AndroidResources.styleable_AnimatedVectorDrawableTarget_name);
+                            AndroidResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_NAME);
 
                     int id = a.getResourceId(
-                            AndroidResources.styleable_AnimatedVectorDrawableTarget_animation, 0);
+                            AndroidResources.STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_ANIMATION,
+                            0);
                     if (id != 0) {
                         if (mContext != null) {
-                            Animator objectAnimator = AnimatorInflater.loadAnimator(mContext, id);
+                            // There are some important features (like path morphing), added into
+                            // Animator code to support AVD at API 21.
+                            Animator objectAnimator = AnimatorInflaterCompat.loadAnimator(
+                                    mContext, id);
                             setupAnimatorsForTarget(target, objectAnimator);
                         } else {
                             a.recycle();

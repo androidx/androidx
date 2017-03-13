@@ -15,34 +15,18 @@
 package android.support.graphics.drawable;
 
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.graphics.drawable.TintAwareDrawable;
-import android.util.AttributeSet;
 
 /**
  * Internal common delegation shared by VectorDrawableCompat and AnimatedVectorDrawableCompat
  */
 abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawable {
-    /**
-     * Obtains styled attributes from the theme, if available, or unstyled
-     * resources if the theme is null.
-     *
-     * @hide
-     */
-    protected static TypedArray obtainAttributes(
-            Resources res, Resources.Theme theme, AttributeSet set, int[] attrs) {
-        if (theme == null) {
-            return res.obtainAttributes(set, attrs);
-        }
-        return theme.obtainStyledAttributes(set, attrs, 0, 0);
-    }
 
     // Drawable delegation for Lollipop and above.
     Drawable mDelegateDrawable;

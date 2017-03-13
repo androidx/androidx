@@ -26,8 +26,6 @@
         <path
                 android:name="rectBody"
                 android:fillColor="#ff0000"
-                android:strokeColor="#ff0000"
-                android:strokeWidth="2"
                 android:pathData="M0,0L24,0L24,24L0,24z" />
 
     </group>
