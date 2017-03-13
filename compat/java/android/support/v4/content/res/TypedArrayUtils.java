@@ -18,6 +18,7 @@ package android.support.v4.content.res;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.AnyRes;
@@ -25,12 +26,19 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleableRes;
+import android.util.AttributeSet;
 import android.util.TypedValue;
 
 import org.xmlpull.v1.XmlPullParser;
 
 /**
  * Compat methods for accessing TypedArray values.
+ *
+ * All the getNamed*() functions added the attribute name match, to take care of potential ID
+ * collision between the private attributes in older OS version (OEM) and the attributes existed in
+ * the newer OS version.
+ * For example, if an private attribute named "abcdefg" in Kitkat has the
+ * same id value as "android:pathData" in Lollipop, we need to match the attribute's namefirst.
  *
  * @hide
  */
@@ -149,6 +157,33 @@ public class TypedArrayUtils {
         } else {
             return a.getString(resId);
         }
+    }
+
+    /**
+     * Retrieve the raw TypedValue for the attribute at <var>index</var>
+     * and return a temporary object holding its data.  This object is only
+     * valid until the next call on to {@link TypedArray}.
+     */
+    public static TypedValue peekNamedValue(TypedArray a, XmlPullParser parser, String attrName,
+            int resId) {
+        final boolean hasAttr = hasAttribute(parser, attrName);
+        if (!hasAttr) {
+            return null;
+        } else {
+            return a.peekValue(resId);
+        }
+    }
+
+    /**
+     * Obtains styled attributes from the theme, if available, or unstyled
+     * resources if the theme is null.
+     */
+    public static TypedArray obtainAttributes(
+            Resources res, Resources.Theme theme, AttributeSet set, int[] attrs) {
+        if (theme == null) {
+            return res.obtainAttributes(set, attrs);
+        }
+        return theme.obtainStyledAttributes(set, attrs, 0, 0);
     }
 
     /**
