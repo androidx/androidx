@@ -2080,7 +2080,7 @@ public class ExifInterface {
      * http://fileformats.archiveteam.org/wiki/Fujifilm_RAF
      */
     private boolean isRafFormat(byte[] signatureCheckBytes) throws IOException {
-        byte[] rafSignatureBytes = RAF_SIGNATURE.getBytes();
+        byte[] rafSignatureBytes = RAF_SIGNATURE.getBytes(Charset.defaultCharset());
         for (int i = 0; i < rafSignatureBytes.length; i++) {
             if (signatureCheckBytes[i] != rafSignatureBytes[i]) {
                 return false;
@@ -2738,11 +2738,11 @@ public class ExifInterface {
                     Log.d(TAG, "seek to data offset: " + offset);
                 }
                 if (mMimeType == IMAGE_TYPE_ORF) {
-                    if (tag.name == TAG_MAKER_NOTE) {
+                    if (TAG_MAKER_NOTE.equals(tag.name)) {
                         // Save offset value for reading thumbnail
                         mOrfMakerNoteOffset = offset;
                     } else if (ifdType == IFD_TYPE_ORF_MAKER_NOTE
-                            && tag.name == TAG_ORF_THUMBNAIL_IMAGE) {
+                            && TAG_ORF_THUMBNAIL_IMAGE.equals(tag.name)) {
                         // Retrieve & update values for thumbnail offset and length values for ORF
                         mOrfThumbnailOffset = offset;
                         mOrfThumbnailLength = numberOfComponents;
@@ -2761,7 +2761,7 @@ public class ExifInterface {
                                 jpegInterchangeFormatLengthAttribute);
                     }
                 } else if (mMimeType == IMAGE_TYPE_RW2) {
-                    if (tag.name == TAG_RW2_JPG_FROM_RAW) {
+                    if (TAG_RW2_JPG_FROM_RAW.equals(tag.name)) {
                         mRw2JpgFromRawOffset = offset;
                     }
                 }
@@ -2829,16 +2829,16 @@ public class ExifInterface {
             // DNG files have a DNG Version tag specifying the version of specifications that the
             // image file is following.
             // See http://fileformats.archiveteam.org/wiki/DNG
-            if (tag.name == TAG_DNG_VERSION) {
+            if (TAG_DNG_VERSION.equals(tag.name)) {
                 mMimeType = IMAGE_TYPE_DNG;
             }
 
             // PEF files have a Make or Model tag that begins with "PENTAX" or a compression tag
             // that is 65535.
             // See http://fileformats.archiveteam.org/wiki/Pentax_PEF
-            if (((tag.name == TAG_MAKE || tag.name == TAG_MODEL)
+            if (((TAG_MAKE.equals(tag.name) || TAG_MODEL.equals(tag.name))
                     && attribute.getStringValue(mExifByteOrder).contains(PEF_SIGNATURE))
-                    || (tag.name == TAG_COMPRESSION
+                    || (TAG_COMPRESSION.equals(tag.name)
                     && attribute.getIntValue(mExifByteOrder) == 65535)) {
                 mMimeType = IMAGE_TYPE_PEF;
             }
@@ -3381,12 +3381,12 @@ public class ExifInterface {
             for (int i = 1; i < entryValues.length; ++i) {
                 final Pair<Integer, Integer> guessDataFormat = guessDataFormat(entryValues[i]);
                 int first = -1, second = -1;
-                if (guessDataFormat.first == dataFormat.first
-                        || guessDataFormat.second == dataFormat.first) {
+                if (guessDataFormat.first.equals(dataFormat.first)
+                        || guessDataFormat.second.equals(dataFormat.first)) {
                     first = dataFormat.first;
                 }
-                if (dataFormat.second != -1 && (guessDataFormat.first == dataFormat.second
-                        || guessDataFormat.second == dataFormat.second)) {
+                if (dataFormat.second != -1 && (guessDataFormat.first.equals(dataFormat.second)
+                        || guessDataFormat.second.equals(dataFormat.second))) {
                     second = dataFormat.second;
                 }
                 if (first == -1 && second == -1) {
@@ -3451,13 +3451,11 @@ public class ExifInterface {
         private static final ByteOrder BIG_ENDIAN = ByteOrder.BIG_ENDIAN;
 
         private DataInputStream mDataInputStream;
-        private InputStream mInputStream;
         private ByteOrder mByteOrder = ByteOrder.BIG_ENDIAN;
         private final int mLength;
         private int mPosition;
 
         public ByteOrderedDataInputStream(InputStream in) throws IOException {
-            mInputStream = in;
             mDataInputStream = new DataInputStream(in);
             mLength = mDataInputStream.available();
             mPosition = 0;
@@ -3499,6 +3497,13 @@ public class ExifInterface {
         public int read() throws IOException {
             ++mPosition;
             return mDataInputStream.read();
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            int bytesRead = mDataInputStream.read(b, off, len);
+            mPosition += bytesRead;
+            return bytesRead;
         }
 
         @Override
