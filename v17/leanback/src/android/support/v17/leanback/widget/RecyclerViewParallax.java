@@ -165,8 +165,14 @@ public class RecyclerViewParallax extends Parallax<RecyclerViewParallax.ChildPos
                 // add up translation values in parent.
                 float tx = 0, ty = 0;
                 while (trackingView != recyclerView && trackingView != null) {
-                    tx += trackingView.getTranslationX();
-                    ty += trackingView.getTranslationY();
+                    // In RecyclerView dispatchLayout() it may call onScrolled(0) with a move
+                    // ItemAnimation just created. We don't have any way to track the ItemAnimation
+                    // update listener, and in ideal use case, the tracking view should not be
+                    // animated in RecyclerView. Do not apply translation value for this case.
+                    if (!(trackingView.getParent() == recyclerView && recyclerView.isAnimating())) {
+                        tx += trackingView.getTranslationX();
+                        ty += trackingView.getTranslationY();
+                    }
                     trackingView = (View) trackingView.getParent();
                 }
                 rect.offset((int) tx, (int) ty);
