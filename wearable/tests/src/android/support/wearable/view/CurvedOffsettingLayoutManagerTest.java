@@ -38,7 +38,7 @@ import java.util.Map;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class CurvedOffsettingHelperTest {
+public class CurvedOffsettingLayoutManagerTest {
 
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
@@ -47,12 +47,13 @@ public class CurvedOffsettingHelperTest {
     public final ActivityTestRule<WearableRecyclerViewTestActivity> mActivityRule =
             new ActivityTestRule<>(WearableRecyclerViewTestActivity.class, true, true);
 
-    CurvedOffsettingHelper mCurvedOffsettingHelperUnderTest;
+    CurvedOffsettingLayoutManager mCurvedOffsettingLayoutManagerUnderTest;
 
     @Before
     public void setUp() throws Throwable {
         MockitoAnnotations.initMocks(this);
-        mCurvedOffsettingHelperUnderTest = new CurvedOffsettingHelper();
+        mCurvedOffsettingLayoutManagerUnderTest =
+                new CurvedOffsettingLayoutManager(mActivityRule.getActivity());
     }
 
     @Test
@@ -79,19 +80,19 @@ public class CurvedOffsettingHelperTest {
 
         // When the child is updated by the curved offsetting helper
         if (child1 != null) {
-            mCurvedOffsettingHelperUnderTest.updateChild(child1, wrv);
+            mCurvedOffsettingLayoutManagerUnderTest.updateChild(child1, wrv);
         }
         if (child2 != null) {
-            mCurvedOffsettingHelperUnderTest.updateChild(child2, wrv);
+            mCurvedOffsettingLayoutManagerUnderTest.updateChild(child2, wrv);
         }
         if (child3 != null) {
-            mCurvedOffsettingHelperUnderTest.updateChild(child3, wrv);
+            mCurvedOffsettingLayoutManagerUnderTest.updateChild(child3, wrv);
         }
         if (child4 != null) {
-            mCurvedOffsettingHelperUnderTest.updateChild(child4, wrv);
+            mCurvedOffsettingLayoutManagerUnderTest.updateChild(child4, wrv);
         }
         if (child5 != null) {
-            mCurvedOffsettingHelperUnderTest.updateChild(child5, wrv);
+            mCurvedOffsettingLayoutManagerUnderTest.updateChild(child5, wrv);
         }
         if (wrv.getResources().getConfiguration().isScreenRound()) {
             // Then the left position and the translation of the child is modified if the screen is

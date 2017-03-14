@@ -30,6 +30,7 @@ public class WearableRecyclerViewTestActivity extends Activity {
         setContentView(R.layout.wearable_recycler_view_basic);
         WearableRecyclerView wrv =
                 (WearableRecyclerView) findViewById(android.support.wearable.test.R.id.wrv);
+        wrv.setLayoutManager(new CurvedOffsettingLayoutManager(this));
         wrv.setAdapter(new TestAdapter());
     }
 

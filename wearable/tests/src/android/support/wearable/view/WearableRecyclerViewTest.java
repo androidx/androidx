@@ -25,13 +25,9 @@ import static android.support.wearable.view.util.MoreViewAssertions.withPositive
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 import static org.hamcrest.Matchers.allOf;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.support.annotation.IdRes;
@@ -61,7 +57,7 @@ public class WearableRecyclerViewTest {
 
     private static final long MAX_WAIT_TIME = 10000;
     @Mock
-    WearableRecyclerView.OffsettingHelper mMockOffsettingHelper;
+    WearableRecyclerView.OffsettingLayoutManager mMockOffsettingLayoutManager;
 
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
@@ -78,10 +74,10 @@ public class WearableRecyclerViewTest {
     @Test
     public void testCaseInitState() {
         WearableRecyclerView wrv = new WearableRecyclerView(mActivityRule.getActivity());
+        wrv.setLayoutManager(new CurvedOffsettingLayoutManager(wrv.getContext()));
 
         assertFalse(wrv.getEdgeItemsCenteringEnabled());
         assertFalse(wrv.isCircularScrollingGestureEnabled());
-        assertNull(wrv.getOffsettingHelper());
         assertEquals(1.0f, wrv.getBezelWidthFraction());
         assertEquals(180.0f, wrv.getScrollDegreesPerScreen());
     }
@@ -153,30 +149,13 @@ public class WearableRecyclerViewTest {
     }
 
     @Test
-    public void testOffsettingHelper() throws Throwable {
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                WearableRecyclerView wrv =
-                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                wrv.setOffsettingHelper(mMockOffsettingHelper);
-            }
-        });
-
-        onView(withId(R.id.wrv)).perform(swipeDownFromTopRight());
-        verify(mMockOffsettingHelper, atLeast(1)).updateChild(any(View.class),
-                any(WearableRecyclerView.class));
-
-    }
-
-    @Test
     public void testCurvedOffsettingHelper() throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 WearableRecyclerView wrv =
                         (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                wrv.setOffsettingHelper(new CurvedOffsettingHelper());
+                wrv.setLayoutManager(new CurvedOffsettingLayoutManager(wrv.getContext()));
             }
         });
 

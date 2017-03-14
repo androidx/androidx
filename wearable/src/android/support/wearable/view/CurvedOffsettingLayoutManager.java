@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package android.support.wearable.view;
 
+import android.content.Context;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.support.wearable.R;
 import android.view.View;
 
 /**
- * This implementation of the {@link WearableRecyclerView.OffsettingHelper} provides basic
+ * This implementation of {@link WearableRecyclerView.OffsettingLayoutManager} provides basic
  * offsetting logic for updating child layout. For round devices it offsets the children
- * horizontally to make them appear to travel around a circle. For square devices it aligns them
- * in a straight list.
+ * horizontally to make them appear to travel around a circle. For square devices it aligns them in
+ * a straight list.
  */
-public class CurvedOffsettingHelper extends WearableRecyclerView.OffsettingHelper {
+public class CurvedOffsettingLayoutManager extends WearableRecyclerView.OffsettingLayoutManager {
     private static final float EPSILON = 0.001f;
 
     private final Path mCurvePath;
@@ -47,15 +47,16 @@ public class CurvedOffsettingHelper extends WearableRecyclerView.OffsettingHelpe
     private int mLayoutWidth;
     private int mLayoutHeight;
 
-    public CurvedOffsettingHelper() {
+    public CurvedOffsettingLayoutManager(Context context) {
+        super(context);
         mCurvePath = new Path();
         mPathMeasure = new PathMeasure();
     }
 
     @Override
     public void updateChild(View child, WearableRecyclerView parent) {
-        if (mParentView != parent || (mParentView != null
-                && (mParentView.getWidth() != parent.getWidth()
+        if (mParentView != parent || (mParentView != null && (
+                mParentView.getWidth() != parent.getWidth()
                         || mParentView.getHeight() != parent.getHeight()))) {
             mParentView = parent;
             mIsScreenRound =
