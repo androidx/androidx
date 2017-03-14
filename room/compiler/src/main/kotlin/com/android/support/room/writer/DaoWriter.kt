@@ -219,12 +219,31 @@ class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
             // TODO assert thread
             // TODO collect results
             addStatement("$N.beginTransaction()", dbField)
+            val needsReturnType = insertionType != InsertionMethod.Type.INSERT_VOID
+            val resultVar = if (needsReturnType) {
+                scope.getTmpVar("_result")
+            } else {
+                null
+            }
+
             beginControlFlow("try").apply {
                 method.parameters.forEach { param ->
-                    addStatement("$N.$L($L)", insertionAdapter, insertionType.methodName,
-                            param.name)
+                    if (needsReturnType) {
+                        // if it has more than 1 parameter, we would've already printed the error
+                        // so we don't care about re-declaring the variable here
+                        addStatement("$T $L = $N.$L($L)",
+                                insertionType.returnTypeName, resultVar,
+                                insertionAdapter, insertionType.methodName,
+                                param.name)
+                    } else {
+                        addStatement("$N.$L($L)", insertionAdapter, insertionType.methodName,
+                                param.name)
+                    }
                 }
                 addStatement("$N.setTransactionSuccessful()", dbField)
+                if (needsReturnType) {
+                    addStatement("return $L", resultVar)
+                }
             }
             nextControlFlow("finally").apply {
                 addStatement("$N.endTransaction()", dbField)

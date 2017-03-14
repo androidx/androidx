@@ -17,6 +17,10 @@
 package com.android.support.room.vo
 
 import com.android.support.room.OnConflictStrategy
+import com.android.support.room.ext.typeName
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.TypeMirror
 
@@ -37,10 +41,12 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
 
     enum class Type(
             // methodName matches EntityInsertionAdapter methods
-            val methodName : String) {
-        INSERT_VOID("insert"), // return void
-        INSERT_SINGLE_ID("insertAndReturnId"), // return long
-        INSERT_ID_ARRAY("insertAndReturnIdsArray"), // return long[]
-        INSERT_ID_LIST("insertAndReturnIdsList") // return List<Long>
+            val methodName : String, val returnTypeName : TypeName) {
+        INSERT_VOID("insert", TypeName.VOID), // return void
+        INSERT_SINGLE_ID("insertAndReturnId", TypeName.LONG), // return long
+        INSERT_ID_ARRAY("insertAndReturnIdsArray",
+                ArrayTypeName.of(TypeName.LONG)), // return long[]
+        INSERT_ID_LIST("insertAndReturnIdsList", // return List<Long>
+                ParameterizedTypeName.get(List::class.typeName(), TypeName.LONG.box()))
     }
 }

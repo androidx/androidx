@@ -37,6 +37,14 @@ object ProcessorErrors {
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
     val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
             " void, long, long[] or List<Long>."
+
+    fun insertionMethodReturnTypeMismatch(definedReturn : TypeName,
+                                          expectedReturnTypes : List<TypeName>) : String {
+        return "Method returns $definedReturn but it should return one of the following: `" +
+                expectedReturnTypes.joinToString(", ") + "`. If you want to return the list of" +
+                " row ids from the query, your insertion method can receive only 1 parameter."
+    }
+
     val ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION = "Abstract method in DAO must be annotated" +
             " with ${Query::class.java} AND ${Insert::class.java}"
     val CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION = "A DAO method can be annotated with only" +

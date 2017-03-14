@@ -33,6 +33,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PrimaryKeyTest {
@@ -72,5 +74,41 @@ public class PrimaryKeyTest {
         IntAutoIncPKeyEntity loaded = mDatabase.intPKeyDao().getMe(1);
         assertThat(loaded, notNullValue());
         assertThat(loaded.data, is(entity.data));
+    }
+
+    @Test
+    public void getInsertedId() {
+        IntAutoIncPKeyEntity entity = new IntAutoIncPKeyEntity();
+        entity.data = "foo";
+        final long id = mDatabase.intPKeyDao().insertAndGetId(entity);
+        assertThat(mDatabase.intPKeyDao().getMe((int) id).data, is("foo"));
+    }
+
+    @Test
+    public void getInsertedIds() {
+        IntAutoIncPKeyEntity entity = new IntAutoIncPKeyEntity();
+        entity.data = "foo";
+        IntAutoIncPKeyEntity entity2 = new IntAutoIncPKeyEntity();
+        entity2.data = "foo2";
+        final long[] ids = mDatabase.intPKeyDao().insertAndGetIds(entity, entity2);
+        assertThat(mDatabase.intPKeyDao().loadDataById(ids), is(Arrays.asList("foo", "foo2")));
+    }
+
+    @Test
+    public void getInsertedIdFromInteger() {
+        IntegerAutoIncPKeyEntity entity = new IntegerAutoIncPKeyEntity();
+        entity.data = "foo";
+        final long id = mDatabase.integerPKeyDao().insertAndGetId(entity);
+        assertThat(mDatabase.integerPKeyDao().getMe((int) id).data, is("foo"));
+    }
+
+    @Test
+    public void getInsertedIdsFromInteger() {
+        IntegerAutoIncPKeyEntity entity = new IntegerAutoIncPKeyEntity();
+        entity.data = "foo";
+        IntegerAutoIncPKeyEntity entity2 = new IntegerAutoIncPKeyEntity();
+        entity2.data = "foo2";
+        final long[] ids = mDatabase.integerPKeyDao().insertAndGetIds(entity, entity2);
+        assertThat(mDatabase.integerPKeyDao().loadDataById(ids), is(Arrays.asList("foo", "foo2")));
     }
 }

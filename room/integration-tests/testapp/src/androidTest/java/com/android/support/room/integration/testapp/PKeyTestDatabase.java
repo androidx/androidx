@@ -24,6 +24,8 @@ import com.android.support.room.RoomDatabase;
 import com.android.support.room.integration.testapp.vo.IntAutoIncPKeyEntity;
 import com.android.support.room.integration.testapp.vo.IntegerAutoIncPKeyEntity;
 
+import java.util.List;
+
 @Database(entities = {IntAutoIncPKeyEntity.class, IntegerAutoIncPKeyEntity.class})
 public abstract class PKeyTestDatabase extends RoomDatabase {
     public abstract IntPKeyDao intPKeyDao();
@@ -33,8 +35,17 @@ public abstract class PKeyTestDatabase extends RoomDatabase {
     public interface IntPKeyDao {
         @Insert
         void insertMe(IntAutoIncPKeyEntity... items);
+        @Insert
+        long insertAndGetId(IntAutoIncPKeyEntity item);
+
+        @Insert
+        long[] insertAndGetIds(IntAutoIncPKeyEntity... item);
+
         @Query("select * from IntAutoIncPKeyEntity WHERE pKey = ?")
         IntAutoIncPKeyEntity getMe(int key);
+
+        @Query("select data from IntAutoIncPKeyEntity WHERE pKey IN(:ids)")
+        List<String> loadDataById(long... ids);
     }
 
     @Dao
@@ -43,5 +54,14 @@ public abstract class PKeyTestDatabase extends RoomDatabase {
         void insertMe(IntegerAutoIncPKeyEntity items);
         @Query("select * from IntegerAutoIncPKeyEntity WHERE pKey = ?")
         IntegerAutoIncPKeyEntity getMe(int key);
+
+        @Insert
+        long insertAndGetId(IntegerAutoIncPKeyEntity item);
+
+        @Insert
+        long[] insertAndGetIds(IntegerAutoIncPKeyEntity... item);
+
+        @Query("select data from IntegerAutoIncPKeyEntity WHERE pKey IN(:ids)")
+        List<String> loadDataById(long... ids);
     }
 }

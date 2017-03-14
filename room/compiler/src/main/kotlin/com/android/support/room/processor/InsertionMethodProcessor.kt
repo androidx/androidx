@@ -18,14 +18,15 @@
 
 package com.android.support.room.processor
 
+import android.support.annotation.VisibleForTesting
 import com.android.support.room.Insert
 import com.android.support.room.OnConflictStrategy.IGNORE
 import com.android.support.room.OnConflictStrategy.REPLACE
 import com.android.support.room.vo.InsertionMethod
 import com.android.support.room.vo.InsertionMethod.Type
+import com.android.support.room.vo.ShortcutQueryParameter
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
-import java.util.List
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
@@ -59,9 +60,21 @@ class InsertionMethodProcessor(baseContext: Context,
         )
 
         // TODO we can support more types
-        val insertionType = getInsertionType(returnType)
+        var insertionType = getInsertionType(returnType)
         context.checker.check(insertionType != null, executableElement,
                 ProcessorErrors.INVALID_INSERTION_METHOD_RETURN_TYPE)
+
+        if (insertionType != null) {
+            val acceptable = acceptableTypes(params)
+            if (insertionType !in acceptable) {
+                context.logger.e(executableElement,
+                        ProcessorErrors.insertionMethodReturnTypeMismatch(
+                                insertionType.returnTypeName,
+                                acceptable.map { it.returnTypeName }))
+                // clear it, no reason to generate code for it.
+                insertionType = null
+            }
+        }
         return InsertionMethod(
                 element = executableElement,
                 name = executableElement.simpleName.toString(),
@@ -103,6 +116,30 @@ class InsertionMethodProcessor(baseContext: Context,
             Type.INSERT_SINGLE_ID
         } else {
             null
+        }
+    }
+
+    companion object {
+        @VisibleForTesting
+        val VOID_SET by lazy { setOf(Type.INSERT_VOID) }
+        @VisibleForTesting
+        val SINGLE_ITEM_SET by lazy { setOf(Type.INSERT_VOID, Type.INSERT_SINGLE_ID) }
+        @VisibleForTesting
+        val MULTIPLE_ITEM_SET by lazy {
+            setOf(Type.INSERT_VOID, Type.INSERT_ID_ARRAY, Type.INSERT_ID_LIST)
+        }
+        fun acceptableTypes(params : List<ShortcutQueryParameter>) : Set<InsertionMethod.Type> {
+            if (params.isEmpty()) {
+                return VOID_SET
+            }
+            if (params.size > 1) {
+                return VOID_SET
+            }
+            if (params.first().isMultiple) {
+                return MULTIPLE_ITEM_SET
+            } else {
+                return SINGLE_ITEM_SET
+            }
         }
     }
 }

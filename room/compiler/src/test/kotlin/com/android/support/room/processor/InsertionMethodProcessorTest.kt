@@ -111,7 +111,7 @@ class InsertionMethodProcessorTest {
         singleInsertMethod(
                 """
                 @Insert
-                abstract public long[] foo(User u1, User u2);
+                abstract public void foo(User u1, User u2);
                 """) { insertion, invocation ->
             assertThat(insertion.name, `is`("foo"))
 
@@ -122,8 +122,7 @@ class InsertionMethodProcessorTest {
             }
             assertThat(insertion.entity?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.parameters.map { it.name }, `is`(listOf("u1", "u2")))
-            assertThat(insertion.returnType.typeName(),
-                    `is`(ArrayTypeName.of(TypeName.LONG) as TypeName))
+            assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
 
@@ -259,21 +258,68 @@ class InsertionMethodProcessorTest {
     }
 
     @Test
+    fun mismatchedReturnType() {
+        singleInsertMethod(
+                """
+                @Insert
+                abstract public long[] foo(User user);
+                """) { insertion, invocation ->
+            assertThat(insertion.insertionType, `is`(nullValue()))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.insertionMethodReturnTypeMismatch(
+                        ArrayTypeName.of(TypeName.LONG),
+                        InsertionMethodProcessor.SINGLE_ITEM_SET.map { it.returnTypeName }))
+    }
+
+    @Test
+    fun mismatchedReturnType2() {
+        singleInsertMethod(
+                """
+                @Insert
+                abstract public long foo(User... user);
+                """) { insertion, invocation ->
+            assertThat(insertion.insertionType, `is`(nullValue()))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.insertionMethodReturnTypeMismatch(
+                        TypeName.LONG,
+                        InsertionMethodProcessor.MULTIPLE_ITEM_SET.map { it.returnTypeName }))
+    }
+
+    @Test
+    fun mismatchedReturnType3() {
+        singleInsertMethod(
+                """
+                @Insert
+                abstract public long foo(User user1, User user2);
+                """) { insertion, invocation ->
+            assertThat(insertion.insertionType, `is`(nullValue()))
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.insertionMethodReturnTypeMismatch(
+                        TypeName.LONG,
+                        InsertionMethodProcessor.VOID_SET.map { it.returnTypeName }))
+    }
+
+    @Test
     fun validReturnTypes() {
         listOf(
-            Triple("void", Type.INSERT_VOID, Type.INSERT_VOID),
-            Triple("long", Type.INSERT_SINGLE_ID, Type.INSERT_SINGLE_ID),
-            Triple("long[]", Type.INSERT_SINGLE_ID, Type.INSERT_ID_ARRAY),
-            Triple("List<Long>", Type.INSERT_SINGLE_ID, Type.INSERT_ID_LIST)
-        ).forEach { triple ->
+                Pair("void", Type.INSERT_VOID),
+                Pair("long", Type.INSERT_SINGLE_ID),
+                Pair("long[]", Type.INSERT_ID_ARRAY),
+                Pair("List<Long>", Type.INSERT_ID_LIST)
+        ).forEach { pair ->
+            val dots = if (pair.second in setOf(Type.INSERT_ID_LIST, Type.INSERT_ID_ARRAY)) {
+                "..."
+            } else {
+                ""
+            }
             singleInsertMethod(
                     """
                 @Insert
-                abstract public ${triple.first} foo(User user);
+                abstract public ${pair.first} foo(User$dots user);
                 """) { insertion, invocation ->
                 assertThat(insertion.insertMethodTypeFor(insertion.parameters.first()),
-                        `is`(triple.second))
-                assertThat(insertion.insertionType, `is`(triple.third))
+                        `is`(pair.second))
+                assertThat(pair.toString(), insertion.insertionType, `is`(pair.second))
             }.compilesWithoutError()
         }
     }
