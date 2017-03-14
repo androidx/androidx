@@ -1317,6 +1317,7 @@ package android.support.media.tv {
     method public int getTransportStreamId();
     method public java.lang.String getType();
     method public java.lang.String getVideoFormat();
+    method public boolean isBrowsable();
     method public boolean isSearchable();
     method public android.content.ContentValues toContentValues();
   }
