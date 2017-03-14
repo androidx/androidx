@@ -15,11 +15,17 @@
  */
 package android.support.media.tv;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.media.tv.TvContentRating;
 import android.net.Uri;
 import android.os.Build;
+import android.support.media.tv.TvContractCompat.Channels;
+import android.support.media.tv.TvContractCompat.Programs;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 
@@ -35,15 +41,24 @@ import java.util.Objects;
  * values from them.
  */
 @SmallTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ProgramTest extends TestCase {
+    @Override
+    protected void tearDown() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        resolver.delete(Channels.CONTENT_URI, null, null);
+    }
+
     @Test
     public void testEmptyProgram() {
         Program emptyProgram = new Program.Builder()
                 .build();
         ContentValues contentValues = emptyProgram.toContentValues();
         compareProgram(emptyProgram,
-                Program.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)));
+                Program.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)), true);
     }
 
     @Test
@@ -60,15 +75,54 @@ public class ProgramTest extends TestCase {
                 .build();
         ContentValues contentValues = sampleProgram.toContentValues();
         compareProgram(sampleProgram,
-                Program.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)));
+                Program.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)), true);
 
         Program clonedSampleProgram = new Program.Builder(sampleProgram).build();
-        compareProgram(sampleProgram, clonedSampleProgram);
+        compareProgram(sampleProgram, clonedSampleProgram, true);
     }
 
     @Test
     public void testFullyPopulatedProgram() {
-        Program fullyPopulatedProgram = new Program.Builder()
+        Program fullyPopulatedProgram = createFullyPopulatedProgram(3);
+
+        ContentValues contentValues = fullyPopulatedProgram.toContentValues();
+        compareProgram(fullyPopulatedProgram,
+                Program.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)), true);
+
+        Program clonedFullyPopulatedProgram = new Program.Builder(fullyPopulatedProgram).build();
+        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram, true);
+    }
+
+    @Test
+    public void testChannelWithSystemContentProvider() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
+        Channel channel = new Channel.Builder()
+                .setInputId("TestInputService")
+                .setType(TvContractCompat.Channels.TYPE_OTHER)
+                .build();
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        Uri channelUri = resolver.insert(Channels.CONTENT_URI, channel.toContentValues());
+        assertNotNull(channelUri);
+
+        Program fullyPopulatedProgram =
+                createFullyPopulatedProgram(ContentUris.parseId(channelUri));
+        Uri programUri = resolver.insert(Programs.CONTENT_URI,
+                fullyPopulatedProgram.toContentValues());
+
+        Program programFromSystemDb;
+        try (Cursor cursor = resolver.query(programUri, null, null, null, null)) {
+            assertNotNull(cursor);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToNext();
+            programFromSystemDb = Program.fromCursor(cursor);
+        }
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
+    }
+
+    private static Program createFullyPopulatedProgram(long channelId) {
+        return new Program.Builder()
                 .setSearchable(false)
                 .setThumbnailUri(Uri.parse("http://example.com/thumbnail.png"))
                 .setAudioLanguages(new String [] {"eng", "kor"})
@@ -89,22 +143,16 @@ public class ProgramTest extends TestCase {
                 .setInternalProviderFlag2(0x3)
                 .setInternalProviderFlag3(0x2)
                 .setInternalProviderFlag4(0x1)
-                .setChannelId(3)
+                .setChannelId(channelId)
                 .setStartTimeUtcMillis(0)
                 .setEndTimeUtcMillis(1000)
                 .setBroadcastGenres(new String[] {"Music", "Family"})
                 .setRecordingProhibited(false)
                 .build();
-
-        ContentValues contentValues = fullyPopulatedProgram.toContentValues();
-        compareProgram(fullyPopulatedProgram,
-                Program.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)));
-
-        Program clonedFullyPopulatedProgram = new Program.Builder(fullyPopulatedProgram).build();
-        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram);
     }
 
-    private static void compareProgram(Program programA, Program programB) {
+    private static void compareProgram(Program programA, Program programB,
+            boolean includeIdAndProtectedFields) {
         assertTrue(Arrays.equals(programA.getAudioLanguages(), programB.getAudioLanguages()));
         assertTrue(Arrays.deepEquals(programA.getBroadcastGenres(), programB.getBroadcastGenres()));
         assertTrue(Arrays.deepEquals(programA.getCanonicalGenres(), programB.getCanonicalGenres()));
@@ -116,7 +164,6 @@ public class ProgramTest extends TestCase {
         assertEquals(programA.getEpisodeTitle(), programB.getEpisodeTitle());
         assertEquals(programA.getLongDescription(), programB.getLongDescription());
         assertEquals(programA.getPosterArtUri(), programB.getPosterArtUri());
-        assertEquals(programA.getId(), programB.getId());
         assertEquals(programA.getSeasonNumber(), programB.getSeasonNumber());
         assertEquals(programA.getStartTimeUtcMillis(), programB.getStartTimeUtcMillis());
         assertEquals(programA.getThumbnailUri(), programB.getThumbnailUri());
@@ -135,9 +182,13 @@ public class ProgramTest extends TestCase {
             assertTrue(Objects.equals(programA.isRecordingProhibited(),
                     programB.isRecordingProhibited()));
         }
-        assertEquals(programA.toContentValues(), programB.toContentValues());
         assertEquals(programA.toString(), programB.toString());
-        assertEquals(programA, programB);
+        if (includeIdAndProtectedFields) {
+            // Skip row ID since the one from system DB has the valid ID while the other does not.
+            assertEquals(programA.getId(), programB.getId());
+            assertEquals(programA.toContentValues(), programB.toContentValues());
+            assertEquals(programA, programB);
+        }
     }
 
     private static MatrixCursor getProgramCursor(String[] projection, ContentValues contentValues) {

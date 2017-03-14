@@ -37,7 +37,7 @@ import org.junit.Test;
  * values from them
  */
 @SmallTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ChannelTest extends TestCase {
     private static final String KEY_SPLASHSCREEN = "splashscreen";
     private static final String KEY_PREMIUM_CHANNEL = "premium";
@@ -45,6 +45,9 @@ public class ChannelTest extends TestCase {
 
     @Override
     protected void tearDown() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
         ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
         resolver.delete(Channels.CONTENT_URI, null, null);
     }
@@ -54,7 +57,7 @@ public class ChannelTest extends TestCase {
         Channel emptyChannel = new Channel.Builder()
                 .build();
         ContentValues contentValues = emptyChannel.toContentValues(true);
-        compareChannel(emptyChannel, Channel.fromCursor(getChannelCursor(contentValues)), false);
+        compareChannel(emptyChannel, Channel.fromCursor(getChannelCursor(contentValues)), true);
     }
 
     @Test
@@ -71,10 +74,10 @@ public class ChannelTest extends TestCase {
                 .setOriginalNetworkId(0)
                 .build();
         ContentValues contentValues = sampleChannel.toContentValues(true);
-        compareChannel(sampleChannel, Channel.fromCursor(getChannelCursor(contentValues)), false);
+        compareChannel(sampleChannel, Channel.fromCursor(getChannelCursor(contentValues)), true);
 
         Channel clonedSampleChannel = new Channel.Builder(sampleChannel).build();
-        compareChannel(sampleChannel, clonedSampleChannel, false);
+        compareChannel(sampleChannel, clonedSampleChannel, true);
     }
 
     @Test
@@ -82,14 +85,17 @@ public class ChannelTest extends TestCase {
         Channel fullyPopulatedChannel = createFullyPopulatedChannel();
         ContentValues contentValues = fullyPopulatedChannel.toContentValues(true);
         compareChannel(fullyPopulatedChannel, Channel.fromCursor(getChannelCursor(contentValues)),
-                false);
+                true);
 
         Channel clonedFullyPopulatedChannel = new Channel.Builder(fullyPopulatedChannel).build();
-        compareChannel(fullyPopulatedChannel, clonedFullyPopulatedChannel, false);
+        compareChannel(fullyPopulatedChannel, clonedFullyPopulatedChannel, true);
     }
 
     @Test
     public void testChannelWithSystemContentProvider() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
         Channel fullyPopulatedChannel = createFullyPopulatedChannel();
         ContentValues contentValues = fullyPopulatedChannel.toContentValues();
         ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
@@ -103,7 +109,7 @@ public class ChannelTest extends TestCase {
             cursor.moveToNext();
             channelFromSystemDb = Channel.fromCursor(cursor);
         }
-        compareChannel(fullyPopulatedChannel, channelFromSystemDb, true);
+        compareChannel(fullyPopulatedChannel, channelFromSystemDb, false);
     }
 
     private static Channel createFullyPopulatedChannel() {
@@ -136,7 +142,8 @@ public class ChannelTest extends TestCase {
                 .build();
     }
 
-    private static void compareChannel(Channel channelA, Channel channelB, boolean fromSystemDb) {
+    private static void compareChannel(Channel channelA, Channel channelB,
+            boolean includeIdAndProtectedFields) {
         assertEquals(channelA.isSearchable(), channelB.isSearchable());
         assertEquals(channelA.getDescription(), channelB.getDescription());
         assertEquals(channelA.getDisplayName(), channelB.getDisplayName());
@@ -160,7 +167,7 @@ public class ChannelTest extends TestCase {
         if (BuildCompat.isAtLeastO()) {
             assertEquals(channelA.isTransient(), channelB.isTransient());
         }
-        if (!fromSystemDb) {
+        if (includeIdAndProtectedFields) {
             // Skip row ID since the one from system DB has the valid ID while the other does not.
             assertEquals(channelA.getId(), channelB.getId());
             // When we insert a channel using toContentValues() to the system, we drop some
@@ -168,8 +175,8 @@ public class ChannelTest extends TestCase {
             assertEquals(channelA.isBrowsable(), channelB.isBrowsable());
             if (BuildCompat.isAtLeastO()) {
                 assertEquals(channelA.isSystemApproved(), channelB.isSystemApproved());
-                assertEquals(channelA.toContentValues(), channelB.toContentValues());
             }
+            assertEquals(channelA.toContentValues(), channelB.toContentValues());
             assertEquals(channelA.toString(), channelB.toString());
         }
     }

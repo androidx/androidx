@@ -46,13 +46,19 @@ public class PreviewProgramTest extends TestCase {
 
     @Override
     protected void tearDown() {
+        // TODO: Use @SdkSuppress once Build.VERSION_CODES.O has a right value.
+        if (!BuildCompat.isAtLeastO()) {
+            return;
+        }
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
         ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
         resolver.delete(Channels.CONTENT_URI, null, null);
     }
 
     @Test
     public void testEmptyPreviewProgram() {
-        // TODO: Use @SdkSuppress once Build.VERSION_CODES.O has a right value.
         if (!BuildCompat.isAtLeastO()) {
             return;
         }
@@ -60,7 +66,7 @@ public class PreviewProgramTest extends TestCase {
         ContentValues contentValues = emptyProgram.toContentValues();
         compareProgram(emptyProgram,
                 PreviewProgram.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)),
-                false);
+                true);
     }
 
     @Test
@@ -80,10 +86,10 @@ public class PreviewProgramTest extends TestCase {
         ContentValues contentValues = sampleProgram.toContentValues(true);
         compareProgram(sampleProgram,
                 PreviewProgram.fromCursor(
-                        getProgramCursor(PreviewProgram.PROJECTION, contentValues)), false);
+                        getProgramCursor(PreviewProgram.PROJECTION, contentValues)), true);
 
         PreviewProgram clonedSampleProgram = new PreviewProgram.Builder(sampleProgram).build();
-        compareProgram(sampleProgram, clonedSampleProgram, false);
+        compareProgram(sampleProgram, clonedSampleProgram, true);
     }
 
     @Test
@@ -95,15 +101,21 @@ public class PreviewProgramTest extends TestCase {
         ContentValues contentValues = fullyPopulatedProgram.toContentValues(true);
         compareProgram(fullyPopulatedProgram,
                 PreviewProgram.fromCursor(
-                        getProgramCursor(PreviewProgram.PROJECTION, contentValues)), false);
+                        getProgramCursor(PreviewProgram.PROJECTION, contentValues)), true);
 
         PreviewProgram clonedFullyPopulatedProgram =
                 new PreviewProgram.Builder(fullyPopulatedProgram).build();
-        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram, false);
+        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram, true);
     }
 
     @Test
     public void testChannelWithSystemContentProvider() {
+        if (!BuildCompat.isAtLeastO()) {
+            return;
+        }
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
         Channel channel = new Channel.Builder()
                 .setInputId("TestInputService")
                 .setType(TvContractCompat.Channels.TYPE_PREVIEW)
@@ -124,7 +136,7 @@ public class PreviewProgramTest extends TestCase {
             cursor.moveToNext();
             programFromSystemDb = PreviewProgram.fromCursor(cursor);
         }
-        compareProgram(fullyPopulatedProgram, programFromSystemDb, true);
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
     }
 
     @Test
@@ -197,11 +209,11 @@ public class PreviewProgramTest extends TestCase {
         ContentValues contentValues = previewProgram.toContentValues(true);
         compareProgram(previewProgram,
                 PreviewProgram.fromCursor(getProgramCursor(partialProjection, contentValues)),
-                false);
+                true);
 
         PreviewProgram clonedFullyPopulatedProgram =
                 new PreviewProgram.Builder(previewProgram).build();
-        compareProgram(previewProgram, clonedFullyPopulatedProgram, false);
+        compareProgram(previewProgram, clonedFullyPopulatedProgram, true);
     }
 
     private static PreviewProgram createFullyPopulatedPreviewProgram(long channelId) {
@@ -256,7 +268,7 @@ public class PreviewProgramTest extends TestCase {
     }
 
     private static void compareProgram(PreviewProgram programA, PreviewProgram programB,
-            boolean fromSystemDb) {
+            boolean includeIdAndProtectedFields) {
         assertTrue(Arrays.equals(programA.getAudioLanguages(), programB.getAudioLanguages()));
         assertTrue(Arrays.deepEquals(programA.getCanonicalGenres(), programB.getCanonicalGenres()));
         assertEquals(programA.getChannelId(), programB.getChannelId());
@@ -302,7 +314,7 @@ public class PreviewProgramTest extends TestCase {
         assertEquals(programA.getReviewRating(), programB.getReviewRating());
         assertEquals(programA.getContentId(), programB.getContentId());
         assertEquals(programA.toString(), programB.toString());
-        if (!fromSystemDb) {
+        if (includeIdAndProtectedFields) {
             // Skip row ID since the one from system DB has the valid ID while the other does not.
             assertEquals(programA.getId(), programB.getId());
             // When we insert a channel using toContentValues() to the system, we drop some

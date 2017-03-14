@@ -45,13 +45,19 @@ public class WatchNextProgramTest extends TestCase {
 
     @Override
     protected void tearDown() {
+        // TODO: Use @SdkSuppress once Build.VERSION_CODES.O has a right value.
+        if (!BuildCompat.isAtLeastO()) {
+            return;
+        }
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
         ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
         resolver.delete(WatchNextPrograms.CONTENT_URI, null, null);
     }
 
     @Test
     public void testEmptyPreviewProgram() {
-        // TODO: Use @SdkSuppress once Build.VERSION_CODES.O has a right value.
         if (!BuildCompat.isAtLeastO()) {
             return;
         }
@@ -59,7 +65,7 @@ public class WatchNextProgramTest extends TestCase {
         ContentValues contentValues = emptyProgram.toContentValues(true);
         compareProgram(emptyProgram,
                 WatchNextProgram.fromCursor(getProgramCursor(Program.PROJECTION, contentValues)),
-                false);
+                true);
     }
 
     @Test
@@ -77,10 +83,10 @@ public class WatchNextProgramTest extends TestCase {
         ContentValues contentValues = sampleProgram.toContentValues(true);
         compareProgram(sampleProgram,
                 WatchNextProgram.fromCursor(
-                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)), false);
+                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)), true);
 
         WatchNextProgram clonedSampleProgram = new WatchNextProgram.Builder(sampleProgram).build();
-        compareProgram(sampleProgram, clonedSampleProgram, false);
+        compareProgram(sampleProgram, clonedSampleProgram, true);
     }
 
     @Test
@@ -92,28 +98,34 @@ public class WatchNextProgramTest extends TestCase {
         ContentValues contentValues = fullyPopulatedProgram.toContentValues(true);
         compareProgram(fullyPopulatedProgram,
                 WatchNextProgram.fromCursor(
-                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)), false);
+                        getProgramCursor(WatchNextProgram.PROJECTION, contentValues)), true);
 
         WatchNextProgram clonedFullyPopulatedProgram =
                 new WatchNextProgram.Builder(fullyPopulatedProgram).build();
-        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram, false);
+        compareProgram(fullyPopulatedProgram, clonedFullyPopulatedProgram, true);
     }
 
     @Test
     public void testChannelWithSystemContentProvider() {
+        if (!BuildCompat.isAtLeastO()) {
+            return;
+        }
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
         WatchNextProgram fullyPopulatedProgram = createFullyPopulatedWatchNextProgram();
         ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
-        Uri previewProgramUri = resolver.insert(WatchNextPrograms.CONTENT_URI,
+        Uri watchNextProgramUri = resolver.insert(WatchNextPrograms.CONTENT_URI,
                 fullyPopulatedProgram.toContentValues());
 
         WatchNextProgram programFromSystemDb;
-        try (Cursor cursor = resolver.query(previewProgramUri, null, null, null, null)) {
+        try (Cursor cursor = resolver.query(watchNextProgramUri, null, null, null, null)) {
             assertNotNull(cursor);
             assertEquals(1, cursor.getCount());
             cursor.moveToNext();
             programFromSystemDb = WatchNextProgram.fromCursor(cursor);
         }
-        compareProgram(fullyPopulatedProgram, programFromSystemDb, true);
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
     }
 
     @Test
@@ -182,11 +194,11 @@ public class WatchNextProgramTest extends TestCase {
         ContentValues contentValues = previewProgram.toContentValues(true);
         compareProgram(previewProgram,
                 WatchNextProgram.fromCursor(getProgramCursor(partialProjection, contentValues)),
-                false);
+                true);
 
         WatchNextProgram clonedFullyPopulatedProgram =
                 new WatchNextProgram.Builder(previewProgram).build();
-        compareProgram(previewProgram, clonedFullyPopulatedProgram, false);
+        compareProgram(previewProgram, clonedFullyPopulatedProgram, true);
     }
 
     private static WatchNextProgram createFullyPopulatedWatchNextProgram() {
@@ -240,7 +252,7 @@ public class WatchNextProgramTest extends TestCase {
     }
 
     private static void compareProgram(WatchNextProgram programA, WatchNextProgram programB,
-            boolean fromSystemDb) {
+            boolean includeIdAndProtectedFields) {
         assertTrue(Arrays.equals(programA.getAudioLanguages(), programB.getAudioLanguages()));
         assertTrue(Arrays.deepEquals(programA.getCanonicalGenres(), programB.getCanonicalGenres()));
         assertTrue(Arrays.deepEquals(programA.getContentRatings(), programB.getContentRatings()));
@@ -285,7 +297,7 @@ public class WatchNextProgramTest extends TestCase {
         assertEquals(programA.getReviewRating(), programB.getReviewRating());
         assertEquals(programA.getContentId(), programB.getContentId());
         assertEquals(programA.toString(), programB.toString());
-        if (!fromSystemDb) {
+        if (includeIdAndProtectedFields) {
             // Skip row ID since the one from system DB has the valid ID while the other does not.
             assertEquals(programA.getId(), programB.getId());
             // When we insert a channel using toContentValues() to the system, we drop some
