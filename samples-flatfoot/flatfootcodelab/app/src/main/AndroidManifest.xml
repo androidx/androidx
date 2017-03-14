@@ -114,6 +114,9 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="${applicationId}.backend_product_service_trojan"
+            android:name=".step10.internal.ProductBackendTrojanProvider"/>
     </application>
 
 </manifest>
