@@ -90,6 +90,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".navigation.NewsActivity"
+            android:label="@string/news_label"
+            android:theme="@android:style/Theme.DeviceDefault">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

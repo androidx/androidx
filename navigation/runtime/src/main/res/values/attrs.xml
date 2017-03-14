@@ -33,6 +33,7 @@
     <declare-styleable name="NavAction">
         <attr name="android:id" />
         <attr name="destination" format="reference" />
+        <attr name="pop" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="NavHostFragment">

@@ -25,4 +25,5 @@
     <string name="none">None</string>
     <string name="shapes_label">Shapes Activity</string>
     <string name="note_label">Note label:</string>
+    <string name="news_label">News</string>
 </resources>
