@@ -1352,6 +1352,13 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setVideoFormat(java.lang.String);
   }
 
+  public class ChannelLogoUtils {
+    ctor public ChannelLogoUtils();
+    method public static android.graphics.Bitmap loadChannelLogo(android.content.Context, long);
+    method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
+    method public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
+  }
+
   public final class PreviewProgram extends android.support.media.tv.BasePreviewProgram {
     method public static android.support.media.tv.PreviewProgram fromCursor(android.database.Cursor);
     method public long getChannelId();

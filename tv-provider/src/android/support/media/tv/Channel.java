@@ -253,7 +253,6 @@ public final class Channel {
         return Intent.parseUri(mAppLinkIntentUri.toString(), Intent.URI_INTENT_SCHEME);
     }
 
-
     /**
      * @return The value of {@link Channels#COLUMN_NETWORK_AFFILIATION} for the channel.
      */
