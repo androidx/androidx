@@ -16,46 +16,62 @@
 
 package com.android.support.lifecycle;
 
-import static com.android.support.lifecycle.testapp.FullLifecycleTestActivity.TestEvent
-        .ACTIVITY_CALLBACK;
-import static com.android.support.lifecycle.testapp.FullLifecycleTestActivity.TestEvent
-        .LIFECYCLE_EVENT;
+import static com.android.support.lifecycle.testapp.TestEvent.ACTIVITY_CALLBACK;
+import static com.android.support.lifecycle.testapp.TestEvent.LIFECYCLE_EVENT;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import android.app.Activity;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.Pair;
 
+import com.android.support.lifecycle.testapp.CollectingActivity;
+import com.android.support.lifecycle.testapp.FrameworkLifecycleRegistryActivity;
 import com.android.support.lifecycle.testapp.FullLifecycleTestActivity;
+import com.android.support.lifecycle.testapp.SupportLifecycleRegistryActivity;
+import com.android.support.lifecycle.testapp.TestEvent;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @SmallTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 public class ActivityFullLifecycleTest {
     @Rule
-    public ActivityTestRule<FullLifecycleTestActivity> activityTestRule =
+    public ActivityTestRule activityTestRule =
             new ActivityTestRule<>(FullLifecycleTestActivity.class);
+
+    @Parameterized.Parameters
+    public static Class[] params() {
+        return new Class[]{FullLifecycleTestActivity.class,
+                SupportLifecycleRegistryActivity.class,
+                FrameworkLifecycleRegistryActivity.class};
+    }
+
+    public ActivityFullLifecycleTest(Class<? extends Activity> activityClass) {
+        //noinspection unchecked
+        activityTestRule = new ActivityTestRule(activityClass);
+    }
+
 
     @Test
     public void testFullLifecycle() throws InterruptedException {
-        FullLifecycleTestActivity activity = activityTestRule.getActivity();
-        List<Pair<FullLifecycleTestActivity.TestEvent, Integer>> results =
-                activity.waitForCollectedEvents();
+        Activity activity = activityTestRule.getActivity();
+        List<Pair<TestEvent, Integer>> results = ((CollectingActivity) activity)
+                .waitForCollectedEvents();
 
         int[] expectedEvents =
                 new int[]{Lifecycle.ON_CREATE, Lifecycle.ON_START, Lifecycle.ON_RESUME,
                         Lifecycle.ON_PAUSE, Lifecycle.ON_STOP, Lifecycle.ON_DESTROY};
 
-        List<Pair<FullLifecycleTestActivity.TestEvent, Integer>> expected = new ArrayList<>();
+        List<Pair<TestEvent, Integer>> expected = new ArrayList<>();
         for (int i : expectedEvents) {
             if (i <= Lifecycle.ON_RESUME) {
                 expected.add(new Pair<>(ACTIVITY_CALLBACK, i));

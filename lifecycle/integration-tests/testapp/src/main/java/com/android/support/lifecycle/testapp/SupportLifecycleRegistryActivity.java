@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ package com.android.support.lifecycle.testapp;
 import static com.android.support.lifecycle.testapp.TestEvent.ACTIVITY_CALLBACK;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Pair;
 
 import com.android.support.lifecycle.Lifecycle;
-import com.android.support.lifecycle.LifecycleActivity;
+import com.android.support.lifecycle.LifecycleRegistry;
+import com.android.support.lifecycle.LifecycleRegistryProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +32,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Activity for testing full lifecycle
+ * LifecycleRegistryProvider that extends FragmentActivity.
  */
-public class FullLifecycleTestActivity extends LifecycleActivity implements CollectingActivity {
+public class SupportLifecycleRegistryActivity extends FragmentActivity implements
+        LifecycleRegistryProvider, CollectingActivity {
+    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+    @Override
+    public LifecycleRegistry getLifecycle() {
+        return mLifecycleRegistry;
+    }
 
     private List<Pair<TestEvent, Integer>> mCollectedEvents = new ArrayList<>();
     private TestObserver mTestObserver = new TestObserver(mCollectedEvents);
