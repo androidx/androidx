@@ -59,7 +59,19 @@ public class LoaderTest {
             new ActivityTestRule(LoaderActivity.class);
 
     @After
-    public void clearActivity() {
+    public void resetActivity() {
+        final LoaderActivity activity = LoaderActivity.sActivity;
+        final int unspecifiedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        if (activity != null && activity.getRequestedOrientation() != unspecifiedOrientation) {
+            LoaderActivity.sResumed = new CountDownLatch(1);
+            activity.setRequestedOrientation(unspecifiedOrientation);
+            // Wait for the orientation change to settle, if there was a change
+            try {
+                LoaderActivity.sResumed.await(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                // I guess there wasn't a change in orientation after all
+            }
+        }
         LoaderActivity.clearState();
     }
 
