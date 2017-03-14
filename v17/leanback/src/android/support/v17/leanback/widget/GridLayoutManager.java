@@ -877,7 +877,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // when item is removed, the position value can be any value.
             return NO_POSITION;
         }
-        return params.getViewPosition();
+        return params.getViewAdapterPosition();
     }
 
     int getSubPositionByView(View view, View childView) {
@@ -2585,8 +2585,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return true;
         }
         if (getPositionByView(child) == NO_POSITION) {
-            // This shouldn't happen, but in case it does be sure not to attempt a
-            // scroll to a view whose item has been removed.
+            // This is could be the last view in DISAPPEARING animation.
             return true;
         }
         if (!mInLayout && !mInSelection && !mInScroll) {

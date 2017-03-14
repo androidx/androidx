@@ -3423,4 +3423,33 @@ public class GridWidgetTest {
         assertFalse(mGridView.isFocused());
         assertEquals(29, mGridView.getSelectedPosition());
     }
+
+    @Test
+    public void testRemoveLastItemWithStableId() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_HAS_STABLE_IDS, true);
+        int[] items = new int[1];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 680;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setRemoveDuration(2000);
+                mActivity.removeItems(0, 1, false);
+                mGridView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        Thread.sleep(500);
+        assertEquals(-1, mGridView.getSelectedPosition());
+    }
 }
+

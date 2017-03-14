@@ -50,6 +50,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_UPDATE_SIZE = "updateSize";
     public static final String EXTRA_LAYOUT_MARGINS = "layoutMargins";
     public static final String EXTRA_NINEPATCH_SHADOW = "NINEPATCH_SHADOW";
+    public static final String EXTRA_HAS_STABLE_IDS = "hasStableIds";
 
     /**
      * Class that implements GridWidgetTest.ViewTypeProvider for creating different
@@ -89,6 +90,7 @@ public class GridActivity extends Activity {
     GridWidgetTest.ItemAlignmentFacetProvider mAlignmentViewTypeProvider;
     AdapterListener mAdapterListener;
     boolean mUpdateSize = true;
+    boolean mHasStableIds;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -133,6 +135,7 @@ public class GridActivity extends Activity {
         mUpdateSize = intent.getBooleanExtra(EXTRA_UPDATE_SIZE, true);
         mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
+        mHasStableIds = intent.getBooleanExtra(EXTRA_HAS_STABLE_IDS, false);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
         mLayoutMargins = intent.getIntArrayExtra(EXTRA_LAYOUT_MARGINS);
         String alignmentClass = intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_CLASS);
@@ -166,6 +169,7 @@ public class GridActivity extends Activity {
         if (DEBUG) Log.v(TAG, "onCreate " + this);
 
         RecyclerView.Adapter adapter = new MyAdapter();
+        adapter.setHasStableIds(mHasStableIds);
 
         View view = createView();
         if (mItemLengths == null) {
@@ -260,12 +264,16 @@ public class GridActivity extends Activity {
     }
 
     int[] removeItems(int index, int length) {
+        return removeItems(index, length, true);
+    }
+
+    int[] removeItems(int index, int length, boolean notify) {
         int[] removed = new int[length];
         System.arraycopy(mItemLengths, index, removed, 0, length);
         System.arraycopy(mItemLengths, index + length, mItemLengths, index,
                 mNumItems - index - length);
         mNumItems -= length;
-        if (mGridView.getAdapter() != null) {
+        if (mGridView.getAdapter() != null && notify) {
             mGridView.getAdapter().notifyItemRangeRemoved(index, length);
         }
         return removed;
@@ -437,6 +445,11 @@ public class GridActivity extends Activity {
             return mNumItems;
         }
 
+        @Override
+        public long getItemId(int position) {
+            if (!mHasStableIds) return -1;
+            return position;
+        }
     }
 
     void updateSize(View view, int position) {
