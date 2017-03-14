@@ -917,7 +917,7 @@ public class ViewPager extends ViewGroup {
     // of travel has on the overall snap duration.
     float distanceInfluenceForSnapDuration(float f) {
         f -= 0.5f; // center the values about 0.
-        f *= 0.3f * Math.PI / 2.0f;
+        f *= 0.3f * (float) Math.PI / 2.0f;
         return (float) Math.sin(f);
     }
 
@@ -2287,7 +2287,7 @@ public class ViewPager extends ViewGroup {
         endDrag();
         mLeftEdge.onRelease();
         mRightEdge.onRelease();
-        needsInvalidate = mLeftEdge.isFinished() | mRightEdge.isFinished();
+        needsInvalidate = mLeftEdge.isFinished() || mRightEdge.isFinished();
         return needsInvalidate;
     }
 

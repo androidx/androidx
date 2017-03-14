@@ -681,7 +681,7 @@ public class ViewDragHelper {
 
     private float distanceInfluenceForSnapDuration(float f) {
         f -= 0.5f; // center the values about 0.
-        f *= 0.3f * Math.PI / 2.0f;
+        f *= 0.3f * (float) Math.PI / 2.0f;
         return (float) Math.sin(f);
     }
 
@@ -1039,12 +1039,10 @@ public class ViewDragHelper {
                         final int targetTop = oldTop + (int) dy;
                         final int newTop = mCallback.clampViewPositionVertical(toCapture, targetTop,
                                 (int) dy);
-                        final int horizontalDragRange = mCallback.getViewHorizontalDragRange(
-                                toCapture);
-                        final int verticalDragRange = mCallback.getViewVerticalDragRange(toCapture);
-                        if ((horizontalDragRange == 0 || horizontalDragRange > 0
-                                && newLeft == oldLeft) && (verticalDragRange == 0
-                                || verticalDragRange > 0 && newTop == oldTop)) {
+                        final int hDragRange = mCallback.getViewHorizontalDragRange(toCapture);
+                        final int vDragRange = mCallback.getViewVerticalDragRange(toCapture);
+                        if ((hDragRange == 0 || (hDragRange > 0 && newLeft == oldLeft))
+                                && (vDragRange == 0 || (vDragRange > 0 && newTop == oldTop))) {
                             break;
                         }
                     }
