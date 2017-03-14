@@ -93,9 +93,9 @@ public class AnimatorInflaterCompat {
     public static Animator loadAnimator(Context context, int id)
             throws NotFoundException {
         Animator objectAnimator;
-        // Since path morphing , path interpolator are added after API 21, so we load the framework
-        // version for API 21+.
-        if (Build.VERSION.SDK_INT >= 21) {
+        // Since AVDC will fall back onto AVD when API is >= 24, therefore, PathParser will need
+        // to match the accordingly to be able to call into the right setter/ getter for animation.
+        if (Build.VERSION.SDK_INT >= 24) {
             objectAnimator = AnimatorInflater.loadAnimator(context, id);
         } else {
             objectAnimator = loadAnimator(context, context.getResources(), context.getTheme(), id);
