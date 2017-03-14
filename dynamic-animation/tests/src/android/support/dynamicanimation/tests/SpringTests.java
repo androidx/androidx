@@ -38,6 +38,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.view.ViewCompat;
 import android.util.AndroidRuntimeException;
 import android.view.View;
 
@@ -468,24 +469,29 @@ public class SpringTests {
                 DynamicAnimation.SCROLL_X, DynamicAnimation.SCROLL_Y,
         };
 
-        mView1.setAlpha(0f);
-        mView1.setTranslationX(0f);
-        mView1.setTranslationY(0f);
-        mView1.setTranslationZ(0f);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mView1.setAlpha(0f);
+                mView1.setTranslationX(0f);
+                mView1.setTranslationY(0f);
+                ViewCompat.setTranslationZ(mView1, 0f);
 
-        mView1.setScaleX(0f);
-        mView1.setScaleY(0f);
+                mView1.setScaleX(0f);
+                mView1.setScaleY(0f);
 
-        mView1.setRotation(0f);
-        mView1.setRotationX(0f);
-        mView1.setRotationY(0f);
+                mView1.setRotation(0f);
+                mView1.setRotationX(0f);
+                mView1.setRotationY(0f);
 
-        mView1.setX(0f);
-        mView1.setY(0f);
-        mView1.setZ(0f);
+                mView1.setX(0f);
+                mView1.setY(0f);
+                ViewCompat.setZ(mView1, 0f);
 
-        mView1.setScrollX(0);
-        mView1.setScrollY(0);
+                mView1.setScrollX(0);
+                mView1.setScrollY(0);
+            }
+        });
 
         View mockView = mock(View.class);
 
