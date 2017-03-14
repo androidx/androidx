@@ -938,7 +938,6 @@ public class ListPopupWindow implements ShowableListMenu {
      * @return true if the event was handled, false if it was ignored.
      *
      * @see #setModal(boolean)
-     * @see #onKeyUp(int, KeyEvent)
      */
     public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         // when the drop down is shown, we drive it directly
@@ -1034,7 +1033,6 @@ public class ListPopupWindow implements ShowableListMenu {
      * @return true if the event was handled, false if it was ignored.
      *
      * @see #setModal(boolean)
-     * @see #onKeyDown(int, KeyEvent)
      */
     public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         if (isShowing() && mDropDownList.getSelectedItemPosition() >= 0) {

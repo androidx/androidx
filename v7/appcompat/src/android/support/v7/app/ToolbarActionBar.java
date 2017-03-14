@@ -70,9 +70,9 @@ class ToolbarActionBar extends ActionBar {
                 }
             };
 
-    public ToolbarActionBar(Toolbar toolbar, CharSequence title, Window.Callback windowCallback) {
+    public ToolbarActionBar(Toolbar toolbar, CharSequence title, Window.Callback callback) {
         mDecorToolbar = new ToolbarWidgetWrapper(toolbar, false);
-        mWindowCallback = new ToolbarCallbackWrapper(windowCallback);
+        mWindowCallback = new ToolbarCallbackWrapper(callback);
         mDecorToolbar.setWindowCallback(mWindowCallback);
         toolbar.setOnMenuItemClickListener(mMenuClicker);
         mDecorToolbar.setWindowTitle(title);

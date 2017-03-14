@@ -900,7 +900,7 @@ public abstract class ActionBar {
      * call {@link #setHomeActionContentDescription(int) setHomeActionContentDescription()}
      * to provide a correct description of the action for accessibility support.</p>
      *
-     * @param resId Resource ID of a drawable to use for the up indicator, or null
+     * @param resId Resource ID of a drawable to use for the up indicator, or 0
      *              to use the theme's default
      *
      * @see #setDisplayOptions(int, int)
@@ -1100,9 +1100,7 @@ public abstract class ActionBar {
      * Attempts to move focus to the ActionBar if it does not already contain the focus.
      *
      * @return {@code true} if focus changes or {@code false} if focus doesn't change.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     boolean requestFocus() {
         return false;
     }
@@ -1287,7 +1285,7 @@ public abstract class ActionBar {
          * @see #setContentDescription(CharSequence)
          * @see #getContentDescription()
          */
-        public abstract Tab setContentDescription(@StringRes int resId);
+        public abstract Tab setContentDescription(int resId);
 
         /**
          * Set a description of this tab's content for use in accessibility support.

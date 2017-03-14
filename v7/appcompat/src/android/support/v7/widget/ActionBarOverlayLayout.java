@@ -484,7 +484,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     @Override
     public void onStopNestedScroll(View target) {
-        super.onStopNestedScroll(target);
         if (mHideOnContentScroll && !mAnimatingForFling) {
             if (mHideOnContentScrollReference <= mActionBarTop.getHeight()) {
                 postRemoveActionBarHideOffset();

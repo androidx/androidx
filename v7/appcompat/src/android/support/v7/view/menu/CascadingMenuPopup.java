@@ -228,7 +228,6 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
         popupWindow.setAnchorView(mAnchorView);
         popupWindow.setDropDownGravity(mDropDownGravity);
         popupWindow.setModal(true);
-        popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
         return popupWindow;
     }
 
