@@ -57,6 +57,46 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
+    public void testBadgeIcon() throws Throwable {
+        int badgeIcon = NotificationCompat.BADGE_ICON_SMALL;
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setBadgeIconType(badgeIcon)
+                .build();
+        if (BuildCompat.isAtLeastO()) {
+            assertEquals(badgeIcon, NotificationCompat.getBadgeIconType(n));
+        } else {
+            assertEquals(NotificationCompat.BADGE_ICON_NONE,
+                    NotificationCompat.getBadgeIconType(n));
+        }
+    }
+
+    @Test
+    public void testTimeout() throws Throwable {
+        long timeout = 23552;
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setTimeout(timeout)
+                .build();
+        if (BuildCompat.isAtLeastO()) {
+            assertEquals(timeout, NotificationCompat.getTimeout(n));
+        } else {
+            assertEquals(0, NotificationCompat.getTimeout(n));
+        }
+    }
+
+    @Test
+    public void testShortcutId() throws Throwable {
+        String shortcutId = "fgdfg";
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setShortcutId(shortcutId)
+                .build();
+        if (BuildCompat.isAtLeastO()) {
+            assertEquals(shortcutId, NotificationCompat.getShortcutId(n));
+        } else {
+            assertEquals(null, NotificationCompat.getShortcutId(n));
+        }
+    }
+
+    @Test
     public void testNotificationChannel() throws Throwable {
         String channelId = "new ID";
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
