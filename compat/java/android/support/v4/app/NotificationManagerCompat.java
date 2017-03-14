@@ -34,6 +34,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.support.annotation.GuardedBy;
 import android.support.annotation.RequiresApi;
 import android.support.v4.os.BuildCompat;
 import android.util.Log;
@@ -87,16 +88,16 @@ public final class NotificationManagerCompat {
 
     /** Cache of enabled notification listener components */
     private static final Object sEnabledNotificationListenersLock = new Object();
-    /** Guarded by {@link #sEnabledNotificationListenersLock} */
+    @GuardedBy("sEnabledNotificationListenersLock")
     private static String sEnabledNotificationListeners;
-    /** Guarded by {@link #sEnabledNotificationListenersLock} */
+    @GuardedBy("sEnabledNotificationListenersLock")
     private static Set<String> sEnabledNotificationListenerPackages = new HashSet<String>();
 
     private final Context mContext;
     private final NotificationManager mNotificationManager;
     /** Lock for mutable static fields */
     private static final Object sLock = new Object();
-    /** Guarded by {@link #sLock} */
+    @GuardedBy("sLock")
     private static SideChannelManager sSideChannelManager;
 
     /**
