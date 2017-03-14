@@ -67,6 +67,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -99,6 +100,18 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         mButton = (Button) mContainer.findViewById(R.id.test_button);
         mResources = mActivityTestRule.getActivity().getResources();
         mMainDecorView = mActivityTestRule.getActivity().getWindow().getDecorView();
+    }
+
+    @After
+    public void tearDown() {
+        if (mPopupMenu != null) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    mPopupMenu.dismiss();
+                }
+            });
+        }
     }
 
     @Test
