@@ -35,6 +35,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.support.annotation.RequiresApi;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
@@ -84,6 +87,11 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
                 (FitWindowsContentLayout) getActivity().findViewById(R.id.test_content);
         assertNotNull(content);
 
+        if (!canShowSystemUi(getActivity())) {
+            // Device cannot show system UI so setSystemUiVisibility will do nothing.
+            return;
+        }
+
         // Call setSystemUiVisibility with flags which will cause window insets to be dispatched
         final int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
         onView(withId(R.id.test_content)).perform(setSystemUiVisibility(flags));
@@ -97,6 +105,11 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     public void testOnApplyWindowInsetsReachesContent() {
         final View content = getActivity().findViewById(R.id.test_content);
         assertNotNull(content);
+
+        if (!canShowSystemUi(getActivity())) {
+            // Device cannot show system UI so setSystemUiVisibility will do nothing.
+            return;
+        }
 
         // Create a spy of one of our test listener and set it on our content
         final View.OnApplyWindowInsetsListener spyListener
@@ -181,6 +194,15 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
 
         // Assert that an action mode was not created
         assertNull(actionMode);
+    }
+
+    @SuppressWarnings("deprecation")
+    @SuppressLint("InlinedApi")
+    private static boolean canShowSystemUi(Activity activity) {
+        PackageManager manager = activity.getPackageManager();
+        return !manager.hasSystemFeature(PackageManager.FEATURE_TELEVISION)
+                && !manager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+                && !manager.hasSystemFeature(PackageManager.FEATURE_WATCH);
     }
 
     protected void testSupportActionModeAppCompatCallbacks(final boolean fromWindow) {
