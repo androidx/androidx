@@ -16,72 +16,19 @@
 
 package android.support.v4.content;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v4.os.CancellationSignal;
 import android.support.v4.os.OperationCanceledException;
 
 /**
- * Helper for accessing features in {@link android.content.ContentResolver}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.ContentResolver} in a backwards
+ * compatible fashion.
  */
 public final class ContentResolverCompat {
-    interface ContentResolverCompatImpl {
-        Cursor query(ContentResolver resolver,
-                Uri uri, String[] projection, String selection, String[] selectionArgs,
-                String sortOrder, CancellationSignal cancellationSignal);
-    }
-
-    static class ContentResolverCompatImplBase implements ContentResolverCompatImpl {
-        @Override
-        public Cursor query(ContentResolver resolver, Uri uri, String[] projection,
-                String selection, String[] selectionArgs, String sortOrder,
-                CancellationSignal cancellationSignal) {
-            // Note that the cancellation signal cannot cancel the query in progress
-            // prior to Jellybean so we cancel it preemptively here if needed.
-            if (cancellationSignal != null) {
-                cancellationSignal.throwIfCanceled();
-            }
-            return resolver.query(uri, projection, selection, selectionArgs, sortOrder);
-        }
-    }
-
-    @RequiresApi(16)
-    static class ContentResolverCompatImplJB extends ContentResolverCompatImplBase {
-        @Override
-        public Cursor query(ContentResolver resolver, Uri uri, String[] projection,
-                String selection, String[] selectionArgs, String sortOrder,
-                CancellationSignal cancellationSignal) {
-            try {
-                return ContentResolverCompatJellybean.query(resolver,
-                        uri, projection, selection, selectionArgs, sortOrder,
-                        cancellationSignal != null ?
-                                cancellationSignal.getCancellationSignalObject() : null);
-            } catch (Exception e) {
-                if (ContentResolverCompatJellybean.isFrameworkOperationCanceledException(e)) {
-                    // query() can throw a framework OperationCanceledException if it has been
-                    // canceled. We catch that and throw the support version instead.
-                    throw new OperationCanceledException();
-                } else {
-                    // If it's not a framework OperationCanceledException, re-throw the exception
-                    throw e;
-                }
-            }
-        }
-    }
-
-    private static final ContentResolverCompatImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new ContentResolverCompatImplJB();
-        } else {
-            IMPL = new ContentResolverCompatImplBase();
-        }
-    }
-
     private ContentResolverCompat() {
         /* Hide constructor */
     }
@@ -123,7 +70,32 @@ public final class ContentResolverCompat {
     public static Cursor query(ContentResolver resolver,
             Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder, CancellationSignal cancellationSignal) {
-        return IMPL.query(resolver, uri, projection, selection, selectionArgs,
-                sortOrder, cancellationSignal);
+        if (SDK_INT >= 16) {
+            try {
+                final android.os.CancellationSignal cancellationSignalObj =
+                        (android.os.CancellationSignal)
+                                (cancellationSignal != null
+                                        ? cancellationSignal.getCancellationSignalObject()
+                                        : null);
+                return resolver.query(uri, projection, selection, selectionArgs, sortOrder,
+                        cancellationSignalObj);
+            } catch (Exception e) {
+                if (e instanceof android.os.OperationCanceledException) {
+                    // query() can throw a framework OperationCanceledException if it has been
+                    // canceled. We catch that and throw the support version instead.
+                    throw new OperationCanceledException();
+                } else {
+                    // If it's not a framework OperationCanceledException, re-throw the exception
+                    throw e;
+                }
+            }
+        } else {
+            // Note that the cancellation signal cannot cancel the query in progress
+            // prior to Jellybean so we cancel it preemptively here if needed.
+            if (cancellationSignal != null) {
+                cancellationSignal.throwIfCanceled();
+            }
+            return resolver.query(uri, projection, selection, selectionArgs, sortOrder);
+        }
     }
 }
