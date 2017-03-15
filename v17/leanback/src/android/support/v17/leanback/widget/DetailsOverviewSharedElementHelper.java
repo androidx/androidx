@@ -182,8 +182,8 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
 
     void setSharedElementEnterTransition(Activity activity, String sharedElementName,
             long timeoutMs) {
-        if (activity == null && !TextUtils.isEmpty(sharedElementName)
-                || activity != null && TextUtils.isEmpty(sharedElementName)) {
+        if ((activity == null && !TextUtils.isEmpty(sharedElementName))
+                || (activity != null && TextUtils.isEmpty(sharedElementName))) {
             throw new IllegalArgumentException();
         }
         if (activity == mActivityToRunTransition

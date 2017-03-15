@@ -109,11 +109,6 @@ public final class StateMachine {
         public final int getStatus() {
             return mStatus;
         }
-
-        @Override
-        public final boolean equals(Object other) {
-            return this == other;
-        }
     }
 
     private boolean mSorted = true;
