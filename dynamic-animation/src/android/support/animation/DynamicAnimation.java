@@ -332,6 +332,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * to pixel/second based on the density of the screen to achieve a consistent look across
      * different screens.
      *
+     * <p>To convert from dp/second to pixel/second:
+     * <pre class="prettyprint">
+     * float pixelPerSecond = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpPerSecond,
+     *         getResources().getDisplayMetrics());
+     * </pre>
+     *
      * @param startVelocity start velocity of the animation in pixel/second
      * @return the Animation whose start velocity is being set
      */
