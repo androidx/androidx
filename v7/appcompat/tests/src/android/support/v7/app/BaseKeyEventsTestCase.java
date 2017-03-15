@@ -21,6 +21,7 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
@@ -39,6 +40,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -94,23 +96,25 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     @Test
     @LargeTest
     public void testBackCollapsesSearchView() throws InterruptedException {
+
         // Click on the Search menu item
         onView(withId(R.id.action_search)).perform(click());
-        // Check that the SearchView is displayed
-        onView(withId(R.id.search_bar)).check(matches(isDisplayed()));
+        // Check that the action view is displayed (expanded)
+        onView(withClassName(Matchers.is(CustomCollapsibleView.class.getName())))
+                .check(matches(isDisplayed()));
 
-        // Wait for the IME to show
+        // Let things settle
         getInstrumentation().waitForIdleSync();
-        // Now send a back event to dismiss the IME
+        // Now send a back event to collapse the custom action view
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        // ...and another to collapse the SearchView
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        getInstrumentation().waitForIdleSync();
 
         // Check that the Activity is still running
         assertFalse(getActivity().isFinishing());
         assertFalse(getActivity().isDestroyed());
-        // ...and that the SearchView is not attached
-        onView(withId(R.id.search_bar)).check(doesNotExist());
+        // ... and that our action view is not attached
+        onView(withClassName(Matchers.is(CustomCollapsibleView.class.getName())))
+                .check(doesNotExist());
     }
 
     @Test
