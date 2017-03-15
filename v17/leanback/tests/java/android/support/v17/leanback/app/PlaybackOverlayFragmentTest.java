@@ -20,7 +20,9 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
 import android.view.View;
@@ -43,6 +45,8 @@ public class PlaybackOverlayFragmentTest extends SingleFragmentTestBase {
         assertTrue(fragment.getView().hasFocus());
     }
 
+    @FlakyTest
+    @Suppress
     @Test
     public void alignmentRowToBottom() throws Throwable {
         launchAndWaitActivity(PlaybackOverlayTestFragment.class,
