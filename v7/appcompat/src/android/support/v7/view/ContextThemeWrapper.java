@@ -125,11 +125,10 @@ public class ContextThemeWrapper extends ContextWrapper {
     }
 
     private Resources getResourcesInternal() {
-        final int version = Build.VERSION.SDK_INT;
         if (mResources == null) {
             if (mOverrideConfiguration == null) {
                 mResources = super.getResources();
-            } else if (version >= 17) {
+            } else if (Build.VERSION.SDK_INT >= 17) {
                 final Context resContext = createConfigurationContext(mOverrideConfiguration);
                 mResources = resContext.getResources();
             }
