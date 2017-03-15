@@ -22,7 +22,7 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"သို့ ကာစ်တ်လုပ်ရန်"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"စက်ပစ္စည်းများ ရှာဖွေခြင်း"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"ဆက်သွယ်မှု ဖြတ်ရန်"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"ကာစ်တ်လုပ်ခြင်း ရပ်တန့်ရန်"</string>
+    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"ကာစ်တ်လုပ်ခြင်း ရပ်တန့်ရန်"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"ပိတ်ရန်"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"ဖွင့်ရန်"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"ခဏရပ်ရန်"</string>

@@ -17,5 +17,6 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="android.support.compat">
     <uses-sdk android:minSdkVersion="9" tools:overrideLibrary="android.support.compat"/>
+    <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
     <application />
 </manifest>

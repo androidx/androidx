@@ -28,7 +28,6 @@ import android.os.Message;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.design.R;
 import android.support.v4.view.ViewCompat;
@@ -418,12 +417,13 @@ public abstract class BaseTransientBottomBar<B extends BaseTransientBottomBar<B>
                         switch (state) {
                             case SwipeDismissBehavior.STATE_DRAGGING:
                             case SwipeDismissBehavior.STATE_SETTLING:
-                                // If the view is being dragged or settling, cancel the timeout
-                                SnackbarManager.getInstance().cancelTimeout(mManagerCallback);
+                                // If the view is being dragged or settling, pause the timeout
+                                SnackbarManager.getInstance().pauseTimeout(mManagerCallback);
                                 break;
                             case SwipeDismissBehavior.STATE_IDLE:
                                 // If the view has been released and is idle, restore the timeout
-                                SnackbarManager.getInstance().restoreTimeout(mManagerCallback);
+                                SnackbarManager.getInstance()
+                                        .restoreTimeoutIfPaused(mManagerCallback);
                                 break;
                         }
                     }
@@ -688,20 +688,20 @@ public abstract class BaseTransientBottomBar<B extends BaseTransientBottomBar<B>
         @Override
         public boolean onInterceptTouchEvent(CoordinatorLayout parent, SnackbarBaseLayout child,
                 MotionEvent event) {
-            // We want to make sure that we disable any Snackbar timeouts if the user is
-            // currently touching the Snackbar. We restore the timeout when complete
-            if (parent.isPointInChildBounds(child, (int) event.getX(), (int) event.getY())) {
-                switch (event.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        SnackbarManager.getInstance().cancelTimeout(mManagerCallback);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        SnackbarManager.getInstance().restoreTimeout(mManagerCallback);
-                        break;
-                }
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    // We want to make sure that we disable any Snackbar timeouts if the user is
+                    // currently touching the Snackbar. We restore the timeout when complete
+                    if (parent.isPointInChildBounds(child, (int) event.getX(),
+                            (int) event.getY())) {
+                        SnackbarManager.getInstance().pauseTimeout(mManagerCallback);
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    SnackbarManager.getInstance().restoreTimeoutIfPaused(mManagerCallback);
+                    break;
             }
-
             return super.onInterceptTouchEvent(parent, child, event);
         }
     }

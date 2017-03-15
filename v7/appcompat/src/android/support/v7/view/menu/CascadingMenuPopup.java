@@ -27,6 +27,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
+import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -163,7 +164,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
 
                     // Then open the selected submenu, if there is one.
                     if (item.isEnabled() && item.hasSubMenu()) {
-                        menu.performItemAction(item, 0);
+                        menu.performItemAction(item, SupportMenu.FLAG_KEEP_OPEN_ON_SUBMENU_OPENED);
                     }
                 }
             };

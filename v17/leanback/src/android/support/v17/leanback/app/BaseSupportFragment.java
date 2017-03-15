@@ -222,7 +222,7 @@ class BaseSupportFragment extends BrandedSupportFragment {
             @Override
             public boolean onPreDraw() {
                 view.getViewTreeObserver().removeOnPreDrawListener(this);
-                if (getActivity() == null || getView() == null) {
+                if (getContext() == null || getView() == null) {
                     // bail out if fragment is destroyed immediately after startEntranceTransition
                     return true;
                 }

@@ -16,6 +16,12 @@
 
 package android.support.design.widget;
 
+import static android.support.design.testutils.TabLayoutActions.selectTab;
+import static android.support.design.testutils.TabLayoutActions.setScrollPosition;
+import static android.support.design.testutils.TestUtilsActions.setLayoutDirection;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -29,13 +35,20 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.support.design.test.R;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.espresso.Espresso;
+import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.espresso.ViewAssertion;
 import android.support.test.filters.SmallTest;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SmallTest
 public class TabLayoutTest extends BaseInstrumentationTestCase<AppCompatActivity> {
@@ -185,6 +198,107 @@ public class TabLayoutTest extends BaseInstrumentationTestCase<AppCompatActivity
             final View tabCustomView = tab.getCustomView();
             if (tabCustomView != null) {
                 assertEquals(tab.isSelected(), tabCustomView.isSelected());
+            }
+        }
+    }
+
+    @Test
+    public void setScrollPositionLtr() throws Throwable {
+        testSetScrollPosition(true);
+    }
+
+    @Test
+    public void setScrollPositionRtl() throws Throwable {
+        testSetScrollPosition(false);
+    }
+
+    private void testSetScrollPosition(final boolean isLtr) throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivityTestRule.getActivity().setContentView(R.layout.design_tabs_fixed_width);
+            }
+        });
+        final TabLayout tabs = (TabLayout) mActivityTestRule.getActivity().findViewById(R.id.tabs);
+        assertEquals(TabLayout.MODE_SCROLLABLE, tabs.getTabMode());
+
+        final TabLayoutScrollIdlingResource idler = new TabLayoutScrollIdlingResource(tabs);
+        Espresso.registerIdlingResources(idler);
+
+        // We're going to call setScrollPosition() incrementally, as if scrolling between one tab
+        // and the next. Use the middle tab for best results. The positionOffsets should be in the
+        // range [0, 1), so the final call will wrap to 0 but use the next tab's position.
+        final int middleTab = tabs.getTabCount() / 2;
+        final int[] positions = {middleTab, middleTab, middleTab, middleTab, middleTab + 1};
+        final float[] positionOffsets = {0f, .25f, .5f, .75f, 0f};
+
+        // Set layout direction
+        onView(withId(R.id.tabs)).perform(setLayoutDirection(
+                isLtr ? ViewCompat.LAYOUT_DIRECTION_LTR : ViewCompat.LAYOUT_DIRECTION_RTL));
+        // Make sure it's scrolled all the way to the start
+        onView(withId(R.id.tabs)).perform(selectTab(0));
+
+        // Perform a series of setScrollPosition() calls
+        final AtomicInteger lastScrollX = new AtomicInteger(tabs.getScrollX());
+        for (int i = 0; i < positions.length; i++) {
+            onView(withId(R.id.tabs))
+                    .perform(setScrollPosition(positions[i], positionOffsets[i]))
+                    .check(new ViewAssertion() {
+                        @Override
+                        public void check(View view, NoMatchingViewException notFoundException) {
+                            if (view == null) {
+                                throw notFoundException;
+                            }
+                            // Verify increasing or decreasing scroll X values
+                            int sx = view.getScrollX();
+                            assertTrue(isLtr ? sx > lastScrollX.get() : sx < lastScrollX.get());
+                            lastScrollX.set(sx);
+                        }
+                    });
+        }
+
+        Espresso.unregisterIdlingResources(idler);
+    }
+
+    static class TabLayoutScrollIdlingResource implements IdlingResource {
+
+        private boolean mIsIdle = true;
+        private ResourceCallback mCallback;
+
+        TabLayoutScrollIdlingResource(final TabLayout tabLayout) {
+            tabLayout.setScrollAnimatorListener(new ValueAnimatorCompat.AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(ValueAnimatorCompat animator) {
+                    setIdle(false);
+                }
+
+                @Override
+                public void onAnimationEnd(ValueAnimatorCompat animator) {
+                    setIdle(true);
+                }
+            });
+        }
+
+        @Override
+        public String getName() {
+            return "TabLayoutScrollIdlingResource";
+        }
+
+        @Override
+        public boolean isIdleNow() {
+            return mIsIdle;
+        }
+
+        @Override
+        public void registerIdleTransitionCallback(ResourceCallback callback) {
+            mCallback = callback;
+        }
+
+        private void setIdle(boolean idle) {
+            boolean wasIdle = mIsIdle;
+            mIsIdle = idle;
+            if (mIsIdle && !wasIdle && mCallback != null) {
+                mCallback.onTransitionToIdle();
             }
         }
     }

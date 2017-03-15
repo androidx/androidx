@@ -22,6 +22,7 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNEC
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA_ITEM;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
 import static android.support.v4.media.MediaBrowserProtocol
         .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_VERSION_CURRENT;
@@ -33,6 +34,8 @@ import static android.support.v4.media.MediaBrowserProtocol.DATA_OPTIONS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_PACKAGE_NAME;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_RESULT_RECEIVER;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_ROOT_HINTS;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_EXTRAS;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_QUERY;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT;
@@ -121,7 +124,9 @@ public final class MediaBrowserCompat {
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
-        if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
+        // To workaround an issue of {@link #unsubscribe(String, SubscriptionCallback)} on API 24
+        // and 25 devices, use the support library version of implementation on those devices.
+        if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
             mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
@@ -323,7 +328,30 @@ public final class MediaBrowserCompat {
     }
 
     /**
-     * A class with information on a single media item for use in browsing media.
+     * Searches {@link MediaItem media items} from the connected service. Not all services may
+     * support this, and {@link SearchCallback#onError} will be called if not implemented.
+     *
+     * @param query The search query that contains keywords separated by space. Should not be an
+     *            empty string.
+     * @param extras The bundle of service-specific arguments to send to the media browser service.
+     *            The contents of this bundle may affect the search result.
+     * @param callback The callback to receive the search result. Must be non-null.
+     */
+    public void search(@NonNull final String query, final Bundle extras,
+            @NonNull SearchCallback callback) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query cannot be empty");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("callback cannot be null");
+        }
+        mImpl.search(query, extras, callback);
+    }
+
+    /**
+     * A class with information on a single media item for use in browsing/searching media.
+     * MediaItems are application dependent so we cannot guarantee that they contain the
+     * right values.
      */
     public static class MediaItem implements Parcelable {
         private final int mFlags;
@@ -484,7 +512,7 @@ public final class MediaBrowserCompat {
          * Returns the media id in the {@link MediaDescriptionCompat} for this item.
          * @see MediaMetadataCompat#METADATA_KEY_MEDIA_ID
          */
-        public @NonNull String getMediaId() {
+        public @Nullable String getMediaId() {
             return mDescription.getMediaId();
         }
     }
@@ -573,7 +601,7 @@ public final class MediaBrowserCompat {
         WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
-            if (Build.VERSION.SDK_INT >= 24 || BuildCompat.isAtLeastN()) {
+            if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
                 mToken = null;
@@ -591,21 +619,21 @@ public final class MediaBrowserCompat {
          * Called when the list of children is loaded or updated.
          *
          * @param parentId The media id of the parent media item.
-         * @param children The children which were loaded, or null if the id is invalid.
+         * @param children The children which were loaded.
          */
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
         }
 
         /**
          * Called when the list of children is loaded or updated.
          *
          * @param parentId The media id of the parent media item.
-         * @param children The children which were loaded, or null if the id is invalid.
+         * @param children The children which were loaded.
          * @param options A bundle of service-specific arguments to send to the media
          *            browse service. The contents of this bundle may affect the
          *            information returned when browsing.
          */
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children,
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children,
                 @NonNull Bundle options) {
         }
 
@@ -750,16 +778,47 @@ public final class MediaBrowserCompat {
 
             @Override
             public void onItemLoaded(Parcel itemParcel) {
-                itemParcel.setDataPosition(0);
-                MediaItem item = MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(itemParcel);
-                itemParcel.recycle();
-                ItemCallback.this.onItemLoaded(item);
+                if (itemParcel == null) {
+                    ItemCallback.this.onItemLoaded(null);
+                } else {
+                    itemParcel.setDataPosition(0);
+                    MediaItem item =
+                            MediaBrowserCompat.MediaItem.CREATOR.createFromParcel(itemParcel);
+                    itemParcel.recycle();
+                    ItemCallback.this.onItemLoaded(item);
+                }
             }
 
             @Override
             public void onError(@NonNull String itemId) {
                 ItemCallback.this.onError(itemId);
             }
+        }
+    }
+
+    /**
+     * Callback for receiving the result of {@link #search}.
+     */
+    public abstract static class SearchCallback {
+        /**
+         * Called when the {@link #search} finished successfully.
+         *
+         * @param query The search query sent for the search request to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param items The list of media items which contains the search result.
+         */
+        public void onSearchResult(@NonNull String query, Bundle extras,
+                @NonNull List<MediaItem> items) {
+        }
+
+        /**
+         * Called when an error happens while {@link #search} or the connected service doesn't
+         * support {@link #search}.
+         *
+         * @param query The search query sent for the search request to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         */
+        public void onError(@NonNull String query, Bundle extras) {
         }
     }
 
@@ -775,6 +834,7 @@ public final class MediaBrowserCompat {
                 @NonNull SubscriptionCallback callback);
         void unsubscribe(@NonNull String parentId, SubscriptionCallback callback);
         void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb);
+        void search(@NonNull String query, Bundle extras, @NonNull SearchCallback callback);
     }
 
     interface MediaBrowserServiceCallbackImpl {
@@ -979,13 +1039,14 @@ public final class MediaBrowserCompat {
                 sub = new Subscription();
                 mSubscriptions.put(parentId, sub);
             }
-            sub.putCallback(options, callback);
+            Bundle copiedOptions = options == null ? null : new Bundle(options);
+            sub.putCallback(copiedOptions, callback);
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
             if (mState == CONNECT_STATE_CONNECTED) {
                 try {
-                    mServiceBinderWrapper.addSubscription(parentId, callback.mToken, options,
+                    mServiceBinderWrapper.addSubscription(parentId, callback.mToken, copiedOptions,
                             mCallbacksMessenger);
                 } catch (RemoteException e) {
                     // Process is crashing. We will disconnect, and upon reconnect we will
@@ -1067,6 +1128,34 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        public void search(@NonNull final String query, final Bundle extras,
+                @NonNull final SearchCallback callback) {
+            if (!isConnected()) {
+                Log.i(TAG, "Not connected, unable to search.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
+                    }
+                });
+                return;
+            }
+
+            ResultReceiver receiver = new SearchResultReceiver(query, extras, callback, mHandler);
+            try {
+                mServiceBinderWrapper.search(query, extras, receiver, mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error searching items with query: " + query, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
+                    }
+                });
+            }
+        }
+
+        @Override
         public void onServiceConnected(final Messenger callback, final String root,
                 final MediaSessionCompat.Token session, final Bundle extra) {
             // Check to make sure there hasn't been a disconnect or a different ServiceConnection.
@@ -1141,7 +1230,6 @@ public final class MediaBrowserCompat {
                 return;
             }
 
-            List<MediaItem> data = list;
             if (DEBUG) {
                 Log.d(TAG, "onLoadChildren for " + mServiceComponent + " id=" + parentId);
             }
@@ -1159,9 +1247,17 @@ public final class MediaBrowserCompat {
             SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
                 if (options == null) {
-                    subscriptionCallback.onChildrenLoaded(parentId, data);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list);
+                    }
                 } else {
-                    subscriptionCallback.onChildrenLoaded(parentId, data, options);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId, options);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                    }
                 }
             }
         }
@@ -1338,9 +1434,9 @@ public final class MediaBrowserCompat {
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
-            // Do not send the client version for API 25 and higher, since we don't need to use
-            // EXTRA_MESSENGER_BINDER for API 24 and higher.
-            if (Build.VERSION.SDK_INT < 25) {
+            // Do not send the client version for API 26 and higher, since we don't need to use
+            // EXTRA_MESSENGER_BINDER for API 26 and higher.
+            if (Build.VERSION.SDK_INT <= 25) {
                 if (rootHints == null) {
                     rootHints = new Bundle();
                 }
@@ -1410,15 +1506,18 @@ public final class MediaBrowserCompat {
                 mSubscriptions.put(parentId, sub);
             }
             callback.setSubscription(sub);
-            sub.putCallback(options, callback);
+            Bundle copiedOptions = options == null ? null : new Bundle(options);
+            sub.putCallback(copiedOptions, callback);
 
             if (mServiceBinderWrapper == null) {
+                // TODO: When MediaBrowser is connected to framework's MediaBrowserService,
+                // subscribe with options won't work properly.
                 MediaBrowserCompatApi21.subscribe(
                         mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
             } else {
                 try {
                     mServiceBinderWrapper.addSubscription(
-                            parentId, callback.mToken, options, mCallbacksMessenger);
+                            parentId, callback.mToken, copiedOptions, mCallbacksMessenger);
                 } catch (RemoteException e) {
                     // Process is crashing. We will disconnect, and upon reconnect we will
                     // automatically reregister. So nothing to do here.
@@ -1524,6 +1623,45 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        public void search(@NonNull final String query, final Bundle extras,
+                @NonNull final SearchCallback callback) {
+            if (!isConnected()) {
+                Log.i(TAG, "Not connected, unable to search.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
+                    }
+                });
+                return;
+            }
+            if (mServiceBinderWrapper == null) {
+                Log.i(TAG, "The connected service doesn't support search.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Default framework implementation.
+                        callback.onError(query, extras);
+                    }
+                });
+                return;
+            }
+
+            ResultReceiver receiver = new SearchResultReceiver(query, extras, callback, mHandler);
+            try {
+                mServiceBinderWrapper.search(query, extras, receiver, mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error searching items with query: " + query, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(query, extras);
+                    }
+                });
+            }
+        }
+
+        @Override
         public void onConnected() {
             Bundle extras = MediaBrowserCompatApi21.getExtras(mBrowserObj);
             if (extras == null) {
@@ -1584,9 +1722,17 @@ public final class MediaBrowserCompat {
             SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
             if (subscriptionCallback != null) {
                 if (options == null) {
-                    subscriptionCallback.onChildrenLoaded(parentId, list);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list);
+                    }
                 } else {
-                    subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                    if (list == null) {
+                        subscriptionCallback.onError(parentId, options);
+                    } else {
+                        subscriptionCallback.onChildrenLoaded(parentId, list, options);
+                    }
                 }
             }
         }
@@ -1608,6 +1754,7 @@ public final class MediaBrowserCompat {
         }
     }
 
+    // TODO: Rename to MediaBrowserImplApi26 once O is released
     static class MediaBrowserImplApi24 extends MediaBrowserImplApi23 {
         public MediaBrowserImplApi24(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
@@ -1782,6 +1929,15 @@ public final class MediaBrowserCompat {
             sendRequest(CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER, null, callbackMessenger);
         }
 
+        void search(String query, Bundle extras, ResultReceiver receiver,
+                Messenger callbacksMessenger) throws RemoteException {
+            Bundle data = new Bundle();
+            data.putString(DATA_SEARCH_QUERY, query);
+            data.putBundle(DATA_SEARCH_EXTRAS, extras);
+            data.putParcelable(DATA_RESULT_RECEIVER, receiver);
+            sendRequest(CLIENT_MSG_SEARCH, data, callbacksMessenger);
+        }
+
         private void sendRequest(int what, Bundle data, Messenger cbMessenger)
                 throws RemoteException {
             Message msg = Message.obtain();
@@ -1808,7 +1964,7 @@ public final class MediaBrowserCompat {
             if (resultData != null) {
                 resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
             }
-            if (resultCode != 0 || resultData == null
+            if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_MEDIA_ITEM)) {
                 mCallback.onError(mMediaId);
                 return;
@@ -1819,6 +1975,39 @@ public final class MediaBrowserCompat {
             } else {
                 mCallback.onError(mMediaId);
             }
+        }
+    }
+
+    private static class SearchResultReceiver extends ResultReceiver {
+        private final String mQuery;
+        private final Bundle mExtras;
+        private final SearchCallback mCallback;
+
+        SearchResultReceiver(String query, Bundle extras, SearchCallback callback,
+                Handler handler) {
+            super(handler);
+            mQuery = query;
+            mExtras = extras;
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
+                    || !resultData.containsKey(MediaBrowserServiceCompat.KEY_SEARCH_RESULTS)) {
+                mCallback.onError(mQuery, mExtras);
+                return;
+            }
+            Parcelable[] items = resultData.getParcelableArray(
+                    MediaBrowserServiceCompat.KEY_SEARCH_RESULTS);
+            List<MediaItem> results = null;
+            if (items != null) {
+                results = new ArrayList<>();
+                for (Parcelable item : items) {
+                    results.add((MediaItem) item);
+                }
+            }
+            mCallback.onSearchResult(mQuery, mExtras, results);
         }
     }
 }

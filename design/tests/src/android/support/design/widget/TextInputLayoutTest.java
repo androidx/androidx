@@ -460,6 +460,12 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
     }
 
     @Test
+    public void testTextSetViaAttributeCollapsedHint() {
+        onView(withId(R.id.textinput_with_text))
+                .check(isHintExpanded(false));
+    }
+
+    @Test
     public void testFocusMovesToEditTextWithPasswordEnabled() {
         // Focus the preceding EditText
         onView(withId(R.id.textinput_edittext))
@@ -472,12 +478,6 @@ public class TextInputLayoutTest extends BaseInstrumentationTestCase<TextInputLa
         // And check that the EditText is focused
         onView(withId(R.id.textinput_edittext_pwd))
                 .check(matches(hasFocus()));
-    }
-
-    @Test
-    public void testTextSetViaAttributeCollapsedHint() {
-        onView(withId(R.id.textinput_with_text))
-                .check(isHintExpanded(false));
     }
 
     static ViewAssertion isHintExpanded(final boolean expanded) {

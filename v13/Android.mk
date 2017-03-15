@@ -34,6 +34,7 @@ LOCAL_SRC_FILES := \
         $(call all-java-files-under, api25) \
         $(call all-java-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
+LOCAL_MANIFEST_FILE := AndroidManifest-make.xml
 # Some projects expect to inherit android-support-v4 from
 # android-support-v13, so we need to keep it static until they can be fixed.
 LOCAL_STATIC_ANDROID_LIBRARIES := \

@@ -33,12 +33,20 @@
         <activity android:name="android.support.v17.leanback.widget.GridActivity"
                   android:exported="true" />
 
+        <activity android:name="android.support.v17.leanback.widget.TimePickerActivity"
+                  android:theme="@style/Theme.Leanback"
+                  android:exported="true" />
+
+        <activity android:name="android.support.v17.leanback.widget.DatePickerActivity"
+                  android:theme="@style/Theme.Leanback"
+                  android:exported="true" />
+
         <activity
                 android:name="android.support.v17.leanback.app.wizard.GuidedStepAttributesTestActivity"
                 android:theme="@style/Theme.Leanback.GuidedStep"
                 android:exported="true" />
 
-        <activity android:name="android.support.v17.leanback.app.RowsFragmentTestActivity"
+        <activity android:name="android.support.v17.leanback.app.SingleFragmentTestActivity"
             android:theme="@style/Theme.Leanback"
             android:exported="true" />
 
@@ -46,11 +54,7 @@
                   android:theme="@style/Theme.Leanback.Browse"
                   android:exported="true" />
 
-        <activity android:name="android.support.v17.leanback.app.DetailsFragmentTestActivity"
-                  android:theme="@style/Theme.Leanback"
-                  android:exported="true" />
-
-        <activity android:name="android.support.v17.leanback.app.RowsSupportFragmentTestActivity"
+        <activity android:name="android.support.v17.leanback.app.SingleSupportFragmentTestActivity"
             android:theme="@style/Theme.Leanback"
             android:exported="true" />
 
@@ -65,31 +69,6 @@
         <activity android:name="android.support.v17.leanback.app.GuidedStepSupportFragmentTestActivity"
                   android:theme="@style/Theme.Leanback.GuidedStep"
                   android:exported="true" />
-
-        <activity android:name="android.support.v17.leanback.app.PlaybackTestActivity"
-                  android:theme="@style/Theme.Leanback"
-                  android:exported="true" />
-
-        <activity android:name="android.support.v17.leanback.app.PlaybackSupportTestActivity"
-                  android:theme="@style/Theme.Leanback"
-                  android:exported="true" />
-
-        <activity android:name="android.support.v17.leanback.app.PlaybackOverlayTestActivity"
-                  android:theme="@style/Theme.Leanback"
-                  android:exported="true" />
-        <activity
-            android:name="android.support.v17.leanback.app.VerticalGridFragmentTest$ImmediateRemoveFragmentActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Leanback.VerticalGrid" />
-
-        <activity
-            android:name="android.support.v17.leanback.app.VerticalGridSupportFragmentTest$ImmediateRemoveFragmentActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Leanback.VerticalGrid" />
-
-        <activity android:name="android.support.v17.leanback.app.VideoFragmentTestActivity"
-            android:theme="@style/Theme.Leanback"
-            android:exported="true" />
 
         <activity android:name="android.support.v17.leanback.app.TestActivity"
             android:theme="@style/Theme.Leanback"

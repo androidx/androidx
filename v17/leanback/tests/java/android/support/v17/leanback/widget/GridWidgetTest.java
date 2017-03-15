@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -40,6 +39,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
+import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
@@ -2986,6 +2986,195 @@ public class GridWidgetTest {
         waitForScrollIdle(mVerifyLayout);
         int selectedPosition2 = mGridView.getSelectedPosition();
         assertTrue(selectedPosition2 < selectedPosition1);
+    }
+
+    @Test
+    public void testAnimateOutResetByScrollTo() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateOut();
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getChildAt(0).getTop() > mGridView.getPaddingTop();
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.scrollToPosition(0);
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+    }
+
+    @Test
+    public void testAnimateOutResetByFocusChange() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateOut();
+                mActivity.findViewById(R.id.button).requestFocus();
+            }
+        });
+        assertTrue(mActivity.findViewById(R.id.button).hasFocus());
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getChildAt(0).getTop() > mGridView.getPaddingTop();
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.requestFocus();
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+    }
+
+    @Test
+    public void testHorizontalAnimateOutResetByScrollTo() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding left", mGridView.getPaddingLeft(),
+                mGridView.getChildAt(0).getLeft());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateOut();
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getChildAt(0).getLeft() > mGridView.getPaddingLeft();
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.scrollToPosition(0);
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+
+        assertEquals("First view is aligned with padding left", mGridView.getPaddingLeft(),
+                mGridView.getChildAt(0).getLeft());
+    }
+
+    @Test
+    public void testHorizontalAnimateOutRtl() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear_rtl);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding right",
+                mGridView.getWidth() - mGridView.getPaddingRight(),
+                mGridView.getChildAt(0).getRight());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateOut();
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getChildAt(0).getRight()
+                        < mGridView.getWidth() - mGridView.getPaddingRight();
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.smoothScrollToPosition(0);
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+
+        assertEquals("First view is aligned with padding right",
+                mGridView.getWidth() - mGridView.getPaddingRight(),
+                mGridView.getChildAt(0).getRight());
     }
 
 }

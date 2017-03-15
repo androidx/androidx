@@ -656,7 +656,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * Notification noti = new NotificationCompat.Builder()
      *     .setSmallIcon(R.drawable.ic_stat_player)
      *     .setLargeIcon(albumArtBitmap))
-     *     .setCustomContentView(contentView);
+     *     .setCustomContentView(contentView)
      *     .setStyle(<b>new NotificationCompat.DecoratedCustomViewStyle()</b>)
      *     .build();
      * </pre>
@@ -690,7 +690,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * Notification noti = new Notification.Builder()
      *     .setSmallIcon(R.drawable.ic_stat_player)
      *     .setLargeIcon(albumArtBitmap))
-     *     .setCustomContentView(contentView);
+     *     .setCustomContentView(contentView)
      *     .setStyle(<b>new NotificationCompat.DecoratedMediaCustomViewStyle()</b>
      *          .setMediaSession(mySession))
      *     .build();

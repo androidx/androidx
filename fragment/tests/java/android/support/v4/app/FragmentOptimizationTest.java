@@ -15,11 +15,14 @@
  */
 package android.support.v4.app;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -648,38 +651,30 @@ public class FragmentOptimizationTest {
 
     // Test that a fragment view that is created with focus has focus after the transaction
     // completes.
+    @UiThreadTest
     @Test
     public void focusedView() throws Throwable {
-        FragmentTestUtil.setContentView(mActivityRule, R.layout.double_container);
+        mActivityRule.getActivity().setContentView(R.layout.double_container);
         mContainer = (ViewGroup) mActivityRule.getActivity().findViewById(R.id.fragmentContainer1);
-        final EditText firstEditText = new EditText(mContainer.getContext());
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mContainer.addView(firstEditText);
-                firstEditText.requestFocus();
-            }
-        });
+        EditText firstEditText = new EditText(mContainer.getContext());
+        mContainer.addView(firstEditText);
+        firstEditText.requestFocus();
+
         assertTrue(firstEditText.isFocused());
         final CountCallsFragment fragment1 = new CountCallsFragment();
         final CountCallsFragment fragment2 = new CountCallsFragment();
         fragment2.setLayoutId(R.layout.with_edit_text);
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mFM.beginTransaction()
-                        .add(R.id.fragmentContainer2, fragment1)
-                        .addToBackStack(null)
-                        .setAllowOptimization(true)
-                        .commit();
-                mFM.beginTransaction()
-                        .replace(R.id.fragmentContainer2, fragment2)
-                        .addToBackStack(null)
-                        .setAllowOptimization(true)
-                        .commit();
-                mFM.executePendingTransactions();
-            }
-        });
+        mFM.beginTransaction()
+                .add(R.id.fragmentContainer2, fragment1)
+                .addToBackStack(null)
+                .setAllowOptimization(true)
+                .commit();
+        mFM.beginTransaction()
+                .replace(R.id.fragmentContainer2, fragment2)
+                .addToBackStack(null)
+                .setAllowOptimization(true)
+                .commit();
+        mFM.executePendingTransactions();
         final View editText = fragment2.getView().findViewById(R.id.editText);
         assertTrue(editText.isFocused());
         assertFalse(firstEditText.isFocused());

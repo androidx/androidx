@@ -33,11 +33,15 @@ import static android.support.design.testutils.TestUtilsMatchers.withFabContentA
 import static android.support.design.testutils.TestUtilsMatchers.withFabContentHeight;
 import static android.support.design.widget.DesignViewActions.setVisibility;
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.Matchers.not;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -226,6 +230,19 @@ public class FloatingActionButtonTest
                         },
                         Press.FINGER))
                 .check(matches(not(isPressed())));
+    }
+
+    @Test
+    public void testOnClickListener() {
+        final View.OnClickListener listener = mock(View.OnClickListener.class);
+        final View view = mActivityTestRule.getActivity().findViewById(R.id.fab_standard);
+        view.setOnClickListener(listener);
+
+        // Click on the fab
+        onView(withId(R.id.fab_standard)).perform(click());
+
+        // And verify that the listener was invoked once
+        verify(listener, times(1)).onClick(view);
     }
 
     @Test

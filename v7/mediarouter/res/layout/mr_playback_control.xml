@@ -20,7 +20,7 @@
                 android:orientation="horizontal"
                 android:paddingLeft="24dp"
                 android:paddingRight="12dp" >
-    <ImageButton android:id="@+id/mr_control_play_pause"
+    <ImageButton android:id="@+id/mr_control_playback_ctrl"
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
                  android:layout_marginLeft="12dp"
@@ -33,7 +33,7 @@
                   android:orientation="vertical"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:layout_toLeftOf="@id/mr_control_play_pause"
+                  android:layout_toLeftOf="@id/mr_control_playback_ctrl"
                   android:layout_alignParentLeft="true"
                   android:layout_centerVertical="true">
         <TextView android:id="@+id/mr_control_title"

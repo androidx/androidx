@@ -14,14 +14,17 @@
      limitations under the License.
 -->
 
-<ImageView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/action_mode_close_button"
-        android:contentDescription="@string/abc_action_mode_done"
-        android:focusable="true"
-        android:clickable="true"
-        app:srcCompat="?attr/actionModeCloseDrawable"
-        style="?attr/actionModeCloseButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/action_mode_close_button"
+    style="?attr/actionModeCloseButtonStyle"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="16dip"
+    android:layout_marginRight="16dip"
+    android:clickable="true"
+    android:contentDescription="@string/abc_action_mode_done"
+    android:focusable="true"
+    android:paddingLeft="8dp"
+    android:paddingStart="8dp"
+    app:srcCompat="?attr/actionModeCloseDrawable" />

@@ -74,6 +74,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -107,6 +108,13 @@ public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTest
     public void setUp() {
         final AlertDialogTestActivity activity = mActivityTestRule.getActivity();
         mButton = (Button) activity.findViewById(R.id.test_button);
+    }
+
+    @After
+    public void tearDown() {
+        if (mAlertDialog != null) {
+            mAlertDialog.dismiss();
+        }
     }
 
     private void wireBuilder(final AlertDialog.Builder builder) {

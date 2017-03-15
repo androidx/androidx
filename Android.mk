@@ -57,32 +57,11 @@ define all-subdir-named-files-exclude
 $(call all-named-files-under-exclude,$(1),$(2),.)
 endef
 
-# Proxy to gradle task for updating API
-.PHONY: update-support-api
-update-support-api: PRIVATE_LOCAL_PATH := $(LOCAL_PATH)
-update-support-api:
-	$(PRIVATE_LOCAL_PATH)/gradlew -p $(PRIVATE_LOCAL_PATH) updateApi
-
-# Proxy to gradle task for checking API
-.PHONY: check-support-api
-check-support-api: PRIVATE_LOCAL_PATH := $(LOCAL_PATH)
-check-support-api:
-	$(PRIVATE_LOCAL_PATH)/gradlew -p $(PRIVATE_LOCAL_PATH) checkApi
-
-# Proxy to gradle task for generating docs
-.PHONY: support-docs
-support-docs: PRIVATE_LOCAL_PATH := $(LOCAL_PATH)
-support-docs:
-	$(PRIVATE_LOCAL_PATH)/gradlew -p $(PRIVATE_LOCAL_PATH) generateDocs
-
 # Pre-process support library AIDLs
 aidl_files := $(addprefix $(LOCAL_PATH)/, $(call all-subdir-named-files-exclude,*.aidl,I*.aidl))
 support-aidl := $(TARGET_OUT_COMMON_INTERMEDIATES)/support.aidl
 $(support-aidl): $(aidl_files) | $(AIDL)
 	$(AIDL) --preprocess $@ $(aidl_files)
-
-# Check APIs and generate support AIDL file for SDK build
-sdk: check-support-api $(support-aidl)
 
 # Build all support libraries
 include $(call all-makefiles-under,$(LOCAL_PATH))

@@ -29,7 +29,6 @@ import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -159,14 +158,18 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * Release internal MediaPlayer. Should not use the object after call release().
      */
     public void release() {
+        mInitialized = false;
         mPlayer.release();
     }
 
     @Override
     protected void onDetachedFromHost() {
-        super.onDetachedFromHost();
+        if (getHost() instanceof SurfaceHolderGlueHost) {
+            ((SurfaceHolderGlueHost) getHost()).setSurfaceHolderCallback(null);
+        }
         reset();
         release();
+        super.onDetachedFromHost();
     }
 
     @Override
@@ -185,18 +188,19 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public void enableProgressUpdating(final boolean enabled) {
+        if (mRunnable != null) mHandler.removeCallbacks(mRunnable);
         if (!enabled) {
-            if (mRunnable != null) mHandler.removeCallbacks(mRunnable);
             return;
         }
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                updateProgress();
-                Log.d(TAG, "enableProgressUpdating(boolean)");
-                mHandler.postDelayed(this, getUpdatePeriod());
-            }
-        };
+        if (mRunnable == null) {
+            mRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    updateProgress();
+                    mHandler.postDelayed(this, getUpdatePeriod());
+                }
+            };
+        }
         mHandler.postDelayed(mRunnable, getUpdatePeriod());
     }
 
@@ -262,7 +266,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public boolean isMediaPlaying() {
-        return mPlayer.isPlaying();
+        return mInitialized && mPlayer.isPlaying();
     }
 
     @Override
@@ -295,7 +299,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     @Override
     public int getCurrentSpeedId() {
         // 0 = Pause, 1 = Normal Playback Speed
-        return mPlayer.isPlaying() ? 1 : 0;
+        return isMediaPlaying() ? 1 : 0;
     }
 
     @Override
@@ -305,6 +309,9 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public void play(int speed) {
+        if (!mInitialized || mPlayer.isPlaying()) {
+            return;
+        }
         mPlayer.start();
         onMetadataChanged();
         onStateChanged();
@@ -313,8 +320,9 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public void pause() {
-        if (mPlayer.isPlaying()) {
+        if (isMediaPlaying()) {
             mPlayer.pause();
+            onStateChanged();
         }
     }
 
@@ -359,6 +367,9 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * @param newPosition The new position of the media track in milliseconds.
      */
     protected void seekTo(int newPosition) {
+        if (!mInitialized) {
+            return;
+        }
         mPlayer.seekTo(newPosition);
     }
 
@@ -379,6 +390,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
             prepareMediaForPlaying();
         } else {
             mMediaSourceUri = uri;
+            prepareMediaForPlaying();
         }
         return true;
     }
@@ -400,6 +412,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
             prepareMediaForPlaying();
         } else {
             mMediaSourcePath = path;
+            prepareMediaForPlaying();
         }
         return true;
     }
@@ -436,6 +449,9 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
         mPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                if (getControlsRow() == null) {
+                    return;
+                }
                 getControlsRow().setBufferedProgress((int) (mp.getDuration() * (percent / 100f)));
             }
         });
@@ -475,15 +491,9 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * {@link PlaybackGlueHost}.
      */
     class VideoPlayerSurfaceHolderCallback implements SurfaceHolder.Callback {
-        private boolean mMediaPlayerReset = true;
-
         @Override
         public void surfaceCreated(SurfaceHolder surfaceHolder) {
-            if (mMediaPlayerReset) {
-                mMediaPlayerReset = false;
-                setDisplay(surfaceHolder);
-                prepareMediaForPlaying();
-            }
+            setDisplay(surfaceHolder);
         }
 
         @Override
@@ -492,9 +502,7 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
         @Override
         public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-            reset();
             setDisplay(null);
-            mMediaPlayerReset = true;
         }
     }
 }

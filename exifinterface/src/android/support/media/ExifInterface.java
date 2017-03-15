@@ -658,9 +658,9 @@ public class ExifInterface {
         }
 
         private Object getValue(ByteOrder byteOrder) {
+            ByteOrderedDataInputStream inputStream = null;
             try {
-                ByteOrderedDataInputStream inputStream =
-                        new ByteOrderedDataInputStream(bytes);
+                inputStream = new ByteOrderedDataInputStream(bytes);
                 inputStream.setByteOrder(byteOrder);
                 switch (format) {
                     case IFD_FORMAT_BYTE:
@@ -768,6 +768,14 @@ public class ExifInterface {
             } catch (IOException e) {
                 Log.w(TAG, "IOException occurred during reading a value", e);
                 return null;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "IOException occurred while closing InputStream", e);
+                    }
+                }
             }
         }
 
@@ -1842,11 +1850,31 @@ public class ExifInterface {
     }
 
     /**
-     * Stores the latitude and longitude value in a float array. The first element is
-     * the latitude, and the second element is the longitude. Returns false if the
-     * Exif tags are not available.
+     * Stores the latitude and longitude value in a float array. The first element is the latitude,
+     * and the second element is the longitude. Returns false if the Exif tags are not available.
+     *
+     * @deprecated Use {@link #getLatLong()} instead.
      */
+    @Deprecated
     public boolean getLatLong(float output[]) {
+        double[] latLong = getLatLong();
+        if (latLong == null) {
+            return false;
+        }
+
+        output[0] = (float) latLong[0];
+        output[1] = (float) latLong[1];
+        return true;
+    }
+
+    /**
+     * Gets the latitude and longitude values.
+     * <p>
+     * If there are valid latitude and longitude values in the image, this method returns a double
+     * array where the first element is the latitude and the second element is the longitude.
+     * Otherwise, it returns null.
+     */
+    public double[] getLatLong() {
         String latValue = getAttribute(TAG_GPS_LATITUDE);
         String latRef = getAttribute(TAG_GPS_LATITUDE_REF);
         String lngValue = getAttribute(TAG_GPS_LONGITUDE);
@@ -1854,16 +1882,39 @@ public class ExifInterface {
 
         if (latValue != null && latRef != null && lngValue != null && lngRef != null) {
             try {
-                output[0] = convertRationalLatLonToFloat(latValue, latRef);
-                output[1] = convertRationalLatLonToFloat(lngValue, lngRef);
-                return true;
+                double latitude = convertRationalLatLonToDouble(latValue, latRef);
+                double longitude = convertRationalLatLonToDouble(lngValue, lngRef);
+                return new double[] {latitude, longitude};
             } catch (IllegalArgumentException e) {
                 Log.w(TAG, "Latitude/longitude values are not parseable. " +
                         String.format("latValue=%s, latRef=%s, lngValue=%s, lngRef=%s",
                                 latValue, latRef, lngValue, lngRef));
             }
         }
-        return false;
+        return null;
+    }
+
+    /**
+     * Sets the latitude and longitude values.
+     *
+     * @param latitude the decimal value of latitude. Must be a valid double value between -90.0 and
+     *                 90.0.
+     * @param longitude the decimal value of longitude. Must be a valid double value between -180.0
+     *                  and 180.0.
+     * @throws IllegalArgumentException If {@code latitude} or {@code longitude} is outside the
+     *                                  specified range.
+     */
+    public void setLatLong(double latitude, double longitude) {
+        if (latitude < -90.0 || latitude > 90.0 || Double.isNaN(latitude)) {
+            throw new IllegalArgumentException("Latitude value " + latitude + " is not valid.");
+        }
+        if (longitude < -180.0 || longitude > 180.0 || Double.isNaN(longitude)) {
+            throw new IllegalArgumentException("Longitude value " + longitude + " is not valid.");
+        }
+        setAttribute(TAG_GPS_LATITUDE_REF, latitude >= 0 ? "N" : "S");
+        setAttribute(TAG_GPS_LATITUDE, convertDecimalDegree(Math.abs(latitude)));
+        setAttribute(TAG_GPS_LONGITUDE_REF, longitude >= 0 ? "E" : "W");
+        setAttribute(TAG_GPS_LONGITUDE, convertDecimalDegree(Math.abs(longitude)));
     }
 
     /**
@@ -1945,7 +1996,7 @@ public class ExifInterface {
         }
     }
 
-    private static float convertRationalLatLonToFloat(String rationalString, String ref) {
+    private static double convertRationalLatLonToDouble(String rationalString, String ref) {
         try {
             String [] parts = rationalString.split(",");
 
@@ -1964,13 +2015,24 @@ public class ExifInterface {
 
             double result = degrees + (minutes / 60.0) + (seconds / 3600.0);
             if ((ref.equals("S") || ref.equals("W"))) {
-                return (float) -result;
+                return -result;
+            } else if (ref.equals("N") || ref.equals("E")) {
+                return result;
+            } else {
+                // Not valid
+                throw new IllegalArgumentException();
             }
-            return (float) result;
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             // Not valid
             throw new IllegalArgumentException();
         }
+    }
+
+    private String convertDecimalDegree(double decimalDegree) {
+        long degrees = (long) decimalDegree;
+        long minutes = (long) ((decimalDegree - degrees) * 60.0);
+        long seconds = Math.round((decimalDegree - degrees - minutes / 60.0) * 3600.0 * 1e7);
+        return degrees + "/1," + minutes + "/1," + seconds + "/10000000";
     }
 
     // Checks the type of image file
@@ -2040,6 +2102,7 @@ public class ExifInterface {
         signatureInputStream.setByteOrder(mExifByteOrder);
 
         short orfSignature = signatureInputStream.readShort();
+        signatureInputStream.close();
         return orfSignature == ORF_SIGNATURE_1 || orfSignature == ORF_SIGNATURE_2;
     }
 
@@ -2056,6 +2119,7 @@ public class ExifInterface {
         signatureInputStream.setByteOrder(mExifByteOrder);
 
         short signatureByte = signatureInputStream.readShort();
+        signatureInputStream.close();
         return signatureByte == RW2_SIGNATURE;
     }
 

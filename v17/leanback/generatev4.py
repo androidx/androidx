@@ -16,6 +16,7 @@
 
 import os
 import sys
+import re
 
 print "Generate v4 fragment related code for leanback"
 
@@ -41,6 +42,7 @@ for w in cls:
         line = line.replace('activity.getFragmentManager()', 'activity.getSupportFragmentManager()')
         line = line.replace('Activity activity', 'FragmentActivity activity')
         line = line.replace('(Activity', '(FragmentActivity')
+        line = re.sub(r'FragmentUtil.getContext\(.*this\)', 'getContext()', line);
         outfile.write(line)
     file.close()
     outfile.close()
@@ -83,6 +85,23 @@ for line in file:
     line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
     line = line.replace('PlaybackFragmentGlueHost', 'PlaybackSupportFragmentGlueHost')
     line = line.replace('(Activity', '(FragmentActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+print "copy DetailsFragmentBackgroundController to DetailsSupportFragmentBackgroundController".format(w, w)
+file = open('src/android/support/v17/leanback/app/DetailsFragmentBackgroundController.java'.format(w), 'r')
+outfile = open('src/android/support/v17/leanback/app/DetailsSupportFragmentBackgroundController.java'.format(w), 'w')
+
+outfile.write("// CHECKSTYLE:OFF Generated code\n")
+outfile.write("/* This file is auto-generated from {}DetailsFragmentBackgroundController.java.  DO NOT MODIFY. */\n\n".format(w))
+
+for line in file:
+    line = re.sub(r'FragmentUtil.getContext\(mFragment\)', 'mFragment.getContext()', line);
+    line = line.replace('VideoFragment', 'VideoSupportFragment')
+    line = line.replace('DetailsFragment', 'DetailsSupportFragment')
+    line = line.replace('VideoSupportFragmentGlueHost'.format(w), 'VideoSupportFragmentGlueHost'.format(w))
+    line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
     outfile.write(line)
 file.close()
 outfile.close()

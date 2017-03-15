@@ -92,10 +92,14 @@ import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import org.xmlpull.v1.XmlPullParser;
+
 @RequiresApi(9)
 @TargetApi(9)
 class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         implements MenuBuilder.Callback, LayoutInflaterFactory {
+
+    private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
 
     private DecorContentParent mDecorContentParent;
     private ActionMenuPresenterCallback mActionMenuPresenterCallback;
@@ -1009,17 +1013,21 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
     @Override
     public View createView(View parent, final String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
-        final boolean isPre21 = Build.VERSION.SDK_INT < 21;
-
         if (mAppCompatViewInflater == null) {
             mAppCompatViewInflater = new AppCompatViewInflater();
         }
 
-        // We only want the View to inherit its context if we're running pre-v21
-        final boolean inheritContext = isPre21 && shouldInheritContext((ViewParent) parent);
+        boolean inheritContext = false;
+        if (IS_PRE_LOLLIPOP) {
+            inheritContext = (attrs instanceof XmlPullParser)
+                    // If we have a XmlPullParser, we can detect where we are in the layout
+                    ? ((XmlPullParser) attrs).getDepth() > 1
+                    // Otherwise we have to use the old heuristic
+                    : shouldInheritContext((ViewParent) parent);
+        }
 
         return mAppCompatViewInflater.createView(parent, name, context, attrs, inheritContext,
-                isPre21, /* Only read android:theme pre-L (L+ handles this anyway) */
+                IS_PRE_LOLLIPOP, /* Only read android:theme pre-L (L+ handles this anyway) */
                 true, /* Read read app:theme as a fallback at all times for legacy reasons */
                 VectorEnabledTintResources.shouldBeUsed() /* Only tint wrap the context if enabled */
         );
@@ -1068,8 +1076,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
      * From {@link android.support.v4.view.LayoutInflaterFactory}
      */
     @Override
-    public final View onCreateView(View parent, String name,
-            Context context, AttributeSet attrs) {
+    public final View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         // First let the Activity's Factory try and inflate the view
         final View view = callActivityOnCreateView(parent, name, context, attrs);
         if (view != null) {

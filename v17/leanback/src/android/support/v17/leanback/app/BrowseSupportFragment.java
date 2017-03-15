@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentTransaction;
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -1059,12 +1060,13 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TypedArray ta = getActivity().obtainStyledAttributes(R.styleable.LeanbackTheme);
+        final Context context = getContext();
+        TypedArray ta = context.obtainStyledAttributes(R.styleable.LeanbackTheme);
         mContainerListMarginStart = (int) ta.getDimension(
-                R.styleable.LeanbackTheme_browseRowsMarginStart, getActivity().getResources()
+                R.styleable.LeanbackTheme_browseRowsMarginStart, context.getResources()
                 .getDimensionPixelSize(R.dimen.lb_browse_rows_margin_start));
         mContainerListAlignTop = (int) ta.getDimension(
-                R.styleable.LeanbackTheme_browseRowsMarginTop, getActivity().getResources()
+                R.styleable.LeanbackTheme_browseRowsMarginTop, context.getResources()
                 .getDimensionPixelSize(R.dimen.lb_browse_rows_margin_top));
         ta.recycle();
 
@@ -1103,12 +1105,23 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         super.onDestroy();
     }
 
+    /**
+     * Creates a new {@link HeadersSupportFragment} instance. Subclass of BrowseSupportFragment may override and
+     * return an instance of subclass of HeadersSupportFragment, e.g. when app wants to replace presenter
+     * to render HeaderItem.
+     *
+     * @return A new instance of {@link HeadersSupportFragment} or its subclass.
+     */
+    public HeadersSupportFragment onCreateHeadersSupportFragment() {
+        return new HeadersSupportFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
         if (getChildFragmentManager().findFragmentById(R.id.scale_frame) == null) {
-            mHeadersSupportFragment = new HeadersSupportFragment();
+            mHeadersSupportFragment = onCreateHeadersSupportFragment();
 
             createMainFragment(mAdapter, mSelectedPosition);
             FragmentTransaction ft = getChildFragmentManager().beginTransaction()
@@ -1226,7 +1239,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     }
 
     void createHeadersTransition() {
-        mHeadersTransition = TransitionHelper.loadTransition(getActivity(),
+        mHeadersTransition = TransitionHelper.loadTransition(getContext(),
                 mShowingHeaders
                         ? R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
 
@@ -1660,7 +1673,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return TransitionHelper.loadTransition(getActivity(),
+        return TransitionHelper.loadTransition(getContext(),
                 R.transition.lb_browse_entrance_transition);
     }
 
@@ -1743,7 +1756,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
         @Override
         public boolean onPreDraw() {
-            if (getView() == null || getActivity() == null) {
+            if (getView() == null || getContext() == null) {
                 mView.getViewTreeObserver().removeOnPreDrawListener(this);
                 return true;
             }

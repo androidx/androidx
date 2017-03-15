@@ -27,7 +27,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
@@ -194,6 +193,11 @@ abstract class BaseGridView extends RecyclerView {
     private OnKeyInterceptListener mOnKeyInterceptListener;
     RecyclerView.RecyclerListener mChainedRecyclerListener;
     private OnUnhandledKeyListener mOnUnhandledKeyListener;
+
+    /**
+     * Number of items to prefetch when first coming on screen with new data.
+     */
+    int mInitialItemPrefetchCount = 4;
 
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -998,21 +1002,70 @@ abstract class BaseGridView extends RecyclerView {
         return mLayoutManager.getExtraLayoutSpace();
     }
 
-
+    /**
+     * Temporarily slide out child views to bottom (for VerticalGridView) or end
+     * (for HorizontalGridView). The views will be automatically slide-in in next
+     * {@link #smoothScrollToPosition(int)} or {@link #scrollToPosition(int)}.
+     */
     public void animateOut() {
-        ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(true);
-        smoothScrollBy(0, -600, new AccelerateDecelerateInterpolator());
+        mLayoutManager.slideOut();
     }
 
+    /**
+     * @deprecated No longer needed. Children being slide out by {@link #animateOut()} will be
+     * slide in next focus or (smooth)scrollToPosition action.
+     */
+    @Deprecated
     public void animateIn() {
-        addOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    ((GridLayoutManager) getLayoutManager()).setIsSlidingChildViews(false);
-                }
-            }
-        });
-        smoothScrollBy(0, 600, new AccelerateDecelerateInterpolator());
+    }
+
+
+    /**
+     * Sets the number of items to prefetch in
+     * {@link RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)},
+     * which defines how many inner items should be prefetched when this GridView is nested inside
+     * another RecyclerView.
+     *
+     * <p>Set this value to the number of items this inner GridView will display when it is
+     * first scrolled into the viewport. RecyclerView will attempt to prefetch that number of items
+     * so they are ready, avoiding jank as the inner GridView is scrolled into the viewport.</p>
+     *
+     * <p>For example, take a VerticalGridView of scrolling HorizontalGridViews. The rows always
+     * have 6 items visible in them (or 7 if not aligned). Passing <code>6</code> to this method
+     * for each inner GridView will enable RecyclerView's prefetching feature to do create/bind work
+     * for 6 views within a row early, before it is scrolled on screen, instead of just the default
+     * 4.</p>
+     *
+     * <p>Calling this method does nothing unless the LayoutManager is in a RecyclerView
+     * nested in another RecyclerView.</p>
+     *
+     * <p class="note"><strong>Note:</strong> Setting this value to be larger than the number of
+     * views that will be visible in this view can incur unnecessary bind work, and an increase to
+     * the number of Views created and in active use.</p>
+     *
+     * @param itemCount Number of items to prefetch
+     *
+     * @see #getInitialItemPrefetchCount()
+     * @see RecyclerView.LayoutManager#isItemPrefetchEnabled()
+     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)
+     */
+    public void setInitialPrefetchItemCount(int itemCount) {
+        mInitialItemPrefetchCount = itemCount;
+    }
+
+    /**
+     * Gets the number of items to prefetch in
+     * {@link RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)},
+     * which defines how many inner items should be prefetched when this GridView is nested inside
+     * another RecyclerView.
+     *
+     * @see RecyclerView.LayoutManager#isItemPrefetchEnabled()
+     * @see #setInitialPrefetchItemCount(int)
+     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)
+     *
+     * @return number of items to prefetch.
+     */
+    public int getInitialItemPrefetchCount() {
+        return mInitialItemPrefetchCount;
     }
 }
