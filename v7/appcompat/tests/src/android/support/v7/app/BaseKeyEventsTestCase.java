@@ -21,18 +21,16 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
-import android.support.test.filters.Suppress;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.view.ActionMode;
@@ -40,6 +38,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -92,30 +91,29 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         assertTrue("ActionMode was destroyed", destroyed.get());
     }
 
-    @Suppress
-    @FlakyTest(bugId = 34956766)
     @Test
     @LargeTest
-    public void testBackCollapsesSearchView() throws InterruptedException {
+    public void testBackCollapsesActionView() throws InterruptedException {
         final String itemTitle = getActivity().getString(R.string.search_menu_title);
 
         // Click on the Search menu item
         onView(withContentDescription(itemTitle)).perform(click());
-        // Check that the SearchView is displayed
-        onView(withId(R.id.search_bar)).check(matches(isDisplayed()));
+        // Check that the action view is displayed (expanded)
+        onView(withClassName(Matchers.is(CustomCollapsibleView.class.getName())))
+                .check(matches(isDisplayed()));
 
-        // Wait for the IME to show
+        // Let things settle
         getInstrumentation().waitForIdleSync();
-        // Now send a back event to dismiss the IME
+        // Now send a back event to collapse the custom action view
         getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        // ...and another to collapse the SearchView
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        getInstrumentation().waitForIdleSync();
 
         // Check that the Activity is still running
         assertFalse(getActivity().isFinishing());
         assertFalse(getActivity().isDestroyed());
-        // ...and that the SearchView is not attached
-        onView(withId(R.id.search_bar)).check(doesNotExist());
+        // ... and that our action view is not attached
+        onView(withClassName(Matchers.is(CustomCollapsibleView.class.getName())))
+                .check(doesNotExist());
     }
 
     @Test
