@@ -18,5 +18,5 @@
     <drawable name="red">#7f00</drawable>
     <drawable name="blue">#770000ff</drawable>
     <drawable name="green">#7700ff00</drawable>
-	<drawable name="yellow">#77ffff00</drawable>
+    <drawable name="yellow">#77ffff00</drawable>
 </resources>

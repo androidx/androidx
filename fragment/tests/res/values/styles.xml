@@ -13,13 +13,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
     <style name="TestActivityTheme">
         <item name="android:windowAnimationStyle">@null</item>
-    </style>
-    <style name="TextMediumStyle" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textSize">@dimen/text_medium_size</item>
-        <item name="android:textColor">@color/text_color</item>
-        <item name="android:textStyle">italic</item>
     </style>
 </resources>

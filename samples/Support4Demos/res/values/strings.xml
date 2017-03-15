@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
     <string name="activity_sample_code">Support v4 Demos</string>
 
     <string name="hello_world"><b>Hello, <i>World!</i></b></string>
@@ -24,9 +24,9 @@
     </string>
     <string name="alert_dialog_ok">OK</string>
     <string name="alert_dialog_cancel">Cancel</string>
-    
+
     <string name="initial_text">Initial text.</string>
-    
+
     <string name="pick_result">Pick a result to send, or BACK to cancel.</string>
     <string name="corky">Corky</string>
     <string name="violet">Violet</string>
@@ -86,7 +86,7 @@
     <string name="home">Go home</string>
     <string name="new_fragment">Add new</string>
     <string name="delete_fragment">Pop top</string>
-    
+
     <string name="fragment_tabs">Fragment/Tabs</string>
 
     <string name="fragment_tabs_pager">Fragment/Tabs and Pager</string>

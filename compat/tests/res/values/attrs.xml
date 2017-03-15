@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
     <attr name="theme_color_default" format="reference" />
     <attr name="theme_color_focused" format="reference" />
     <attr name="theme_color_pressed" format="reference" />
