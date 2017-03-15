@@ -15,11 +15,15 @@
  */
 package android.support.media.tv;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
+import android.support.media.tv.TvContractCompat.Channels;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.v4.os.BuildCompat;
@@ -33,18 +37,27 @@ import org.junit.Test;
  * values from them
  */
 @SmallTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ChannelTest extends TestCase {
     private static final String KEY_SPLASHSCREEN = "splashscreen";
     private static final String KEY_PREMIUM_CHANNEL = "premium";
     private static final String SPLASHSCREEN_URL = "http://example.com/splashscreen.jpg";
 
+    @Override
+    protected void tearDown() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        resolver.delete(Channels.CONTENT_URI, null, null);
+    }
+
     @Test
     public void testEmptyChannel() {
         Channel emptyChannel = new Channel.Builder()
                 .build();
-        ContentValues contentValues = emptyChannel.toContentValues();
-        compareChannel(emptyChannel, Channel.fromCursor(getChannelCursor(contentValues)));
+        ContentValues contentValues = emptyChannel.toContentValues(true);
+        compareChannel(emptyChannel, Channel.fromCursor(getChannelCursor(contentValues)), true);
     }
 
     @Test
@@ -60,16 +73,47 @@ public class ChannelTest extends TestCase {
                         Intent.URI_INTENT_SCHEME)))
                 .setOriginalNetworkId(0)
                 .build();
-        ContentValues contentValues = sampleChannel.toContentValues();
-        compareChannel(sampleChannel, Channel.fromCursor(getChannelCursor(contentValues)));
+        ContentValues contentValues = sampleChannel.toContentValues(true);
+        compareChannel(sampleChannel, Channel.fromCursor(getChannelCursor(contentValues)), true);
 
         Channel clonedSampleChannel = new Channel.Builder(sampleChannel).build();
-        compareChannel(sampleChannel, clonedSampleChannel);
+        compareChannel(sampleChannel, clonedSampleChannel, true);
     }
 
     @Test
     public void testFullyPopulatedChannel() {
-        Channel fullyPopulatedChannel = new Channel.Builder()
+        Channel fullyPopulatedChannel = createFullyPopulatedChannel();
+        ContentValues contentValues = fullyPopulatedChannel.toContentValues(true);
+        compareChannel(fullyPopulatedChannel, Channel.fromCursor(getChannelCursor(contentValues)),
+                true);
+
+        Channel clonedFullyPopulatedChannel = new Channel.Builder(fullyPopulatedChannel).build();
+        compareChannel(fullyPopulatedChannel, clonedFullyPopulatedChannel, true);
+    }
+
+    @Test
+    public void testChannelWithSystemContentProvider() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
+        Channel fullyPopulatedChannel = createFullyPopulatedChannel();
+        ContentValues contentValues = fullyPopulatedChannel.toContentValues();
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        Uri channelUri = resolver.insert(Channels.CONTENT_URI, contentValues);
+        assertNotNull(channelUri);
+
+        Channel channelFromSystemDb;
+        try (Cursor cursor = resolver.query(channelUri, Channel.PROJECTION, null, null, null)) {
+            assertNotNull(cursor);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToNext();
+            channelFromSystemDb = Channel.fromCursor(cursor);
+        }
+        compareChannel(fullyPopulatedChannel, channelFromSystemDb, false);
+    }
+
+    private static Channel createFullyPopulatedChannel() {
+        return new Channel.Builder()
                 .setAppLinkColor(0x00FF0000)
                 .setAppLinkIconUri(Uri.parse("http://example.com/icon.png"))
                 .setAppLinkIntent(new Intent())
@@ -81,7 +125,7 @@ public class ChannelTest extends TestCase {
                 .setInputId("TestInputService")
                 .setNetworkAffiliation("Network Affiliation")
                 .setOriginalNetworkId(2)
-                .setPackageName("com.example.android.sampletvinput")
+                .setPackageName("android.support.media.tv.test")
                 .setSearchable(false)
                 .setServiceId(3)
                 .setTransportStreamId(4)
@@ -96,19 +140,14 @@ public class ChannelTest extends TestCase {
                 .setBrowsable(true)
                 .setSystemApproved(true)
                 .build();
-        ContentValues contentValues = fullyPopulatedChannel.toContentValues();
-        compareChannel(fullyPopulatedChannel, Channel.fromCursor(getChannelCursor(contentValues)));
-
-        Channel clonedFullyPopulatedChannel = new Channel.Builder(fullyPopulatedChannel).build();
-        compareChannel(fullyPopulatedChannel, clonedFullyPopulatedChannel);
     }
 
-    private static void compareChannel(Channel channelA, Channel channelB) {
+    private static void compareChannel(Channel channelA, Channel channelB,
+            boolean includeIdAndProtectedFields) {
         assertEquals(channelA.isSearchable(), channelB.isSearchable());
         assertEquals(channelA.getDescription(), channelB.getDescription());
         assertEquals(channelA.getDisplayName(), channelB.getDisplayName());
         assertEquals(channelA.getDisplayNumber(), channelB.getDisplayNumber());
-        assertEquals(channelA.getId(), channelB.getId());
         assertEquals(channelA.getInputId(), channelB.getInputId());
         assertEquals(channelA.getNetworkAffiliation(), channelB.getNetworkAffiliation());
         assertEquals(channelA.getOriginalNetworkId(), channelB.getOriginalNetworkId());
@@ -118,7 +157,6 @@ public class ChannelTest extends TestCase {
         assertEquals(channelA.getTransportStreamId(), channelB.getTransportStreamId());
         assertEquals(channelA.getType(), channelB.getType());
         assertEquals(channelA.getVideoFormat(), channelB.getVideoFormat());
-        assertEquals(channelA.isBrowsable(), channelB.isBrowsable());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             assertEquals(channelA.getAppLinkColor(), channelB.getAppLinkColor());
             assertEquals(channelA.getAppLinkIconUri(), channelB.getAppLinkIconUri());
@@ -128,10 +166,19 @@ public class ChannelTest extends TestCase {
         }
         if (BuildCompat.isAtLeastO()) {
             assertEquals(channelA.isTransient(), channelB.isTransient());
-            assertEquals(channelA.isSystemApproved(), channelB.isSystemApproved());
-            assertEquals(channelA.toContentValues(), channelB.toContentValues());
         }
-        assertEquals(channelA.toString(), channelB.toString());
+        if (includeIdAndProtectedFields) {
+            // Skip row ID since the one from system DB has the valid ID while the other does not.
+            assertEquals(channelA.getId(), channelB.getId());
+            // When we insert a channel using toContentValues() to the system, we drop some
+            // protected fields since they only can be modified by system apps.
+            assertEquals(channelA.isBrowsable(), channelB.isBrowsable());
+            if (BuildCompat.isAtLeastO()) {
+                assertEquals(channelA.isSystemApproved(), channelB.isSystemApproved());
+            }
+            assertEquals(channelA.toContentValues(), channelB.toContentValues());
+            assertEquals(channelA.toString(), channelB.toString());
+        }
     }
 
     private static MatrixCursor getChannelCursor(ContentValues contentValues) {

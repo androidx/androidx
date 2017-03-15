@@ -327,6 +327,18 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * TV Input Framework database.
      */
     public ContentValues toContentValues() {
+        return toContentValues(false);
+    }
+
+    /**
+     * Returns fields of the BasePreviewProgram in the ContentValues format to be easily inserted
+     * into the TV Input Framework database.
+     *
+     * @param includeProtectedFields Whether the fields protected by system is included or not.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = super.toContentValues();
         if (BuildCompat.isAtLeastO()) {
             if (!TextUtils.isEmpty(mInternalProviderId)) {
@@ -399,11 +411,15 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if (!TextUtils.isEmpty(mReviewRating)) {
                 values.put(BasePreviewProgramColumns.COLUMN_REVIEW_RATING, mReviewRating);
             }
-            if (mBrowsable != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_BROWSABLE, mBrowsable);
-            }
             if (!TextUtils.isEmpty(mContentId)) {
                 values.put(BasePreviewProgramColumns.COLUMN_CONTENT_ID, mContentId);
+            }
+            if (includeProtectedFields) {
+                if (BuildCompat.isAtLeastO()) {
+                    if (mBrowsable != INVALID_INT_VALUE) {
+                        values.put(BasePreviewProgramColumns.COLUMN_BROWSABLE, mBrowsable);
+                    }
+                }
             }
         }
         return values;

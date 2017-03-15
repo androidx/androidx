@@ -120,7 +120,19 @@ public final class WatchNextProgram extends BasePreviewProgram {
      * TV Input Framework database.
      */
     public ContentValues toContentValues() {
-        ContentValues values = super.toContentValues();
+        return toContentValues(false);
+    }
+
+    /**
+     * Returns fields of the WatchNextProgram in the ContentValues format to be easily inserted
+     * into the TV Input Framework database.
+     *
+     * @param includeProtectedFields Whether the fields protected by system is included or not.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public ContentValues toContentValues(boolean includeProtectedFields) {
+        ContentValues values = super.toContentValues(includeProtectedFields);
         if (!TextUtils.isEmpty(mWatchNextType)) {
             values.put(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE, mWatchNextType);
         }

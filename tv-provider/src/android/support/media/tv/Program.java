@@ -17,6 +17,7 @@ package android.support.media.tv;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Build;
@@ -57,6 +58,7 @@ import java.util.Objects;
  * }
  * </pre>
  */
+@TargetApi(21)
 public final class Program extends BaseProgram implements Comparable<Program> {
     /**
      * @hide
