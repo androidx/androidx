@@ -21,9 +21,9 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import android.os.SystemClock;
 import android.support.design.test.R;
 import android.support.test.filters.LargeTest;
+import android.support.testutils.PollingCheck;
 import android.widget.ImageView;
 
 import org.junit.Test;
@@ -387,8 +387,13 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
         // this test needs to be tied to the internal implementation details of running animation
         // that scales the FAB to 0/0 scales and interpolates its alpha to 0. Since that animation
         // starts running partway through our swipe gesture and may complete a bit later then
-        // the swipe gesture, sleep for a bit to catch the "final" state of the FAB.
-        SystemClock.sleep(200);
+        // the swipe gesture, poll to catch the "final" state of the FAB.
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return fab.getScaleX() == 0.0f;
+            }
+        });
 
         // At this point the FAB should be scaled to 0/0 and set at alpha 0. Since the relevant
         // getter methods are only available on v11+, wrap the asserts with build version check.
@@ -403,9 +408,13 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
                 originalAppbarBottom,
                 longSwipeAmount);
 
-        // Same as for swipe-up gesture - sleep for a bit to catch the "final" visible state of
-        // the FAB.
-        SystemClock.sleep(200);
+        // Same as for swipe-up gesture.
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return fab.getScaleX() == 1.0f;
+            }
+        });
 
         // At this point the FAB should be scaled back to its original size and be at full opacity.
         assertEquals(1.0f, fab.getScaleX(), 0.0f);
