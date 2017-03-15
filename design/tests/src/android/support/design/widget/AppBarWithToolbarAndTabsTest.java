@@ -27,7 +27,9 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.design.test.R;
 import android.support.design.testutils.Cheeses;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.Suppress;
 
 import org.junit.Test;
 
@@ -232,6 +234,8 @@ public class AppBarWithToolbarAndTabsTest extends AppBarLayoutBaseTest {
         assertAppBarElevation(mDefaultElevationValue);
     }
 
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @LargeTest
     @Test
     public void testSnappingToolbarAndSnappingTabs() throws Throwable {
