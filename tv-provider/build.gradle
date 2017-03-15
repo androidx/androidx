@@ -17,8 +17,6 @@ android {
     sourceSets {
         main.java.srcDirs = ['src']
         main.res.srcDir 'res'
-
-        test.res.srcDir 'tests/res'
     }
 }
 
