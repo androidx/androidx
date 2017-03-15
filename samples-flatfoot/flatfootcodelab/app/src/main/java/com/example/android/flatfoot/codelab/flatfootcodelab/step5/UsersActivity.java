@@ -42,11 +42,18 @@ public class UsersActivity extends LifecycleActivity {
 
         mYoungUsersTextView = (TextView) findViewById(R.id.young_users_tv);
 
+        // Note: Db references should not be in an activity.
         mDb = AppDatabase.getInMemoryDatabase(getApplicationContext());
 
         populateDb();
 
         fetchData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        AppDatabase.destroyInstance();
+        super.onDestroy();
     }
 
     private void populateDb() {

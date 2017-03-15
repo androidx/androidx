@@ -45,12 +45,18 @@ public class JankShowUserActivity extends LifecycleActivity {
 
         mBooksTextView = (TextView) findViewById(R.id.books_tv);
 
-        //TODO: A database reference should not live in the activity
+        // Note: Db references should not be in an activity.
         mDb = AppDatabase.getInMemoryDatabase(getApplicationContext());
 
         populateDb();
 
         fetchData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        AppDatabase.destroyInstance();
+        super.onDestroy();
     }
 
     private void populateDb() {
