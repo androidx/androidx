@@ -20,6 +20,7 @@ package android.support.transition;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
+import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.annotation.UiThreadTest;
@@ -287,6 +289,39 @@ public class TransitionTest extends BaseTest {
             fail("Timed out waiting for the TransitionListener");
         }
         verify(animatorListener, never()).onAnimationStart(any(Animator.class));
+    }
+
+    @Test
+    public void testEpicenter() throws Throwable {
+        final Transition transition = new EmptyTransition();
+        final Transition.EpicenterCallback epicenterCallback = new Transition.EpicenterCallback() {
+            private Rect mRect = new Rect();
+
+            @Override
+            public Rect onGetEpicenter(Transition t) {
+                assertThat(t, is(sameInstance(transition)));
+                mRect.set(1, 2, 3, 4);
+                return mRect;
+            }
+        };
+        transition.setEpicenterCallback(epicenterCallback);
+        assertThat(transition.getEpicenterCallback(),
+                is(sameInstance(transition.getEpicenterCallback())));
+        Rect rect = transition.getEpicenter();
+        assertNotNull(rect);
+        assertThat(rect.left, is(1));
+        assertThat(rect.top, is(2));
+        assertThat(rect.right, is(3));
+        assertThat(rect.bottom, is(4));
+    }
+
+    @Test
+    public void testSetPropagation() throws Throwable {
+        final Transition transition = new EmptyTransition();
+        assertThat(transition.getPropagation(), is(nullValue()));
+        final TransitionPropagation propagation = new CircularPropagation();
+        transition.setPropagation(propagation);
+        assertThat(propagation, is(sameInstance(propagation)));
     }
 
     private void showInitialScene() throws Throwable {

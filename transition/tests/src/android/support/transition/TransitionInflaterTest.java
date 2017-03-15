@@ -51,6 +51,9 @@ public class TransitionInflaterTest extends BaseTest {
         TransitionInflater inflater = TransitionInflater.from(rule.getActivity());
         // TODO: Add more Transition types
         verifyFadeProperties(inflater.inflateTransition(R.transition.fade));
+        verifyExplodeProperties(inflater.inflateTransition(R.transition.explode));
+        verifyChangeClipBoundsProperties(
+                inflater.inflateTransition(R.transition.change_clip_bounds));
         verifyAutoTransitionProperties(inflater.inflateTransition(R.transition.auto_transition));
         verifyTransitionSetProperties(inflater.inflateTransition(R.transition.transition_set));
         verifyCustomTransitionProperties(
@@ -66,6 +69,16 @@ public class TransitionInflaterTest extends BaseTest {
         assertTrue(transition instanceof Fade);
         Fade fade = (Fade) transition;
         assertEquals(Fade.OUT, fade.getMode());
+    }
+
+    private void verifyExplodeProperties(Transition transition) {
+        assertTrue(transition instanceof Explode);
+        Visibility visibility = (Visibility) transition;
+        assertEquals(Visibility.MODE_IN, visibility.getMode());
+    }
+
+    private void verifyChangeClipBoundsProperties(Transition transition) {
+        assertTrue(transition instanceof ChangeClipBounds);
     }
 
     private void verifyAutoTransitionProperties(Transition transition) {

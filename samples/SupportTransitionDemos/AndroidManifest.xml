@@ -72,5 +72,23 @@
                 <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".widget.ExplodeUsage"
+                  android:label="@string/explode"
+                  android:theme="@style/Theme.Transition">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.ChangeClipBoundsUsage"
+                  android:label="@string/clipBounds"
+                  android:theme="@style/Theme.Transition">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
