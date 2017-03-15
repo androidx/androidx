@@ -95,8 +95,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
 
     @Test
     @LargeTest
-    public void testBackCollapsesSearchView() throws InterruptedException {
-
+    public void testBackCollapsesActionView() throws InterruptedException {
         // Click on the Search menu item
         onView(withId(R.id.action_search)).perform(click());
         // Check that the action view is displayed (expanded)
