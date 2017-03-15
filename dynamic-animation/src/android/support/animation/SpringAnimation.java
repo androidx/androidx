@@ -27,6 +27,32 @@ import android.view.View;
  * The animation will continue to run until the spring force reaches equilibrium. If the spring used
  * in the animation is undamped, the animation will never reach equilibrium. Instead, it will
  * oscillate forever.
+ *
+ * <div class="special reference">
+ * <h3>Developer Guides</h3>
+ * </div>
+ *
+ * <p>To create a simple {@link SpringAnimation} that uses the default {@link SpringForce}:</p>
+ * <pre class="prettyprint">
+ * // Create an animation to animate view's X property, set the rest position of the
+ * // default spring to 0, and start the animation with a starting velocity of 5000 (pixel/s).
+ * final SpringAnimation anim = new SpringAnimation(view, DynamicAnimation.X, 0)
+ *         .setSpring(spring).setStartVelocity(5000).start();
+ * </pre>
+ *
+ * <p>Alternatively, a {@link SpringAnimation} can take a pre-configured {@link SpringForce}, and
+ * use that to drive the animation. </p>
+ * <pre class="prettyprint">
+ * // Create a low stiffness, low bounce spring at position 0.
+ * SpringForce spring = new SpringForce(0)
+ *         .setDampingRatio(SpringForce.DAMPING_RATIO_LOW_BOUNCY)
+ *         .setStiffness(SpringForce.STIFFNESS_LOW);
+ * // Create an animation to animate view's scaleY property, and start the animation using
+ * // the spring above and a starting value of 0.5. Additionally, constrain the range of value for
+ * // the animation to be non-negative, effectively preventing any spring overshoot.
+ * final SpringAnimation anim = new SpringAnimation(view, DynamicAnimation.SCALE_Y)
+ *         .setMinValue(0).setSpring(spring).setStartValue(1).start();
+ * </pre>
  */
 public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
 
