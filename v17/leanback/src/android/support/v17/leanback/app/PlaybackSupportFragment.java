@@ -455,11 +455,12 @@ public class PlaybackSupportFragment extends Fragment {
             }
         };
 
-        mBgFadeInAnimator = loadAnimator(getActivity(), R.animator.lb_playback_bg_fade_in);
+        Context context = getContext();
+        mBgFadeInAnimator = loadAnimator(context, R.animator.lb_playback_bg_fade_in);
         mBgFadeInAnimator.addUpdateListener(listener);
         mBgFadeInAnimator.addListener(mFadeListener);
 
-        mBgFadeOutAnimator = loadAnimator(getActivity(), R.animator.lb_playback_bg_fade_out);
+        mBgFadeOutAnimator = loadAnimator(context, R.animator.lb_playback_bg_fade_out);
         mBgFadeOutAnimator.addUpdateListener(listener);
         mBgFadeOutAnimator.addListener(mFadeListener);
     }
@@ -501,14 +502,14 @@ public class PlaybackSupportFragment extends Fragment {
             }
         };
 
-        mControlRowFadeInAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_in);
+        Context context = getContext();
+        mControlRowFadeInAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_in);
         mControlRowFadeInAnimator.addUpdateListener(updateListener);
         mControlRowFadeInAnimator.addListener(listener);
         mControlRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
-        mControlRowFadeOutAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_out);
+        mControlRowFadeOutAnimator = loadAnimator(context,
+                R.animator.lb_playback_controls_fade_out);
         mControlRowFadeOutAnimator.addUpdateListener(updateListener);
         mControlRowFadeOutAnimator.addListener(listener);
         mControlRowFadeOutAnimator.setInterpolator(mLogAccelerateInterpolator);
@@ -546,14 +547,13 @@ public class PlaybackSupportFragment extends Fragment {
             }
         };
 
-        mOtherRowFadeInAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_in);
+        Context context = getContext();
+        mOtherRowFadeInAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_in);
         mOtherRowFadeInAnimator.addListener(listener);
         mOtherRowFadeInAnimator.addUpdateListener(updateListener);
         mOtherRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
-        mOtherRowFadeOutAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_out);
+        mOtherRowFadeOutAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_out);
         mOtherRowFadeOutAnimator.addListener(listener);
         mOtherRowFadeOutAnimator.addUpdateListener(updateListener);
         mOtherRowFadeOutAnimator.setInterpolator(new AccelerateInterpolator());
@@ -811,7 +811,6 @@ public class PlaybackSupportFragment extends Fragment {
     /**
      * This listener is called every time there is a selection in {@link RowsSupportFragment}. This can
      * be used by users to take additional actions such as animations.
-     * @hide
      */
     public void setOnItemViewSelectedListener(final BaseOnItemViewSelectedListener listener) {
         mExternalItemSelectedListener = listener;
@@ -837,6 +836,14 @@ public class PlaybackSupportFragment extends Fragment {
     public void onDestroyView() {
         mRootView = null;
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mHostCallback != null) {
+            mHostCallback.onHostDestroy();
+        }
+        super.onDestroy();
     }
 
     /**

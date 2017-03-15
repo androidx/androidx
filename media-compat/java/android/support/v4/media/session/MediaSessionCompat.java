@@ -94,7 +94,10 @@ public class MediaSessionCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef(flag=true, value={FLAG_HANDLES_MEDIA_BUTTONS, FLAG_HANDLES_TRANSPORT_CONTROLS})
+    @IntDef(flag=true, value={
+            FLAG_HANDLES_MEDIA_BUTTONS,
+            FLAG_HANDLES_TRANSPORT_CONTROLS,
+            FLAG_HANDLES_QUEUE_COMMANDS })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SessionFlags {}
 
@@ -109,6 +112,12 @@ public class MediaSessionCompat {
      * control commands through its {@link Callback}.
      */
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
+
+    /**
+     * Set this flag on the session to indicate that it handles queue
+     * management commands through its {@link Callback}.
+     */
+    public static final int FLAG_HANDLES_QUEUE_COMMANDS = 1 << 2;
 
     /**
      * Custom action to invoke playFromUri() for the forward compatibility.
@@ -140,6 +149,18 @@ public class MediaSessionCompat {
             "android.support.v4.media.session.action.PREPARE_FROM_URI";
 
     /**
+     * Custom action to invoke setRepeatMode() for the forward compatibility.
+     */
+    static final String ACTION_SET_REPEAT_MODE =
+            "android.support.v4.media.session.action.SET_REPEAT_MODE";
+
+    /**
+     * Custom action to invoke setShuffleModeEnabled() for the forward compatibility.
+     */
+    static final String ACTION_SET_SHUFFLE_MODE_ENABLED =
+            "android.support.v4.media.session.action.SET_SHUFFLE_MODE_ENABLED";
+
+    /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
      */
     static final String ACTION_ARGUMENT_MEDIA_ID =
@@ -163,6 +184,19 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
+
+    /**
+     * Argument for use with {@link #ACTION_SET_REPEAT_MODE} indicating repeat mode.
+     */
+    static final String ACTION_ARGUMENT_REPEAT_MODE =
+            "android.support.v4.media.session.action.ARGUMENT_REPEAT_MODE";
+
+    /**
+     * Argument for use with {@link #ACTION_SET_SHUFFLE_MODE_ENABLED} indicating that shuffle mode
+     * is enabled.
+     */
+    static final String ACTION_ARGUMENT_SHUFFLE_MODE_ENABLED =
+            "android.support.v4.media.session.action.ARGUMENT_SHUFFLE_MODE_ENABLED";
 
     static final String EXTRA_BINDER = "android.support.v4.media.session.EXTRA_BINDER";
 
@@ -238,6 +272,8 @@ public class MediaSessionCompat {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionImplApi21(context, tag);
             mImpl.setMediaButtonReceiver(mbrIntent);
+            // Set default callback to respond to controllers' extra binder requests.
+            setCallback(new Callback() {});
         } else {
             mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
         }
@@ -498,6 +534,33 @@ public class MediaSessionCompat {
      */
     public void setRatingType(@RatingCompat.Style int type) {
         mImpl.setRatingType(type);
+    }
+
+    /**
+     * Set the repeat mode for this session.
+     * <p>
+     * Note that if this method is not called before, {@link MediaControllerCompat#getRepeatMode}
+     * will return {@link PlaybackStateCompat#REPEAT_MODE_NONE}.
+     *
+     * @param repeatMode The repeat mode. Must be one of the followings:
+     *            {@link PlaybackStateCompat#REPEAT_MODE_NONE},
+     *            {@link PlaybackStateCompat#REPEAT_MODE_ONE},
+     *            {@link PlaybackStateCompat#REPEAT_MODE_ALL}
+     */
+    public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+        mImpl.setRepeatMode(repeatMode);
+    }
+
+    /**
+     * Set the shuffle mode for this session.
+     * <p>
+     * Note that if this method is not called before,
+     * {@link MediaControllerCompat#isShuffleModeEnabled} will return {@code false}.
+     *
+     * @param enabled {@code true} to enable the shuffle mode, {@code false} to disable.
+     */
+    public void setShuffleModeEnabled(boolean enabled) {
+        mImpl.setShuffleModeEnabled(enabled);
     }
 
     /**
@@ -787,6 +850,33 @@ public class MediaSessionCompat {
         }
 
         /**
+         * Override to handle the setting of the repeat mode.
+         * <p>
+         * You should call {@link #setRepeatMode} before end of this method in order to notify
+         * the change to the {@link MediaControllerCompat}, or
+         * {@link MediaControllerCompat#getRepeatMode} could return an invalid value.
+         *
+         * @param repeatMode The repeat mode which is one of followings:
+         *            {@link PlaybackStateCompat#REPEAT_MODE_NONE},
+         *            {@link PlaybackStateCompat#REPEAT_MODE_ONE},
+         *            {@link PlaybackStateCompat#REPEAT_MODE_ALL}
+         */
+        public void onSetRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+        }
+
+        /**
+         * Override to handle the setting of the shuffle mode.
+         * <p>
+         * You should call {@link #setShuffleModeEnabled} before the end of this method in order to
+         * notify the change to the {@link MediaControllerCompat}, or
+         * {@link MediaControllerCompat#isShuffleModeEnabled} could return an invalid value.
+         *
+         * @param enabled true when the shuffle mode is enabled, false otherwise.
+         */
+        public void onSetShuffleModeEnabled(boolean enabled) {
+        }
+
+        /**
          * Called when a {@link MediaControllerCompat} wants a
          * {@link PlaybackStateCompat.CustomAction} to be performed.
          *
@@ -796,6 +886,48 @@ public class MediaSessionCompat {
          *            {@link MediaControllerCompat}.
          */
         public void onCustomAction(String action, Bundle extras) {
+        }
+
+        /**
+         * Called when a {@link MediaControllerCompat} wants to add a {@link QueueItem}
+         * with the given {@link MediaDescriptionCompat description} at the end of the play queue.
+         *
+         * @param description The {@link MediaDescriptionCompat} for creating the {@link QueueItem}
+         *            to be inserted.
+         */
+        public void onAddQueueItem(MediaDescriptionCompat description) {
+        }
+
+        /**
+         * Called when a {@link MediaControllerCompat} wants to add a {@link QueueItem}
+         * with the given {@link MediaDescriptionCompat description} at the specified position
+         * in the play queue.
+         *
+         * @param description The {@link MediaDescriptionCompat} for creating the {@link QueueItem}
+         *            to be inserted.
+         * @param index The index at which the created {@link QueueItem} is to be inserted.
+         */
+        public void onAddQueueItem(MediaDescriptionCompat description, int index) {
+        }
+
+        /**
+         * Called when a {@link MediaControllerCompat} wants to remove the first occurrence of the
+         * specified {@link QueueItem} with the given {@link MediaDescriptionCompat description}
+         * in the play queue.
+         *
+         * @param description The {@link MediaDescriptionCompat} for denoting the {@link QueueItem}
+         *            to be removed.
+         */
+        public void onRemoveQueueItem(MediaDescriptionCompat description) {
+        }
+
+        /**
+         * Called when a {@link MediaControllerCompat} wants to remove a {@link QueueItem} at the
+         * specified position in the play queue.
+         *
+         * @param index The index of the element to be removed.
+         */
+        public void onRemoveQueueItemAt(int index) {
         }
 
         private class StubApi21 implements MediaSessionCompatApi21.Callback {
@@ -812,6 +944,25 @@ public class MediaSessionCompat {
                         BundleCompat.putBinder(result, EXTRA_BINDER, impl.getExtraSessionBinder());
                         cb.send(0, result);
                     }
+                } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
+                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                    Callback.this.onAddQueueItem(
+                            (MediaDescriptionCompat) extras.getParcelable(
+                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
+                } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM_AT)) {
+                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                    Callback.this.onAddQueueItem(
+                            (MediaDescriptionCompat) extras.getParcelable(
+                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION),
+                            extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
+                } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM)) {
+                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                    Callback.this.onRemoveQueueItem(
+                            (MediaDescriptionCompat) extras.getParcelable(
+                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
+                } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM_AT)) {
+                    Callback.this.onRemoveQueueItemAt(
+                            extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
                 } else {
                     Callback.this.onCommand(command, extras, cb);
                 }
@@ -902,6 +1053,12 @@ public class MediaSessionCompat {
                     Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
                     Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPrepareFromUri(uri, bundle);
+                } else if (action.equals(ACTION_SET_REPEAT_MODE)) {
+                    int repeatMode = extras.getInt(ACTION_ARGUMENT_REPEAT_MODE);
+                    Callback.this.onSetRepeatMode(repeatMode);
+                } else if (action.equals(ACTION_SET_SHUFFLE_MODE_ENABLED)) {
+                    boolean enabled = extras.getBoolean(ACTION_ARGUMENT_SHUFFLE_MODE_ENABLED);
+                    Callback.this.onSetShuffleModeEnabled(enabled);
                 } else {
                     Callback.this.onCustomAction(action, extras);
                 }
@@ -1281,6 +1438,8 @@ public class MediaSessionCompat {
         void setQueueTitle(CharSequence title);
 
         void setRatingType(@RatingCompat.Style int type);
+        void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode);
+        void setShuffleModeEnabled(boolean enabled);
         void setExtras(Bundle extras);
 
         Object getMediaSession();
@@ -1320,6 +1479,8 @@ public class MediaSessionCompat {
         List<QueueItem> mQueue;
         CharSequence mQueueTitle;
         @RatingCompat.Style int mRatingType;
+        @PlaybackStateCompat.RepeatMode int mRepeatMode;
+        boolean mShuffleModeEnabled;
         Bundle mExtras;
 
         int mVolumeType;
@@ -1415,8 +1576,20 @@ public class MediaSessionCompat {
             postToHandler(what, null);
         }
 
+        void postToHandler(int what, int arg1) {
+            postToHandler(what, null, arg1);
+        }
+
         void postToHandler(int what, Object obj) {
             postToHandler(what, obj, null);
+        }
+
+        void postToHandler(int what, Object obj, int arg1) {
+            synchronized (mLock) {
+                if (mHandler != null) {
+                    mHandler.post(what, obj, arg1);
+                }
+            }
         }
 
         void postToHandler(int what, Object obj, Bundle extras) {
@@ -1604,6 +1777,22 @@ public class MediaSessionCompat {
         @Override
         public void setRatingType(@RatingCompat.Style int type) {
             mRatingType = type;
+        }
+
+        @Override
+        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+            if (mRepeatMode != repeatMode) {
+                mRepeatMode = repeatMode;
+                sendRepeatMode(repeatMode);
+            }
+        }
+
+        @Override
+        public void setShuffleModeEnabled(boolean enabled) {
+            if (mShuffleModeEnabled != enabled) {
+                mShuffleModeEnabled = enabled;
+                sendShuffleModeEnabled(enabled);
+            }
         }
 
         @Override
@@ -1825,6 +2014,30 @@ public class MediaSessionCompat {
             mControllerCallbacks.finishBroadcast();
         }
 
+        private void sendRepeatMode(int repeatMode) {
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onRepeatModeChanged(repeatMode);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
+        }
+
+        private void sendShuffleModeEnabled(boolean enabled) {
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onShuffleModeChanged(enabled);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
+        }
+
         private void sendExtras(Bundle extras) {
             int size = mControllerCallbacks.beginBroadcast();
             for (int i = size - 1; i >= 0; i--) {
@@ -2021,6 +2234,16 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setRepeatMode(int repeatMode) throws RemoteException {
+                postToHandler(MessageHandler.MSG_SET_REPEAT_MODE, repeatMode);
+            }
+
+            @Override
+            public void setShuffleModeEnabled(boolean enabled) throws RemoteException {
+                postToHandler(MessageHandler.MSG_SET_SHUFFLE_MODE_ENABLED, enabled);
+            }
+
+            @Override
             public void sendCustomAction(String action, Bundle args)
                     throws RemoteException {
                 postToHandler(MessageHandler.MSG_CUSTOM_ACTION, action, args);
@@ -2044,6 +2267,26 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void addQueueItem(MediaDescriptionCompat description) {
+                postToHandler(MessageHandler.MSG_ADD_QUEUE_ITEM, description);
+            }
+
+            @Override
+            public void addQueueItemAt(MediaDescriptionCompat description, int index) {
+                postToHandler(MessageHandler.MSG_ADD_QUEUE_ITEM_AT, description, index);
+            }
+
+            @Override
+            public void removeQueueItem(MediaDescriptionCompat description) {
+                postToHandler(MessageHandler.MSG_REMOVE_QUEUE_ITEM, description);
+            }
+
+            @Override
+            public void removeQueueItemAt(int index) {
+                postToHandler(MessageHandler.MSG_REMOVE_QUEUE_ITEM_AT, index);
+            }
+
+            @Override
             public CharSequence getQueueTitle() {
                 return mQueueTitle;
             }
@@ -2059,6 +2302,17 @@ public class MediaSessionCompat {
             @RatingCompat.Style
             public int getRatingType() {
                 return mRatingType;
+            }
+
+            @Override
+            @PlaybackStateCompat.RepeatMode
+            public int getRepeatMode() {
+                return mRepeatMode;
+            }
+
+            @Override
+            public boolean isShuffleModeEnabled() {
+                return mShuffleModeEnabled;
             }
 
             @Override
@@ -2103,6 +2357,12 @@ public class MediaSessionCompat {
             private static final int MSG_CUSTOM_ACTION = 20;
             private static final int MSG_MEDIA_BUTTON = 21;
             private static final int MSG_SET_VOLUME = 22;
+            private static final int MSG_SET_REPEAT_MODE = 23;
+            private static final int MSG_SET_SHUFFLE_MODE_ENABLED = 24;
+            private static final int MSG_ADD_QUEUE_ITEM = 25;
+            private static final int MSG_ADD_QUEUE_ITEM_AT = 26;
+            private static final int MSG_REMOVE_QUEUE_ITEM = 27;
+            private static final int MSG_REMOVE_QUEUE_ITEM_AT = 28;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -2204,11 +2464,29 @@ public class MediaSessionCompat {
                     case MSG_CUSTOM_ACTION:
                         cb.onCustomAction((String) msg.obj, msg.getData());
                         break;
+                    case MSG_ADD_QUEUE_ITEM:
+                        cb.onAddQueueItem((MediaDescriptionCompat) msg.obj);
+                        break;
+                    case MSG_ADD_QUEUE_ITEM_AT:
+                        cb.onAddQueueItem((MediaDescriptionCompat) msg.obj, msg.arg1);
+                        break;
+                    case MSG_REMOVE_QUEUE_ITEM:
+                        cb.onRemoveQueueItem((MediaDescriptionCompat) msg.obj);
+                        break;
+                    case MSG_REMOVE_QUEUE_ITEM_AT:
+                        cb.onRemoveQueueItemAt(msg.arg1);
+                        break;
                     case MSG_ADJUST_VOLUME:
-                        adjustVolume((int) msg.obj, 0);
+                        adjustVolume(msg.arg1, 0);
                         break;
                     case MSG_SET_VOLUME:
-                        setVolumeTo((int) msg.obj, 0);
+                        setVolumeTo(msg.arg1, 0);
+                        break;
+                    case MSG_SET_REPEAT_MODE:
+                        cb.onSetRepeatMode(msg.arg1);
+                        break;
+                    case MSG_SET_SHUFFLE_MODE_ENABLED:
+                        cb.onSetShuffleModeEnabled((boolean) msg.obj);
                         break;
                 }
             }
@@ -2286,6 +2564,8 @@ public class MediaSessionCompat {
 
         private PlaybackStateCompat mPlaybackState;
         @RatingCompat.Style int mRatingType;
+        @PlaybackStateCompat.RepeatMode int mRepeatMode;
+        boolean mShuffleModeEnabled;
 
         public MediaSessionImplApi21(Context context, String tag) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
@@ -2361,18 +2641,16 @@ public class MediaSessionCompat {
 
         @Override
         public void setPlaybackState(PlaybackStateCompat state) {
-            if (android.os.Build.VERSION.SDK_INT < 22) {
-                mPlaybackState = state;
-                int size = mExtraControllerCallbacks.beginBroadcast();
-                for (int i = size - 1; i >= 0; i--) {
-                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                    try {
-                        cb.onPlaybackStateChanged(state);
-                    } catch (RemoteException e) {
-                    }
+            mPlaybackState = state;
+            int size = mExtraControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onPlaybackStateChanged(state);
+                } catch (RemoteException e) {
                 }
-                mExtraControllerCallbacks.finishBroadcast();
             }
+            mExtraControllerCallbacks.finishBroadcast();
             MediaSessionCompatApi21.setPlaybackState(mSessionObj,
                     state == null ? null : state.getPlaybackState());
         }
@@ -2416,6 +2694,38 @@ public class MediaSessionCompat {
                 mRatingType = type;
             } else {
                 MediaSessionCompatApi22.setRatingType(mSessionObj, type);
+            }
+        }
+
+        @Override
+        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+            if (mRepeatMode != repeatMode) {
+                mRepeatMode = repeatMode;
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onRepeatModeChanged(repeatMode);
+                    } catch (RemoteException e) {
+                    }
+                }
+                mExtraControllerCallbacks.finishBroadcast();
+            }
+        }
+
+        @Override
+        public void setShuffleModeEnabled(boolean enabled) {
+            if (mShuffleModeEnabled != enabled) {
+                mShuffleModeEnabled = enabled;
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onShuffleModeChanged(enabled);
+                    } catch (RemoteException e) {
+                    }
+                }
+                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
@@ -2621,6 +2931,18 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setRepeatMode(int repeatMode) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void setShuffleModeEnabled(boolean enabled) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
             public void sendCustomAction(String action, Bundle args) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
@@ -2644,6 +2966,30 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void addQueueItem(MediaDescriptionCompat descriptionCompat) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void addQueueItemAt(MediaDescriptionCompat descriptionCompat, int index) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void removeQueueItem(MediaDescriptionCompat description) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void removeQueueItemAt(int index) {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
             public CharSequence getQueueTitle() {
                 // Will not be called.
                 throw new AssertionError();
@@ -2659,6 +3005,17 @@ public class MediaSessionCompat {
             @RatingCompat.Style
             public int getRatingType() {
                 return mRatingType;
+            }
+
+            @Override
+            @PlaybackStateCompat.RepeatMode
+            public int getRepeatMode() {
+                return mRepeatMode;
+            }
+
+            @Override
+            public boolean isShuffleModeEnabled() {
+                return mShuffleModeEnabled;
             }
 
             @Override

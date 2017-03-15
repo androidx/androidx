@@ -466,6 +466,7 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon implement
                             Animator objectAnimator = AnimatorInflater.loadAnimator(mContext, id);
                             setupAnimatorsForTarget(target, objectAnimator);
                         } else {
+                            a.recycle();
                             throw new IllegalStateException("Context can't be null when inflating" +
                                     " animators");
                         }

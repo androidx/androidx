@@ -22,7 +22,7 @@
     <string name="mr_chooser_title" msgid="414301941546135990">"Дамжуулах"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Төхөөрөмж хайж байна"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Салгах"</string>
-    <string name="mr_controller_stop" msgid="4570331844078181931">"Дамжуулахыг зогсоох"</string>
+    <string name="mr_controller_stop_casting" msgid="4570331844078181931">"Дамжуулахыг зогсоох"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Хаах"</string>
     <string name="mr_controller_play" msgid="683634565969987458">"Тоглуулах"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"Түр зогсоох"</string>

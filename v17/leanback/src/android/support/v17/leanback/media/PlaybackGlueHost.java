@@ -72,6 +72,12 @@ public abstract class PlaybackGlueHost {
          */
         public void onHostResume() {
         }
+
+        /**
+         * Callback triggered once the host(fragment) has been destroyed.
+         */
+        public void onHostDestroy() {
+        }
     }
 
     /**

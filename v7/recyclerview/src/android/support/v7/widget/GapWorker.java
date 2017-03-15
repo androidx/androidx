@@ -210,8 +210,10 @@ final class GapWorker implements Runnable {
         int totalTaskCount = 0;
         for (int i = 0; i < viewCount; i++) {
             RecyclerView view = mRecyclerViews.get(i);
-            view.mPrefetchRegistry.collectPrefetchPositionsFromView(view, false);
-            totalTaskCount += view.mPrefetchRegistry.mCount;
+            if (view.getWindowVisibility() == View.VISIBLE) {
+                view.mPrefetchRegistry.collectPrefetchPositionsFromView(view, false);
+                totalTaskCount += view.mPrefetchRegistry.mCount;
+            }
         }
 
         // Populate task list from prefetch data...
@@ -354,18 +356,23 @@ final class GapWorker implements Runnable {
                 return;
             }
 
-            // Query last vsync so we can predict next one. Note that drawing time not yet
+            // Query most recent vsync so we can predict next one. Note that drawing time not yet
             // valid in animation/input callbacks, so query it here to be safe.
-            long lastFrameVsyncNs = TimeUnit.MILLISECONDS.toNanos(
-                    mRecyclerViews.get(0).getDrawingTime());
-            if (lastFrameVsyncNs == 0) {
-                // abort - couldn't get last vsync for estimating next
+            final int size = mRecyclerViews.size();
+            long latestFrameVsyncMs = 0;
+            for (int i = 0; i < size; i++) {
+                RecyclerView view = mRecyclerViews.get(i);
+                if (view.getWindowVisibility() == View.VISIBLE) {
+                    latestFrameVsyncMs = Math.max(view.getDrawingTime(), latestFrameVsyncMs);
+                }
+            }
+
+            if (latestFrameVsyncMs == 0) {
+                // abort - either no views visible, or couldn't get last vsync for estimating next
                 return;
             }
 
-            // TODO: consider rebasing deadline if frame was already dropped due to long UI work.
-            // Next frame will still wait for VSYNC, so we can still use the gap if it exists.
-            long nextFrameNs = lastFrameVsyncNs + mFrameIntervalNs;
+            long nextFrameNs = TimeUnit.MILLISECONDS.toNanos(latestFrameVsyncMs) + mFrameIntervalNs;
 
             prefetch(nextFrameNs);
 

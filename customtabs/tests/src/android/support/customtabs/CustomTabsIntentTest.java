@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CustomTabsIntentTest {
+
     @Test
     public void testBareboneCustomTabIntent() {
         CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder().build();

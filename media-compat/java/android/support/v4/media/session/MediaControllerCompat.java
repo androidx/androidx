@@ -28,8 +28,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.SupportActivity;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
@@ -62,6 +64,19 @@ public final class MediaControllerCompat {
 
     static final String COMMAND_GET_EXTRA_BINDER =
             "android.support.v4.media.session.command.GET_EXTRA_BINDER";
+    static final String COMMAND_ADD_QUEUE_ITEM =
+            "android.support.v4.media.session.command.ADD_QUEUE_ITEM";
+    static final String COMMAND_ADD_QUEUE_ITEM_AT =
+            "android.support.v4.media.session.command.ADD_QUEUE_ITEM_AT";
+    static final String COMMAND_REMOVE_QUEUE_ITEM =
+            "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM";
+    static final String COMMAND_REMOVE_QUEUE_ITEM_AT =
+            "android.support.v4.media.session.command.REMOVE_QUEUE_ITEM_AT";
+
+    static final String COMMAND_ARGUMENT_MEDIA_DESCRIPTION =
+            "android.support.v4.media.session.command.ARGUMENT_MEDIA_DESCRIPTION";
+    static final String COMMAND_ARGUMENT_INDEX =
+            "android.support.v4.media.session.command.ARGUMENT_INDEX";
 
     private static class MediaControllerExtraData extends SupportActivity.ExtraData {
         private final MediaControllerCompat mMediaController;
@@ -129,7 +144,7 @@ public final class MediaControllerCompat {
                 return new MediaControllerCompat(activity,
                         MediaSessionCompat.Token.fromToken(sessionTokenObj));
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getMediaController. " + e);
+                Log.e(TAG, "Dead object in getMediaController.", e);
             }
         }
         return null;
@@ -237,6 +252,62 @@ public final class MediaControllerCompat {
     }
 
     /**
+     * Add a queue item from the given {@code description} at the end of the play queue
+     * of this session. Not all sessions may support this.
+     *
+     * @param description The {@link MediaDescriptionCompat} for creating the
+     *            {@link MediaSessionCompat.QueueItem} to be inserted.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void addQueueItem(MediaDescriptionCompat description) {
+        mImpl.addQueueItem(description);
+    }
+
+    /**
+     * Add a queue item from the given {@code description} at the specified position
+     * in the play queue of this session. Shifts the queue item currently at that position
+     * (if any) and any subsequent queue items to the right (adds one to their indices).
+     * Not all sessions may support this.
+     *
+     * @param description The {@link MediaDescriptionCompat} for creating the
+     *            {@link MediaSessionCompat.QueueItem} to be inserted.
+     * @param index The index at which the created {@link MediaSessionCompat.QueueItem}
+     *            is to be inserted.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void addQueueItem(MediaDescriptionCompat description, int index) {
+        mImpl.addQueueItem(description, index);
+    }
+
+    /**
+     * Remove the first occurrence of the specified {@link MediaSessionCompat.QueueItem}
+     * with the given {@link MediaDescriptionCompat description} in the play queue of the
+     * associated session. Not all sessions may support this.
+     *
+     * @param description The {@link MediaDescriptionCompat} for denoting the
+     *            {@link MediaSessionCompat.QueueItem} to be removed.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void removeQueueItem(MediaDescriptionCompat description) {
+        mImpl.removeQueueItem(description);
+    }
+
+    /**
+     * Remove an queue item at the specified position in the play queue
+     * of this session. Not all sessions may support this.
+     *
+     * @param index The index of the element to be removed.
+     * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     */
+    public void removeQueueItemAt(int index) {
+        mImpl.removeQueueItemAt(index);
+    }
+
+    /**
      * Get the queue title for this session.
      */
     public CharSequence getQueueTitle() {
@@ -266,6 +337,25 @@ public final class MediaControllerCompat {
      */
     public int getRatingType() {
         return mImpl.getRatingType();
+    }
+
+    /**
+     * Get the repeat mode for this session.
+     *
+     * @return The latest repeat mode set to the session, or
+     *         {@link PlaybackStateCompat#REPEAT_MODE_NONE} if not set.
+     */
+    public int getRepeatMode() {
+        return mImpl.getRepeatMode();
+    }
+
+    /**
+     * Return whether the shuffle mode is enabled for this session.
+     *
+     * @return {@code true} if the shuffle mode is enabled, {@code false} if disabled or not set.
+     */
+    public boolean isShuffleModeEnabled() {
+        return mImpl.isShuffleModeEnabled();
     }
 
     /**
@@ -404,6 +494,15 @@ public final class MediaControllerCompat {
         return mImpl.getPackageName();
     }
 
+    @VisibleForTesting
+    boolean isExtraBinderReady() {
+        if (mImpl instanceof MediaControllerImplApi21) {
+            return ((MediaControllerImplApi21) mImpl).mExtraBinder != null;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Gets the underlying framework
      * {@link android.media.session.MediaController} object.
@@ -510,6 +609,25 @@ public final class MediaControllerCompat {
         public void onAudioInfoChanged(PlaybackInfo info) {
         }
 
+        /**
+         * Override to handle changes to the repeat mode.
+         *
+         * @param repeatMode The repeat mode. It should be one of followings:
+         *                   {@link PlaybackStateCompat#REPEAT_MODE_NONE},
+         *                   {@link PlaybackStateCompat#REPEAT_MODE_ONE},
+         *                   {@link PlaybackStateCompat#REPEAT_MODE_ALL}
+         */
+        public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int repeatMode) {
+        }
+
+        /**
+         * Override to handle changes to the shuffle mode.
+         *
+         * @param enabled {@code true} if the shuffle mode is enabled, {@code false} otherwise.
+         */
+        public void onShuffleModeChanged(boolean enabled) {
+        }
+
         @Override
         public void binderDied() {
             onSessionDestroyed();
@@ -542,7 +660,7 @@ public final class MediaControllerCompat {
 
             @Override
             public void onPlaybackStateChanged(Object stateObj) {
-                if (mHasExtraCallback && android.os.Build.VERSION.SDK_INT < 22) {
+                if (mHasExtraCallback) {
                     // Ignore. ExtraCallback will handle this.
                 } else {
                     Callback.this.onPlaybackStateChanged(
@@ -614,6 +732,16 @@ public final class MediaControllerCompat {
             }
 
             @Override
+            public void onRepeatModeChanged(int repeatMode) throws RemoteException {
+                mHandler.post(MessageHandler.MSG_UPDATE_REPEAT_MODE, repeatMode, null);
+            }
+
+            @Override
+            public void onShuffleModeChanged(boolean enabled) throws RemoteException {
+                mHandler.post(MessageHandler.MSG_UPDATE_SHUFFLE_MODE, enabled, null);
+            }
+
+            @Override
             public void onExtrasChanged(Bundle extras) throws RemoteException {
                 mHandler.post(MessageHandler.MSG_UPDATE_EXTRAS, extras, null);
             }
@@ -638,6 +766,8 @@ public final class MediaControllerCompat {
             private static final int MSG_UPDATE_QUEUE_TITLE = 6;
             private static final int MSG_UPDATE_EXTRAS = 7;
             private static final int MSG_DESTROYED = 8;
+            private static final int MSG_UPDATE_REPEAT_MODE = 9;
+            private static final int MSG_UPDATE_SHUFFLE_MODE = 10;
 
             public MessageHandler(Looper looper) {
                 super(looper);
@@ -663,6 +793,12 @@ public final class MediaControllerCompat {
                         break;
                     case MSG_UPDATE_QUEUE_TITLE:
                         onQueueTitleChanged((CharSequence) msg.obj);
+                        break;
+                    case MSG_UPDATE_REPEAT_MODE:
+                        onRepeatModeChanged((int) msg.obj);
+                        break;
+                    case MSG_UPDATE_SHUFFLE_MODE:
+                        onShuffleModeChanged((boolean) msg.obj);
                         break;
                     case MSG_UPDATE_EXTRAS:
                         onExtrasChanged((Bundle) msg.obj);
@@ -839,6 +975,23 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating);
 
         /**
+         * Set the repeat mode for this session.
+         *
+         * @param repeatMode The repeat mode. Must be one of the followings:
+         *                   {@link PlaybackStateCompat#REPEAT_MODE_NONE},
+         *                   {@link PlaybackStateCompat#REPEAT_MODE_ONE},
+         *                   {@link PlaybackStateCompat#REPEAT_MODE_ALL}
+         */
+        public abstract void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode);
+
+        /**
+         * Set the shuffle mode for this session.
+         *
+         * @param enabled {@code true} to enable the shuffle mode, {@code false} to disable.
+         */
+        public abstract void setShuffleModeEnabled(boolean enabled);
+
+        /**
          * Send a custom action for the {@link MediaSessionCompat} to perform.
          *
          * @param customAction The action to perform.
@@ -960,9 +1113,15 @@ public final class MediaControllerCompat {
         MediaMetadataCompat getMetadata();
 
         List<MediaSessionCompat.QueueItem> getQueue();
+        void addQueueItem(MediaDescriptionCompat description);
+        void addQueueItem(MediaDescriptionCompat description, int index);
+        void removeQueueItem(MediaDescriptionCompat description);
+        void removeQueueItemAt(int index);
         CharSequence getQueueTitle();
         Bundle getExtras();
         int getRatingType();
+        int getRepeatMode();
+        boolean isShuffleModeEnabled();
         long getFlags();
         PlaybackInfo getPlaybackInfo();
         PendingIntent getSessionActivity();
@@ -996,7 +1155,7 @@ public final class MediaControllerCompat {
                 callback.setHandler(handler);
                 callback.mRegistered = true;
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in registerCallback. " + e);
+                Log.e(TAG, "Dead object in registerCallback.", e);
                 callback.onSessionDestroyed();
             }
         }
@@ -1012,7 +1171,7 @@ public final class MediaControllerCompat {
                 mBinder.asBinder().unlinkToDeath(callback, 0);
                 callback.mRegistered = false;
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in unregisterCallback. " + e);
+                Log.e(TAG, "Dead object in unregisterCallback.", e);
             }
         }
 
@@ -1024,7 +1183,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.sendMediaButton(event);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in dispatchMediaButtonEvent. " + e);
+                Log.e(TAG, "Dead object in dispatchMediaButtonEvent.", e);
             }
             return false;
         }
@@ -1043,7 +1202,7 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getPlaybackState();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getPlaybackState. " + e);
+                Log.e(TAG, "Dead object in getPlaybackState.", e);
             }
             return null;
         }
@@ -1053,7 +1212,7 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getMetadata();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getMetadata. " + e);
+                Log.e(TAG, "Dead object in getMetadata.", e);
             }
             return null;
         }
@@ -1063,9 +1222,65 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getQueue();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getQueue. " + e);
+                Log.e(TAG, "Dead object in getQueue.", e);
             }
             return null;
+        }
+
+        @Override
+        public void addQueueItem(MediaDescriptionCompat description) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.addQueueItem(description);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in addQueueItem.", e);
+            }
+        }
+
+        @Override
+        public void addQueueItem(MediaDescriptionCompat description, int index) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.addQueueItemAt(description, index);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in addQueueItemAt.", e);
+            }
+        }
+
+        @Override
+        public void removeQueueItem(MediaDescriptionCompat description) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.removeQueueItem(description);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in removeQueueItem.", e);
+            }
+        }
+
+        @Override
+        public void removeQueueItemAt(int index) {
+            try {
+                long flags = mBinder.getFlags();
+                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                    throw new UnsupportedOperationException(
+                            "This session doesn't support queue management operations");
+                }
+                mBinder.removeQueueItemAt(index);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in removeQueueItemAt.", e);
+            }
         }
 
         @Override
@@ -1073,7 +1288,7 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getQueueTitle();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getQueueTitle. " + e);
+                Log.e(TAG, "Dead object in getQueueTitle.", e);
             }
             return null;
         }
@@ -1083,7 +1298,7 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getExtras();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getExtras. " + e);
+                Log.e(TAG, "Dead object in getExtras.", e);
             }
             return null;
         }
@@ -1093,9 +1308,29 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getRatingType();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getRatingType. " + e);
+                Log.e(TAG, "Dead object in getRatingType.", e);
             }
             return 0;
+        }
+
+        @Override
+        public int getRepeatMode() {
+            try {
+                return mBinder.getRepeatMode();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in getRepeatMode.", e);
+            }
+            return 0;
+        }
+
+        @Override
+        public boolean isShuffleModeEnabled() {
+            try {
+                return mBinder.isShuffleModeEnabled();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in isShuffleModeEnabled.", e);
+            }
+            return false;
         }
 
         @Override
@@ -1103,7 +1338,7 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getFlags();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getFlags. " + e);
+                Log.e(TAG, "Dead object in getFlags.", e);
             }
             return 0;
         }
@@ -1116,7 +1351,7 @@ public final class MediaControllerCompat {
                         info.controlType, info.maxVolume, info.currentVolume);
                 return pi;
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getPlaybackInfo. " + e);
+                Log.e(TAG, "Dead object in getPlaybackInfo.", e);
             }
             return null;
         }
@@ -1126,7 +1361,7 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getLaunchPendingIntent();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getSessionActivity. " + e);
+                Log.e(TAG, "Dead object in getSessionActivity.", e);
             }
             return null;
         }
@@ -1136,7 +1371,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.setVolumeTo(value, flags, null);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in setVolumeTo. " + e);
+                Log.e(TAG, "Dead object in setVolumeTo.", e);
             }
         }
 
@@ -1145,7 +1380,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.adjustVolume(direction, flags, null);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in adjustVolume. " + e);
+                Log.e(TAG, "Dead object in adjustVolume.", e);
             }
         }
 
@@ -1155,7 +1390,7 @@ public final class MediaControllerCompat {
                 mBinder.sendCommand(command, params,
                         new MediaSessionCompat.ResultReceiverWrapper(cb));
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in sendCommand. " + e);
+                Log.e(TAG, "Dead object in sendCommand.", e);
             }
         }
 
@@ -1164,7 +1399,7 @@ public final class MediaControllerCompat {
             try {
                 return mBinder.getPackageName();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getPackageName. " + e);
+                Log.e(TAG, "Dead object in getPackageName.", e);
             }
             return null;
         }
@@ -1187,7 +1422,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.prepare();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in prepare. " + e);
+                Log.e(TAG, "Dead object in prepare.", e);
             }
         }
 
@@ -1196,7 +1431,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.prepareFromMediaId(mediaId, extras);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in prepareFromMediaId. " + e);
+                Log.e(TAG, "Dead object in prepareFromMediaId.", e);
             }
         }
 
@@ -1205,7 +1440,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.prepareFromSearch(query, extras);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in prepareFromSearch. " + e);
+                Log.e(TAG, "Dead object in prepareFromSearch.", e);
             }
         }
 
@@ -1214,7 +1449,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.prepareFromUri(uri, extras);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in prepareFromUri. " + e);
+                Log.e(TAG, "Dead object in prepareFromUri.", e);
             }
         }
 
@@ -1223,7 +1458,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.play();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in play. " + e);
+                Log.e(TAG, "Dead object in play.", e);
             }
         }
 
@@ -1232,7 +1467,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.playFromMediaId(mediaId, extras);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in playFromMediaId. " + e);
+                Log.e(TAG, "Dead object in playFromMediaId.", e);
             }
         }
 
@@ -1241,7 +1476,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.playFromSearch(query, extras);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in playFromSearch. " + e);
+                Log.e(TAG, "Dead object in playFromSearch.", e);
             }
         }
 
@@ -1250,7 +1485,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.playFromUri(uri, extras);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in playFromUri. " + e);
+                Log.e(TAG, "Dead object in playFromUri.", e);
             }
         }
 
@@ -1259,7 +1494,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.skipToQueueItem(id);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in skipToQueueItem. " + e);
+                Log.e(TAG, "Dead object in skipToQueueItem.", e);
             }
         }
 
@@ -1268,7 +1503,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.pause();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in pause. " + e);
+                Log.e(TAG, "Dead object in pause.", e);
             }
         }
 
@@ -1277,7 +1512,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.stop();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in stop. " + e);
+                Log.e(TAG, "Dead object in stop.", e);
             }
         }
 
@@ -1286,7 +1521,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.seekTo(pos);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in seekTo. " + e);
+                Log.e(TAG, "Dead object in seekTo.", e);
             }
         }
 
@@ -1295,7 +1530,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.fastForward();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in fastForward. " + e);
+                Log.e(TAG, "Dead object in fastForward.", e);
             }
         }
 
@@ -1304,7 +1539,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.next();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in skipToNext. " + e);
+                Log.e(TAG, "Dead object in skipToNext.", e);
             }
         }
 
@@ -1313,7 +1548,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.rewind();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in rewind. " + e);
+                Log.e(TAG, "Dead object in rewind.", e);
             }
         }
 
@@ -1322,7 +1557,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.previous();
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in skipToPrevious. " + e);
+                Log.e(TAG, "Dead object in skipToPrevious.", e);
             }
         }
 
@@ -1331,7 +1566,25 @@ public final class MediaControllerCompat {
             try {
                 mBinder.rate(rating);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in setRating. " + e);
+                Log.e(TAG, "Dead object in setRating.", e);
+            }
+        }
+
+        @Override
+        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+            try {
+                mBinder.setRepeatMode(repeatMode);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setRepeatMode.", e);
+            }
+        }
+
+        @Override
+        public void setShuffleModeEnabled(boolean enabled) {
+            try {
+                mBinder.setShuffleModeEnabled(enabled);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setShuffleModeEnabled.", e);
             }
         }
 
@@ -1345,7 +1598,7 @@ public final class MediaControllerCompat {
             try {
                 mBinder.sendCustomAction(action, args);
             } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in sendCustomAction. " + e);
+                Log.e(TAG, "Dead object in sendCustomAction.", e);
             }
         }
     }
@@ -1357,7 +1610,7 @@ public final class MediaControllerCompat {
         // after API 21.
         private IMediaSession mExtraBinder;
         private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
-        private List<Callback> mPendingCallbacks;
+        private List<Callback> mPendingCallbacks = new ArrayList<>();
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
@@ -1385,14 +1638,13 @@ public final class MediaControllerCompat {
                 try {
                     mExtraBinder.registerCallbackListener(extraCallback);
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in registerCallback. " + e);
+                    Log.e(TAG, "Dead object in registerCallback.", e);
                 }
             } else {
-                if (mPendingCallbacks == null) {
-                    mPendingCallbacks = new ArrayList<>();
-                }
                 callback.setHandler(handler);
-                mPendingCallbacks.add(callback);
+                synchronized (mPendingCallbacks) {
+                    mPendingCallbacks.add(callback);
+                }
             }
         }
 
@@ -1406,13 +1658,12 @@ public final class MediaControllerCompat {
                         mExtraBinder.unregisterCallbackListener(extraCallback);
                     }
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in unregisterCallback. " + e);
+                    Log.e(TAG, "Dead object in unregisterCallback.", e);
                 }
             } else {
-                if (mPendingCallbacks == null) {
-                    mPendingCallbacks = new ArrayList<>();
+                synchronized (mPendingCallbacks) {
+                    mPendingCallbacks.remove(callback);
                 }
-                mPendingCallbacks.remove(callback);
             }
         }
 
@@ -1429,11 +1680,11 @@ public final class MediaControllerCompat {
 
         @Override
         public PlaybackStateCompat getPlaybackState() {
-            if (android.os.Build.VERSION.SDK_INT < 22 && mExtraBinder != null) {
+            if (mExtraBinder != null) {
                 try {
                     return mExtraBinder.getPlaybackState();
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in getPlaybackState. " + e);
+                    Log.e(TAG, "Dead object in getPlaybackState.", e);
                 }
             }
             Object stateObj = MediaControllerCompatApi21.getPlaybackState(mControllerObj);
@@ -1454,6 +1705,35 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void addQueueItem(MediaDescriptionCompat description) {
+            Bundle params = new Bundle();
+            params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
+            sendCommand(COMMAND_ADD_QUEUE_ITEM, params, null);
+        }
+
+        @Override
+        public void addQueueItem(MediaDescriptionCompat description, int index) {
+            Bundle params = new Bundle();
+            params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
+            params.putInt(COMMAND_ARGUMENT_INDEX, index);
+            sendCommand(COMMAND_ADD_QUEUE_ITEM_AT, params, null);
+        }
+
+        @Override
+        public void removeQueueItem(MediaDescriptionCompat description) {
+            Bundle params = new Bundle();
+            params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
+            sendCommand(COMMAND_REMOVE_QUEUE_ITEM, params, null);
+        }
+
+        @Override
+        public void removeQueueItemAt(int index) {
+            Bundle params = new Bundle();
+            params.putInt(COMMAND_ARGUMENT_INDEX, index);
+            sendCommand(COMMAND_REMOVE_QUEUE_ITEM_AT, params, null);
+        }
+
+        @Override
         public CharSequence getQueueTitle() {
             return MediaControllerCompatApi21.getQueueTitle(mControllerObj);
         }
@@ -1469,10 +1749,34 @@ public final class MediaControllerCompat {
                 try {
                     return mExtraBinder.getRatingType();
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in getRatingType. " + e);
+                    Log.e(TAG, "Dead object in getRatingType.", e);
                 }
             }
             return MediaControllerCompatApi21.getRatingType(mControllerObj);
+        }
+
+        @Override
+        public int getRepeatMode() {
+            if (mExtraBinder != null) {
+                try {
+                    return mExtraBinder.getRepeatMode();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in getRepeatMode.", e);
+                }
+            }
+            return PlaybackStateCompat.REPEAT_MODE_NONE;
+        }
+
+        @Override
+        public boolean isShuffleModeEnabled() {
+            if (mExtraBinder != null) {
+                try {
+                    return mExtraBinder.isShuffleModeEnabled();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in isShuffleModeEnabled.", e);
+                }
+            }
+            return false;
         }
 
         @Override
@@ -1528,21 +1832,23 @@ public final class MediaControllerCompat {
         }
 
         private void processPendingCallbacks() {
-            if (mPendingCallbacks == null || mExtraBinder == null) {
+            if (mExtraBinder == null) {
                 return;
             }
-            for (Callback callback : mPendingCallbacks) {
-                ExtraCallback extraCallback = new ExtraCallback(callback);
-                mCallbackMap.put(callback, extraCallback);
-                callback.mHasExtraCallback = true;
-                try {
-                    mExtraBinder.registerCallbackListener(extraCallback);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Dead object in registerCallback. " + e);
-                    break;
+            synchronized (mPendingCallbacks) {
+                for (Callback callback : mPendingCallbacks) {
+                    ExtraCallback extraCallback = new ExtraCallback(callback);
+                    mCallbackMap.put(callback, extraCallback);
+                    callback.mHasExtraCallback = true;
+                    try {
+                        mExtraBinder.registerCallbackListener(extraCallback);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "Dead object in registerCallback.", e);
+                        break;
+                    }
                 }
+                mPendingCallbacks.clear();
             }
-            mPendingCallbacks = null;
         }
 
         private static class ExtraBinderRequestResultReceiver extends ResultReceiver {
@@ -1616,6 +1922,26 @@ public final class MediaControllerCompat {
             public void onQueueTitleChanged(CharSequence title) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
+            }
+
+            @Override
+            public void onRepeatModeChanged(final int repeatMode) throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onRepeatModeChanged(repeatMode);
+                    }
+                });
+            }
+
+            @Override
+            public void onShuffleModeChanged(final boolean enabled) throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onShuffleModeChanged(enabled);
+                    }
+                });
             }
 
             @Override
@@ -1712,6 +2038,20 @@ public final class MediaControllerCompat {
         public void setRating(RatingCompat rating) {
             MediaControllerCompatApi21.TransportControls.setRating(mControlsObj,
                     rating != null ? rating.getRating() : null);
+        }
+
+        @Override
+        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+            Bundle bundle = new Bundle();
+            bundle.putInt(MediaSessionCompat.ACTION_ARGUMENT_REPEAT_MODE, repeatMode);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_REPEAT_MODE, bundle);
+        }
+
+        @Override
+        public void setShuffleModeEnabled(boolean enabled) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(MediaSessionCompat.ACTION_ARGUMENT_SHUFFLE_MODE_ENABLED, enabled);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_SHUFFLE_MODE_ENABLED, bundle);
         }
 
         @Override
@@ -1833,5 +2173,4 @@ public final class MediaControllerCompat {
             MediaControllerCompatApi24.TransportControls.prepareFromUri(mControlsObj, uri, extras);
         }
     }
-
 }

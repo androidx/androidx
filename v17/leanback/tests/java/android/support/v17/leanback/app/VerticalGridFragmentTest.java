@@ -16,13 +16,10 @@
 
 package android.support.v17.leanback.app;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
@@ -32,7 +29,7 @@ import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class VerticalGridFragmentTest {
+public class VerticalGridFragmentTest extends SingleFragmentTestBase {
 
     public static class GridFragment extends VerticalGridFragment {
         @Override
@@ -48,31 +45,23 @@ public class VerticalGridFragmentTest {
         }
     }
 
-    public static class ImmediateRemoveFragmentActivity extends Activity {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            new Handler().postDelayed(new Runnable(){
-                public void run() {
-                    GridFragment f = new GridFragment();
-                    ImmediateRemoveFragmentActivity.this.getFragmentManager().beginTransaction()
-                            .replace(android.R.id.content, f, null).commit();
-                    f.startEntranceTransition();
-                    ImmediateRemoveFragmentActivity.this.getFragmentManager().beginTransaction()
-                            .replace(android.R.id.content, new Fragment(), null).commit();
-                }
-            }, 500);
-        }
-    }
-
     @Test
     public void immediateRemoveFragment() throws Throwable {
-        Intent intent = new Intent();
-        ActivityTestRule<ImmediateRemoveFragmentActivity> activityTestRule =
-                new ActivityTestRule<>(ImmediateRemoveFragmentActivity.class, false, false);
-        ImmediateRemoveFragmentActivity activity = activityTestRule.launchActivity(intent);
+        launchAndWaitActivity(GridFragment.class, 500);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            public void run() {
+                GridFragment f = new GridFragment();
+                mActivity.getFragmentManager().beginTransaction()
+                        .replace(android.R.id.content, f, null).commit();
+                f.startEntranceTransition();
+                mActivity.getFragmentManager().beginTransaction()
+                        .replace(android.R.id.content, new Fragment(), null).commit();
+            }
+        });
 
         Thread.sleep(1000);
+        mActivity.finish();
     }
 
 }

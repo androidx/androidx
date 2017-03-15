@@ -16,10 +16,11 @@
 
 package android.support.v7.widget;
 
+import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -29,6 +30,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -41,6 +43,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
+import android.util.Property;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SoundEffectConstants;
@@ -48,8 +51,6 @@ import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.CompoundButton;
 
 /**
@@ -80,6 +81,8 @@ import android.widget.CompoundButton;
  * @attr ref android.support.v7.appcompat.R.styleable#SwitchCompat_thumbTextPadding
  * @attr ref android.support.v7.appcompat.R.styleable#SwitchCompat_track
  */
+@RequiresApi(14)
+@TargetApi(14)
 public class SwitchCompat extends CompoundButton {
     private static final int THUMB_ANIMATION_DURATION = 250;
 
@@ -95,6 +98,19 @@ public class SwitchCompat extends CompoundButton {
     private static final int SANS = 1;
     private static final int SERIF = 2;
     private static final int MONOSPACE = 3;
+
+    private static final Property<SwitchCompat, Float> THUMB_POS =
+            new Property<SwitchCompat, Float>(Float.class, "thumbPos") {
+                @Override
+                public Float get(SwitchCompat object) {
+                    return object.mThumbPosition;
+                }
+
+                @Override
+                public void set(SwitchCompat object, Float value) {
+                    object.setThumbPosition(value);
+                }
+            };
 
     private Drawable mThumbDrawable;
     private ColorStateList mThumbTintList = null;
@@ -160,7 +176,7 @@ public class SwitchCompat extends CompoundButton {
     private Layout mOnLayout;
     private Layout mOffLayout;
     private TransformationMethod mSwitchTransformationMethod;
-    ThumbAnimation mPositionAnimator;
+    ObjectAnimator mPositionAnimator;
 
     @SuppressWarnings("hiding")
     private final Rect mTempRect = new Rect();
@@ -1005,36 +1021,18 @@ public class SwitchCompat extends CompoundButton {
     }
 
     private void animateThumbToCheckedState(final boolean newCheckedState) {
-        if (mPositionAnimator != null) {
-            // If there's a current animator running, cancel it
-            cancelPositionAnimator();
-        }
-
-        mPositionAnimator = new ThumbAnimation(mThumbPosition, newCheckedState ? 1f : 0f);
+        final float targetPosition = newCheckedState ? 1 : 0;
+        mPositionAnimator = ObjectAnimator.ofFloat(this, THUMB_POS, targetPosition);
         mPositionAnimator.setDuration(THUMB_ANIMATION_DURATION);
-        mPositionAnimator.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (mPositionAnimator == animation) {
-                    // If we're still the active animation, ensure the final position
-                    setThumbPosition(newCheckedState ? 1f : 0f);
-                    mPositionAnimator = null;
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
-        startAnimation(mPositionAnimator);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mPositionAnimator.setAutoCancel(true);
+        }
+        mPositionAnimator.start();
     }
 
     private void cancelPositionAnimator() {
         if (mPositionAnimator != null) {
-            clearAnimation();
-            mPositionAnimator = null;
+            mPositionAnimator.cancel();
         }
     }
 
@@ -1065,7 +1063,7 @@ public class SwitchCompat extends CompoundButton {
         // recursively with a different value, so load the REAL value...
         checked = isChecked();
 
-        if (getWindowToken() != null && ViewCompat.isLaidOut(this) && isShown()) {
+        if (getWindowToken() != null && ViewCompat.isLaidOut(this)) {
             animateThumbToCheckedState(checked);
         } else {
             // Immediately move the thumb to the new position.
@@ -1372,7 +1370,7 @@ public class SwitchCompat extends CompoundButton {
 
     @Override
     public void jumpDrawablesToCurrentState() {
-        if (Build.VERSION.SDK_INT >= 11) {
+        if (Build.VERSION.SDK_INT >= 14) {
             super.jumpDrawablesToCurrentState();
 
             if (mThumbDrawable != null) {
@@ -1383,8 +1381,10 @@ public class SwitchCompat extends CompoundButton {
                 mTrackDrawable.jumpToCurrentState();
             }
 
-            cancelPositionAnimator();
-            setThumbPosition(isChecked() ? 1 : 0);
+            if (mPositionAnimator != null && mPositionAnimator.isStarted()) {
+                mPositionAnimator.end();
+                mPositionAnimator = null;
+            }
         }
     }
 
@@ -1418,22 +1418,5 @@ public class SwitchCompat extends CompoundButton {
      */
     private static float constrain(float amount, float low, float high) {
         return amount < low ? low : (amount > high ? high : amount);
-    }
-
-    private class ThumbAnimation extends Animation {
-        final float mStartPosition;
-        final float mEndPosition;
-        final float mDiff;
-
-        ThumbAnimation(float startPosition, float endPosition) {
-            mStartPosition = startPosition;
-            mEndPosition = endPosition;
-            mDiff = endPosition - startPosition;
-        }
-
-        @Override
-        protected void applyTransformation(float interpolatedTime, Transformation t) {
-            setThumbPosition(mStartPosition + (mDiff * interpolatedTime));
-        }
     }
 }

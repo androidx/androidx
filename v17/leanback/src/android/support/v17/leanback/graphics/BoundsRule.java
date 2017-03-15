@@ -21,7 +21,6 @@ import android.graphics.Rect;
  * This class contains the rules for updating the bounds of a
  * {@link CompositeDrawable.ChildDrawable}. It contains four rules, one for each value of the
  * rectangular bound - left/top/right/bottom.
- * @hide
  */
 public class BoundsRule {
     static final int INHERIT_PARENT = 0;
@@ -116,38 +115,38 @@ public class BoundsRule {
      * @param result Represents the final bounds.
      */
     public void calculateBounds(Rect rect, Rect result) {
-        if (mLeft == null) {
+        if (left == null) {
             result.left = rect.left;
         } else {
-            result.left = doCalculate(rect.left, mLeft, rect.width());
+            result.left = doCalculate(rect.left, left, rect.width());
         }
 
-        if (mRight == null) {
+        if (right == null) {
             result.right = rect.right;
         } else {
-            result.right = doCalculate(rect.left, mRight, rect.width());
+            result.right = doCalculate(rect.left, right, rect.width());
         }
 
-        if (mTop == null) {
+        if (top == null) {
             result.top = rect.top;
         } else {
-            result.top = doCalculate(rect.top, mTop, rect.height());
+            result.top = doCalculate(rect.top, top, rect.height());
         }
 
-        if (mBottom == null) {
+        if (bottom == null) {
             result.bottom = rect.bottom;
         } else {
-            result.bottom = doCalculate(rect.top, mBottom, rect.height());
+            result.bottom = doCalculate(rect.top, bottom, rect.height());
         }
     }
 
     public BoundsRule() {}
 
     public BoundsRule(BoundsRule boundsRule) {
-        this.mLeft = boundsRule.mLeft != null ? new ValueRule(boundsRule.mLeft) : null;
-        this.mRight = boundsRule.mRight != null ? new ValueRule(boundsRule.mRight) : null;
-        this.mTop = boundsRule.mTop != null ? new ValueRule(boundsRule.mTop) : null;
-        this.mBottom = boundsRule.mBottom != null ? new ValueRule(boundsRule.mBottom) : null;
+        this.left = boundsRule.left != null ? new ValueRule(boundsRule.left) : null;
+        this.right = boundsRule.right != null ? new ValueRule(boundsRule.right) : null;
+        this.top = boundsRule.top != null ? new ValueRule(boundsRule.top) : null;
+        this.bottom = boundsRule.bottom != null ? new ValueRule(boundsRule.bottom) : null;
     }
 
     private int doCalculate(int value, ValueRule rule, int size) {
@@ -165,14 +164,14 @@ public class BoundsRule {
     }
 
     /** {@link ValueRule} for left attribute of {@link BoundsRule} */
-    public ValueRule mLeft;
+    public ValueRule left;
 
     /** {@link ValueRule} for top attribute of {@link BoundsRule} */
-    public ValueRule mTop;
+    public ValueRule top;
 
     /** {@link ValueRule} for right attribute of {@link BoundsRule} */
-    public ValueRule mRight;
+    public ValueRule right;
 
     /** {@link ValueRule} for bottom attribute of {@link BoundsRule} */
-    public ValueRule mBottom;
+    public ValueRule bottom;
 }

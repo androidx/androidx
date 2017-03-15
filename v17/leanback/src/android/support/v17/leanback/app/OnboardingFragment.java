@@ -22,8 +22,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
-import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v17.leanback.R;
@@ -267,8 +267,9 @@ abstract public class OnboardingFragment extends Fragment {
         mLogoView = (ImageView) view.findViewById(R.id.logo);
         mTitleView = (TextView) view.findViewById(R.id.title);
         mDescriptionView = (TextView) view.findViewById(R.id.description);
+        final Context context = FragmentUtil.getContext(this);
         if (sSlideDistance == 0) {
-            sSlideDistance = (int) (SLIDE_DISTANCE * getActivity().getResources()
+            sSlideDistance = (int) (SLIDE_DISTANCE * context.getResources()
                     .getDisplayMetrics().scaledDensity);
         }
         if (savedInstanceState == null) {
@@ -312,20 +313,20 @@ abstract public class OnboardingFragment extends Fragment {
     }
 
     private void resolveTheme() {
-        Activity activity = getActivity();
+        final Context context = FragmentUtil.getContext(this);
         int theme = onProvideTheme();
         if (theme == -1) {
             // Look up the onboardingTheme in the activity's currently specified theme. If it
             // exists, wrap the theme with its value.
             int resId = R.attr.onboardingTheme;
             TypedValue typedValue = new TypedValue();
-            boolean found = activity.getTheme().resolveAttribute(resId, typedValue, true);
+            boolean found = context.getTheme().resolveAttribute(resId, typedValue, true);
             if (DEBUG) Log.v(TAG, "Found onboarding theme reference? " + found);
             if (found) {
-                mThemeWrapper = new ContextThemeWrapper(activity, typedValue.resourceId);
+                mThemeWrapper = new ContextThemeWrapper(context, typedValue.resourceId);
             }
         } else {
-            mThemeWrapper = new ContextThemeWrapper(activity, theme);
+            mThemeWrapper = new ContextThemeWrapper(context, theme);
         }
     }
 
@@ -366,13 +367,14 @@ abstract public class OnboardingFragment extends Fragment {
     }
 
     boolean startLogoAnimation() {
+        final Context context = FragmentUtil.getContext(this);
         Animator animator = null;
         if (mLogoResourceId != 0) {
             mLogoView.setVisibility(View.VISIBLE);
             mLogoView.setImageResource(mLogoResourceId);
-            Animator inAnimator = AnimatorInflater.loadAnimator(getActivity(),
+            Animator inAnimator = AnimatorInflater.loadAnimator(context,
                     R.animator.lb_onboarding_logo_enter);
-            Animator outAnimator = AnimatorInflater.loadAnimator(getActivity(),
+            Animator outAnimator = AnimatorInflater.loadAnimator(context,
                     R.animator.lb_onboarding_logo_exit);
             outAnimator.setStartDelay(LOGO_SPLASH_PAUSE_DURATION_MS);
             AnimatorSet logoAnimator = new AnimatorSet();
@@ -386,7 +388,7 @@ abstract public class OnboardingFragment extends Fragment {
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    if (getActivity() != null) {
+                    if (context != null) {
                         startEnterAnimation();
                     }
                 }
@@ -411,7 +413,8 @@ abstract public class OnboardingFragment extends Fragment {
     private void initializeViews(View container) {
         mLogoView.setVisibility(View.GONE);
         // Create custom views.
-        LayoutInflater inflater = getThemeInflater(LayoutInflater.from(getActivity()));
+        LayoutInflater inflater = getThemeInflater(LayoutInflater.from(
+                FragmentUtil.getContext(this)));
         ViewGroup backgroundContainer = (ViewGroup) container.findViewById(
                 R.id.background_container);
         View background = onCreateBackgroundView(inflater, backgroundContainer);
@@ -453,22 +456,23 @@ abstract public class OnboardingFragment extends Fragment {
         mEnterTransitionFinished = true;
         initializeViews(getView());
         List<Animator> animators = new ArrayList<>();
-        Animator animator = AnimatorInflater.loadAnimator(getActivity(),
+        final Context context = FragmentUtil.getContext(this);
+        Animator animator = AnimatorInflater.loadAnimator(context,
                 R.animator.lb_onboarding_page_indicator_enter);
         animator.setTarget(getPageCount() <= 1 ? mStartButton : mPageIndicator);
         animators.add(animator);
         // Header title
-        View view = getActivity().findViewById(R.id.title);
+        View view = getView().findViewById(R.id.title);
         view.setAlpha(0);
-        animator = AnimatorInflater.loadAnimator(getActivity(),
+        animator = AnimatorInflater.loadAnimator(context,
                 R.animator.lb_onboarding_title_enter);
         animator.setStartDelay(START_DELAY_TITLE_MS);
         animator.setTarget(view);
         animators.add(animator);
         // Header description
-        view = getActivity().findViewById(R.id.description);
+        view = getView().findViewById(R.id.description);
         view.setAlpha(0);
-        animator = AnimatorInflater.loadAnimator(getActivity(),
+        animator = AnimatorInflater.loadAnimator(context,
                 R.animator.lb_onboarding_description_enter);
         animator.setStartDelay(START_DELAY_DESCRIPTION_MS);
         animator.setTarget(view);
@@ -610,10 +614,11 @@ abstract public class OnboardingFragment extends Fragment {
             }
         });
 
+        final Context context = FragmentUtil.getContext(this);
         // Animator for switching between page indicator and button.
         if (getCurrentPageIndex() == getPageCount() - 1) {
             mStartButton.setVisibility(View.VISIBLE);
-            Animator navigatorFadeOutAnimator = AnimatorInflater.loadAnimator(getActivity(),
+            Animator navigatorFadeOutAnimator = AnimatorInflater.loadAnimator(context,
                     R.animator.lb_onboarding_page_indicator_fade_out);
             navigatorFadeOutAnimator.setTarget(mPageIndicator);
             navigatorFadeOutAnimator.addListener(new AnimatorListenerAdapter() {
@@ -623,17 +628,17 @@ abstract public class OnboardingFragment extends Fragment {
                 }
             });
             animators.add(navigatorFadeOutAnimator);
-            Animator buttonFadeInAnimator = AnimatorInflater.loadAnimator(getActivity(),
+            Animator buttonFadeInAnimator = AnimatorInflater.loadAnimator(context,
                     R.animator.lb_onboarding_start_button_fade_in);
             buttonFadeInAnimator.setTarget(mStartButton);
             animators.add(buttonFadeInAnimator);
         } else if (previousPage == getPageCount() - 1) {
             mPageIndicator.setVisibility(View.VISIBLE);
-            Animator navigatorFadeInAnimator = AnimatorInflater.loadAnimator(getActivity(),
+            Animator navigatorFadeInAnimator = AnimatorInflater.loadAnimator(context,
                     R.animator.lb_onboarding_page_indicator_fade_in);
             navigatorFadeInAnimator.setTarget(mPageIndicator);
             animators.add(navigatorFadeInAnimator);
-            Animator buttonFadeOutAnimator = AnimatorInflater.loadAnimator(getActivity(),
+            Animator buttonFadeOutAnimator = AnimatorInflater.loadAnimator(context,
                     R.animator.lb_onboarding_start_button_fade_out);
             buttonFadeOutAnimator.setTarget(mStartButton);
             buttonFadeOutAnimator.addListener(new AnimatorListenerAdapter() {

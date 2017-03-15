@@ -433,11 +433,12 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             }
         };
 
-        mBgFadeInAnimator = loadAnimator(getActivity(), R.animator.lb_playback_bg_fade_in);
+        Context context = FragmentUtil.getContext(this);
+        mBgFadeInAnimator = loadAnimator(context, R.animator.lb_playback_bg_fade_in);
         mBgFadeInAnimator.addUpdateListener(listener);
         mBgFadeInAnimator.addListener(mFadeListener);
 
-        mBgFadeOutAnimator = loadAnimator(getActivity(), R.animator.lb_playback_bg_fade_out);
+        mBgFadeOutAnimator = loadAnimator(context, R.animator.lb_playback_bg_fade_out);
         mBgFadeOutAnimator.addUpdateListener(listener);
         mBgFadeOutAnimator.addListener(mFadeListener);
     }
@@ -479,14 +480,14 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             }
         };
 
-        mControlRowFadeInAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_in);
+        Context context = FragmentUtil.getContext(this);
+        mControlRowFadeInAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_in);
         mControlRowFadeInAnimator.addUpdateListener(updateListener);
         mControlRowFadeInAnimator.addListener(listener);
         mControlRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
-        mControlRowFadeOutAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_out);
+        mControlRowFadeOutAnimator = loadAnimator(context,
+                R.animator.lb_playback_controls_fade_out);
         mControlRowFadeOutAnimator.addUpdateListener(updateListener);
         mControlRowFadeOutAnimator.addListener(listener);
         mControlRowFadeOutAnimator.setInterpolator(mLogAccelerateInterpolator);
@@ -524,14 +525,13 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             }
         };
 
-        mOtherRowFadeInAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_in);
+        Context context = FragmentUtil.getContext(this);
+        mOtherRowFadeInAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_in);
         mOtherRowFadeInAnimator.addListener(listener);
         mOtherRowFadeInAnimator.addUpdateListener(updateListener);
         mOtherRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
-        mOtherRowFadeOutAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_controls_fade_out);
+        mOtherRowFadeOutAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_out);
         mOtherRowFadeOutAnimator.addListener(listener);
         mOtherRowFadeOutAnimator.addUpdateListener(updateListener);
         mOtherRowFadeOutAnimator.setInterpolator(new AccelerateInterpolator());
@@ -557,13 +557,14 @@ public class PlaybackOverlayFragment extends DetailsFragment {
             }
         };
 
-        mDescriptionFadeInAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_description_fade_in);
+        Context context = FragmentUtil.getContext(this);
+        mDescriptionFadeInAnimator = loadAnimator(context,
+                R.animator.lb_playback_description_fade_in);
         mDescriptionFadeInAnimator.addUpdateListener(listener);
         mDescriptionFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
-        mDescriptionFadeOutAnimator = loadAnimator(
-                getActivity(), R.animator.lb_playback_description_fade_out);
+        mDescriptionFadeOutAnimator = loadAnimator(context,
+                R.animator.lb_playback_description_fade_out);
         mDescriptionFadeOutAnimator.addUpdateListener(listener);
     }
 
@@ -786,6 +787,9 @@ public class PlaybackOverlayFragment extends DetailsFragment {
     @Override
     public void onDestroyView() {
         mRootView = null;
+        if (mHostCallback != null) {
+            mHostCallback.onHostDestroy();
+        }
         super.onDestroyView();
     }
 

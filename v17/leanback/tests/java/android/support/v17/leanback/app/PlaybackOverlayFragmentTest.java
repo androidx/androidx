@@ -18,32 +18,26 @@ package android.support.v17.leanback.app;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.content.Intent;
 import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class PlaybackOverlayFragmentTest {
-
-    @Rule
-    public ActivityTestRule<PlaybackOverlayTestActivity> activityTestRule =
-            new ActivityTestRule<>(PlaybackOverlayTestActivity.class, false, false);
-    private PlaybackOverlayTestActivity mActivity;
+public class PlaybackOverlayFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void workaroundVideoViewStealFocus() {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
+        launchAndWaitActivity(PlaybackOverlayTestFragment.class,
+                new Options().activityLayoutId(R.layout.playback_controls_with_video), 0);
+        PlaybackOverlayTestFragment fragment = (PlaybackOverlayTestFragment)
+                mActivity.getTestFragment();
 
         assertFalse(mActivity.findViewById(R.id.videoView).hasFocus());
-        assertTrue(mActivity.getPlaybackFragment().getView().hasFocus());
+        assertTrue(fragment.getView().hasFocus());
     }
 
 }

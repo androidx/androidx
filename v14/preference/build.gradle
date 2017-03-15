@@ -14,10 +14,7 @@
  * limitations under the License
  */
 
-
-
 apply plugin: 'com.android.library'
-
 archivesBaseName = 'preference-v14'
 
 dependencies {
@@ -62,28 +59,11 @@ android.libraryVariants.all { variant ->
     }
     def suffix = name.capitalize()
 
-    def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
-        dependsOn variant.javaCompile
-        from variant.javaCompile.destinationDir
-        from 'LICENSE.txt'
-    }
-    def javadocTask = project.tasks.create(name: "javadoc${suffix}", type: Javadoc) {
-        source android.sourceSets.main.java
-        classpath = files(variant.javaCompile.classpath.files) + files(
-                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
-    }
-
-    def javadocJarTask = project.tasks.create(name: "javadocJar${suffix}", type: Jar) {
-        classifier = 'javadoc'
-        from 'build/docs/javadoc'
-    }
-
     def sourcesJarTask = project.tasks.create(name: "sourceJar${suffix}", type: Jar) {
         classifier = 'sources'
         from android.sourceSets.main.java.srcDirs
     }
 
-    artifacts.add('archives', javadocJarTask);
     artifacts.add('archives', sourcesJarTask);
 }
 

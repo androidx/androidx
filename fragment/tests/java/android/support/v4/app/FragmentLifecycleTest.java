@@ -26,24 +26,30 @@ import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks;
 import android.support.v4.app.test.EmptyFragmentTestActivity;
+import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.view.ViewCompat;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +63,7 @@ import org.junit.runner.RunWith;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -550,6 +557,81 @@ public class FragmentLifecycleTest {
         assertTrue(fragmentA.mCalledOnDestroy);
     }
 
+    // Make sure that executing transactions during activity lifecycle events
+    // is properly prevented.
+    @Test
+    public void preventReentrantCalls() throws Throwable {
+        testLifecycleTransitionFailure(StrictFragment.ATTACHED, StrictFragment.CREATED);
+        testLifecycleTransitionFailure(StrictFragment.CREATED, StrictFragment.ACTIVITY_CREATED);
+        testLifecycleTransitionFailure(StrictFragment.ACTIVITY_CREATED, StrictFragment.STARTED);
+        testLifecycleTransitionFailure(StrictFragment.STARTED, StrictFragment.RESUMED);
+
+        testLifecycleTransitionFailure(StrictFragment.RESUMED, StrictFragment.STARTED);
+        testLifecycleTransitionFailure(StrictFragment.STARTED, StrictFragment.CREATED);
+        testLifecycleTransitionFailure(StrictFragment.CREATED, StrictFragment.ATTACHED);
+        testLifecycleTransitionFailure(StrictFragment.ATTACHED, StrictFragment.DETACHED);
+    }
+
+    private void testLifecycleTransitionFailure(final int fromState,
+            final int toState) throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final FragmentController fc1 = FragmentController.createController(
+                        new HostCallbacks(mActivityRule.getActivity()));
+                FragmentTestUtil.resume(mActivityRule, fc1, null);
+
+                final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+                final Fragment reentrantFragment = ReentrantFragment.create(fromState, toState);
+
+                fm1.beginTransaction()
+                        .add(reentrantFragment, "reentrant")
+                        .commit();
+                try {
+                    fm1.executePendingTransactions();
+                } catch (IllegalStateException e) {
+                    fail("An exception shouldn't happen when initially adding the fragment");
+                }
+
+                // Now shut down the fragment controller. When fromState > toState, this should
+                // result in an exception
+                Pair<Parcelable, FragmentManagerNonConfig> savedState = null;
+                try {
+                    savedState = FragmentTestUtil.destroy(mActivityRule, fc1);
+                    if (fromState > toState) {
+                        fail("Expected IllegalStateException when moving from "
+                                + StrictFragment.stateToString(fromState) + " to "
+                                + StrictFragment.stateToString(toState));
+                    }
+                } catch (IllegalStateException e) {
+                    if (fromState < toState) {
+                        fail("Unexpected IllegalStateException when moving from "
+                                + StrictFragment.stateToString(fromState) + " to "
+                                + StrictFragment.stateToString(toState));
+                    }
+                    return; // test passed!
+                }
+
+                // now restore from saved state. This will be reached when
+                // fromState < toState. We want to catch the fragment while it
+                // is being restored as the fragment controller state is being brought up.
+
+                final FragmentController fc2 = FragmentController.createController(
+                        new HostCallbacks(mActivityRule.getActivity()));
+                try {
+                    FragmentTestUtil.resume(mActivityRule, fc2, savedState);
+
+                    fail("Expected IllegalStateException when moving from "
+                            + StrictFragment.stateToString(fromState) + " to "
+                            + StrictFragment.stateToString(toState));
+                } catch (IllegalStateException e) {
+                    // expected, so the test passed!
+                }
+            }
+        });
+    }
+
     /**
      * Test to ensure that when dispatch* is called that the fragment manager
      * doesn't cause the contained fragment states to change even if no state changes.
@@ -584,6 +666,22 @@ public class FragmentLifecycleTest {
         StrictFragment fragment1 = (StrictFragment) fm.findFragmentByTag("1");
 
         assertFalse(fragment1.mCalledOnResume);
+    }
+
+    /**
+     * FragmentActivity should not raise the state of a Fragment while it is being destroyed.
+     */
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @Test
+    public void fragmentActivityFinishEarly() throws Throwable {
+        Intent intent = new Intent(mActivityRule.getActivity(), FragmentTestActivity.class);
+        intent.putExtra("finishEarly", true);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        FragmentTestActivity activity = (FragmentTestActivity)
+                InstrumentationRegistry.getInstrumentation().startActivitySync(intent);
+
+        assertTrue(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS));
     }
 
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,

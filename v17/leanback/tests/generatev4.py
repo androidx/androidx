@@ -19,11 +19,14 @@ import sys
 
 print "Generate v4 fragment related code for leanback"
 
-files = ['BrowseTest', 'GuidedStepTest', 'RowsTest']
+####### generate XXXTestFragment classes #######
+
+files = ['BrowseTest', 'GuidedStepTest', 'PlaybackTest', 'DetailsTest']
 
 cls = ['BrowseTest', 'Background', 'Base', 'BaseRow', 'Browse', 'Details', 'Error', 'Headers',
       'PlaybackOverlay', 'Rows', 'Search', 'VerticalGrid', 'Branded',
-      'GuidedStepTest', 'GuidedStep', 'RowsTest']
+      'GuidedStepTest', 'GuidedStep', 'RowsTest', 'PlaybackTest', 'Playback', 'Video',
+      'DetailsTest']
 
 for w in files:
     print "copy {}Fragment to {}SupportFragment".format(w, w)
@@ -44,7 +47,9 @@ for w in files:
     file.close()
     outfile.close()
 
-testcls = ['GuidedStep']
+####### generate XXXFragmentTestBase classes #######
+
+testcls = ['GuidedStep', 'Single']
 
 for w in testcls:
     print "copy {}FrgamentTestBase to {}SupportFragmentTestBase".format(w, w)
@@ -68,7 +73,9 @@ for w in testcls:
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Rows']
+####### generate XXXFragmentTest classes #######
+
+testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details', 'Rows', 'Headers']
 
 for w in testcls:
     print "copy {}FrgamentTest to {}SupportFragmentTest".format(w, w)
@@ -83,6 +90,7 @@ for w in testcls:
         for w in cls:
             line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
         for w in testcls:
+            line = line.replace('SingleFragmentTestBase', 'SingleSupportFragmentTestBase')
             line = line.replace('{}FragmentTestBase'.format(w), '{}SupportFragmentTestBase'.format(w))
             line = line.replace('{}FragmentTest'.format(w), '{}SupportFragmentTest'.format(w))
             line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))
@@ -91,11 +99,14 @@ for w in testcls:
         line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
 	line = line.replace('extends Activity', 'extends FragmentActivity')
 	line = line.replace('Activity.this.getFragmentManager', 'Activity.this.getSupportFragmentManager')
+	line = line.replace('mActivity.getFragmentManager', 'mActivity.getSupportFragmentManager')
         outfile.write(line)
     file.close()
     outfile.close()
 
-testcls = ['Browse', 'GuidedStep', 'Rows']
+
+####### generate XXXTestActivity classes #######
+testcls = ['Browse', 'GuidedStep', 'Single']
 
 for w in testcls:
     print "copy {}FragmentTestActivity to {}SupportFragmentTestActivity".format(w, w)
@@ -114,6 +125,8 @@ for w in testcls:
     file.close()
     outfile.close()
 
+####### generate Float parallax test #######
+
 print "copy ParallaxIntEffectTest to ParallaxFloatEffectTest"
 file = open('java/android/support/v17/leanback/widget/ParallaxIntEffectTest.java', 'r')
 outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatEffectTest.java', 'w')
@@ -121,11 +134,11 @@ outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from ParallaxIntEffectTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
     line = line.replace('IntEffect', 'FloatEffect')
-    line = line.replace('IntSource', 'FloatSource')
+    line = line.replace('IntParallax', 'FloatParallax')
     line = line.replace('IntProperty', 'FloatProperty')
     line = line.replace('IntValue', 'FloatValue')
     line = line.replace('intValue()', 'floatValue()')
-    line = line.replace('int getMaxParentVisibleSize', 'float getMaxParentVisibleSize')
+    line = line.replace('int getMaxValue', 'float getMaxValue')
     line = line.replace('int screenMax', 'float screenMax')
     line = line.replace('assertEquals((int)', 'assertFloatEquals((float)')
     line = line.replace('(int)', '(float)')
@@ -134,17 +147,18 @@ file.close()
 outfile.close()
 
 
-print "copy ParallaxIntSourceTest to ParallaxFloatSourceTest"
-file = open('java/android/support/v17/leanback/widget/ParallaxIntSourceTest.java', 'r')
-outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatSourceTest.java', 'w')
+print "copy ParallaxIntTest to ParallaxFloatTest"
+file = open('java/android/support/v17/leanback/widget/ParallaxIntTest.java', 'r')
+outfile = open('java/android/support/v17/leanback/widget/ParallaxFloatTest.java', 'w')
 outfile.write("// CHECKSTYLE:OFF Generated code\n")
-outfile.write("/* This file is auto-generated from ParallaxIntSourceTest.java.  DO NOT MODIFY. */\n\n")
+outfile.write("/* This file is auto-generated from ParallaxIntTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
-    line = line.replace('IntSource', 'FloatSource')
+    line = line.replace('ParallaxIntTest', 'ParallaxFloatTest')
+    line = line.replace('IntParallax', 'FloatParallax')
     line = line.replace('IntProperty', 'FloatProperty')
     line = line.replace('IntValue', 'FloatValue')
     line = line.replace('intValue()', 'floatValue()')
-    line = line.replace('int getMaxParentVisibleSize', 'float getMaxParentVisibleSize')
+    line = line.replace('int getMaxValue', 'float getMaxValue')
     line = line.replace('int screenMax', 'float screenMax')
     line = line.replace('assertEquals((int)', 'assertFloatEquals((float)')
     line = line.replace('(int)', '(float)')
@@ -152,6 +166,7 @@ for line in file:
 file.close()
 outfile.close()
 
+####### generate glue support test #######
 
 print "copy PlaybackControlGlueTest to PlaybackControlSupportGlueTest"
 file = open('java/android/support/v17/leanback/app/PlaybackControlGlueTest.java', 'r')
@@ -160,6 +175,8 @@ outfile.write("// CHECKSTYLE:OFF Generated code\n")
 outfile.write("/* This file is auto-generated from PlaybackControlGlueTest.java.  DO NOT MODIFY. */\n\n")
 for line in file:
     line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
+    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
+    line = line.replace('PlaybackGlueHostOld', 'PlaybackSupportGlueHostOld')
     outfile.write(line)
 file.close()
 outfile.close()

@@ -143,6 +143,9 @@ public class AlertDialogCursorTest
         if (mDatabaseFile != null) {
             mDatabaseFile.delete();
         }
+        if (mAlertDialog != null) {
+            mAlertDialog.dismiss();
+        }
     }
 
     private void wireBuilder(final AlertDialog.Builder builder) {

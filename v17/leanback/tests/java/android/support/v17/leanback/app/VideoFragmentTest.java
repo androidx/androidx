@@ -15,58 +15,103 @@
  */
 package android.support.v17.leanback.app;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
-import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v17.leanback.media.MediaPlayerGlue;
+import android.support.v17.leanback.media.PlaybackGlue;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.test.R;
+import android.support.v17.leanback.testutils.PollingCheck;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.ViewGroup;
 
-import org.junit.Rule;
+import junit.framework.Assert;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class VideoFragmentTest {
+public class VideoFragmentTest extends SingleFragmentTestBase {
 
-    @Rule
-    public ActivityTestRule<VideoFragmentTestActivity> activityTestRule =
-            new ActivityTestRule<>(VideoFragmentTestActivity.class, false, false);
-    private VideoFragmentTestActivity mActivity;
+    public static class Fragment_setSurfaceViewCallbackBeforeCreate extends VideoFragment {
+        boolean mSurfaceCreated;
+        @Override
+        public View onCreateView(
+                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+            setSurfaceHolderCallback(new SurfaceHolder.Callback() {
+                @Override
+                public void surfaceCreated(SurfaceHolder holder) {
+                    mSurfaceCreated = true;
+                }
+
+                @Override
+                public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                                           int height) {
+                }
+
+                @Override
+                public void surfaceDestroyed(SurfaceHolder holder) {
+                    mSurfaceCreated = false;
+                }
+            });
+
+            return super.onCreateView(inflater, container, savedInstanceState);
+        }
+    }
 
     @Test
     public void setSurfaceViewCallbackBeforeCreate() {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
+        launchAndWaitActivity(Fragment_setSurfaceViewCallbackBeforeCreate.class, 1000);
+        Fragment_setSurfaceViewCallbackBeforeCreate fragment1 =
+                (Fragment_setSurfaceViewCallbackBeforeCreate) mActivity.getTestFragment();
+        assertNotNull(fragment1);
+        assertTrue(fragment1.mSurfaceCreated);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mActivity.replaceVideoFragment();
+                mActivity.getFragmentManager().beginTransaction()
+                        .replace(R.id.main_frame, new Fragment_setSurfaceViewCallbackBeforeCreate())
+                        .commitAllowingStateLoss();
             }
         });
+        SystemClock.sleep(500);
 
-        VideoFragment fragment = (VideoFragment) mActivity.getFragmentManager().findFragmentById(
-                R.id.video_fragment);
-        assertNotNull(fragment);
+        assertFalse(fragment1.mSurfaceCreated);
+
+        Fragment_setSurfaceViewCallbackBeforeCreate fragment2 =
+                (Fragment_setSurfaceViewCallbackBeforeCreate) mActivity.getTestFragment();
+        assertNotNull(fragment2);
+        assertTrue(fragment2.mSurfaceCreated);
+        assertNotSame(fragment1, fragment2);
     }
 
     @Test
     public void setSurfaceViewCallbackAfterCreate() {
-        Intent intent = new Intent();
-        mActivity = activityTestRule.launchActivity(intent);
+        launchAndWaitActivity(VideoFragment.class, 1000);
+        VideoFragment fragment = (VideoFragment) mActivity.getTestFragment();
 
-        VideoFragment fragment = (VideoFragment) mActivity.getFragmentManager().findFragmentById(
-                R.id.video_fragment);
         assertNotNull(fragment);
 
+        final boolean[] surfaceCreated = new boolean[1];
         fragment.setSurfaceHolderCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+                surfaceCreated[0] = true;
             }
 
             @Override
@@ -75,7 +120,130 @@ public class VideoFragmentTest {
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
+                surfaceCreated[0] = false;
             }
         });
+        assertTrue(surfaceCreated[0]);
     }
+
+    public static class Fragment_withVideoPlayer extends VideoFragment {
+        MediaPlayerGlue mGlue;
+        int mOnCreateCalled;
+        int mOnCreateViewCalled;
+        int mOnDestroyViewCalled;
+        int mOnDestroyCalled;
+        int mGlueAttachedToHost;
+        int mGlueDetachedFromHost;
+        int mGlueOnReadyForPlaybackCalled;
+
+        public Fragment_withVideoPlayer() {
+            setRetainInstance(true);
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            mOnCreateCalled++;
+            super.onCreate(savedInstanceState);
+            mGlue = new MediaPlayerGlue(getActivity()) {
+                @Override
+                protected void onDetachedFromHost() {
+                    mGlueDetachedFromHost++;
+                    super.onDetachedFromHost();
+                }
+
+                @Override
+                protected void onAttachedToHost(PlaybackGlueHost host) {
+                    super.onAttachedToHost(host);
+                    mGlueAttachedToHost++;
+                }
+            };
+            mGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
+            mGlue.setArtist("Leanback");
+            mGlue.setTitle("Leanback team at work");
+            mGlue.setMediaSource(
+                    Uri.parse("android.resource://android.support.v17.leanback.test/raw/video"));
+            mGlue.setPlayerCallback(new PlaybackGlue.PlayerCallback() {
+                @Override
+                public void onReadyForPlayback() {
+                    mGlueOnReadyForPlaybackCalled++;
+                    mGlue.play();
+                }
+            });
+            mGlue.setHost(new VideoFragmentGlueHost(this));
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            mOnCreateViewCalled++;
+            return super.onCreateView(inflater, container, savedInstanceState);
+        }
+
+        @Override
+        public void onDestroyView() {
+            mOnDestroyViewCalled++;
+            super.onDestroyView();
+        }
+
+        @Override
+        public void onDestroy() {
+            mOnDestroyCalled++;
+            super.onDestroy();
+        }
+    }
+
+    @Test
+    public void mediaPlayerGlueInVideoFragment() {
+        launchAndWaitActivity(Fragment_withVideoPlayer.class, 1000);
+        final Fragment_withVideoPlayer fragment = (Fragment_withVideoPlayer)
+                mActivity.getTestFragment();
+
+        PollingCheck.waitFor(5000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return fragment.mGlue.isMediaPlaying();
+            }
+        });
+
+        assertEquals(1, fragment.mOnCreateCalled);
+        assertEquals(1, fragment.mOnCreateViewCalled);
+        assertEquals(0, fragment.mOnDestroyViewCalled);
+        assertEquals(1, fragment.mGlueOnReadyForPlaybackCalled);
+        View fragmentViewBeforeRecreate = fragment.getView();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.recreate();
+            }
+        });
+
+        PollingCheck.waitFor(5000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return fragment.mOnCreateViewCalled == 2 && fragment.mGlue.isMediaPlaying();
+            }
+        });
+        View fragmentViewAfterRecreate = fragment.getView();
+
+        Assert.assertNotSame(fragmentViewBeforeRecreate, fragmentViewAfterRecreate);
+        assertEquals(1, fragment.mOnCreateCalled);
+        assertEquals(2, fragment.mOnCreateViewCalled);
+        assertEquals(1, fragment.mOnDestroyViewCalled);
+
+        assertEquals(1, fragment.mGlueAttachedToHost);
+        assertEquals(0, fragment.mGlueDetachedFromHost);
+        assertEquals(1, fragment.mGlueOnReadyForPlaybackCalled);
+
+        mActivity.finish();
+        PollingCheck.waitFor(5000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return fragment.mGlueDetachedFromHost == 1;
+            }
+        });
+        assertEquals(2, fragment.mOnDestroyViewCalled);
+        assertEquals(1, fragment.mOnDestroyCalled);
+    }
+
 }

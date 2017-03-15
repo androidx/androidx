@@ -394,7 +394,8 @@ public class SearchSupportFragment extends Fragment {
         super.onResume();
         mIsPaused = false;
         if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer) {
-            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
+            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(
+                    getContext());
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
         if (mPendingStartRecognitionWhenPaused) {
@@ -417,6 +418,16 @@ public class SearchSupportFragment extends Fragment {
     public void onDestroy() {
         releaseAdapter();
         super.onDestroy();
+    }
+
+    /**
+     * Returns RowsSupportFragment that shows result rows. RowsSupportFragment is initialized after
+     * SearchSupportFragment.onCreateView().
+     *
+     * @return RowsSupportFragment that shows result rows.
+     */
+    public RowsSupportFragment getRowsSupportFragment() {
+        return mRowsSupportFragment;
     }
 
     private void releaseRecognizer() {

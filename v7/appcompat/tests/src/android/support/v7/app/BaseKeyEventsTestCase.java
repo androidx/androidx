@@ -29,7 +29,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.support.test.filters.FlakyTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
+import android.support.test.filters.Suppress;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.view.ActionMode;
@@ -89,8 +92,10 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
         assertTrue("ActionMode was destroyed", destroyed.get());
     }
 
+    @Suppress
+    @FlakyTest(bugId = 34956766)
     @Test
-    @SmallTest
+    @LargeTest
     public void testBackCollapsesSearchView() throws InterruptedException {
         final String itemTitle = getActivity().getString(R.string.search_menu_title);
 
