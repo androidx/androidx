@@ -228,7 +228,7 @@ class FastScroller extends ItemDecoration implements OnItemTouchListener {
         switch (mAnimationState) {
             case ANIMATION_STATE_FADING_OUT:
                 mShowHideAnimator.cancel();
-                // no break
+                // fall through
             case ANIMATION_STATE_OUT:
                 mAnimationState = ANIMATION_STATE_FADING_IN;
                 mShowHideAnimator.setFloatValues((float) mShowHideAnimator.getAnimatedValue(), 1);
@@ -248,7 +248,7 @@ class FastScroller extends ItemDecoration implements OnItemTouchListener {
         switch (mAnimationState) {
             case ANIMATION_STATE_FADING_IN:
                 mShowHideAnimator.cancel();
-                // no break
+                // fall through
             case ANIMATION_STATE_IN:
                 mAnimationState = ANIMATION_STATE_FADING_OUT;
                 mShowHideAnimator.setFloatValues((float) mShowHideAnimator.getAnimatedValue(), 0);

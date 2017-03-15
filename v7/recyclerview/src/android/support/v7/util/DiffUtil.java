@@ -205,7 +205,7 @@ public class DiffUtil {
                 // we can reach k from k - 1 or k + 1. Check which one is further in the graph
                 int x;
                 final boolean removal;
-                if (k == -d || k != d && forward[kOffset + k - 1] < forward[kOffset + k + 1]) {
+                if (k == -d || (k != d && forward[kOffset + k - 1] < forward[kOffset + k + 1])) {
                     x = forward[kOffset + k + 1];
                     removal = false;
                 } else {
@@ -238,8 +238,8 @@ public class DiffUtil {
                 final int backwardK = k + delta;
                 int x;
                 final boolean removal;
-                if (backwardK == d + delta || backwardK != -d + delta
-                        && backward[kOffset + backwardK - 1] < backward[kOffset + backwardK + 1]) {
+                if (backwardK == d + delta || (backwardK != -d + delta
+                        && backward[kOffset + backwardK - 1] < backward[kOffset + backwardK + 1])) {
                     x = backward[kOffset + backwardK - 1];
                     removal = false;
                 } else {
