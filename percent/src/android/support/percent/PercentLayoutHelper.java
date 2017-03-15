@@ -67,7 +67,59 @@ import android.view.ViewGroup;
  * }
  * </pre>
  * </ol>
+ * @deprecated consider using ConstraintLayout and associated layouts instead. The following shows
+ * how to replicate the functionality of percentage layouts with a ConstraintLayout. The Guidelines
+ * are used to define each percentage break point, and then a Button view is stretched to fill
+ * the gap:
+ *
+ * <pre class="prettyprint">
+ * &lt;android.support.constraint.ConstraintLayout
+ *         xmlns:android="http://schemas.android.com/apk/res/android"
+ *         xmlns:app="http://schemas.android.com/apk/res-auto"
+ *         android:layout_width="match_parent"
+ *         android:layout_height="match_parent"&gt
+ *
+ *     &lt;android.support.constraint.Guideline
+ *         android:layout_width="wrap_content"
+ *         android:layout_height="wrap_content"
+ *         android:id="@+id/left_guideline"
+ *         app:layout_constraintGuide_percent=".15"
+ *         android:orientation="vertical"/&gt
+ *
+ *     &lt;android.support.constraint.Guideline
+ *         android:layout_width="wrap_content"
+ *         android:layout_height="wrap_content"
+ *         android:id="@+id/right_guideline"
+ *         app:layout_constraintGuide_percent=".85"
+ *         android:orientation="vertical"/&gt
+ *
+ *     &lt;android.support.constraint.Guideline
+ *         android:layout_width="wrap_content"
+ *         android:layout_height="wrap_content"
+ *         android:id="@+id/top_guideline"
+ *         app:layout_constraintGuide_percent=".15"
+ *         android:orientation="horizontal"/&gt
+ *
+ *     &lt;android.support.constraint.Guideline
+ *         android:layout_width="wrap_content"
+ *         android:layout_height="wrap_content"
+ *         android:id="@+id/bottom_guideline"
+ *         app:layout_constraintGuide_percent=".85"
+ *         android:orientation="horizontal"/&gt
+ *
+ *     &lt;Button
+ *         android:text="Button"
+ *         android:layout_width="0dp"
+ *         android:layout_height="0dp"
+ *         android:id="@+id/button"
+ *         app:layout_constraintLeft_toLeftOf="@+id/left_guideline"
+ *         app:layout_constraintRight_toRightOf="@+id/right_guideline"
+ *         app:layout_constraintTop_toTopOf="@+id/top_guideline"
+ *         app:layout_constraintBottom_toBottomOf="@+id/bottom_guideline" /&gt
+ *
+ * &lt;/android.support.constraint.ConstraintLayout&gt
  */
+@Deprecated
 public class PercentLayoutHelper {
     private static final String TAG = "PercentLayout";
 
@@ -344,7 +396,10 @@ public class PercentLayoutHelper {
     /**
      * Container for information about percentage dimensions and margins. It acts as an extension
      * for {@code LayoutParams}.
+     *
+     * @deprecated use ConstraintLayout and Guidelines for layout support.
      */
+    @Deprecated
     public static class PercentLayoutInfo {
         /** The decimal value of the percentage-based width. */
         public float widthPercent;
@@ -555,7 +610,10 @@ public class PercentLayoutHelper {
      *
      * Your {@code LayoutParams} subclass should contain an instance of {@code PercentLayoutInfo}
      * and the implementation of this interface should be a simple accessor.
+     *
+     * @deprecated this class is deprecated along with its parent class.
      */
+    @Deprecated
     public interface PercentLayoutParams {
         PercentLayoutInfo getPercentLayoutInfo();
     }

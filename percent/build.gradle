@@ -3,7 +3,6 @@ archivesBaseName = 'percent'
 
 dependencies {
     compile project(':support-compat')
-
     androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
     }

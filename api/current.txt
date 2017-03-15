@@ -1678,13 +1678,13 @@ package android.support.media.tv {
 
 package android.support.percent {
 
-  public class PercentFrameLayout extends android.widget.FrameLayout {
+  public deprecated class PercentFrameLayout extends android.widget.FrameLayout {
     ctor public PercentFrameLayout(android.content.Context);
     ctor public PercentFrameLayout(android.content.Context, android.util.AttributeSet);
     ctor public PercentFrameLayout(android.content.Context, android.util.AttributeSet, int);
   }
 
-  public static class PercentFrameLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams implements android.support.percent.PercentLayoutHelper.PercentLayoutParams {
+  public static deprecated class PercentFrameLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams implements android.support.percent.PercentLayoutHelper.PercentLayoutParams {
     ctor public PercentFrameLayout.LayoutParams(android.content.Context, android.util.AttributeSet);
     ctor public PercentFrameLayout.LayoutParams(int, int);
     ctor public PercentFrameLayout.LayoutParams(int, int, int);
@@ -1695,7 +1695,7 @@ package android.support.percent {
     method public android.support.percent.PercentLayoutHelper.PercentLayoutInfo getPercentLayoutInfo();
   }
 
-  public class PercentLayoutHelper {
+  public deprecated class PercentLayoutHelper {
     ctor public PercentLayoutHelper(android.view.ViewGroup);
     method public void adjustChildren(int, int);
     method public static void fetchWidthAndHeight(android.view.ViewGroup.LayoutParams, android.content.res.TypedArray, int, int);
@@ -1704,7 +1704,7 @@ package android.support.percent {
     method public void restoreOriginalParams();
   }
 
-  public static class PercentLayoutHelper.PercentLayoutInfo {
+  public static deprecated class PercentLayoutHelper.PercentLayoutInfo {
     ctor public PercentLayoutHelper.PercentLayoutInfo();
     method public void fillLayoutParams(android.view.ViewGroup.LayoutParams, int, int);
     method public deprecated void fillMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams, int, int);
@@ -1722,17 +1722,17 @@ package android.support.percent {
     field public float widthPercent;
   }
 
-  public static abstract interface PercentLayoutHelper.PercentLayoutParams {
+  public static abstract deprecated interface PercentLayoutHelper.PercentLayoutParams {
     method public abstract android.support.percent.PercentLayoutHelper.PercentLayoutInfo getPercentLayoutInfo();
   }
 
-  public class PercentRelativeLayout extends android.widget.RelativeLayout {
+  public deprecated class PercentRelativeLayout extends android.widget.RelativeLayout {
     ctor public PercentRelativeLayout(android.content.Context);
     ctor public PercentRelativeLayout(android.content.Context, android.util.AttributeSet);
     ctor public PercentRelativeLayout(android.content.Context, android.util.AttributeSet, int);
   }
 
-  public static class PercentRelativeLayout.LayoutParams extends android.widget.RelativeLayout.LayoutParams implements android.support.percent.PercentLayoutHelper.PercentLayoutParams {
+  public static deprecated class PercentRelativeLayout.LayoutParams extends android.widget.RelativeLayout.LayoutParams implements android.support.percent.PercentLayoutHelper.PercentLayoutParams {
     ctor public PercentRelativeLayout.LayoutParams(android.content.Context, android.util.AttributeSet);
     ctor public PercentRelativeLayout.LayoutParams(int, int);
     ctor public PercentRelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
