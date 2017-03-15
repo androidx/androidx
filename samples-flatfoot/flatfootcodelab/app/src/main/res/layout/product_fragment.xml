@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="product"
+                  type="com.example.android.flatfoot.codelab.flatfootcodelab.step10.Product"/>
+    </data>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:background="@color/cardview_dark_background"
+                  android:orientation="vertical">
+        <include layout="@layout/product_item" app:product="@{product}"/>
+        <android.support.v7.widget.RecyclerView android:id="@+id/comment_list"
+                                                app:layoutManager="LinearLayoutManager"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"/>
+    </LinearLayout>
+</layout>

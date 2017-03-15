@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="comment"
+                  type="com.example.android.flatfoot.codelab.flatfootcodelab.step10.Comment"/>
+        <variable name="callback"
+                  type="com.example.android.flatfoot.codelab.flatfootcodelab.step10.ui.CommentClickCallback"/>
+    </data>
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/product_item_min_height"
+        android:onClick="@{() ->  callback.onClick(comment)}"
+        android:orientation="horizontal"
+        app:cardUseCompatPadding="true">
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/name"
+                      android:text="@{comment.text}"/>
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+</layout>

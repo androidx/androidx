@@ -42,6 +42,12 @@ class ProductReviewServiceImpl implements ProductReviewService {
         this.db = db;
     }
 
+    void randDelay() {
+        try {
+            Thread.sleep((long) (1000 + 1000 * (Math.random() % 3)));
+        } catch (InterruptedException ignored) {}
+    }
+
     void initializeDb() {
         ArrayList<InternalProduct> products = new ArrayList<>(FIRST.length * SECOND.length);
         for (int i = 0; i < FIRST.length; i++) {
@@ -72,6 +78,7 @@ class ProductReviewServiceImpl implements ProductReviewService {
 
     @Override
     public List<Product> fetchProducts() {
+        randDelay();
         ArrayList<Product> products = new ArrayList<>();
         products.addAll(db.dao().getProducts());
         return products;
@@ -79,6 +86,7 @@ class ProductReviewServiceImpl implements ProductReviewService {
 
     @Override
     public List<Comment> fetchComments(int productId) {
+        randDelay();
         ArrayList<Comment> comments = new ArrayList<>();
         comments.addAll(db.dao().getComments(productId));
         return comments;
@@ -86,11 +94,13 @@ class ProductReviewServiceImpl implements ProductReviewService {
 
     @Override
     public void deleteComment(int commentId) {
+        randDelay();
         db.dao().delete(commentId);
     }
 
     @Override
     public Comment addComment(int productId, String text) {
+        randDelay();
         InternalProduct product = db.dao().getProduct(productId);
         if (product == null) {
             throw new IllegalArgumentException("Product with id = " + productId + " doesn't exist");

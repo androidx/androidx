@@ -109,6 +109,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".step10_solution.ProductReviewActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".step_databinding.ChronoDataBindingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
