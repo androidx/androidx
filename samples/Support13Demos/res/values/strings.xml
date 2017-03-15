@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
     <string name="activity_sample_code">Support v13 Demos</string>
 
     <string name="hello_world"><b>Hello, <i>World!</i></b></string>

@@ -17,9 +17,4 @@
     <style name="TestActivityTheme" parent="android:Theme.Holo">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
-    <style name="TextMediumStyle" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textSize">@dimen/text_medium_size</item>
-        <item name="android:textColor">@color/text_color</item>
-        <item name="android:textStyle">italic</item>
-    </style>
 </resources>
