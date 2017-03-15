@@ -7555,7 +7555,7 @@ package android.support.v4.util {
   public class SimpleArrayMap<K, V> {
     ctor public SimpleArrayMap();
     ctor public SimpleArrayMap(int);
-    ctor public SimpleArrayMap(android.support.v4.util.SimpleArrayMap);
+    ctor public SimpleArrayMap(android.support.v4.util.SimpleArrayMap<K, V>);
     method public void clear();
     method public boolean containsKey(java.lang.Object);
     method public boolean containsValue(java.lang.Object);

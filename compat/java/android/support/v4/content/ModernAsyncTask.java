@@ -178,7 +178,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
 
     Result postResult(Result result) {
         Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT,
-                new AsyncTaskResult<Result>(this, result));
+                new AsyncTaskResult<>(this, result));
         message.sendToTarget();
         return result;
     }
