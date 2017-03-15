@@ -79,4 +79,7 @@
     <string name="alpha_menu_title">Alpha</string>
     <string name="alpha_menu_description">Alpha description</string>
     <string name="alpha_menu_tooltip">Alpha tooltip</string>
+
+    <string name="text_link_enabled">With <a href="http://www.google.com">link</a> enabled</string>
+    <string name="text_link_disabled">With <a href="http://www.google.com">link</a> disabled</string>
 </resources>

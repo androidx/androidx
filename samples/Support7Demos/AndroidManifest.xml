@@ -254,6 +254,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.AppCompatWidgetsTextViews"
+                  android:label="@string/appcompat_widgets_text_views"
+                  android:theme="@style/Theme.Custom.TextLink">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.ToolbarUsage"
                   android:label="@string/toolbar_usage"
                   android:theme="@style/Theme.Custom.NoActionBar">

@@ -68,6 +68,7 @@
     <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>
     <string name="appcompat_widgets_spinners">AppCompat/Widgets/Spinners</string>
     <string name="appcompat_widgets_text_input">AppCompat/Widgets/Text Input</string>
+    <string name="appcompat_widgets_text_views">AppCompat/Widgets/Text Views</string>
 
     <string name="action_bar_search">Search</string>
     <string name="action_bar_add">Add</string>
@@ -234,5 +235,10 @@
     <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
 
     <string name="night_mode">DAY</string>
+
+    <string name="text_plain_enabled">Plain enabled</string>
+    <string name="text_plain_disabled">Plain disabled</string>
+    <string name="text_link_enabled">With <a href="http://www.google.com">link</a> enabled</string>
+    <string name="text_link_disabled">With <a href="http://www.google.com">link</a> disabled</string>
 </resources>
 

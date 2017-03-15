@@ -84,6 +84,7 @@ class AppCompatTextHelper {
         boolean allCapsSet = false;
         ColorStateList textColor = null;
         ColorStateList textColorHint = null;
+        ColorStateList textColorLink = null;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
@@ -101,6 +102,10 @@ class AppCompatTextHelper {
                 if (a.hasValue(R.styleable.TextAppearance_android_textColorHint)) {
                     textColorHint = a.getColorStateList(
                             R.styleable.TextAppearance_android_textColorHint);
+                }
+                if (a.hasValue(R.styleable.TextAppearance_android_textColorLink)) {
+                    textColorLink = a.getColorStateList(
+                            R.styleable.TextAppearance_android_textColorLink);
                 }
             }
             a.recycle();
@@ -123,6 +128,10 @@ class AppCompatTextHelper {
                 textColorHint = a.getColorStateList(
                         R.styleable.TextAppearance_android_textColorHint);
             }
+            if (a.hasValue(R.styleable.TextAppearance_android_textColorLink)) {
+                textColorLink = a.getColorStateList(
+                        R.styleable.TextAppearance_android_textColorLink);
+            }
         }
         a.recycle();
 
@@ -131,6 +140,9 @@ class AppCompatTextHelper {
         }
         if (textColorHint != null) {
             mView.setHintTextColor(textColorHint);
+        }
+        if (textColorLink != null) {
+            mView.setLinkTextColor(textColorLink);
         }
         if (!hasPwdTm && allCapsSet) {
             setAllCaps(allCaps);

@@ -104,6 +104,20 @@
             android:text="@string/sample_text2"
             android:textColor="?android:attr/textColorSecondary" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/view_text_link_enabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_link_enabled"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/view_text_link_disabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/text_link_disabled" />
+
     </LinearLayout>
 
 </ScrollView>

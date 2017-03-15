@@ -29,6 +29,10 @@
         <item name="colorAccent">#ffff00</item>
     </style>
 
+    <style name="Theme.Custom.TextLink">
+        <item name="android:textColorLink">@color/link_color</item>
+    </style>
+
     <style name="Theme.SampleMediaRouter" parent="Theme.AppCompat">
         <item name="colorPrimary">#fff44336</item>
         <item name="colorPrimaryDark">#d32f2f</item>

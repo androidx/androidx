@@ -1059,6 +1059,7 @@
         <attr name="android:textSize" />
         <attr name="android:textColor" />
         <attr name="android:textColorHint"/>
+        <attr name="android:textColorLink"/>
         <attr name="android:textStyle" />
         <attr name="android:typeface" />
         <attr name="textAllCaps" />
