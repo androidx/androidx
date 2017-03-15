@@ -21,7 +21,9 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.v7.appcompat.R;
@@ -38,15 +40,101 @@ public class ContextThemeWrapper extends ContextWrapper {
     private int mThemeResource;
     private Resources.Theme mTheme;
     private LayoutInflater mInflater;
+    private Configuration mOverrideConfiguration;
+    private Resources mResources;
 
+    /**
+     * Creates a new context wrapper with no theme and no base context.
+     * <p>
+     * <stong>Note:</strong> A base context <strong>must</strong> be attached
+     * using {@link #attachBaseContext(Context)} before calling any other
+     * method on the newly constructed context wrapper.
+     */
+    public ContextThemeWrapper() {
+        super(null);
+    }
+
+    /**
+     * Creates a new context wrapper with the specified theme.
+     * <p>
+     * The specified theme will be applied on top of the base context's theme.
+     * Any attributes not explicitly defined in the theme identified by
+     * <var>themeResId</var> will retain their original values.
+     *
+     * @param base the base context
+     * @param themeResId the resource ID of the theme to be applied on top of
+     *                   the base context's theme
+     */
     public ContextThemeWrapper(Context base, @StyleRes int themeResId) {
         super(base);
         mThemeResource = themeResId;
     }
 
+    /**
+     * Creates a new context wrapper with the specified theme.
+     * <p>
+     * Unlike {@link #ContextThemeWrapper(Context, int)}, the theme passed to
+     * this constructor will completely replace the base context's theme.
+     *
+     * @param base the base context
+     * @param theme the theme against which resources should be inflated
+     */
     public ContextThemeWrapper(Context base, Resources.Theme theme) {
         super(base);
         mTheme = theme;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+    }
+
+    /**
+     * Call to set an "override configuration" on this context -- this is
+     * a configuration that replies one or more values of the standard
+     * configuration that is applied to the context.  See
+     * {@link Context#createConfigurationContext(Configuration)} for more
+     * information.
+     *
+     * <p>This method can only be called once, and must be called before any
+     * calls to {@link #getResources()} or {@link #getAssets()} are made.
+     */
+    public void applyOverrideConfiguration(Configuration overrideConfiguration) {
+        if (mResources != null) {
+            throw new IllegalStateException(
+                    "getResources() or getAssets() has already been called");
+        }
+        if (mOverrideConfiguration != null) {
+            throw new IllegalStateException("Override configuration has already been set");
+        }
+        mOverrideConfiguration = new Configuration(overrideConfiguration);
+    }
+
+    /**
+     * Used by ActivityThread to apply the overridden configuration to onConfigurationChange
+     * callbacks.
+     * @hide
+     */
+    public Configuration getOverrideConfiguration() {
+        return mOverrideConfiguration;
+    }
+
+    @Override
+    public Resources getResources() {
+        return getResourcesInternal();
+    }
+
+    private Resources getResourcesInternal() {
+        final int version = Build.VERSION.SDK_INT;
+        if (mResources == null) {
+            if (mOverrideConfiguration == null) {
+                mResources = super.getResources();
+            } else if (version >= 17) {
+                final Context resContext = createConfigurationContext(mOverrideConfiguration);
+                mResources = resContext.getResources();
+            }
+        }
+        return mResources;
     }
 
     @Override

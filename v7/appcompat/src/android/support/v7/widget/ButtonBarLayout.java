@@ -46,6 +46,8 @@ public class ButtonBarLayout extends LinearLayout {
 
     private int mLastWidthSize = -1;
 
+    private int mMinimumHeight = 0;
+
     public ButtonBarLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         final boolean allowStackingDefault =
@@ -146,6 +148,11 @@ public class ButtonBarLayout extends LinearLayout {
             }
         }
         return -1;
+    }
+
+    @Override
+    public int getMinimumHeight() {
+        return Math.max(mMinimumHeight, super.getMinimumHeight());
     }
 
     private void setStacked(boolean stacked) {
