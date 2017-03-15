@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v7.app;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -44,8 +45,10 @@ import android.support.test.espresso.action.GeneralLocation;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.appcompat.test.R;
@@ -425,6 +428,8 @@ public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutAc
         mDrawerLayout.removeDrawerListener(mockedListener);
     }
 
+    @Suppress
+    @FlakyTest(bugId = 33659300)
     @Test
     @MediumTest
     public void testDrawerListenerCallbacksOnOpeningViaSwipes() {
