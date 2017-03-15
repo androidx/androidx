@@ -31,6 +31,10 @@ android {
 
     sourceSets {
         main.java.srcDir 'src'
+        main.resources {
+            srcDirs = ['.']
+            includes = ['third_party/**/LICENSE']
+        }
     }
 }
 
