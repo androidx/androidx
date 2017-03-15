@@ -30,7 +30,7 @@ public class WearableRecyclerViewTestActivity extends Activity {
         setContentView(R.layout.wearable_recycler_view_basic);
         WearableRecyclerView wrv =
                 (WearableRecyclerView) findViewById(android.support.wearable.test.R.id.wrv);
-        wrv.setLayoutManager(new CurvedOffsettingLayoutManager(this));
+        wrv.setLayoutManager(new WearableLinearLayoutManager(this));
         wrv.setAdapter(new TestAdapter());
     }
 
@@ -47,6 +47,7 @@ public class WearableRecyclerViewTestActivity extends Activity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView view = new TextView(parent.getContext());
+            view.setLayoutParams(new RecyclerView.LayoutParams(200, 50));
             return new ViewHolder(view);
         }
 
