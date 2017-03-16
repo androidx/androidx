@@ -22,6 +22,7 @@ import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
 
 import static org.junit.Assert.assertEquals;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
@@ -117,5 +118,19 @@ public class AppCompatTextViewTest
         onView(withId(R.id.view_text_color_secondary)).perform(setEnabled(false));
         assertEquals(ContextCompat.getColor(textView.getContext(), R.color.sand_disabled),
                 textView.getCurrentTextColor());
+    }
+
+    private void verifyTextLinkColor(TextView textView) {
+        ColorStateList linkColorStateList = textView.getLinkTextColors();
+        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.lilac_default),
+                linkColorStateList.getColorForState(new int[] { android.R.attr.state_enabled}, 0));
+        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.lilac_disabled),
+                linkColorStateList.getColorForState(new int[] { -android.R.attr.state_enabled}, 0));
+    }
+
+    @Test
+    public void testTextLinkColor() {
+        verifyTextLinkColor((TextView) mContainer.findViewById(R.id.view_text_link_enabled));
+        verifyTextLinkColor((TextView) mContainer.findViewById(R.id.view_text_link_disabled));
     }
 }
