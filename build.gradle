@@ -236,7 +236,6 @@ task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
     options {
         addStringOption "templatedir",
                 "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
-        addStringOption "federate Android", "http://developer.android.com"
         addStringOption "stubpackages", "android.support.*"
         addStringOption "samplesdir", "${project.rootDir}/samples"
         addOption hdfOption
@@ -260,7 +259,6 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
     options {
         addStringOption "templatedir",
                 "${project.rootDir}/../../build/tools/droiddoc/templates-sdk"
-        addStringOption "federate Android", "http://developer.android.com"
         addStringOption "stubpackages", "android.support.*"
     }
     exclude '**/BuildConfig.java'
