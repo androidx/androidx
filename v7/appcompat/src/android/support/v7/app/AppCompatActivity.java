@@ -538,6 +538,14 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
                 return true;
             }
         }
+        // Let support action bars open menus in response to the menu key prioritized over
+        // the window handling it
+        final int keyCode = event.getKeyCode();
+        final ActionBar actionBar = getSupportActionBar();
+        if (keyCode == KeyEvent.KEYCODE_MENU
+                && actionBar != null && actionBar.onMenuKeyEvent(event)) {
+            return true;
+        }
         return super.dispatchKeyEvent(event);
     }
 
@@ -575,5 +583,23 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void openOptionsMenu() {
+        ActionBar actionBar = getSupportActionBar();
+        if (getWindow().hasFeature(Window.FEATURE_OPTIONS_PANEL)
+                && (actionBar == null || !actionBar.openOptionsMenu())) {
+            super.openOptionsMenu();
+        }
+    }
+
+    @Override
+    public void closeOptionsMenu() {
+        ActionBar actionBar = getSupportActionBar();
+        if (getWindow().hasFeature(Window.FEATURE_OPTIONS_PANEL)
+                && (actionBar == null || !actionBar.closeOptionsMenu())) {
+            super.closeOptionsMenu();
+        }
     }
 }

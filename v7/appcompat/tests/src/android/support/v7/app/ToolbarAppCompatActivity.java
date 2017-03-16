@@ -34,4 +34,8 @@ public class ToolbarAppCompatActivity extends BaseTestActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
     }
+
+    public Toolbar getToolbar() {
+        return mToolbar;
+    }
 }
