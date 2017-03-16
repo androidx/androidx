@@ -15,7 +15,9 @@
  */
 package android.support.text.emoji.widget;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.text.emoji.EmojiCompat;
 import android.support.v4.util.Preconditions;
 import android.text.method.KeyListener;
 import android.view.inputmethod.EditorInfo;
@@ -24,11 +26,43 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 /**
- * Utility class to enhance an EditText with emoji capability.
+ * Utility class to enhance custom EditText widgets with {@link EmojiCompat}.
+ * <p/>
+ * <pre>
+ * public class MyEmojiEditText extends EditText {
+ *      public MyEmojiEditText(Context context) {
+ *          super(context);
+ *          init();
+ *      }
+ *      // ...
+ *      private void init() {
+ *          super.setKeyListener(getEmojiEditTextHelper().getKeyListener(getKeyListener()));
+ *      }
+ *
+ *      {@literal @}Override
+ *      public void setKeyListener(android.text.method.KeyListener keyListener) {
+ *          super.setKeyListener(getEmojiEditTextHelper().getKeyListener(keyListener));
+ *      }
+ *
+ *      {@literal @}Override
+ *      public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+ *          InputConnection inputConnection = super.onCreateInputConnection(outAttrs);
+ *          return getEmojiEditTextHelper().onCreateInputConnection(inputConnection, outAttrs);
+ *      }
+ *
+ *      private EmojiEditTextHelper getEmojiEditTextHelper() {
+ *          if (mEmojiEditTextHelper == null) {
+ *              mEmojiEditTextHelper = new EmojiEditTextHelper(this);
+ *          }
+ *          return mEmojiEditTextHelper;
+ *      }
+ * }
+ * </pre>
+ *
  */
 public final class EmojiEditTextHelper {
-    private final EditText mEditText;
-    private final EmojiTextWatcher mTextWatcher;
+
+    private final HelperInternal mHelper;
 
     /**
      * Default constructor.
@@ -37,41 +71,30 @@ public final class EmojiEditTextHelper {
      */
     public EmojiEditTextHelper(@NonNull final EditText editText) {
         Preconditions.checkNotNull(editText, "editText cannot be null");
-        mEditText = editText;
-        mTextWatcher = new EmojiTextWatcher(mEditText);
-        editText.addTextChangedListener(mTextWatcher);
-        editText.setEditableFactory(EmojiEditableFactory.getInstance());
+        mHelper = Build.VERSION.SDK_INT >= 19 ? new HelperInternal19(editText)
+                : new HelperInternal();
     }
 
     /**
      * Attaches EmojiCompat KeyListener to the widget. Should be called from {@link
      * TextView#setKeyListener(KeyListener)}. Existing keyListener is wrapped into EmojiCompat
-     * KeyListener.
-     * <p/>
-     * <pre><code> {@literal @}Override
-     * public void setKeyListener(android.text.method.KeyListener input) {
-     *     super.setKeyListener(getEmojiEditTextHelper().getKeyListener(input));
-     * }</code></pre>
+     * KeyListener. When used on devices running API 18 or below, this method returns
+     * {@code keyListener} that is given as a parameter.
      *
      * @param keyListener KeyListener passed into {@link TextView#setKeyListener(KeyListener)}
      *
      * @return a new KeyListener instance that wraps {@code keyListener}.
      */
-
+    @NonNull
     public KeyListener getKeyListener(@NonNull final KeyListener keyListener) {
         Preconditions.checkNotNull(keyListener, "keyListener cannot be null");
-        return new EmojiKeyListener(keyListener);
+        return mHelper.getKeyListener(keyListener);
     }
 
     /**
      * Updates the InputConnection with emoji support. Should be called from {@link
-     * TextView#onCreateInputConnection(EditorInfo)}.
-     * <p/>
-     * <pre><code> {@literal @}Override
-     * public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-     *     InputConnection inputConnection = super.onCreateInputConnection(outAttrs);
-     *     return getEmojiHelper().onCreateInputConnection(inputConnection, outAttrs);
-     * }</code></pre>
+     * TextView#onCreateInputConnection(EditorInfo)}. When used on devices running API 18 or below,
+     * this method returns {@code inputConnection} that is given as a parameter.
      *
      * @param inputConnection InputConnection instance created by TextView
      * @param outAttrs        EditorInfo passed into
@@ -79,9 +102,51 @@ public final class EmojiEditTextHelper {
      *
      * @return a new InputConnection instance that wraps {@code inputConnection}
      */
+    @NonNull
     public InputConnection onCreateInputConnection(@NonNull final InputConnection inputConnection,
             @NonNull final EditorInfo outAttrs) {
         Preconditions.checkNotNull(inputConnection, "inputConnection cannot be null");
-        return new EmojiInputConnection(mEditText, inputConnection, outAttrs);
+        return mHelper.onCreateInputConnection(inputConnection, outAttrs);
+    }
+
+    private static class HelperInternal {
+
+        KeyListener getKeyListener(@NonNull KeyListener keyListener) {
+            return keyListener;
+        }
+
+        InputConnection onCreateInputConnection(@NonNull InputConnection inputConnection,
+                @NonNull EditorInfo outAttrs) {
+            return inputConnection;
+        }
+    }
+
+    private static class HelperInternal19 extends HelperInternal {
+        private final EditText mEditText;
+        private final EmojiTextWatcher mTextWatcher;
+
+        HelperInternal19(@NonNull EditText editText) {
+            mEditText = editText;
+            mTextWatcher = new EmojiTextWatcher(mEditText);
+            mEditText.addTextChangedListener(mTextWatcher);
+            mEditText.setEditableFactory(EmojiEditableFactory.getInstance());
+        }
+
+        @Override
+        KeyListener getKeyListener(@NonNull final KeyListener keyListener) {
+            if (keyListener instanceof EmojiKeyListener) {
+                return keyListener;
+            }
+            return new EmojiKeyListener(keyListener);
+        }
+
+        @Override
+        InputConnection onCreateInputConnection(@NonNull final InputConnection inputConnection,
+                @NonNull final EditorInfo outAttrs) {
+            if (inputConnection instanceof EmojiInputConnection) {
+                return inputConnection;
+            }
+            return new EmojiInputConnection(mEditText, inputConnection, outAttrs);
+        }
     }
 }
