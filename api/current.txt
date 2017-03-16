@@ -2865,6 +2865,9 @@ package android.support.v17.leanback.app {
     method protected abstract int getPageCount();
     method protected abstract java.lang.CharSequence getPageDescription(int);
     method protected abstract java.lang.CharSequence getPageTitle(int);
+    method protected final boolean isLogoAnimationFinished();
+    method protected void moveToNextPage();
+    method protected void moveToPreviousPage();
     method protected abstract android.view.View onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup);
     method protected abstract android.view.View onCreateContentView(android.view.LayoutInflater, android.view.ViewGroup);
     method protected android.animation.Animator onCreateDescriptionAnimator();
@@ -2873,6 +2876,7 @@ package android.support.v17.leanback.app {
     method protected android.animation.Animator onCreateLogoAnimation();
     method protected android.animation.Animator onCreateTitleAnimator();
     method protected void onFinishFragment();
+    method protected void onLogoAnimationFinished();
     method protected void onPageChanged(int, int);
     method public int onProvideTheme();
     method public final void setIconResouceId(int);
@@ -2887,6 +2891,9 @@ package android.support.v17.leanback.app {
     method protected abstract int getPageCount();
     method protected abstract java.lang.CharSequence getPageDescription(int);
     method protected abstract java.lang.CharSequence getPageTitle(int);
+    method protected final boolean isLogoAnimationFinished();
+    method protected void moveToNextPage();
+    method protected void moveToPreviousPage();
     method protected abstract android.view.View onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup);
     method protected abstract android.view.View onCreateContentView(android.view.LayoutInflater, android.view.ViewGroup);
     method protected android.animation.Animator onCreateDescriptionAnimator();
@@ -2895,6 +2902,7 @@ package android.support.v17.leanback.app {
     method protected android.animation.Animator onCreateLogoAnimation();
     method protected android.animation.Animator onCreateTitleAnimator();
     method protected void onFinishFragment();
+    method protected void onLogoAnimationFinished();
     method protected void onPageChanged(int, int);
     method public int onProvideTheme();
     method public final void setIconResouceId(int);
