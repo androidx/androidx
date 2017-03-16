@@ -59,6 +59,7 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     private SpringForce mSpring = null;
     private float mPendingPosition = UNSET;
     private static final float UNSET = Float.MAX_VALUE;
+    private boolean mEndRequested = false;
 
     /**
      * This creates a SpringAnimation that animates the property of the given view.
@@ -158,13 +159,7 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
             throw new AndroidRuntimeException("Animations may only be started on the main thread");
         }
         if (mRunning) {
-            if (mPendingPosition != UNSET) {
-                mSpring.setFinalPosition(mPendingPosition);
-                mPendingPosition = UNSET;
-            }
-            mValue = mSpring.getFinalPosition();
-            mVelocity = 0;
-            cancel();
+            mEndRequested = true;
         }
     }
 
@@ -209,6 +204,19 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
 
     @Override
     boolean updateValueAndVelocity(long deltaT) {
+        // If user had requested end, then update the value and velocity to end state and consider
+        // animation done.
+        if (mEndRequested) {
+            if (mPendingPosition != UNSET) {
+                mSpring.setFinalPosition(mPendingPosition);
+                mPendingPosition = UNSET;
+            }
+            mValue = mSpring.getFinalPosition();
+            mVelocity = 0;
+            mEndRequested = false;
+            return true;
+        }
+
         if (mPendingPosition != UNSET) {
             double lastPosition = mSpring.getFinalPosition();
             // Approximate by considering half of the time spring position stayed at the old
