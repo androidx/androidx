@@ -15,10 +15,7 @@
  */
 package android.support.text.emoji.widget;
 
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.text.emoji.EmojiCompat;
 import android.support.v4.util.Preconditions;
 import android.text.InputFilter;
 import android.text.method.PasswordTransformationMethod;
@@ -26,41 +23,11 @@ import android.text.method.TransformationMethod;
 import android.widget.TextView;
 
 /**
- * Utility class to enhance custom TextView widgets with {@link EmojiCompat}.
- * <pre>
- * public class MyEmojiTextView extends TextView {
- *     public MyEmojiTextView(Context context) {
- *         super(context);
- *         init();
- *     }
- *     // ..
- *     private void init() {
- *         getEmojiTextViewHelper().updateTransformationMethod();
- *     }
- *
- *     {@literal @}Override
- *     public void setFilters(InputFilter[] filters) {
- *         super.setFilters(getEmojiTextViewHelper().getFilters(filters));
- *     }
- *
- *     {@literal @}Override
- *     public void setAllCaps(boolean allCaps) {
- *         super.setAllCaps(allCaps);
- *         getEmojiTextViewHelper().setAllCaps(allCaps);
- *     }
- *
- *     private EmojiTextViewHelper getEmojiTextViewHelper() {
- *         if (mEmojiTextViewHelper == null) {
- *             mEmojiTextViewHelper = new EmojiTextViewHelper(this);
- *         }
- *         return mEmojiTextViewHelper;
- *     }
- * }
- * </pre>
+ * Utility class to enhance a TextView with emoji capability.
  */
 public final class EmojiTextViewHelper {
-
-    private final HelperInternal mHelper;
+    private final TextView mTextView;
+    private final EmojiInputFilter mEmojiInputFilter;
 
     /**
      * Default constructor.
@@ -69,125 +36,77 @@ public final class EmojiTextViewHelper {
      */
     public EmojiTextViewHelper(@NonNull TextView textView) {
         Preconditions.checkNotNull(textView, "textView cannot be null");
-        mHelper = Build.VERSION.SDK_INT >= 19 ? new HelperInternal19(textView)
-                : new HelperInternal();
+        mTextView = textView;
+        mEmojiInputFilter = new EmojiInputFilter(textView);
     }
 
     /**
      * Updates widget's TransformationMethod so that the transformed text can be processed.
-     * Should be called in the widget constructor. When used on devices running API 18 or below,
-     * this method does nothing.
+     * Should be called in the widget constructor.
      *
-     * @see #wrapTransformationMethod(TransformationMethod)
+     * @see #getTransformationMethod(TransformationMethod)
      */
     public void updateTransformationMethod() {
-        mHelper.updateTransformationMethod();
+        final TransformationMethod transformationMethod = mTextView.getTransformationMethod();
+        if (transformationMethod != null
+                && !(transformationMethod instanceof PasswordTransformationMethod)) {
+            mTextView.setTransformationMethod(getTransformationMethod(transformationMethod));
+        }
     }
 
     /**
      * Appends EmojiCompat InputFilters to the widget InputFilters. Should be called by {@link
-     * TextView#setFilters(InputFilter[])} to update the InputFilters. When used on devices running
-     * API 18 or below, this method returns {@code filters} that is given as a parameter.
+     * TextView#setFilters(InputFilter[])} to update the InputFilters.
+     * <p/>
+     * <pre><code> {@literal @}Override
+     * public void setFilters(InputFilter[] filters) {
+     *     super.setFilters(getEmojiTextViewHelper().getFilters(filters));
+     * }</code></pre>
      *
      * @param filters InputFilter array passed to {@link TextView#setFilters(InputFilter[])}
      *
      * @return same copy if the array already contains EmojiCompat InputFilter. A new array copy if
      * not.
      */
-    @NonNull
     public InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
-        return mHelper.getFilters(filters);
+        final int count = filters.length;
+        for (int i = 0; i < count; i++) {
+            if (filters[i] instanceof EmojiInputFilter) {
+                return filters;
+            }
+        }
+        final InputFilter[] newFilters = new InputFilter[filters.length + 1];
+        System.arraycopy(filters, 0, newFilters, 0, count);
+        newFilters[count] = mEmojiInputFilter;
+        return newFilters;
     }
 
     /**
-     * Returns transformation method that can update the transformed text to display emojis. When
-     * used on devices running API 18 or below, this method returns {@code transformationMethod}
-     * that is given as a parameter.
+     * Returns transformation method that can update the transformed text to display emojis.
      *
      * @param transformationMethod instance to be wrapped
      */
-    @Nullable
-    public TransformationMethod wrapTransformationMethod(
-            @Nullable TransformationMethod transformationMethod) {
-        return mHelper.wrapTransformationMethod(transformationMethod);
+    public TransformationMethod getTransformationMethod(
+            final TransformationMethod transformationMethod) {
+        return new EmojiTransformationMethod(transformationMethod);
     }
 
     /**
-     * Call when allCaps is set on TextView. When used on devices running API 18 or below, this
-     * method does nothing.
+     * Call when allCaps is set on TextView.
+     * <p/>
+     * <pre><code> {@literal @}Override
+     * public void setAllCaps(boolean allCaps) {
+     *     super.setAllCaps(allCaps);
+     *     getEmojiTextViewHelper().setAllCaps(allCaps);
+     * }</code></pre>
      *
      * @param allCaps allCaps parameter passed to {@link TextView#setAllCaps(boolean)}
      */
     public void setAllCaps(boolean allCaps) {
-        mHelper.setAllCaps(allCaps);
-    }
-
-    private static class HelperInternal {
-
-        void updateTransformationMethod() {
-            // do nothing
+        // When allCaps is set to false TextView sets the transformation method to be null. We
+        // are only interested when allCaps is set to true in order to wrap the original method.
+        if (allCaps) {
+            updateTransformationMethod();
         }
-
-        InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
-            return filters;
-        }
-
-        TransformationMethod wrapTransformationMethod(TransformationMethod transformationMethod) {
-            return transformationMethod;
-        }
-
-        void setAllCaps(boolean allCaps) {
-            // do nothing
-        }
-    }
-
-    private static class HelperInternal19 extends HelperInternal {
-        private final TextView mTextView;
-        private final EmojiInputFilter mEmojiInputFilter;
-
-        HelperInternal19(TextView textView) {
-            mTextView = textView;
-            mEmojiInputFilter = new EmojiInputFilter(textView);
-        }
-
-        @Override
-        void updateTransformationMethod() {
-            final TransformationMethod tm = mTextView.getTransformationMethod();
-            if (tm != null && !(tm instanceof PasswordTransformationMethod)) {
-                mTextView.setTransformationMethod(wrapTransformationMethod(tm));
-            }
-        }
-
-        @Override
-        InputFilter[] getFilters(@NonNull final InputFilter[] filters) {
-            final int count = filters.length;
-            for (int i = 0; i < count; i++) {
-                if (filters[i] instanceof EmojiInputFilter) {
-                    return filters;
-                }
-            }
-            final InputFilter[] newFilters = new InputFilter[filters.length + 1];
-            System.arraycopy(filters, 0, newFilters, 0, count);
-            newFilters[count] = mEmojiInputFilter;
-            return newFilters;
-        }
-
-        @Override
-        TransformationMethod wrapTransformationMethod(TransformationMethod transformationMethod) {
-            if (transformationMethod instanceof EmojiTransformationMethod) {
-                return transformationMethod;
-            }
-            return new EmojiTransformationMethod(transformationMethod);
-        }
-
-        @Override
-        void setAllCaps(boolean allCaps) {
-            // When allCaps is set to false TextView sets the transformation method to be null. We
-            // are only interested when allCaps is set to true in order to wrap the original method.
-            if (allCaps) {
-                updateTransformationMethod();
-            }
-        }
-
     }
 }
