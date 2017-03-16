@@ -32,6 +32,7 @@ LOCAL_STATIC_JAVA_LIBRARIES  := \
         android-support-annotations
 
 LOCAL_PACKAGE_NAME := RecyclerViewTests
+LOCAL_COMPATIBILITY_SUITE := device-tests
 LOCAL_AAPT_FLAGS := \
         --auto-add-overlay \
         --extra-packages android.support.v7.recyclerview
