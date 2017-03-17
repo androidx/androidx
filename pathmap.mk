@@ -20,26 +20,29 @@
 FRAMEWORKS_SUPPORT_SUBDIRS := \
     annotations \
     compat \
-    media-compat \
-    fragment \
     core-ui \
     core-utils \
-    v7/gridlayout \
-    v7/cardview \
-    v7/mediarouter \
-    v7/palette \
-    v13 \
-    v17/leanback \
+    customtabs \
     design \
+    dynamic-animation \
+    exifinterface \
+    fragment \
+    instantvideo \
+    media-compat \
     percent \
     recommendation \
     transition \
+    tv-provider \
+    v7/cardview \
+    v7/gridlayout \
+    v7/mediarouter \
+    v7/palette \
     v7/preference \
+    v13 \
     v14/preference \
+    v17/leanback \
     v17/preference-leanback \
-    customtabs \
-    exifinterface \
-    dynamic-animation
+    wearable
 
 #
 # A version of FRAMEWORKS_SUPPORT_SUBDIRS that is expanded to full paths from
@@ -50,15 +53,20 @@ FRAMEWORKS_SUPPORT_JAVA_SRC_DIRS := \
     frameworks/support/graphics/drawable/animated \
     frameworks/support/graphics/drawable/static \
     frameworks/support/v7/appcompat/src \
-    frameworks/support/v7/recyclerview/src
+    frameworks/support/v7/recyclerview/src \
+    frameworks/support/emoji/core/src \
+    frameworks/support/emoji/appcompat/src \
+    frameworks/support/emoji/bundled-typeface/src
 
 #
 # A list of support library modules.
 #
 FRAMEWORKS_SUPPORT_JAVA_LIBRARIES := \
     $(foreach dir,$(FRAMEWORKS_SUPPORT_SUBDIRS),android-support-$(subst /,-,$(dir))) \
-    android-support-v4 \
     android-support-vectordrawable \
     android-support-animatedvectordrawable \
     android-support-v7-appcompat \
-    android-support-v7-recyclerview
+    android-support-v7-recyclerview \
+    android-support-emoji \
+    android-support-emoji-appcompat \
+    android-support-emoji-typeface
