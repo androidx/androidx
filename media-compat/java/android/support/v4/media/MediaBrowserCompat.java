@@ -23,10 +23,12 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
-import static android.support.v4.media.MediaBrowserProtocol
-        .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_VERSION_CURRENT;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION_EXTRAS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_LIST;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_SESSION_TOKEN;
@@ -84,6 +86,8 @@ import java.util.Map;
  * <p>
  * This object is not thread-safe. All calls should happen on the thread on which the browser
  * was constructed.
+ * </p><p>
+ * All callback methods will be called from the thread on which the browser was constructed.
  * </p>
  */
 public final class MediaBrowserCompat {
@@ -348,6 +352,23 @@ public final class MediaBrowserCompat {
             throw new IllegalArgumentException("callback cannot be null");
         }
         mImpl.search(query, extras, callback);
+    }
+
+    /**
+     * Sends a custom action to the connected service. If the service doesn't support the given
+     * action, {@link CustomActionCallback#onError} will be called.
+     *
+     * @param action The custom action that will be sent to the connected service. Should not be an
+     *            empty string.
+     * @param extras The bundle of service-specific arguments to send to the media browser service.
+     * @param callback The callback to receive the result of the custom action.
+     */
+    public void sendCustomAction(@NonNull String action, Bundle extras,
+            @Nullable CustomActionCallback callback) {
+        if (TextUtils.isEmpty(action)) {
+            throw new IllegalArgumentException("action cannot be empty");
+        }
+        mImpl.sendCustomAction(action, extras, callback);
     }
 
     /**
@@ -824,6 +845,43 @@ public final class MediaBrowserCompat {
         }
     }
 
+    /**
+     * Callback for receiving the result of {@link #sendCustomAction}.
+     */
+    public abstract static class CustomActionCallback {
+        /**
+         * Called when an interim update was delivered from the connected service while performing
+         * the custom action.
+         *
+         * @param action The custom action sent to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param data The additional data delivered from the connected service.
+         */
+        public void onProgressUpdate(String action, Bundle extras, Bundle data) {
+        }
+
+        /**
+         * Called when the custom action finished successfully.
+         *
+         * @param action The custom action sent to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param resultData The additional data delivered from the connected service.
+         */
+        public void onResult(String action, Bundle extras, Bundle resultData) {
+        }
+
+        /**
+         * Called when an error happens while performing the custom action or the connected service
+         * doesn't support the requested custom action.
+         *
+         * @param action The custom action sent to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param data The additional data delivered from the connected service.
+         */
+        public void onError(String action, Bundle extras, Bundle data) {
+        }
+    }
+
     interface MediaBrowserImpl {
         void connect();
         void disconnect();
@@ -837,6 +895,7 @@ public final class MediaBrowserCompat {
         void unsubscribe(@NonNull String parentId, SubscriptionCallback callback);
         void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb);
         void search(@NonNull String query, Bundle extras, @NonNull SearchCallback callback);
+        void sendCustomAction(String action, Bundle extras, final CustomActionCallback callback);
     }
 
     interface MediaBrowserServiceCallbackImpl {
@@ -1152,6 +1211,32 @@ public final class MediaBrowserCompat {
                     @Override
                     public void run() {
                         callback.onError(query, extras);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void sendCustomAction(@NonNull final String action, final Bundle extras,
+                @Nullable final CustomActionCallback callback) {
+            if (!isConnected()) {
+                throw new IllegalStateException("Cannot send a custom action (" + action + ") with "
+                        + "extras " + extras + " because the browser is not connected to the "
+                        + "service.");
+            }
+
+            ResultReceiver receiver = new CustomActionResultReceiver(action, extras, callback,
+                    mHandler);
+            try {
+                mServiceBinderWrapper.sendCustomAction(action, extras, receiver,
+                        mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error sending a custom action: action=" + action + ", extras="
+                        + extras, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(action, extras, null);
                     }
                 });
             }
@@ -1668,6 +1753,41 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        public void sendCustomAction(final String action, final Bundle extras,
+                final CustomActionCallback callback) {
+            if (!isConnected()) {
+                throw new IllegalStateException("Cannot send a custom action (" + action + ") with "
+                        + "extras " + extras + " because the browser is not connected to the "
+                        + "service.");
+            }
+            if (mServiceBinderWrapper == null) {
+                Log.i(TAG, "The connected service doesn't support sendCustomAction.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(action, extras, null);
+                    }
+                });
+            }
+
+            ResultReceiver receiver = new CustomActionResultReceiver(action, extras, callback,
+                    mHandler);
+            try {
+                mServiceBinderWrapper.sendCustomAction(action, extras, receiver,
+                        mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error sending a custom action: action=" + action + ", extras="
+                        + extras, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(action, extras, null);
+                    }
+                });
+            }
+        }
+
+        @Override
         public void onConnected() {
             Bundle extras = MediaBrowserCompatApi21.getExtras(mBrowserObj);
             if (extras == null) {
@@ -1951,6 +2071,15 @@ public final class MediaBrowserCompat {
             sendRequest(CLIENT_MSG_SEARCH, data, callbacksMessenger);
         }
 
+        void sendCustomAction(String action, Bundle extras, ResultReceiver receiver,
+                Messenger callbacksMessenger) throws RemoteException {
+            Bundle data = new Bundle();
+            data.putString(DATA_CUSTOM_ACTION, action);
+            data.putBundle(DATA_CUSTOM_ACTION_EXTRAS, extras);
+            data.putParcelable(DATA_RESULT_RECEIVER, receiver);
+            sendRequest(CLIENT_MSG_SEND_CUSTOM_ACTION, data, callbacksMessenger);
+        }
+
         private void sendRequest(int what, Bundle data, Messenger cbMessenger)
                 throws RemoteException {
             Message msg = Message.obtain();
@@ -2021,6 +2150,42 @@ public final class MediaBrowserCompat {
                 }
             }
             mCallback.onSearchResult(mQuery, mExtras, results);
+        }
+    }
+
+    private static class CustomActionResultReceiver extends ResultReceiver {
+        private final String mAction;
+        private final Bundle mExtras;
+        private final CustomActionCallback mCallback;
+
+        CustomActionResultReceiver(String action, Bundle extras, CustomActionCallback callback,
+                Handler handler) {
+            super(handler);
+            mAction = action;
+            mExtras = extras;
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (mCallback == null) {
+                return;
+            }
+            switch (resultCode) {
+                case MediaBrowserServiceCompat.RESULT_PROGRESS_UPDATE:
+                    mCallback.onProgressUpdate(mAction, mExtras, resultData);
+                    break;
+                case MediaBrowserServiceCompat.RESULT_OK:
+                    mCallback.onResult(mAction, mExtras, resultData);
+                    break;
+                case MediaBrowserServiceCompat.RESULT_ERROR:
+                    mCallback.onError(mAction, mExtras, resultData);
+                    break;
+                default:
+                    Log.w(TAG, "Unknown result code: " + resultCode + " (extras=" + mExtras
+                            + ", resultData=" + resultData + ")");
+                    break;
+            }
         }
     }
 }
