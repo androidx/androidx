@@ -8,7 +8,7 @@ dependencies {
     compile jarjar.repackage {
         from files('third_party/flatbuffers/flatbuffers-java-1.6.0.jar')
         destinationName 'flatbuffers-java-1.6.0-repacked.jar'
-        classRename 'com.google.flatbuffers.**', 'com.google.flatbuffers.emojicompat.@1'
+        classRename 'com.google.flatbuffers.**', 'android.support.text.emoji.flatbuffer.@1'
     }
 
     androidTestCompile (libs.test_runner) {

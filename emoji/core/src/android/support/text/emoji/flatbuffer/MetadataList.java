@@ -21,9 +21,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.support.annotation.RestrictTo;
 
-import com.google.flatbuffers.emojicompat.FlatBufferBuilder;
-import com.google.flatbuffers.emojicompat.Table;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
