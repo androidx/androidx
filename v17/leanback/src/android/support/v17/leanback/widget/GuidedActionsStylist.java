@@ -963,9 +963,9 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
 
     void onEditActivatorView(final ViewHolder vh, boolean editing, final boolean withTransition) {
         if (editing) {
+            startExpanded(vh, withTransition);
             vh.itemView.setFocusable(false);
             vh.mActivatorView.requestFocus();
-            startExpanded(vh, withTransition);
             vh.mActivatorView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

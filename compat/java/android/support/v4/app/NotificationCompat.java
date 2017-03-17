@@ -17,6 +17,7 @@
 package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -30,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
@@ -37,6 +39,7 @@ import android.support.v4.view.GravityCompat;
 import android.view.Gravity;
 import android.widget.RemoteViews;
 
+import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -390,6 +393,10 @@ public class NotificationCompat {
     @ColorInt
     public static final int COLOR_DEFAULT = Color.TRANSPARENT;
 
+    /** @hide */
+    @Retention(SOURCE)
+    @IntDef({VISIBILITY_PUBLIC, VISIBILITY_PRIVATE, VISIBILITY_SECRET})
+    public @interface NotificationVisibility {}
     /**
      * Notification visibility: Show this notification in its entirety on all lockscreens.
      *
@@ -1665,7 +1672,7 @@ public class NotificationCompat {
          *                   {@link Notification#VISIBILITY_PUBLIC}, or
          *                   {@link Notification#VISIBILITY_SECRET}.
          */
-        public Builder setVisibility(int visibility) {
+        public Builder setVisibility(@NotificationVisibility int visibility) {
             mVisibility = visibility;
             return this;
         }
@@ -2147,7 +2154,7 @@ public class NotificationCompat {
         public static MessagingStyle extractMessagingStyleFromNotification(Notification notif) {
             MessagingStyle style;
             Bundle extras = IMPL.getExtras(notif);
-            if (!extras.containsKey(EXTRA_SELF_DISPLAY_NAME)) {
+            if (extras != null && !extras.containsKey(EXTRA_SELF_DISPLAY_NAME)) {
                 style = null;
             } else {
                 try {

@@ -18,70 +18,75 @@
  */
 package android.support.v17.leanback.app;
 
-import android.content.Intent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import android.graphics.Rect;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
-import android.support.test.filters.MediumTest;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.view.KeyEvent;
 import android.view.View;
 
-import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.lang.ref.WeakReference;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class RowsSupportFragmentTest {
+public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
-    static final long ACTIVITY_LOAD_DELAY = 2000;
+    static final StringPresenter sCardPresenter = new StringPresenter();
 
-    @Rule
-    public ActivityTestRule<RowsSupportFragmentTestActivity> activityTestRule =
-            new ActivityTestRule<>(RowsSupportFragmentTestActivity.class, false, false);
-    private RowsSupportFragmentTestActivity mActivity;
-
-    @After
-    public void afterTest() throws Throwable {
-        activityTestRule.runOnUiThread(new Runnable() {
-            public void run() {
-                if (mActivity != null) {
-                    mActivity.finish();
-                    mActivity = null;
-                }
+    static void loadData(ArrayObjectAdapter adapter, int numRows, int repeatPerRow) {
+        for (int i = 0; i < numRows; ++i) {
+            ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(sCardPresenter);
+            int index = 0;
+            for (int j = 0; j < repeatPerRow; ++j) {
+                listRowAdapter.add("Hello world-" + (index++));
+                listRowAdapter.add("This is a test-" + (index++));
+                listRowAdapter.add("Android TV-" + (index++));
+                listRowAdapter.add("Leanback-" + (index++));
+                listRowAdapter.add("Hello world-" + (index++));
+                listRowAdapter.add("Android TV-" + (index++));
+                listRowAdapter.add("Leanback-" + (index++));
+                listRowAdapter.add("GuidedStepSupportFragment-" + (index++));
             }
-        });
-    }
-
-    private void sendKeys(int ...keys) {
-        for (int i = 0; i < keys.length; i++) {
-            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keys[i]);
+            HeaderItem header = new HeaderItem(i, "Row " + i);
+            adapter.add(new ListRow(header, listRowAdapter));
         }
     }
 
-    void launchAndWaitActivity(Intent intent) {
-        mActivity = activityTestRule.launchActivity(intent);
-        SystemClock.sleep(ACTIVITY_LOAD_DELAY);
+    public static class F_defaultAlignment extends RowsSupportFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            ListRowPresenter lrp = new ListRowPresenter();
+            ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+            setAdapter(adapter);
+            loadData(adapter, 10, 1);
+        }
     }
 
     @Test
     public void defaultAlignment() throws InterruptedException {
-        Intent intent = new Intent();
-        intent.putExtra(RowsSupportFragmentTestActivity.EXTRA_NUM_ROWS, 10);
-        intent.putExtra(RowsSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, 1l);
-        launchAndWaitActivity(intent);
+        launchAndWaitActivity(F_defaultAlignment.class, 1000);
 
         final Rect rect = new Rect();
 
-        final VerticalGridView gridView = mActivity.getRowsTestSupportFragment().getVerticalGridView();
+        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+                .getVerticalGridView();
         View row0 = gridView.findViewHolderForAdapterPosition(0).itemView;
         rect.set(0, 0, row0.getWidth(), row0.getHeight());
         gridView.offsetDescendantRectToMyCoords(row0, rect);
@@ -96,4 +101,138 @@ public class RowsSupportFragmentTest {
         assertTrue("Second row should not be aligned to top of screen", rect.top > 0);
     }
 
+    public static class F_selectBeforeSetAdapter extends RowsSupportFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setSelectedPosition(7, false);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    getVerticalGridView().requestLayout();
+                }
+            }, 100);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ListRowPresenter lrp = new ListRowPresenter();
+                    ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+                    setAdapter(adapter);
+                    loadData(adapter, 10, 1);
+                }
+            }, 1000);
+        }
+    }
+
+    @Test
+    public void selectBeforeSetAdapter() throws InterruptedException {
+        launchAndWaitActivity(F_selectBeforeSetAdapter.class, 2000);
+
+        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+                .getVerticalGridView();
+        assertEquals(7, gridView.getSelectedPosition());
+        assertNotNull(gridView.findViewHolderForAdapterPosition(7));
+    }
+
+    public static class F_selectBeforeAddData extends RowsSupportFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            ListRowPresenter lrp = new ListRowPresenter();
+            final ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+            setAdapter(adapter);
+            setSelectedPosition(7, false);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    getVerticalGridView().requestLayout();
+                }
+            }, 100);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loadData(adapter, 10, 1);
+                }
+            }, 1000);
+        }
+    }
+
+    @Test
+    public void selectBeforeAddData() throws InterruptedException {
+        launchAndWaitActivity(F_selectBeforeAddData.class, 2000);
+
+        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+                .getVerticalGridView();
+        assertEquals(7, gridView.getSelectedPosition());
+        assertNotNull(gridView.findViewHolderForAdapterPosition(7));
+    }
+
+    public static class F_selectAfterAddData extends RowsSupportFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            ListRowPresenter lrp = new ListRowPresenter();
+            final ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+            setAdapter(adapter);
+            loadData(adapter, 10, 1);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setSelectedPosition(7, false);
+                }
+            }, 1000);
+        }
+    }
+
+    @Test
+    public void selectAfterAddData() throws InterruptedException {
+        launchAndWaitActivity(F_selectAfterAddData.class, 2000);
+
+        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+                .getVerticalGridView();
+        assertEquals(7, gridView.getSelectedPosition());
+        assertNotNull(gridView.findViewHolderForAdapterPosition(7));
+    }
+
+    static WeakReference<F_restoreSelection> sLastF_restoreSelection;
+
+    public static class F_restoreSelection extends RowsSupportFragment {
+        public F_restoreSelection() {
+            sLastF_restoreSelection = new WeakReference<F_restoreSelection>(this);
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            ListRowPresenter lrp = new ListRowPresenter();
+            final ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+            setAdapter(adapter);
+            loadData(adapter, 10, 1);
+            if (savedInstanceState == null) {
+                setSelectedPosition(7, false);
+            }
+        }
+    }
+
+    @Test
+    public void restoreSelection() {
+        launchAndWaitActivity(F_restoreSelection.class, 1000);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    public void run() {
+                        mActivity.recreate();
+                    }
+                }
+        );
+        SystemClock.sleep(1000);
+
+        // mActivity is invalid after recreate(), a new Activity instance is created
+        // but we could get Fragment from static variable.
+        RowsSupportFragment fragment = sLastF_restoreSelection.get();
+        final VerticalGridView gridView = fragment.getVerticalGridView();
+        assertEquals(7, gridView.getSelectedPosition());
+        assertNotNull(gridView.findViewHolderForAdapterPosition(7));
+
+    }
 }

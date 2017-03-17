@@ -32,9 +32,7 @@ import java.util.ArrayList;
 /**
  * Generic drawable class that can be composed of multiple children. Whenever the bounds changes
  * for this class, it updates those of its children.
- * @hide
  */
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
     static class CompositeState extends Drawable.ConstantState {
@@ -103,6 +101,13 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
      */
     public void addChildDrawable(Drawable drawable) {
         mState.mChildren.add(new ChildDrawable(drawable, this));
+    }
+
+    /**
+     * Sets the supplied region at given index.
+     */
+    public void setChildDrawableAt(int index, Drawable drawable) {
+        mState.mChildren.set(index, new ChildDrawable(drawable, this));
     }
 
     /**
@@ -313,10 +318,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                         Integer.class, "absoluteTop") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
-                if (obj.getBoundsRule().mTop == null) {
-                    obj.getBoundsRule().mTop = BoundsRule.absoluteValue(value);
+                if (obj.getBoundsRule().top == null) {
+                    obj.getBoundsRule().top = BoundsRule.absoluteValue(value);
                 } else {
-                    obj.getBoundsRule().mTop.setAbsoluteValue(value);
+                    obj.getBoundsRule().top.setAbsoluteValue(value);
                 }
 
                 obj.recomputeBounds();
@@ -324,10 +329,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mTop == null) {
+                if (obj.getBoundsRule().top == null) {
                     return obj.mParent.getBounds().top;
                 }
-                return obj.getBoundsRule().mTop.getAbsoluteValue();
+                return obj.getBoundsRule().top.getAbsoluteValue();
             }
         };
 
@@ -339,10 +344,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                         Integer.class, "absoluteBottom") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
-                if (obj.getBoundsRule().mBottom == null) {
-                    obj.getBoundsRule().mBottom = BoundsRule.absoluteValue(value);
+                if (obj.getBoundsRule().bottom == null) {
+                    obj.getBoundsRule().bottom = BoundsRule.absoluteValue(value);
                 } else {
-                    obj.getBoundsRule().mBottom.setAbsoluteValue(value);
+                    obj.getBoundsRule().bottom.setAbsoluteValue(value);
                 }
 
                 obj.recomputeBounds();
@@ -350,10 +355,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mBottom == null) {
+                if (obj.getBoundsRule().bottom == null) {
                     return obj.mParent.getBounds().bottom;
                 }
-                return obj.getBoundsRule().mBottom.getAbsoluteValue();
+                return obj.getBoundsRule().bottom.getAbsoluteValue();
             }
         };
 
@@ -366,10 +371,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                         Integer.class, "absoluteLeft") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
-                if (obj.getBoundsRule().mLeft == null) {
-                    obj.getBoundsRule().mLeft = BoundsRule.absoluteValue(value);
+                if (obj.getBoundsRule().left == null) {
+                    obj.getBoundsRule().left = BoundsRule.absoluteValue(value);
                 } else {
-                    obj.getBoundsRule().mLeft.setAbsoluteValue(value);
+                    obj.getBoundsRule().left.setAbsoluteValue(value);
                 }
 
                 obj.recomputeBounds();
@@ -377,10 +382,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mLeft == null) {
+                if (obj.getBoundsRule().left == null) {
                     return obj.mParent.getBounds().left;
                 }
-                return obj.getBoundsRule().mLeft.getAbsoluteValue();
+                return obj.getBoundsRule().left.getAbsoluteValue();
             }
         };
 
@@ -392,10 +397,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                         Integer.class, "absoluteRight") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Integer value) {
-                if (obj.getBoundsRule().mRight == null) {
-                    obj.getBoundsRule().mRight = BoundsRule.absoluteValue(value);
+                if (obj.getBoundsRule().right == null) {
+                    obj.getBoundsRule().right = BoundsRule.absoluteValue(value);
                 } else {
-                    obj.getBoundsRule().mRight.setAbsoluteValue(value);
+                    obj.getBoundsRule().right.setAbsoluteValue(value);
                 }
 
                 obj.recomputeBounds();
@@ -403,10 +408,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Integer get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mRight == null) {
+                if (obj.getBoundsRule().right == null) {
                     return obj.mParent.getBounds().right;
                 }
-                return obj.getBoundsRule().mRight.getAbsoluteValue();
+                return obj.getBoundsRule().right.getAbsoluteValue();
             }
         };
 
@@ -421,10 +426,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                 new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractionTop") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
-                if (obj.getBoundsRule().mTop == null) {
-                    obj.getBoundsRule().mTop = BoundsRule.inheritFromParent(value);
+                if (obj.getBoundsRule().top == null) {
+                    obj.getBoundsRule().top = BoundsRule.inheritFromParent(value);
                 } else {
-                    obj.getBoundsRule().mTop.setFraction(value);
+                    obj.getBoundsRule().top.setFraction(value);
                 }
 
                 obj.recomputeBounds();
@@ -432,10 +437,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mTop == null) {
+                if (obj.getBoundsRule().top == null) {
                     return 0f;
                 }
-                return obj.getBoundsRule().mTop.getFraction();
+                return obj.getBoundsRule().top.getFraction();
             }
         };
 
@@ -451,10 +456,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                         Float.class, "fractionBottom") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
-                if (obj.getBoundsRule().mBottom == null) {
-                    obj.getBoundsRule().mBottom = BoundsRule.inheritFromParent(value);
+                if (obj.getBoundsRule().bottom == null) {
+                    obj.getBoundsRule().bottom = BoundsRule.inheritFromParent(value);
                 } else {
-                    obj.getBoundsRule().mBottom.setFraction(value);
+                    obj.getBoundsRule().bottom.setFraction(value);
                 }
 
                 obj.recomputeBounds();
@@ -462,10 +467,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mBottom == null) {
+                if (obj.getBoundsRule().bottom == null) {
                     return 1f;
                 }
-                return obj.getBoundsRule().mBottom.getFraction();
+                return obj.getBoundsRule().bottom.getFraction();
             }
         };
 
@@ -480,10 +485,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                 new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractionLeft") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
-                if (obj.getBoundsRule().mLeft == null) {
-                    obj.getBoundsRule().mLeft = BoundsRule.inheritFromParent(value);
+                if (obj.getBoundsRule().left == null) {
+                    obj.getBoundsRule().left = BoundsRule.inheritFromParent(value);
                 } else {
-                    obj.getBoundsRule().mLeft.setFraction(value);
+                    obj.getBoundsRule().left.setFraction(value);
                 }
 
                 obj.recomputeBounds();
@@ -491,10 +496,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mLeft == null) {
+                if (obj.getBoundsRule().left == null) {
                     return 0f;
                 }
-                return obj.getBoundsRule().mLeft.getFraction();
+                return obj.getBoundsRule().left.getFraction();
             }
         };
 
@@ -509,10 +514,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
                 new Property<CompositeDrawable.ChildDrawable, Float>(Float.class, "fractoinRight") {
             @Override
             public void set(CompositeDrawable.ChildDrawable obj, Float value) {
-                if (obj.getBoundsRule().mRight == null) {
-                    obj.getBoundsRule().mRight = BoundsRule.inheritFromParent(value);
+                if (obj.getBoundsRule().right == null) {
+                    obj.getBoundsRule().right = BoundsRule.inheritFromParent(value);
                 } else {
-                    obj.getBoundsRule().mRight.setFraction(value);
+                    obj.getBoundsRule().right.setFraction(value);
                 }
 
                 obj.recomputeBounds();
@@ -520,10 +525,10 @@ public class CompositeDrawable extends Drawable implements Drawable.Callback {
 
             @Override
             public Float get(CompositeDrawable.ChildDrawable obj) {
-                if (obj.getBoundsRule().mRight == null) {
+                if (obj.getBoundsRule().right == null) {
                     return 1f;
                 }
-                return obj.getBoundsRule().mRight.getFraction();
+                return obj.getBoundsRule().right.getFraction();
             }
         };
     }

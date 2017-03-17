@@ -13,16 +13,21 @@
  */
 package android.support.v17.leanback.app;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
+import android.support.v17.leanback.widget.DetailsParallax;
 import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
 import android.support.v17.leanback.widget.ItemAlignmentFacet;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
@@ -36,6 +41,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.lang.ref.WeakReference;
 
 /**
  * A fragment for creating Leanback details screens.
@@ -75,6 +82,23 @@ public class DetailsFragment extends BaseFragment {
     static final String TAG = "DetailsFragment";
     static boolean DEBUG = false;
 
+    /**
+     * Flag for "possibly" having enter transition not finished yet.
+     * @see #mStartAndTransitionFlag
+     */
+    static final int PF_ENTER_TRANSITION_PENDING = 0x1 << 0;
+    /**
+     * Flag for having entrance transition not finished yet.
+     * @see #mStartAndTransitionFlag
+     */
+    static final int PF_ENTRANCE_TRANSITION_PENDING = 0x1 << 1;
+    /**
+     * Flag that onStart() has been called and about to call onSafeStart() when
+     * pending transitions are finished.
+     * @see #mStartAndTransitionFlag
+     */
+    static final int PF_PENDING_START = 0x1 << 2;
+
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
         boolean mSmooth = true;
@@ -91,14 +115,91 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Start this task when first DetailsOverviewRow is created, if there is no entrance transition
+     * started, it will clear PF_ENTRANCE_TRANSITION_PENDING.
+     * @see #mStartAndTransitionFlag
+     */
+    static class WaitEnterTransitionTimeout implements Runnable {
+        static final long WAIT_ENTERTRANSITION_START = 200;
+
+        final WeakReference<DetailsFragment> mRef;
+
+        WaitEnterTransitionTimeout(DetailsFragment f) {
+            mRef = new WeakReference(f);
+            f.getView().postDelayed(this, WAIT_ENTERTRANSITION_START);
+        }
+
+        @Override
+        public void run() {
+            DetailsFragment f = mRef.get();
+            if (f != null) {
+                f.clearPendingEnterTransition();
+            }
+        }
+    }
+
+    /**
+     * @see #mStartAndTransitionFlag
+     */
+    TransitionListener mEnterTransitionListener = new TransitionListener() {
+        @Override
+        public void onTransitionStart(Object transition) {
+            if (mWaitEnterTransitionTimeout != null) {
+                // cancel task of WaitEnterTransitionTimeout, we will clearPendingEnterTransition
+                // when transition finishes.
+                mWaitEnterTransitionTimeout.mRef.clear();
+            }
+        }
+
+        @Override
+        public void onTransitionCancel(Object transition) {
+            clearPendingEnterTransition();
+        }
+
+        @Override
+        public void onTransitionEnd(Object transition) {
+            clearPendingEnterTransition();
+        }
+    };
+
+    TransitionListener mReturnTransitionListener = new TransitionListener() {
+        @Override
+        public void onTransitionStart(Object transition) {
+            onReturnTransitionStart();
+        }
+    };
+
     BrowseFrameLayout mRootView;
+    View mBackgroundView;
+    Drawable mBackgroundDrawable;
     Fragment mVideoFragment;
-    DetailsParallaxManager mDetailsParallaxManager;
+    DetailsParallax mDetailsParallax;
     RowsFragment mRowsFragment;
     ObjectAdapter mAdapter;
     int mContainerListAlignTop;
     BaseOnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     BaseOnItemViewClickedListener mOnItemViewClickedListener;
+    DetailsFragmentBackgroundController mDetailsBackgroundController;
+
+
+    /**
+     * Flags for enter transition, entrance transition and onStart.  When onStart() is called
+     * and both enter transiton and entrance transition are finished, we could call onSafeStart().
+     * 1. in onCreate:
+     *      if user call prepareEntranceTransition, set PF_ENTRANCE_TRANSITION_PENDING
+     *      if there is enterTransition, set PF_ENTER_TRANSITION_PENDING, but we dont know if
+     *      user will run enterTransition or not.
+     * 2. when user add row, start WaitEnterTransitionTimeout to wait possible enter transition
+     * start. If enter transition onTransitionStart is not invoked with a period, we can assume
+     * there is no enter transition running, then WaitEnterTransitionTimeout will clear
+     * PF_ENTER_TRANSITION_PENDING.
+     * 3. When enterTransition runs (either postponed or not),  we will stop the
+     * WaitEnterTransitionTimeout, and let onTransitionEnd/onTransitionCancel to clear
+     * PF_ENTER_TRANSITION_PENDING.
+     */
+    int mStartAndTransitionFlag = 0;
+    WaitEnterTransitionTimeout mWaitEnterTransitionTimeout;
 
     Object mSceneAfterEntranceTransition;
 
@@ -177,6 +278,19 @@ public class DetailsFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
         mContainerListAlignTop =
             getResources().getDimensionPixelSize(R.dimen.lb_details_rows_align_top);
+
+        Activity activity = getActivity();
+        if (activity != null) {
+            Object transition = TransitionHelper.getEnterTransition(activity.getWindow());
+            if (transition != null) {
+                mStartAndTransitionFlag |= PF_ENTER_TRANSITION_PENDING;
+                TransitionHelper.addTransitionListener(transition, mEnterTransitionListener);
+            }
+            transition = TransitionHelper.getReturnTransition(activity.getWindow());
+            if (transition != null) {
+                TransitionHelper.addTransitionListener(transition, mReturnTransitionListener);
+            }
+        }
     }
 
     @Override
@@ -184,6 +298,10 @@ public class DetailsFragment extends BaseFragment {
             Bundle savedInstanceState) {
         mRootView = (BrowseFrameLayout) inflater.inflate(
                 R.layout.lb_details_fragment, container, false);
+        mBackgroundView = mRootView.findViewById(R.id.details_background_view);
+        if (mBackgroundView != null) {
+            mBackgroundView.setBackground(mBackgroundDrawable);
+        }
         mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(
                 R.id.details_rows_dock);
         if (mRowsFragment == null) {
@@ -210,13 +328,13 @@ public class DetailsFragment extends BaseFragment {
             mRowsFragment.setExternalAdapterListener(new ItemBridgeAdapter.AdapterListener() {
                 @Override
                 public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
-                    if (mDetailsParallaxManager != null && vh.getViewHolder()
+                    if (mDetailsParallax != null && vh.getViewHolder()
                             instanceof FullWidthDetailsOverviewRowPresenter.ViewHolder) {
                         FullWidthDetailsOverviewRowPresenter.ViewHolder rowVh =
                                 (FullWidthDetailsOverviewRowPresenter.ViewHolder)
                                         vh.getViewHolder();
                         rowVh.getOverviewView().setTag(R.id.lb_parallax_source,
-                                mDetailsParallaxManager.getParallax().getSource());
+                                mDetailsParallax);
                     }
                 }
             });
@@ -327,54 +445,24 @@ public class DetailsFragment extends BaseFragment {
     }
 
     /**
-     * Creates an instance of {@link VideoFragment}. Subclasses can override this method
-     * and provide their own instance of a {@link Fragment}. When you provide your own instance of
-     * video fragment, you MUST also provide a custom
-     * {@link android.support.v17.leanback.media.PlaybackGlueHost}.
-     * @hide
-     */
-    public Fragment onCreateVideoFragment() {
-        return new VideoFragment();
-    }
-
-    /**
-     * Creates an instance of
-     * {@link android.support.v17.leanback.media.PlaybackGlueHost}. The implementation
-     * of this host depends on the instance of video fragment {@link #onCreateVideoFragment()}.
-     * @hide
-     */
-    public PlaybackGlueHost onCreateVideoFragmentHost(Fragment fragment) {
-        return new VideoFragmentGlueHost((VideoFragment) fragment);
-    }
-
-    /**
-     * This method adds a fragment for rendering video to the layout. In case the
-     * fragment is being restored, it will return the video fragment in there.
+     * This method asks DetailsFragmentBackgroundController to add a fragment for rendering video.
+     * In case the fragment is already there, it will return the existing one. The method must be
+     * called after calling super.onCreate(). App usually does not call this method directly.
      *
      * @return Fragment the added or restored fragment responsible for rendering video.
-     * @hide
+     * @see DetailsFragmentBackgroundController#onCreateVideoFragment()
      */
-    public final Fragment findOrCreateVideoFragment() {
-        Fragment fragment = getFragmentManager().findFragmentById(R.id.video_surface_container);
-        if (fragment == null) {
-            FragmentTransaction ft2 = getFragmentManager().beginTransaction();
+    final Fragment findOrCreateVideoFragment() {
+        Fragment fragment = getChildFragmentManager()
+                .findFragmentById(R.id.video_surface_container);
+        if (fragment == null && mDetailsBackgroundController != null) {
+            FragmentTransaction ft2 = getChildFragmentManager().beginTransaction();
             ft2.add(android.support.v17.leanback.R.id.video_surface_container,
-                    fragment = onCreateVideoFragment());
+                    fragment = mDetailsBackgroundController.onCreateVideoFragment());
             ft2.commit();
         }
         mVideoFragment = fragment;
         return mVideoFragment;
-    }
-
-    /**
-     * This method initializes a video fragment, create an instance of
-     * {@link android.support.v17.leanback.media.PlaybackGlueHost} using that fragment
-     * and return it.
-     * @hide
-     */
-    public final PlaybackGlueHost createPlaybackGlueHost() {
-        Fragment fragment = findOrCreateVideoFragment();
-        return onCreateVideoFragmentHost(fragment);
     }
 
     void onRowSelected(int selectedPosition, int selectedSubPosition) {
@@ -391,6 +479,11 @@ public class DetailsFragment extends BaseFragment {
         if (adapter != null && adapter.size() > selectedPosition) {
             final VerticalGridView gridView = getVerticalGridView();
             final int count = gridView.getChildCount();
+            if (count > 0 && (mStartAndTransitionFlag & PF_ENTER_TRANSITION_PENDING) != 0) {
+                if (mWaitEnterTransitionTimeout == null) {
+                    mWaitEnterTransitionTimeout = new WaitEnterTransitionTimeout(this);
+                }
+            }
             for (int i = 0; i < count; i++) {
                 ItemBridgeAdapter.ViewHolder bridgeViewHolder = (ItemBridgeAdapter.ViewHolder)
                         gridView.getChildViewHolder(gridView.getChildAt(i));
@@ -401,6 +494,60 @@ public class DetailsFragment extends BaseFragment {
                         selectedPosition, selectedSubPosition);
             }
         }
+    }
+
+    void clearPendingEnterTransition() {
+        if ((mStartAndTransitionFlag & PF_ENTER_TRANSITION_PENDING) != 0) {
+            mStartAndTransitionFlag &= ~PF_ENTER_TRANSITION_PENDING;
+            dispatchOnStartAndTransitionFinished();
+        }
+    }
+
+    void dispatchOnStartAndTransitionFinished() {
+        /**
+         * if onStart() was called and there is no pending enter transition or entrance transition.
+         */
+        if ((mStartAndTransitionFlag & PF_PENDING_START) != 0
+                && (mStartAndTransitionFlag
+                & (PF_ENTER_TRANSITION_PENDING | PF_ENTRANCE_TRANSITION_PENDING)) == 0) {
+            mStartAndTransitionFlag &= ~PF_PENDING_START;
+            onSafeStart();
+        }
+    }
+
+    /**
+     * Called when onStart and enter transition (postponed/none postponed) and entrance transition
+     * are all finished.
+     */
+    @CallSuper
+    void onSafeStart() {
+        if (mDetailsBackgroundController != null) {
+            mDetailsBackgroundController.onStart();
+        }
+    }
+
+    @CallSuper
+    void onReturnTransitionStart() {
+        if (mDetailsBackgroundController != null) {
+            // first disable parallax effect that auto-start PlaybackGlue.
+            boolean isVideoVisible = mDetailsBackgroundController.disableVideoParallax();
+            // if video is not visible we can safely remove VideoFragment,
+            // otherwise let video playing during return transition.
+            if (!isVideoVisible && mVideoFragment != null) {
+                FragmentTransaction ft2 = getChildFragmentManager().beginTransaction();
+                ft2.remove(mVideoFragment);
+                ft2.commit();
+                mVideoFragment = null;
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (mDetailsBackgroundController != null) {
+            mDetailsBackgroundController.onStop();
+        }
+        super.onStop();
     }
 
     /**
@@ -461,19 +608,23 @@ public class DetailsFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        mStartAndTransitionFlag |= PF_PENDING_START;
+        dispatchOnStartAndTransitionFinished();
+
         setupChildFragmentLayout();
         if (isEntranceTransitionEnabled()) {
             mRowsFragment.setEntranceTransitionState(false);
         }
-        if (mDetailsParallaxManager != null) {
-            mDetailsParallaxManager.setRecyclerView(mRowsFragment.getVerticalGridView());
+        if (mDetailsParallax != null) {
+            mDetailsParallax.setRecyclerView(mRowsFragment.getVerticalGridView());
         }
         mRowsFragment.getVerticalGridView().requestFocus();
     }
 
     @Override
     protected Object createEntranceTransition() {
-        return TransitionHelper.loadTransition(getActivity(),
+        return TransitionHelper.loadTransition(FragmentUtil.getContext(this),
                 R.transition.lb_details_enter_transition);
     }
 
@@ -484,11 +635,14 @@ public class DetailsFragment extends BaseFragment {
 
     @Override
     protected void onEntranceTransitionEnd() {
+        mStartAndTransitionFlag &= ~PF_ENTRANCE_TRANSITION_PENDING;
+        dispatchOnStartAndTransitionFinished();
         mRowsFragment.onTransitionEnd();
     }
 
     @Override
     protected void onEntranceTransitionPrepare() {
+        mStartAndTransitionFlag |= PF_ENTRANCE_TRANSITION_PENDING;
         mRowsFragment.onTransitionPrepare();
     }
 
@@ -498,44 +652,34 @@ public class DetailsFragment extends BaseFragment {
     }
 
     /**
-     * Create a DetailsParallaxManager that will be used to configure parallax effect of background
-     * and start/stop Video playback. Subclass may override.
+     * Returns the {@link DetailsParallax} instance used by
+     * {@link DetailsFragmentBackgroundController} to configure parallax effect of background and
+     * control embedded video playback. App usually does not use this method directly.
+     * App may use this method for other custom parallax tasks.
      *
-     * @return The new created DetailsParallaxManager.
-     * @see #getParallaxManager()
-     * @hide
+     * @return The DetailsParallax instance attached to the DetailsFragment.
      */
-    public DetailsParallaxManager onCreateParallaxManager() {
-        return new DetailsParallaxManager();
-    }
-
-    /**
-     * Returns the {@link DetailsParallaxManager} instance used to configure parallax effect of
-     * background.
-     *
-     * @return The DetailsParallaxManager instance attached to the DetailsFragment.
-     * @see #onCreateParallaxManager()
-     * @hide
-     */
-    public DetailsParallaxManager getParallaxManager() {
-        if (mDetailsParallaxManager == null) {
-            mDetailsParallaxManager = onCreateParallaxManager();
+    public DetailsParallax getParallax() {
+        if (mDetailsParallax == null) {
+            mDetailsParallax = new DetailsParallax();
             if (mRowsFragment != null && mRowsFragment.getView() != null) {
-                mDetailsParallaxManager.setRecyclerView(mRowsFragment.getVerticalGridView());
+                mDetailsParallax.setRecyclerView(mRowsFragment.getVerticalGridView());
             }
         }
-        return mDetailsParallaxManager;
+        return mDetailsParallax;
     }
 
     /**
-     * Returns background View that above VideoFragment. App can set a background drawable to this
-     * view to hide the VideoFragment before it is ready to play.
+     * Set background drawable shown below foreground rows UI and above
+     * {@link #findOrCreateVideoFragment()}.
      *
-     * @see #findOrCreateVideoFragment()
-     * @hide
+     * @see DetailsFragmentBackgroundController
      */
-    public View getBackgroundView() {
-        return mRootView == null ? null : mRootView.findViewById(R.id.details_background_view);
+    void setBackgroundDrawable(Drawable drawable) {
+        if (mBackgroundView != null) {
+            mBackgroundView.setBackground(drawable);
+        }
+        mBackgroundDrawable = drawable;
     }
 
     /**
@@ -549,6 +693,27 @@ public class DetailsFragment extends BaseFragment {
      * </ul>
      */
     void setupDpadNavigation() {
+        mRootView.setOnChildFocusListener(new BrowseFrameLayout.OnChildFocusListener() {
+
+            @Override
+            public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+                return false;
+            }
+
+            @Override
+            public void onRequestChildFocus(View child, View focused) {
+                if (child != mRootView.getFocusedChild()) {
+                    if (child.getId() == R.id.details_fragment_root) {
+                        showTitle(true);
+                    } else if (child.getId() == R.id.video_surface_container) {
+                        slideOutGridView();
+                        showTitle(false);
+                    } else {
+                        showTitle(true);
+                    }
+                }
+            }
+        });
         mRootView.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
             @Override
             public View onFocusSearch(View focused, int direction) {
@@ -556,10 +721,8 @@ public class DetailsFragment extends BaseFragment {
                         && mRowsFragment.getVerticalGridView().hasFocus()) {
                     if (direction == View.FOCUS_UP) {
                         if (mVideoFragment != null && mVideoFragment.getView() != null) {
-                            slideOutGridView();
-                            showTitle(false);
                             return mVideoFragment.getView();
-                        } else if (getTitleView() != null) {
+                        } else if (getTitleView() != null && getTitleView().hasFocusable()) {
                             return getTitleView();
                         }
                     }
@@ -567,8 +730,6 @@ public class DetailsFragment extends BaseFragment {
                         && mVideoFragment.getView().hasFocus()) {
                     if (direction == View.FOCUS_DOWN) {
                         if (mRowsFragment.getVerticalGridView() != null) {
-                            showTitle(true);
-                            slideInGridView();
                             return mRowsFragment.getVerticalGridView();
                         }
                     }
@@ -583,7 +744,7 @@ public class DetailsFragment extends BaseFragment {
             }
         });
 
-        // If we press BACK or DOWN on remote while in full screen video mode, we should
+        // If we press BACK on remote while in full screen video mode, we should
         // transition back to half screen video playback mode.
         mRootView.setOnDispatchKeyListener(new View.OnKeyListener() {
             @Override
@@ -593,9 +754,7 @@ public class DetailsFragment extends BaseFragment {
                 // focusability of the video surface view.
                 if (mVideoFragment != null && mVideoFragment.getView() != null
                         && mVideoFragment.getView().hasFocus()) {
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        showTitle(true);
-                        slideInGridView();
+                    if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE) {
                         getVerticalGridView().requestFocus();
                         return true;
                     }
@@ -610,13 +769,9 @@ public class DetailsFragment extends BaseFragment {
      * Slides vertical grid view (displaying media item details) out of the screen from below.
      */
     void slideOutGridView() {
-        getVerticalGridView().animateOut();
+        if (getVerticalGridView() != null) {
+            getVerticalGridView().animateOut();
+        }
     }
 
-    /**
-     * Slides in vertical grid view (displaying media item details) from below.
-     */
-    void slideInGridView() {
-        getVerticalGridView().animateIn();
-    }
 }

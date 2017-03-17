@@ -16,19 +16,26 @@
 
 package android.support.design.widget;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.design.test.R;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.test.filters.Suppress;
 import android.widget.ImageView;
 
 import org.junit.Test;
 
 @LargeTest
 public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @Test
     public void testPinnedToolbar() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_collapse_pin,
@@ -134,6 +141,8 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
         assertScrimAlpha(0);
     }
 
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @Test
     public void testScrollingToolbar() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_collapse_scroll,
@@ -244,6 +253,115 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
         assertScrimAlpha(0);
     }
 
+    @Suppress
+    @FlakyTest(bugId = 30701044)
+    @Test
+    public void testScrollingToolbarEnterAlways() throws Throwable {
+        configureContent(R.layout.design_appbar_toolbar_collapse_scroll_enteralways,
+                R.string.design_appbar_collapsing_toolbar_scroll);
+
+        final int[] appbarOnScreenXY = new int[2];
+        final int[] coordinatorLayoutOnScreenXY = new int[2];
+        mAppBar.getLocationOnScreen(appbarOnScreenXY);
+        mCoordinatorLayout.getLocationOnScreen(coordinatorLayoutOnScreenXY);
+
+        final int topInset = mAppBar.getTopInset();
+
+        final int originalAppbarTop = appbarOnScreenXY[1];
+        final int originalAppbarBottom = appbarOnScreenXY[1] + mAppBar.getHeight();
+        final int centerX = appbarOnScreenXY[0] + mAppBar.getWidth() / 2;
+
+        final int toolbarHeight = mToolbar.getHeight();
+        final int appbarHeight = mAppBar.getHeight();
+        final int longSwipeAmount = 3 * appbarHeight / 2;
+        final int reallyLongSwipeAmount = 2 * appbarHeight;
+        final int shortSwipeAmount = toolbarHeight;
+
+        assertAppBarElevation(mDefaultElevationValue);
+        assertScrimAlpha(0);
+
+        // Perform a swipe-up gesture across the horizontal center of the screen, starting from
+        // just below the AppBarLayout
+        performVerticalSwipeUpGesture(
+                R.id.coordinator_layout,
+                centerX,
+                originalAppbarBottom + 20,
+                longSwipeAmount);
+
+        mAppBar.getLocationOnScreen(appbarOnScreenXY);
+        // At this point the app bar should not be visually "present" on the screen, with its bottom
+        // edge aligned with the bottom of system status bar. If we're running on a device which
+        // supports a translucent status bar, we need to take the status bar height into account.
+        // Allow for off-by-a-pixel margin of error.
+        assertEquals(originalAppbarTop, appbarOnScreenXY[1] + appbarHeight - topInset, 1);
+        assertAppBarElevation(mDefaultElevationValue);
+        assertScrimAlpha(255);
+
+        // Perform another swipe-up gesture
+        performVerticalSwipeUpGesture(
+                R.id.coordinator_layout,
+                centerX,
+                originalAppbarBottom,
+                shortSwipeAmount);
+
+        mAppBar.getLocationOnScreen(appbarOnScreenXY);
+        // At this point the app bar should still be off the screen. Allow for off-by-a-pixel
+        // margin of error.
+        assertEquals(originalAppbarTop, appbarOnScreenXY[1] + appbarHeight - topInset, 1);
+        assertAppBarElevation(mDefaultElevationValue);
+        assertScrimAlpha(255);
+
+        // Perform a short swipe-down gesture across the horizontal center of the screen.
+        // Note that the swipe down is a bit longer than the swipe up to fully bring down
+        // the scrolled-away toolbar
+        performVerticalSwipeDownGesture(
+                R.id.coordinator_layout,
+                centerX,
+                originalAppbarBottom,
+                3 * shortSwipeAmount / 2);
+
+        mAppBar.getLocationOnScreen(appbarOnScreenXY);
+
+        // At this point the app bar should be visually below the system status bar as it
+        // in scrolling mode and we've swiped down, not fully but more than collapsed
+        assertThat(appbarOnScreenXY[1] + appbarHeight,
+                is(greaterThan(originalAppbarTop + toolbarHeight + topInset)));
+        assertAppBarElevation(mDefaultElevationValue);
+        assertScrimAlpha(255);
+
+        // Perform another swipe-down gesture across the horizontal center of the screen.
+        performVerticalSwipeDownGesture(
+                R.id.coordinator_layout,
+                centerX,
+                originalAppbarBottom,
+                reallyLongSwipeAmount);
+
+        mAppBar.getLocationOnScreen(appbarOnScreenXY);
+        // At this point the app bar should be in its original position.
+        // Allow for off-by-a-pixel margin of error.
+        assertEquals(originalAppbarTop, appbarOnScreenXY[1]);
+        assertEquals(originalAppbarBottom, appbarOnScreenXY[1] + appbarHeight);
+        assertAppBarElevation(mDefaultElevationValue);
+        assertScrimAlpha(0);
+
+        // Perform yet another swipe-down gesture across the horizontal center of the screen.
+        performVerticalSwipeDownGesture(
+                R.id.coordinator_layout,
+                centerX,
+                originalAppbarBottom,
+                longSwipeAmount);
+
+        mAppBar.getLocationOnScreen(appbarOnScreenXY);
+        // At this point the app bar should still be in its original position.
+        // Allow for off-by-a-pixel margin of error.
+        assertEquals(originalAppbarTop, appbarOnScreenXY[1], 1);
+        assertEquals(originalAppbarBottom, appbarOnScreenXY[1] + appbarHeight, 1);
+        assertAppBarElevation(mDefaultElevationValue);
+        assertScrimAlpha(0);
+    }
+
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @Test
     public void testPinnedToolbarAndAnchoredFab() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_collapse_pin_with_fab,
@@ -310,6 +428,8 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
         }
     }
 
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @Test
     public void testPinnedToolbarAndParallaxImage() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_collapse_with_image,
@@ -413,6 +533,8 @@ public class AppBarWithCollapsingToolbarTest extends AppBarLayoutBaseTest {
      * inherits from) has an issue with measuring children with margins when run on earlier
      * versions of the platform.
      */
+    @Suppress
+    @FlakyTest(bugId = 30701044)
     @Test
     @SdkSuppress(minSdkVersion = 11)
     public void testPinnedToolbarWithMargins() throws Throwable {

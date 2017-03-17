@@ -34,7 +34,10 @@ import android.graphics.Rect;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.test.filters.FlakyTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.View;
@@ -739,7 +742,10 @@ public class StaggeredGridLayoutManagerBaseConfigSetTest
         consistentRelayoutTest(mConfig, true);
     }
 
+    @Suppress
+    @FlakyTest(bugId = 34158822)
     @Test
+    @LargeTest
     public void dontRecycleViewsTranslatedOutOfBoundsFromStart() throws Throwable {
         final Config config = ((Config) mConfig.clone()).itemCount(1000);
         setupByConfig(config);

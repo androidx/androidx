@@ -38,7 +38,7 @@ abstract class BaseRowSupportFragment extends Fragment {
     private ObjectAdapter mAdapter;
     VerticalGridView mVerticalGridView;
     private PresenterSelector mPresenterSelector;
-    ItemBridgeAdapter mBridgeAdapter;
+    final ItemBridgeAdapter mBridgeAdapter = new ItemBridgeAdapter();
     int mSelectedPosition = -1;
     private boolean mPendingTransitionPrepare;
     private LateSelectionObserver mLateSelectionObserver = new LateSelectionObserver();
@@ -50,8 +50,10 @@ abstract class BaseRowSupportFragment extends Fragment {
                 @Override
                 public void onChildViewHolderSelected(RecyclerView parent,
                         RecyclerView.ViewHolder view, int position, int subposition) {
-                    mSelectedPosition = position;
-                    onRowSelected(parent, view, position, subposition);
+                    if (!mLateSelectionObserver.mIsLateSelection) {
+                        mSelectedPosition = position;
+                        onRowSelected(parent, view, position, subposition);
+                    }
                 }
             };
 
@@ -80,9 +82,7 @@ abstract class BaseRowSupportFragment extends Fragment {
         if (savedInstanceState != null) {
             mSelectedPosition = savedInstanceState.getInt(CURRENT_SELECTED_POSITION, -1);
         }
-        if (mBridgeAdapter != null) {
-            setAdapterAndSelection();
-        }
+        setAdapterAndSelection();
         mVerticalGridView.setOnChildViewHolderSelectedListener(mRowSelectedListener);
     }
 
@@ -210,7 +210,7 @@ abstract class BaseRowSupportFragment extends Fragment {
             return;
         }
         mSelectedPosition = position;
-        if(mVerticalGridView != null && mVerticalGridView.getAdapter() != null) {
+        if (mVerticalGridView != null) {
             if (mLateSelectionObserver.mIsLateSelection) {
                 return;
             }
@@ -227,17 +227,9 @@ abstract class BaseRowSupportFragment extends Fragment {
     }
 
     void updateAdapter() {
-        if (mBridgeAdapter != null) {
-            // detach observer from ObjectAdapter
-            mLateSelectionObserver.clear();
-            mBridgeAdapter.clear();
-            mBridgeAdapter = null;
-        }
+        mBridgeAdapter.setAdapter(mAdapter);
+        mBridgeAdapter.setPresenter(mPresenterSelector);
 
-        if (mAdapter != null) {
-            // If presenter selector is null, adapter ps will be used
-            mBridgeAdapter = new ItemBridgeAdapter(mAdapter, mPresenterSelector);
-        }
         if (mVerticalGridView != null) {
             setAdapterAndSelection();
         }

@@ -1968,7 +1968,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             mTmpRecords = new ArrayList<>();
             mTmpIsPop = new ArrayList<>();
         }
-        executePostponedTransaction(null, null);
+        mExecutingActions = true;
+        try {
+            executePostponedTransaction(null, null);
+        } finally {
+            mExecutingActions = false;
+        }
     }
 
     public void execSingleAction(OpGenerator action, boolean allowStateLoss) {
@@ -2133,8 +2138,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             } else {
                 record.trackAddedFragmentsInPop(mTmpAddedFragments);
             }
-            final int bumpAmount = isPop ? -1 : 1;
-            record.bumpBackStackNesting(bumpAmount);
             addToBackStack = addToBackStack || record.mAddToBackStack;
         }
         mTmpAddedFragments.clear();
@@ -2232,7 +2235,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (isPop) {
                     record.executeOps();
                 } else {
-                    record.executePopOps();
+                    record.executePopOps(false);
                 }
 
                 // move to the end
@@ -2350,8 +2353,13 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             final BackStackRecord record = records.get(i);
             final boolean isPop = isRecordPop.get(i);
             if (isPop) {
-                record.executePopOps();
+                record.bumpBackStackNesting(-1);
+                // Only execute the add operations at the end of
+                // all transactions.
+                boolean moveToState = i == (endIndex - 1);
+                record.executePopOps(moveToState);
             } else {
+                record.bumpBackStackNesting(1);
                 record.executeOps();
             }
         }
@@ -2855,6 +2863,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     LogWriter logw = new LogWriter(TAG);
                     PrintWriter pw = new PrintWriter(logw);
                     bse.dump("  ", pw, false);
+                    pw.close();
                 }
                 mBackStack.add(bse);
                 if (bse.mIndex >= 0) {
@@ -2880,26 +2889,36 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     public void dispatchCreate() {
         mStateSaved = false;
+        mExecutingActions = true;
         moveToState(Fragment.CREATED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchActivityCreated() {
         mStateSaved = false;
+        mExecutingActions = true;
         moveToState(Fragment.ACTIVITY_CREATED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchStart() {
         mStateSaved = false;
+        mExecutingActions = true;
         moveToState(Fragment.STARTED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchResume() {
         mStateSaved = false;
+        mExecutingActions = true;
         moveToState(Fragment.RESUMED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchPause() {
+        mExecutingActions = true;
         moveToState(Fragment.STARTED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchStop() {
@@ -2908,21 +2927,29 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // them.
         mStateSaved = true;
 
+        mExecutingActions = true;
         moveToState(Fragment.STOPPED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchReallyStop() {
+        mExecutingActions = true;
         moveToState(Fragment.ACTIVITY_CREATED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchDestroyView() {
+        mExecutingActions = true;
         moveToState(Fragment.CREATED, false);
+        mExecutingActions = false;
     }
 
     public void dispatchDestroy() {
         mDestroyed = true;
         execPendingActions();
+        mExecutingActions = true;
         moveToState(Fragment.INITIALIZING, false);
+        mExecutingActions = false;
         mHost = null;
         mContainer = null;
         mParent = null;

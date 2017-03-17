@@ -16,6 +16,7 @@
 
 package android.support.design.widget;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.swipeUp;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -40,10 +41,11 @@ import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.support.design.test.R;
 import android.support.design.testutils.CoordinatorLayoutUtils;
+import android.support.design.testutils.CoordinatorLayoutUtils.DependentBehavior;
 import android.support.design.widget.CoordinatorLayout.Behavior;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.view.Gravity;
@@ -69,13 +71,13 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
 
     @Before
     public void setup() {
-        mInstrumentation = InstrumentationRegistry.getInstrumentation();
+        mInstrumentation = getInstrumentation();
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
     public void testSetFitSystemWindows() throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        final Instrumentation instrumentation = getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
         final View view = new View(col.getContext());
 
@@ -125,6 +127,58 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         // Verify that onApplyWindowInsets() has been called with some insets
         verify(mockBehavior, atLeastOnce())
                 .onApplyWindowInsets(same(col), same(view), any(WindowInsetsCompat.class));
+    }
+
+    @Test
+    public void testLayoutChildren() throws Throwable {
+        final Instrumentation instrumentation = getInstrumentation();
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                col.addView(view, 100, 100);
+            }
+        });
+        instrumentation.waitForIdleSync();
+        int horizontallyCentered = (col.getWidth() - view.getWidth()) / 2;
+        int end = col.getWidth() - view.getWidth();
+        int verticallyCentered = (col.getHeight() - view.getHeight()) / 2;
+        int bottom = col.getHeight() - view.getHeight();
+        final int[][] testCases = {
+                // gravity, expected left, expected top
+                {Gravity.NO_GRAVITY, 0, 0},
+                {Gravity.LEFT, 0, 0},
+                {GravityCompat.START, 0, 0},
+                {Gravity.TOP, 0, 0},
+                {Gravity.CENTER, horizontallyCentered, verticallyCentered},
+                {Gravity.CENTER_HORIZONTAL, horizontallyCentered, 0},
+                {Gravity.CENTER_VERTICAL, 0, verticallyCentered},
+                {Gravity.RIGHT, end, 0},
+                {GravityCompat.END, end, 0},
+                {Gravity.BOTTOM, 0, bottom},
+                {Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, horizontallyCentered, bottom},
+                {Gravity.RIGHT | Gravity.CENTER_VERTICAL, end, verticallyCentered},
+        };
+        for (final int[] testCase : testCases) {
+            mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final CoordinatorLayout.LayoutParams lp =
+                            (CoordinatorLayout.LayoutParams) view.getLayoutParams();
+                    lp.gravity = testCase[0];
+                    view.setLayoutParams(lp);
+                }
+            });
+            instrumentation.waitForIdleSync();
+            mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    assertThat("Gravity: " + testCase[0], view.getLeft(), is(testCase[1]));
+                    assertThat("Gravity: " + testCase[0], view.getTop(), is(testCase[2]));
+                }
+            });
+        }
     }
 
     @Test
@@ -183,7 +237,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
 
     @Test
     public void testInsetEdge() throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        final Instrumentation instrumentation = getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
         final View insetView = new View(col.getContext());
@@ -236,7 +290,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
 
     @Test
     public void testDependentViewChanged() throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        final Instrumentation instrumentation = getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
         // Add two views, A & B, where B depends on A
@@ -250,7 +304,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         lpB.width = 100;
         lpB.height = 100;
         final CoordinatorLayout.Behavior behavior =
-                spy(new CoordinatorLayoutUtils.DependentBehavior(viewA));
+                spy(new DependentBehavior(viewA));
         lpB.setBehavior(behavior);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -282,7 +336,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
 
     @Test
     public void testDependentViewRemoved() throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        final Instrumentation instrumentation = getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
         // Add two views, A & B, where B depends on A
@@ -290,7 +344,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
         final View viewB = new View(col.getContext());
         final CoordinatorLayout.LayoutParams lpB = col.generateDefaultLayoutParams();
         final CoordinatorLayout.Behavior behavior =
-                spy(new CoordinatorLayoutUtils.DependentBehavior(viewA));
+                spy(new DependentBehavior(viewA));
         lpB.setBehavior(behavior);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -316,7 +370,7 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
 
     @Test
     public void testGetDependenciesAfterDependentViewRemoved() throws Throwable {
-        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        final Instrumentation instrumentation = getInstrumentation();
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
         // Add two views, A & B, where B depends on A
@@ -572,6 +626,55 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
     }
 
     @Test
+    public void testNestedScrollingTriggeringDependentViewChanged() throws Throwable {
+        final CoordinatorLayoutActivity activity = mActivityTestRule.getActivity();
+        final CoordinatorLayout col = activity.mCoordinatorLayout;
+
+        // First a NestedScrollView to trigger nested scrolling
+        final View scrollView = LayoutInflater.from(activity).inflate(
+                R.layout.include_nestedscrollview, col, false);
+
+        // Now create a View and Behavior which depend on the scrollview
+        final ImageView dependentView = new ImageView(activity);
+        final CoordinatorLayout.Behavior dependentBehavior = spy(new DependentBehavior(scrollView));
+
+        // Finally a view which accepts nested scrolling in the CoordinatorLayout
+        final ImageView nestedScrollAwareView = new ImageView(activity);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // First add the ScrollView
+                col.addView(scrollView);
+
+                // Now add the view which depends on the scrollview
+                CoordinatorLayout.LayoutParams clp = new CoordinatorLayout.LayoutParams(200, 200);
+                clp.setBehavior(dependentBehavior);
+                col.addView(dependentView, clp);
+
+                // Now add the nested scrolling aware view
+                clp = new CoordinatorLayout.LayoutParams(200, 200);
+                clp.setBehavior(new NestedScrollingBehavior());
+                col.addView(nestedScrollAwareView, clp);
+            }
+        });
+
+        // Wait for any layouts, and reset the Behavior so that the call counts are 0
+        getInstrumentation().waitForIdleSync();
+        reset(dependentBehavior);
+
+        // Now vertically swipe up on the NSV, causing nested scrolling to occur
+        onView(withId(R.id.nested_scrollview)).perform(swipeUp());
+
+        // Verify that the Behavior's onDependentViewChanged is not called due to the
+        // nested scroll
+        verify(dependentBehavior, never()).onDependentViewChanged(
+                eq(col), // parent
+                eq(dependentView), // child
+                eq(scrollView)); // axes
+    }
+
+    @Test
     public void testDodgeInsetViewWithEmptyBounds() throws Throwable {
         final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
 
@@ -614,9 +717,9 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
                 .getInsetDodgeRect(same(col), same(view), any(Rect.class));
     }
 
-    public static class NestedScrollingBehavior extends CoordinatorLayout.Behavior<ImageView> {
+    public static class NestedScrollingBehavior extends CoordinatorLayout.Behavior<View> {
         @Override
-        public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, ImageView child,
+        public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, View child,
                 View directTargetChild, View target, int nestedScrollAxes) {
             // Return true so that we always accept nested scroll events
             return true;

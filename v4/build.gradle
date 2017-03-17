@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-
 archivesBaseName = 'support-v4'
+
 dependencies {
     compile project(':support-compat')
     compile project(':support-media-compat')

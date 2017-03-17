@@ -24,7 +24,7 @@ buildscript {
     }
     dependencies {
         // Keep gradle plugin version in sync with ub_supportlib-master manifest.
-        classpath 'com.android.tools.build:gradle:2.2.1'
+        classpath 'com.android.tools.build:gradle:2.2.4'
     }
 }
 
@@ -40,11 +40,12 @@ dependencies {
     doclava project(':doclava')
 }
 
-ext.supportVersion = '25.2.0'
+ext.supportVersion = '25.3.0-SNAPSHOT'
 ext.extraVersion = 44
 ext.supportRepoOut = ''
 ext.buildNumber = Integer.toString(ext.extraVersion)
 
+ext.buildToolsVersion = '25.0.0'
 ext.testRunnerVersion = '0.6-alpha'
 ext.espressoVersion = '2.3-alpha'
 
@@ -52,20 +53,21 @@ ext.espressoVersion = '2.3-alpha'
 // required for the doclava dependency.
 ext.usePrebuilts = "true"
 
+// Prevent the Android Gradle plug-in from automatically downloading SDK dependencies.
+ext['android.builder.sdkDownload'] = false
+
 final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
 System.setProperty('android.dir', "${rootDir}/../../")
 final String fullSdkPath = "${rootDir}/../../prebuilts/fullsdk-${platform}"
 if (file(fullSdkPath).exists()) {
     gradle.ext.currentSdk = 25
-    ext.buildToolsVersion = '24.0.1'
     project.ext.androidJar = files("${fullSdkPath}/platforms/android-${gradle.ext.currentSdk}/android.jar")
     System.setProperty('android.home', "${rootDir}/../../prebuilts/fullsdk-${platform}")
     File props = file("local.properties")
     props.write "sdk.dir=${fullSdkPath}"
 } else {
-    gradle.ext.currentSdk = 25
-    ext.buildToolsVersion = '24.0.1'
-    project.ext.androidJar = files("${project.rootDir}/../../prebuilts/sdk/${gradle.ext.currentSdk}/android.jar")
+    gradle.ext.currentSdk = 'current'
+    project.ext.androidJar = files("${project.rootDir}/../../prebuilts/sdk/current/android.jar")
     File props = file("local.properties")
     props.write "android.dir=../../"
 }
@@ -163,6 +165,7 @@ task(createXml) << {
     Files.write(xml, new File(project.ext.distDir, 'repo-extras.xml'), Charsets.UTF_8)
 }
 createArchive.dependsOn createXml
+createXml.dependsOn createRepository
 
 task(createSourceProp) << {
     def sourceProp =
@@ -208,6 +211,9 @@ void registerForDocsTask(Task task, Project subProject, releaseVariant) {
 
 // Generates online docs.
 task generateDocs(type: DoclavaTask, dependsOn: configurations.doclava) {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = 'Generates d.android.com style documentation.'
+
     docletpath = configurations.doclava.resolve()
     destinationDir = new File(project.docsDir, "online")
 
@@ -263,6 +269,9 @@ task generateApi(type: DoclavaTask, dependsOn: configurations.doclava) {
 
 // Copies generated API files to current version.
 task updateApi(type: UpdateApiTask, dependsOn: generateApi) {
+    group JavaBasePlugin.VERIFICATION_GROUP
+    description 'Invoke Doclava\'s ApiCheck tool to update current.txt based on current changes.'
+
     newApiFile = new File(project.docsDir, 'release/current.txt')
     oldApiFile = new File(project.rootDir, 'api/current.txt')
     newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
@@ -433,7 +442,7 @@ subprojects {
     }
 
     project.afterEvaluate {
-        // The archivesBaseName isn't available intially, so set it now
+        // The archivesBaseName isn't available initially, so set it now
         def createZipTask = project.tasks.findByName("createSeparateZip")
         if (createZipTask != null) {
             createZipTask.appendix = archivesBaseName
@@ -486,6 +495,14 @@ subprojects {
                     registerForDocsTask(rootProject.generateApi, p, v)
                 }
             }
+        }
+    }
+
+    // Update the version meta-data in each Manifest
+    project.afterEvaluate { p ->
+        if (p.hasProperty('android')) {
+            p.android.defaultConfig.manifestPlaceholders =
+                    ["support-version": rootProject.ext.supportVersion]
         }
     }
 }

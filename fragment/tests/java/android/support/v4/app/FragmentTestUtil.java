@@ -17,8 +17,10 @@ package android.support.v4.app;
 
 import static org.junit.Assert.assertEquals;
 
+import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
@@ -35,14 +37,30 @@ public class FragmentTestUtil {
         }
     };
 
-    public static void waitForExecution(final ActivityTestRule<FragmentTestActivity> rule) {
+    public static void waitForExecution(final ActivityTestRule<? extends FragmentActivity> rule) {
         // Wait for two cycles. When starting a postponed transition, it will post to
         // the UI thread and then the execution will be added onto the queue after that.
         // The two-cycle wait makes sure fragments have the opportunity to complete both
         // before returning.
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(DO_NOTHING);
-        instrumentation.runOnMainSync(DO_NOTHING);
+        try {
+            rule.runOnUiThread(DO_NOTHING);
+            rule.runOnUiThread(DO_NOTHING);
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    private static void runOnUiThreadRethrow(ActivityTestRule<? extends Activity> rule,
+            Runnable r) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            r.run();
+        } else {
+            try {
+                rule.runOnUiThread(r);
+            } catch (Throwable t) {
+                throw new RuntimeException(t);
+            }
+        }
     }
 
     public static boolean executePendingTransactions(
@@ -123,8 +141,7 @@ public class FragmentTestUtil {
     public static FragmentController createController(ActivityTestRule<FragmentTestActivity> rule) {
         final FragmentController[] controller = new FragmentController[1];
         final FragmentTestActivity activity = rule.getActivity();
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
+        runOnUiThreadRethrow(rule, new Runnable() {
             @Override
             public void run() {
                 Handler handler = new Handler();
@@ -135,10 +152,10 @@ public class FragmentTestUtil {
         return controller[0];
     }
 
-    public static void resume(final FragmentController fragmentController,
+    public static void resume(ActivityTestRule<? extends Activity> rule,
+            final FragmentController fragmentController,
             final Pair<Parcelable, FragmentManagerNonConfig> savedState) {
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        instrumentation.runOnMainSync(new Runnable() {
+        runOnUiThreadRethrow(rule, new Runnable() {
             @Override
             public void run() {
                 fragmentController.attachHost(null);
@@ -158,10 +175,10 @@ public class FragmentTestUtil {
     }
 
     public static Pair<Parcelable, FragmentManagerNonConfig> destroy(
+            ActivityTestRule<? extends Activity> rule,
             final FragmentController fragmentController) {
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         final Pair<Parcelable, FragmentManagerNonConfig>[] result = new Pair[1];
-        instrumentation.runOnMainSync(new Runnable() {
+        runOnUiThreadRethrow(rule, new Runnable() {
             @Override
             public void run() {
                 fragmentController.dispatchPause();

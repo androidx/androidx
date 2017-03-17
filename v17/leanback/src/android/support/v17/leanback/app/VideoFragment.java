@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 /**
  * Subclass of {@link PlaybackFragment} that is responsible for providing a {@link SurfaceView}
  * and rendering video.
- * @hide
  */
 public class VideoFragment extends PlaybackFragment {
     static final int SURFACE_NOT_CREATED = 0;
@@ -39,7 +38,7 @@ public class VideoFragment extends PlaybackFragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
-        mVideoSurface = (SurfaceView) getActivity().getLayoutInflater().inflate(
+        mVideoSurface = (SurfaceView) LayoutInflater.from(FragmentUtil.getContext(this)).inflate(
                 R.layout.lb_video_surface, root, false);
         root.addView(mVideoSurface, 0);
         mVideoSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
@@ -89,5 +88,12 @@ public class VideoFragment extends PlaybackFragment {
      */
     public SurfaceView getSurfaceView() {
         return mVideoSurface;
+    }
+
+    @Override
+    public void onDestroyView() {
+        mVideoSurface = null;
+        mState = SURFACE_NOT_CREATED;
+        super.onDestroyView();
     }
 }

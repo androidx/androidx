@@ -48,6 +48,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Root;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
+import android.support.test.filters.FlakyTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
@@ -260,8 +262,9 @@ public class PopupMenuTest extends BaseInstrumentationTestCase<PopupTestActivity
         };
     }
 
+    @FlakyTest(bugId = 33669575)
     @Test
-    @MediumTest
+    @LargeTest
     public void testAnchoring() {
         Builder menuBuilder = new Builder();
         menuBuilder.wireToActionButton();
