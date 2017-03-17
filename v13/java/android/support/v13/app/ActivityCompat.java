@@ -38,6 +38,10 @@ public class ActivityCompat extends android.support.v4.app.ActivityCompat {
         return DragAndDropPermissionsCompat.request(activity, dragEvent);
     }
 
+    /**
+     * This class should not be instantiated, but the constructor must be
+     * visible for the class to be extended.
+     */
     protected ActivityCompat() {
         // Not publicly instantiable, but may be extended.
     }
