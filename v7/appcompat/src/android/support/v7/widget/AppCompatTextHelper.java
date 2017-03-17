@@ -16,11 +16,14 @@
 
 package android.support.v7.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 import android.support.v7.appcompat.R;
 import android.support.v7.text.AllCapsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -44,8 +47,16 @@ class AppCompatTextHelper {
     private TintInfo mDrawableRightTint;
     private TintInfo mDrawableBottomTint;
 
+    private final AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
+
     AppCompatTextHelper(TextView view) {
         mView = view;
+        // Auto-size is supported by the framework starting from Android O.
+        if (Build.VERSION.SDK_INT < 26) {
+            mAutoSizeTextHelper = new AppCompatTextViewAutoSizeHelper(mView);
+        } else {
+            mAutoSizeTextHelper = null;
+        }
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
@@ -147,6 +158,10 @@ class AppCompatTextHelper {
         if (!hasPwdTm && allCapsSet) {
             setAllCaps(allCaps);
         }
+
+        if (mAutoSizeTextHelper != null) {
+            mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        }
     }
 
     void onSetTextAppearance(Context context, int resId) {
@@ -205,5 +220,60 @@ class AppCompatTextHelper {
             return tintInfo;
         }
         return null;
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        // Auto-size is supported by the framework starting from Android O.
+        if (Build.VERSION.SDK_INT < 26) {
+            if (isAutoSizeEnabled()) {
+                if (getNeedsAutoSizeText()) {
+                    // Call auto-size after the width and height have been calculated.
+                    autoSizeText();
+                }
+                // Always try to auto-size if enabled. Functions that do not want to trigger
+                // auto-sizing after the next layout round should set this to false.
+                setNeedsAutoSizeText(true);
+            }
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    void setTextSize(int unit, float size) {
+        if (Build.VERSION.SDK_INT < 26) {
+            if (!isAutoSizeEnabled()) {
+                setTextSizeInternal(unit, size);
+            }
+        } else {
+            mView.setTextSize(unit, size);
+        }
+    }
+
+    private boolean isAutoSizeEnabled() {
+        return mAutoSizeTextHelper != null && mAutoSizeTextHelper.isAutoSizeEnabled();
+    }
+
+    private boolean getNeedsAutoSizeText() {
+        return mAutoSizeTextHelper != null && mAutoSizeTextHelper.getNeedsAutoSizeText();
+    }
+
+    private void setNeedsAutoSizeText(boolean needsAutoSizeText) {
+        if (mAutoSizeTextHelper != null) {
+            mAutoSizeTextHelper.setNeedsAutoSizeText(needsAutoSizeText);
+        }
+    }
+
+    private void autoSizeText() {
+        if (mAutoSizeTextHelper != null) {
+            mAutoSizeTextHelper.autoSizeText();
+        }
+    }
+
+    private void setTextSizeInternal(int unit, float size) {
+        if (mAutoSizeTextHelper != null) {
+            mAutoSizeTextHelper.setTextSizeInternal(unit, size);
+        }
     }
 }
