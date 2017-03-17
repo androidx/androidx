@@ -180,6 +180,7 @@
      <public type="attr" name="textAllCaps"/>
      <public type="attr" name="textAppearanceLargePopupMenu"/>
      <public type="attr" name="textAppearanceListItem"/>
+     <public type="attr" name="textAppearanceListItemSecondary"/>
      <public type="attr" name="textAppearanceListItemSmall"/>
      <public type="attr" name="textAppearancePopupMenuHeader"/>
      <public type="attr" name="textAppearanceSearchResultSubtitle"/>
