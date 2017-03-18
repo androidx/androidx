@@ -457,9 +457,10 @@ final class EmojiProcessor {
      */
     private boolean hasGlyph(final CharSequence charSequence, int start, final int end,
             final EmojiMetadata metadata) {
-        // if the emoji was added to OS at a later version we know that the system cannot render it.
-        // without this check pre M devices result in more false positives.
-        if (metadata.getSdkAdded() > Build.VERSION.SDK_INT) {
+        // For pre M devices, heuristic in PaintCompat can result in false positives. we are
+        // adding another heuristic using the sdkAdded field. if the emoji was added to OS
+        // at a later version we assume that the system probably cannot render it.
+        if (Build.VERSION.SDK_INT < 23 && metadata.getSdkAdded() > Build.VERSION.SDK_INT) {
             return false;
         }
 
