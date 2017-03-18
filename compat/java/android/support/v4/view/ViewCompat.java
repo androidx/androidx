@@ -19,7 +19,6 @@ package android.support.v4.view;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.ValueAnimator;
-import android.support.annotation.RequiresApi;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -35,6 +34,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
@@ -468,11 +468,11 @@ public class ViewCompat {
         }
 
         public void postInvalidateOnAnimation(View view) {
-            view.invalidate();
+            view.postInvalidate();
         }
 
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.invalidate(left, top, right, bottom);
+            view.postInvalidate(left, top, right, bottom);
         }
 
         public void postOnAnimation(View view, Runnable action) {
