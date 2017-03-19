@@ -371,33 +371,33 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testIsInitialized_returnsTrueIfLoadSuccess() throws InterruptedException {
+    public void testGetLoadState_returnsSuccessIfLoadSuccess() throws InterruptedException {
         final WaitingDataLoader metadataLoader = new WaitingDataLoader(true /*success*/);
         final Config config = new TestConfig(metadataLoader);
         EmojiCompat.reset(config);
 
-        assertFalse(EmojiCompat.get().isInitialized());
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_LOADING);
 
         metadataLoader.getLoaderLatch().countDown();
         metadataLoader.getTestLatch().await();
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertTrue(EmojiCompat.get().isInitialized());
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_SUCCESS);
     }
 
     @Test
-    public void testIsInitialized_returnsFalseIfLoadFail() throws InterruptedException {
+    public void testGetLoadState_returnsFailIfLoadFail() throws InterruptedException {
         final WaitingDataLoader metadataLoader = new WaitingDataLoader(false/*fail*/);
         final Config config = new TestConfig(metadataLoader);
         EmojiCompat.reset(config);
 
-        assertFalse(EmojiCompat.get().isInitialized());
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_LOADING);
 
         metadataLoader.getLoaderLatch().countDown();
         metadataLoader.getTestLatch().await();
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertFalse(EmojiCompat.get().isInitialized());
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_FAILURE);
     }
 
     @Test

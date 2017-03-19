@@ -48,13 +48,16 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         if (mEditText.isInEditMode()) {
             return;
         }
+
         //before > after --> a deletion occured
         if (before <= after && charSequence instanceof Spannable) {
-            if (EmojiCompat.get().isInitialized()) {
-                final Spannable s = (Spannable) charSequence;
-                EmojiCompat.get().process(s, start, start + after);
-            } else {
-                EmojiCompat.get().registerInitCallback(getInitCallback());
+            switch (EmojiCompat.get().getLoadState()){
+                case EmojiCompat.LOAD_STATE_SUCCESS:
+                    final Spannable s = (Spannable) charSequence;
+                    EmojiCompat.get().process(s, start, start + after);
+                    break;
+                case EmojiCompat.LOAD_STATE_LOADING:
+                    EmojiCompat.get().registerInitCallback(getInitCallback());
             }
         }
     }

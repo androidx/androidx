@@ -54,30 +54,33 @@ final class EmojiInputFilter implements android.text.InputFilter {
             return source;
         }
 
-        if (EmojiCompat.get().isInitialized()) {
-            boolean process = true;
-            if (destEnd == 0 && destStart == 0 && dest.length() == 0) {
-                final CharSequence oldText = mTextView.getText();
-                if (source == oldText) {
-                    process = false;
-                }
-            }
 
-            if (process && source != null) {
-                final CharSequence text;
-                if (sourceStart == 0 && sourceEnd == source.length()) {
-                    text = source;
-                } else {
-                    text = source.subSequence(sourceStart, sourceEnd);
+        switch (EmojiCompat.get().getLoadState()){
+            case EmojiCompat.LOAD_STATE_SUCCESS:
+                boolean process = true;
+                if (destEnd == 0 && destStart == 0 && dest.length() == 0) {
+                    final CharSequence oldText = mTextView.getText();
+                    if (source == oldText) {
+                        process = false;
+                    }
                 }
-                return EmojiCompat.get().process(text, 0, text.length());
-            }
 
-            return source;
-        } else {
-            EmojiCompat.get().registerInitCallback(getInitCallback());
-            return source;
+                if (process && source != null) {
+                    final CharSequence text;
+                    if (sourceStart == 0 && sourceEnd == source.length()) {
+                        text = source;
+                    } else {
+                        text = source.subSequence(sourceStart, sourceEnd);
+                    }
+                    return EmojiCompat.get().process(text, 0, text.length());
+                }
+
+                return source;
+            case EmojiCompat.LOAD_STATE_LOADING:
+                EmojiCompat.get().registerInitCallback(getInitCallback());
+                return source;
         }
+        return source;
     }
 
     private InitCallback getInitCallback() {
