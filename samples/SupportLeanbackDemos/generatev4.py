@@ -309,6 +309,38 @@ for line in file:
 file.close()
 outfile.close()
 
+file = open('src/com/example/android/leanback/PlaybackTransportControlFragment.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackTransportControlSupportFragment.java', 'w')
+write_java_head(outfile, "PlaybackTransportControlFragment")
+for line in file:
+    line = line.replace('PlaybackFragment', 'PlaybackSupportFragment')
+    line = line.replace('PlaybackTransportControlFragment', 'PlaybackTransportControlSupportFragment')
+    line = line.replace('PlaybackTransportControlActivity', 'PlaybackTransportControlSupportActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('src/com/example/android/leanback/PlaybackTransportControlActivity.java', 'r')
+outfile = open('src/com/example/android/leanback/PlaybackTransportControlSupportActivity.java', 'w')
+write_java_head(outfile, "PlaybackTransportControlActivity")
+for line in file:
+    line = line.replace('PlaybackTransportControlActivity', 'PlaybackTransportControlSupportActivity')
+    line = line.replace('extends Activity', 'extends FragmentActivity')
+    line = line.replace('R.layout.playback_transportcontrol_activity', 'R.layout.playback_transportcontrol_activity_support')
+    line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
+    outfile.write(line)
+file.close()
+outfile.close()
+
+file = open('res/layout/playback_transportcontrol_activity.xml', 'r')
+outfile = open('res/layout/playback_transportcontrol_activity_support.xml', 'w')
+for line in file:
+    line = replace_xml_head(line, "playback_transportcontrols")
+    line = line.replace('com.example.android.leanback.PlaybackTransportControlFragment', 'com.example.android.leanback.PlaybackTransportControlSupportFragment')
+    outfile.write(line)
+file.close()
+outfile.close()
+
 
 
 file = open('src/com/example/android/leanback/PlaybackOverlayFragment.java', 'r')

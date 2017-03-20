@@ -160,6 +160,25 @@
     <dimen name="lb_playback_now_playing_view_size">28dp</dimen>
     <dimen name="lb_playback_play_icon_size">14dp</dimen>
 
+    <!-- margin to move controlBar button a bit left to align icon with description left -->
+    <dimen name="lb_playback_transport_controlbar_margin_start">-12dp</dimen>
+    <dimen name="lb_playback_transport_control_info_margin_bottom">20dp</dimen>
+    <dimen name="lb_playback_transport_control_row_padding_bottom">20dp</dimen>
+    <dimen name="lb_playback_transport_image_height">176dp</dimen>
+    <dimen name="lb_playback_transport_image_margin_end">24dp</dimen>
+
+    <!-- height should including enough space for thumbs when activated -->
+    <dimen name="lb_playback_transport_progressbar_height">28dp</dimen>
+    <!-- height for the bar when not focused -->
+    <dimen name="lb_playback_transport_progressbar_bar_height">4dp</dimen>
+    <!-- height for the bar when focused -->
+    <dimen name="lb_playback_transport_progressbar_active_bar_height">6dp</dimen>
+    <!-- radius of thumb when focused -->
+    <dimen name="lb_playback_transport_progressbar_active_radius">6dp</dimen>
+
+    <dimen name="lb_playback_transport_time_margin">8dp</dimen>
+    <dimen name="lb_playback_transport_time_margin_top">8dp</dimen>
+
     <dimen name="lb_control_button_diameter">90dp</dimen>
     <dimen name="lb_control_button_height">64dp</dimen>
     <dimen name="lb_control_button_secondary_diameter">48dp</dimen>

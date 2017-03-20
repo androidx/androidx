@@ -84,7 +84,7 @@ public class MediaPlayerGlueTest {
             }
         });
 
-        // Test enableProgressUpdating(true) and enableProgressUpdating(false);
+        // Test setProgressUpdatingEnabled(true) and setProgressUpdatingEnabled(false);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

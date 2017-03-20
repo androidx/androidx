@@ -37,6 +37,8 @@ import android.support.v17.leanback.widget.ItemAlignmentFacet;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.PlaybackRowPresenter;
+import android.support.v17.leanback.widget.PlaybackSeekDataProvider;
+import android.support.v17.leanback.widget.PlaybackSeekUi;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
@@ -52,8 +54,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
-
-import java.util.ArrayList;
 
 /**
  * A fragment for displaying playback controls and related content.
@@ -71,8 +71,15 @@ import java.util.ArrayList;
  * optional, app can pass playback row and PlaybackRowPresenter in the adapter using
  * {@link #setAdapter(ObjectAdapter)}.
  * </p>
+ * <p>
+ * Auto hide controls upon playing: best practice is calling
+ * {@link #setControlsOverlayAutoHideEnabled(boolean)} upon play/pause. The auto hiding timer will
+ * be cancelled upon {@link #tickle()} triggered by input event.
+ * </p>
  */
 public class PlaybackFragment extends Fragment {
+    static final String BUNDLE_CONTROL_VISIBLE_ON_CREATEVIEW = "controlvisible_oncreateview";
+
     /**
      * No background.
      */
@@ -83,6 +90,10 @@ public class PlaybackFragment extends Fragment {
      */
     public static final int BG_DARK = 1;
     PlaybackGlueHost.HostCallback mHostCallback;
+
+    PlaybackSeekUi.Client mSeekUiClient;
+    boolean mInSeek;
+    ProgressBarManager mProgressBarManager = new ProgressBarManager();
 
     /**
      * Resets the focus on the button in the middle of control row.
@@ -182,12 +193,12 @@ public class PlaybackFragment extends Fragment {
 
     // Fading status
     private static final int IDLE = 0;
-    private static final int IN = 1;
-    private static final int OUT = 2;
+    private static final int ANIMATING = 1;
 
     int mPaddingBottom;
     int mOtherRowsCenterToBottom;
     View mRootView;
+    View mBackgroundView;
     int mBackgroundType = BG_DARK;
     int mBgDarkColor;
     int mBgLightColor;
@@ -197,7 +208,8 @@ public class PlaybackFragment extends Fragment {
     OnFadeCompleteListener mFadeCompleteListener;
     View.OnKeyListener mInputEventHandler;
     boolean mFadingEnabled = true;
-    int mFadingStatus = IDLE;
+    boolean mControlVisibleBeforeOnCreateView = true;
+    boolean mControlVisible = true;
     int mBgAlpha;
     ValueAnimator mBgFadeInAnimator, mBgFadeOutAnimator;
     ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
@@ -223,7 +235,6 @@ public class PlaybackFragment extends Fragment {
                     if (DEBUG) Log.v(TAG, "onAnimationEnd " + mBgAlpha);
                     if (mBgAlpha > 0) {
                         enableVerticalGridAnimations(true);
-                        startFadeTimer();
                         if (mFadeCompleteListener != null) {
                             mFadeCompleteListener.onFadeInComplete();
                         }
@@ -242,9 +253,12 @@ public class PlaybackFragment extends Fragment {
                             mFadeCompleteListener.onFadeOutComplete();
                         }
                     }
-                    mFadingStatus = IDLE;
                 }
             };
+
+    public PlaybackFragment() {
+        mProgressBarManager.setInitialDelay(500);
+    }
 
     VerticalGridView getVerticalGridView() {
         if (mRowsFragment == null) {
@@ -257,7 +271,7 @@ public class PlaybackFragment extends Fragment {
         @Override
         public void handleMessage(Message message) {
             if (message.what == START_FADE_OUT && mFadingEnabled) {
-                fade(false);
+                hideControlsOverlay(true);
             }
         }
     };
@@ -280,8 +294,8 @@ public class PlaybackFragment extends Fragment {
 
     private void setBgAlpha(int alpha) {
         mBgAlpha = alpha;
-        if (mRootView != null) {
-            mRootView.getBackground().setAlpha(alpha);
+        if (mBackgroundView != null) {
+            mBackgroundView.getBackground().setAlpha(alpha);
         }
     }
 
@@ -292,33 +306,51 @@ public class PlaybackFragment extends Fragment {
     }
 
     /**
-     * Enables or disables view fading.  If enabled,
-     * the view will be faded in when the fragment starts,
-     * and will fade out after a time period.  The timeout
-     * period is reset each time {@link #tickle} is called.
+     * Enables or disables auto hiding controls overlay after a short delay fragment is resumed.
+     * If enabled and fragment is resumed, the view will fade out after a time period.
+     * {@link #tickle()} will kill the timer, next time fragment is resumed,
+     * the timer will be started again if {@link #isControlsOverlayAutoHideEnabled()} is true.
      */
-    public void setFadingEnabled(boolean enabled) {
-        if (DEBUG) Log.v(TAG, "setFadingEnabled " + enabled);
+    public void setControlsOverlayAutoHideEnabled(boolean enabled) {
+        if (DEBUG) Log.v(TAG, "setControlsOverlayAutoHideEnabled " + enabled);
         if (enabled != mFadingEnabled) {
             mFadingEnabled = enabled;
-            if (mFadingEnabled) {
-                if (isResumed() && mFadingStatus == IDLE
-                        && !mHandler.hasMessages(START_FADE_OUT)) {
+            if (isResumed() && getView().hasFocus()) {
+                showControlsOverlay(true);
+                if (enabled) {
+                    // StateGraph 7->2 5->2
                     startFadeTimer();
+                } else {
+                    // StateGraph 4->5 2->5
+                    stopFadeTimer();
                 }
             } else {
-                // Ensure fully opaque
-                mHandler.removeMessages(START_FADE_OUT);
-                fade(true);
+                // StateGraph 6->1 1->6
             }
         }
     }
 
     /**
-     * Returns true if view fading is enabled.
+     * Returns true if controls will be auto hidden after a delay when fragment is resumed.
      */
-    public boolean isFadingEnabled() {
+    public boolean isControlsOverlayAutoHideEnabled() {
         return mFadingEnabled;
+    }
+
+    /**
+     * @deprecated Uses {@link #setControlsOverlayAutoHideEnabled(boolean)}
+     */
+    @Deprecated
+    public void setFadingEnabled(boolean enabled) {
+        setControlsOverlayAutoHideEnabled(enabled);
+    }
+
+    /**
+     * @deprecated Uses {@link #isControlsOverlayAutoHideEnabled()}
+     */
+    @Deprecated
+    public boolean isFadingEnabled() {
+        return isControlsOverlayAutoHideEnabled();
     }
 
     /**
@@ -345,46 +377,29 @@ public class PlaybackFragment extends Fragment {
     }
 
     /**
-     * Tickles the playback controls.  Fades in the view if it was faded out,
-     * otherwise resets the fade out timer.  Tickling on input events is handled
-     * by the fragment.
+     * Tickles the playback controls. Fades in the view if it was faded out. {@link #tickle()} will
+     * also kill the timer created by {@link #setControlsOverlayAutoHideEnabled(boolean)}. When
+     * next time fragment is resumed, the timer will be started again if
+     * {@link #isControlsOverlayAutoHideEnabled()} is true. In most cases app does not need call
+     * this method, tickling on input events is handled by the fragment.
      */
     public void tickle() {
         if (DEBUG) Log.v(TAG, "tickle enabled " + mFadingEnabled + " isResumed " + isResumed());
-        if (!mFadingEnabled || !isResumed()) {
-            return;
-        }
-        if (mHandler.hasMessages(START_FADE_OUT)) {
-            // Restart the timer
-            startFadeTimer();
-        } else {
-            fade(true);
-        }
-    }
-
-    /**
-     * Fades out the playback overlay immediately.
-     */
-    public void fadeOut() {
-        mHandler.removeMessages(START_FADE_OUT);
-        fade(false);
-    }
-
-    /**
-     * Returns true/false indicating whether playback controls are visible or not.
-     */
-    private boolean areControlsHidden() {
-        return mFadingStatus == IDLE && mBgAlpha == 0;
+        //StateGraph 2->4
+        stopFadeTimer();
+        showControlsOverlay(true);
     }
 
     private boolean onInterceptInputEvent(InputEvent event) {
-        final boolean controlsHidden = areControlsHidden();
+        final boolean controlsHidden = !mControlVisible;
         if (DEBUG) Log.v(TAG, "onInterceptInputEvent hidden " + controlsHidden + " " + event);
         boolean consumeEvent = false;
         int keyCode = KeyEvent.KEYCODE_UNKNOWN;
+        int keyAction = 0;
 
         if (event instanceof KeyEvent) {
             keyCode = ((KeyEvent) event).getKeyCode();
+            keyAction = ((KeyEvent) event).getAction();
             if (mInputEventHandler != null) {
                 consumeEvent = mInputEventHandler.onKey(getView(), keyCode, (KeyEvent) event);
             }
@@ -401,39 +416,71 @@ public class PlaybackFragment extends Fragment {
                 if (controlsHidden) {
                     consumeEvent = true;
                 }
-                tickle();
+                if (keyAction == KeyEvent.ACTION_DOWN) {
+                    tickle();
+                }
                 break;
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_ESCAPE:
-                // If fading enabled and controls are not hidden, back will be consumed to fade
+                if (mInSeek) {
+                    // when in seek, the SeekUi will handle the BACK.
+                    return false;
+                }
+                // If controls are not hidden, back will be consumed to fade
                 // them out (even if the key was consumed by the handler).
-                if (mFadingEnabled && !controlsHidden) {
+                if (!controlsHidden) {
                     consumeEvent = true;
-                    mHandler.removeMessages(START_FADE_OUT);
-                    fade(false);
-                } else if (consumeEvent) {
-                    tickle();
+
+                    if (((KeyEvent) event).getAction() == KeyEvent.ACTION_UP) {
+                        hideControlsOverlay(true);
+                    }
                 }
                 break;
             default:
                 if (consumeEvent) {
-                    tickle();
+                    if (keyAction == KeyEvent.ACTION_DOWN) {
+                        tickle();
+                    }
                 }
         }
         return consumeEvent;
     }
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // controls view are initially visible, make it invisible
+        // if app has called hideControlsOverlay() before view created.
+        mControlVisible = true;
+        if (!mControlVisibleBeforeOnCreateView) {
+            showControlsOverlay(false, false);
+            mControlVisibleBeforeOnCreateView = true;
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        if (mFadingEnabled) {
-            setBgAlpha(0);
-            fade(true);
+
+        if (mControlVisible) {
+            //StateGraph: 6->5 1->2
+            if (mFadingEnabled) {
+                // StateGraph 1->2
+                startFadeTimer();
+            }
+        } else {
+            //StateGraph: 6->7 1->3
         }
         getVerticalGridView().setOnTouchInterceptListener(mOnTouchInterceptListener);
         getVerticalGridView().setOnKeyInterceptListener(mOnKeyInterceptListener);
         if (mHostCallback != null) {
             mHostCallback.onHostResume();
+        }
+    }
+
+    private void stopFadeTimer() {
+        if (mHandler != null) {
+            mHandler.removeMessages(START_FADE_OUT);
         }
     }
 
@@ -471,31 +518,19 @@ public class PlaybackFragment extends Fragment {
     private TimeInterpolator mLogDecelerateInterpolator = new LogDecelerateInterpolator(100, 0);
     private TimeInterpolator mLogAccelerateInterpolator = new LogAccelerateInterpolator(100, 0);
 
-    private View getControlRowView() {
-        if (getVerticalGridView() == null) {
-            return null;
-        }
-        RecyclerView.ViewHolder vh = getVerticalGridView().findViewHolderForPosition(0);
-        if (vh == null) {
-            return null;
-        }
-        return vh.itemView;
-    }
-
     private void loadControlRowAnimator() {
-        final AnimatorListener listener = new AnimatorListener() {
-            @Override
-            void getViews(ArrayList<View> views) {
-                View view = getControlRowView();
-                if (view != null) {
-                    views.add(view);
-                }
-            }
-        };
         final AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator arg0) {
-                View view = getControlRowView();
+                if (getVerticalGridView() == null) {
+                    return;
+                }
+                RecyclerView.ViewHolder vh = getVerticalGridView()
+                        .findViewHolderForAdapterPosition(0);
+                if (vh == null) {
+                    return;
+                }
+                View view = vh.itemView;
                 if (view != null) {
                     final float fraction = (Float) arg0.getAnimatedValue();
                     if (DEBUG) Log.v(TAG, "fraction " + fraction);
@@ -508,32 +543,15 @@ public class PlaybackFragment extends Fragment {
         Context context = FragmentUtil.getContext(this);
         mControlRowFadeInAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_in);
         mControlRowFadeInAnimator.addUpdateListener(updateListener);
-        mControlRowFadeInAnimator.addListener(listener);
         mControlRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
         mControlRowFadeOutAnimator = loadAnimator(context,
                 R.animator.lb_playback_controls_fade_out);
         mControlRowFadeOutAnimator.addUpdateListener(updateListener);
-        mControlRowFadeOutAnimator.addListener(listener);
         mControlRowFadeOutAnimator.setInterpolator(mLogAccelerateInterpolator);
     }
 
     private void loadOtherRowAnimator() {
-        final AnimatorListener listener = new AnimatorListener() {
-            @Override
-            void getViews(ArrayList<View> views) {
-                if (getVerticalGridView() == null) {
-                    return;
-                }
-                final int count = getVerticalGridView().getChildCount();
-                for (int i = 0; i < count; i++) {
-                    View view = getVerticalGridView().getChildAt(i);
-                    if (view != null) {
-                        views.add(view);
-                    }
-                }
-            }
-        };
         final AnimatorUpdateListener updateListener = new AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator arg0) {
@@ -541,8 +559,10 @@ public class PlaybackFragment extends Fragment {
                     return;
                 }
                 final float fraction = (Float) arg0.getAnimatedValue();
-                for (View view : listener.mViews) {
-                    if (getVerticalGridView().getChildPosition(view) > 0) {
+                final int count = getVerticalGridView().getChildCount();
+                for (int i = 0; i < count; i++) {
+                    View view = getVerticalGridView().getChildAt(i);
+                    if (getVerticalGridView().getChildAdapterPosition(view) > 0) {
                         view.setAlpha(fraction);
                         view.setTranslationY((float) mAnimationTranslateY * (1f - fraction));
                     }
@@ -552,67 +572,133 @@ public class PlaybackFragment extends Fragment {
 
         Context context = FragmentUtil.getContext(this);
         mOtherRowFadeInAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_in);
-        mOtherRowFadeInAnimator.addListener(listener);
         mOtherRowFadeInAnimator.addUpdateListener(updateListener);
         mOtherRowFadeInAnimator.setInterpolator(mLogDecelerateInterpolator);
 
         mOtherRowFadeOutAnimator = loadAnimator(context, R.animator.lb_playback_controls_fade_out);
-        mOtherRowFadeOutAnimator.addListener(listener);
         mOtherRowFadeOutAnimator.addUpdateListener(updateListener);
         mOtherRowFadeOutAnimator.setInterpolator(new AccelerateInterpolator());
     }
 
-    private void fade(boolean fadeIn) {
-        if (DEBUG) Log.v(TAG, "fade " + fadeIn);
-        if (getView() == null) {
-            return;
-        }
-        if ((fadeIn && mFadingStatus == IN) || (!fadeIn && mFadingStatus == OUT)) {
-            if (DEBUG) Log.v(TAG, "requested fade in progress");
-            return;
-        }
-        if ((fadeIn && mBgAlpha == 255) || (!fadeIn && mBgAlpha == 0)) {
-            if (DEBUG) Log.v(TAG, "fade is no-op");
-            return;
-        }
+    /**
+     * Fades out the playback overlay immediately.
+     * @deprecated Call {@link #hideControlsOverlay(boolean)}
+     */
+    @Deprecated
+    public void fadeOut() {
+        showControlsOverlay(false, false);
+    }
 
-        mAnimationTranslateY = getVerticalGridView().getSelectedPosition() == 0
-                ? mMajorFadeTranslateY : mMinorFadeTranslateY;
+    /**
+     * Show controls overlay.
+     *
+     * @param runAnimation True to run animation, false otherwise.
+     */
+    public void showControlsOverlay(boolean runAnimation) {
+        showControlsOverlay(true, runAnimation);
+    }
 
-        if (mFadingStatus == IDLE) {
-            if (fadeIn) {
-                mBgFadeInAnimator.start();
-                mControlRowFadeInAnimator.start();
-                mOtherRowFadeInAnimator.start();
-            } else {
-                mBgFadeOutAnimator.start();
-                mControlRowFadeOutAnimator.start();
-                mOtherRowFadeOutAnimator.start();
+    /**
+     * Returns true if controls overlay is visible, false otherwise.
+     *
+     * @return True if controls overlay is visible, false otherwise.
+     * @see #showControlsOverlay(boolean)
+     * @see #hideControlsOverlay(boolean)
+     */
+    public boolean isControlsOverlayVisible() {
+        return mControlVisible;
+    }
+
+    /**
+     * Hide controls overlay.
+     *
+     * @param runAnimation True to run animation, false otherwise.
+     */
+    public void hideControlsOverlay(boolean runAnimation) {
+        showControlsOverlay(false, runAnimation);
+    }
+
+    /**
+     * if first animator is still running, reverse it; otherwise start second animator.
+     */
+    static void reverseFirstOrStartSecond(ValueAnimator first, ValueAnimator second,
+            boolean runAnimation) {
+        if (first.isStarted()) {
+            first.reverse();
+            if (!runAnimation) {
+                first.end();
             }
         } else {
-            if (fadeIn) {
-                mBgFadeOutAnimator.reverse();
-                mControlRowFadeOutAnimator.reverse();
-                mOtherRowFadeOutAnimator.reverse();
-            } else {
-                mBgFadeInAnimator.reverse();
-                mControlRowFadeInAnimator.reverse();
-                mOtherRowFadeInAnimator.reverse();
+            second.start();
+            if (!runAnimation) {
+                second.end();
             }
         }
-        getView().announceForAccessibility(getString(fadeIn ? R.string.lb_playback_controls_shown
-                : R.string.lb_playback_controls_hidden));
+    }
 
-        // If fading in while control row is focused, set initial translationY so
-        // views slide in from below.
-        if (fadeIn && mFadingStatus == IDLE) {
-            final int count = getVerticalGridView().getChildCount();
-            for (int i = 0; i < count; i++) {
-                getVerticalGridView().getChildAt(i).setTranslationY(mAnimationTranslateY);
+    /**
+     * End first or second animator if they are still running.
+     */
+    static void endAll(ValueAnimator first, ValueAnimator second) {
+        if (first.isStarted()) {
+            first.end();
+        } else if (second.isStarted()) {
+            second.end();
+        }
+    }
+
+    /**
+     * Fade in or fade out rows and background.
+     *
+     * @param show True to fade in, false to fade out.
+     * @param animation True to run animation.
+     */
+    void showControlsOverlay(boolean show, boolean animation) {
+        if (DEBUG) Log.v(TAG, "showControlsOverlay " + show);
+        if (getView() == null) {
+            mControlVisibleBeforeOnCreateView = show;
+            return;
+        }
+        // force no animation when fragment is not resumed
+        if (!isResumed()) {
+            animation = false;
+        }
+        if (show == mControlVisible) {
+            if (!animation) {
+                // End animation if needed
+                endAll(mBgFadeInAnimator, mBgFadeOutAnimator);
+                endAll(mControlRowFadeInAnimator, mControlRowFadeOutAnimator);
+                endAll(mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator);
             }
+            return;
+        }
+        // StateGraph: 7<->5 4<->3 2->3
+        mControlVisible = show;
+        if (!mControlVisible) {
+            // StateGraph 2->3
+            stopFadeTimer();
         }
 
-        mFadingStatus = fadeIn ? IN : OUT;
+        mAnimationTranslateY = (getVerticalGridView() == null
+                || getVerticalGridView().getSelectedPosition() == 0)
+                ? mMajorFadeTranslateY : mMinorFadeTranslateY;
+
+        if (show) {
+            reverseFirstOrStartSecond(mBgFadeOutAnimator, mBgFadeInAnimator, animation);
+            reverseFirstOrStartSecond(mControlRowFadeOutAnimator, mControlRowFadeInAnimator,
+                    animation);
+            reverseFirstOrStartSecond(mOtherRowFadeOutAnimator, mOtherRowFadeInAnimator, animation);
+        } else {
+            reverseFirstOrStartSecond(mBgFadeInAnimator, mBgFadeOutAnimator, animation);
+            reverseFirstOrStartSecond(mControlRowFadeInAnimator, mControlRowFadeOutAnimator,
+                    animation);
+            reverseFirstOrStartSecond(mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator, animation);
+        }
+        if (animation) {
+            getView().announceForAccessibility(getString(show
+                    ? R.string.lb_playback_controls_shown
+                    : R.string.lb_playback_controls_hidden));
+        }
     }
 
     /**
@@ -711,7 +797,7 @@ public class PlaybackFragment extends Fragment {
     }
 
     private void updateBackground() {
-        if (mRootView != null) {
+        if (mBackgroundView != null) {
             int color = mBgDarkColor;
             switch (mBackgroundType) {
                 case BG_DARK:
@@ -723,7 +809,8 @@ public class PlaybackFragment extends Fragment {
                     color = Color.TRANSPARENT;
                     break;
             }
-            mRootView.setBackground(new ColorDrawable(color));
+            mBackgroundView.setBackground(new ColorDrawable(color));
+            setBgAlpha(mBgAlpha);
         }
     }
 
@@ -732,9 +819,17 @@ public class PlaybackFragment extends Fragment {
                 @Override
                 public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder vh) {
                     if (DEBUG) Log.v(TAG, "onAttachedToWindow " + vh.getViewHolder().view);
-                    if ((mFadingStatus == IDLE && mBgAlpha == 0) || mFadingStatus == OUT) {
+                    if (!mControlVisible) {
                         if (DEBUG) Log.v(TAG, "setting alpha to 0");
                         vh.getViewHolder().view.setAlpha(0);
+                    }
+                }
+
+                @Override
+                public void onCreate(ItemBridgeAdapter.ViewHolder vh) {
+                    Presenter.ViewHolder viewHolder = vh.getViewHolder();
+                    if (viewHolder instanceof PlaybackSeekUi) {
+                        ((PlaybackSeekUi) viewHolder).setPlaybackSeekUiClient(mChainedClient);
                     }
                 }
 
@@ -756,6 +851,7 @@ public class PlaybackFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.lb_playback_fragment, container, false);
+        mBackgroundView = mRootView.findViewById(R.id.playback_fragment_background);
         mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(
                 R.id.playback_controls_dock);
         if (mRowsFragment == null) {
@@ -775,6 +871,10 @@ public class PlaybackFragment extends Fragment {
         mBgAlpha = 255;
         updateBackground();
         mRowsFragment.setExternalAdapterListener(mAdapterListener);
+        ProgressBarManager progressBarManager = getProgressBarManager();
+        if (progressBarManager != null) {
+            progressBarManager.setRootView((ViewGroup) mRootView);
+        }
         return mRootView;
     }
 
@@ -809,6 +909,12 @@ public class PlaybackFragment extends Fragment {
         if (mHostCallback != null) {
             mHostCallback.onHostPause();
         }
+        if (mHandler.hasMessages(START_FADE_OUT)) {
+            // StateGraph: 2->1
+            mHandler.removeMessages(START_FADE_OUT);
+        } else {
+            // StateGraph: 5->6, 7->6, 4->1, 3->1
+        }
         super.onPause();
     }
 
@@ -839,6 +945,7 @@ public class PlaybackFragment extends Fragment {
     @Override
     public void onDestroyView() {
         mRootView = null;
+        mBackgroundView = null;
         super.onDestroyView();
     }
 
@@ -952,36 +1059,111 @@ public class PlaybackFragment extends Fragment {
         }
     }
 
-    static abstract class AnimatorListener implements Animator.AnimatorListener {
-        ArrayList<View> mViews = new ArrayList<View>();
-        ArrayList<Integer> mLayerType = new ArrayList<Integer>();
-
+    final PlaybackSeekUi.Client mChainedClient = new PlaybackSeekUi.Client() {
         @Override
-        public void onAnimationCancel(Animator animation) {
+        public boolean isSeekEnabled() {
+            return mSeekUiClient == null ? false : mSeekUiClient.isSeekEnabled();
         }
 
         @Override
-        public void onAnimationRepeat(Animator animation) {
+        public void onSeekStarted() {
+            if (mSeekUiClient != null) {
+                mSeekUiClient.onSeekStarted();
+            }
+            setSeekMode(true);
         }
 
         @Override
-        public void onAnimationStart(Animator animation) {
-            getViews(mViews);
-            for (View view : mViews) {
-                mLayerType.add(view.getLayerType());
-                view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        public PlaybackSeekDataProvider getPlaybackSeekDataProvider() {
+            return mSeekUiClient == null ? null : mSeekUiClient.getPlaybackSeekDataProvider();
+        }
+
+        @Override
+        public void onSeekPositionChanged(long pos) {
+            if (mSeekUiClient != null) {
+                mSeekUiClient.onSeekPositionChanged(pos);
             }
         }
 
         @Override
-        public void onAnimationEnd(Animator animation) {
-            for (int i = 0; i < mViews.size(); i++) {
-                mViews.get(i).setLayerType(mLayerType.get(i), null);
+        public void onSeekFinished(boolean cancelled) {
+            if (mSeekUiClient != null) {
+                mSeekUiClient.onSeekFinished(cancelled);
             }
-            mLayerType.clear();
-            mViews.clear();
+            setSeekMode(false);
         }
+    };
 
-        abstract void getViews(ArrayList<View> views);
+    /**
+     * Interface to be implemented by UI widget to support PlaybackSeekUi.
+     */
+    public void setPlaybackSeekUiClient(PlaybackSeekUi.Client client) {
+        mSeekUiClient = client;
+    }
+
+    /**
+     * Show or hide other rows other than PlaybackRow.
+     * @param inSeek True to make other rows visible, false to make other rows invisible.
+     */
+    void setSeekMode(boolean inSeek) {
+        if (mInSeek == inSeek) {
+            return;
+        }
+        mInSeek = inSeek;
+        getVerticalGridView().setSelectedPosition(0);
+        if (mInSeek) {
+            stopFadeTimer();
+        }
+        // immediately fade in control row.
+        showControlsOverlay(true);
+        final int count = getVerticalGridView().getChildCount();
+        for (int i = 0; i < count; i++) {
+            View view = getVerticalGridView().getChildAt(i);
+            if (getVerticalGridView().getChildAdapterPosition(view) > 0) {
+                view.setVisibility(mInSeek ? View.INVISIBLE : View.VISIBLE);
+            }
+        }
+    }
+
+    /**
+     * Called when size of the video changes. App may override.
+     * @param videoWidth Intrinsic width of video
+     * @param videoHeight Intrinsic height of video
+     */
+    protected void onVideoSizeChanged(int videoWidth, int videoHeight) {
+    }
+
+    /**
+     * Called when media has start or stop buffering. App may override. The default initial state
+     * is not buffering.
+     * @param start True for buffering start, false otherwise.
+     */
+    protected void onBufferingStateChanged(boolean start) {
+        ProgressBarManager progressBarManager = getProgressBarManager();
+        if (progressBarManager != null) {
+            if (start) {
+                progressBarManager.show();
+            } else {
+                progressBarManager.hide();
+            }
+        }
+    }
+
+    /**
+     * Called when media has error. App may override.
+     * @param errorCode Optional error code for specific implementation.
+     * @param errorMessage Optional error message for specific implementation.
+     */
+    protected void onError(int errorCode, CharSequence errorMessage) {
+    }
+
+    /**
+     * Returns the ProgressBarManager that will show or hide progress bar in
+     * {@link #onBufferingStateChanged(boolean)}.
+     * @return The ProgressBarManager that will show or hide progress bar in
+     * {@link #onBufferingStateChanged(boolean)}.
+     */
+    public ProgressBarManager getProgressBarManager() {
+        return mProgressBarManager;
     }
 }

@@ -110,4 +110,9 @@ final class RowContainerView extends LinearLayout {
             mForeground.draw(canvas);
         }
     }
+
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
+    }
 }
