@@ -372,7 +372,7 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
          * @param position The index of the child view to display.
          */
         public void setSelectedMediaItemNumberView(int position) {
-            if (position >= 0 & position < mMediaItemNumberViewFlipper.getChildCount()) {
+            if (position >= 0 && position < mMediaItemNumberViewFlipper.getChildCount()) {
                 mMediaItemNumberViewFlipper.setDisplayedChild(position);
             }
         }

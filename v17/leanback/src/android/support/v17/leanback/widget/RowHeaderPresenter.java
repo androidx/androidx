@@ -213,6 +213,7 @@ public class RowHeaderPresenter extends Presenter {
         return space;
     }
 
+    @SuppressWarnings("ReferenceEquality")
     protected static float getFontDescent(TextView textView, Paint fontMeasurePaint) {
         if (fontMeasurePaint.getTextSize() != textView.getTextSize()) {
             fontMeasurePaint.setTextSize(textView.getTextSize());
