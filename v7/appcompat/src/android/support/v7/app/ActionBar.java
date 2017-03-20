@@ -1069,6 +1069,12 @@ public abstract class ActionBar {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
+    public boolean closeOptionsMenu() {
+        return false;
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     public boolean invalidateOptionsMenu() {
         return false;
     }

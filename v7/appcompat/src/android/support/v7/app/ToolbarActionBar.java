@@ -428,6 +428,11 @@ class ToolbarActionBar extends ActionBar {
     }
 
     @Override
+    public boolean closeOptionsMenu() {
+        return mDecorToolbar.hideOverflowMenu();
+    }
+
+    @Override
     public boolean invalidateOptionsMenu() {
         mDecorToolbar.getViewGroup().removeCallbacks(mMenuInvalidator);
         ViewCompat.postOnAnimation(mDecorToolbar.getViewGroup(), mMenuInvalidator);

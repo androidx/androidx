@@ -16,8 +16,66 @@
 
 package android.support.v7.app;
 
+import android.support.test.filters.SmallTest;
+import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarAppCompatActivity> {
     public KeyEventsTestCaseWithToolbar() {
         super(ToolbarAppCompatActivity.class);
+    }
+
+    @Test
+    @SmallTest
+    @Override
+    public void testMenuKeyEventReachesActivity() throws InterruptedException {
+        // With Toolbar, MENU key gets sent-to (and consumed by) Toolbar rather than Activity
+    }
+
+    @Test
+    @SmallTest
+    public void testMenuKeyOpensToolbarMenu() {
+        // Base test only checks that *a* menu is opened, we check here that the toolbar's menu
+        // specifically is opened.
+        Toolbar toolbar = mActivityTestRule.getActivity().getToolbar();
+        assertFalse(toolbar.isOverflowMenuShowing());
+
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        getInstrumentation().waitForIdleSync();
+        assertTrue(toolbar.isOverflowMenuShowing());
+
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        getInstrumentation().waitForIdleSync();
+        assertFalse(toolbar.isOverflowMenuShowing());
+    }
+
+    @Test
+    @SmallTest
+    public void testOpenMenuOpensToolbarMenu() throws Throwable {
+        Toolbar toolbar = mActivityTestRule.getActivity().getToolbar();
+        assertFalse(toolbar.isOverflowMenuShowing());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivityTestRule.getActivity().openOptionsMenu();
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+        assertTrue(toolbar.isOverflowMenuShowing());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivityTestRule.getActivity().closeOptionsMenu();
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+        assertFalse(toolbar.isOverflowMenuShowing());
     }
 }
