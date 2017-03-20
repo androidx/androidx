@@ -13,13 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.android.sample.githubbrowser;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -28,87 +46,52 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.android.sample.githubbrowser.di.LifecycleProviderComponent;
 import com.android.sample.githubbrowser.model.AuthTokenModel;
-import com.android.sample.githubbrowser.model.RepositorySearchModel;
-import com.android.sample.githubbrowser.network.GithubNetworkManager;
+import com.android.sample.githubbrowser.navigation.NavigationController;
+import com.android.sample.githubbrowser.viewmodel.RepositorySearchModel;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
+
+import javax.inject.Inject;
 
 /**
  * Our main activity.
  */
 public class MainActivity extends BaseActivity {
-    private static final String AUTH_TOKEN_KEY = "auth_token";
+    private static final String AUTH_TOKEN_FRAGMENT_TAG = "get_auth_token";
+    @Inject
+    AuthTokenModel mAuthTokenModel;
+    private NavigationController mNavigationController;
 
+    @Override
+    public void inject(LifecycleProviderComponent component) {
+        component.inject(this);
+    }
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        final SharedPreferences sharedPreferences = getSharedPreferences(BuildConfig.APPLICATION_ID,
-                Context.MODE_PRIVATE);
-        final AuthTokenModel authTokenModel = ViewModelStore.get(this, "authTokenModel",
-                AuthTokenModel.class);
-        GithubNetworkManager.getInstance().setAuthTokenModel(authTokenModel);
-        authTokenModel.getAuthTokenData().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                // Persist the new auth token
-                if (TextUtils.isEmpty(s)) {
-                    sharedPreferences.edit().clear().commit();
-                } else {
-                    sharedPreferences.edit().putString(AUTH_TOKEN_KEY, s).commit();
-                }
-            }
-        });
-        if (sharedPreferences.contains(AUTH_TOKEN_KEY)) {
-            authTokenModel.getAuthTokenData().setValue(
-                    sharedPreferences.getString(AUTH_TOKEN_KEY, ""));
-        }
-
-        authTokenModel.setAuthTokenLifecycle(new AuthTokenLifecycle() {
-            @Override
-            public boolean doWeNeedAuthToken() {
-                return TextUtils.isEmpty(authTokenModel.getAuthTokenData().getValue());
-            }
-
-            @Override
-            public void invalidateAuthToken() {
-                authTokenModel.getAuthTokenData().setValue(null);
-            }
-
-            @Override
-            public void getAuthToken() {
-                // Pop everything off of the stack except the first entry
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                while (fragmentManager.getBackStackEntryCount() > 0) {
-                    fragmentManager.popBackStackImmediate();
-                }
-
-                GetAuthTokenFragment getAuthTokenFragment = new GetAuthTokenFragment();
-                getAuthTokenFragment.show(fragmentManager, "get_auth_token");
-            }
-        });
-
+        mNavigationController = new NavigationController(this, getSupportFragmentManager(),
+                R.id.fragment_container);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final EditText search = (EditText) toolbar.findViewById(R.id.search);
-        final RepositorySearchModel mainSearchModel = ViewModelStore.get(this, "mainSearchModel",
+        final RepositorySearchModel mainSearchModel = ViewModelStore.get(this,
                 RepositorySearchModel.class);
-        mainSearchModel.setQuery("google", true);
-        search.setText(mainSearchModel.getSearchQueryData().getValue());
+
+        String currentSearch = search.getText().toString();
+        if (TextUtils.isEmpty(currentSearch)) {
+            search.setText("google");
+            currentSearch = "google";
+        }
+        mainSearchModel.setQuery(currentSearch, true);
 
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
-        if (findViewById(R.id.fragment_container) != null) {
-
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
-            if (savedInstanceState != null) {
-                return;
-            }
-
+        if (savedInstanceState == null) {
             // Create a new Fragment to be placed in the activity layout
             RepositoryListFragment mainFragment = new RepositoryListFragment();
 
@@ -143,5 +126,43 @@ public class MainActivity extends BaseActivity {
                 return false;
             }
         });
+
+        mAuthTokenModel.getAuthTokenData().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String token) {
+                search.setEnabled(token != null);
+                // show get auth token fragment
+                // Pop everything off of the stack except the first entry
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                GetAuthTokenFragment getAuthTokenFragment = getGetAuthTokenFragment(
+                        fragmentManager);
+                if (token == null) {
+                    if (!getAuthTokenFragment.isAdded()) {
+                        getAuthTokenFragment.show(fragmentManager, AUTH_TOKEN_FRAGMENT_TAG);
+                    }
+                } else {
+                    if (getAuthTokenFragment.isAdded()) {
+                        getAuthTokenFragment.dismiss();
+                    }
+                }
+            }
+        });
+    }
+
+    @NonNull
+    private GetAuthTokenFragment getGetAuthTokenFragment(FragmentManager fragmentManager) {
+        Fragment authTokenFragment = fragmentManager
+                .findFragmentByTag(AUTH_TOKEN_FRAGMENT_TAG);
+        GetAuthTokenFragment getAuthTokenFragment;
+        if (authTokenFragment instanceof GetAuthTokenFragment) {
+            getAuthTokenFragment = (GetAuthTokenFragment) authTokenFragment;
+        } else {
+            getAuthTokenFragment = new GetAuthTokenFragment();
+        }
+        return getAuthTokenFragment;
+    }
+
+    public NavigationController getNavigationController() {
+        return mNavigationController;
     }
 }

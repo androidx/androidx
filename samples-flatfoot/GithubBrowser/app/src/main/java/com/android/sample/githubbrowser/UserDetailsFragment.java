@@ -13,45 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.android.sample.githubbrowser;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.sample.githubbrowser.adapter.LoadMoreCallback;
 import com.android.sample.githubbrowser.adapter.RepositoryListAdapter;
 import com.android.sample.githubbrowser.data.PersonData;
+import com.android.sample.githubbrowser.data.RepositoryData;
 import com.android.sample.githubbrowser.databinding.FragmentUserDetailsBinding;
-import com.android.sample.githubbrowser.model.PersonDataModel;
-import com.android.sample.githubbrowser.model.RepositoryListModel;
-import com.android.support.lifecycle.LifecycleFragment;
+import com.android.sample.githubbrowser.di.InjectableLifecycleProvider;
+import com.android.sample.githubbrowser.di.LifecycleProviderComponent;
+import com.android.sample.githubbrowser.view.PersonClickCallback;
+import com.android.sample.githubbrowser.view.RepoClickCallback;
+import com.android.sample.githubbrowser.viewmodel.PersonDataModel;
+import com.android.sample.githubbrowser.viewmodel.RepositoryListModel;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModelStore;
+
+import java.util.List;
 
 /**
  * Fragment that shows details of a single user, including the list of their repositories.
  */
-public class UserDetailsFragment extends LifecycleFragment {
-    public static final String USER_LOGIN = "userDetails.login";
-    public static final int CODE_EDIT = 1;
+public class UserDetailsFragment extends BaseFragment implements InjectableLifecycleProvider {
+    private static final String USER_LOGIN = "userDetails.login";
 
     private String mLogin;
     private PersonDataModel mPersonDataModel;
+    private LifecycleProviderComponent mComponent;
 
     public UserDetailsFragment() {
+    }
+
+    @Override
+    public void inject(LifecycleProviderComponent component) {
+        mComponent = component;
+    }
+
+    public static UserDetailsFragment createFor(PersonData person) {
+        UserDetailsFragment fragment = new UserDetailsFragment();
+        Bundle detailsFragmentArgs = new Bundle();
+        detailsFragmentArgs.putString(UserDetailsFragment.USER_LOGIN, person.login);
+        fragment.setArguments(detailsFragmentArgs);
+        return fragment;
     }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         final FragmentUserDetailsBinding binding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_user_details, container, false);
-        final View result = binding.getRoot();
+                inflater, R.layout.fragment_user_details, container, false, mComponent);
 
         mLogin = getArguments().getString(USER_LOGIN);
 
@@ -65,7 +99,17 @@ public class UserDetailsFragment extends LifecycleFragment {
         // live data object.
         // Note that the last parameter specifies that we're fine with getting partial data as
         // quickly as possible.
-        mPersonDataModel.loadData(getContext(), mLogin, false);
+        mPersonDataModel.loadData(mLogin, false);
+        binding.setEditCallback(new PersonClickCallback() {
+            @Override
+            public void onClick(PersonData user) {
+                if (user == null) {
+                    return;
+                }
+                getNavigationController().openEditUserDetailsFragment(UserDetailsFragment.this,
+                        user);
+            }
+        });
         mPersonDataModel.getPersonData().observe(this, new Observer<PersonData>() {
             @Override
             public void onChanged(@Nullable final PersonData personData) {
@@ -75,36 +119,45 @@ public class UserDetailsFragment extends LifecycleFragment {
 
                 // Populate as much info on this user as we can
                 binding.setUser(personData);
-                binding.setFragment(UserDetailsFragment.this);
                 binding.executePendingBindings();
 
-                final RecyclerView repositoriesRecycler = (RecyclerView) result.findViewById(
-                        R.id.repositories);
-                if (repositoriesRecycler.getAdapter() == null) {
-                    // Load the list of repositories for this user based on the passed login.
-                    final RepositoryListModel repositoriesListModel = ViewModelStore.get(
-                            UserDetailsFragment.this, "repositoriesListModel",
-                            RepositoryListModel.class);
-                    if (!repositoriesListModel.hasSearchTerm()) {
-                        repositoriesListModel.setSearchTerm(getContext(), mLogin, null);
-                    }
-
-                    repositoriesRecycler.setAdapter(
-                            new RepositoryListAdapter(UserDetailsFragment.this,
-                                    repositoriesListModel));
-                    final int columnCount = getContext().getResources().getInteger(
-                            R.integer.column_count);
-                    repositoriesRecycler.setLayoutManager(
-                            new GridLayoutManager(getContext(), columnCount));
-                }
-
-                if (!Utils.isFullData(personData)) {
+                if (!personData.isFullData()) {
                     // If we only have partial data, initiate a full load.
-                    mPersonDataModel.loadData(getContext(), mLogin, true);
+                    mPersonDataModel.loadData(mLogin, true);
                 }
             }
         });
 
-        return result;
+        // Load the list of repositories for this user based on the passed login.
+        final RepositoryListModel repositoriesListModel = ViewModelStore.get(this,
+                RepositoryListModel.class);
+        repositoriesListModel.setSearchTerm(mLogin);
+
+        final RepositoryListAdapter adapter = new RepositoryListAdapter(mComponent,
+                new RepoClickCallback() {
+                    @Override
+                    public void onClick(RepositoryData repositoryData) {
+                        getNavigationController().openRepositoryDetailsFragment(repositoryData);
+                    }
+                },
+                new LoadMoreCallback() {
+                    @Override
+                    public void loadMore(int currentSize) {
+                        repositoriesListModel.fetchAtIndexIfNecessary(currentSize);
+                    }
+                });
+        binding.repositories.setAdapter(adapter);
+        repositoriesListModel.getRepositoryListLiveData().observe(this,
+                new Observer<List<RepositoryData>>() {
+                    @Override
+                    public void onChanged(@Nullable List<RepositoryData> data) {
+                        adapter.setData(data);
+                    }
+                });
+        final int columnCount = getContext().getResources().getInteger(
+                R.integer.column_count);
+        binding.repositories.setLayoutManager(new GridLayoutManager(getContext(), columnCount));
+
+        return binding.getRoot();
     }
 }

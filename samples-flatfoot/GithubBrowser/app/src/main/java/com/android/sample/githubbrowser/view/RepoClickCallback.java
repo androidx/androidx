@@ -14,4 +14,10 @@
  * limitations under the License.
  */
 
-include ':app'
+package com.android.sample.githubbrowser.view;
+
+import com.android.sample.githubbrowser.data.RepositoryData;
+
+public interface RepoClickCallback {
+    void onClick(RepositoryData repositoryData);
+}

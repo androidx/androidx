@@ -14,4 +14,14 @@
  * limitations under the License.
  */
 
-include ':app'
+package com.android.sample.githubbrowser.di;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import javax.inject.Scope;
+
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LifecycleProviderScope {
+}

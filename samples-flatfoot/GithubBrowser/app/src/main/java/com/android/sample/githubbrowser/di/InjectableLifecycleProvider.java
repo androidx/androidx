@@ -14,4 +14,8 @@
  * limitations under the License.
  */
 
-include ':app'
+package com.android.sample.githubbrowser.di;
+
+public interface InjectableLifecycleProvider {
+    void inject(LifecycleProviderComponent component);
+}

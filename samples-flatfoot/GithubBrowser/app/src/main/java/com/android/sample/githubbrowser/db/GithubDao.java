@@ -47,6 +47,9 @@ public interface GithubDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertOrReplacePerson(PersonData personData);
 
+    @Query("UPDATE PersonData SET email = :email, location = :location WHERE login = :login")
+    void updateUser(String login, String email, String location);
+
     /** Load search data for the specified query. */
     @Query("select * from searchquerydata where searchQuery = :searchQuery"
             + " AND searchKind = :searchKind")

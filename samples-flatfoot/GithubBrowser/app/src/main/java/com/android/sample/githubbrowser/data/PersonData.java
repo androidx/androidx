@@ -13,7 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.android.sample.githubbrowser.data;
+
+import android.text.TextUtils;
 
 import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
@@ -40,20 +58,8 @@ public class PersonData {
     public PersonData() {
     }
 
-    public PersonData(PersonData copyFrom) {
-        this.login = copyFrom.login;
-        this.id = copyFrom.id;
-        this.avatar_url = copyFrom.avatar_url;
-        this.repos_url = copyFrom.repos_url;
-        this.name = copyFrom.name;
-        this.company = copyFrom.company;
-        this.blog = copyFrom.blog;
-        this.location = copyFrom.location;
-        this.email = copyFrom.email;
-        this.public_repos = copyFrom.public_repos;
-        this.followers = copyFrom.followers;
-        this.following = copyFrom.following;
-        this.created_at = copyFrom.created_at;
+    public boolean isFullData() {
+        return !TextUtils.isEmpty(created_at);
     }
 
     @Override

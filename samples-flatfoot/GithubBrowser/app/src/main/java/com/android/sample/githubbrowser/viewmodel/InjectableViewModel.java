@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.githubbrowser.db;
 
-import android.content.Context;
+package com.android.sample.githubbrowser.viewmodel;
 
-import com.android.support.room.Room;
+import com.android.sample.githubbrowser.GithubBrowserApp;
+import com.android.sample.githubbrowser.di.AppComponent;
+import com.android.support.lifecycle.ViewModel;
 
-/**
- * Database helper.
- */
-public class GithubDatabaseHelper {
-    private static GithubDatabase sInstance;
-
-    /**
-     * Gets a database instance.
-     */
-    public static synchronized GithubDatabase getDatabase(Context context) {
-        if (sInstance == null) {
-            sInstance = Room.databaseBuilder(context, GithubDatabase.class, "github.db")
-                    .build();
-        }
-        return sInstance;
+public abstract class InjectableViewModel extends ViewModel {
+    public InjectableViewModel() {
+        inject(((GithubBrowserApp) getApplication()).getAppComponent());
     }
+
+    abstract void inject(AppComponent appComponent);
 }

@@ -31,7 +31,6 @@
  */
 package com.android.sample.githubbrowser.adapter;
 
-import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.MainThread;
 import android.support.v7.util.DiffUtil;
@@ -41,53 +40,51 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.android.sample.githubbrowser.R;
-import com.android.sample.githubbrowser.adapter.RepositoryListAdapter.RepositoryBindingHolder;
-import com.android.sample.githubbrowser.data.RepositoryData;
-import com.android.sample.githubbrowser.databinding.RepositoryCardBinding;
-import com.android.sample.githubbrowser.view.RepoClickCallback;
+import com.android.sample.githubbrowser.adapter.ContributorListAdapter.ContributorBindingHolder;
+import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.databinding.UserRowBinding;
+import com.android.sample.githubbrowser.di.LifecycleProviderComponent;
+import com.android.sample.githubbrowser.view.PersonClickCallback;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Adapter for a list of repositories.
+ * Adapter for the list of contributors.
  */
-public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindingHolder> {
+public class ContributorListAdapter extends RecyclerView.Adapter<ContributorBindingHolder> {
     /**
      * Holder for the data cell.
      */
-    static class RepositoryBindingHolder extends RecyclerView.ViewHolder {
-        private RepositoryCardBinding mViewDataBinding;
+    static class ContributorBindingHolder extends RecyclerView.ViewHolder {
+        private UserRowBinding mViewDataBinding;
 
-        RepositoryBindingHolder(RepositoryCardBinding viewDataBinding) {
+        ContributorBindingHolder(UserRowBinding viewDataBinding) {
             super(viewDataBinding.getRoot());
             mViewDataBinding = viewDataBinding;
         }
 
-        public RepositoryCardBinding getBinding() {
+        public UserRowBinding getBinding() {
             return mViewDataBinding;
         }
     }
 
-    private List<RepositoryData> mCurrList;
-    private DataBindingComponent mComponent;
-    private RepoClickCallback mRepoClickCallback;
+    private List<ContributorData> mCurrList;
+    private PersonClickCallback mPersonClickCallback;
     private LoadMoreCallback mLoadMoreCallback;
+    private LifecycleProviderComponent mComponent;
 
-    /**
-     * Creates an adapter.
-     */
-    public RepositoryListAdapter(android.databinding.DataBindingComponent component,
-            RepoClickCallback callback, LoadMoreCallback loadMoreCallback) {
+    public ContributorListAdapter(LifecycleProviderComponent component,
+            PersonClickCallback personClickCallback, LoadMoreCallback loadMoreCallback) {
         mComponent = component;
-        mRepoClickCallback = callback;
+        mPersonClickCallback = personClickCallback;
         mLoadMoreCallback = loadMoreCallback;
     }
 
     @MainThread
-    public void setData(final List<RepositoryData> newList) {
+    public void setData(final List<ContributorData> newList) {
         if (newList == null) {
-            setData(Collections.<RepositoryData>emptyList());
+            setData(Collections.<ContributorData>emptyList());
             return;
         }
         if (mCurrList == null) {
@@ -95,33 +92,33 @@ public class RepositoryListAdapter extends RecyclerView.Adapter<RepositoryBindin
             notifyItemRangeInserted(0, newList.size());
         } else {
             DiffResult result = DiffUtil.calculateDiff(
-                    new DiffUtilListCallback<RepositoryData, String>(mCurrList, newList) {
-                        @Override
-                        String getId(RepositoryData item) {
-                            return item.id;
-                        }
-                    });
-            result.dispatchUpdatesTo(RepositoryListAdapter.this);
+                new DiffUtilListCallback<ContributorData, String>(mCurrList, newList) {
+                    @Override
+                    String getId(ContributorData item) {
+                        return item.id;
+                    }
+                });
+            result.dispatchUpdatesTo(ContributorListAdapter.this);
             mCurrList = newList;
         }
     }
 
     @Override
-    public RepositoryBindingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        RepositoryCardBinding binding = DataBindingUtil.inflate(
+    public ContributorBindingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        UserRowBinding binding = DataBindingUtil.inflate(
                 LayoutInflater.from(parent.getContext()),
-                R.layout.repository_card, parent, false, mComponent);
-        binding.setRepoClickCallback(mRepoClickCallback);
-        return new RepositoryBindingHolder(binding);
+                R.layout.user_row, parent, false, mComponent);
+        binding.setCallback(mPersonClickCallback);
+        return new ContributorBindingHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(RepositoryBindingHolder holder, final int position) {
-        final RepositoryData data = mCurrList.get(position);
+    public void onBindViewHolder(ContributorBindingHolder holder, final int position) {
+        final ContributorData data = mCurrList.get(position);
 
         // Use data binding for wiring the data and the click handler
-        RepositoryCardBinding binding = holder.getBinding();
-        binding.setRepo(data);
+        UserRowBinding binding = holder.getBinding();
+        binding.setContributor(data);
         binding.executePendingBindings();
 
         // Do we need to request another page?

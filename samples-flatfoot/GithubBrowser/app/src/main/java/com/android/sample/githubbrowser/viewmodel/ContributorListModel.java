@@ -13,85 +13,93 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.githubbrowser.model;
 
-import android.content.Context;
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.android.sample.githubbrowser.viewmodel;
+
 import android.os.AsyncTask;
 import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
-import android.text.TextUtils;
 
-import com.android.sample.githubbrowser.AuthTokenLifecycle;
-import com.android.sample.githubbrowser.data.GeneralRepoSearchData;
-import com.android.sample.githubbrowser.data.RepositoryData;
+import com.android.sample.githubbrowser.data.ContributorData;
+import com.android.sample.githubbrowser.data.ContributorSearchData;
 import com.android.sample.githubbrowser.data.SearchQueryData;
 import com.android.sample.githubbrowser.db.GithubDao;
 import com.android.sample.githubbrowser.db.GithubDatabase;
-import com.android.sample.githubbrowser.db.GithubDatabaseHelper;
+import com.android.sample.githubbrowser.di.AppComponent;
 import com.android.sample.githubbrowser.network.GithubNetworkManager;
+import com.android.sample.githubbrowser.util.ChainedLiveData;
 import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.ViewModel;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Inject;
+
 /**
- * View model for repository list data.
+ * View model for contributor list data.
  */
-public class RepositoryListModel extends ViewModel {
-    /** Constant for the initial loading state. */
-    public static final int STATE_INITIAL_LOADING = 0;
-    /** Constant for the empty / no data state. */
-    public static final int STATE_EMPTY = 1;
-    /** Constant for the data state. */
-    public static final int STATE_DATA = 2;
-    /** Constant for the error state. */
-    public static final int STATE_ERROR = 3;
+public class ContributorListModel extends InjectableViewModel {
+    private String mOwner;
+    private String mProject;
 
-    private String mSearchTerm;
-    private AuthTokenLifecycle mAuthTokenLifecycle;
-
-    private LiveData<List<RepositoryData>> mRepositoryListLiveData = new LiveData<>();
-    private LiveData<Integer> mStateLiveData = new LiveData<>();
+    private final ChainedLiveData<List<ContributorData>> mContributorListLiveData
+            = new ChainedLiveData<>();
     private AtomicBoolean mHasNetworkRequestPending = new AtomicBoolean(false);
     private GithubNetworkManager.Cancelable mCurrentNetworkCall;
 
-    private GithubDatabase mDatabase;
     private SearchQueryData mSearchQueryData;
     private AtomicInteger mLastRequestedIndex = new AtomicInteger(0);
 
-    /**
-     * Returns true if the current search term is not empty.
-     */
-    public boolean hasSearchTerm() {
-        return !TextUtils.isEmpty(mSearchTerm);
+    @Inject
+    GithubNetworkManager mGithubNetworkManager;
+    @Inject
+    GithubDatabase mDatabase;
+
+    @Override
+    void inject(AppComponent appComponent) {
+        appComponent.inject(this);
     }
 
     /**
-     * Sets new search term.
+     * Sets new search terms.
      */
     @MainThread
-    public void setSearchTerm(Context context, String searchTerm,
-            AuthTokenLifecycle authTokenLifecycle) {
-        if (mDatabase == null) {
-            mDatabase = GithubDatabaseHelper.getDatabase(context);
-        }
-        mSearchTerm = searchTerm;
-        mAuthTokenLifecycle = authTokenLifecycle;
+    public void setSearchTerms(String owner, String project) {
+        mOwner = owner;
+        mProject = project;
 
         if (mCurrentNetworkCall != null) {
             mCurrentNetworkCall.cancel();
         }
+        if (mOwner == null || mProject == null) {
+            mContributorListLiveData.setBackingLiveData(null);
+            return;
+        }
 
         final GithubDao githubDao = mDatabase.getGithubDao();
 
-        // Get the LiveData wrapper around the list of repositories that match our current
+        // Get the LiveData wrapper around the list of contributors that match our current
         // search query. The wrapped list will be updated on every successful network request
         // that is performed for data that is not available in our database.
-        mRepositoryListLiveData = githubDao.getRepositories(mSearchTerm);
+        mContributorListLiveData
+                .setBackingLiveData(githubDao.getContributors(mOwner + "/" + mProject));
 
-        mStateLiveData.setValue(STATE_INITIAL_LOADING);
         mHasNetworkRequestPending.set(false);
 
         new AsyncTask<String, Void, Void>() {
@@ -101,13 +109,13 @@ public class RepositoryListModel extends ViewModel {
                 // since this is working with a disk-based database, we're running off the main
                 // thread.
                 mSearchQueryData = githubDao.getSearchQueryData(
-                        params[0], SearchQueryData.GENERAL_REPOSITORIES);
+                        params[0], SearchQueryData.REPOSITORY_CONTRIBUTORS);
                 if (mSearchQueryData == null) {
                     // This query has not been performed before - initialize an entry in the
                     // database. TODO - consult the timestamp of network requests for staleness.
                     mSearchQueryData = new SearchQueryData();
                     mSearchQueryData.searchQuery = params[0];
-                    mSearchQueryData.searchKind = SearchQueryData.GENERAL_REPOSITORIES;
+                    mSearchQueryData.searchKind = SearchQueryData.REPOSITORY_CONTRIBUTORS;
                     mSearchQueryData.numberOfFetchedItems = -1;
                     githubDao.update(mSearchQueryData);
                 }
@@ -116,13 +124,9 @@ public class RepositoryListModel extends ViewModel {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                if ((mAuthTokenLifecycle != null) && mAuthTokenLifecycle.doWeNeedAuthToken()) {
-                    mAuthTokenLifecycle.getAuthToken();
-                } else {
-                    fetchNextPage();
-                }
+                fetchNextPage();
             }
-        }.execute(mSearchTerm);
+        }.execute(mOwner + "/" + mProject);
     }
 
     private void fetchNextPage() {
@@ -134,68 +138,43 @@ public class RepositoryListModel extends ViewModel {
         // Do we have data in the database?
         if (mSearchQueryData.numberOfFetchedItems >= mLastRequestedIndex.get()) {
             // We already have the data stored (and retrieved) from database.
-            mStateLiveData.setValue(STATE_DATA);
             return;
         }
 
-        if (mHasNetworkRequestPending.get()) {
-            // Previous request still processing
-            return;
-        }
-
-        if (mSearchQueryData.hasNoMoreData) {
-            // We don't have any more results
-            if (mSearchQueryData.numberOfFetchedItems <= 0) {
-                mStateLiveData.setValue(STATE_EMPTY);
-            }
+        if (mHasNetworkRequestPending.get() || mSearchQueryData.hasNoMoreData) {
+            // Previous request still processing or no more results
             return;
         }
 
         mHasNetworkRequestPending.set(true);
-        mCurrentNetworkCall = GithubNetworkManager.getInstance().listRepositories(
-                mSearchTerm, mSearchQueryData.indexOfLastFetchedPage + 1,
-                new GithubNetworkManager.NetworkCallListener<List<RepositoryData>>() {
+        mCurrentNetworkCall = mGithubNetworkManager.getContributors(
+                mOwner, mProject, mSearchQueryData.indexOfLastFetchedPage + 1,
+                new GithubNetworkManager.NetworkCallListener<List<ContributorData>>() {
                     @Override
                     public void onLoadEmpty(int httpCode) {
-                        switch (httpCode) {
-                            case 401:case 403:
-                                if (mAuthTokenLifecycle != null) {
-                                    mAuthTokenLifecycle.invalidateAuthToken();
-                                    mAuthTokenLifecycle.getAuthToken();
-                                }
-                                mStateLiveData.setValue(STATE_ERROR);
-                                break;
-                            case 404:
-                                // No such user
-                                mStateLiveData.setValue(STATE_EMPTY);
-                                break;
-                            default:
-                                mStateLiveData.setValue(STATE_ERROR);
-                        }
                     }
 
                     @Override
-                    public void onLoadSuccess(List<RepositoryData> data) {
-                        new AsyncTask<RepositoryData, Void, Void>() {
+                    public void onLoadSuccess(List<ContributorData> data) {
+                        new AsyncTask<ContributorData, Void, Void>() {
                             @Override
-                            protected Void doInBackground(RepositoryData... params) {
+                            protected Void doInBackground(ContributorData... params) {
                                 // Note that since we're going to be inserting data into disk-based
                                 // database, we need to be running off the main thread.
                                 processNewPageOfData(params);
                                 return null;
                             }
-                        }.execute(data.toArray(new RepositoryData[data.size()]));
+                        }.execute(data.toArray(new ContributorData[data.size()]));
                     }
 
                     @Override
                     public void onLoadFailure() {
-                        mStateLiveData.setValue(STATE_ERROR);
                     }
                 });
     }
 
     @WorkerThread
-    private void processNewPageOfData(RepositoryData... data) {
+    private void processNewPageOfData(ContributorData... data) {
         try {
             mDatabase.beginTransaction();
             int newDataCount = data.length;
@@ -215,20 +194,21 @@ public class RepositoryListModel extends ViewModel {
             githubDao.update(mSearchQueryData);
 
             if (newDataCount > 0) {
-                // Insert entries for the newly loaded repositories in two places:
-                // 1. The table that stores repository IDs that match a specific query.
-                // 2. The table that stores full data on each individual repository.
-                // This way we don't store multiple full entries for the same repository
+                // Insert entries for the newly loaded contributors in two places:
+                // 1. The table that stores contributor IDs that match a specific query.
+                // 2. The table that stores full data on each individual contributor.
+                // This way we don't store multiple full entries for the same contributor
                 // that happens to match two or more search queries.
-                GeneralRepoSearchData[] generalRepoSearchDataArray =
-                        new GeneralRepoSearchData[newDataCount];
+                ContributorSearchData[] contributorSearchDataArray =
+                        new ContributorSearchData[newDataCount];
                 for (int i = 0; i < newDataCount; i++) {
-                    generalRepoSearchDataArray[i] = new GeneralRepoSearchData();
-                    generalRepoSearchDataArray[i].searchQuery = mSearchTerm;
-                    generalRepoSearchDataArray[i].resultIndex = indexOfFirstData + i;
-                    generalRepoSearchDataArray[i].repoId = data[i].id;
+                    contributorSearchDataArray[i] = new ContributorSearchData();
+                    contributorSearchDataArray[i].searchQuery = mOwner + "/" + mProject;
+                    contributorSearchDataArray[i].resultIndex = indexOfFirstData + i;
+                    contributorSearchDataArray[i].contributorId = data[i].id;
+                    contributorSearchDataArray[i].contributions = data[i].contributions;
                 }
-                githubDao.insert(generalRepoSearchDataArray);
+                githubDao.insert(contributorSearchDataArray);
                 githubDao.insert(data);
             }
             mDatabase.setTransactionSuccessful();
@@ -237,9 +217,6 @@ public class RepositoryListModel extends ViewModel {
         }
 
         mHasNetworkRequestPending.set(false);
-        mStateLiveData.setValue(
-                (mSearchQueryData.numberOfFetchedItems <= 0) && mSearchQueryData.hasNoMoreData
-                    ? STATE_EMPTY : STATE_DATA);
     }
 
     /**
@@ -266,24 +243,10 @@ public class RepositoryListModel extends ViewModel {
     }
 
     /**
-     * Resumes loading of data in this model.
+     * Returns the {@link LiveData} object that wraps the current list of contributors that matches
+     * the last set search terms.
      */
-    public void resumeLoading() {
-        fetchNextPage();
-    }
-
-    /**
-     * Returns the {@LiveData} object that wraps the current list of repos that matches the last
-     * set search term.
-     */
-    public LiveData<List<RepositoryData>> getRepositoryListLiveData() {
-        return mRepositoryListLiveData;
-    }
-
-    /**
-     * Returns the {@LiveData} object that wraps the current data state.
-     */
-    public LiveData<Integer> getStateLiveData() {
-        return mStateLiveData;
+    public LiveData<List<ContributorData>> getContributorListLiveData() {
+        return mContributorListLiveData;
     }
 }

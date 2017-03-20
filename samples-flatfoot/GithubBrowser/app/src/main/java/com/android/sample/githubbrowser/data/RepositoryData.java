@@ -13,11 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.android.sample.githubbrowser.data;
 
 import com.android.support.room.Decompose;
 import com.android.support.room.Entity;
 import com.android.support.room.PrimaryKey;
+import com.android.support.room.RoomWarnings;
 
 /**
  * Repository data object.
@@ -27,6 +44,7 @@ public class RepositoryData {
     @PrimaryKey public String id;
     public String name;
     public String full_name;
+    @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED)
     @Decompose(prefix = "owner_") public PersonData owner;
     public String description;
     public String created_at;
@@ -34,6 +52,7 @@ public class RepositoryData {
     public String language;
     public int forks_count;
     public int open_issues_count;
+    @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED)
     @Decompose(prefix = "organization_") public PersonData organization;
     public int subscribers_count;
 

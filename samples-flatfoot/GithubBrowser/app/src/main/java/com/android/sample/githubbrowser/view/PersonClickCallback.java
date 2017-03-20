@@ -13,24 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.sample.githubbrowser;
 
-/**
- * Defines the interface for working with auth token.
- */
-public interface AuthTokenLifecycle {
-    /**
-     * Returns <code>true</code> iff we need a new auth token.
-     */
-    boolean doWeNeedAuthToken();
+package com.android.sample.githubbrowser.view;
 
-    /**
-     * Invalidates the current auth token.
-     */
-    void invalidateAuthToken();
+import com.android.sample.githubbrowser.data.PersonData;
 
-    /**
-     * Returns the current auth token.
-     */
-    void getAuthToken();
+public interface PersonClickCallback {
+    void onClick(PersonData user);
 }

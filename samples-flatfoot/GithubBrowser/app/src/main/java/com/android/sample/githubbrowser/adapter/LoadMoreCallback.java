@@ -14,4 +14,8 @@
  * limitations under the License.
  */
 
-include ':app'
+package com.android.sample.githubbrowser.adapter;
+
+public interface LoadMoreCallback {
+    void loadMore(int currentSize);
+}
