@@ -270,15 +270,6 @@ public class NavController implements NavigatorProvider {
     }
 
     /**
-     * Create a new NavGraph with the current {@link NavGraphNavigator}.
-     *
-     * @return an empty NavGraph
-     */
-    public NavGraph createGraph() {
-        return (NavGraph) getNavigator(NavGraphNavigator.NAME).createDestination();
-    }
-
-    /**
      * Returns the {@link NavInflater inflater} for this controller.
      *
      * @return inflater for loading navigation resources
@@ -349,7 +340,7 @@ public class NavController implements NavigatorProvider {
         if (mGraph != null) {
             mGraph.addAll(graph);
         } else {
-            mGraph = createGraph();
+            mGraph = new NavGraph(this);
             mGraph.addAll(graph);
             onGraphCreated();
         }

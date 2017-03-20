@@ -19,6 +19,7 @@ package android.support.navigation.app.nav;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
@@ -34,7 +35,7 @@ import java.util.HashMap;
 /**
  * Navigator that navigates through {@link FragmentTransaction fragment transactions}. Every
  * destination using this Navigator must set a valid Fragment class name with
- * <code>app:nav_fragment</code>.
+ * <code>android:name</code> or {@link Destination#setFragmentClass}.
  */
 public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> {
     public static final String NAME = "fragment";
@@ -90,6 +91,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
         return clazz;
     }
+
     @Override
     public boolean navigate(Destination destination, Bundle args,
                             NavOptions navOptions) {
@@ -155,7 +157,20 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         private Class<? extends Fragment> mFragmentClass;
         private String mFlow;
 
-        public Destination(FragmentNavigator fragmentNavigator) {
+        /**
+         * Construct a new fragment destination to navigate to the given Fragment.
+         *
+         * @param navigatorProvider The {@link NavController} which this destination
+         *                          will be associated with.
+         * @param clazz Fragment this destination should create when navigated to
+         */
+        public Destination(@NonNull NavigatorProvider navigatorProvider,
+                Class<? extends Fragment> clazz) {
+            super(navigatorProvider.getNavigator(NAME));
+            setFragmentClass(clazz);
+        }
+
+        Destination(@NonNull FragmentNavigator fragmentNavigator) {
             super(fragmentNavigator);
         }
 
@@ -171,10 +186,19 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             a.recycle();
         }
 
+        /**
+         * Set the Fragment associated with this destination
+         * @param clazz The class name of the Fragment to show when you navigate to this
+         *              destination
+         */
         public void setFragmentClass(Class<? extends Fragment> clazz) {
             mFragmentClass = clazz;
         }
 
+        /**
+         * Gets the Fragment associated with this destination
+         * @return
+         */
         public Class<? extends Fragment> getFragmentClass() {
             return mFragmentClass;
         }

@@ -46,6 +46,9 @@ public abstract class Navigator<D extends NavDestination> {
 
     /**
      * Construct a new NavDestination associated with this Navigator.
+     *
+     * <p>Any initialization of the destination should be done in the destination's constructor as
+     * it is not guaranteed that every destination will be created through this method.</p>
      * @return a new NavDestination
      */
     public abstract D createDestination();
@@ -110,23 +113,6 @@ public abstract class Navigator<D extends NavDestination> {
     public final void dispatchOnNavigatorNavigated(@IdRes int destId, boolean isBackStackEmpty) {
         for (OnNavigatorNavigatedListener listener : mOnNavigatedListeners) {
             listener.onNavigatorNavigated(this, destId, isBackStackEmpty);
-        }
-    }
-
-    /**
-     * Base class for navigator parameters.
-     *
-     * <p>Subclasses of {@link Navigator} should also subclass this class to hold any special
-     * data about a {@link NavDestination} that will be needed to navigate to that destination.
-     * Examples include information about an intent to navigate to other activities, or a fragment
-     * class name to instantiate and swap to a new fragment.</p>
-     */
-    public static class Params {
-        /**
-         * Copy all valid fields from the given Params into this instance
-         * @param other the Params to copy all fields from
-         */
-        public void copyFrom(Params other) {
         }
     }
 

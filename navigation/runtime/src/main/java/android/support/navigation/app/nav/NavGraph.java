@@ -27,15 +27,26 @@ import com.android.support.navigation.R;
 
 /**
  * NavGraph is a collection of {@link NavDestination} nodes fetchable by ID.
+ *
+ * <p>A NavGraph serves as a 'virtual' destination: while the NavGraph itself will not appear
+ * on the back stack, navigating to the NavGraph will cause the
+ * {@link #getStartDestination starting destination} to be added to the back stack.</p>
  */
 public class NavGraph extends NavDestination {
     private final SparseArray<NavDestination> mNodes = new SparseArray<>();
     private int mStartDestId;
 
     /**
-     * NavGraphs should be created via {@link NavController#createGraph}
+     * Construct a new NavGraph.
+     *
+     * @param navigatorProvider The {@link NavController} which this NavGraph
+     *                          will be associated with.
      */
-    public NavGraph(@NonNull Navigator navigator) {
+    public NavGraph(@NonNull NavigatorProvider navigatorProvider) {
+        super(navigatorProvider.getNavigator(NavGraphNavigator.NAME));
+    }
+
+    NavGraph(@NonNull Navigator navigator) {
         super(navigator);
     }
 
@@ -83,11 +94,21 @@ public class NavGraph extends NavDestination {
         }
     }
 
+    /**
+     * Returns the starting destination for this NavGraph. When navigating to the NavGraph, this
+     * destination is the one the user will initially see.
+     * @return
+     */
     @IdRes
     public int getStartDestination() {
         return mStartDestId;
     }
 
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * @param startDestId The id of the destination to be shown when navigating to this NavGraph.
+     */
     public void setStartDestination(@IdRes int startDestId) {
         mStartDestId = startDestId;
     }

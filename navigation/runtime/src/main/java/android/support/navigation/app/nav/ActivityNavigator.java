@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 
 /**
@@ -110,7 +111,19 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     public static class Destination extends NavDestination {
         private Intent mIntent;
 
-        Destination(ActivityNavigator navigator) {
+        /**
+         * Construct a new activity destination to navigate to the given Intent.
+         *
+         * @param navigatorProvider The {@link NavController} which this destination
+         *                          will be associated with.
+         * @param intent Intent this destination should trigger when navigated to
+         */
+        public Destination(@NonNull NavigatorProvider navigatorProvider, Intent intent) {
+            super(navigatorProvider.getNavigator(NAME));
+            setIntent(intent);
+        }
+
+        Destination(@NonNull ActivityNavigator navigator) {
             super(navigator);
         }
 
@@ -120,22 +133,39 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             // TODO Implement me!
         }
 
+        /**
+         * Set the Intent to start when navigating to this destination.
+         * @param intent Intent to associated with this destination.
+         */
         public void setIntent(Intent intent) {
             mIntent = intent;
         }
 
+        /**
+         * Gets the Intent associated with this destination.
+         * @return
+         */
         public Intent getIntent() {
             return mIntent;
         }
 
-        void setComponentName(ComponentName name) {
+        /**
+         * Set an explicit {@link ComponentName} to navigate to.
+         *
+         * @param name The component name of the Activity to start.
+         */
+        public void setComponentName(ComponentName name) {
             if (mIntent == null) {
                 mIntent = new Intent();
             }
             mIntent.setComponent(name);
         }
 
-        ComponentName getComponent() {
+        /**
+         * Get the explicit {@link ComponentName} associated with this destination, if any
+         * @return
+         */
+        public ComponentName getComponent() {
             if (mIntent == null) {
                 return null;
             }

@@ -53,7 +53,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
         if (startId == 0) {
             final Resources res = mContext.getResources();
             throw new IllegalStateException("no start destination defined via"
-                    + " app:nav_startDestination for "
+                    + " app:startDestination for "
                     + (destination.getId() != 0
                             ? res.getResourceName(destination.getId())
                             : "the root navigation"));

@@ -29,7 +29,7 @@ public interface NavigatorProvider {
      *
      * @see #addNavigator(String, Navigator)
      */
-    Navigator getNavigator(String name);
+    Navigator<? extends NavDestination> getNavigator(String name);
 
     /**
      * Register a navigator by name. {@link NavDestination destinations} may refer to any
@@ -39,5 +39,5 @@ public interface NavigatorProvider {
      * @param name name for this navigator
      * @param navigator navigator to add
      */
-    void addNavigator(String name, Navigator navigator);
+    void addNavigator(String name, Navigator<? extends NavDestination> navigator);
 }

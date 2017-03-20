@@ -30,10 +30,8 @@ import com.android.support.navigation.R;
 /**
  * NavDestination represents one node within an overall navigation graph.
  *
- * <p>Each destination has a {@link Navigator}. The navigator determines valid
- * {@link Navigator.Params parameters} that can be {@link #setNavigatorParams(Navigator.Params) set}
- * for each destination, and how those parameters will be {@link NavInflater inflated} from
- * a resource.</p>
+ * <p>Each destination is associated with a {@link Navigator} which knows how to navigate to this
+ * particular destination.</p>
  *
  * <p>Destinations declare a set of {@link #putActionDestination(int, int) actions} that they
  * support. These actions form a navigation API for the destination; the same actions declared
@@ -47,10 +45,8 @@ import com.android.support.navigation.R;
 public class NavDestination {
     private final Navigator mNavigator;
     private int mId;
-    private Navigator.Params mNavParams;
     private Bundle mDefaultArgs;
     private SparseIntArray mActions;
-    private int mFlowId;
 
     /**
      * NavDestinations should be created via {@link Navigator#createDestination}.
