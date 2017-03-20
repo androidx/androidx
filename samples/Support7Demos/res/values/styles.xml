@@ -56,4 +56,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
+
+    <style name="CustomPopupNoElevation" parent="@style/Widget.AppCompat.Light.PopupMenu" />
 </resources>
