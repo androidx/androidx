@@ -213,6 +213,7 @@
     <string name="popup_menu_activity">AppCompat/Popup menu</string>
     <string name="popup_menu_summary">This activity illustrates the use of popup menus. The popup menu is shown by clicking the button above. The text area below logs various events.</string>
     <string name="popup_menu_button">Show popup!</string>
+    <string name="popup_default_elevation">Use default elevation on popup</string>
     <string name="popup_menu_highlight">Highlight</string>
     <string name="popup_menu_edit">Edit</string>
     <string name="popup_menu_delete">Delete</string>

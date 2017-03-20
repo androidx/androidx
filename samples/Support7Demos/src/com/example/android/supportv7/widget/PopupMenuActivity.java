@@ -19,25 +19,22 @@ package com.example.android.supportv7.widget;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.SwitchCompat;
+import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
 import com.example.android.supportv7.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PopupMenuActivity extends AppCompatActivity {
-    private ViewGroup mContainer;
-
     private TextView mLog;
-
-    private Button mButton;
-
-    private PopupMenu mPopupMenu;
 
     private SimpleDateFormat mDateFormat;
 
@@ -49,20 +46,31 @@ public class PopupMenuActivity extends AppCompatActivity {
 
         mDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
-        mContainer = (ViewGroup) findViewById(R.id.container);
-        mLog = (TextView) mContainer.findViewById(R.id.log);
-        mButton = (Button) mContainer.findViewById(R.id.test_button);
+        final ViewGroup container = (ViewGroup) findViewById(R.id.container);
+        mLog = (TextView) container.findViewById(R.id.log);
 
-        mButton.setOnClickListener(new View.OnClickListener() {
+        final SwitchCompat elevationToggle = (SwitchCompat) container.findViewById(
+                R.id.elevation_toggle);
+        final Button button = (Button) container.findViewById(R.id.test_button);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPopupMenu = new PopupMenu(mContainer.getContext(), mButton);
-                final MenuInflater menuInflater = mPopupMenu.getMenuInflater();
-                menuInflater.inflate(R.menu.popup_menu, mPopupMenu.getMenu());
+                // Do we need to use a custom style that removes elevation?
+                boolean useDefaultElevation = elevationToggle.isChecked();
+
+                PopupMenu popupMenu = null;
+                if (useDefaultElevation) {
+                    popupMenu = new PopupMenu(container.getContext(), button);
+                } else {
+                    popupMenu = new PopupMenu(container.getContext(), button, Gravity.NO_GRAVITY,
+                            0, R.style.CustomPopupNoElevation);
+                }
+                final MenuInflater menuInflater = popupMenu.getMenuInflater();
+                menuInflater.inflate(R.menu.popup_menu, popupMenu.getMenu());
 
                 // Register a listener to be notified when a menu item in our popup menu has
                 // been clicked.
-                mPopupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         addToLog("Item '"+ item.getTitle() + "' clicked");
@@ -71,7 +79,7 @@ public class PopupMenuActivity extends AppCompatActivity {
                 });
 
                 // Register a listener to be notified when our popup menu is dismissed.
-                mPopupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
                     @Override
                     public void onDismiss(PopupMenu menu) {
                         addToLog("Popup menu dismissed");
@@ -79,7 +87,7 @@ public class PopupMenuActivity extends AppCompatActivity {
                 });
 
                 // Show the popup menu
-                mPopupMenu.show();
+                popupMenu.show();
             }
         });
     }
