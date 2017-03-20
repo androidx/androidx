@@ -468,11 +468,11 @@ public class ViewCompat {
         }
 
         public void postInvalidateOnAnimation(View view) {
-            view.invalidate();
+            view.postInvalidate();
         }
 
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.invalidate(left, top, right, bottom);
+            view.postInvalidate(left, top, right, bottom);
         }
 
         public void postOnAnimation(View view, Runnable action) {
