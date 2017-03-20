@@ -541,11 +541,11 @@ public class ViewCompat {
         }
         @Override
         public void postInvalidateOnAnimation(View view) {
-            view.invalidate();
+            view.postInvalidate();
         }
         @Override
         public void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.invalidate(left, top, right, bottom);
+            view.postInvalidate(left, top, right, bottom);
         }
         @Override
         public void postOnAnimation(View view, Runnable action) {
