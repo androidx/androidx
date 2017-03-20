@@ -1471,6 +1471,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.scale_frame, new Fragment()).commit();
             gridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @SuppressWarnings("ReferenceEquality")
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {

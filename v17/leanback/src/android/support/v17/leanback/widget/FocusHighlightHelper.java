@@ -251,7 +251,7 @@ public class FocusHighlightHelper {
             }
         }
 
-        class HeaderFocusAnimator extends FocusAnimator {
+        static class HeaderFocusAnimator extends FocusAnimator {
 
             ItemBridgeAdapter.ViewHolder mViewHolder;
             HeaderFocusAnimator(View view, float scale, int duration) {

@@ -26,6 +26,7 @@ import android.view.ViewTreeObserver;
 /**
  * @hide
  */
+@SuppressWarnings("FragmentNotInstantiable")
 class BaseFragment extends BrandedFragment {
 
     /**
