@@ -16,16 +16,25 @@
 
 package android.support.navigation.app.nav;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.util.SparseIntArray;
 
 import com.android.support.navigation.R;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * NavDestination represents one node within an overall navigation graph.
@@ -43,9 +52,47 @@ import com.android.support.navigation.R;
  * These arguments can be overridden at the time of navigation.</p>
  */
 public class NavDestination {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef(value = {NAV_TYPE_NONE, NAV_TYPE_SECONDARY, NAV_TYPE_PRIMARY})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface NavTypes {}
+
+    /**
+     * Indicates this destination should not be shown in navigation menus generated from the
+     * containing {@link NavGraph}.
+     *
+     * @see #setNavType
+     */
+    public static final int NAV_TYPE_NONE = 0;
+
+    /**
+     * Indicates this destination should be shown in secondary navigation menus generated from the
+     * containing {@link NavGraph}.
+     *
+     * @see #setNavType
+     */
+    public static final int NAV_TYPE_SECONDARY = 1;
+
+    /**
+     * Indicates this destination should be shown in primary navigation menus generated from the
+     * containing {@link NavGraph}.
+     *
+     * @see #setNavType
+     */
+    public static final int NAV_TYPE_PRIMARY = 2;
+
     private final Navigator mNavigator;
     private NavGraph mParent;
     private int mId;
+    @DrawableRes
+    private int mIconResId;
+    private Drawable mIconDrawable;
+    private CharSequence mLabel;
+    @NavTypes
+    private int mNavType;
     private Bundle mDefaultArgs;
     private SparseIntArray mActions;
 
@@ -67,6 +114,11 @@ public class NavDestination {
         final TypedArray a = context.getResources().obtainAttributes(attrs,
                 R.styleable.NavDestination);
         setId(a.getResourceId(R.styleable.NavDestination_android_id, 0));
+        setIcon(a.getDrawable(R.styleable.NavDestination_android_icon));
+        setLabel(a.getText(R.styleable.NavDestination_android_label));
+        @NavTypes
+        int navType = a.getInt(R.styleable.NavDestination_navType, NAV_TYPE_NONE);
+        setNavType(navType);
         a.recycle();
     }
 
@@ -102,6 +154,95 @@ public class NavDestination {
      */
     public void setId(@IdRes int id) {
         mId = id;
+    }
+
+    /**
+     * Sets the icon associated with this destination.
+     *
+     * @param iconResId The resource id of the Drawable to use as the icon.
+     */
+    public void setIcon(@DrawableRes int iconResId) {
+        mIconDrawable = null;
+        mIconResId = iconResId;
+    }
+
+    /**
+     * Gets the resource id of the icon of this destination.
+     *
+     * <p>This is mutually exclusive with a drawable set via {@link #setIcon(Drawable)}.</p>
+     */
+    @DrawableRes
+    public int getIconResourceId() {
+        return mIconResId;
+    }
+
+    /**
+     * Sets the icon associated with this destination.
+     *
+     * @param icon The Drawable to use as the icon.
+     */
+    public void setIcon(Drawable icon) {
+        mIconResId = 0;
+        mIconDrawable = icon;
+    }
+
+
+    /**
+     * Gets the Drawable representation of the icon of this destination.
+     *
+     * <p>This is mutually exclusive with a drawable set via {@link #setIcon(int)}.</p>
+     */
+    public Drawable getIconDrawable() {
+        return mIconDrawable;
+    }
+
+    /**
+     * Sets the descriptive label of this destination.
+     *
+     * @param label A descriptive label of this destination.
+     */
+    public void setLabel(CharSequence label) {
+        mLabel = label;
+    }
+
+    /**
+     * Gets the descriptive label of this destination.
+     */
+    public CharSequence getLabel() {
+        return mLabel;
+    }
+
+    /**
+     * Sets the navigation type for this destination. This can be used to determine the relative
+     * priority of destinations.
+     *
+     * @param navType The navigation type of this destination. Must be one of
+     *                {@link #NAV_TYPE_PRIMARY}, {@link #NAV_TYPE_SECONDARY}, or
+     *                {@link #NAV_TYPE_NONE}.
+     * @see #NAV_TYPE_PRIMARY
+     * @see #NAV_TYPE_SECONDARY
+     * @see #NAV_TYPE_NONE
+     */
+    public void setNavType(@NavTypes int navType) {
+        if (navType != NAV_TYPE_PRIMARY && navType != NAV_TYPE_SECONDARY
+                && navType != NAV_TYPE_NONE) {
+            throw new IllegalArgumentException("Invalid navType " + navType);
+        }
+        mNavType = navType;
+    }
+
+    /**
+     * Gets the navigation type of this destination.
+     * @return The navigation type of this destination. Will be one of
+     * {@link #NAV_TYPE_PRIMARY}, {@link #NAV_TYPE_SECONDARY}, or {@link #NAV_TYPE_NONE}.
+     *
+     * @see #NAV_TYPE_PRIMARY
+     * @see #NAV_TYPE_SECONDARY
+     * @see #NAV_TYPE_NONE
+     */
+    @NavTypes
+    public int getNavType() {
+        return mNavType;
     }
 
     /**

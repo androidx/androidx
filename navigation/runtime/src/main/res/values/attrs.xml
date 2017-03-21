@@ -14,6 +14,13 @@
 <resources>
     <declare-styleable name="NavDestination">
         <attr name="android:id"/>
+        <attr name="android:icon" />
+        <attr name="android:label" />
+        <attr name="navType" format="enum|reference">
+            <enum name="none" value="0" />
+            <enum name="secondary" value="1" />
+            <enum name="primary" value="2" />
+        </attr>
     </declare-styleable>
 
     <declare-styleable name="NavGraph">

@@ -16,6 +16,7 @@
 
 package android.support.navigation.app.nav;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
@@ -65,6 +66,21 @@ public class Navigation {
 
         // Try looking for one associated with the view instead, if applicable
         return findController(fragment.getView());
+    }
+
+    /**
+     * Find a {@link NavController} given the id of a View and its containing
+     * {@link Activity}. This is a convenience wrapper around {@link #findController(View)}.
+     *
+     * <p>This method will locate the {@link NavController} associated with this view.
+     * This is automatically populated for the id of a {@link NavHostFragment} and its children.</p>
+     *
+     * @param activity The Activity hosting the view
+     * @param viewId The id of the view to search from
+     * @return the {@link NavController} associated with the view referenced by id
+     */
+    public static NavController findController(Activity activity, @IdRes int viewId) {
+        return Navigation.findController(activity.findViewById(viewId));
     }
 
     /**

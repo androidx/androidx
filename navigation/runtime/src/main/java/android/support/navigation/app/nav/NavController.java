@@ -305,7 +305,7 @@ public class NavController implements NavigatorProvider {
     }
 
     /**
-     * Gets the navigation graph associated with this NavController.
+     * Gets the topmost navigation graph associated with this NavController.
      *
      * @see #setGraph(int)
      * @see #setGraph(NavGraph)
@@ -313,6 +313,13 @@ public class NavController implements NavigatorProvider {
      */
     public NavGraph getGraph() {
         return mGraph;
+    }
+
+    /**
+     * Gets the current destination.
+     */
+    public NavDestination getCurrentDestination() {
+        return mCurrentNode;
     }
 
     /**

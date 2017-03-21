@@ -15,6 +15,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:startDestination="@+id/launcher_home">
     <fragment android:id="@+id/launcher_home"
+              android:icon="@drawable/ic_home"
+              android:label="@string/home"
+              app:navType="primary"
+              android:name="com.android.support.navigation.testapp.MainFragment">
+        <default-argument app:argname="myarg" app:argvalue="Home" />
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+    </fragment>
+    <fragment android:id="@+id/android"
+              android:icon="@drawable/ic_android"
+              android:label="@string/android"
+              app:navType="primary"
+              android:name="com.android.support.navigation.testapp.MainFragment">
+        <default-argument app:argname="myarg" app:argvalue="Android!" />
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+    </fragment>
+    <fragment android:id="@+id/first_screen"
         android:name="com.android.support.navigation.testapp.MainFragment">
         <default-argument app:argname="myarg" app:argvalue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
@@ -22,6 +38,22 @@
     <fragment android:id="@+id/next_fragment"
         android:name="com.android.support.navigation.testapp.MainFragment">
         <default-argument app:argname="myarg" app:argvalue="two" />
-        <action android:id="@+id/next" app:destination="@+id/launcher_home"/>
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+    </fragment>
+    <fragment android:id="@+id/settings_fragment"
+              android:icon="@drawable/ic_settings"
+              android:label="@string/settings"
+              app:navType="secondary"
+              android:name="com.android.support.navigation.testapp.MainFragment">
+        <default-argument app:argname="myarg" app:argvalue="Settings" />
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+    </fragment>
+    <fragment android:id="@+id/help_fragment"
+              android:icon="@drawable/ic_help"
+              android:label="@string/help"
+              app:navType="secondary"
+              android:name="com.android.support.navigation.testapp.MainFragment">
+        <default-argument app:argname="myarg" app:argvalue="Help" />
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
 </navigation>
