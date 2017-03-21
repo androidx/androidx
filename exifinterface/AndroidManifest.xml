@@ -16,6 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.exifinterface">
     <uses-sdk android:minSdkVersion="14"/>
-    <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
-    <application />
+    <application>
+        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+    </application>
 </manifest>

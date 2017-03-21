@@ -16,6 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.text.emoji.typeface">
     <uses-sdk android:minSdkVersion="19"/>
-    <meta-data android:name="android.support.VERSION" android:value="${support-version}"/>
-    <application/>
+    <application>
+        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+    </application>
 </manifest>

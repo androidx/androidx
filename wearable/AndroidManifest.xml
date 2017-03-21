@@ -16,5 +16,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.wearable">
     <uses-sdk android:minSdkVersion="22"/>
-    <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+    <application>
+        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+    </application>
 </manifest>
