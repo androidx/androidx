@@ -19,6 +19,7 @@ package android.support.v7.app;
 import android.support.test.filters.SmallTest;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
+import android.view.Window;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -57,6 +58,9 @@ public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarA
     @Test
     @SmallTest
     public void testOpenMenuOpensToolbarMenu() throws Throwable {
+        if (!mActivityTestRule.getActivity().getWindow().hasFeature(Window.FEATURE_OPTIONS_PANEL)) {
+            return;
+        }
         Toolbar toolbar = mActivityTestRule.getActivity().getToolbar();
         assertFalse(toolbar.isOverflowMenuShowing());
 
