@@ -34,16 +34,15 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.PollingCheck;
 import android.support.text.emoji.test.R;
 import android.support.text.emoji.util.KeyboardUtil;
 import android.support.text.emoji.util.TestString;
 import android.text.Editable;
-import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
 import android.util.TypedValue;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -102,7 +101,8 @@ public class EmojiInstrumentationTest {
 
         // cover the charsequence with RelativeSizeSpan which will triple the size of the
         // characters.
-        final RelativeSizeSpan sizeSpan = new RelativeSizeSpan(3.0f);
+        final float multiplier = 3.0f;
+        final RelativeSizeSpan sizeSpan = new RelativeSizeSpan(multiplier);
         spanned.setSpan(sizeSpan, 0, charSequence.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         // set the new text
         mInstrumentation.runOnMainSync(new Runnable() {
@@ -128,18 +128,13 @@ public class EmojiInstrumentationTest {
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
         final TestString string = new TestString(EMOJI_WITH_ZWJ).withPrefix()
                 .withSuffix();
-        final InputConnection inputConnection = editText.onCreateInputConnection(new EditorInfo());
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                KeyboardUtil.setComposingTextInBatch(inputConnection, string.toString());
-            }
-        });
-        mInstrumentation.waitForIdleSync();
 
+        final InputConnection inputConnection = KeyboardUtil.initTextViewForSimulatedIme(
+                mInstrumentation, editText);
+        KeyboardUtil.setComposingTextInBatch(mInstrumentation, inputConnection,
+                string.toString());
         Editable editable = editText.getEditableText();
 
-        // 0xf0950 is the remapped codepoint for WOMEN_WITH_BALL
         assertThat(editable, hasEmojiAt(EMOJI_WITH_ZWJ, string.emojiStartIndex(),
                 string.emojiEndIndex()));
     }
@@ -150,25 +145,19 @@ public class EmojiInstrumentationTest {
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
         final TestString string = new TestString(EMOJI_WITH_ZWJ).withPrefix()
                 .withSuffix();
-        final InputConnection inputConnection = editText.onCreateInputConnection(new EditorInfo());
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                KeyboardUtil.setComposingTextInBatch(inputConnection, string.toString());
-                Selection.setSelection(editText.getEditableText(), string.emojiEndIndex());
-            }
-        });
-        mInstrumentation.waitForIdleSync();
+        final InputConnection inputConnection = KeyboardUtil.initTextViewForSimulatedIme(
+                mInstrumentation, editText);
+        KeyboardUtil.setComposingTextInBatch(mInstrumentation, inputConnection, string.toString());
+
+        // assert that emoji is there
         final Editable editable = editText.getEditableText();
         assertThat(editable, hasEmoji());
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                KeyboardUtil.deleteSurrondingText(inputConnection, 1, 0);
-            }
-        });
-        mInstrumentation.waitForIdleSync();
+        // put selection at the end of emoji and back delete
+        KeyboardUtil.setSelection(mInstrumentation, editText.getEditableText(),
+                string.emojiEndIndex());
+        KeyboardUtil.deleteSurroundingText(mInstrumentation, inputConnection, 1, 0);
+
         assertThat(editable, not(hasEmoji()));
     }
 
@@ -178,25 +167,20 @@ public class EmojiInstrumentationTest {
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
         final TestString string = new TestString(EMOJI_WITH_ZWJ).withPrefix()
                 .withSuffix();
-        final InputConnection inputConnection = editText.onCreateInputConnection(new EditorInfo());
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                KeyboardUtil.setComposingTextInBatch(inputConnection, string.toString());
-                Selection.setSelection(editText.getEditableText(), string.emojiStartIndex());
-            }
-        });
-        mInstrumentation.waitForIdleSync();
+        final InputConnection inputConnection = KeyboardUtil.initTextViewForSimulatedIme(
+                mInstrumentation, editText);
+        KeyboardUtil.setComposingTextInBatch(mInstrumentation, inputConnection, string.toString());
+
+        // assert that emoji is there
         final Editable editable = editText.getEditableText();
         assertThat(editable, hasEmoji());
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                KeyboardUtil.deleteSurrondingText(inputConnection, 0, 1);
-            }
-        });
-        mInstrumentation.waitForIdleSync();
+        // put selection at the begining of emoji and forward delete
+        KeyboardUtil.setSelection(mInstrumentation, editText.getEditableText(),
+                string.emojiStartIndex());
+        KeyboardUtil.deleteSurroundingText(mInstrumentation, inputConnection, 0, 1);
+
+
         assertThat(editable, not(hasEmoji()));
     }
 
@@ -206,21 +190,26 @@ public class EmojiInstrumentationTest {
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
         final TestString string = new TestString(EMOJI_WITH_ZWJ).withPrefix()
                 .withSuffix();
-        final InputConnection inputConnection = editText.onCreateInputConnection(new EditorInfo());
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                KeyboardUtil.setComposingTextInBatch(inputConnection, string.toString());
-                Selection.setSelection(editText.getEditableText(), string.emojiEndIndex());
-            }
-        });
-        mInstrumentation.waitForIdleSync();
+        final InputConnection inputConnection = KeyboardUtil.initTextViewForSimulatedIme(
+                mInstrumentation, editText);
+        KeyboardUtil.setComposingTextInBatch(mInstrumentation, inputConnection, string.toString());
+
+        // assert that emoji is there
         final Editable editable = editText.getEditableText();
         assertThat(editable, hasEmoji());
 
-
+        // put selection at the end of emoji and back delete
+        KeyboardUtil.setSelection(mInstrumentation, editText.getEditableText(),
+                string.emojiEndIndex());
         mInstrumentation.sendKeySync(del());
         mInstrumentation.waitForIdleSync();
+
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return not(hasEmoji()).matches(true);
+            }
+        });
         assertThat(editable, not(hasEmoji()));
     }
 
@@ -230,20 +219,26 @@ public class EmojiInstrumentationTest {
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
         final TestString string = new TestString(EMOJI_WITH_ZWJ).withPrefix()
                 .withSuffix();
-        final InputConnection inputConnection = editText.onCreateInputConnection(new EditorInfo());
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                KeyboardUtil.setComposingTextInBatch(inputConnection, string.toString());
-                Selection.setSelection(editText.getEditableText(), string.emojiStartIndex());
-            }
-        });
-        mInstrumentation.waitForIdleSync();
+        final InputConnection inputConnection = KeyboardUtil.initTextViewForSimulatedIme(
+                mInstrumentation, editText);
+        KeyboardUtil.setComposingTextInBatch(mInstrumentation, inputConnection, string.toString());
+
+        // assert that emoji is there
         final Editable editable = editText.getEditableText();
         assertThat(editable, hasEmoji());
 
+        // put selection at the begining of emoji and forward delete
+        KeyboardUtil.setSelection(mInstrumentation, editText.getEditableText(),
+                string.emojiStartIndex());
         mInstrumentation.sendKeySync(forwardDel());
         mInstrumentation.waitForIdleSync();
+
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return not(hasEmoji()).matches(true);
+            }
+        });
         assertThat(editable, not(hasEmoji()));
     }
 }
