@@ -62,6 +62,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
+import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.BuildCompat;
 import android.support.v4.os.ResultReceiver;
@@ -294,8 +295,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 rootExtras = new Bundle();
                 rootExtras.putInt(EXTRA_SERVICE_VERSION, SERVICE_VERSION_CURRENT);
                 BundleCompat.putBinder(rootExtras, EXTRA_MESSENGER_BINDER, mMessenger.getBinder());
+                IMediaSession extraBinder = mSession.getExtraBinder();
                 BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
-                        (IBinder) mSession.getExtraBinder());
+                        extraBinder == null ? null : extraBinder.asBinder());
             }
             BrowserRoot root = MediaBrowserServiceCompat.this.onGetRoot(
                     clientPackageName, clientUid, rootHints);
