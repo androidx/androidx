@@ -193,7 +193,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         }
 
         @Override
-        protected boolean verifyDrawable(Drawable who) {
+        protected boolean verifyDrawable(@NonNull Drawable who) {
             return super.verifyDrawable(who) || (mDrawables != null && mDrawables.contains(who));
         }
 
@@ -244,7 +244,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         }
 
         @Override
-        public void invalidateDrawable(Drawable drawable) {
+        public void invalidateDrawable(@NonNull Drawable drawable) {
             invalidate(drawable.getBounds());
         }
 
@@ -252,7 +252,6 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         protected void dispatchDraw(Canvas canvas) {
             int[] contentViewLocation = new int[2];
             int[] hostViewLocation = new int[2];
-            ViewGroup parent = (ViewGroup) getParent();
             mHostView.getLocationOnScreen(contentViewLocation);
             mRequestingView.getLocationOnScreen(hostViewLocation);
             canvas.translate(hostViewLocation[0] - contentViewLocation[0],
@@ -283,7 +282,6 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         private void getOffset(int[] offset) {
             int[] contentViewLocation = new int[2];
             int[] hostViewLocation = new int[2];
-            ViewGroup parent = (ViewGroup) getParent();
             mHostView.getLocationOnScreen(contentViewLocation);
             mRequestingView.getLocationOnScreen(hostViewLocation);
             offset[0] = hostViewLocation[0] - contentViewLocation[0];
@@ -327,6 +325,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
             return null;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public ViewParent invalidateChildInParent(int[] location, Rect dirty) {
             if (mHostView != null) {

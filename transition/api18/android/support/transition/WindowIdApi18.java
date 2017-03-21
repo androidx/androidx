@@ -34,4 +34,8 @@ class WindowIdApi18 implements WindowIdImpl {
         return o instanceof WindowIdApi18 && ((WindowIdApi18) o).mWindowId.equals(mWindowId);
     }
 
+    @Override
+    public int hashCode() {
+        return mWindowId.hashCode();
+    }
 }

@@ -33,4 +33,8 @@ class WindowIdApi14 implements WindowIdImpl {
         return o instanceof WindowIdApi14 && ((WindowIdApi14) o).mToken.equals(this.mToken);
     }
 
+    @Override
+    public int hashCode() {
+        return mToken.hashCode();
+    }
 }

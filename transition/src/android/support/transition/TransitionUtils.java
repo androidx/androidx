@@ -83,8 +83,8 @@ class TransitionUtils {
         int bitmapHeight = Math.round(bounds.height());
         if (bitmapWidth > 0 && bitmapHeight > 0) {
             float scale = Math.min(1f, ((float) MAX_IMAGE_SIZE) / (bitmapWidth * bitmapHeight));
-            bitmapWidth *= scale;
-            bitmapHeight *= scale;
+            bitmapWidth = (int) (bitmapWidth * scale);
+            bitmapHeight = (int) (bitmapHeight * scale);
             matrix.postTranslate(-bounds.left, -bounds.top);
             matrix.postScale(scale, scale);
             bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);

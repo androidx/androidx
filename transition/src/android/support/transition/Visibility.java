@@ -412,8 +412,7 @@ public abstract class Visibility extends Transition {
         }
 
         if (viewToKeep != null) {
-            int originalVisibility = -1;
-            originalVisibility = viewToKeep.getVisibility();
+            int originalVisibility = viewToKeep.getVisibility();
             viewToKeep.setVisibility(View.VISIBLE);
             Animator animator = onDisappear(sceneRoot, viewToKeep, startValues, endValues);
             if (animator != null) {
