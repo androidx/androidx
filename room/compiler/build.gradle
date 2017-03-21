@@ -30,6 +30,7 @@ dependencies {
     def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
 
     compile project(":room:common")
+    compile project(":room:migration")
     compile libs.kotlin.stdlib
     compile libs.auto_common
     compile libs.javapoet

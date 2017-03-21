@@ -23,15 +23,23 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import static java.util.Arrays.asList;
+
 import android.content.Context;
 
+import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.framework.FrameworkSQLiteOpenHelperFactory;
+import com.android.support.room.migration.Migration;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.List;
+
+@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 @RunWith(JUnit4.class)
 public class BuilderTest {
     @Test(expected = IllegalArgumentException.class)
@@ -58,6 +66,49 @@ public class BuilderTest {
     }
 
     @Test
+    public void migration() {
+        Migration m1 = new EmptyMigration(0, 1);
+        Migration m2 = new EmptyMigration(1, 2);
+        TestDatabase db = Room.databaseBuilder(mock(Context.class), TestDatabase.class, "foo")
+                .addMigrations(m1, m2).build();
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+        RoomDatabase.MigrationContainer migrations = config.migrationContainer;
+        assertThat(migrations.findMigrationPath(0, 1), is(asList(m1)));
+        assertThat(migrations.findMigrationPath(1, 2), is(asList(m2)));
+        assertThat(migrations.findMigrationPath(0, 2), is(asList(m1, m2)));
+        assertThat(migrations.findMigrationPath(2, 0), CoreMatchers.<List<Migration>>nullValue());
+        assertThat(migrations.findMigrationPath(0, 3), CoreMatchers.<List<Migration>>nullValue());
+    }
+
+    @Test
+    public void migrationOverride() {
+        Migration m1 = new EmptyMigration(0, 1);
+        Migration m2 = new EmptyMigration(1, 2);
+        Migration m3 = new EmptyMigration(0, 1);
+        TestDatabase db = Room.databaseBuilder(mock(Context.class), TestDatabase.class, "foo")
+                .addMigrations(m1, m2, m3).build();
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+        RoomDatabase.MigrationContainer migrations = config.migrationContainer;
+        assertThat(migrations.findMigrationPath(0, 1), is(asList(m3)));
+        assertThat(migrations.findMigrationPath(1, 2), is(asList(m2)));
+        assertThat(migrations.findMigrationPath(0, 3), CoreMatchers.<List<Migration>>nullValue());
+    }
+
+    @Test
+    public void migrationJump() {
+        Migration m1 = new EmptyMigration(0, 1);
+        Migration m2 = new EmptyMigration(1, 2);
+        Migration m3 = new EmptyMigration(2, 3);
+        Migration m4 = new EmptyMigration(0, 3);
+        TestDatabase db = Room.databaseBuilder(mock(Context.class), TestDatabase.class, "foo")
+                .addMigrations(m1, m2, m3, m4).build();
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+        RoomDatabase.MigrationContainer migrations = config.migrationContainer;
+        assertThat(migrations.findMigrationPath(0, 3), is(asList(m4)));
+        assertThat(migrations.findMigrationPath(1, 3), is(asList(m2, m3)));
+    }
+
+    @Test
     public void createBasic() {
         Context context = mock(Context.class);
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
@@ -66,7 +117,6 @@ public class BuilderTest {
         assertThat(config, notNullValue());
         assertThat(config.context, is(context));
         assertThat(config.name, is(nullValue()));
-        assertThat(config.version, is(1));
         assertThat(config.sqliteOpenHelperFactory,
                 instanceOf(FrameworkSQLiteOpenHelperFactory.class));
     }
@@ -77,15 +127,24 @@ public class BuilderTest {
         SupportSQLiteOpenHelper.Factory factory = mock(SupportSQLiteOpenHelper.Factory.class);
 
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
-                .version(41)
                 .openHelperFactory(factory)
                 .build();
         assertThat(db, instanceOf(BuilderTest_TestDatabase_Impl.class));
         DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
         assertThat(config, notNullValue());
-        assertThat(config.version, is(41));
         assertThat(config.sqliteOpenHelperFactory, is(factory));
     }
 
     abstract static class TestDatabase extends RoomDatabase {}
+
+    static class EmptyMigration extends Migration {
+        EmptyMigration(int start, int end) {
+            super(start, end);
+        }
+
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+        }
+    }
+
 }

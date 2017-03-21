@@ -69,4 +69,28 @@ public @interface Database {
      * @return The list of entities in the database.
      */
     Class[] entities();
+
+    /**
+     * The database version.
+     *
+     * @return The database version.
+     */
+    int version();
+
+    /**
+     * You can set annotation processor argument ({@code room.schemaLocation})
+     * to tell Room to export the schema into a folder. Even though it is not mandatory, it is a
+     * good practice to have version history in your codebase and you should commit that file into
+     * your version control system (but don't ship it with your app!).
+     * <p>
+     * When {@code room.schemaLocation} is set, Room will check this variable and if it is set to
+     * {@code true}, its schema will be exported into the given folder.
+     * <p>
+     * {@code exportSchema} is {@code true} by default but you can disable it for databases when
+     * you don't want to keep history of versions (like an in-memory only database).
+     *
+     * @return Whether the schema should be exported to the given folder when the
+     * {@code room.schemaLocation} argument is set. Defaults to {@code true}.
+     */
+    boolean exportSchema() default true;
 }

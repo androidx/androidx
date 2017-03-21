@@ -27,8 +27,8 @@ import com.android.support.room.RoomDatabase;
 /**
  * Database for Github entities.
  */
-@Database(entities = {PersonData.class, SearchQueryData.class, GeneralRepoSearchData.class,
-        RepositoryData.class, ContributorSearchData.class})
+@Database(version = 1, entities = {PersonData.class, SearchQueryData.class,
+        GeneralRepoSearchData.class, RepositoryData.class, ContributorSearchData.class})
 public abstract class GithubDatabase extends RoomDatabase {
     /**
      * Gets the data access object.

@@ -35,6 +35,7 @@ import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteQuery;
 import com.android.support.db.SupportSQLiteStatement;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -350,5 +351,10 @@ public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     @Override
     public boolean isDatabaseIntegrityOk() {
         return mDelegate.isDatabaseIntegrityOk();
+    }
+
+    @Override
+    public void close() throws IOException {
+        mDelegate.close();
     }
 }

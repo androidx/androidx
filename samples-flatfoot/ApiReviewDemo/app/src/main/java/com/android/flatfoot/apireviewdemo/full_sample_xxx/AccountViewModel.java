@@ -82,7 +82,7 @@ public class AccountViewModel extends ViewModel {
         mLogin = login;
         mPrivatePersonData = GithubDatabaseHelper.getDatabase().getGithubDao().getLivePerson(
                 mLogin);
-        mPrivatePersonData.observe(mObserver);
+        mPrivatePersonData.observeForever(mObserver);
         statusData.setValue(new Status(0, true));
         mCurrentRequest = mDataManagement.refreshIfNeeded(mLogin, mCallback);
     }

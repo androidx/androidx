@@ -42,16 +42,19 @@ public class DatabaseConfiguration {
      */
     @Nullable
     public final String name;
-    /**
-     * The version of the database.
-     */
-    public final int version;
 
-    DatabaseConfiguration(@NonNull Context context, @Nullable String name, int version,
-                                  SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory) {
+    /**
+     * Collection of available migrations.
+     */
+    @NonNull
+    public final RoomDatabase.MigrationContainer migrationContainer;
+
+    DatabaseConfiguration(@NonNull Context context, @Nullable String name,
+            @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
+            @NonNull RoomDatabase.MigrationContainer migrationContainer) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
-        this.version = version;
+        this.migrationContainer = migrationContainer;
     }
 }

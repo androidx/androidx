@@ -29,7 +29,6 @@ import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
 class DatabaseWriterTest {
-
     @Test
     fun simpleDb() {
         singleDb(

@@ -336,4 +336,8 @@ object ProcessorErrors {
         Available columns are: ${availableColumnNames.joinToString(",")}
         """.trim()
     }
+
+    val MISSING_SCHEMA_EXPORT_DIRECTORY = "Schema export directory is not provided to the" +
+            " annotation processor so we cannot export the schema. You can either provide" +
+            " `room.schemaLocation` annotation processor argument OR set exportSchema to false."
 }

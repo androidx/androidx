@@ -21,7 +21,7 @@ import com.android.flatfoot.apireviewdemo.db_02_dao.UserCrudDao;
 import com.android.support.room.Database;
 import com.android.support.room.RoomDatabase;
 
-@Database(entities = {User.class, Pet.class})
+@Database(entities = {User.class, Pet.class}, version = 3)
 public abstract class AppDatabase_03 extends RoomDatabase {
     public abstract UserCrudDao userDao();
     public abstract PetDao petDao();

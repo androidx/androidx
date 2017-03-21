@@ -16,33 +16,45 @@
 
 package com.android.support.room.vo
 
+import com.android.support.room.RoomMasterTable
+import com.android.support.room.migration.bundle.DatabaseBundle
+import com.android.support.room.migration.bundle.SchemaBundle
 import com.squareup.javapoet.ClassName
 import org.apache.commons.codec.digest.DigestUtils
+import java.io.File
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
 /**
  * Holds information about a class annotated with Database.
  */
-data class Database(val element : TypeElement,
-                    val type : TypeMirror,
-                    val entities : List<Entity>,
-                    val daoMethods : List<DaoMethod>) {
-    val typeName : ClassName by lazy { ClassName.get(element)}
+data class Database(val element: TypeElement,
+                    val type: TypeMirror,
+                    val entities: List<Entity>,
+                    val daoMethods: List<DaoMethod>,
+                    val version: Int,
+                    val exportSchema: Boolean) {
+    val typeName: ClassName by lazy { ClassName.get(element) }
 
     private val implClassName by lazy {
         "${typeName.simpleNames().joinToString("_")}_Impl"
     }
 
-    val implTypeName : ClassName by lazy {
+    val implTypeName: ClassName by lazy {
         ClassName.get(typeName.packageName(), implClassName)
+    }
+
+    val bundle by lazy {
+        DatabaseBundle(version, identityHash, entities.map(Entity::toBundle),
+                listOf(RoomMasterTable.CREATE_QUERY,
+                        RoomMasterTable.createInsertQuery(identityHash)))
     }
 
     /**
      * Create a has that identifies this database definition so that at runtime we can check to
      * ensure developer didn't forget to update the version.
      */
-    val identityHash : String by lazy {
+    val identityHash: String by lazy {
         val entityDescriptions = entities
                 .sortedBy { it.tableName }
                 .map { it.createTableQuery }
@@ -54,5 +66,10 @@ data class Database(val element : TypeElement,
                 }
         val input = (entityDescriptions + indexDescriptions).joinToString("¯\\_(ツ)_/¯")
         DigestUtils.md5Hex(input)
+    }
+
+    fun exportSchema(file: File) {
+        val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
+        SchemaBundle.serialize(schemaBundle, file)
     }
 }

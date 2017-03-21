@@ -238,6 +238,7 @@ class CustomTypeConverterResolutionTest {
             addAnnotation(
                     AnnotationSpec.builder(Database::class.java).apply {
                         addMember("entities", "{$T.class}", ENTITY)
+                        addMember("version", "42")
                     }.build()
             )
         }.build()

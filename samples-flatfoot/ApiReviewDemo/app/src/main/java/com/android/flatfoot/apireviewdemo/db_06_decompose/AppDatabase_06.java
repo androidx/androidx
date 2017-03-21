@@ -19,6 +19,6 @@ package com.android.flatfoot.apireviewdemo.db_06_decompose;
 import com.android.support.room.Database;
 import com.android.support.room.RoomDatabase;
 
-@Database(entities = {School.class})
+@Database(entities = {School.class}, version = 6)
 public abstract class AppDatabase_06 extends RoomDatabase {
 }

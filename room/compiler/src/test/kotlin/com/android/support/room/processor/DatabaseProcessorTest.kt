@@ -87,7 +87,7 @@ class DatabaseProcessorTest {
     @Test
     fun simple() {
         singleDb("""
-            @Database(entities = {User.class})
+            @Database(entities = {User.class}, version = 42)
             public abstract class MyDb extends RoomDatabase {
                 abstract UserDao userDao();
             }
@@ -100,7 +100,7 @@ class DatabaseProcessorTest {
     @Test
     fun multiple() {
         singleDb("""
-            @Database(entities = {User.class, Book.class})
+            @Database(entities = {User.class, Book.class}, version = 42)
             public abstract class MyDb extends RoomDatabase {
                 abstract UserDao userDao();
                 abstract BookDao bookDao();
@@ -117,7 +117,7 @@ class DatabaseProcessorTest {
     @Test
     fun detectMissingBaseClass() {
         singleDb("""
-            @Database(entities = {User.class, Book.class})
+            @Database(entities = {User.class, Book.class}, version = 42)
             public abstract class MyDb {
             }
             """, USER, BOOK) { db, invocation ->
@@ -128,7 +128,7 @@ class DatabaseProcessorTest {
     fun detectMissingTable() {
         singleDb(
                 """
-                @Database(entities = {Book.class})
+                @Database(entities = {Book.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
@@ -149,7 +149,7 @@ class DatabaseProcessorTest {
     @Test
     fun detectDuplicateTableNames() {
         singleDb("""
-                @Database(entities = {User.class, AnotherClass.class})
+                @Database(entities = {User.class, AnotherClass.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                     abstract UserDao userDao();
                 }
@@ -174,7 +174,7 @@ class DatabaseProcessorTest {
         singleDb(
                 """
                 @SkipQueryVerification
-                @Database(entities = {Book.class})
+                @Database(entities = {Book.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
@@ -197,7 +197,7 @@ class DatabaseProcessorTest {
         val db1 = JavaFileObjects.forSourceString("foo.bar.Db1",
                 """
                 $DATABASE_PREFIX
-                @Database(entities = {Book.class})
+                @Database(entities = {Book.class}, version = 42)
                 public abstract class Db1 extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
@@ -205,7 +205,7 @@ class DatabaseProcessorTest {
         val db2 = JavaFileObjects.forSourceString("foo.bar.Db2",
                 """
                 $DATABASE_PREFIX
-                @Database(entities = {Book.class})
+                @Database(entities = {Book.class}, version = 42)
                 public abstract class Db2 extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
@@ -215,7 +215,7 @@ class DatabaseProcessorTest {
                 package foo.barx;
                 import com.android.support.room.*;
                 import foo.bar.*;
-                @Database(entities = {Book.class})
+                @Database(entities = {Book.class}, version = 42)
                 public abstract class Db1 extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
@@ -245,7 +245,7 @@ class DatabaseProcessorTest {
     fun twoDaoMethodsForTheSameDao() {
         singleDb(
                 """
-                @Database(entities = {User.class})
+                @Database(entities = {User.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                     abstract UserDao userDao();
                     abstract UserDao userDao2();
@@ -264,7 +264,7 @@ class DatabaseProcessorTest {
         singleDb(
                 """
                 @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-                @Database(entities = {User.class})
+                @Database(entities = {User.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                     abstract UserDao userDao();
                 }
@@ -300,7 +300,7 @@ class DatabaseProcessorTest {
                 }
                 """)
         singleDb("""
-                @Database(entities = {Entity1.class, Entity2.class})
+                @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """, entity1, entity2){ db, invocation ->

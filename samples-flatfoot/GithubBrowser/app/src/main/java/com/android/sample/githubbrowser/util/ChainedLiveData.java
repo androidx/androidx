@@ -50,7 +50,7 @@ public class ChainedLiveData<T> extends LiveData<T> {
             setValue(null);
         } else {
             if (getActiveObserverCount() > 0) {
-                backingLiveData.observe(mObserver);
+                backingLiveData.observeForever(mObserver);
             } else {
                 setValue(backingLiveData.getValue());
             }
@@ -60,7 +60,7 @@ public class ChainedLiveData<T> extends LiveData<T> {
     @Override
     protected void onActive() {
         if (mBackingLiveData != null) {
-            mBackingLiveData.observe(mObserver);
+            mBackingLiveData.observeForever(mObserver);
         }
     }
 

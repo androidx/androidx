@@ -28,7 +28,11 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     testOptions {
         unitTests.returnDefaultValues = true
@@ -36,6 +40,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
+    }
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 }
 
@@ -60,6 +67,7 @@ dependencies {
     androidTestCompile project(':lifecycle:extensions')
     androidTestCompile project(':lifecycle:common')
     androidTestCompile project(':lifecycle:runtime')
+    androidTestCompile project(':room:testing')
     testCompile libs.junit
     testCompile libs.mockito_core
 

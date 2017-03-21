@@ -18,6 +18,8 @@ package com.android.support.room.processor
 
 import com.android.support.room.SkipQueryVerification
 import com.android.support.room.ext.RoomTypeNames
+import com.android.support.room.ext.getAsBoolean
+import com.android.support.room.ext.getAsInt
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.ext.toListOfClassTypes
@@ -81,10 +83,17 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         }
         validateUniqueDaoClasses(element, daoMethods)
         validateUniqueIndices(element, entities)
-        val database = Database(element = element,
+        val version = AnnotationMirrors.getAnnotationValue(dbAnnotation, "version")
+                .getAsInt(1)!!.toInt()
+        val exportSchema = AnnotationMirrors.getAnnotationValue(dbAnnotation, "exportSchema")
+                .getAsBoolean(true)
+        val database = Database(
+                version = version,
+                element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
-                daoMethods = daoMethods)
+                daoMethods = daoMethods,
+                exportSchema = exportSchema)
         return database
     }
 

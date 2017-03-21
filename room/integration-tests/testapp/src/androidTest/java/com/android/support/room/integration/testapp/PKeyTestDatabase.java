@@ -26,7 +26,8 @@ import com.android.support.room.integration.testapp.vo.IntegerAutoIncPKeyEntity;
 
 import java.util.List;
 
-@Database(entities = {IntAutoIncPKeyEntity.class, IntegerAutoIncPKeyEntity.class})
+@Database(entities = {IntAutoIncPKeyEntity.class, IntegerAutoIncPKeyEntity.class}, version = 1,
+        exportSchema = false)
 public abstract class PKeyTestDatabase extends RoomDatabase {
     public abstract IntPKeyDao intPKeyDao();
     public abstract IntegerPKeyDao integerPKeyDao();

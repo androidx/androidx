@@ -15,6 +15,7 @@
  */
 package com.android.support.room.vo
 
+import com.android.support.room.migration.bundle.PrimaryKeyBundle
 import javax.lang.model.element.Element
 
 /**
@@ -30,4 +31,7 @@ data class PrimaryKey(val declaredIn : Element?, val fields: List<Field>,
         return "PrimaryKey[" +
                 fields.joinToString(separator = ", ", transform = Field::getPath) + "]"
     }
+
+    fun toBundle(): PrimaryKeyBundle = PrimaryKeyBundle(
+            autoGenerateId, fields.map { it.columnName })
 }

@@ -180,7 +180,9 @@ class DatabaseVerifierTest {
                 element = mock(TypeElement::class.java),
                 type = mock(TypeMirror::class.java),
                 entities = entities.toList(),
-                daoMethods = emptyList())
+                daoMethods = emptyList(),
+                version = -1,
+                exportSchema = false)
     }
 
     private fun entity(tableName: String, vararg fields: Field): Entity {

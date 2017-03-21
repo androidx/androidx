@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.Observer;
 import com.android.support.lifecycle.ViewModel;
+
 import com.example.android.flatfoot.codelab.flatfootcodelab.orm_db.AppDatabase;
 import com.example.android.flatfoot.codelab.flatfootcodelab.orm_db.LoanWithUserAndBook;
 import com.example.android.flatfoot.codelab.flatfootcodelab.orm_db.utils.DatabaseInitializer;
@@ -39,6 +40,25 @@ public class ShowUserViewModel extends ViewModel {
     private LiveData<String> mLoansResult;
 
     private AppDatabase mDb;
+
+    private final Observer<List<LoanWithUserAndBook>> mObserver =
+            new Observer<List<LoanWithUserAndBook>>() {
+                @Override
+                public void onChanged(
+                        @NonNull final List<LoanWithUserAndBook> loansWithUserAndBook) {
+                    StringBuilder sb = new StringBuilder();
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm",
+                            Locale.US);
+
+                    for (LoanWithUserAndBook loan : loansWithUserAndBook) {
+                        sb.append(String.format("%s\n  (Returned: %s)\n",
+                                loan.bookTitle,
+                                simpleDateFormat.format(loan.endTime)));
+
+                    }
+                    mLoansResult.setValue(sb.toString());
+                }
+            };
 
     public LiveData<String> getLoansResult() {
         return mLoansResult;
@@ -61,24 +81,23 @@ public class ShowUserViewModel extends ViewModel {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, -1);
         Date yesterday = calendar.getTime();
+        removeObserver();
         mLoans = mDb.loanModel().findLoansByNameAfter("Mike", yesterday);
 
         mLoansResult = new LiveData<>();
 
-        mLoans.observe(new Observer<List<LoanWithUserAndBook>>() {
-            @Override
-            public void onChanged(@NonNull final List<LoanWithUserAndBook> loansWithUserAndBook) {
-                StringBuilder sb = new StringBuilder();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+        mLoans.observeForever(mObserver);
+    }
 
-                for (LoanWithUserAndBook loan : loansWithUserAndBook) {
-                    sb.append(String.format("%s\n  (Returned: %s)\n",
-                            loan.bookTitle,
-                            simpleDateFormat.format(loan.endTime)));
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        removeObserver();
+    }
 
-                }
-                mLoansResult.setValue(sb.toString());
-            }
-        });
+    private void removeObserver() {
+        if (mLoans != null) {
+            mLoans.removeObserver(mObserver);
+        }
     }
 }

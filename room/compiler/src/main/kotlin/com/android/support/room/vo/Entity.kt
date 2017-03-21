@@ -16,6 +16,8 @@
 
 package com.android.support.room.vo
 
+import com.android.support.room.migration.bundle.BundleUtil
+import com.android.support.room.migration.bundle.EntityBundle
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
@@ -24,13 +26,16 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
              fields: List<Field>, decomposedFields: List<DecomposedField>,
              val primaryKey: PrimaryKey, val indices: List<Index>)
     : Pojo(element, type, fields, decomposedFields, emptyList()) {
-
     val createTableQuery by lazy {
+        createTableQuery(tableName)
+    }
+
+    fun createTableQuery(tableName : String) : String {
         val definitions = (fields.map {
             val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
             it.databaseDefinition(autoIncrement)
         } + createPrimaryKeyDefinition()).filterNotNull()
-        "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
+        return "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
     }
 
     val createIndexQueries by lazy {
@@ -49,4 +54,11 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
             "PRIMARY KEY($keys)"
         }
     }
+
+    fun toBundle(): EntityBundle = EntityBundle(
+            tableName,
+            createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
+            fields.map {it.toBundle()},
+            primaryKey.toBundle(),
+            indices.map { it.toBundle() })
 }

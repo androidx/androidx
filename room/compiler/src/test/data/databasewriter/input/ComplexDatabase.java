@@ -17,7 +17,7 @@
 package foo.bar;
 import com.android.support.room.*;
 import java.util.List;
-@Database(entities = {User.class})
+@Database(entities = {User.class}, version = 1923)
 abstract class ComplexDatabase extends RoomDatabase {
     abstract ComplexDao getComplexDao();
 }

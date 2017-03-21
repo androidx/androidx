@@ -71,7 +71,7 @@ public class IndexingTest {
         List<IndexInfo> loadIndices();
     }
 
-    @Database(entities = {Entity1.class})
+    @Database(entities = {Entity1.class}, version = 1, exportSchema = false)
     abstract static class IndexingDb extends RoomDatabase {
         abstract SqlMasterDao sqlMasterDao();
     }

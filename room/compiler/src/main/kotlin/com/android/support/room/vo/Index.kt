@@ -16,6 +16,9 @@
 
 package com.android.support.room.vo
 
+import com.android.support.room.migration.bundle.BundleUtil
+import com.android.support.room.migration.bundle.IndexBundle
+
 /**
  * Represents a processed index.
  */
@@ -32,4 +35,7 @@ data class Index(val name : String, val unique : Boolean, val fields : List<Fiel
             ON `$tableName` (${fields.map { it.columnName }.joinToString(", ") { "`$it`"}})
             """.trimIndent().replace(System.lineSeparator(), " ")
     }
+
+    fun toBundle(): IndexBundle = IndexBundle(name, unique, fields.map { it.columnName },
+            createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER))
 }

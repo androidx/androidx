@@ -13,7 +13,7 @@ import com.example.android.flatfoot.codelab.flatfootcodelab.step10_solution.dao.
 import com.example.android.flatfoot.codelab.flatfootcodelab.step10_solution.entity.MyComment;
 import com.example.android.flatfoot.codelab.flatfootcodelab.step10_solution.entity.MyProduct;
 
-@Database(entities = {MyProduct.class, MyComment.class})
+@Database(entities = {MyProduct.class, MyComment.class}, version = 1)
 @TypeConverters(DateConverter.class)
 public abstract class MyDatabase extends RoomDatabase {
     private static MyDatabase sInstance;

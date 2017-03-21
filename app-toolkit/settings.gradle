@@ -60,11 +60,17 @@ project(':room:runtime').projectDir = new File(supportRoot, "room/runtime")
 include ':room:compiler'
 project(':room:compiler').projectDir = new File(supportRoot, "room/compiler")
 
+include ':room:migration'
+project(':room:migration').projectDir = new File(supportRoot, "room/migration")
+
 include ':room:db'
 project(':room:db').projectDir = new File(supportRoot, "room/db")
 
 include ":room:db-impl"
 project(':room:db-impl').projectDir = new File(supportRoot, "room/db-impl")
+
+include ":room:testing"
+project(':room:testing').projectDir = new File(supportRoot, "room/testing")
 
 include ':room:integration-tests:testapp'
 project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "room/integration-tests/testapp")

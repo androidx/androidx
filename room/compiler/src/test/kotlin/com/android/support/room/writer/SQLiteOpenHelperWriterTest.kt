@@ -44,7 +44,7 @@ class SQLiteOpenHelperWriterTest {
         const val DATABASE_CODE = """
             package foo.bar;
             import com.android.support.room.*;
-            @Database(entities = {MyEntity.class})
+            @Database(entities = {MyEntity.class}, version = 3)
             abstract public class MyDatabase extends RoomDatabase {
             }
             """

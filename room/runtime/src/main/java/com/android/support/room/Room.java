@@ -28,7 +28,7 @@ public class Room {
     /**
      * The master table where room keeps its metadata information.
      */
-    public static final String MASTER_TABLE_NAME = "room_master_table";
+    public static final String MASTER_TABLE_NAME = RoomMasterTable.TABLE_NAME;
     private static final String CURSOR_CONV_SUFFIX = "_CursorConverter";
 
     /**

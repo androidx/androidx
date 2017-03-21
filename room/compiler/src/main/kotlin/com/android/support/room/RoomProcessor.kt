@@ -18,12 +18,15 @@ package com.android.support.room
 
 import com.android.support.room.processor.Context
 import com.android.support.room.processor.DatabaseProcessor
+import com.android.support.room.processor.ProcessorErrors
 import com.android.support.room.vo.DaoMethod
+import com.android.support.room.vo.Warning
 import com.android.support.room.writer.DaoWriter
 import com.android.support.room.writer.DatabaseWriter
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
 import com.google.common.collect.SetMultimap
+import java.io.File
 import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
@@ -36,6 +39,10 @@ class RoomProcessor : BasicAnnotationProcessor() {
     override fun initSteps(): MutableIterable<ProcessingStep>? {
         val context = Context(processingEnv)
         return arrayListOf(DatabaseProcessingStep(context))
+    }
+
+    override fun getSupportedOptions(): MutableSet<String> {
+        return Context.ARG_OPTIONS.toMutableSet()
     }
 
     class DatabaseProcessingStep(context: Context) : ContextBoundProcessingStep(context) {
@@ -54,15 +61,31 @@ class RoomProcessor : BasicAnnotationProcessor() {
                 }
             }
 
-            databases?.forEach {
-                DatabaseWriter(it).write(context.processingEnv)
+            databases?.forEach { db ->
+                DatabaseWriter(db).write(context.processingEnv)
+                if (db.exportSchema) {
+                    val schemaOutFolder = context.schemaOutFolder
+                    if (schemaOutFolder == null) {
+                        context.logger.w(Warning.MISSING_SCHEMA_LOCATION, db.element,
+                                ProcessorErrors.MISSING_SCHEMA_EXPORT_DIRECTORY)
+                    } else {
+                        if (!schemaOutFolder.exists()) {
+                            schemaOutFolder.mkdirs()
+                        }
+                        val qName = db.element.qualifiedName.toString()
+                        val dbSchemaFolder = File(schemaOutFolder, qName)
+                        if (!dbSchemaFolder.exists()) {
+                            dbSchemaFolder.mkdirs()
+                        }
+                        db.exportSchema(File(dbSchemaFolder, "${db.version}.json"))
+                    }
+                }
             }
             context.databaseVerifier?.let {
                 it.closeConnection()
             }
             return mutableSetOf()
         }
-
         override fun annotations(): MutableSet<out Class<out Annotation>> {
             return mutableSetOf(Database::class.java, Dao::class.java, Entity::class.java)
         }

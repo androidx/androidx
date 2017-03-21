@@ -22,7 +22,7 @@ import com.android.support.room.Database;
 import com.android.support.room.Room;
 import com.android.support.room.RoomDatabase;
 
-@Database(entities = {User.class, Book.class, Loan.class})
+@Database(entities = {User.class, Book.class, Loan.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;

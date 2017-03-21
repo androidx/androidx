@@ -21,12 +21,19 @@ import android.database.Cursor;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.SparseArrayCompat;
+import android.util.Log;
 
 import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.SupportSQLiteQuery;
 import com.android.support.db.SupportSQLiteStatement;
 import com.android.support.db.framework.FrameworkSQLiteOpenHelperFactory;
+import com.android.support.room.migration.Migration;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Base class for all Room databases. All classes that are annotated with {@link Database} must
@@ -108,7 +115,7 @@ public abstract class RoomDatabase {
 
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
-    // all sqlite database methods.
+    // all SQLite database methods.
 
     /**
      * Wrapper for {@link SupportSQLiteDatabase#rawQuery(String, String[])}.
@@ -124,7 +131,7 @@ public abstract class RoomDatabase {
     /**
      * Wrapper for {@link SupportSQLiteDatabase#rawQuery(SupportSQLiteQuery)}.
      *
-     * @param query The Query which includes the SQL and a bind callback for bind argumetns.
+     * @param query The Query which includes the SQL and a bind callback for bind arguments.
      *
      * @return Result of the query.
      */
@@ -211,13 +218,17 @@ public abstract class RoomDatabase {
         private final Context mContext;
 
         private SupportSQLiteOpenHelper.Factory mFactory;
-        private int mVersion = 1;
         private boolean mInMemory;
+        /**
+         * Migrations, mapped by from-to pairs.
+         */
+        private MigrationContainer mMigrationContainer;
 
         Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
             mContext = context;
             mDatabaseClass = klass;
             mName = name;
+            mMigrationContainer = new MigrationContainer();
         }
 
         /**
@@ -233,13 +244,27 @@ public abstract class RoomDatabase {
         }
 
         /**
-         * Version of the database, defaults to 1.
+         * Adds a migration to the builder.
+         * <p>
+         * Each Migration has a start and end versions and Room runs these migrations to bring the
+         * database to the latest version.
+         * <p>
+         * If a migration item is missing between current version and the latest version, Room
+         * will clear the database and recreate so even if you have no changes between 2 versions,
+         * you should still provide a Migration object to the builder.
+         * <p>
+         * A migration can handle more than 1 version (e.g. if you have a faster path to choose when
+         * going version 3 to 5 without going to version 4). If Room opens a database at version
+         * 3 and latest version is &gt;= 5, Room will use the migration object that can migrate from
+         * 3 to 5 instead of 3 to 4 and 4 to 5.
          *
-         * @param version The database version to use
+         * @param migrations The migration object that can modify the database and to the necessary
+         *                   changes.
+         *
          * @return this
          */
-        public Builder<T> version(int version) {
-            mVersion = version;
+        public Builder<T> addMigrations(Migration... migrations) {
+            mMigrationContainer.addMigrations(migrations);
             return this;
         }
 
@@ -264,10 +289,102 @@ public abstract class RoomDatabase {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
             DatabaseConfiguration configuration =
-                    new DatabaseConfiguration(mContext, mName, mVersion, mFactory);
+                    new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
+        }
+    }
+
+    /**
+     * A container to hold migrations. It also allows querying its contents to find migrations
+     * between two versions.
+     */
+    public static class MigrationContainer {
+        private SparseArrayCompat<SparseArrayCompat<Migration>> mMigrations =
+                new SparseArrayCompat<>();
+
+        /**
+         * Adds the given migrations to the list of available migrations. If 2 migrations have the
+         * same start-end versions, the latter migration overrides the previous one.
+         *
+         * @param migrations List of available migrations.
+         */
+        public void addMigrations(Migration... migrations) {
+            for (Migration migration : migrations) {
+                addMigration(migration);
+            }
+        }
+
+        private void addMigration(Migration migration) {
+            final int start = migration.startVersion;
+            final int end = migration.endVersion;
+            SparseArrayCompat<Migration> targetMap = mMigrations.get(start);
+            if (targetMap == null) {
+                targetMap = new SparseArrayCompat<>();
+                mMigrations.put(start, targetMap);
+            }
+            Migration existing = targetMap.get(end);
+            if (existing != null) {
+                Log.w(Room.LOG_TAG, "Overriding migration " + existing + " with " + migration);
+            }
+            targetMap.append(end, migration);
+        }
+
+        /**
+         * Finds the list of migrations that should be run to move from {@code start} version to
+         * {@code end} version.
+         *
+         * @param start The current database version
+         * @param end The target database version
+         * @return An ordered list of {@link Migration} objects that should be run to migrate
+         * between the given versions. If a migration path cannot be found, returns {@code null}.
+         */
+        @Nullable
+        public List<Migration> findMigrationPath(int start, int end) {
+            if (start == end) {
+                return Collections.emptyList();
+            }
+            boolean migrateUp = end > start;
+            List<Migration> result = new ArrayList<>();
+            return findUpMigrationPath(result, migrateUp, start, end);
+        }
+
+        private List<Migration> findUpMigrationPath(List<Migration> result, boolean upgrade,
+                int start, int end) {
+            final int searchDirection = upgrade ? -1 : 1;
+            while (upgrade ? start < end : start > end) {
+                SparseArrayCompat<Migration> targetNodes = mMigrations.get(start);
+                if (targetNodes == null) {
+                    return null;
+                }
+                // keys are ordered so we can start searching from one end of them.
+                final int size = targetNodes.size();
+                final int firstIndex;
+                final int lastIndex;
+
+                if (upgrade) {
+                    firstIndex = size - 1;
+                    lastIndex = -1;
+                } else {
+                    firstIndex = 0;
+                    lastIndex = size;
+                }
+                boolean found = false;
+                for (int i = firstIndex; i != lastIndex; i += searchDirection) {
+                    int targetVersion = targetNodes.keyAt(i);
+                    if (targetVersion <= end && targetVersion > start) {
+                        result.add(targetNodes.valueAt(i));
+                        start = targetVersion;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return null;
+                }
+            }
+            return result;
         }
     }
 }

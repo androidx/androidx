@@ -21,11 +21,12 @@ import com.android.support.room.preconditions.Checks
 import com.android.support.room.solver.TypeAdapterStore
 import com.android.support.room.solver.types.TypeConverter
 import com.android.support.room.verifier.DatabaseVerifier
+import java.io.File
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
-data class Context private constructor(val processingEnv: ProcessingEnvironment,
+class Context private constructor(val processingEnv: ProcessingEnvironment,
                                        val logger: RLog, val typeConverters: List<TypeConverter>) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
@@ -35,6 +36,12 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
     // set when database and its entities are processed.
     var databaseVerifier : DatabaseVerifier? = null
 
+    companion object {
+        val ARG_OPTIONS by lazy {
+            ProcessorOptions.values().map { it.argName }
+        }
+    }
+
     constructor(processingEnv: ProcessingEnvironment) : this(processingEnv,
             RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null), emptyList()) {
     }
@@ -42,6 +49,15 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
         val STRING: TypeMirror by lazy {
             processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+        }
+    }
+
+    val schemaOutFolder by lazy {
+        val arg = processingEnv.options[ProcessorOptions.OPTION_SCHEMA_FOLDER.argName]
+        if (arg?.isNotEmpty() ?: false) {
+            File(arg)
+        } else {
+            null
         }
     }
 
@@ -63,5 +79,9 @@ data class Context private constructor(val processingEnv: ProcessingEnvironment,
                 converters + this.typeConverters)
         subContext.databaseVerifier = databaseVerifier
         return subContext
+    }
+
+    enum class ProcessorOptions(val argName : String) {
+        OPTION_SCHEMA_FOLDER("room.schemaLocation")
     }
 }

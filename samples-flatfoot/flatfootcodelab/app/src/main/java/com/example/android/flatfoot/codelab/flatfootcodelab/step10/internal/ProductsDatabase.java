@@ -20,7 +20,7 @@ package com.example.android.flatfoot.codelab.flatfootcodelab.step10.internal;
 import com.android.support.room.Database;
 import com.android.support.room.RoomDatabase;
 
-@Database(entities = {InternalProduct.class, InternalComment.class})
+@Database(entities = {InternalProduct.class, InternalComment.class}, version = 1)
 abstract class ProductsDatabase extends RoomDatabase {
     abstract ProductReviewDao dao();
 }

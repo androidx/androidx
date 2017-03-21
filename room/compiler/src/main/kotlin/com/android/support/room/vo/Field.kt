@@ -17,6 +17,7 @@
 package com.android.support.room.vo
 
 import com.android.support.room.ext.typeName
+import com.android.support.room.migration.bundle.FieldBundle
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.solver.types.CursorValueReader
 import com.android.support.room.solver.types.StatementValueBinder
@@ -112,4 +113,8 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
         }
         return "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}$columnSpec"
     }
+
+    fun toBundle(): FieldBundle = FieldBundle(pathWithDotNotation, columnName,
+            affinity?.name ?: SQLTypeAffinity.TEXT.name
+    )
 }

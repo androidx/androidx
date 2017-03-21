@@ -98,4 +98,12 @@ public class RoomWarnings {
      * in the parent. Room will still do the matching using {@code String} representations.
      */
     public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
+
+    /**
+     * Reported when a `room.schemaLocation` argument is not provided into the annotation processor.
+     * You can either set {@link Database#exportSchema()} to {@code false} or provide
+     * `room.schemaLocation` to the annotation processor. You are strongly adviced to provide it
+     * and also commit them into your version control system.
+     */
+    public static final String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
 }

@@ -34,7 +34,8 @@ import com.android.support.room.integration.testapp.vo.User;
 
 import java.util.Date;
 
-@Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class})
+@Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class},
+        version = 1, exportSchema = false)
 @TypeConverters(TestDatabase.Converters.class)
 public abstract class TestDatabase extends RoomDatabase {
     public abstract UserDao getUserDao();

@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.Pair;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,7 +38,7 @@ import java.util.Locale;
  * sql versions. It mimics the behavior of {@link android.database.sqlite.SQLiteDatabase}
  */
 @SuppressWarnings("unused")
-public interface SupportSQLiteDatabase {
+public interface SupportSQLiteDatabase extends Closeable {
     // TODO override all methods
     /**
      * Compiles the given SQL statement.

@@ -53,9 +53,19 @@ dependencies {
     compile project(":apptoolkit:core")
     compile libs.support.core_utils
 
+
     testCompile project(":apptoolkit:core-testing")
     testCompile libs.junit
     testCompile libs.mockito.all
+    testCompile libs.support.annotations
+
+    androidTestCompile libs.junit
+    androidTestCompile(libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile(libs.espresso_core, {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
 }
 
 archivesBaseName = "runtime"
