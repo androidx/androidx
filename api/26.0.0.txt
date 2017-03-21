@@ -1191,7 +1191,7 @@ package android.support.media.tv {
     method public java.lang.String getAvailability();
     method public java.lang.String getContentId();
     method public int getDurationMillis();
-    method public int getInteractionCount();
+    method public long getInteractionCount();
     method public java.lang.String getInteractionType();
     method public java.lang.String getInternalProviderId();
     method public int getItemCount();
@@ -1219,7 +1219,7 @@ package android.support.media.tv {
     method public T setAvailability(java.lang.String);
     method public T setContentId(java.lang.String);
     method public T setDurationMillis(int);
-    method public T setInteractionCount(int);
+    method public T setInteractionCount(long);
     method public T setInteractionType(java.lang.String);
     method public T setInternalProviderId(java.lang.String);
     method public T setItemCount(int);
@@ -1317,6 +1317,7 @@ package android.support.media.tv {
     method public int getTransportStreamId();
     method public java.lang.String getType();
     method public java.lang.String getVideoFormat();
+    method public boolean isBrowsable();
     method public boolean isSearchable();
     method public android.content.ContentValues toContentValues();
   }
