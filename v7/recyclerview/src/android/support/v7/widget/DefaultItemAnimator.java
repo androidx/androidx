@@ -255,8 +255,8 @@ public class DefaultItemAnimator extends SimpleItemAnimator {
     public boolean animateMove(final ViewHolder holder, int fromX, int fromY,
             int toX, int toY) {
         final View view = holder.itemView;
-        fromX += holder.itemView.getTranslationX();
-        fromY += holder.itemView.getTranslationY();
+        fromX += (int) holder.itemView.getTranslationX();
+        fromY += (int) holder.itemView.getTranslationY();
         resetAnimation(holder);
         int deltaX = toX - fromX;
         int deltaY = toY - fromY;

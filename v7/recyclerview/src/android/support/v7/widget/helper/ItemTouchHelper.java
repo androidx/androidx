@@ -2283,7 +2283,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         }
     }
 
-    private class RecoverAnimation implements Animator.AnimatorListener {
+    private static class RecoverAnimation implements Animator.AnimatorListener {
 
         final float mStartDx;
 

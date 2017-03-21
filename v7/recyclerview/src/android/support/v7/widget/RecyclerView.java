@@ -4892,7 +4892,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
         private float distanceInfluenceForSnapDuration(float f) {
             f -= 0.5f; // center the values about 0.
-            f *= 0.3f * Math.PI / 2.0f;
+            f *= 0.3f * (float) Math.PI / 2.0f;
             return (float) Math.sin(f);
         }
 
@@ -11162,8 +11162,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param scrollVector The vector that points to the target scroll position
          */
         protected void normalize(PointF scrollVector) {
-            final double magnitude = Math.sqrt(scrollVector.x * scrollVector.x + scrollVector.y
-                    * scrollVector.y);
+            final float magnitude = (float) Math.sqrt(scrollVector.x * scrollVector.x
+                    + scrollVector.y * scrollVector.y);
             scrollVector.x /= magnitude;
             scrollVector.y /= magnitude;
         }
