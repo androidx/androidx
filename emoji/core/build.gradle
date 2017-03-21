@@ -39,4 +39,14 @@ supportLibrary {
     name 'Android Emoji Compat'
     inceptionYear '2017'
     description 'Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters.'
+
+    license {
+        name 'SIL Open Font License, Version 1.1'
+        url  'http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web'
+    }
+
+    license {
+        name 'Unicode, Inc. License'
+        url 'http://www.unicode.org/copyright.html#License'
+    }
 }
