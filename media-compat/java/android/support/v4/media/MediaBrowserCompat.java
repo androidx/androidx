@@ -849,10 +849,11 @@ public final class MediaBrowserCompat {
 
     static class MediaBrowserImplBase
             implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl {
-        static final int CONNECT_STATE_DISCONNECTED = 0;
-        static final int CONNECT_STATE_CONNECTING = 1;
-        private static final int CONNECT_STATE_CONNECTED = 2;
-        static final int CONNECT_STATE_SUSPENDED = 3;
+        static final int CONNECT_STATE_DISCONNECTING = 0;
+        static final int CONNECT_STATE_DISCONNECTED = 1;
+        static final int CONNECT_STATE_CONNECTING = 2;
+        static final int CONNECT_STATE_CONNECTED = 3;
+        static final int CONNECT_STATE_SUSPENDED = 4;
 
         final Context mContext;
         final ComponentName mServiceComponent;
@@ -952,21 +953,26 @@ public final class MediaBrowserCompat {
             // It's ok to call this any state, because allowing this lets apps not have
             // to check isConnected() unnecessarily. They won't appreciate the extra
             // assertions for this. We do everything we can here to go back to a sane state.
-            if (mCallbacksMessenger != null) {
-                try {
-                    mServiceBinderWrapper.disconnect(mCallbacksMessenger);
-                } catch (RemoteException ex) {
-                    // We are disconnecting anyway. Log, just for posterity but it's not
-                    // a big problem.
-                    Log.w(TAG, "RemoteException during connect for " + mServiceComponent);
+            mState = CONNECT_STATE_DISCONNECTING;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mCallbacksMessenger != null) {
+                        try {
+                            mServiceBinderWrapper.disconnect(mCallbacksMessenger);
+                        } catch (RemoteException ex) {
+                            // We are disconnecting anyway. Log, just for posterity but it's not
+                            // a big problem.
+                            Log.w(TAG, "RemoteException during connect for " + mServiceComponent);
+                        }
+                    }
+                    forceCloseConnection();
+                    if (DEBUG) {
+                        Log.d(TAG, "disconnect...");
+                        dump();
+                    }
                 }
-            }
-            forceCloseConnection();
-
-            if (DEBUG) {
-                Log.d(TAG, "disconnect...");
-                dump();
-            }
+            });
         }
 
         /**
@@ -1047,7 +1053,7 @@ public final class MediaBrowserCompat {
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
-            if (mState == CONNECT_STATE_CONNECTED) {
+            if (isConnected()) {
                 try {
                     mServiceBinderWrapper.addSubscription(parentId, callback.mToken, copiedOptions,
                             mCallbacksMessenger);
@@ -1069,7 +1075,7 @@ public final class MediaBrowserCompat {
             // Tell the service if necessary.
             try {
                 if (callback == null) {
-                    if (mState == CONNECT_STATE_CONNECTED) {
+                    if (isConnected()) {
                         mServiceBinderWrapper.removeSubscription(parentId, null,
                                 mCallbacksMessenger);
                     }
@@ -1078,7 +1084,7 @@ public final class MediaBrowserCompat {
                     final List<Bundle> optionsList = sub.getOptionsList();
                     for (int i = callbacks.size() - 1; i >= 0; --i) {
                         if (callbacks.get(i) == callback) {
-                            if (mState == CONNECT_STATE_CONNECTED) {
+                            if (isConnected()) {
                                 mServiceBinderWrapper.removeSubscription(
                                         parentId, callback.mToken, mCallbacksMessenger);
                             }
@@ -1106,7 +1112,7 @@ public final class MediaBrowserCompat {
             if (cb == null) {
                 throw new IllegalArgumentException("cb is null");
             }
-            if (mState != CONNECT_STATE_CONNECTED) {
+            if (!isConnected()) {
                 Log.i(TAG, "Not connected, unable to retrieve the MediaItem.");
                 mHandler.post(new Runnable() {
                     @Override
@@ -1264,6 +1270,8 @@ public final class MediaBrowserCompat {
          */
         private static String getStateLabel(int state) {
             switch (state) {
+                case CONNECT_STATE_DISCONNECTING:
+                    return "CONNECT_STATE_DISCONNECTING";
                 case CONNECT_STATE_DISCONNECTED:
                     return "CONNECT_STATE_DISCONNECTED";
                 case CONNECT_STATE_CONNECTING:
