@@ -207,16 +207,6 @@ public interface SupportMenuItem extends android.view.MenuItem {
     boolean isActionViewExpanded();
 
     /**
-     * Set an {@link MenuItem.OnActionExpandListener} on this menu item to be notified when the
-     * associated action view is expanded or collapsed. The menu item must be configured to expand
-     * or collapse its action view using the flag {@link #SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW}.
-     *
-     * @param listener Listener that will respond to expand/collapse events
-     * @return This menu item instance for call chaining
-     */
-    SupportMenuItem setSupportOnActionExpandListener(MenuItem.OnActionExpandListener listener);
-
-    /**
      * Change the content description associated with this menu item.
      *
      * @param contentDescription The new content description.

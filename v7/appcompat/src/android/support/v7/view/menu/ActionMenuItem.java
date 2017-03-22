@@ -365,13 +365,6 @@ public class ActionMenuItem implements SupportMenuItem {
     }
 
     @Override
-    public SupportMenuItem setSupportOnActionExpandListener(
-            MenuItem.OnActionExpandListener listener) {
-        // No need to save the listener; ActionMenuItem does not support collapsing items.
-        return this;
-    }
-
-    @Override
     public SupportMenuItem setContentDescription(CharSequence contentDescription) {
         mContentDescription = contentDescription;
         return this;
