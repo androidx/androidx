@@ -48,7 +48,8 @@ LOCAL_MANIFEST_FILE := animated/AndroidManifest.xml
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-compat \
     android-support-vectordrawable \
-    android-support-annotations
+    android-support-annotations \
+    android-support-core-ui
 LOCAL_AAPT_FLAGS := --no-version-vectors --add-javadoc-annotation doconly
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 include $(BUILD_STATIC_JAVA_LIBRARY)
