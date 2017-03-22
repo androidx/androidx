@@ -61,6 +61,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -326,12 +327,13 @@ public abstract class FragmentManager {
     public abstract Fragment getFragment(Bundle bundle, String key);
 
     /**
-     * Get a list of all fragments that have been added to the fragment manager.
+     * Get a list of all fragments that are currently added to the FragmentManager.
+     * This may include those that are hidden as well as those that are shown.
+     * This will not include any fragments only in the back stack, or fragments that
+     * are detached or removed.
      *
-     * @return The list of all fragments or null if none.
-     * @hide
+     * @return A list of all fragments that are added to the FragmentManager.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public abstract List<Fragment> getFragments();
 
     /**
@@ -920,11 +922,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     @Override
     public List<Fragment> getFragments() {
-        List<Fragment> result = new ArrayList<>();
-        if (mActive != null) {
-            result.addAll(mActive);
+        if (mAdded == null) {
+            return Collections.EMPTY_LIST;
         }
-        return result;
+        synchronized (mAdded) {
+            return (List<Fragment>) mAdded.clone();
+        }
     }
 
     @Override
@@ -1733,7 +1736,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             if (mAdded.contains(fragment)) {
                 throw new IllegalStateException("Fragment already added: " + fragment);
             }
-            mAdded.add(fragment);
+            synchronized (mAdded) {
+                mAdded.add(fragment);
+            }
             fragment.mAdded = true;
             fragment.mRemoving = false;
             if (fragment.mView == null) {
@@ -1753,7 +1758,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         final boolean inactive = !fragment.isInBackStack();
         if (!fragment.mDetached || inactive) {
             if (mAdded != null) {
-                mAdded.remove(fragment);
+                synchronized (mAdded) {
+                    mAdded.remove(fragment);
+                }
             }
             if (fragment.mHasMenu && fragment.mMenuVisible) {
                 mNeedMenuInvalidate = true;
@@ -1803,7 +1810,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 // We are not already in back stack, so need to remove the fragment.
                 if (mAdded != null) {
                     if (DEBUG) Log.v(TAG, "remove from detach: " + fragment);
-                    mAdded.remove(fragment);
+                    synchronized (mAdded) {
+                        mAdded.remove(fragment);
+                    }
                 }
                 if (fragment.mHasMenu && fragment.mMenuVisible) {
                     mNeedMenuInvalidate = true;
@@ -1825,7 +1834,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     throw new IllegalStateException("Fragment already added: " + fragment);
                 }
                 if (DEBUG) Log.v(TAG, "add from attach: " + fragment);
-                mAdded.add(fragment);
+                synchronized (mAdded) {
+                    mAdded.add(fragment);
+                }
                 fragment.mAdded = true;
                 if (fragment.mHasMenu && fragment.mMenuVisible) {
                     mNeedMenuInvalidate = true;
@@ -2895,7 +2906,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (mAdded.contains(f)) {
                     throw new IllegalStateException("Already added!");
                 }
-                mAdded.add(f);
+                synchronized (mAdded) {
+                    mAdded.add(f);
+                }
             }
         } else {
             mAdded = null;
