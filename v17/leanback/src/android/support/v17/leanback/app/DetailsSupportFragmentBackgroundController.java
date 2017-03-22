@@ -110,14 +110,14 @@ import android.support.v17.leanback.widget.ParallaxTarget;
  */
 public class DetailsSupportFragmentBackgroundController {
 
-    private final DetailsSupportFragment mFragment;
-    private DetailsParallaxDrawable mParallaxDrawable;
-    private int mParallaxDrawableMaxOffset;
-    private PlaybackGlue mPlaybackGlue;
-    private DetailsBackgroundVideoHelper mVideoHelper;
-    private Bitmap mCoverBitmap;
-    private int mSolidColor;
-    private boolean mCanUseHost = false;
+    final DetailsSupportFragment mFragment;
+    DetailsParallaxDrawable mParallaxDrawable;
+    int mParallaxDrawableMaxOffset;
+    PlaybackGlue mPlaybackGlue;
+    DetailsBackgroundVideoHelper mVideoHelper;
+    Bitmap mCoverBitmap;
+    int mSolidColor;
+    boolean mCanUseHost = false;
 
     /**
      * Creates a DetailsSupportFragmentBackgroundController for a DetailsSupportFragment. Note that
@@ -212,9 +212,13 @@ public class DetailsSupportFragmentBackgroundController {
     /**
      * Enable video playback and set proper {@link PlaybackGlueHost}. This method by default
      * creates a VideoSupportFragment and VideoSupportFragmentGlueHost to host the PlaybackGlue.
-     * This method must be called after calling details Fragment super.onCreate().
+     * This method must be called after calling details Fragment super.onCreate(). This method
+     * can be called multiple times to replace existing PlaybackGlue or calling
+     * setupVideoPlayback(null) to clear. Note a typical {@link PlaybackGlue} subclass releases
+     * resources in {@link PlaybackGlue#onDetachedFromHost()}, when the {@link PlaybackGlue}
+     * subclass is not doing that, it's app's responsibility to release the resources.
      *
-     * @param playbackGlue
+     * @param playbackGlue The new PlaybackGlue to set as background or null to clear existing one.
      * @see #onCreateVideoSupportFragment()
      * @see #onCreateGlueHost().
      */
@@ -222,11 +226,58 @@ public class DetailsSupportFragmentBackgroundController {
         if (mPlaybackGlue == playbackGlue) {
             return;
         }
+        if (mPlaybackGlue != null) {
+            mPlaybackGlue.setHost(null);
+        }
         mPlaybackGlue = playbackGlue;
-        mVideoHelper = new DetailsBackgroundVideoHelper(mPlaybackGlue,
-                mFragment.getParallax(), mParallaxDrawable.getCoverDrawable());
-        if (mCanUseHost) {
+        if (mVideoHelper == null && mPlaybackGlue != null) {
+            mVideoHelper = new DetailsBackgroundVideoHelper(mPlaybackGlue,
+                    mFragment.getParallax(), mParallaxDrawable.getCoverDrawable());
+        } else if (mVideoHelper != null) {
+            mVideoHelper.setPlaybackGlue(mPlaybackGlue);
+        }
+        if (mCanUseHost && mPlaybackGlue != null) {
             mPlaybackGlue.setHost(onCreateGlueHost());
+        }
+    }
+
+    /**
+     * Returns current PlaybackGlue or null if not set or cleared.
+     *
+     * @return Current PlaybackGlue or null
+     */
+    public final PlaybackGlue getPlaybackGlue() {
+        return mPlaybackGlue;
+    }
+
+    /**
+     * Precondition allows user navigate to video fragment using DPAD. Default implementation
+     * returns true if PlaybackGlue is not null. Subclass may override, e.g. only allow navigation
+     * when {@link PlaybackGlue#isReadyForPlayback()} is true. Note this method does not block
+     * app calls {@link #switchToVideo}.
+     *
+     * @return True allow to navigate to video fragment.
+     */
+    public boolean canNavigateToVideoSupportFragment() {
+        return mPlaybackGlue != null;
+    }
+
+    /**
+     * Switch to video fragment, note that this method is not affected by result of
+     * {@link #canNavigateToVideoSupportFragment()}.
+     */
+    public final void switchToVideo() {
+        if (mFragment.mVideoSupportFragment != null && mFragment.mVideoSupportFragment.getView() != null) {
+            mFragment.mVideoSupportFragment.getView().requestFocus();
+        }
+    }
+
+    /**
+     * Switch to rows fragment.
+     */
+    public final void switchToRows() {
+        if (mFragment.mRowsSupportFragment != null && mFragment.mRowsSupportFragment.getView() != null) {
+            mFragment.mRowsSupportFragment.getView().requestFocus();
         }
     }
 

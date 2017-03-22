@@ -56,6 +56,7 @@ final class DetailsBackgroundVideoHelper {
     private ValueAnimator mBackgroundAnimator;
     private Drawable mBackgroundDrawable;
     private PlaybackGlue mPlaybackGlue;
+    private boolean mBackgroundDrawableVisible;
 
     /**
      * Constructor to setup a Helper for controlling video playback in DetailsFragment.
@@ -75,6 +76,7 @@ final class DetailsBackgroundVideoHelper {
         this.mPlaybackGlue = playbackGlue;
         this.mDetailsParallax = detailsParallax;
         this.mBackgroundDrawable = backgroundDrawable;
+        mBackgroundDrawableVisible = true;
         startParallax();
     }
 
@@ -97,6 +99,9 @@ final class DetailsBackgroundVideoHelper {
                         }
                     }
                 });
+        // In case the VideoHelper is created after RecyclerView is created: perform initial
+        // parallax effect.
+        mDetailsParallax.updateValues();
     }
 
     void stopParallax() {
@@ -112,24 +117,44 @@ final class DetailsBackgroundVideoHelper {
             return;
         }
         mCurrentState = state;
-        switch (state) {
+        applyState();
+    }
+
+    private void applyState() {
+        switch (mCurrentState) {
             case PLAY_VIDEO:
-                if (mPlaybackGlue.isReadyForPlayback()) {
-                    internalStartPlayback();
+                if (mPlaybackGlue != null) {
+                    if (mPlaybackGlue.isReadyForPlayback()) {
+                        internalStartPlayback();
+                    } else {
+                        mPlaybackGlue.setPlayerCallback(mControlStateCallback);
+                    }
                 } else {
-                    mPlaybackGlue.setPlayerCallback(new PlaybackControlStateCallback());
+                    crossFadeBackgroundToVideo(false);
                 }
                 break;
             case NO_VIDEO:
                 crossFadeBackgroundToVideo(false);
-                mPlaybackGlue.setPlayerCallback(null);
-                mPlaybackGlue.pause();
+                if (mPlaybackGlue != null) {
+                    mPlaybackGlue.setPlayerCallback(null);
+                    mPlaybackGlue.pause();
+                }
                 break;
         }
     }
 
+    void setPlaybackGlue(PlaybackGlue playbackGlue) {
+        if (mPlaybackGlue != null) {
+            mPlaybackGlue.setPlayerCallback(null);
+        }
+        mPlaybackGlue = playbackGlue;
+        applyState();
+    }
+
     private void internalStartPlayback() {
-        mPlaybackGlue.play();
+        if (mPlaybackGlue != null) {
+            mPlaybackGlue.play();
+        }
         mDetailsParallax.getRecyclerView().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -139,6 +164,11 @@ final class DetailsBackgroundVideoHelper {
     }
 
     private void crossFadeBackgroundToVideo(final boolean crossFadeToVideo) {
+        final boolean newVisible = !crossFadeToVideo;
+        if (mBackgroundDrawableVisible == newVisible) {
+            return;
+        }
+        mBackgroundDrawableVisible = newVisible;
         if (mBackgroundAnimator != null) {
             mBackgroundAnimator.cancel();
             mBackgroundAnimator = null;
@@ -189,4 +219,6 @@ final class DetailsBackgroundVideoHelper {
             internalStartPlayback();
         }
     }
+
+    PlaybackControlStateCallback mControlStateCallback = new PlaybackControlStateCallback();
 }
