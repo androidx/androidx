@@ -1775,6 +1775,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         mIsSlidingChildViews = true;
+        if (getChildCount() == 0) {
+            return;
+        }
         if (mOrientation == VERTICAL) {
             int distance = -getHeight();
             int top = getChildAt(0).getTop();

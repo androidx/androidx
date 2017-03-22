@@ -91,6 +91,7 @@ for w in testcls:
             line = line.replace('{}Fragment'.format(w), '{}SupportFragment'.format(w))
         for w in testcls:
             line = line.replace('SingleFragmentTestBase', 'SingleSupportFragmentTestBase')
+            line = line.replace('SingleFragmentTestActivity', 'SingleSupportFragmentTestActivity')
             line = line.replace('{}FragmentTestBase'.format(w), '{}SupportFragmentTestBase'.format(w))
             line = line.replace('{}FragmentTest'.format(w), '{}SupportFragmentTest'.format(w))
             line = line.replace('{}FragmentTestActivity'.format(w), '{}SupportFragmentTestActivity'.format(w))

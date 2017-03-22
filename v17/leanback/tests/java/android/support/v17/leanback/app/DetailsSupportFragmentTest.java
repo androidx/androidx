@@ -24,6 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.PropertyValuesHolder;
+import android.support.v4.app.Fragment;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -32,7 +34,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.media.MediaPlayerGlue;
@@ -53,7 +55,7 @@ import org.junit.runners.JUnit4;
  * Unit tests for {@link DetailsSupportFragment}.
  */
 @RunWith(JUnit4.class)
-@MediumTest
+@LargeTest
 public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     static final int PARALLAX_VERTICAL_OFFSET = -300;
@@ -228,8 +230,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         @Override
         public void onStart() {
             super.onStart();
-            setItem(new PhotoItem("Hello world", "Fake content goes here",
-                    android.support.v17.leanback.test.R.drawable.spiderman));
             Bitmap bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
                     android.support.v17.leanback.test.R.drawable.spiderman);
             mDetailsBackground.setCoverBitmap(bitmap);
@@ -242,9 +242,29 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
     }
 
-    @Test
-    public void navigateBetweenRowsAndVideoUsingRequestFocus() throws Throwable {
-        launchAndWaitActivity(DetailsSupportFragmentWithVideo.class,
+    public static class DetailsSupportFragmentWithVideo1 extends DetailsSupportFragmentWithVideo {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setItem(new PhotoItem("Hello world", "Fake content goes here",
+                    android.support.v17.leanback.test.R.drawable.spiderman));
+        }
+    }
+
+    public static class DetailsSupportFragmentWithVideo2 extends DetailsSupportFragmentWithVideo {
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            setItem(new PhotoItem("Hello world", "Fake content goes here",
+                    android.support.v17.leanback.test.R.drawable.spiderman));
+        }
+    }
+
+    private void navigateBetweenRowsAndVideoUsingRequestFocusInternal(Class cls)
+            throws Throwable {
+        launchAndWaitActivity(cls,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
@@ -264,7 +284,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         final View firstRow = detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildAt(0);
         final int originalFirstRowTop = firstRow.getTop();
         assertTrue(firstRow.hasFocus());
-        assertTrue(firstRow.getTop() < screenHeight);
+        assertTrue(firstRow.getTop() > 0 && firstRow.getTop() < screenHeight);
         assertTrue(detailsFragment.isShowingTitle());
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -297,13 +317,23 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     @Test
-    public void navigateBetweenRowsAndVideoUsingDPAD() throws Throwable {
-        launchAndWaitActivity(DetailsSupportFragmentWithVideo.class,
+    public void navigateBetweenRowsAndVideoUsingRequestFocus1() throws Throwable {
+        navigateBetweenRowsAndVideoUsingRequestFocusInternal(DetailsSupportFragmentWithVideo1.class);
+    }
+
+    @Test
+    public void navigateBetweenRowsAndVideoUsingRequestFocus2() throws Throwable {
+        navigateBetweenRowsAndVideoUsingRequestFocusInternal(DetailsSupportFragmentWithVideo2.class);
+    }
+
+    private void navigateBetweenRowsAndVideoUsingDPADInternal(Class cls) throws Throwable {
+        launchAndWaitActivity(cls,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
         final DetailsSupportFragmentWithVideo detailsFragment =
                 (DetailsSupportFragmentWithVideo) mActivity.getTestFragment();
+        // wait video playing
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
@@ -318,9 +348,10 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         final View firstRow = detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildAt(0);
         final int originalFirstRowTop = firstRow.getTop();
         assertTrue(firstRow.hasFocus());
-        assertTrue(firstRow.getTop() < screenHeight);
+        assertTrue(firstRow.getTop() > 0 && firstRow.getTop() < screenHeight);
         assertTrue(detailsFragment.isShowingTitle());
 
+        // navigate to video
         sendKeys(KeyEvent.KEYCODE_DPAD_UP);
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
@@ -328,9 +359,17 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 return firstRow.getTop() >= screenHeight;
             }
         });
-        assertFalse(detailsFragment.isShowingTitle());
 
-        sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        // wait auto hide play controls done:
+        PollingCheck.waitFor(8000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return ((PlaybackSupportFragment) detailsFragment.mVideoSupportFragment).mBgAlpha == 0;
+            }
+        });
+
+        // navigate to details
+        sendKeys(KeyEvent.KEYCODE_BACK);
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
@@ -338,6 +377,92 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
             }
         });
         assertTrue(detailsFragment.isShowingTitle());
+    }
+
+    @Test
+    public void navigateBetweenRowsAndVideoUsingDPAD1() throws Throwable {
+        navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo1.class);
+    }
+
+    @Test
+    public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
+        navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo2.class);
+    }
+
+    private void fragmentOnStartWithVideoInternal(Class cls) throws Throwable {
+        launchAndWaitActivity(cls,
+                new Options().uiVisibility(
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
+
+        final DetailsSupportFragmentWithVideo detailsFragment =
+                (DetailsSupportFragmentWithVideo) mActivity.getTestFragment();
+        // wait video playing
+        PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return detailsFragment.mVideoSupportFragment != null
+                        && detailsFragment.mVideoSupportFragment.getView() != null
+                        && detailsFragment.mGlue.isMediaPlaying();
+            }
+        });
+
+        final int screenHeight = detailsFragment.getRowsSupportFragment().getVerticalGridView()
+                .getHeight();
+        final View firstRow = detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildAt(0);
+        final int originalFirstRowTop = firstRow.getTop();
+        assertTrue(firstRow.hasFocus());
+        assertTrue(firstRow.getTop() > 0 && firstRow.getTop() < screenHeight);
+        assertTrue(detailsFragment.isShowingTitle());
+
+        // navigate to video
+        sendKeys(KeyEvent.KEYCODE_DPAD_UP);
+        PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return firstRow.getTop() >= screenHeight;
+            }
+        });
+
+        // start an empty activity
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(mActivity, SingleSupportFragmentTestActivity.class);
+                        intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_FRAGMENT_NAME,
+                                Fragment.class.getName());
+                        mActivity.startActivity(intent);
+                    }
+                }
+        );
+        PollingCheck.waitFor(2000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return !detailsFragment.isResumed();
+            }
+        });
+        // pop empty activity, have to wait 1000 before sending BACK key or the key will lose
+        // nowhere.
+        Thread.sleep(1000);
+        sendKeys(KeyEvent.KEYCODE_BACK);
+
+        PollingCheck.waitFor(2000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return detailsFragment.isResumed();
+            }
+        });
+        assertTrue(detailsFragment.mVideoSupportFragment.getView().hasFocus());
+    }
+
+    @Test
+    public void fragmentOnStartWithVideo1() throws Throwable {
+        fragmentOnStartWithVideoInternal(DetailsSupportFragmentWithVideo1.class);
+    }
+
+    @Test
+    public void fragmentOnStartWithVideo2() throws Throwable {
+        fragmentOnStartWithVideoInternal(DetailsSupportFragmentWithVideo2.class);
     }
 
     @Test
@@ -373,7 +498,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
         assertTrue(firstRow.hasFocus());
         assertTrue(detailsFragment.isShowingTitle());
-        assertTrue(firstRow.getTop() < screenHeight);
+        assertTrue(firstRow.getTop() > 0 && firstRow.getTop() < screenHeight);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_UP);
         PollingCheck.waitFor(new PollingCheck.ViewStableOnScreen(firstRow));
@@ -387,5 +512,4 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertTrue(firstRow.hasFocus());
         assertEquals(originalFirstRowTop, firstRow.getTop());
     }
-
 }
