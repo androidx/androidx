@@ -21,6 +21,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
@@ -55,12 +56,21 @@ public class PreferenceManager {
     /**
      * Cached shared preferences.
      */
+    @Nullable
     private SharedPreferences mSharedPreferences;
+
+    /**
+     * Data store to be used by the Preferences or null if {@link android.content.SharedPreferences}
+     * should be used.
+     */
+    @Nullable
+    private PreferenceDataStore mPreferenceDataStore;
 
     /**
      * If in no-commit mode, the shared editor to give out (which will be
      * committed when exiting no-commit mode).
      */
+    @Nullable
     private SharedPreferences.Editor mEditor;
 
     /**
@@ -152,7 +162,7 @@ public class PreferenceManager {
     }
 
     /**
-     * Returns the current name of the SharedPreferences file that preferences managed by
+     * Returns the current name of the {@link SharedPreferences} file that preferences managed by
      * this will use.
      *
      * @return The name that can be passed to {@link Context#getSharedPreferences(String, int)}.
@@ -163,11 +173,14 @@ public class PreferenceManager {
     }
 
     /**
-     * Sets the name of the SharedPreferences file that preferences managed by this
+     * Sets the name of the {@link SharedPreferences} file that preferences managed by this
      * will use.
+     *
+     * <p>If custom {@link PreferenceDataStore} is set, this won't override its usage.
      *
      * @param sharedPreferencesName The name of the SharedPreferences file.
      * @see Context#getSharedPreferences(String, int)
+     * @see #setPreferenceDataStore(PreferenceDataStore)
      */
     public void setSharedPreferencesName(String sharedPreferencesName) {
         mSharedPreferencesName = sharedPreferencesName;
@@ -266,13 +279,44 @@ public class PreferenceManager {
     }
 
     /**
-     * Gets a SharedPreferences instance that preferences managed by this will
+     * Sets a {@link PreferenceDataStore} to be used by all Preferences associated with this manager
+     * that don't have a custom {@link PreferenceDataStore} assigned via
+     * {@link Preference#setPreferenceDataStore(PreferenceDataStore)}. Also if the data store is
+     * set, the child preferences won't use {@link android.content.SharedPreferences} as long as
+     * they are assigned to this manager.
+     *
+     * @param dataStore the {@link PreferenceDataStore} to be used by this manager
+     * @see Preference#setPreferenceDataStore(PreferenceDataStore)
+     */
+    public void setPreferenceDataStore(PreferenceDataStore dataStore) {
+        mPreferenceDataStore = dataStore;
+    }
+
+    /**
+     * Returns the {@link PreferenceDataStore} associated with this manager or {@code null} if
+     * the default {@link android.content.SharedPreferences} are used instead.
+     *
+     * @return The {@link PreferenceDataStore} associated with this manager or {@code null} if none.
+     * @see #setPreferenceDataStore(PreferenceDataStore)
+     */
+    @Nullable
+    public PreferenceDataStore getPreferenceDataStore() {
+        return mPreferenceDataStore;
+    }
+
+    /**
+     * Gets a {@link SharedPreferences} instance that preferences managed by this will
      * use.
      *
-     * @return A SharedPreferences instance pointing to the file that contains
-     *         the values of preferences that are managed by this.
+     * @return a {@link SharedPreferences} instance pointing to the file that contain the values of
+     *         preferences that are managed by this PreferenceManager. If
+     *         a {@link PreferenceDataStore} has been set, this method returns {@code null}.
      */
     public SharedPreferences getSharedPreferences() {
+        if (getPreferenceDataStore() != null) {
+            return null;
+        }
+
         if (mSharedPreferences == null) {
             final Context storageContext;
             switch (mStorage) {
@@ -429,13 +473,17 @@ public class PreferenceManager {
 
     /**
      * Returns an editor to use when modifying the shared preferences.
-     * <p>
-     * Do NOT commit unless {@link #shouldCommit()} returns true.
      *
-     * @return An editor to use to write to shared preferences.
+     * <p>Do NOT commit unless {@link #shouldCommit()} returns true.
+     *
+     * @return an editor to use to write to shared preferences. If a {@link PreferenceDataStore} has
+     *         been set, this method returns {@code null}.
      * @see #shouldCommit()
      */
     SharedPreferences.Editor getEditor() {
+        if (mPreferenceDataStore != null) {
+            return null;
+        }
 
         if (mNoCommit) {
             if (mEditor == null) {
@@ -452,6 +500,8 @@ public class PreferenceManager {
      * Whether it is the client's responsibility to commit on the
      * {@link #getEditor()}. This will return false in cases where the writes
      * should be batched, for example when inflating preferences from XML.
+     *
+     * <p>If preferences are using {@link PreferenceDataStore} this value is irrelevant.
      *
      * @return Whether the client should commit.
      */
