@@ -151,6 +151,13 @@ public final class IntentCompat {
     public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
 
     /**
+     * Used as a boolean extra field in {@link android.content.Intent#ACTION_VIEW} intents to
+     * indicate that content should immediately be played without any intermediate screens that
+     * require additional user input, e.g. a profile selection screen or a details page.
+     */
+    public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
+
+    /**
      * Indicates an activity optimized for Leanback mode, and that should
      * be displayed in the Leanback launcher.
      */
