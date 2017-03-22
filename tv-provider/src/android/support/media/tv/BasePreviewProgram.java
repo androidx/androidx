@@ -50,6 +50,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
     public static final String[] PROJECTION = getProjection();
 
     private static final int INVALID_INT_VALUE = -1;
+    private static final long INVALID_LONG_VALUE = -1;
     private static final int IS_TRANSIENT = 1;
     private static final int IS_LIVE = 1;
     private static final int IS_BROWSABLE = 1;
@@ -71,7 +72,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
     private final int mItemCount;
     private final int mLive;
     private final String mInteractionType;
-    private final int mInteractionCount;
+    private final long mInteractionCount;
     private final String mAuthor;
     private final String mReviewRatingStyle;
     private final String mReviewRating;
@@ -246,7 +247,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTERACTION_COUNT} for the
      * program.
      */
-    public int getInteractionCount() {
+    public long getInteractionCount() {
         return mInteractionCount;
     }
 
@@ -398,7 +399,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if (!TextUtils.isEmpty(mInteractionType)) {
                 values.put(BasePreviewProgramColumns.COLUMN_INTERACTION_TYPE, mInteractionType);
             }
-            if (mInteractionCount != INVALID_INT_VALUE) {
+            if (mInteractionCount != INVALID_LONG_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_INTERACTION_COUNT, mInteractionCount);
             }
             if (!TextUtils.isEmpty(mAuthor)) {
@@ -597,7 +598,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
         private int mItemCount = INVALID_INT_VALUE;
         private int mLive = INVALID_INT_VALUE;
         private String mInteractionType;
-        private int mInteractionCount = INVALID_INT_VALUE;
+        private long mInteractionCount = INVALID_LONG_VALUE;
         private String mAuthor;
         private String mReviewRatingStyle;
         private String mReviewRating;
@@ -922,7 +923,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *                         the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setInteractionCount(int interactionCount) {
+        public T setInteractionCount(long interactionCount) {
             mInteractionCount = interactionCount;
             return (T) this;
         }
