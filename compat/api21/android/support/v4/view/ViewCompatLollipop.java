@@ -16,13 +16,13 @@
 
 package android.support.v4.view;
 
+import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.annotation.TargetApi;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.WindowInsets;

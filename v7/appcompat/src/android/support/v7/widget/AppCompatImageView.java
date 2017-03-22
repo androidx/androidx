@@ -20,12 +20,17 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.TintableBackgroundView;
+import android.support.v4.widget.ImageViewCompat;
+import android.support.v4.widget.TintableImageSourceView;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -34,19 +39,24 @@ import android.widget.ImageView;
  * A {@link ImageView} which supports compatible features on older version of the platform,
  * including:
  * <ul>
- *     <li>Allows dynamic tint of it background via the background tint methods in
+ *     <li>Allows dynamic tint of its background via the background tint methods in
  *     {@link android.support.v4.view.ViewCompat}.</li>
  *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
  *     {@link R.attr#backgroundTintMode}.</li>
+ *     <li>Allows dynamic tint of its image via the image tint methods in
+ *     {@link ImageViewCompat}.</li>
+ *     <li>Allows setting of the image tint using {@link R.attr#tint} and
+ *     {@link R.attr#tintMode}.</li>
  * </ul>
  *
  * <p>This will automatically be used when you use {@link android.widget.ImageView} in your
  * layouts. You should only need to manually use this class when writing custom views.</p>
  */
-public class AppCompatImageView extends ImageView implements TintableBackgroundView {
+public class AppCompatImageView extends ImageView implements TintableBackgroundView,
+        TintableImageSourceView {
 
-    private AppCompatBackgroundHelper mBackgroundTintHelper;
-    private AppCompatImageHelper mImageHelper;
+    private final AppCompatBackgroundHelper mBackgroundTintHelper;
+    private final AppCompatImageHelper mImageHelper;
 
     public AppCompatImageView(Context context) {
         this(context, null);
@@ -77,8 +87,42 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      */
     @Override
     public void setImageResource(@DrawableRes int resId) {
-        // Intercept this call and instead retrieve the Drawable via the image helper
-        mImageHelper.setImageResource(resId);
+        if (mImageHelper != null) {
+            // Intercept this call and instead retrieve the Drawable via the image helper
+            mImageHelper.setImageResource(resId);
+        }
+    }
+
+    @Override
+    public void setImageDrawable(@Nullable Drawable drawable) {
+        super.setImageDrawable(drawable);
+        if (mImageHelper != null) {
+            mImageHelper.applySupportImageTint();
+        }
+    }
+
+    @Override
+    public void setImageBitmap(Bitmap bm) {
+        super.setImageBitmap(bm);
+        if (mImageHelper != null) {
+            mImageHelper.applySupportImageTint();
+        }
+    }
+
+    @Override
+    public void setImageIcon(@Nullable Icon icon) {
+        super.setImageIcon(icon);
+        if (mImageHelper != null) {
+            mImageHelper.applySupportImageTint();
+        }
+    }
+
+    @Override
+    public void setImageURI(@Nullable Uri uri) {
+        super.setImageURI(uri);
+        if (mImageHelper != null) {
+            mImageHelper.applySupportImageTint();
+        }
     }
 
     @Override
@@ -153,11 +197,70 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
                 ? mBackgroundTintHelper.getSupportBackgroundTintMode() : null;
     }
 
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.ImageViewCompat#setImageTintList(ImageView, ColorStateList)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void setSupportImageTintList(@Nullable ColorStateList tint) {
+        if (mImageHelper != null) {
+            mImageHelper.setSupportImageTintList(tint);
+        }
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.ImageViewCompat#getImageTintList(ImageView)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public ColorStateList getSupportImageTintList() {
+        return mImageHelper != null
+                ? mImageHelper.getSupportImageTintList() : null;
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.ImageViewCompat#setImageTintMode(ImageView, PorterDuff.Mode)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void setSupportImageTintMode(@Nullable PorterDuff.Mode tintMode) {
+        if (mImageHelper != null) {
+            mImageHelper.setSupportImageTintMode(tintMode);
+        }
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.ImageViewCompat#getImageTintMode(ImageView)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public PorterDuff.Mode getSupportImageTintMode() {
+        return mImageHelper != null
+                ? mImageHelper.getSupportImageTintMode() : null;
+    }
+
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
         if (mBackgroundTintHelper != null) {
             mBackgroundTintHelper.applySupportBackgroundTint();
+        }
+        if (mImageHelper != null) {
+            mImageHelper.applySupportImageTint();
         }
     }
 
