@@ -1708,8 +1708,8 @@ public final class MediaBrowserCompat {
                     Log.i(TAG, "Remote error registering client messenger." );
                 }
             }
-            IMediaSession sessionToken = (IMediaSession) BundleCompat.getBinder(
-                    extras, EXTRA_SESSION_BINDER);
+            IMediaSession sessionToken = IMediaSession.Stub.asInterface(
+                    BundleCompat.getBinder(extras, EXTRA_SESSION_BINDER));
             if (sessionToken != null) {
                 mMediaSessionToken = MediaSessionCompat.Token.fromToken(
                         MediaBrowserCompatApi21.getSessionToken(mBrowserObj), sessionToken);

@@ -991,8 +991,9 @@ public class MediaSessionCompat {
                     MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
                     if (impl != null) {
                         Bundle result = new Bundle();
+                        IMediaSession extraBinder = impl.getSessionToken().getExtraBinder();
                         BundleCompat.putBinder(result, EXTRA_BINDER,
-                                (IBinder) impl.getSessionToken().getExtraBinder());
+                                extraBinder == null ? null : extraBinder.asBinder());
                         cb.send(0, result);
                     }
                 } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
@@ -1258,7 +1259,7 @@ public class MediaSessionCompat {
         public void writeToParcel(Parcel dest, int flags) {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
                 dest.writeParcelable((Parcelable) mInner, flags);
-                dest.writeStrongBinder((IBinder) mExtraBinder);
+                dest.writeStrongBinder(mExtraBinder == null ? null : mExtraBinder.asBinder());
             } else {
                 dest.writeStrongBinder((IBinder) mInner);
             }
@@ -1320,7 +1321,7 @@ public class MediaSessionCompat {
                         IMediaSession extraBinder = null;
                         if (android.os.Build.VERSION.SDK_INT >= 21) {
                             inner = in.readParcelable(null);
-                            extraBinder = (IMediaSession) in.readStrongBinder();
+                            extraBinder = IMediaSession.Stub.asInterface(in.readStrongBinder());
                         } else {
                             inner = in.readStrongBinder();
                         }
