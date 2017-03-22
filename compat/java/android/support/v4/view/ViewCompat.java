@@ -58,6 +58,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.WeakHashMap;
 
 /**
@@ -923,6 +924,44 @@ public class ViewCompat {
 
         public void setTooltipText(View view, CharSequence tooltipText) {
         }
+
+        public int getNextClusterForwardId(@NonNull View view) {
+            return View.NO_ID;
+        }
+
+        public void setNextClusterForwardId(@NonNull View view, int nextClusterForwardId) {
+            // no-op
+        }
+
+        public boolean isKeyboardNavigationCluster(@NonNull View view) {
+            return false;
+        }
+
+        public void setKeyboardNavigationCluster(@NonNull View view, boolean isCluster) {
+            // no-op
+        }
+
+        public boolean isFocusedByDefault(@NonNull View view) {
+            return false;
+        }
+
+        public void setFocusedByDefault(@NonNull View view, boolean isFocusedByDefault) {
+            // no-op
+        }
+
+        public View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,
+                @FocusDirection int direction) {
+            return null;
+        }
+
+        public void addKeyboardNavigationClusters(@NonNull View view,
+                @NonNull Collection<View> views, int direction) {
+            // no-op
+        }
+
+        public boolean restoreDefaultFocus(@NonNull View view) {
+            return view.requestFocus();
+        }
     }
 
     @RequiresApi(15)
@@ -1458,6 +1497,53 @@ public class ViewCompat {
         @Override
         public void setTooltipText(View view, CharSequence tooltipText) {
             view.setTooltipText(tooltipText);
+        }
+
+        @Override
+        public int getNextClusterForwardId(@NonNull View view) {
+            return view.getNextClusterForwardId();
+        }
+
+        @Override
+        public void setNextClusterForwardId(@NonNull View view, int nextClusterForwardId) {
+            view.setNextClusterForwardId(nextClusterForwardId);
+        }
+
+        @Override
+        public boolean isKeyboardNavigationCluster(@NonNull View view) {
+            return view.isKeyboardNavigationCluster();
+        }
+
+        @Override
+        public void setKeyboardNavigationCluster(@NonNull View view, boolean isCluster) {
+            view.setKeyboardNavigationCluster(isCluster);
+        }
+
+        @Override
+        public boolean isFocusedByDefault(@NonNull View view) {
+            return view.isFocusedByDefault();
+        }
+
+        @Override
+        public void setFocusedByDefault(@NonNull View view, boolean isFocusedByDefault) {
+            view.setFocusedByDefault(isFocusedByDefault);
+        }
+
+        @Override
+        public View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,
+                @FocusDirection int direction) {
+            return view.keyboardNavigationClusterSearch(currentCluster, direction);
+        }
+
+        @Override
+        public void addKeyboardNavigationClusters(@NonNull View view,
+                @NonNull Collection<View> views, int direction) {
+            view.addKeyboardNavigationClusters(views, direction);
+        }
+
+        @Override
+        public boolean restoreDefaultFocus(@NonNull View view) {
+            return view.restoreDefaultFocus();
         }
     }
 
@@ -3351,6 +3437,118 @@ public class ViewCompat {
      */
     public static void updateDragShadow(View v, View.DragShadowBuilder shadowBuilder) {
         IMPL.updateDragShadow(v, shadowBuilder);
+    }
+
+    /**
+     * Gets the ID of the next keyboard navigation cluster root.
+     *
+     * @return the next keyboard navigation cluster ID, or {@link View#NO_ID} if the framework
+     *         should decide automatically or API < 26.
+     */
+    public static int getNextClusterForwardId(@NonNull View view) {
+        return IMPL.getNextClusterForwardId(view);
+    }
+
+    /**
+     * Sets the ID of the next keyboard navigation cluster root view. Does nothing if {@code view}
+     * is not a keyboard navigation cluster or if API < 26.
+     *
+     * @param nextClusterForwardId next cluster ID, or {@link View#NO_ID} if the framework
+     *                             should decide automatically.
+     */
+    public static void setNextClusterForwardId(@NonNull View view, int nextClusterForwardId) {
+        IMPL.setNextClusterForwardId(view, nextClusterForwardId);
+    }
+
+    /**
+     * Returns whether {@code view} is a root of a keyboard navigation cluster. Always returns
+     * {@code false} on API < 26.
+     *
+     * @return {@code true} if this view is a root of a cluster, or {@code false} otherwise.
+     */
+    public static boolean isKeyboardNavigationCluster(@NonNull View view) {
+        return IMPL.isKeyboardNavigationCluster(view);
+    }
+
+    /**
+     * Set whether {@code view} is a root of a keyboard navigation cluster. Does nothing if
+     * API < 26.
+     *
+     * @param isCluster {@code true} to mark {@code view} as the root of a cluster, {@code false}
+     *                  to unmark.
+     */
+    public static void setKeyboardNavigationCluster(@NonNull View view, boolean isCluster) {
+        IMPL.setKeyboardNavigationCluster(view, isCluster);
+    }
+
+    /**
+     * Returns whether {@code view} should receive focus when the focus is restored for the view
+     * hierarchy containing it. Returns {@code false} on API < 26.
+     * <p>
+     * Focus gets restored for a view hierarchy when the root of the hierarchy gets added to a
+     * window or serves as a target of cluster navigation.
+     *
+     * @return {@code true} if {@code view} is the default-focus view, {@code false} otherwise.
+     */
+    public static boolean isFocusedByDefault(@NonNull View view) {
+        return IMPL.isFocusedByDefault(view);
+    }
+
+    /**
+     * Sets whether {@code view} should receive focus when the focus is restored for the view
+     * hierarchy containing it.
+     * <p>
+     * Focus gets restored for a view hierarchy when the root of the hierarchy gets added to a
+     * window or serves as a target of cluster navigation.
+     * <p>
+     * Does nothing on API < 26.
+     *
+     * @param isFocusedByDefault {@code true} to set {@code view} as the default-focus view,
+     *                           {@code false} otherwise.
+     */
+    public static void setFocusedByDefault(@NonNull View view, boolean isFocusedByDefault) {
+        IMPL.setFocusedByDefault(view, isFocusedByDefault);
+    }
+
+    /**
+     * Find the nearest keyboard navigation cluster in the specified direction.
+     * This does not actually give focus to that cluster.
+     *
+     * @param currentCluster The starting point of the search. {@code null} means the current
+     *                       cluster is not found yet.
+     * @param direction Direction to look.
+     *
+     * @return the nearest keyboard navigation cluster in the specified direction, or {@code null}
+     *         if one can't be found or if API < 26.
+     */
+    public static View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,
+            @FocusDirection int direction) {
+        return IMPL.keyboardNavigationClusterSearch(view, currentCluster, direction);
+    }
+
+    /**
+     * Adds any keyboard navigation cluster roots that are descendants of {@code view} (
+     * including {@code view} if it is a cluster root itself) to {@code views}. Does nothing
+     * on API < 26.
+     *
+     * @param views collection of keyboard navigation cluster roots found so far.
+     * @param direction direction to look.
+     */
+    public static void addKeyboardNavigationClusters(@NonNull View view,
+            @NonNull Collection<View> views, int direction) {
+        IMPL.addKeyboardNavigationClusters(view, views, direction);
+    }
+
+    /**
+     * Gives focus to the default-focus view in the view hierarchy rooted at {@code view}.
+     * If the default-focus view cannot be found or if API < 26, this falls back to calling
+     * {@link View#requestFocus(int)}.
+     *
+     * @return {@code true} if {@code view} or one of its descendants took focus, {@code false}
+     *         otherwise.
+     */
+    public static boolean restoreDefaultFocus(@NonNull View view) {
+        return IMPL.restoreDefaultFocus(view);
     }
 
     protected ViewCompat() {}

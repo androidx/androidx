@@ -31,11 +31,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -194,7 +196,10 @@ public abstract class AppCompatDelegate {
 
     private static AppCompatDelegate create(Context context, Window window,
             AppCompatCallback callback) {
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (BuildCompat.isAtLeastO()) {
+            //noinspection AndroidLintNewApi
+            return new AppCompatDelegateImplO(context, window, callback);
+        } else if (Build.VERSION.SDK_INT >= 24) {
             return new AppCompatDelegateImplN(context, window, callback);
         } else if (Build.VERSION.SDK_INT >= 23) {
             return new AppCompatDelegateImplV23(context, window, callback);
@@ -418,6 +423,13 @@ public abstract class AppCompatDelegate {
      * Allows AppCompat to save instance state.
      */
     public abstract void onSaveInstanceState(Bundle outState);
+
+    /**
+     * Gives AppCompat an opportunity to send focus to the ActionBar.
+     *
+     * @return false if ActionBar was not focused.
+     */
+    public abstract boolean checkActionBarFocusKey(KeyEvent event);
 
     /**
      * Allow AppCompat to apply the {@code night} and {@code notnight} resource qualifiers.

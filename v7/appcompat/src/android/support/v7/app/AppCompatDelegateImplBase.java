@@ -107,6 +107,7 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
 
     private boolean mIsStarted;
     private boolean mIsDestroyed;
+    private boolean mEatKeyUpEvent;
 
     AppCompatDelegateImplBase(Context context, Window window, AppCompatCallback callback) {
         mContext = context;
@@ -291,6 +292,26 @@ abstract class AppCompatDelegateImplBase extends AppCompatDelegate {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // no-op
+    }
+
+    @Override
+    public boolean checkActionBarFocusKey(KeyEvent event) {
+        if (event.isCtrlPressed()
+                && event.getUnicodeChar(event.getMetaState() & ~KeyEvent.META_CTRL_MASK) == '<') {
+            // Capture the Control-< and send focus to the ActionBar
+            final int action = event.getAction();
+            if (action == KeyEvent.ACTION_DOWN) {
+                final ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null && actionBar.isShowing() && actionBar.requestFocus()) {
+                    mEatKeyUpEvent = true;
+                    return true;
+                }
+            } else if (action == KeyEvent.ACTION_UP && mEatKeyUpEvent) {
+                mEatKeyUpEvent = false;
+                return true;
+            }
+        }
+        return false;
     }
 
     abstract void onTitleChanged(CharSequence title);
