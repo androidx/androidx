@@ -22,6 +22,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -333,8 +334,8 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
         Drawable background
                 = a.getDrawable(R.styleable.BackgroundStyle_android_selectableItemBackground);
         if (background == null) {
-            background = parent.getContext().getResources()
-                    .getDrawable(android.R.drawable.list_selector_background);
+            background = ContextCompat.getDrawable(parent.getContext(),
+                    android.R.drawable.list_selector_background);
         }
         a.recycle();
 
