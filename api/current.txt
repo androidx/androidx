@@ -5324,6 +5324,7 @@ package android.support.v4.app {
     method public final android.support.v4.app.FragmentManager getFragmentManager();
     method public final java.lang.Object getHost();
     method public final int getId();
+    method public android.view.LayoutInflater getLayoutInflater(android.os.Bundle);
     method public android.support.v4.app.LoaderManager getLoaderManager();
     method public final android.support.v4.app.Fragment getParentFragment();
     method public java.lang.Object getReenterTransition();
@@ -5526,6 +5527,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public abstract int getBackStackEntryCount();
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
+    method public abstract java.util.List<android.support.v4.app.Fragment> getFragments();
     method public abstract android.support.v4.app.Fragment getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
     method public abstract boolean isStateSaved();

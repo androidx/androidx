@@ -1161,13 +1161,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Hack so that DialogFragment can make its Dialog before creating
-     * its views, and the view construction can use the dialog's context for
-     * inflation.  Maybe this should become a public API. Note sure.
-     * @hide
+     * Returns the LayoutInflater used to inflate Views of this Fragment. The default
+     * implementation will throw an exception if the Fragment is not attached.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     * @return The LayoutInflater used to inflate Views of this Fragment.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
+        if (mHost == null) {
+            throw new IllegalStateException("getLayoutInflater() cannot be executed until the "
+                    + "Fragment is attached to the FragmentManager.");
+        }
         LayoutInflater result = mHost.onGetLayoutInflater();
         getChildFragmentManager(); // Init if needed; use raw implementation below.
         LayoutInflaterCompat.setFactory2(result, mChildFragmentManager.getLayoutInflaterFactory());

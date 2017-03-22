@@ -301,8 +301,6 @@ public class DialogFragment extends Fragment
         }
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
         if (!mShowsDialog) {

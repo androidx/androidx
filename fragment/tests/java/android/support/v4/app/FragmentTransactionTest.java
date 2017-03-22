@@ -17,9 +17,11 @@ package android.support.v4.app;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.assertEquals;
 
 import android.app.Instrumentation;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
@@ -32,6 +34,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 /**
  * Tests usage of the {@link FragmentTransaction} class.
@@ -215,6 +219,82 @@ public class FragmentTransactionTest {
         FragmentTestActivity activity = mActivityRule.getActivity();
         instrumentation.callActivityOnSaveInstanceState(activity, outState);
         activity.onBackPressed();
+    }
+
+    // Ensure that getFragments() works during transactions, even if it is run off thread
+    @Test
+    public void getFragmentsOffThread() throws Throwable {
+        final FragmentManager fm = mActivity.getSupportFragmentManager();
+
+        // Make sure that adding a fragment works
+        Fragment fragment = new CorrectFragment();
+        fm.beginTransaction()
+                .add(R.id.content, fragment)
+                .addToBackStack(null)
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        List<Fragment> fragments = fm.getFragments();
+        assertEquals(1, fragments.size());
+        assertEquals(fragment, fragments.get(0));
+
+        // Removed fragments shouldn't show
+        fm.beginTransaction()
+                .remove(fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertTrue(fm.getFragments().isEmpty());
+
+        // Now try detached fragments
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fm.beginTransaction()
+                .detach(fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertTrue(fm.getFragments().isEmpty());
+
+        // Now try hidden fragments
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fm.beginTransaction()
+                .hide(fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        fragments = fm.getFragments();
+        assertEquals(1, fragments.size());
+        assertEquals(fragment, fragments.get(0));
+
+        // And showing it again shouldn't change anything:
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fragments = fm.getFragments();
+        assertEquals(1, fragments.size());
+        assertEquals(fragment, fragments.get(0));
+
+        // Now pop back to the start state
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+
+        // We can't force concurrency, but we can do it lots of times and hope that
+        // we hit it.
+        for (int i = 0; i < 100; i++) {
+            fm.beginTransaction()
+                    .add(R.id.content, fragment)
+                    .addToBackStack(null)
+                    .commit();
+            getFragmentsUntilSize(1);
+
+            fm.popBackStack();
+            getFragmentsUntilSize(0);
+        }
+    }
+
+    private void getFragmentsUntilSize(int expectedSize) {
+        final long endTime = SystemClock.uptimeMillis() + 3000;
+
+        do {
+            assertTrue(SystemClock.uptimeMillis() < endTime);
+        } while (mActivity.getSupportFragmentManager().getFragments().size() != expectedSize);
     }
 
     public static class CorrectFragment extends Fragment {}
