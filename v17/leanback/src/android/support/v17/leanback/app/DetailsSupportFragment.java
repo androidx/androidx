@@ -622,7 +622,9 @@ public class DetailsSupportFragment extends BaseSupportFragment {
         if (mDetailsParallax != null) {
             mDetailsParallax.setRecyclerView(mRowsSupportFragment.getVerticalGridView());
         }
-        mRowsSupportFragment.getVerticalGridView().requestFocus();
+        if (!getView().hasFocus()) {
+            mRowsSupportFragment.getVerticalGridView().requestFocus();
+        }
     }
 
     @Override
@@ -728,13 +730,6 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                             return mVideoSupportFragment.getView();
                         } else if (getTitleView() != null && getTitleView().hasFocusable()) {
                             return getTitleView();
-                        }
-                    }
-                } else if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null
-                        && mVideoSupportFragment.getView().hasFocus()) {
-                    if (direction == View.FOCUS_DOWN) {
-                        if (mRowsSupportFragment.getVerticalGridView() != null) {
-                            return mRowsSupportFragment.getVerticalGridView();
                         }
                     }
                 } else if (getTitleView() != null && getTitleView().hasFocus()) {
