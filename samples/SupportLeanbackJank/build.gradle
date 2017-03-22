@@ -20,6 +20,13 @@ android {
         main.res.srcDirs = ['res']
     }
 
+    signingConfigs {
+        debug {
+            // Use a local debug keystore to avoid build server issues.
+            storeFile project.rootProject.init.debugKeystore
+        }
+    }
+
     lintOptions {
         abortOnError true
     }
