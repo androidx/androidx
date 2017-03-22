@@ -1439,8 +1439,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             if (!mCheckedForLoaderManager) {
                 mCheckedForLoaderManager = true;
                 mLoaderManager = mHost.getLoaderManager(mWho, mLoadersStarted, false);
-            }
-            if (mLoaderManager != null) {
+            } else if (mLoaderManager != null) {
                 mLoaderManager.doStart();
             }
         }
