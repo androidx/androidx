@@ -1259,8 +1259,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         // For fragments that are part of the content view
                         // layout, we need to instantiate the view immediately
                         // and the inflater will take care of adding it.
-                        f.mView = f.performCreateView(f.getLayoutInflater(), null,
-                                f.mSavedFragmentState);
+                        f.mView = f.performCreateView(f.getLayoutInflater(
+                                f.mSavedFragmentState), null, f.mSavedFragmentState);
                         if (f.mView != null) {
                             f.mInnerView = f.mView;
                             if (Build.VERSION.SDK_INT >= 11) {
@@ -1303,8 +1303,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                 }
                             }
                             f.mContainer = container;
-                            f.mView = f.performCreateView(f.getLayoutInflater(), container,
-                                    f.mSavedFragmentState);
+                            f.mView = f.performCreateView(f.getLayoutInflater(
+                                    f.mSavedFragmentState), container, f.mSavedFragmentState);
                             if (f.mView != null) {
                                 f.mInnerView = f.mView;
                                 if (Build.VERSION.SDK_INT >= 11) {

@@ -301,12 +301,10 @@ public class DialogFragment extends Fragment
         }
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
         if (!mShowsDialog) {
-            return super.getLayoutInflater();
+            return super.getLayoutInflater(savedInstanceState);
         }
 
         mDialog = onCreateDialog(savedInstanceState);
