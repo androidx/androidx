@@ -85,7 +85,7 @@ public class PlaybackSupportFragment extends Fragment {
      * A dark translucent background.
      */
     public static final int BG_DARK = 1;
-    private PlaybackGlueHost.HostCallback mHostCallback;
+    PlaybackGlueHost.HostCallback mHostCallback;
 
     /**
      * Resets the focus on the button in the middle of control row.
@@ -117,13 +117,13 @@ public class PlaybackSupportFragment extends Fragment {
      * A light translucent background.
      */
     public static final int BG_LIGHT = 2;
-    private RowsSupportFragment mRowsSupportFragment;
-    private ObjectAdapter mAdapter;
-    private PlaybackRowPresenter mPresenter;
-    private Row mRow;
-    private BaseOnItemViewSelectedListener mExternalItemSelectedListener;
-    private BaseOnItemViewClickedListener mExternalItemClickedListener;
-    private BaseOnItemViewClickedListener mPlaybackItemClickedListener;
+    RowsSupportFragment mRowsSupportFragment;
+    ObjectAdapter mAdapter;
+    PlaybackRowPresenter mPresenter;
+    Row mRow;
+    BaseOnItemViewSelectedListener mExternalItemSelectedListener;
+    BaseOnItemViewClickedListener mExternalItemClickedListener;
+    BaseOnItemViewClickedListener mPlaybackItemClickedListener;
 
     private final BaseOnItemViewClickedListener mOnItemViewClickedListener =
             new BaseOnItemViewClickedListener() {
@@ -188,23 +188,23 @@ public class PlaybackSupportFragment extends Fragment {
     private static final int IN = 1;
     private static final int OUT = 2;
 
-    private int mPaddingBottom;
-    private int mOtherRowsCenterToBottom;
-    private View mRootView;
-    private int mBackgroundType = BG_DARK;
-    private int mBgDarkColor;
-    private int mBgLightColor;
-    private int mShowTimeMs;
-    private int mMajorFadeTranslateY, mMinorFadeTranslateY;
-    private int mAnimationTranslateY;
-    private OnFadeCompleteListener mFadeCompleteListener;
-    private View.OnKeyListener mInputEventHandler;
-    private boolean mFadingEnabled = true;
-    private int mFadingStatus = IDLE;
-    private int mBgAlpha;
-    private ValueAnimator mBgFadeInAnimator, mBgFadeOutAnimator;
-    private ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
-    private ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
+    int mPaddingBottom;
+    int mOtherRowsCenterToBottom;
+    View mRootView;
+    int mBackgroundType = BG_DARK;
+    int mBgDarkColor;
+    int mBgLightColor;
+    int mShowTimeMs;
+    int mMajorFadeTranslateY, mMinorFadeTranslateY;
+    int mAnimationTranslateY;
+    OnFadeCompleteListener mFadeCompleteListener;
+    View.OnKeyListener mInputEventHandler;
+    boolean mFadingEnabled = true;
+    int mFadingStatus = IDLE;
+    int mBgAlpha;
+    ValueAnimator mBgFadeInAnimator, mBgFadeOutAnimator;
+    ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
+    ValueAnimator mOtherRowFadeInAnimator, mOtherRowFadeOutAnimator;
 
     private final Animator.AnimatorListener mFadeListener =
             new Animator.AnimatorListener() {
