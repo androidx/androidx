@@ -767,13 +767,6 @@ public final class MenuItemImpl implements SupportMenuItem {
         return false;
     }
 
-    @Override
-    public SupportMenuItem setSupportOnActionExpandListener(
-            MenuItem.OnActionExpandListener listener) {
-        mOnActionExpandListener = listener;
-        return this;
-    }
-
     public boolean hasCollapsibleActionView() {
         if ((mShowAsAction & SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW) != 0) {
             if (mActionView == null && mActionProvider != null) {
@@ -796,8 +789,8 @@ public final class MenuItemImpl implements SupportMenuItem {
 
     @Override
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
-        throw new UnsupportedOperationException(
-                "This is not supported, use MenuItemCompat.setOnActionExpandListener()");
+        mOnActionExpandListener = listener;
+        return this;
     }
 
     @Override

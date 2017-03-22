@@ -319,8 +319,8 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
 
     @Override
     public MenuItem setOnActionExpandListener(MenuItem.OnActionExpandListener listener) {
-        mWrappedObject.setSupportOnActionExpandListener(listener != null ?
-                new OnActionExpandListenerWrapper(listener) : null);
+        mWrappedObject.setOnActionExpandListener(listener != null
+                ? new OnActionExpandListenerWrapper(listener) : null);
         return this;
     }
 
