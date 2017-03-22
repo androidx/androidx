@@ -119,6 +119,16 @@ interface Styleable {
     }
 
     @StyleableRes
+    int[] SLIDE = {
+            android.R.attr.slideEdge,
+    };
+
+    interface Slide {
+        @StyleableRes
+        int SLIDE_EDGE = 0;
+    }
+
+    @StyleableRes
     int[] TRANSITION_SET = {
             android.R.attr.transitionOrdering,
     };

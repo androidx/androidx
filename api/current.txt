@@ -1955,6 +1955,21 @@ package android.support.transition {
     method public void setExitAction(java.lang.Runnable);
   }
 
+  public class SidePropagation extends android.support.transition.VisibilityPropagation {
+    ctor public SidePropagation();
+    method public long getStartDelay(android.view.ViewGroup, android.support.transition.Transition, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public void setPropagationSpeed(float);
+    method public void setSide(int);
+  }
+
+  public class Slide extends android.support.transition.Visibility {
+    ctor public Slide();
+    ctor public Slide(int);
+    ctor public Slide(android.content.Context, android.util.AttributeSet);
+    method public int getSlideEdge();
+    method public void setSlideEdge(int);
+  }
+
   public abstract class Transition {
     ctor public Transition();
     ctor public Transition(android.content.Context, android.util.AttributeSet);

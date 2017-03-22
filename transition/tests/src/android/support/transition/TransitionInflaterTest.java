@@ -28,6 +28,7 @@ import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,6 +54,7 @@ public class TransitionInflaterTest extends BaseTest {
         TransitionInflater inflater = TransitionInflater.from(rule.getActivity());
         // TODO: Add more Transition types
         verifyFadeProperties(inflater.inflateTransition(R.transition.fade));
+        verifySlideProperties(inflater.inflateTransition(R.transition.slide));
         verifyExplodeProperties(inflater.inflateTransition(R.transition.explode));
         verifyChangeImageTransformProperties(
                 inflater.inflateTransition(R.transition.change_image_transform));
@@ -74,6 +76,12 @@ public class TransitionInflaterTest extends BaseTest {
         assertTrue(transition instanceof Fade);
         Fade fade = (Fade) transition;
         assertEquals(Fade.OUT, fade.getMode());
+    }
+
+    private void verifySlideProperties(Transition transition) {
+        assertTrue(transition instanceof Slide);
+        Slide slide = (Slide) transition;
+        assertEquals(Gravity.TOP, slide.getSlideEdge());
     }
 
     private void verifyExplodeProperties(Transition transition) {
