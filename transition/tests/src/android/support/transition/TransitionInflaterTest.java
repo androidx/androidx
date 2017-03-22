@@ -24,6 +24,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
+import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
@@ -66,6 +68,9 @@ public class TransitionInflaterTest extends BaseTest {
         verifyTargetIds(inflater.inflateTransition(R.transition.target_ids));
         verifyTargetNames(inflater.inflateTransition(R.transition.target_names));
         verifyTargetClass(inflater.inflateTransition(R.transition.target_classes));
+        verifyArcMotion(inflater.inflateTransition(R.transition.arc_motion));
+        verifyCustomPathMotion(inflater.inflateTransition(R.transition.custom_path_motion));
+        verifyPatternPathMotion(inflater.inflateTransition(R.transition.pattern_path_motion));
     }
 
     // TODO: Add test for TransitionManager
@@ -138,6 +143,35 @@ public class TransitionInflaterTest extends BaseTest {
         assertEquals(ImageView.class, targets.get(1));
     }
 
+    private void verifyArcMotion(Transition transition) {
+        assertNotNull(transition);
+        PathMotion motion = transition.getPathMotion();
+        assertNotNull(motion);
+        assertTrue(motion instanceof ArcMotion);
+        ArcMotion arcMotion = (ArcMotion) motion;
+        assertEquals(1f, arcMotion.getMinimumVerticalAngle(), 0.01f);
+        assertEquals(2f, arcMotion.getMinimumHorizontalAngle(), 0.01f);
+        assertEquals(53f, arcMotion.getMaximumAngle(), 0.01f);
+    }
+
+    private void verifyCustomPathMotion(Transition transition) {
+        assertNotNull(transition);
+        PathMotion motion = transition.getPathMotion();
+        assertNotNull(motion);
+        assertTrue(motion instanceof CustomPathMotion);
+    }
+
+    private void verifyPatternPathMotion(Transition transition) {
+        assertNotNull(transition);
+        PathMotion motion = transition.getPathMotion();
+        assertNotNull(motion);
+        assertTrue(motion instanceof PatternPathMotion);
+        PatternPathMotion pattern = (PatternPathMotion) motion;
+        Path path = pattern.getPatternPath();
+        PathMeasure measure = new PathMeasure(path, false);
+        assertEquals(200f, measure.getLength(), 0.1f);
+    }
+
     public static class CustomTransition extends Transition {
         public CustomTransition() {
             fail("Default constructor was not expected");
@@ -154,6 +188,21 @@ public class TransitionInflaterTest extends BaseTest {
 
         @Override
         public void captureEndValues(@NonNull TransitionValues transitionValues) {
+        }
+    }
+
+    public static class CustomPathMotion extends PathMotion {
+        public CustomPathMotion() {
+            fail("default constructor shouldn't be called.");
+        }
+
+        public CustomPathMotion(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        @Override
+        public Path getPath(float startX, float startY, float endX, float endY) {
+            return null;
         }
     }
 

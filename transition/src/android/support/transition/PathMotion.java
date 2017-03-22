@@ -16,7 +16,9 @@
 
 package android.support.transition;
 
+import android.content.Context;
 import android.graphics.Path;
+import android.util.AttributeSet;
 
 /**
  * This base class can be extended to provide motion along a Path to Transitions.
@@ -31,6 +33,9 @@ import android.graphics.Path;
 public abstract class PathMotion {
 
     public PathMotion() {
+    }
+
+    public PathMotion(Context context, AttributeSet attrs) {
     }
 
     /**

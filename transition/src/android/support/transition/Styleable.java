@@ -128,4 +128,30 @@ interface Styleable {
         int TRANSITION_ORDERING = 0;
     }
 
+    @StyleableRes
+    int[] ARC_MOTION = {
+            android.R.attr.minimumHorizontalAngle,
+            android.R.attr.minimumVerticalAngle,
+            android.R.attr.maximumAngle,
+    };
+
+    interface ArcMotion {
+        @StyleableRes
+        int MINIMUM_HORIZONTAL_ANGLE = 0;
+        @StyleableRes
+        int MINIMUM_VERTICAL_ANGLE = 1;
+        @StyleableRes
+        int MAXIMUM_ANGLE = 2;
+    }
+
+    @StyleableRes
+    int[] PATTERN_PATH_MOTION = {
+            android.R.attr.patternPathData,
+    };
+
+    interface PatternPathMotion {
+        @StyleableRes
+        int PATTERN_PATH_DATA = 0;
+    }
+
 }

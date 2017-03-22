@@ -1865,6 +1865,7 @@ package android.support.transition {
 
   public class ArcMotion extends android.support.transition.PathMotion {
     ctor public ArcMotion();
+    ctor public ArcMotion(android.content.Context, android.util.AttributeSet);
     method public float getMaximumAngle();
     method public float getMinimumHorizontalAngle();
     method public float getMinimumVerticalAngle();
@@ -1933,11 +1934,13 @@ package android.support.transition {
 
   public abstract class PathMotion {
     ctor public PathMotion();
+    ctor public PathMotion(android.content.Context, android.util.AttributeSet);
     method public abstract android.graphics.Path getPath(float, float, float, float);
   }
 
   public class PatternPathMotion extends android.support.transition.PathMotion {
     ctor public PatternPathMotion();
+    ctor public PatternPathMotion(android.content.Context, android.util.AttributeSet);
     ctor public PatternPathMotion(android.graphics.Path);
     method public android.graphics.Path getPath(float, float, float, float);
     method public android.graphics.Path getPatternPath();

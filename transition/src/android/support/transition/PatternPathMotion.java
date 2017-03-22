@@ -16,9 +16,16 @@
 
 package android.support.transition;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
+import android.support.v4.content.res.TypedArrayUtils;
+import android.support.v4.graphics.PathParser;
+import android.util.AttributeSet;
+
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  * A PathMotion that takes a Path pattern and applies it to the separation between two points.
@@ -39,6 +46,21 @@ public class PatternPathMotion extends PathMotion {
     public PatternPathMotion() {
         mPatternPath.lineTo(1, 0);
         mOriginalPatternPath = mPatternPath;
+    }
+
+    public PatternPathMotion(Context context, AttributeSet attrs) {
+        TypedArray a = context.obtainStyledAttributes(attrs, Styleable.PATTERN_PATH_MOTION);
+        try {
+            String pathData = TypedArrayUtils.getNamedString(a, (XmlPullParser) attrs,
+                    "patternPathData", Styleable.PatternPathMotion.PATTERN_PATH_DATA);
+            if (pathData == null) {
+                throw new RuntimeException("pathData must be supplied for patternPathMotion");
+            }
+            Path pattern = PathParser.createPathFromPathData(pathData);
+            setPatternPath(pattern);
+        } finally {
+            a.recycle();
+        }
     }
 
     /**
