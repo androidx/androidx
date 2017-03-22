@@ -8936,6 +8936,13 @@ package android.support.v4.widget {
     field public static final int INVALID_ID = -2147483648; // 0x80000000
   }
 
+  public class ImageViewCompat {
+    method public static android.content.res.ColorStateList getImageTintList(android.widget.ImageView);
+    method public static android.graphics.PorterDuff.Mode getImageTintMode(android.widget.ImageView);
+    method public static void setImageTintList(android.widget.ImageView, android.content.res.ColorStateList);
+    method public static void setImageTintMode(android.widget.ImageView, android.graphics.PorterDuff.Mode);
+  }
+
   public final class ListPopupWindowCompat {
     method public static android.view.View.OnTouchListener createDragToOpenListener(java.lang.Object, android.view.View);
   }
