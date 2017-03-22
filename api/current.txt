@@ -5499,6 +5499,7 @@ package android.support.v4.content {
     field public static final java.lang.String EXTRA_CHANGED_PACKAGE_LIST = "android.intent.extra.changed_package_list";
     field public static final java.lang.String EXTRA_CHANGED_UID_LIST = "android.intent.extra.changed_uid_list";
     field public static final java.lang.String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
+    field public static final java.lang.String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
     field public static final int FLAG_ACTIVITY_CLEAR_TASK = 32768; // 0x8000
     field public static final int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
   }
