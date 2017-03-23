@@ -27,6 +27,7 @@
     <application android:label="pref demo"
         android:icon="@drawable/app_sample_code"
         android:allowBackup="false"
+        android:supportsRtl="true"
         android:theme="@style/DemoTheme">
 
         <activity android:name=".SupportPreferenceDemos">
