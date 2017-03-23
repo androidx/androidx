@@ -64,18 +64,22 @@ public class AllEmojisTest {
     }
 
     @Parameterized.Parameters
-    public static Collection<Object[]> data() {
+    public static Collection<Object[]> data() throws IOException {
         final Context context = InstrumentationRegistry.getTargetContext();
-        final InputStream inputStream = context.getResources().openRawResource(R.raw.all_emojis);
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        final Collection<Object[]> data = new ArrayList<>();
-        final StringBuilder stringBuilder = new StringBuilder();
-        final StringBuilder codePointsBuilder = new StringBuilder();
-        final int hexPrefixLength = "0x".length();
-
+        final InputStream inputStream = context.getResources().openRawResource(R.raw.emojis);
         try {
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            final Collection<Object[]> data = new ArrayList<>();
+            final StringBuilder stringBuilder = new StringBuilder();
+            final StringBuilder codePointsBuilder = new StringBuilder();
+            final int hexPrefixLength = "0x".length();
+
             String s;
             while ((s = reader.readLine()) != null) {
+                s = s.trim();
+                // pass comments
+                if (s.isEmpty() || s.startsWith("#")) continue;
+
                 stringBuilder.setLength(0);
                 codePointsBuilder.setLength(0);
 
@@ -83,19 +87,19 @@ public class AllEmojisTest {
                 final String[] split = s.split(" ");
 
                 for (int index = 0; index < split.length; index++) {
-                    final String part = split[index];
-                    final String substring = part.substring(hexPrefixLength, part.length());
-                    codePointsBuilder.append(substring);
+                    final String part = split[index].trim();
+                    codePointsBuilder.append(part);
                     codePointsBuilder.append(",");
-                    stringBuilder.append(Character.toChars(Integer.parseInt(substring, 16)));
+                    stringBuilder.append(Character.toChars(Integer.parseInt(part, 16)));
                 }
                 data.add(new Object[]{stringBuilder.toString(), codePointsBuilder.toString()});
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            return data;
+        } finally {
+            inputStream.close();
         }
 
-        return data;
     }
 
     public AllEmojisTest(String string, String codepoints) {
