@@ -15,10 +15,13 @@
  */
 package android.support.media.instantvideo.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.support.annotation.RestrictTo;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.widget.FrameLayout;
@@ -34,7 +37,10 @@ import android.widget.VideoView;
  * the video can play right after {@link #start} is called.
  *
  * @see android.support.media.instantvideo.preload.InstantVideoPreloadManager
+ *
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public class InstantVideoView extends FrameLayout {
     private static final String TAG = "InstantVideoView";
 

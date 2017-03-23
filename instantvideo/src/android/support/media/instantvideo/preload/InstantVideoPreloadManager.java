@@ -15,10 +15,13 @@
  */
 package android.support.media.instantvideo.preload;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.LruCache;
 import android.util.Log;
@@ -28,7 +31,10 @@ import android.util.Log;
  *
  * <p>This class is used in {@link android.support.media.instantvideo.widget.InstantVideoView}
  * internally to play the preloaded video.
+ *
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public class InstantVideoPreloadManager {
     private static final String TAG = "InstantVideoPreloadMgr";
     private static final boolean DEBUG = false;
