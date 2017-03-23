@@ -67,9 +67,9 @@ public class AppCompatMenuItemShortcutsTest {
         assertTrue(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
         assertEquals(mActivity.getMenuItemIdTracker(), R.id.single_modifier);
 
-        // Test shortcut trigger in case of multiple modifiers
+        // Test shortcut trigger in case of multiple non-default modifiers
         keyCodeToSend = KeyEvent.KEYCODE_D;
-        metaState = KeyEvent.META_CTRL_ON | KeyEvent.META_SHIFT_ON;
+        metaState = KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON;
         keyEventToSend = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
                 keyCodeToSend, 0, metaState);
         assertTrue(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
