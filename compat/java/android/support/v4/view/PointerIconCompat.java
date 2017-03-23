@@ -16,19 +16,18 @@
 
 package android.support.v4.view;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
+import android.view.PointerIcon;
 
 /**
- * Helper for accessing features in {@link android.view.PointerIcon} introduced after API
- * level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.view.PointerIcon} in a backwards compatible
+ * fashion.
  */
 public final class PointerIconCompat {
     /** Synonym for {@link android.view.PointerIcon#TYPE_NULL} */
@@ -115,56 +114,6 @@ public final class PointerIconCompat {
         return mPointerIcon;
     }
 
-    interface PointerIconCompatImpl {
-        Object getSystemIcon(Context context, int style);
-        Object create(Bitmap bitmap, float hotSpotX, float hotSpotY);
-        Object load(Resources resources, int resourceId);
-    }
-
-    static class BasePointerIconCompatImpl implements PointerIconCompatImpl {
-        @Override
-        public Object getSystemIcon(Context context, int style) {
-            return null;
-        }
-
-        @Override
-        public Object create(Bitmap bitmap, float hotSpotX, float hotSpotY) {
-            return null;
-        }
-
-        @Override
-        public Object load(Resources resources, int resourceId) {
-            return null;
-        }
-    }
-
-    @RequiresApi(24)
-    static class Api24PointerIconCompatImpl extends BasePointerIconCompatImpl {
-        @Override
-        public Object getSystemIcon(Context context, int style) {
-            return PointerIconCompatApi24.getSystemIcon(context, style);
-        }
-
-        @Override
-        public Object create(Bitmap bitmap, float hotSpotX, float hotSpotY) {
-            return PointerIconCompatApi24.create(bitmap, hotSpotX, hotSpotY);
-        }
-
-        @Override
-        public Object load(Resources resources, int resourceId) {
-            return PointerIconCompatApi24.load(resources, resourceId);
-        }
-    }
-
-    static final PointerIconCompatImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new Api24PointerIconCompatImpl();
-        } else {
-            IMPL = new BasePointerIconCompatImpl();
-        }
-    }
-
     /**
      * Gets a system pointer icon for the given style.
      * If style is not recognized, returns the default pointer icon.
@@ -176,7 +125,11 @@ public final class PointerIconCompat {
      * @throws IllegalArgumentException if context is null.
      */
     public static PointerIconCompat getSystemIcon(Context context, int style) {
-        return new PointerIconCompat(IMPL.getSystemIcon(context, style));
+        if (SDK_INT >= 24) {
+            return new PointerIconCompat(PointerIcon.getSystemIcon(context, style));
+        } else {
+            return new PointerIconCompat(null);
+        }
     }
 
     /**
@@ -193,7 +146,11 @@ public final class PointerIconCompat {
      *         parameters are invalid.
      */
     public static PointerIconCompat create(Bitmap bitmap, float hotSpotX, float hotSpotY) {
-        return new PointerIconCompat(IMPL.create(bitmap, hotSpotX, hotSpotY));
+        if (SDK_INT >= 24) {
+            return new PointerIconCompat(PointerIcon.create(bitmap, hotSpotX, hotSpotY));
+        } else {
+            return new PointerIconCompat(null);
+        }
     }
 
     /**
@@ -218,6 +175,10 @@ public final class PointerIconCompat {
      * linked in the resource was not found.
      */
     public static PointerIconCompat load(Resources resources, int resourceId) {
-        return new PointerIconCompat(IMPL.load(resources, resourceId));
+        if (SDK_INT >= 24) {
+            return new PointerIconCompat(PointerIcon.load(resources, resourceId));
+        } else {
+            return new PointerIconCompat(null);
+        }
     }
 }
