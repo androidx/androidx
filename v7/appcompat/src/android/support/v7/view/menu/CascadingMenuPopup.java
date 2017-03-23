@@ -28,6 +28,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v4.internal.view.SupportMenu;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -384,19 +385,35 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
             final boolean showOnRight = nextMenuPosition == HORIZ_POSITION_RIGHT;
             mLastPosition = nextMenuPosition;
 
-            // A popup anchored to mAnchorView with (0,0) offset would be shown at this position.
-            final int[] offsetOrigin = new int[2];
-            mAnchorView.getLocationOnScreen(offsetOrigin);
-            offsetOrigin[1] += mAnchorView.getHeight();
+            final int parentOffsetLeft;
+            final int parentOffsetTop;
+            if (BuildCompat.isAtLeastO()) {
+                // Anchor the submenu directly to the parent menu item view. This allows for
+                // accurate submenu positioning when the parent menu is being moved.
+                popupWindow.setAnchorView(parentView);
+                parentOffsetLeft = 0;
+                parentOffsetTop = 0;
+            } else {
+                // Framework does not allow anchoring to a view in another popup window. Use the
+                // same top-level anchor as the parent menu is using, with appropriate offsets.
 
-            final int[] parentViewScreenLocation = new int[2];
-            parentView.getLocationOnScreen(parentViewScreenLocation);
+                // The following computation is only accurate for the initial submenu position.
+                // Should the submenu change its below/above state due to the parent menu move,
+                // the framework will compute the new submenu position using the anchor's height,
+                // not the parent menu item height. This will work well if the two heights are
+                // close, but if they are not, the submenu will become misaligned.
 
-            // Translate the parent view location into the offset coordinate space.
-            // If used as horizontal/vertical offsets, these values would position the submenu
-            // at the exact same position as the parent item.
-            final int parentOffsetLeft = parentViewScreenLocation[0] - offsetOrigin[0];
-            final int parentOffsetTop = parentViewScreenLocation[1] - offsetOrigin[1];
+                final int[] anchorScreenLocation = new int[2];
+                mAnchorView.getLocationOnScreen(anchorScreenLocation);
+
+                final int[] parentViewScreenLocation = new int[2];
+                parentView.getLocationOnScreen(parentViewScreenLocation);
+
+                // If used as horizontal/vertical offsets, these values would position the submenu
+                // at the exact same position as the parent item.
+                parentOffsetLeft = parentViewScreenLocation[0] - anchorScreenLocation[0];
+                parentOffsetTop = parentViewScreenLocation[1] - anchorScreenLocation[1];
+            }
 
             // Adjust the horizontal offset to display the submenu to the right or to the left
             // of the parent item.
@@ -418,7 +435,8 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
             }
             popupWindow.setHorizontalOffset(x);
 
-            // Use the same vertical offset as the parent item.
+            // Vertically align with the parent item.
+            popupWindow.setOverlapAnchor(true);
             popupWindow.setVerticalOffset(parentOffsetTop);
         } else {
             if (mHasXOffset) {

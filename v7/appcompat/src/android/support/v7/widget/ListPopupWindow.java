@@ -112,6 +112,7 @@ public class ListPopupWindow implements ShowableListMenu {
     private int mDropDownWindowLayoutType = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL;
     private boolean mDropDownVerticalOffsetSet;
     private boolean mIsAnimatedFromAnchor = true;
+    private boolean mOverlapAnchor;
 
     private int mDropDownGravity = Gravity.NO_GRAVITY;
 
@@ -711,6 +712,7 @@ public class ListPopupWindow implements ShowableListMenu {
             // only set this if the dropdown is not always visible
             mPopup.setOutsideTouchable(!mForceIgnoreOutsideTouch && !mDropDownAlwaysVisible);
             mPopup.setTouchInterceptor(mTouchInterceptor);
+            PopupWindowCompat.setOverlapAnchor(mPopup, mOverlapAnchor);
             if (sSetEpicenterBoundsMethod != null) {
                 try {
                     sSetEpicenterBoundsMethod.invoke(mPopup, mEpicenterBounds);
@@ -1296,6 +1298,15 @@ public class ListPopupWindow implements ShowableListMenu {
         }
 
         return listContent + otherHeights;
+    }
+
+    /**
+     * @hide Only used by {@link android.support.v7.view.menu.CascadingMenuPopup} to position
+     * a submenu correctly.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setOverlapAnchor(boolean overlapAnchor) {
+        mOverlapAnchor = overlapAnchor;
     }
 
     private class PopupDataSetObserver extends DataSetObserver {
