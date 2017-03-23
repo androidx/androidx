@@ -20,7 +20,10 @@ import static android.support.text.emoji.util.EmojiMatcher.hasEmoji;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -28,6 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -135,6 +139,40 @@ public class ConfigTest {
 
         verify(initCallback1, times(1)).onFailed(any(Throwable.class));
         verify(initCallback2, times(1)).onFailed(any(Throwable.class));
+    }
+
+    @Test
+    public void testBuild_withEmojiSpanIndicator() {
+        EmojiCompat.Config config = new ValidTestConfig();
+        EmojiCompat emojiCompat = EmojiCompat.reset(config);
+
+        assertFalse(emojiCompat.isEmojiSpanIndicatorEnabled());
+
+        config = new ValidTestConfig().setEmojiSpanIndicatorEnabled(true);
+        emojiCompat = EmojiCompat.reset(config);
+
+        assertTrue(emojiCompat.isEmojiSpanIndicatorEnabled());
+    }
+
+    @Test
+    public void testBuild_withEmojiSpanIndicatorColor() {
+        EmojiCompat.Config config = new ValidTestConfig();
+        EmojiCompat emojiCompat = EmojiCompat.reset(config);
+
+        assertEquals(Color.GREEN, emojiCompat.getEmojiSpanIndicatorColor());
+
+        config = new ValidTestConfig().setEmojiSpanIndicatorColor(Color.RED);
+        emojiCompat = EmojiCompat.reset(config);
+
+        assertEquals(Color.RED, emojiCompat.getEmojiSpanIndicatorColor());
+    }
+
+    @Test
+    public void testBuild_defaultEmojiSpanIndicatorColor() {
+        final EmojiCompat.Config config = new ValidTestConfig().setEmojiSpanIndicatorEnabled(true);
+        final EmojiCompat emojiCompat = EmojiCompat.reset(config);
+
+        assertTrue(emojiCompat.isEmojiSpanIndicatorEnabled());
     }
 
     private static class ValidTestConfig extends EmojiCompat.Config {
