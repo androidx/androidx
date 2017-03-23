@@ -27,6 +27,7 @@ import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
+import android.support.v17.leanback.widget.PlaybackRowPresenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
@@ -54,8 +55,10 @@ import java.lang.ref.WeakReference;
  * inform the glue what speed levels are supported for fast forward/rewind.
  * </p>
  *
- * <p>You may override {@link #onCreateControlsRowAndPresenter()} which will set a controls
- * row and return a row presenter you can use to present the row.
+ * <p>You may override {@link #onCreateControlsRowAndPresenter()} which will create a
+ * {@link PlaybackControlsRow} and a {@link PlaybackControlsRowPresenter}. You may call
+ * {@link #setControlsRow(PlaybackControlsRow)} and
+ * {@link #setPlaybackRowPresenter(PlaybackRowPresenter)} to customize your own row and presenter.
  * </p>
  *
  * <p>The helper sets a {@link SparseArrayObjectAdapter}
@@ -176,7 +179,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     private final int[] mFastForwardSpeeds;
     private final int[] mRewindSpeeds;
     private PlaybackControlsRow mControlsRow;
-    private PlaybackControlsRowPresenter mControlsRowPresenter;
+    private PlaybackRowPresenter mControlsRowPresenter;
     private PlaybackControlsRow.PlayPauseAction mPlayPauseAction;
     private PlaybackControlsRow.SkipNextAction mSkipNextAction;
     private PlaybackControlsRow.SkipPreviousAction mSkipPreviousAction;
@@ -237,10 +240,10 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
         super.onAttachedToHost(host);
         host.setOnKeyInterceptListener(this);
         host.setOnActionClickedListener(this);
-        if (getControlsRow() == null || getControlsRowPresenter() == null) {
+        if (getControlsRow() == null || getPlaybackRowPresenter() == null) {
             onCreateControlsRowAndPresenter();
         }
-        host.setPlaybackRowPresenter(getControlsRowPresenter());
+        host.setPlaybackRowPresenter(getPlaybackRowPresenter());
         host.setPlaybackRow(getControlsRow());
     }
 
@@ -265,37 +268,40 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
      * {@link PlaybackControlsRowPresenter}. Subclass may override.
      */
     protected void onCreateControlsRowAndPresenter() {
-        PlaybackControlsRow controlsRow = new PlaybackControlsRow(this);
-        setControlsRow(controlsRow);
+        if (getControlsRow() == null) {
+            PlaybackControlsRow controlsRow = new PlaybackControlsRow(this);
+            setControlsRow(controlsRow);
+        }
+        if (getPlaybackRowPresenter() == null) {
+            final AbstractDetailsDescriptionPresenter detailsPresenter =
+                    new AbstractDetailsDescriptionPresenter() {
+                        @Override
+                        protected void onBindDescription(ViewHolder
+                                viewHolder, Object object) {
+                            PlaybackControlGlue glue = (PlaybackControlGlue) object;
+                            if (glue.hasValidMedia()) {
+                                viewHolder.getTitle().setText(glue.getMediaTitle());
+                                viewHolder.getSubtitle().setText(glue.getMediaSubtitle());
+                            } else {
+                                viewHolder.getTitle().setText("");
+                                viewHolder.getSubtitle().setText("");
+                            }
+                        }
+                    };
 
-        final AbstractDetailsDescriptionPresenter detailsPresenter =
-                new AbstractDetailsDescriptionPresenter() {
-            @Override
-            protected void onBindDescription(ViewHolder
-                                                     viewHolder, Object object) {
-                PlaybackControlGlue glue = (PlaybackControlGlue) object;
-                if (glue.hasValidMedia()) {
-                    viewHolder.getTitle().setText(glue.getMediaTitle());
-                    viewHolder.getSubtitle().setText(glue.getMediaSubtitle());
-                } else {
-                    viewHolder.getTitle().setText("");
-                    viewHolder.getSubtitle().setText("");
+            setPlaybackRowPresenter(new PlaybackControlsRowPresenter(detailsPresenter) {
+                @Override
+                protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+                    super.onBindRowViewHolder(vh, item);
+                    vh.setOnKeyListener(PlaybackControlGlue.this);
                 }
-            }
-        };
-
-        setControlsRowPresenter(new PlaybackControlsRowPresenter(detailsPresenter) {
-            @Override
-            protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
-                super.onBindRowViewHolder(vh, item);
-                vh.setOnKeyListener(PlaybackControlGlue.this);
-            }
-            @Override
-            protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
-                super.onUnbindRowViewHolder(vh);
-                vh.setOnKeyListener(null);
-            }
-        });
+                @Override
+                protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
+                    super.onUnbindRowViewHolder(vh);
+                    vh.setOnKeyListener(null);
+                }
+            });
+        }
     }
 
     /**
@@ -358,7 +364,10 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     /**
      * Sets the controls row Presenter to be managed by the glue layer.
+     * @deprecated PlaybackControlGlue supports any PlaybackRowPresenter, use
+     * {@link #setPlaybackRowPresenter(PlaybackRowPresenter)}.
      */
+    @Deprecated
     public void setControlsRowPresenter(PlaybackControlsRowPresenter presenter) {
         mControlsRowPresenter = presenter;
     }
@@ -372,8 +381,28 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     /**
      * Returns the playback controls row Presenter managed by the glue layer.
+     * @deprecated PlaybackControlGlue supports any PlaybackRowPresenter, use
+     * {@link #getPlaybackRowPresenter()}.
      */
+    @Deprecated
     public PlaybackControlsRowPresenter getControlsRowPresenter() {
+        return mControlsRowPresenter instanceof PlaybackControlsRowPresenter
+                ? (PlaybackControlsRowPresenter) mControlsRowPresenter : null;
+    }
+
+    /**
+     * Sets the controls row Presenter to be passed to {@link PlaybackGlueHost} in
+     * {@link #onAttachedToHost(PlaybackGlueHost)}.
+     */
+    public void setPlaybackRowPresenter(PlaybackRowPresenter presenter) {
+        mControlsRowPresenter = presenter;
+    }
+
+    /**
+     * Returns the playback row Presenter to be passed to {@link PlaybackGlueHost} in
+     * {@link #onAttachedToHost(PlaybackGlueHost)}.
+     */
+    public PlaybackRowPresenter getPlaybackRowPresenter() {
         return mControlsRowPresenter;
     }
 
