@@ -75,7 +75,7 @@ import java.io.PrintWriter;
  */
 public class FragmentActivity extends BaseFragmentActivityJB implements
         ActivityCompat.OnRequestPermissionsResultCallback,
-        ActivityCompatApi23.RequestPermissionsRequestCodeValidator {
+        ActivityCompat.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
 
     static final String FRAGMENTS_TAG = "android:support:fragments";

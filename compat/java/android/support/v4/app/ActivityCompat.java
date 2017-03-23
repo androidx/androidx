@@ -32,6 +32,7 @@ import android.os.Parcelable;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 
@@ -70,6 +71,14 @@ public class ActivityCompat extends ContextCompat {
          */
         void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                 @NonNull int[] grantResults);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface RequestPermissionsRequestCodeValidator {
+        void validateRequestPermissionsRequestCode(int requestCode);
     }
 
     /**
@@ -140,7 +149,7 @@ public class ActivityCompat extends ContextCompat {
     public static void startActivityForResult(Activity activity, Intent intent, int requestCode,
             @Nullable Bundle options) {
         if (Build.VERSION.SDK_INT >= 16) {
-            ActivityCompatJB.startActivityForResult(activity, intent, requestCode, options);
+            activity.startActivityForResult(intent, requestCode, options);
         } else {
             activity.startActivityForResult(intent, requestCode);
         }
@@ -176,8 +185,8 @@ public class ActivityCompat extends ContextCompat {
             int requestCode, Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (Build.VERSION.SDK_INT >= 16) {
-            ActivityCompatJB.startIntentSenderForResult(activity, intent, requestCode, fillInIntent,
-                    flagsMask, flagsValues, extraFlags, options);
+            activity.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask,
+                    flagsValues, extraFlags, options);
         } else {
             activity.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask,
                     flagsValues, extraFlags);
@@ -193,7 +202,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void finishAffinity(Activity activity) {
         if (Build.VERSION.SDK_INT >= 16) {
-            ActivityCompatJB.finishAffinity(activity);
+            activity.finishAffinity();
         } else {
             activity.finish();
         }
@@ -210,7 +219,7 @@ public class ActivityCompat extends ContextCompat {
      */
     public static void finishAfterTransition(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompatApi21.finishAfterTransition(activity);
+            activity.finishAfterTransition();
         } else {
             activity.finish();
         }
@@ -235,7 +244,7 @@ public class ActivityCompat extends ContextCompat {
     @Nullable
     public static Uri getReferrer(Activity activity) {
         if (Build.VERSION.SDK_INT >= 22) {
-            return ActivityCompatApi22.getReferrer(activity);
+            return activity.getReferrer();
         }
         Intent intent = activity.getIntent();
         Uri referrer = intent.getParcelableExtra("android.intent.extra.REFERRER");
@@ -286,13 +295,13 @@ public class ActivityCompat extends ContextCompat {
 
     public static void postponeEnterTransition(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompatApi21.postponeEnterTransition(activity);
+            activity.postponeEnterTransition();
         }
     }
 
     public static void startPostponedEnterTransition(Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompatApi21.startPostponedEnterTransition(activity);
+            activity.startPostponedEnterTransition();
         }
     }
 
@@ -366,7 +375,11 @@ public class ActivityCompat extends ContextCompat {
     public static void requestPermissions(final @NonNull Activity activity,
             final @NonNull String[] permissions, final @IntRange(from = 0) int requestCode) {
         if (Build.VERSION.SDK_INT >= 23) {
-            ActivityCompatApi23.requestPermissions(activity, permissions, requestCode);
+            if (activity instanceof RequestPermissionsRequestCodeValidator) {
+                ((RequestPermissionsRequestCodeValidator) activity)
+                        .validateRequestPermissionsRequestCode(requestCode);
+            }
+            activity.requestPermissions(permissions, requestCode);
         } else if (activity instanceof OnRequestPermissionsResultCallback) {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
@@ -413,7 +426,7 @@ public class ActivityCompat extends ContextCompat {
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return ActivityCompatApi23.shouldShowRequestPermissionRationale(activity, permission);
+            return activity.shouldShowRequestPermissionRationale(permission);
         }
         return false;
     }
