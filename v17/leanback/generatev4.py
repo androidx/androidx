@@ -100,6 +100,7 @@ for line in file:
     line = re.sub(r'FragmentUtil.getContext\(mFragment\)', 'mFragment.getContext()', line);
     line = line.replace('VideoFragment', 'VideoSupportFragment')
     line = line.replace('DetailsFragment', 'DetailsSupportFragment')
+    line = line.replace('RowsFragment', 'RowsSupportFragment')
     line = line.replace('VideoSupportFragmentGlueHost'.format(w), 'VideoSupportFragmentGlueHost'.format(w))
     line = line.replace('android.app.Fragment', 'android.support.v4.app.Fragment')
     outfile.write(line)

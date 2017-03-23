@@ -80,6 +80,11 @@ import java.lang.ref.WeakReference;
  * {@link FullWidthDetailsOverviewRowPresenter}.
  * </li>
  * </p>
+ *
+ * <p>
+ * DetailsSupportFragment can use {@link DetailsSupportFragmentBackgroundController} to add a parallax drawable
+ * background and embedded video playing fragment.
+ * </p>
  */
 public class DetailsSupportFragment extends BaseSupportFragment {
     static final String TAG = "DetailsSupportFragment";
@@ -726,7 +731,9 @@ public class DetailsSupportFragment extends BaseSupportFragment {
                 if (mRowsSupportFragment.getVerticalGridView() != null
                         && mRowsSupportFragment.getVerticalGridView().hasFocus()) {
                     if (direction == View.FOCUS_UP) {
-                        if (mVideoSupportFragment != null && mVideoSupportFragment.getView() != null) {
+                        if (mDetailsBackgroundController != null
+                                && mDetailsBackgroundController.canNavigateToVideoSupportFragment()
+                                && mVideoSupportFragment != null && mVideoSupportFragment.getView() != null) {
                             return mVideoSupportFragment.getView();
                         } else if (getTitleView() != null && getTitleView().hasFocusable()) {
                             return getTitleView();
