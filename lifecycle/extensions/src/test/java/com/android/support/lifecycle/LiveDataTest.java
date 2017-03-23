@@ -152,7 +152,7 @@ public class LiveDataTest {
         mLiveData.removeObservers(mProvider);
 
         assertThat(mLiveData.getObserverCount(), is(0));
-        assertThat(mRegistry.size(), is(0));
+        assertThat(mRegistry.getObserverCount(), is(0));
     }
 
     @Test
@@ -231,9 +231,9 @@ public class LiveDataTest {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mRegistry.handleLifecycleEvent(ON_CREATE);
         mLiveData.observe(mProvider, observer);
-        assertThat(mRegistry.size(), is(1));
+        assertThat(mRegistry.getObserverCount(), is(1));
         mRegistry.handleLifecycleEvent(ON_DESTROY);
-        assertThat(mRegistry.size(), is(0));
+        assertThat(mRegistry.getObserverCount(), is(0));
     }
 
     @Test
@@ -241,10 +241,10 @@ public class LiveDataTest {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mRegistry.handleLifecycleEvent(ON_CREATE);
         mLiveData.observe(mProvider, observer);
-        assertThat(mRegistry.size(), is(1));
+        assertThat(mRegistry.getObserverCount(), is(1));
 
         mLiveData.removeObserver(observer);
-        assertThat(mRegistry.size(), is(0));
+        assertThat(mRegistry.getObserverCount(), is(0));
     }
 
     @Test

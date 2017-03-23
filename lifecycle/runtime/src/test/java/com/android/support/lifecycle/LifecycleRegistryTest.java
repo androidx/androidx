@@ -61,9 +61,9 @@ public class LifecycleRegistryTest {
     public void addRemove() {
         LifecycleObserver observer = mock(LifecycleObserver.class);
         mRegistry.addObserver(observer);
-        assertThat(mRegistry.size(), is(1));
+        assertThat(mRegistry.getObserverCount(), is(1));
         mRegistry.removeObserver(observer);
-        assertThat(mRegistry.size(), is(0));
+        assertThat(mRegistry.getObserverCount(), is(0));
     }
 
     @Test

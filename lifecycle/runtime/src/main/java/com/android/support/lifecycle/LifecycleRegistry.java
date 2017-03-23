@@ -122,7 +122,7 @@ public class LifecycleRegistry implements Lifecycle {
      *
      * @return The number of observers.
      */
-    public int size() {
+    public int getObserverCount() {
         return mObserverSet.size();
     }
 
