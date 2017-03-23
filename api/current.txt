@@ -2628,7 +2628,7 @@ package android.support.v17.leanback.media {
     ctor public PlaybackControlGlue(android.content.Context, int[], int[]);
     method public void enableProgressUpdating(boolean);
     method public android.support.v17.leanback.widget.PlaybackControlsRow getControlsRow();
-    method public android.support.v17.leanback.widget.PlaybackControlsRowPresenter getControlsRowPresenter();
+    method public deprecated android.support.v17.leanback.widget.PlaybackControlsRowPresenter getControlsRowPresenter();
     method public abstract int getCurrentPosition();
     method public abstract int getCurrentSpeedId();
     method public int[] getFastForwardSpeeds();
@@ -2636,6 +2636,7 @@ package android.support.v17.leanback.media {
     method public abstract int getMediaDuration();
     method public abstract java.lang.CharSequence getMediaSubtitle();
     method public abstract java.lang.CharSequence getMediaTitle();
+    method public android.support.v17.leanback.widget.PlaybackRowPresenter getPlaybackRowPresenter();
     method public int[] getRewindSpeeds();
     method public abstract long getSupportedActions();
     method public int getUpdatePeriod();
@@ -2652,8 +2653,9 @@ package android.support.v17.leanback.media {
     method public void play(int);
     method public final void play();
     method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
-    method public void setControlsRowPresenter(android.support.v17.leanback.widget.PlaybackControlsRowPresenter);
+    method public deprecated void setControlsRowPresenter(android.support.v17.leanback.widget.PlaybackControlsRowPresenter);
     method public void setFadingEnabled(boolean);
+    method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
     method public void updateProgress();
     field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
     field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
