@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.os.Bundle;
 import android.support.annotation.XmlRes;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -36,8 +37,26 @@ import java.io.IOException;
  * Class which translates a navigation XML file into a {@link NavGraph}
  */
 public class NavInflater {
+    /**
+     * Metadata key for defining an app's default navigation graph.
+     *
+     * <p>Applications may declare a graph resource in their manifest instead of declaring
+     * or passing this data to each host or controller:</p>
+     *
+     * <pre class="prettyprint">
+     *     <meta-data android:name="android.nav.graph" android:resource="@xml/my_nav_graph" />
+     * </pre>
+     *
+     * <p>A graph resource declared in this manner can be inflated into a controller by calling
+     * {@link NavController#setMetadataGraph()} or directly via {@link #inflateMetadataGraph()}.
+     * Navigation host implementations should do this automatically
+     * if no navigation resource is otherwise supplied during host configuration.</p>
+     */
+    public static final String METADATA_KEY_GRAPH = "android.nav.graph";
+
     private static final String TAG_ARGUMENT = "default-argument";
     private static final String TAG_ACTION = "action";
+    private static final String TAG_INCLUDE = "include";
 
     private static final ThreadLocal<TypedValue> sTmpValue = new ThreadLocal<>();
 
@@ -60,6 +79,28 @@ public class NavInflater {
         return mNavigatorProvider.getNavigator(name);
     }
 
+    /**
+     * Inflates {@link NavGraph navigation graph} as specified in the application manifest.
+     *
+     * <p>Applications may declare a graph resource in their manifest instead of declaring
+     * or passing this data to each host or controller:</p>
+     *
+     * <pre class="prettyprint">
+     *     <meta-data android:name="android.nav.graph" android:resource="@xml/my_nav_graph" />
+     * </pre>
+     *
+     * @see #METADATA_KEY_GRAPH
+     */
+    public NavGraph inflateMetadataGraph() {
+        final Bundle metaData = mContext.getApplicationInfo().metaData;
+        if (metaData != null) {
+            final int resid = metaData.getInt(METADATA_KEY_GRAPH);
+            if (resid != 0) {
+                return inflate(resid);
+            }
+        }
+        return null;
+    }
     /**
      * Inflate a NavGraph from the given XML resource id.
      *
@@ -127,6 +168,11 @@ public class NavInflater {
                 inflateArgument(res, dest, attrs);
             } else if (TAG_ACTION.equals(name)) {
                 inflateAction(res, dest, attrs);
+            } else if (TAG_INCLUDE.equals(name) && dest instanceof NavGraph) {
+                final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavInclude);
+                final int id = a.getResourceId(R.styleable.NavInclude_graph, 0);
+                ((NavGraph) dest).addDestination(inflate(id));
+                a.recycle();
             } else if (dest instanceof NavGraph) {
                 ((NavGraph) dest).addDestination(inflate(res, parser, attrs));
             }

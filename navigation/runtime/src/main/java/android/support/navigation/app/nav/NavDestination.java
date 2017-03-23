@@ -44,6 +44,7 @@ import com.android.support.navigation.R;
  */
 public class NavDestination {
     private final Navigator mNavigator;
+    private NavGraph mParent;
     private int mId;
     private Bundle mDefaultArgs;
     private SparseIntArray mActions;
@@ -67,6 +68,19 @@ public class NavDestination {
                 R.styleable.NavDestination);
         setId(a.getResourceId(R.styleable.NavDestination_android_id, 0));
         a.recycle();
+    }
+
+    void setParent(NavGraph parent) {
+        mParent = parent;
+    }
+
+    /**
+     * Gets the {@link NavGraph} that contains this destination. This will be set when a
+     * destination is added to a NavGraph via {@link NavGraph#addDestination}.
+     * @return
+     */
+    public NavGraph getParent() {
+        return mParent;
     }
 
     /**
@@ -131,16 +145,19 @@ public class NavDestination {
     }
 
     /**
-     * Returns the destination ID for a given action.
+     * Returns the destination ID for a given action. This will recursively check the
+     * {@link #getParent() parent} of this destination if the action destination is not found in
+     * this destination.
      *
      * @param id action ID to fetch
      * @return destination ID mapped to the given action id, or 0 if none
      */
     public @IdRes int getActionDestination(@IdRes int id) {
-        if (mActions == null) {
-            return 0;
-        }
-        return mActions.get(id);
+        @IdRes int destination = mActions == null ? 0 : mActions.get(id);
+        // Search the parent for the given action if it is not found in this destination
+        return destination != 0
+                ? destination
+                : getParent() != null ? getParent().getActionDestination(id) : 0;
     }
 
     /**

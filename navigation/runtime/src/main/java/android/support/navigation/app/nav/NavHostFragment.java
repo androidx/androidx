@@ -174,7 +174,7 @@ public class NavHostFragment extends Fragment {
             if (graphId != 0) {
                 mNavController.setGraph(graphId);
             } else {
-                mNavController.addMetadataGraph();
+                mNavController.setMetadataGraph();
             }
         }
     }

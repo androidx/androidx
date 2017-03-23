@@ -45,22 +45,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * from a remote server.)</p>
  */
 public class NavController implements NavigatorProvider {
-    /**
-     * Metadata key for defining an app's default navigation graph.
-     *
-     * <p>Applications may declare a graph resource in their manifest instead of declaring
-     * or passing this data to each host or controller:</p>
-     *
-     * <pre class="prettyprint">
-     *     <meta-data android:name="android.nav.graph" android:resource="@xml/my_nav_graph" />
-     * </pre>
-     *
-     * <p>A graph resource declared in this manner can be inflated into a controller by calling
-     * {@link #addMetadataGraph()}. Navigation host implementations should do this automatically
-     * if no navigation resource is otherwise supplied during host configuration.</p>
-     */
-    public static final String METADATA_KEY_GRAPH = "android.nav.graph";
-
     private static final String KEY_GRAPH_ID = "android-support-nav:controller:graphId";
     private static final String KEY_CUR_DEST_ID = "android-support-nav:controller:curDestId";
 
@@ -248,7 +232,7 @@ public class NavController implements NavigatorProvider {
     }
 
     /**
-     * Add a {@link NavGraph navigation graph} as specified in the application manifest.
+     * Sets the {@link NavGraph navigation graph} as specified in the application manifest.
      *
      * <p>Applications may declare a graph resource in their manifest instead of declaring
      * or passing this data to each host or controller:</p>
@@ -257,16 +241,14 @@ public class NavController implements NavigatorProvider {
      *     <meta-data android:name="android.nav.graph" android:resource="@xml/my_nav_graph" />
      * </pre>
      *
-     * @see #METADATA_KEY_GRAPH
+     * <p>The inflated graph can be retrieved via {@link #getGraph()}.</p>
+     *
+     * @see NavInflater#METADATA_KEY_GRAPH
+     * @see NavInflater#inflateMetadataGraph()
+     * @see #getGraph
      */
-    public void addMetadataGraph() {
-        final Bundle metaData = mContext.getApplicationInfo().metaData;
-        if (metaData != null) {
-            final int resid = metaData.getInt(METADATA_KEY_GRAPH);
-            if (resid != 0) {
-                addGraph(resid);
-            }
-        }
+    public void setMetadataGraph() {
+        setGraph(mInflater.inflateMetadataGraph());
     }
 
     /**
@@ -285,10 +267,13 @@ public class NavController implements NavigatorProvider {
      * Sets the {@link NavGraph navigation graph} to the specified resource.
      * Any current navigation graph data will be replaced.
      *
+     * <p>The inflated graph can be retrieved via {@link #getGraph()}.</p>
+     *
      * @param resid resource id of the navigation graph to inflate
      *
      * @see #getNavInflater()
      * @see #setGraph(NavGraph)
+     * @see #getGraph
      */
     public void setGraph(@XmlRes int resid) {
         mGraph = getNavInflater().inflate(resid);
@@ -297,11 +282,14 @@ public class NavController implements NavigatorProvider {
     }
 
     /**
-     * Sets the {@link NavGraph navigation graph} to the specified resource.
+     * Sets the {@link NavGraph navigation graph} to the specified graph.
      * Any current navigation graph data will be replaced.
+     *
+     * <p>The graph can be retrieved later via {@link #getGraph()}.</p>
      *
      * @param graph graph to set
      * @see #setGraph(int)
+     * @see #getGraph
      */
     public void setGraph(NavGraph graph) {
         mGraph = graph;
@@ -309,48 +297,22 @@ public class NavController implements NavigatorProvider {
         onGraphCreated();
     }
 
-    /**
-     * Adds the contents of a navigation resource to the current navigation graph.
-     *
-     * @param resid resource id of the navigation graph to inflate
-     *
-     * @see #getNavInflater()
-     * @see #setGraph(NavGraph)
-     */
-    public void addGraph(@XmlRes int resid) {
-        NavInflater inflater = getNavInflater();
-        NavGraph newGraph = inflater.inflate(resid);
-        if (mGraph != null) {
-            mGraph.addAll(newGraph);
-            mGraphId = 0;
-        } else {
-            mGraph = newGraph;
-            mGraphId = resid;
-            onGraphCreated();
-        }
-    }
-
-    /**
-     * Adds the contents of a navigation resource to the current navigation graph.
-     *
-     * @param graph graph to merge into this controller's graph
-     */
-    public void addGraph(NavGraph graph) {
-        mGraphId = 0;
-        if (mGraph != null) {
-            mGraph.addAll(graph);
-        } else {
-            mGraph = new NavGraph(this);
-            mGraph.addAll(graph);
-            onGraphCreated();
-        }
-    }
-
     private void onGraphCreated() {
         // Navigate to the first destination in the graph
         if (mGraph != null && mCurrentNode == null) {
             mGraph.navigate(null, null);
         }
+    }
+
+    /**
+     * Gets the navigation graph associated with this NavController.
+     *
+     * @see #setGraph(int)
+     * @see #setGraph(NavGraph)
+     * @see #setMetadataGraph()
+     */
+    public NavGraph getGraph() {
+        return mGraph;
     }
 
     /**

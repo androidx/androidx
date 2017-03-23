@@ -58,11 +58,11 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
                             ? res.getResourceName(destination.getId())
                             : "the root navigation"));
         }
-        NavDestination startDestination = destination.findNode(startId);
+        NavDestination startDestination = destination.findNode(startId, false);
         if (startDestination == null) {
             final String dest = mContext.getResources().getResourceName(startId);
             throw new IllegalArgumentException("navigation destination " + dest
-                    + " is unknown to this NavGraph");
+                    + " is not a direct child of this NavGraph");
         }
         return startDestination.navigate(args, navOptions);
     }
