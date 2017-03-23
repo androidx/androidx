@@ -38,7 +38,7 @@ public class TestService extends LifecycleService {
 
     public TestService() {
         getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.ANY)
+            @OnLifecycleEvent(Lifecycle.ON_ANY)
             public void anyEvent(LifecycleProvider owner, @Lifecycle.Event int event) {
                 Context context = (TestService) owner;
                 Intent intent = new Intent(ACTION_LOG_EVENT);

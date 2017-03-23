@@ -368,7 +368,7 @@ public class LiveData<T> {
         }
 
         @SuppressWarnings("unused")
-        @OnLifecycleEvent(Lifecycle.ANY)
+        @OnLifecycleEvent(Lifecycle.ON_ANY)
         void onStateChange() {
             if (provider.getLifecycle().getCurrentState() == DESTROYED) {
                 removeObserver(observer);

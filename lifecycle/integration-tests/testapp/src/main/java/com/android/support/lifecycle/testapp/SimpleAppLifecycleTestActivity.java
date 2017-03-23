@@ -52,7 +52,7 @@ public class SimpleAppLifecycleTestActivity extends LifecycleActivity {
         }
 
         @SuppressWarnings("UnusedParameters")
-        @OnLifecycleEvent(Lifecycle.ANY)
+        @OnLifecycleEvent(Lifecycle.ON_ANY)
         void onEvent(LifecycleProvider provider, @Lifecycle.Event int event) {
             sCollectedEvents.add(new Pair<>(mType, event));
             sLatch.countDown();

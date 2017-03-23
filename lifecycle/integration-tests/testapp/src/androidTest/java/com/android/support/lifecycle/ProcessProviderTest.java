@@ -54,7 +54,7 @@ public class ProcessProviderTest {
     static class ProcessObserver implements LifecycleObserver {
         volatile boolean mChangedState;
 
-        @OnLifecycleEvent(Lifecycle.ANY)
+        @OnLifecycleEvent(Lifecycle.ON_ANY)
         void onEvent() {
             mChangedState = true;
         }
@@ -114,7 +114,7 @@ public class ProcessProviderTest {
         List<Integer> events = Collections.synchronizedList(new ArrayList<>());
 
         LifecycleObserver collectingObserver = new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.ANY)
+            @OnLifecycleEvent(Lifecycle.ON_ANY)
             public void onStateChanged(LifecycleProvider provider, @Lifecycle.Event int event) {
                 events.add(event);
             }

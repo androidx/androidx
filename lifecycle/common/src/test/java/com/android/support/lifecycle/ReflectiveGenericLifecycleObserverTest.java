@@ -64,7 +64,7 @@ public class ReflectiveGenericLifecycleObserverTest {
     }
 
     private static class AnyStateListener implements LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.ANY)
+        @OnLifecycleEvent(Lifecycle.ON_ANY)
         void onAnyState() {
 
         }

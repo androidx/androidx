@@ -146,7 +146,7 @@ public class LifecycleRegistry implements Lifecycle {
                 return RESUMED;
             case ON_DESTROY:
                 return DESTROYED;
-            case Lifecycle.ANY:
+            case Lifecycle.ON_ANY:
                 break;
         }
         throw new IllegalArgumentException("Unexpected event value " + event);

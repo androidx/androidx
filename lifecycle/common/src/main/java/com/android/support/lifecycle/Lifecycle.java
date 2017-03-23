@@ -170,13 +170,13 @@ public interface Lifecycle {
     /**
      * An {@link Event Event} constant that can be used to match all events.
      */
-    int ANY = -1;
+    int ON_ANY = -1;
 
     /**
      * IntDef for Lifecycle events. You can consider the {@link State}s as the nodes in a graph and
      * Events as the edges between these nodes.
      */
-    @IntDef(value = {ON_CREATE, ON_START, ON_RESUME, ON_PAUSE, ON_STOP, ON_DESTROY, ANY},
+    @IntDef(value = {ON_CREATE, ON_START, ON_RESUME, ON_PAUSE, ON_STOP, ON_DESTROY, ON_ANY},
             flag = true)
     public @interface Event {
     }

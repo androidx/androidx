@@ -89,7 +89,7 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
     public void observe(LifecycleProvider provider) {
         mObservedProvider = provider;
         provider.getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.ANY)
+            @OnLifecycleEvent(Lifecycle.ON_ANY)
             public void anyEvent(LifecycleProvider owner, @Lifecycle.Event int event) {
                 mLoggedEvents.add(event);
             }
