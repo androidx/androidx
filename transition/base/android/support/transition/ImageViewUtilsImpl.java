@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,18 @@
 
 package android.support.transition;
 
+import android.animation.Animator;
 import android.graphics.Matrix;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.view.View;
+import android.widget.ImageView;
 
 @RequiresApi(14)
-interface ViewUtilsImpl {
+interface ImageViewUtilsImpl {
 
-    ViewOverlayImpl getOverlay(@NonNull View view);
+    void startAnimateTransform(ImageView view);
 
-    WindowIdImpl getWindowId(@NonNull View view);
+    void animateTransform(ImageView view, Matrix matrix);
 
-    void setTransitionAlpha(@NonNull View view, float alpha);
-
-    float getTransitionAlpha(@NonNull View view);
-
-    void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix);
-
-    void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix);
-
-    void setAnimationMatrix(@NonNull View view, Matrix matrix);
-
+    void reserveEndAnimateTransform(ImageView view, Animator animator);
 
 }

@@ -90,5 +90,32 @@
                 <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".widget.ChangeTransformUsage"
+                  android:label="@string/changeTransform"
+                  android:theme="@style/Theme.Transition">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.ChangeImageTransformUsage"
+                  android:label="@string/changeImageTransform"
+                  android:theme="@style/Theme.Transition">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".widget.ReparentImageUsage"
+                  android:label="@string/reparentImage"
+                  android:theme="@style/Theme.Transition">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.support.transition.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

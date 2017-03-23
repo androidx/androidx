@@ -16,12 +16,16 @@
 
 package android.support.transition;
 
+import android.graphics.Matrix;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.view.View;
+import android.view.ViewParent;
 
 @RequiresApi(14)
 class ViewUtilsApi14 implements ViewUtilsImpl {
+
+    private float[] mMatrixValues;
 
     @Override
     public ViewOverlayImpl getOverlay(@NonNull View view) {
@@ -41,6 +45,73 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
     @Override
     public float getTransitionAlpha(@NonNull View view) {
         return view.getAlpha();
+    }
+
+    @Override
+    public void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
+        final ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            final View vp = (View) parent;
+            transformMatrixToGlobal(vp, matrix);
+            matrix.preTranslate(-vp.getScrollX(), -vp.getScrollY());
+        }
+        matrix.preTranslate(view.getLeft(), view.getTop());
+        final Matrix vm = view.getMatrix();
+        if (!vm.isIdentity()) {
+            matrix.preConcat(vm);
+        }
+    }
+
+    @Override
+    public void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix) {
+        final ViewParent parent = view.getParent();
+        if (parent instanceof View) {
+            final View vp = (View) parent;
+            transformMatrixToLocal(vp, matrix);
+            matrix.postTranslate(vp.getScrollX(), vp.getScrollY());
+        }
+        matrix.postTranslate(view.getLeft(), view.getTop());
+        final Matrix vm = view.getMatrix();
+        if (!vm.isIdentity()) {
+            final Matrix inverted = new Matrix();
+            if (vm.invert(inverted)) {
+                matrix.postConcat(inverted);
+            }
+        }
+    }
+
+    @Override
+    public void setAnimationMatrix(@NonNull View view, Matrix matrix) {
+        if (matrix == null || matrix.isIdentity()) {
+            view.setPivotX(view.getWidth() / 2);
+            view.setPivotY(view.getHeight() / 2);
+            view.setTranslationX(0);
+            view.setTranslationY(0);
+            view.setScaleX(1);
+            view.setScaleY(1);
+            view.setRotation(0);
+        } else {
+            float[] values = mMatrixValues;
+            if (values == null) {
+                mMatrixValues = values = new float[9];
+            }
+            matrix.getValues(values);
+            final float sin = values[Matrix.MSKEW_Y];
+            final float cos = (float) Math.sqrt(1 - sin * sin)
+                    * (values[Matrix.MSCALE_X] < 0 ? -1 : 1);
+            final float rotation = (float) Math.toDegrees(Math.atan2(sin, cos));
+            final float scaleX = values[Matrix.MSCALE_X] / cos;
+            final float scaleY = values[Matrix.MSCALE_Y] / cos;
+            final float dx = values[Matrix.MTRANS_X];
+            final float dy = values[Matrix.MTRANS_Y];
+            view.setPivotX(0);
+            view.setPivotY(0);
+            view.setTranslationX(dx);
+            view.setTranslationY(dy);
+            view.setRotation(rotation);
+            view.setScaleX(scaleX);
+            view.setScaleY(scaleY);
+        }
     }
 
 }

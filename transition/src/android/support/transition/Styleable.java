@@ -106,6 +106,19 @@ interface Styleable {
     }
 
     @StyleableRes
+    int[] CHANGE_TRANSFORM = {
+            android.R.attr.reparent,
+            android.R.attr.reparentWithOverlay,
+    };
+
+    interface ChangeTransform {
+        @StyleableRes
+        int REPARENT = 0;
+        @StyleableRes
+        int REPARENT_WITH_OVERLAY = 1;
+    }
+
+    @StyleableRes
     int[] TRANSITION_SET = {
             android.R.attr.transitionOrdering,
     };

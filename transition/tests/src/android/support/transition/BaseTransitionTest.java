@@ -75,6 +75,20 @@ public abstract class BaseTransitionTest extends BaseTest {
         return scene[0];
     }
 
+    void startTransition(final int layoutId) throws Throwable {
+        startTransition(loadScene(layoutId));
+    }
+
+    private void startTransition(final Scene scene) throws Throwable {
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(scene, mTransition);
+            }
+        });
+        waitForStart();
+    }
+
     void enterScene(final int layoutId) throws Throwable {
         enterScene(loadScene(layoutId));
     }
