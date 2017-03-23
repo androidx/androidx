@@ -17,10 +17,11 @@ package android.support.text.emoji;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.graphics.Typeface;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.AnyThread;
+import android.support.annotation.ColorInt;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
@@ -348,6 +349,24 @@ public class EmojiCompat {
     }
 
     /**
+     * @return whether a background should be drawn for the emoji.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    boolean isEmojiSpanIndicatorEnabled() {
+        return mConfig.mEmojiSpanIndicatorEnabled;
+    }
+
+    /**
+     * @return whether a background should be drawn for the emoji.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @ColorInt int getEmojiSpanIndicatorColor() {
+        return mConfig.mEmojiSpanIndicatorColor;
+    }
+
+    /**
      * Handles onKeyDown commands from a {@link KeyListener} and if {@code keyCode} is one of
      * {@link KeyEvent#KEYCODE_DEL} or {@link KeyEvent#KEYCODE_FORWARD_DEL} it tries to delete an
      * {@link EmojiSpan} from an {@link Editable}. Returns {@code true} if an {@link EmojiSpan} is
@@ -493,21 +512,6 @@ public class EmojiCompat {
     }
 
     /**
-     * Returns the Typeface instance that is created using the emoji font.
-     *
-     * @return {@link Typeface} instance that is created using the emoji font
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    Typeface getTypeface() {
-        if (mMetadataRepo != null) {
-            return mMetadataRepo.getTypeface();
-        }
-        return null;
-    }
-
-    /**
      * Updates the EditorInfo attributes in order to communicate information to Keyboards.
      *
      * @param outAttrs EditorInfo instance passed to
@@ -611,6 +615,8 @@ public class EmojiCompat {
         private int mMaxEmojiPerText = 100;
         private boolean mReplaceAll;
         private Set<InitCallback> mInitCallbacks;
+        private boolean mEmojiSpanIndicatorEnabled;
+        private int mEmojiSpanIndicatorColor = Color.GREEN;
 
         /**
          * Default constructor.
@@ -684,6 +690,30 @@ public class EmojiCompat {
          */
         public Config setReplaceAll(final boolean replaceAll) {
             mReplaceAll = replaceAll;
+            return this;
+        }
+
+        /**
+         * Determines whether a background will be drawn for the emojis that are found and
+         * replaced by EmojiCompat. Should be used only for debugging purposes. The indicator color
+         * can be set using {@link #setEmojiSpanIndicatorColor(int)}.
+         *
+         * @param emojiSpanIndicatorEnabled when {@code true} a background is drawn for each emoji
+         *                                  that is replaced
+         */
+        public Config setEmojiSpanIndicatorEnabled(boolean emojiSpanIndicatorEnabled) {
+            mEmojiSpanIndicatorEnabled = emojiSpanIndicatorEnabled;
+            return this;
+        }
+
+        /**
+         * Sets the color used as emoji span indicator. The default value is
+         * {@link Color#GREEN Color.GREEN}.
+         *
+         * @see #setEmojiSpanIndicatorEnabled(boolean)
+         */
+        public Config setEmojiSpanIndicatorColor(@ColorInt int color) {
+            mEmojiSpanIndicatorColor = color;
             return this;
         }
     }

@@ -19,6 +19,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.annotation.AnyThread;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
@@ -98,12 +99,16 @@ public class EmojiMetadata {
      */
     public void draw(@NonNull final Canvas canvas, final float x, final float y,
             @NonNull final Paint paint) {
+        final Typeface typeface = mMetadataRepo.getTypeface();
+        final Typeface oldTypeface = paint.getTypeface();
+        paint.setTypeface(typeface);
         // MetadataRepo.getEmojiCharArray() is a continous array of chars that is used to store the
         // chars for emojis. since all emojis are mapped to a single codepoint, and since it is 2
         // chars wide, we assume that the start index of the current emoji is mIndex * 2, and it is
         // 2 chars long.
         final int charArrayStartIndex = mIndex * 2;
         canvas.drawText(mMetadataRepo.getEmojiCharArray(), charArrayStartIndex, 2, x, y, paint);
+        paint.setTypeface(oldTypeface);
     }
 
     /**
