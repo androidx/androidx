@@ -281,7 +281,7 @@ public class LiveDataTest {
             }
         });
         final Observer observer2 = spy(new FailReentranceObserver());
-        mLiveData.observe(observer1);
+        mLiveData.observeForever(observer1);
         mLiveData.observe(mProvider, observer2);
         mLiveData.setValue("bla");
         verify(observer1).onChanged(anyString());
@@ -334,7 +334,7 @@ public class LiveDataTest {
     public void testObserverWithoutLifecycleProvider() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mLiveData.setValue("boring");
-        mLiveData.observe(observer);
+        mLiveData.observeForever(observer);
         verify(mActiveObserversChanged).onCall(true);
         verify(observer).onChanged("boring");
         mLiveData.setValue("tihs");

@@ -214,7 +214,7 @@ public class LiveData<T> {
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observe(Observer<T> observer) {
+    public void observeForever(Observer<T> observer) {
         observe(ALWAYS_ON, observer);
     }
 
