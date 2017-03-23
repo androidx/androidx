@@ -24,8 +24,8 @@ In order to create the final font the followings are used as inputs:
 external/noto-fonts/emoji/NotoColorEmoji.ttf
 
 - Unicode files: Unicode files that are in the framework, and lists information about all the
-emojis. These files are emoji-data.txt, emoji-sequences.txt and emoji-zwj-sequences.txt. Currently
-at external/unicode/
+emojis. These files are emoji-data.txt, emoji-sequences.txt, emoji-zwj-sequences.txt,
+StandardizedVariants.txt. Currently at external/unicode/.
 
 - android-emoji-data.txt: Includes emojis that are not defined in Unicode files, but are in
 the Android font.
@@ -63,6 +63,7 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 EMOJI_DATA_FILE = 'emoji-data.txt'
 EMOJI_SEQ_FILE = 'emoji-sequences.txt'
 EMOJI_ZWJ_FILE = 'emoji-zwj-sequences.txt'
+EMOJI_STD_VARIANTS_FILE = 'StandardizedVariants.txt'
 # library specific input directory
 INPUT_DIR = os.path.join(SCRIPT_DIR, "data")
 # emojis that are not defined in unicode files
@@ -85,6 +86,7 @@ SUPPORT_ROOT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, os.pardir, os.pardir
 # remapped font output file under test directory
 TEST_FONT_FILE_PATH = os.path.join(EMOJI_CORE_DIR, 'tests', 'assets', NEW_FONT_NAME)
 BUNDLED_ASSET_DIR = os.path.join(BUNDLED_MODULE_DIR, 'assets')
+TEST_DATA_PATH = os.path.join(EMOJI_CORE_DIR, 'tests', 'res', 'raw', 'emojis.txt')
 BUNDLED_ASSET_PATH = os.path.join(BUNDLED_ASSET_DIR, NEW_FONT_NAME)
 # emoji metadata json output file
 OUTPUT_JSON_FILE_NAME = 'emoji_metadata.json'
@@ -100,7 +102,6 @@ FLATBUFFER_METADATA_LIST_JAVA = "MetadataList.java"
 FLATBUFFER_METADATA_ITEM_JAVA = "MetadataItem.java"
 # directory under source where flatbuffer java files will be generated in
 FLATBUFFER_JAVA_TARGET = os.path.join(EMOJI_CORE_DIR, 'src', FLATBUFFER_PACKAGE_PATH)
-
 # meta tag name used in the font to embed the emoji metadata. This value is also used in
 # MetadataListReader.java in order to locate the metadata location.
 EMOJI_META_TAG_NAME = 'Emji'
@@ -108,6 +109,9 @@ EMOJI_META_TAG_NAME = 'Emji'
 # <code>emoji-data.txt</code>. Defined in <code>fontchain_lint.py</code>.
 EMOJI_STYLE_EXCEPTIONS = [0x2600, 0x2601, 0x260e, 0x261d, 0x263a, 0x2660,
                           0x2663, 0x2665, 0x2666, 0x270c, 0x2744, 0x2764]
+
+EMOJI_PRESENTATION_STR = 'EMOJI_PRESENTATION'
+STD_VARIANTS_EMOJI_STYLE = 'EMOJI STYLE'
 
 DEFAULT_EMOJI_ID = 0xF0001
 EMOJI_STYLE_VS = 0xFE0F
@@ -122,7 +126,8 @@ def makedirs_if_not_exists(path):
     if not os.path.isdir(path):
         os.makedirs(path)
 
-def to_hex(value):
+def to_hex_str(value):
+    """Converts given int value to hex without the 0x prefix"""
     return format(value, 'X')
 
 def hex_str_to_int(string):
@@ -131,7 +136,7 @@ def hex_str_to_int(string):
 
 def codepoint_to_string(codepoints):
     """Converts a list of codepoints into a string separated with space."""
-    return ' '.join([hex(x) for x in codepoints])
+    return ' '.join([to_hex_str(x) for x in codepoints])
 
 
 def prepend_header_to_file(file_path):
@@ -154,6 +159,42 @@ def update_flatbuffer_java_files(flatbuffer_java_dir):
     shutil.copy(tmp_metadata_list, FLATBUFFER_JAVA_TARGET + FLATBUFFER_METADATA_LIST_JAVA)
     shutil.copy(tmp_metadata_item, FLATBUFFER_JAVA_TARGET + FLATBUFFER_METADATA_ITEM_JAVA)
 
+def create_test_data(unicode_path):
+    """Read all the emojis in the unicode files and update the test file"""
+    lines = read_emoji_lines(os.path.join(unicode_path, EMOJI_ZWJ_FILE))
+    lines = lines + read_emoji_lines(os.path.join(unicode_path, EMOJI_SEQ_FILE))
+    if os.path.isfile(ANDROID_EMOJIS_FILE):
+        lines = lines + read_emoji_lines(ANDROID_EMOJIS_FILE)
+    # standardized variants contains a huge list of sequences, only read the ones that are emojis
+    # and also the ones with FE0F (emoji style)
+    standardized_variants_lines = read_emoji_lines(
+        os.path.join(unicode_path, EMOJI_STD_VARIANTS_FILE))
+    for line in standardized_variants_lines:
+        if STD_VARIANTS_EMOJI_STYLE in line:
+            lines.append(line)
+
+    emojis_set = set()
+    for line in lines:
+        codepoints = [hex_str_to_int(x) for x in line.split(';')[0].strip().split(' ')]
+        emojis_set.add(codepoint_to_string(codepoints).upper())
+
+    emoji_data_lines = read_emoji_lines(os.path.join(unicode_path, EMOJI_DATA_FILE))
+    for line in emoji_data_lines:
+        codepoints_range, emoji_property = codepoints_and_emoji_prop(line)
+        is_emoji_style = emoji_property == EMOJI_PRESENTATION_STR
+        if is_emoji_style:
+            codepoints = [to_hex_str(x) for x in
+                          codepoints_for_emojirange(codepoints_range)]
+            emojis_set.update(codepoints)
+
+    #  finally add the android default emoji exceptions
+    emojis_set.update([to_hex_str(x) for x in EMOJI_STYLE_EXCEPTIONS])
+
+    emojis_list = list(emojis_set)
+    emojis_list.sort()
+    with open(TEST_DATA_PATH, "w") as test_file:
+        for line in emojis_list:
+            test_file.write("%s\n" % line)
 
 class _EmojiData(object):
     """Holds the information about a single emoji."""
@@ -192,8 +233,8 @@ class _EmojiData(object):
 
     def create_txt_row(self):
         """Creates array of values for CSV of EmojiData."""
-        row = [to_hex(self.emoji_id), self.sdk_added, self.compat_added]
-        row += [to_hex(x) for x in self.codepoints]
+        row = [to_hex_str(self.emoji_id), self.sdk_added, self.compat_added]
+        row += [to_hex_str(x) for x in self.codepoints]
         return row
 
     def update(self, emoji_id, sdk_added, compat_added):
@@ -216,6 +257,33 @@ def read_emoji_lines(file_path):
             result.append(line.upper())
     return result
 
+def codepoints_for_emojirange(codepoints_range):
+    """ Return codepoints given in emoji files. Expand the codepoints that are given as a range
+    such as XYZ ... UVT
+    """
+    codepoints = []
+    if '..' in codepoints_range:
+        range_start, range_end = codepoints_range.split('..')
+        codepoints_range = range(hex_str_to_int(range_start),
+                                 hex_str_to_int(range_end) + 1)
+        codepoints.extend(codepoints_range)
+    else:
+        codepoints.append(hex_str_to_int(codepoints_range))
+    return codepoints
+
+def codepoints_and_emoji_prop(line):
+    """For a given emoji file line, return codepoints and emoji property in the line.
+    1F93C..1F93E ; [Emoji|Emoji_Presentation|Emoji_Modifier_Base] # [...]"""
+    line = line.strip()
+    if '#' in line:
+        line = line[:line.index('#')]
+    else:
+        raise ValueError("Line is expected to have # in it")
+    line = line.split(';')
+    codepoints_range = line[0].strip()
+    emoji_property = line[1].strip()
+
+    return codepoints_range, emoji_property
 
 def read_emoji_intervals(emoji_data_map, file_path):
     """Read unicode lines of unicode emoji file in which each line describes a set of codepoint
@@ -225,16 +293,9 @@ def read_emoji_intervals(emoji_data_map, file_path):
     lines = read_emoji_lines(file_path)
 
     for line in lines:
-        codepoints_range, emoji_property = [x.strip() for x in line.split('#')[0].split(';')]
-        is_emoji_style = emoji_property == 'EMOJI_PRESENTATION'
-        codepoints = []
-        if '..' in codepoints_range:
-            range_start, range_end = codepoints_range.split('..')
-            codepoints_range = range(hex_str_to_int(range_start),
-                                     hex_str_to_int(range_end) + 1)
-            codepoints.extend(codepoints_range)
-        else:
-            codepoints.append(hex_str_to_int(codepoints_range))
+        codepoints_range, emoji_property = codepoints_and_emoji_prop(line)
+        is_emoji_style = emoji_property == EMOJI_PRESENTATION_STR
+        codepoints = codepoints_for_emojirange(codepoints_range)
 
         for codepoint in codepoints:
             key = codepoint_to_string([codepoint])
@@ -496,6 +557,8 @@ class EmojiFontCreator(object):
             shutil.copy(TEST_FONT_FILE_PATH, BUNDLED_ASSET_PATH)
 
             update_flatbuffer_java_files(flatbuffer_java_dir)
+
+            create_test_data(self.unicode_path)
 
             # clear the tmp output directory
             shutil.rmtree(tmp_dir, ignore_errors=True)
