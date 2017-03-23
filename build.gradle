@@ -20,6 +20,10 @@ buildscript {
     init.loadDefaultVersions()
     init.setSdkInLocalPropertiesFile()
     init.addMavenRepositories(repositories)
+
+    dependencies {
+        classpath libs.gradle
+    }
 }
 
 init.addMavenRepositories(repositories)
