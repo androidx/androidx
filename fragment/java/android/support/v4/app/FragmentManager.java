@@ -546,6 +546,7 @@ final class FragmentManagerState implements Parcelable {
     FragmentState[] mActive;
     int[] mAdded;
     BackStackState[] mBackStack;
+    int mNextFragmentIndex;
 
     public FragmentManagerState() {
     }
@@ -554,6 +555,7 @@ final class FragmentManagerState implements Parcelable {
         mActive = in.createTypedArray(FragmentState.CREATOR);
         mAdded = in.createIntArray();
         mBackStack = in.createTypedArray(BackStackState.CREATOR);
+        mNextFragmentIndex = in.readInt();
     }
 
     @Override
@@ -566,6 +568,7 @@ final class FragmentManagerState implements Parcelable {
         dest.writeTypedArray(mActive, flags);
         dest.writeIntArray(mAdded);
         dest.writeTypedArray(mBackStack, flags);
+        dest.writeInt(mNextFragmentIndex);
     }
 
     public static final Parcelable.Creator<FragmentManagerState> CREATOR
@@ -665,12 +668,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     ArrayList<OpGenerator> mPendingActions;
-    Runnable[] mTmpActions;
     boolean mExecutingActions;
 
-    ArrayList<Fragment> mActive;
+    int mNextFragmentIndex = 0;
+
     ArrayList<Fragment> mAdded;
-    ArrayList<Integer> mAvailIndices;
+    SparseArray<Fragment> mActive;
     ArrayList<BackStackRecord> mBackStack;
     ArrayList<Fragment> mCreatedMenus;
 
@@ -829,6 +832,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
 
         doPendingDeferredStart();
+        burpActive();
         return executePop;
     }
 
@@ -872,10 +876,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (index == -1) {
             return null;
         }
-        if (index >= mActive.size()) {
-            throwException(new IllegalStateException("Fragment no longer exists for key "
-                    + key + ": index " + index));
-        }
         Fragment f = mActive.get(index);
         if (f == null) {
             throwException(new IllegalStateException("Fragment no longer exists for key "
@@ -892,6 +892,36 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         synchronized (mAdded) {
             return (List<Fragment>) mAdded.clone();
         }
+    }
+
+    /**
+     * This is used by FragmentController to get the Active fragments.
+     *
+     * @return A list of active fragments in the fragment manager, including those that are in the
+     * back stack.
+     */
+    List<Fragment> getActiveFragments() {
+        if (mActive == null) {
+            return null;
+        }
+        final int count = mActive.size();
+        ArrayList<Fragment> fragments = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            fragments.add(mActive.valueAt(i));
+        }
+        return fragments;
+    }
+
+    /**
+     * Used by FragmentController to get the number of Active Fragments.
+     *
+     * @return The number of active fragments.
+     */
+    int getActiveFragmentCount() {
+        if (mActive == null) {
+            return 0;
+        }
+        return mActive.size();
     }
 
     @Override
@@ -939,7 +969,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         writer.print(Integer.toHexString(System.identityHashCode(this)));
                         writer.println(":");
                 for (int i=0; i<N; i++) {
-                    Fragment f = mActive.get(i);
+                    Fragment f = mActive.valueAt(i);
                     writer.print(prefix); writer.print("  #"); writer.print(i);
                             writer.print(": "); writer.println(f);
                     if (f != null) {
@@ -1033,10 +1063,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (mNoTransactionsBecause != null) {
             writer.print(prefix); writer.print("  mNoTransactionsBecause=");
                     writer.println(mNoTransactionsBecause);
-        }
-        if (mAvailIndices != null && mAvailIndices.size() > 0) {
-            writer.print(prefix); writer.print("  mAvailIndices: ");
-                    writer.println(Arrays.toString(mAvailIndices.toArray()));
         }
     }
 
@@ -1610,7 +1636,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             // and detached.
             final int numActive = mActive.size();
             for (int i = 0; i < numActive; i++) {
-                Fragment f = mActive.get(i);
+                Fragment f = mActive.valueAt(i);
                 if (f != null && (f.mRemoving || f.mDetached) && !f.mIsNewlyAdded) {
                     moveFragmentToExpectedState(f);
                     if (f.mLoaderManager != null) {
@@ -1634,7 +1660,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (mActive == null) return;
 
         for (int i=0; i<mActive.size(); i++) {
-            Fragment f = mActive.get(i);
+            Fragment f = mActive.valueAt(i);
             if (f != null) {
                 performPendingDeferredStart(f);
             }
@@ -1646,17 +1672,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             return;
         }
 
-        if (mAvailIndices == null || mAvailIndices.size() <= 0) {
-            if (mActive == null) {
-                mActive = new ArrayList<Fragment>();
-            }
-            f.setIndex(mActive.size(), mParent);
-            mActive.add(f);
-
-        } else {
-            f.setIndex(mAvailIndices.remove(mAvailIndices.size()-1), mParent);
-            mActive.set(f.mIndex, f);
+        f.setIndex(mNextFragmentIndex++, mParent);
+        if (mActive == null) {
+            mActive = new SparseArray<>();
         }
+        mActive.put(f.mIndex, f);
         if (DEBUG) Log.v(TAG, "Allocated fragment index " + f);
     }
 
@@ -1666,11 +1686,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
 
         if (DEBUG) Log.v(TAG, "Freeing fragment index " + f);
-        mActive.set(f.mIndex, null);
-        if (mAvailIndices == null) {
-            mAvailIndices = new ArrayList<Integer>();
-        }
-        mAvailIndices.add(f.mIndex);
+        // Don't remove yet. That happens in burpActive(). This prevents
+        // concurrent modification while iterating over mActive
+        mActive.put(f.mIndex, null);
+
         mHost.inactivateFragment(f.mWho);
         f.initState();
     }
@@ -1808,7 +1827,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (mActive != null) {
             // Now for any known fragment.
             for (int i=mActive.size()-1; i>=0; i--) {
-                Fragment f = mActive.get(i);
+                Fragment f = mActive.valueAt(i);
                 if (f != null && f.mFragmentId == id) {
                     return f;
                 }
@@ -1831,7 +1850,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (mActive != null && tag != null) {
             // Now for any known fragment.
             for (int i=mActive.size()-1; i>=0; i--) {
-                Fragment f = mActive.get(i);
+                Fragment f = mActive.valueAt(i);
                 if (f != null && tag.equals(f.mTag)) {
                     return f;
                 }
@@ -1843,7 +1862,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     public Fragment findFragmentByWho(String who) {
         if (mActive != null && who != null) {
             for (int i=mActive.size()-1; i>=0; i--) {
-                Fragment f = mActive.get(i);
+                Fragment f = mActive.valueAt(i);
                 if (f != null && (f=f.findFragmentByWho(who)) != null) {
                     return f;
                 }
@@ -2003,6 +2022,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
 
         doPendingDeferredStart();
+        burpActive();
     }
 
     /**
@@ -2033,6 +2053,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
 
         doPendingDeferredStart();
+        burpActive();
 
         return didSomething;
     }
@@ -2301,7 +2322,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             for (int i = 0; i < numActive; i++) {
                 // Allow added fragments to be removed during the pop since we aren't going
                 // to move them to the final state with moveToState(mCurState).
-                Fragment fragment = mActive.get(i);
+                Fragment fragment = mActive.valueAt(i);
                 if (fragment != null && fragment.mView != null && fragment.mIsNewlyAdded
                         && record.interactsWith(fragment.mContainerId)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
@@ -2423,7 +2444,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     private void endAnimatingAwayFragments() {
         final int numFragments = mActive == null ? 0 : mActive.size();
         for (int i = 0; i < numFragments; i++) {
-            Fragment fragment = mActive.get(i);
+            Fragment fragment = mActive.valueAt(i);
             if (fragment != null && fragment.getAnimatingAway() != null) {
                 // Give up waiting for the animation and just end it.
                 final int stateAfterAnimating = fragment.getStateAfterAnimating();
@@ -2470,7 +2491,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (mHavePendingDeferredStart) {
             boolean loadersRunning = false;
             for (int i = 0; i < mActive.size(); i++) {
-                Fragment f = mActive.get(i);
+                Fragment f = mActive.valueAt(i);
                 if (f != null && f.mLoaderManager != null) {
                     loadersRunning |= f.mLoaderManager.hasRunningLoaders();
                 }
@@ -2560,7 +2581,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         ArrayList<FragmentManagerNonConfig> childFragments = null;
         if (mActive != null) {
             for (int i=0; i<mActive.size(); i++) {
-                Fragment f = mActive.get(i);
+                Fragment f = mActive.valueAt(i);
                 if (f != null) {
                     if (f.mRetainInstance) {
                         if (fragments == null) {
@@ -2676,7 +2697,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         FragmentState[] active = new FragmentState[N];
         boolean haveFragments = false;
         for (int i=0; i<N; i++) {
-            Fragment f = mActive.get(i);
+            Fragment f = mActive.valueAt(i);
             if (f != null) {
                 if (f.mIndex < 0) {
                     throwException(new IllegalStateException(
@@ -2762,6 +2783,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         fms.mActive = active;
         fms.mAdded = added;
         fms.mBackStack = backStack;
+        fms.mNextFragmentIndex = mNextFragmentIndex;
         return fms;
     }
 
@@ -2801,10 +2823,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         // Build the full list of active fragments, instantiating them from
         // their saved state.
-        mActive = new ArrayList<>(fms.mActive.length);
-        if (mAvailIndices != null) {
-            mAvailIndices.clear();
-        }
+        mActive = new SparseArray<>(fms.mActive.length);
         for (int i=0; i<fms.mActive.length; i++) {
             FragmentState fs = fms.mActive[i];
             if (fs != null) {
@@ -2814,18 +2833,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 }
                 Fragment f = fs.instantiate(mHost, mParent, childNonConfig);
                 if (DEBUG) Log.v(TAG, "restoreAllState: active #" + i + ": " + f);
-                mActive.add(f);
+                mActive.put(f.mIndex, f);
                 // Now that the fragment is instantiated (or came from being
                 // retained above), clear mInstance in case we end up re-restoring
                 // from this FragmentState again.
                 fs.mInstance = null;
-            } else {
-                mActive.add(null);
-                if (mAvailIndices == null) {
-                    mAvailIndices = new ArrayList<Integer>();
-                }
-                if (DEBUG) Log.v(TAG, "restoreAllState: avail #" + i);
-                mAvailIndices.add(i);
             }
         }
 
@@ -2836,12 +2848,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             for (int i = 0; i < count; i++) {
                 Fragment f = nonConfigFragments.get(i);
                 if (f.mTargetIndex >= 0) {
-                    if (f.mTargetIndex < mActive.size()) {
-                        f.mTarget = mActive.get(f.mTargetIndex);
-                    } else {
+                    f.mTarget = mActive.get(f.mTargetIndex);
+                    if (f.mTarget == null) {
                         Log.w(TAG, "Re-attaching retained fragment " + f
                                 + " target no longer exists: " + f.mTargetIndex);
-                        f.mTarget = null;
                     }
                 }
             }
@@ -2889,6 +2899,23 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             }
         } else {
             mBackStack = null;
+        }
+
+        this.mNextFragmentIndex = fms.mNextFragmentIndex;
+    }
+
+    /**
+     * To prevent list modification errors, mActive sets values to null instead of
+     * removing them when the Fragment becomes inactive. This cleans up the list at the
+     * end of executing the transactions.
+     */
+    private void burpActive() {
+        if (mActive != null) {
+            for (int i = mActive.size() - 1; i >= 0; i--) {
+                if (mActive.valueAt(i) == null) {
+                    mActive.delete(mActive.keyAt(i));
+                }
+            }
         }
     }
 
