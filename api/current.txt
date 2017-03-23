@@ -2619,6 +2619,7 @@ package android.support.v17.leanback.app {
 
   public class DetailsFragmentBackgroundController {
     ctor public DetailsFragmentBackgroundController(android.support.v17.leanback.app.DetailsFragment);
+    method public boolean canNavigateToVideoFragment();
     method public void enableParallax();
     method public void enableParallax(android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.support.v17.leanback.widget.ParallaxTarget.PropertyValuesHolderTarget);
     method public final android.app.Fragment findOrCreateVideoFragment();
@@ -2626,6 +2627,7 @@ package android.support.v17.leanback.app {
     method public final android.graphics.Bitmap getCoverBitmap();
     method public final android.graphics.drawable.Drawable getCoverDrawable();
     method public final int getParallaxDrawableMaxOffset();
+    method public final android.support.v17.leanback.media.PlaybackGlue getPlaybackGlue();
     method public final int getSolidColor();
     method public android.support.v17.leanback.media.PlaybackGlueHost onCreateGlueHost();
     method public android.app.Fragment onCreateVideoFragment();
@@ -2633,6 +2635,8 @@ package android.support.v17.leanback.app {
     method public final void setParallaxDrawableMaxOffset(int);
     method public final void setSolidColor(int);
     method public void setupVideoPlayback(android.support.v17.leanback.media.PlaybackGlue);
+    method public final void switchToRows();
+    method public final void switchToVideo();
   }
 
   public class DetailsSupportFragment extends android.support.v17.leanback.app.BrandedSupportFragment {
@@ -2660,6 +2664,7 @@ package android.support.v17.leanback.app {
 
   public class DetailsSupportFragmentBackgroundController {
     ctor public DetailsSupportFragmentBackgroundController(android.support.v17.leanback.app.DetailsSupportFragment);
+    method public boolean canNavigateToVideoSupportFragment();
     method public void enableParallax();
     method public void enableParallax(android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.support.v17.leanback.widget.ParallaxTarget.PropertyValuesHolderTarget);
     method public final android.support.v4.app.Fragment findOrCreateVideoSupportFragment();
@@ -2667,6 +2672,7 @@ package android.support.v17.leanback.app {
     method public final android.graphics.Bitmap getCoverBitmap();
     method public final android.graphics.drawable.Drawable getCoverDrawable();
     method public final int getParallaxDrawableMaxOffset();
+    method public final android.support.v17.leanback.media.PlaybackGlue getPlaybackGlue();
     method public final int getSolidColor();
     method public android.support.v17.leanback.media.PlaybackGlueHost onCreateGlueHost();
     method public android.support.v4.app.Fragment onCreateVideoSupportFragment();
@@ -2674,6 +2680,8 @@ package android.support.v17.leanback.app {
     method public final void setParallaxDrawableMaxOffset(int);
     method public final void setSolidColor(int);
     method public void setupVideoPlayback(android.support.v17.leanback.media.PlaybackGlue);
+    method public final void switchToRows();
+    method public final void switchToVideo();
   }
 
   public class ErrorFragment extends android.support.v17.leanback.app.BrandedFragment {

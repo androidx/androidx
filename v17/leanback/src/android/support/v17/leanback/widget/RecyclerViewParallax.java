@@ -41,6 +41,14 @@ public class RecyclerViewParallax extends Parallax<RecyclerViewParallax.ChildPos
         }
     };
 
+    View.OnLayoutChangeListener mOnLayoutChangeListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View view, int l, int t, int r, int b,
+                int oldL, int oldT, int oldR, int oldB) {
+            updateValues();
+        }
+    };
+
     /**
      * Subclass of {@link Parallax.IntProperty}. Using this Property, users can track a
      * RecylerView child's position inside recyclerview. i.e.
@@ -211,6 +219,7 @@ public class RecyclerViewParallax extends Parallax<RecyclerViewParallax.ChildPos
         }
         if (mRecylerView != null) {
             mRecylerView.removeOnScrollListener(mOnScrollListener);
+            mRecylerView.removeOnLayoutChangeListener(mOnLayoutChangeListener);
         }
         mRecylerView = recyclerView;
         if (mRecylerView != null) {
@@ -218,6 +227,7 @@ public class RecyclerViewParallax extends Parallax<RecyclerViewParallax.ChildPos
                     .getProperties(mRecylerView.getContext(), null, 0, 0);
             mIsVertical = properties.orientation == RecyclerView.VERTICAL;
             mRecylerView.addOnScrollListener(mOnScrollListener);
+            mRecylerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
         }
     }
 
