@@ -1111,6 +1111,7 @@
         <attr name="android:textColorLink"/>
         <attr name="android:textStyle" />
         <attr name="android:typeface" />
+        <attr name="android:fontFamily" />
         <attr name="textAllCaps" />
         <attr name="android:shadowColor"/>
         <attr name="android:shadowDy"/>

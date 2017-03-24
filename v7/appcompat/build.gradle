@@ -35,6 +35,7 @@ android {
 
     aaptOptions {
         additionalParameters "--no-version-vectors"
+        noCompress 'ttf'
     }
 }
 

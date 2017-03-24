@@ -19,12 +19,19 @@ package android.support.v4.graphics;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
+import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import android.support.v4.graphics.fonts.FontResult;
 import android.util.Log;
+import android.util.TypedValue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -43,6 +50,7 @@ import java.util.List;
 @RequiresApi(24)
 class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
     private static final String TAG = "TypefaceCompatApi24Impl";
+    private static final int NORMAL_WEIGHT = 400;
 
     private static final Class<?> sFamilyClass;
     private static final Constructor<?> sFamilyCtor;
@@ -72,8 +80,8 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
                     .getDeclaredMethod("createFromFamiliesWithDefault", familyArray.getClass());
             createFromFamiliesWithDefaultMethod.setAccessible(true);
         } catch (NoSuchMethodException | ClassNotFoundException e) {
-            Log.i(TAG, "Could not locate Typeface reflection classes for API 24, falling back to"
-                    + "creating font via ICS APIs.");
+            Log.e(TAG, "Could not locate Typeface reflection classes for API 24, falling back to"
+                    + "creating font via ICS APIs.", e);
             success = false;
         }
         if (success) {
@@ -124,12 +132,90 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
             @SuppressWarnings("unchecked")
             Typeface typeface = (Typeface) sCreateFromFamiliesWithDefaultMethod.invoke(
                     null, familyArray);
-
             return typeface;
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException
                 | IOException e) {
             Log.e(TAG, "Error generating typeface by reflection", e);
             return null;
+        } finally {
+            closeQuietly(fis);
+        }
+    }
+
+    @Nullable
+    @Override
+    Typeface createFromResources(FontFamilyFilesResourceEntry entry,
+            Resources resources, int id, String path) {
+        if (sFamilyClass == null) {
+            // If the reflection methods were not available, fall back to base behavior.
+            return super.createFromResources(entry, resources, id, path);
+        }
+
+        try {
+            Object family = sFamilyCtor.newInstance();
+
+            FontFileResourceEntry[] entries = entry.getEntries();
+            TypedValue value = new TypedValue();
+            for (FontFileResourceEntry fontFileEntry : entries) {
+                resources.getValue(fontFileEntry.getResourceId(), value, false);
+                addFontToFamily(family, resources, (String) value.string, fontFileEntry.getWeight(),
+                        fontFileEntry.isItalic());
+            }
+            Object familyArray = Array.newInstance(sFamilyClass, 1);
+            Array.set(familyArray, 0, family);
+            return (Typeface) sCreateFromFamiliesWithDefaultMethod.invoke(
+                    null, familyArray);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException
+                | IOException e) {
+            Log.e(TAG, "Error generating typeface by reflection", e);
+            return null;
+        }
+    }
+
+    @Override
+    Typeface createTypeface(Resources resources, String path) throws IOException {
+        if (sFamilyClass == null) {
+            // If the reflection methods were not available, fall back to base behavior.
+            return super.createTypeface(resources, path);
+        }
+        try {
+            Object family = sFamilyCtor.newInstance();
+            addFontToFamily(family, resources, path, NORMAL_WEIGHT, false /* italic */);
+            Object familyArray = Array.newInstance(sFamilyClass, 1);
+            Array.set(familyArray, 0, family);
+            @SuppressWarnings("unchecked")
+            Typeface typeface = (Typeface) sCreateFromFamiliesWithDefaultMethod.invoke(
+                    null, familyArray);
+            return typeface;
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException
+                | IOException e) {
+            Log.e(TAG, "Error generating typeface by reflection", e);
+            return null;
+        }
+    }
+
+    private void addFontToFamily(Object family, Resources resources, String path, int weight,
+            boolean italic)
+            throws IOException, InvocationTargetException, IllegalAccessException {
+        AssetFileDescriptor fd = resources.getAssets().openNonAssetFd(path);
+        FileInputStream fis = fd.createInputStream();
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            byte[] buffer = new byte[1024];
+            int readLen;
+            int totalRead = 0;
+            while ((readLen = fis.read(buffer)) != -1) {
+                baos.write(buffer, 0, readLen);
+                totalRead += readLen;
+            }
+            ByteBuffer fontBuffer = ByteBuffer.allocateDirect(totalRead);
+            fontBuffer.put(baos.toByteArray());
+
+            // load font into FontFamily
+            // TODO: axes
+            sAddFontWeightStyleMethod.invoke(family, fontBuffer, 0, null, weight, italic);
         } finally {
             closeQuietly(fis);
         }
