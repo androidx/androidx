@@ -38,7 +38,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.ResultReceiver;
 import android.speech.RecognizerIntent;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -66,6 +65,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -174,22 +174,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     private Bundle mAppSearchData;
 
     static final AutoCompleteTextViewReflector HIDDEN_METHOD_INVOKER = new AutoCompleteTextViewReflector();
-
-    /*
-     * SearchView can be set expanded before the IME is ready to be shown during
-     * initial UI setup. The show operation is asynchronous to account for this.
-     */
-    private Runnable mShowImeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            InputMethodManager imm = (InputMethodManager)
-                    getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-            if (imm != null) {
-                HIDDEN_METHOD_INVOKER.showSoftInputUnchecked(imm, SearchView.this, 0);
-            }
-        }
-    };
 
     private final Runnable mUpdateDrawableStateRunnable = new Runnable() {
         @Override
@@ -529,9 +513,9 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     @Override
     public void clearFocus() {
         mClearingFocus = true;
-        setImeVisibility(false);
         super.clearFocus();
         mSearchSrcTextView.clearFocus();
+        mSearchSrcTextView.setImeVisibility(false);
         mClearingFocus = false;
     }
 
@@ -1000,20 +984,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         super.onDetachedFromWindow();
     }
 
-    void setImeVisibility(final boolean visible) {
-        if (visible) {
-            post(mShowImeRunnable);
-        } else {
-            removeCallbacks(mShowImeRunnable);
-            InputMethodManager imm = (InputMethodManager)
-                    getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(getWindowToken(), 0);
-            }
-        }
-    }
-
     /**
      * Called by the SuggestionsAdapter
      */
@@ -1240,7 +1210,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
                 if (mSearchable != null) {
                     launchQuerySearch(KeyEvent.KEYCODE_UNKNOWN, null, query.toString());
                 }
-                setImeVisibility(false);
+                mSearchSrcTextView.setImeVisibility(false);
                 dismissSuggestions();
             }
         }
@@ -1265,7 +1235,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         } else {
             mSearchSrcTextView.setText("");
             mSearchSrcTextView.requestFocus();
-            setImeVisibility(true);
+            mSearchSrcTextView.setImeVisibility(true);
         }
 
     }
@@ -1273,7 +1243,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     void onSearchClicked() {
         updateViewsVisibility(false);
         mSearchSrcTextView.requestFocus();
-        setImeVisibility(true);
+        mSearchSrcTextView.setImeVisibility(true);
         if (mOnSearchClickListener != null) {
             mOnSearchClickListener.onClick(this);
         }
@@ -1436,7 +1406,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         if (mOnSuggestionListener == null
                 || !mOnSuggestionListener.onSuggestionClick(position)) {
             launchSuggestion(position, KeyEvent.KEYCODE_UNKNOWN, null);
-            setImeVisibility(false);
+            mSearchSrcTextView.setImeVisibility(false);
             dismissSuggestions();
             return true;
         }
@@ -1874,6 +1844,14 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         private int mThreshold;
         private SearchView mSearchView;
 
+        private boolean mHasPendingShowSoftInputRequest;
+        final Runnable mRunShowSoftInputIfNecessary = new Runnable() {
+            @Override
+            public void run() {
+                showSoftInputIfNecessary();
+            }
+        };
+
         public SearchAutoComplete(Context context) {
             this(context, null);
         }
@@ -1939,11 +1917,13 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
             super.onWindowFocusChanged(hasWindowFocus);
 
             if (hasWindowFocus && mSearchView.hasFocus() && getVisibility() == VISIBLE) {
-                InputMethodManager inputManager = (InputMethodManager) getContext()
-                        .getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.showSoftInput(this, 0);
-                // If in landscape mode, then make sure that
-                // the ime is in front of the dropdown.
+                // Since InputMethodManager#onPostWindowFocus() will be called after this callback,
+                // it is a bit too early to call InputMethodManager#showSoftInput() here. We still
+                // need to wait until the system calls back onCreateInputConnection() to call
+                // InputMethodManager#showSoftInput().
+                mHasPendingShowSoftInputRequest = true;
+
+                // If in landscape mode, then make sure that the ime is in front of the dropdown.
                 if (isLandscapeMode(getContext())) {
                     HIDDEN_METHOD_INVOKER.ensureImeVisible(this, true);
                 }
@@ -1983,7 +1963,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
                     }
                     if (event.isTracking() && !event.isCanceled()) {
                         mSearchView.clearFocus();
-                        mSearchView.setImeVisibility(false);
+                        setImeVisibility(false);
                         return true;
                     }
                 }
@@ -2006,6 +1986,53 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
                 return 192;
             }
             return 160;
+        }
+
+        /**
+         * We override {@link View#onCreateInputConnection(EditorInfo)} as a signal to schedule a
+         * pending {@link InputMethodManager#showSoftInput(View, int)} request (if any).
+         */
+        @Override
+        public InputConnection onCreateInputConnection(EditorInfo editorInfo) {
+            final InputConnection ic = super.onCreateInputConnection(editorInfo);
+            if (mHasPendingShowSoftInputRequest) {
+                removeCallbacks(mRunShowSoftInputIfNecessary);
+                post(mRunShowSoftInputIfNecessary);
+            }
+            return ic;
+        }
+
+        private void showSoftInputIfNecessary() {
+            if (mHasPendingShowSoftInputRequest) {
+                final InputMethodManager imm = (InputMethodManager)
+                        getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(this, 0);
+                mHasPendingShowSoftInputRequest = false;
+            }
+        }
+
+        private void setImeVisibility(final boolean visible) {
+            final InputMethodManager imm = (InputMethodManager)
+                        getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (!visible) {
+                mHasPendingShowSoftInputRequest = false;
+                removeCallbacks(mRunShowSoftInputIfNecessary);
+                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                return;
+            }
+
+            if (imm.isActive(this)) {
+                // This means that SearchAutoComplete is already connected to the IME.
+                // InputMethodManager#showSoftInput() is guaranteed to pass client-side focus check.
+                mHasPendingShowSoftInputRequest = false;
+                removeCallbacks(mRunShowSoftInputIfNecessary);
+                imm.showSoftInput(this, 0);
+                return;
+            }
+
+            // Otherwise, InputMethodManager#showSoftInput() should be deferred after
+            // onCreateInputConnection().
+            mHasPendingShowSoftInputRequest = true;
         }
     }
 
@@ -2036,13 +2063,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
             } catch (NoSuchMethodException e) {
                 // Ah well.
             }
-            try {
-                showSoftInputUnchecked = InputMethodManager.class.getMethod(
-                        "showSoftInputUnchecked", int.class, ResultReceiver.class);
-                showSoftInputUnchecked.setAccessible(true);
-            } catch (NoSuchMethodException e) {
-                // Ah well.
-            }
         }
 
         void doBeforeTextChanged(AutoCompleteTextView view) {
@@ -2070,19 +2090,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
                 } catch (Exception e) {
                 }
             }
-        }
-
-        void showSoftInputUnchecked(InputMethodManager imm, View view, int flags) {
-            if (showSoftInputUnchecked != null) {
-                try {
-                    showSoftInputUnchecked.invoke(imm, flags, null);
-                    return;
-                } catch (Exception e) {
-                }
-            }
-
-            // Hidden method failed, call public version instead
-            imm.showSoftInput(view, flags);
         }
     }
 }
