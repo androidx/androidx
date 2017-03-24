@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.XmlRes;
@@ -196,7 +197,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
          * @param pref The preference requesting the dialog.
          * @return true if the dialog creation has been handled.
          */
-        boolean onPreferenceDisplayDialog(PreferenceFragmentCompat caller, Preference pref);
+        boolean onPreferenceDisplayDialog(@NonNull PreferenceFragmentCompat caller,
+                Preference pref);
     }
 
     @Override

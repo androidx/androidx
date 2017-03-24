@@ -98,7 +98,11 @@ public abstract class LeanbackSettingsFragment extends Fragment
     }
 
     @Override
-    public boolean onPreferenceDisplayDialog(PreferenceFragment caller, Preference pref) {
+    public boolean onPreferenceDisplayDialog(@NonNull PreferenceFragment caller, Preference pref) {
+        if (caller == null) {
+            throw new IllegalArgumentException("Cannot display dialog for preference " + pref
+                    + ", Caller must not be null!");
+        }
         final Fragment f;
         if (pref instanceof ListPreference) {
             final ListPreference listPreference = (ListPreference) pref;
