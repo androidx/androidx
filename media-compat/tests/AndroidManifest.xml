@@ -36,6 +36,12 @@
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
+        <service android:name="android.support.v4.media.StubRemoteMediaBrowserServiceCompat"
+                 android:process=":remote">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
     </application>
 
     <instrumentation
