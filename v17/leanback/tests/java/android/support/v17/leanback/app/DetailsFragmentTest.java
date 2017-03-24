@@ -595,6 +595,13 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         );
 
         // after setup Video Playback the DPAD up will navigate to Video Fragment.
+        PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
+                @Override
+                    public boolean canProceed() {
+                        return detailsFragment.mVideoFragment != null
+                                && detailsFragment.mVideoFragment.getView() != null;
+                }
+        });
         sendKeys(KeyEvent.KEYCODE_DPAD_UP);
         assertTrue(detailsFragment.mVideoFragment.getView().hasFocus());
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
@@ -771,8 +778,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         assertTrue(recyclerViewHeight > 0);
 
         assertEquals(255, getCoverDrawableAlpha(detailsFragment.mDetailsBackgroundController));
-        assertEquals(255, detailsFragment.mDetailsBackgroundController.mParallaxDrawable
-                .getAlpha());
         Drawable coverDrawable = detailsFragment.mDetailsBackgroundController.getCoverDrawable();
         assertEquals(0, coverDrawable.getBounds().top);
         assertEquals(recyclerViewHeight, coverDrawable.getBounds().bottom);
