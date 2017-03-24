@@ -75,6 +75,8 @@
 
     <string name="search_menu_description">Search description</string>
     <string name="search_menu_tooltip">Search tooltip</string>
+    <string name="search_query_hint">query hint</string>
+    <string name="search_view_activity">SearchView activity</string>
 
     <string name="alpha_menu_title">Alpha</string>
     <string name="alpha_menu_description">Alpha description</string>
