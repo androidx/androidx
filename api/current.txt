@@ -6939,6 +6939,7 @@ package android.support.v4.media.session {
     method public abstract void skipToPrevious();
     method public abstract void skipToQueueItem(long);
     method public abstract void stop();
+    field public static final java.lang.String EXTRA_STREAM_TYPE = "android.media.session.extra.STREAM_TYPE";
   }
 
   public class MediaSessionCompat {
