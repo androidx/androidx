@@ -31,7 +31,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
@@ -195,7 +194,7 @@ public abstract class AppCompatDelegate {
 
     private static AppCompatDelegate create(Context context, Window window,
             AppCompatCallback callback) {
-        if (BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 24) {
             return new AppCompatDelegateImplN(context, window, callback);
         } else if (Build.VERSION.SDK_INT >= 23) {
             return new AppCompatDelegateImplV23(context, window, callback);

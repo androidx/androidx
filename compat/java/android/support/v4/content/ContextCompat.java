@@ -30,7 +30,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -519,7 +518,7 @@ public class ContextCompat {
      * Resources for the same configuration) may be so the Context itself can be
      * fairly lightweight.
      * <p>
-     * Prior to {@link BuildCompat#isAtLeastN()} this method returns
+     * Prior to API 24 this method returns
      * {@code null}, since device-protected storage is not available.
      *
      * @see ContextCompat#isDeviceProtectedStorage(Context)
