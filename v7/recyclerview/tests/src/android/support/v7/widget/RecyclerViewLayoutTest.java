@@ -345,7 +345,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             public View onFocusSearchFailed(View focused, int direction,
                     RecyclerView.Recycler recycler,
                     RecyclerView.State state) {
-                assertEquals(View.FOCUS_FORWARD, direction);
+                int expectedDir = Build.VERSION.SDK_INT <= 15 ? View.FOCUS_DOWN :
+                        View.FOCUS_FORWARD;
+                assertEquals(expectedDir, direction);
                 assertEquals(1, getChildCount());
                 View child0 = getChildAt(0);
                 View view = recycler.getViewForPosition(1);
