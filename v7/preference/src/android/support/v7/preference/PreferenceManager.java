@@ -21,11 +21,11 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.SharedPreferencesCompat;
-import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
 /**
@@ -215,7 +215,7 @@ public class PreferenceManager {
      * provided by the hosting {@link Context}.
      */
     public void setStorageDefault() {
-        if (BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 24) {
             mStorage = STORAGE_DEFAULT;
             mSharedPreferences = null;
         }
@@ -236,13 +236,13 @@ public class PreferenceManager {
      * example, storing sensitive authentication tokens or passwords in the
      * device-protected area is strongly discouraged.
      * <p>
-     * Prior to {@link BuildCompat#isAtLeastN()} this method has no effect,
+     * Prior to API 24 this method has no effect,
      * since device-protected storage is not available.
      *
      * @see Context#createDeviceProtectedStorageContext()
      */
     public void setStorageDeviceProtected() {
-        if (BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 24) {
             mStorage = STORAGE_DEVICE_PROTECTED;
             mSharedPreferences = null;
         }
@@ -256,7 +256,7 @@ public class PreferenceManager {
      * @see #setStorageDeviceProtected()
      */
     public boolean isStorageDefault() {
-        if (BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 24) {
             return mStorage == STORAGE_DEFAULT;
         } else {
             return true;
@@ -271,7 +271,7 @@ public class PreferenceManager {
      * @see #setStorageDeviceProtected()
      */
     public boolean isStorageDeviceProtected() {
-        if (BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 24) {
             return mStorage == STORAGE_DEVICE_PROTECTED;
         } else {
             return false;

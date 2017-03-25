@@ -31,7 +31,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.util.ArraySet;
 import android.support.v4.util.DebugUtils;
 import android.support.v4.util.LogWriter;
@@ -668,7 +667,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 // Prior to N posting to a detached view from a non-Looper thread could cause
                 // leaks, since the thread-local run queue on a non-Looper thread would never
                 // be flushed.
-                if (ViewCompat.isAttachedToWindow(mView) || BuildCompat.isAtLeastN()) {
+                if (ViewCompat.isAttachedToWindow(mView) || Build.VERSION.SDK_INT >= 24) {
                     mView.post(new Runnable() {
                         @Override
                         public void run() {

@@ -36,7 +36,6 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.RequiresApi;
-import android.support.v4.os.BuildCompat;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -213,7 +212,7 @@ public final class NotificationManagerCompat {
     }
 
     static {
-        if (BuildCompat.isAtLeastN()) {
+        if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new ImplApi24();
         } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new ImplKitKat();
