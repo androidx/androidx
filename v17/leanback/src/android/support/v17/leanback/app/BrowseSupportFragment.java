@@ -31,6 +31,8 @@ import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.util.StateMachine.Event;
+import android.support.v17.leanback.util.StateMachine.State;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.InvisibleRowPresenter;
 import android.support.v17.leanback.widget.ListRow;
@@ -88,6 +90,56 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     static final String HEADER_SHOW = "headerShow";
     private static final String IS_PAGE_ROW = "isPageRow";
     private static final String CURRENT_SELECTED_POSITION = "currentSelectedPosition";
+
+    /**
+     * State to hide headers fragment.
+     */
+    final State STATE_SET_ENTRANCE_START_STATE = new State("SET_ENTRANCE_START_STATE") {
+        @Override
+        public void run() {
+            setEntranceTransitionStartState();
+        }
+    };
+
+    /**
+     * Event for Header fragment view is created, we could perform
+     * {@link #setEntranceTransitionStartState()} to hide headers fragment initially.
+     */
+    final Event EVT_HEADER_VIEW_CREATED = new Event("headerFragmentViewCreated");
+
+    /**
+     * Event for {@link #getMainFragment()} view is created, it's additional requirement to execute
+     * {@link #onEntranceTransitionPrepare()}.
+     */
+    final Event EVT_MAIN_FRAGMENT_VIEW_CREATED = new Event("mainFragmentViewCreated");
+
+    /**
+     * Event that data for the screen is ready, this is additional requirement to launch entrance
+     * transition.
+     */
+    final Event EVT_SCREEN_DATA_READY = new Event("screenDataReady");
+
+    @Override
+    void createStateMachineStates() {
+        super.createStateMachineStates();
+        mStateMachine.addState(STATE_SET_ENTRANCE_START_STATE);
+    }
+
+    @Override
+    void createStateMachineTransitions() {
+        super.createStateMachineTransitions();
+        // when headers fragment view is created we could setEntranceTransitionStartState()
+        mStateMachine.addTransition(STATE_ENTRANCE_ON_PREPARED, STATE_SET_ENTRANCE_START_STATE,
+                EVT_HEADER_VIEW_CREATED);
+
+        // add additional requirement for onEntranceTransitionPrepare()
+        mStateMachine.addTransition(STATE_ENTRANCE_ON_PREPARED,
+                STATE_ENTRANCE_ON_PREPARED_ON_CREATEVIEW,
+                EVT_MAIN_FRAGMENT_VIEW_CREATED);
+        // add additional requirement to launch entrance transition.
+        mStateMachine.addTransition(STATE_ENTRANCE_ON_PREPARED,  STATE_ENTRANCE_PERFORM,
+                EVT_SCREEN_DATA_READY);
+    }
 
     final class BackStackListener implements FragmentManager.OnBackStackChangedListener {
         int mLastEntryCount;
@@ -255,20 +307,21 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     private final class FragmentHostImpl implements FragmentHost {
         boolean mShowTitleView = true;
-        boolean mDataReady = false;
 
         FragmentHostImpl() {
         }
 
         @Override
         public void notifyViewCreated(MainFragmentAdapter fragmentAdapter) {
-            performPendingStates();
+            mStateMachine.fireEvent(EVT_MAIN_FRAGMENT_VIEW_CREATED);
+            if (!mIsPageRow) {
+                // If it's not a PageRow: it's a ListRow, so we already have data ready.
+                mStateMachine.fireEvent(EVT_SCREEN_DATA_READY);
+            }
         }
 
         @Override
         public void notifyDataReady(MainFragmentAdapter fragmentAdapter) {
-            mDataReady = true;
-
             // If fragment host is not the currently active fragment (in BrowseSupportFragment), then
             // ignore the request.
             if (mMainFragmentAdapter == null || mMainFragmentAdapter.getFragmentHost() != this) {
@@ -280,7 +333,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                 return;
             }
 
-            performPendingStates();
+            mStateMachine.fireEvent(EVT_SCREEN_DATA_READY);
         }
 
         @Override
@@ -1227,17 +1280,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
     }
 
-    @Override
-    boolean isReadyForPrepareEntranceTransition() {
-        return mMainFragment != null && mMainFragment.getView() != null;
-    }
-
-    @Override
-    boolean isReadyForStartEntranceTransition() {
-        return mMainFragment != null && mMainFragment.getView() != null
-                && (!mIsPageRow || mMainFragmentAdapter.mFragmentHost.mDataReady);
-    }
-
     void createHeadersTransition() {
         mHeadersTransition = TransitionHelper.loadTransition(getContext(),
                 mShowingHeaders
@@ -1458,7 +1500,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             swapToMainFragment();
             expandMainFragment(!(mCanShowHeaders && mShowingHeaders));
             setupMainFragment();
-            performPendingStates();
         }
     }
 
@@ -1568,9 +1609,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
             showHeaders(mShowingHeaders);
         }
 
-        if (isEntranceTransitionEnabled()) {
-            setEntranceTransitionStartState();
-        }
+        mStateMachine.fireEvent(EVT_HEADER_VIEW_CREATED);
     }
 
     private void onExpandTransitionStart(boolean expand, final Runnable callback) {
@@ -1686,8 +1725,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     @Override
     protected void onEntranceTransitionPrepare() {
         mHeadersSupportFragment.onTransitionPrepare();
-        // setEntranceTransitionStartState() might be called when mMainFragment is null,
-        // make sure it is called.
         mMainFragmentAdapter.setEntranceTransitionState(false);
         mMainFragmentAdapter.onTransitionPrepare();
     }
@@ -1721,7 +1758,9 @@ public class BrowseSupportFragment extends BaseSupportFragment {
     void setEntranceTransitionStartState() {
         setHeadersOnScreen(false);
         setSearchOrbViewOnScreen(false);
-        mMainFragmentAdapter.setEntranceTransitionState(false);
+        // NOTE that mMainFragmentAdapter.setEntranceTransitionState(false) will be called
+        // in onEntranceTransitionPrepare() because mMainFragmentAdapter is still the dummy
+        // one when setEntranceTransitionStartState() is called.
     }
 
     void setEntranceTransitionEndState() {

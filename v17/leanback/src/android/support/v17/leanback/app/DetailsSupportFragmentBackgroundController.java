@@ -207,6 +207,10 @@ public class DetailsSupportFragmentBackgroundController {
                 bottomDrawable,
                 coverDrawableParallaxTarget);
         mFragment.setBackgroundDrawable(mParallaxDrawable);
+        // create a VideoHelper with null PlaybackGlue for changing CoverDrawable visibility
+        // before PlaybackGlue is ready.
+        mVideoHelper = new DetailsBackgroundVideoHelper(null,
+                mFragment.getParallax(), mParallaxDrawable.getCoverDrawable());
     }
 
     /**
@@ -230,12 +234,7 @@ public class DetailsSupportFragmentBackgroundController {
             mPlaybackGlue.setHost(null);
         }
         mPlaybackGlue = playbackGlue;
-        if (mVideoHelper == null && mPlaybackGlue != null) {
-            mVideoHelper = new DetailsBackgroundVideoHelper(mPlaybackGlue,
-                    mFragment.getParallax(), mParallaxDrawable.getCoverDrawable());
-        } else if (mVideoHelper != null) {
-            mVideoHelper.setPlaybackGlue(mPlaybackGlue);
-        }
+        mVideoHelper.setPlaybackGlue(mPlaybackGlue);
         if (mCanUseHost && mPlaybackGlue != null) {
             mPlaybackGlue.setHost(onCreateGlueHost());
         }
@@ -262,23 +261,36 @@ public class DetailsSupportFragmentBackgroundController {
         return mPlaybackGlue != null;
     }
 
+    void crossFadeBackgroundToVideo(boolean fadeToBackground, boolean immediate) {
+        mVideoHelper.crossFadeBackgroundToVideo(fadeToBackground, immediate);
+    }
+
     /**
      * Switch to video fragment, note that this method is not affected by result of
-     * {@link #canNavigateToVideoSupportFragment()}.
+     * {@link #canNavigateToVideoSupportFragment()}. If the method is called in DetailsSupportFragment.onCreate()
+     * it will make video fragment to be initially focused once it is created.
+     * <p>
+     * Calling switchToVideo() in DetailsSupportFragment.onCreate() will clear the activity enter
+     * transition and shared element transition.
+     * </p>
+     * <p>
+     * If switchToVideo() is called after {@link DetailsSupportFragment#prepareEntranceTransition()} and
+     * before {@link DetailsSupportFragment#onEntranceTransitionEnd()}, it will be ignored.
+     * </p>
+     * <p>
+     * If {@link DetailsSupportFragment#prepareEntranceTransition()} is called after switchToVideo(), an
+     * IllegalStateException will be thrown.
+     * </p>
      */
     public final void switchToVideo() {
-        if (mFragment.mVideoSupportFragment != null && mFragment.mVideoSupportFragment.getView() != null) {
-            mFragment.mVideoSupportFragment.getView().requestFocus();
-        }
+        mFragment.switchToVideo();
     }
 
     /**
      * Switch to rows fragment.
      */
     public final void switchToRows() {
-        if (mFragment.mRowsSupportFragment != null && mFragment.mRowsSupportFragment.getView() != null) {
-            mFragment.mRowsSupportFragment.getView().requestFocus();
-        }
+        mFragment.switchToRows();
     }
 
     /**

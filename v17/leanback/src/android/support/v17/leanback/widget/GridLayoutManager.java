@@ -1747,7 +1747,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     void slideIn() {
         if (mIsSlidingChildViews) {
             mIsSlidingChildViews = false;
-            scrollToSelection(mFocusPosition, mSubFocusPosition, true, mPrimaryScrollExtra);
+            if (mFocusPosition >= 0) {
+                scrollToSelection(mFocusPosition, mSubFocusPosition, true, mPrimaryScrollExtra);
+            } else {
+                mLayoutEatenInSliding = false;
+                requestLayout();
+            }
             if (mLayoutEatenInSliding) {
                 mLayoutEatenInSliding = false;
                 if (mBaseGridView.getScrollState() != SCROLL_STATE_IDLE || isSmoothScrolling()) {
@@ -1767,6 +1772,41 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    int getSlideOutDistance() {
+        int distance;
+        if (mOrientation == VERTICAL) {
+            distance = -getHeight();
+            if (getChildCount() > 0) {
+                int top = getChildAt(0).getTop();
+                if (top < 0) {
+                    // scroll more if first child is above top edge
+                    distance = distance + top;
+                }
+            }
+        } else {
+            if (mReverseFlowPrimary) {
+                distance = getWidth();
+                if (getChildCount() > 0) {
+                    int start = getChildAt(0).getRight();
+                    if (start > distance) {
+                        // scroll more if first child is outside right edge
+                        distance = start;
+                    }
+                }
+            } else {
+                distance = -getWidth();
+                if (getChildCount() > 0) {
+                    int start = getChildAt(0).getLeft();
+                    if (start < 0) {
+                        // scroll more if first child is out side left edge
+                        distance = distance + start;
+                    }
+                }
+            }
+        }
+        return distance;
+    }
+
     /**
      * Temporarily slide out child and block layout and scroll requests.
      */
@@ -1779,31 +1819,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         if (mOrientation == VERTICAL) {
-            int distance = -getHeight();
-            int top = getChildAt(0).getTop();
-            if (top < 0) {
-                // scroll more if first child is above top edge
-                distance = distance + top;
-            }
-            mBaseGridView.smoothScrollBy(0, distance, new AccelerateDecelerateInterpolator());
+            mBaseGridView.smoothScrollBy(0, getSlideOutDistance(),
+                    new AccelerateDecelerateInterpolator());
         } else {
-            int distance;
-            if (mReverseFlowPrimary) {
-                distance = getWidth();
-                int start = getChildAt(0).getRight();
-                if (start > distance) {
-                    // scroll more if first child is outside right edge
-                    distance = start;
-                }
-            } else {
-                distance = -getWidth();
-                int start = getChildAt(0).getLeft();
-                if (start < 0) {
-                    // scroll more if first child is out side left edge
-                    distance = distance + start;
-                }
-            }
-            mBaseGridView.smoothScrollBy(distance, 0, new AccelerateDecelerateInterpolator());
+            mBaseGridView.smoothScrollBy(getSlideOutDistance(), 0,
+                    new AccelerateDecelerateInterpolator());
         }
     }
 
@@ -1969,8 +1989,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         if (mIsSlidingChildViews) {
-            mLayoutEatenInSliding = true;
-            return;
+            // if there is already children, delay the layout process until slideIn(), if it's
+            // first time layout children: scroll them offscreen at end of onLayoutChildren()
+            if (getChildCount() > 0) {
+                mLayoutEatenInSliding = true;
+                return;
+            }
         }
         if (!mLayoutEnabled) {
             discardLayoutInfo();
@@ -2078,6 +2102,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         dispatchChildSelectedAndPositioned();
 
+        if (mIsSlidingChildViews) {
+            scrollDirectionPrimary(getSlideOutDistance());
+        }
         mInLayout = false;
         leaveContext();
         if (DEBUG) Log.v(getTag(), "layoutChildren end");
