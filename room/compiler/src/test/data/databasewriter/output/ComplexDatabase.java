@@ -1,4 +1,3 @@
-
 package foo.bar;
 
 import com.android.support.db.SupportSQLiteDatabase;
@@ -9,7 +8,12 @@ import com.android.support.room.DatabaseConfiguration;
 import com.android.support.room.InvalidationTracker;
 import com.android.support.room.RoomOpenHelper;
 import com.android.support.room.RoomOpenHelper.Delegate;
+import com.android.support.room.util.TableInfo;
+import com.android.support.room.util.TableInfo.Column;
+import java.lang.IllegalStateException;
 import java.lang.Override;
+import java.lang.String;
+import java.util.HashMap;
 
 public class ComplexDatabase_Impl extends ComplexDatabase {
     private volatile ComplexDao _complexDao;
@@ -31,8 +35,19 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 internalInitInvalidationTracker(_db);
             }
 
-            protected boolean validateMigration(SupportSQLiteDatabase _db) {
-                return true;
+            protected void validateMigration(SupportSQLiteDatabase _db) {
+                final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
+                _columnsUser.put("uid", new TableInfo.Column("uid", "INTEGER", 1));
+                _columnsUser.put("name", new TableInfo.Column("name", "TEXT", 0));
+                _columnsUser.put("lastName", new TableInfo.Column("lastName", "TEXT", 0));
+                _columnsUser.put("ageColumn", new TableInfo.Column("ageColumn", "INTEGER", 0));
+                final TableInfo _infoUser = new TableInfo("User", _columnsUser);
+                final TableInfo _existingUser = TableInfo.read(_db, "User");
+                if (! _infoUser.equals(_existingUser)) {
+                    throw new IllegalStateException("Migration didn't properly handle User(foo.bar.User).\n"
+                            + " Expected:\n" + _infoUser + "\n"
+                            + " Found:\n" + _existingUser);
+                }
             }
         }, "d4b1d59e1344d0db40fe2cd3fe64d02f");
         final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)

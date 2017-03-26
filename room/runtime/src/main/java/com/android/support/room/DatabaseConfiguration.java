@@ -19,6 +19,7 @@ package com.android.support.room;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import com.android.support.db.SupportSQLiteOpenHelper;
 
@@ -49,7 +50,18 @@ public class DatabaseConfiguration {
     @NonNull
     public final RoomDatabase.MigrationContainer migrationContainer;
 
-    DatabaseConfiguration(@NonNull Context context, @Nullable String name,
+    /**
+     * Creates a database configuration with the given values.
+     *
+     * @param context The application context.
+     * @param name Name of the database, can be null if it is in memory.
+     * @param sqliteOpenHelperFactory The open helper factory to use.
+     * @param migrationContainer The migration container for migrations.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
             @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
             @NonNull RoomDatabase.MigrationContainer migrationContainer) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;

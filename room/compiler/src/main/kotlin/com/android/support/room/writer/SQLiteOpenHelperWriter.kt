@@ -28,7 +28,6 @@ import com.android.support.room.vo.Database
 import com.android.support.room.vo.Entity
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
@@ -43,8 +42,8 @@ class SQLiteOpenHelperWriter(val database : Database) {
             val callbackVar = scope.getTmpVar("_openCallback")
             addStatement("final $T $L = new $T($N, $L, $S)",
                     SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
-                    callbackVar, RoomTypeNames.OPEN_HELPER, configuration, createOpenCallback(),
-                    database.identityHash)
+                    callbackVar, RoomTypeNames.OPEN_HELPER, configuration,
+                    createOpenCallback(scope), database.identityHash)
             // build configuration
             addStatement(
                     """
@@ -63,22 +62,26 @@ class SQLiteOpenHelperWriter(val database : Database) {
         }
     }
 
-    private fun createOpenCallback() : TypeSpec {
+    private fun createOpenCallback(scope: CodeGenScope) : TypeSpec {
         return TypeSpec.anonymousClassBuilder("").apply {
             superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
             addMethod(createCreateAllTables())
             addMethod(createDropAllTables())
             addMethod(createOnOpen())
-            addMethod(createValidateMigration())
+            addMethod(createValidateMigration(scope.fork()))
         }.build()
     }
 
-    private fun createValidateMigration(): MethodSpec {
+    private fun createValidateMigration(scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("validateMigration").apply {
             addModifiers(PROTECTED)
-            returns(TypeName.BOOLEAN)
-            addParameter(SupportDbTypeNames.DB, "_db")
-            addStatement("return true")
+            val dbParam = ParameterSpec.builder(SupportDbTypeNames.DB, "_db").build()
+            addParameter(dbParam)
+            database.entities.forEach { entity ->
+                val methodScope = scope.fork()
+                TableInfoValidationWriter(entity).write(dbParam, methodScope)
+                addCode(methodScope.builder().build())
+            }
         }.build()
     }
 

@@ -16,7 +16,9 @@
 
 package com.android.support.room.integration.testapp.migration;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.support.test.InstrumentationRegistry;
@@ -28,6 +30,7 @@ import com.android.support.db.framework.FrameworkSQLiteOpenHelperFactory;
 import com.android.support.room.Room;
 import com.android.support.room.migration.Migration;
 import com.android.support.room.testing.MigrationTestHelper;
+import com.android.support.room.util.TableInfo;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +45,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MigrationTest {
+    private static final String TEST_DB = "migration-test";
     @Rule
     public MigrationTestHelper helper;
 
@@ -52,43 +56,192 @@ public class MigrationTest {
 
     @Test
     public void startInCurrentVersion() throws IOException {
-        SupportSQLiteDatabase db = helper.createDatabase("migration-test",
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB,
                 MigrationDb.LATEST_VERSION);
         final MigrationDb.Dao_V1 dao = new MigrationDb.Dao_V1(db);
-        dao.insertIntoVo1(2, "x");
+        dao.insertIntoEntity1(2, "x");
         db.close();
-        MigrationDb migrationDb = Room.databaseBuilder(InstrumentationRegistry.getContext(),
-                MigrationDb.class, "migration-test").build();
-        List<MigrationDb.Vo1> items = migrationDb.dao().loadAllVo1s();
+        MigrationDb migrationDb = getLatestDb();
+        List<MigrationDb.Entity1> items = migrationDb.dao().loadAllEntity1s();
+        helper.closeWhenFinished(migrationDb.getDatabase());
         assertThat(items.size(), is(1));
     }
 
     @Test
     public void addTable() throws IOException {
-        SupportSQLiteDatabase db = helper.createDatabase("migration-test", 1);
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 1);
         final MigrationDb.Dao_V1 dao = new MigrationDb.Dao_V1(db);
-        dao.insertIntoVo1(2, "foo");
-        dao.insertIntoVo1(3, "bar");
+        dao.insertIntoEntity1(2, "foo");
+        dao.insertIntoEntity1(3, "bar");
         db.close();
+        db = helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2);
+        new MigrationDb.Dao_V2(db).insertIntoEntity2(3, "blah");
+        db.close();
+        MigrationDb migrationDb = getLatestDb();
+        List<MigrationDb.Entity1> entity1s = migrationDb.dao().loadAllEntity1s();
 
-        MigrationDb migrationDb = Room.databaseBuilder(InstrumentationRegistry.getContext(),
-                MigrationDb.class,
-                "migration-test")
-                .addMigrations(new Migration(1, 2) {
-                    @Override
-                    public void migrate(SupportSQLiteDatabase database) {
-                        database.execSQL("CREATE TABLE IF NOT EXISTS `Vo2` (`id` INTEGER,"
-                                + " `name` TEXT, PRIMARY KEY(`id`))");
-                    }
-                }).build();
-        List<MigrationDb.Vo1> vo1s = migrationDb.dao().loadAllVo1s();
-        assertThat(vo1s.size(), is(2));
-        MigrationDb.Vo2 vo2 = new MigrationDb.Vo2();
-        vo2.id = 2;
-        vo2.name = "bar";
+        assertThat(entity1s.size(), is(2));
+        MigrationDb.Entity2 entity2 = new MigrationDb.Entity2();
+        entity2.id = 2;
+        entity2.name = "bar";
         // assert no error happens
-        migrationDb.dao().insert(vo2);
-        List<MigrationDb.Vo1> vo2s = migrationDb.dao().loadAllVo2s();
-        assertThat(vo2s.size(), is(1));
+        migrationDb.dao().insert(entity2);
+        List<MigrationDb.Entity2> entity2s = migrationDb.dao().loadAllEntity2s();
+        assertThat(entity2s.size(), is(2));
+    }
+
+    private MigrationDb getLatestDb() {
+        MigrationDb db = Room.databaseBuilder(InstrumentationRegistry.getContext(),
+                MigrationDb.class, TEST_DB).addMigrations(ALL_MIGRATIONS).build();
+        // trigger open
+        db.beginTransaction();
+        db.endTransaction();
+        helper.closeWhenFinished(db.getDatabase());
+        return db;
+    }
+
+    @Test
+    public void addTableFailure() throws IOException {
+        testFailure(1, 2);
+    }
+
+    @Test
+    public void addColumnFailure() throws IOException {
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 2);
+        db.close();
+        IllegalStateException caught = null;
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, 3, true, new EmptyMigration(2, 3));
+        } catch (IllegalStateException ex) {
+            caught = ex;
+        }
+        assertThat(caught, instanceOf(IllegalStateException.class));
+    }
+
+    @Test
+    public void addColumn() throws IOException {
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 2);
+        MigrationDb.Dao_V2 v2Dao = new MigrationDb.Dao_V2(db);
+        v2Dao.insertIntoEntity2(7, "blah");
+        db.close();
+        helper.runMigrationsAndValidate(TEST_DB, 3, true, MIGRATION_2_3);
+        // trigger open.
+        MigrationDb migrationDb = getLatestDb();
+        List<MigrationDb.Entity2> entity2s = migrationDb.dao().loadAllEntity2s();
+        assertThat(entity2s.size(), is(1));
+        assertThat(entity2s.get(0).name, is("blah"));
+        assertThat(entity2s.get(0).addedInV3, is(nullValue()));
+
+        List<MigrationDb.Entity2Pojo> entity2Pojos = migrationDb.dao().loadAllEntity2sAsPojo();
+        assertThat(entity2Pojos.size(), is(1));
+        assertThat(entity2Pojos.get(0).name, is("blah"));
+        assertThat(entity2Pojos.get(0).addedInV3, is(nullValue()));
+    }
+
+    @Test
+    public void failedToRemoveColumn() throws IOException {
+        testFailure(4, 5);
+    }
+
+    @Test
+    public void removeColumn() throws IOException {
+        helper.createDatabase(TEST_DB, 4);
+        final SupportSQLiteDatabase db = helper.runMigrationsAndValidate(TEST_DB,
+                5, true, MIGRATION_4_5);
+        final TableInfo info = TableInfo.read(db, MigrationDb.Entity3.TABLE_NAME);
+        assertThat(info.columns.size(), is(2));
+    }
+
+    @Test
+    public void dropTable() throws IOException {
+        helper.createDatabase(TEST_DB, 5);
+        final SupportSQLiteDatabase db = helper.runMigrationsAndValidate(TEST_DB,
+                6, true, MIGRATION_5_6);
+        final TableInfo info = TableInfo.read(db, MigrationDb.Entity3.TABLE_NAME);
+        assertThat(info.columns.size(), is(0));
+    }
+
+    @Test
+    public void failedToDropTable() throws IOException {
+        testFailure(5, 6);
+    }
+
+    @Test
+    public void failedToDropTableDontVerify() throws IOException {
+        helper.createDatabase(TEST_DB, 5);
+        final SupportSQLiteDatabase db = helper.runMigrationsAndValidate(TEST_DB,
+                6, false, new EmptyMigration(5, 6));
+        final TableInfo info = TableInfo.read(db, MigrationDb.Entity3.TABLE_NAME);
+        assertThat(info.columns.size(), is(2));
+    }
+
+    private void testFailure(int startVersion, int endVersion) throws IOException {
+        final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, startVersion);
+        db.close();
+        Throwable throwable = null;
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, endVersion, true,
+                    new EmptyMigration(startVersion, endVersion));
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertThat(throwable, instanceOf(IllegalStateException.class));
+    }
+
+    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` (`id` INTEGER,"
+                    + " `name` TEXT, PRIMARY KEY(`id`))");
+        }
+    };
+
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE " + MigrationDb.Entity2.TABLE_NAME
+                    + " ADD COLUMN addedInV3 TEXT");
+        }
+    };
+
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER,"
+                    + " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))");
+        }
+    };
+
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER,"
+                    + " `name` TEXT, PRIMARY KEY(`id`))");
+            database.execSQL("INSERT INTO Entity3_New(`id`, `name`) "
+                    + "SELECT `id`, `name` FROM Entity3");
+            database.execSQL("DROP TABLE Entity3");
+            database.execSQL("ALTER TABLE Entity3_New RENAME TO Entity3");
+        }
+    };
+
+    static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("DROP TABLE " + MigrationDb.Entity3.TABLE_NAME);
+        }
+    };
+
+    private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
+            MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6};
+
+    static final class EmptyMigration extends Migration {
+        EmptyMigration(int startVersion, int endVersion) {
+            super(startVersion, endVersion);
+        }
+
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            // do nothing
+        }
     }
 }

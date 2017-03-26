@@ -69,6 +69,10 @@ object RoomTypeNames {
             ClassName.get("com.android.support.room", "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
             ClassName.get("com.android.support.room", "RoomOpenHelper.Delegate")
+    val TABLE_INFO : ClassName =
+            ClassName.get("com.android.support.room.util", "TableInfo")
+    val TABLE_INFO_COLUMN : ClassName =
+            ClassName.get("com.android.support.room.util", "TableInfo.Column")
 }
 
 object LifecyclesTypeNames {
@@ -85,4 +89,5 @@ object AndroidTypeNames {
 object CommonTypeNames {
     val LIST = ClassName.get("java.util", "List")
     val SET = ClassName.get("java.util", "Set")
+    val STRING = ClassName.get("java.lang", "String")
 }

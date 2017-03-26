@@ -22,6 +22,7 @@ import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.room.Dao;
 import com.android.support.room.Database;
 import com.android.support.room.Entity;
+import com.android.support.room.Ignore;
 import com.android.support.room.Insert;
 import com.android.support.room.PrimaryKey;
 import com.android.support.room.Query;
@@ -31,32 +32,50 @@ import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 @Database(version = MigrationDb.LATEST_VERSION,
-        entities = {MigrationDb.Vo1.class, MigrationDb.Vo2.class})
+        entities = {MigrationDb.Entity1.class, MigrationDb.Entity2.class})
 public abstract class MigrationDb extends RoomDatabase {
-    static final int LATEST_VERSION = 2;
+    static final int LATEST_VERSION = 6;
     abstract MigrationDao dao();
     @Entity
-    static class Vo1 {
+    static class Entity1 {
+        public static final String TABLE_NAME = "Entity1";
         @PrimaryKey
         public int id;
         public String name;
     }
 
     @Entity
-    static class Vo2 {
+    static class Entity2 {
+        public static final String TABLE_NAME = "Entity2";
         @PrimaryKey
         public int id;
+        public String addedInV3;
+        public String name;
+    }
+
+    @Entity
+    static class Entity3 { // added in version 4, removed at 6
+        public static final String TABLE_NAME = "Entity3";
+        @PrimaryKey
+        public int id;
+        @Ignore //removed at 5
+        public String removedInV5;
         public String name;
     }
 
     @Dao
     interface MigrationDao {
-        @Query("SELECT * from Vo1 ORDER BY id ASC")
-        List<Vo1> loadAllVo1s();
-        @Query("SELECT * from Vo2 ORDER BY id ASC")
-        List<Vo1> loadAllVo2s();
+        @Query("SELECT * from Entity1 ORDER BY id ASC")
+        List<Entity1> loadAllEntity1s();
+        @Query("SELECT * from Entity2 ORDER BY id ASC")
+        List<Entity2> loadAllEntity2s();
+        @Query("SELECT * from Entity2 ORDER BY id ASC")
+        List<Entity2Pojo> loadAllEntity2sAsPojo();
         @Insert
-        void insert(Vo2... vo2);
+        void insert(Entity2... entity2);
+    }
+
+    static class Entity2Pojo extends Entity2 {
     }
 
     /**
@@ -69,11 +88,32 @@ public abstract class MigrationDb extends RoomDatabase {
             mDb = db;
         }
 
-        public void insertIntoVo1(int id, String name) {
+        public void insertIntoEntity1(int id, String name) {
             ContentValues values = new ContentValues();
             values.put("id", id);
             values.put("name", name);
-            long insertionId = mDb.insert("Vo1", null, values);
+            long insertionId = mDb.insert(Entity1.TABLE_NAME, null, values);
+            if (insertionId == -1) {
+                throw new RuntimeException("test sanity failure");
+            }
+        }
+    }
+
+    /**
+     * not a real dao because database will change.
+     */
+    static class Dao_V2 {
+        final SupportSQLiteDatabase mDb;
+
+        Dao_V2(SupportSQLiteDatabase db) {
+            mDb = db;
+        }
+
+        public void insertIntoEntity2(int id, String name) {
+            ContentValues values = new ContentValues();
+            values.put("id", id);
+            values.put("name", name);
+            long insertionId = mDb.insert(Entity2.TABLE_NAME, null, values);
             if (insertionId == -1) {
                 throw new RuntimeException("test sanity failure");
             }

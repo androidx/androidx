@@ -71,12 +71,8 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
                 for (Migration migration : migrations) {
                     migration.migrate(db);
                 }
-                if (mDelegate.validateMigration(db)) {
-                    updateIdentity(db);
-                } else {
-                    // TODO
-                    throw new RuntimeException("cannot validate the migration result");
-                }
+                mDelegate.validateMigration(db);
+                updateIdentity(db);
                 migrated = true;
             }
         }
@@ -144,7 +140,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
          *
          * @param db The SQLite database.
          */
-        protected abstract boolean validateMigration(SupportSQLiteDatabase db);
+        protected abstract void validateMigration(SupportSQLiteDatabase db);
     }
 
 }

@@ -26,6 +26,10 @@ import com.android.support.db.SupportSQLiteDatabase;
  * <p>
  * Usually, you would need 1 Migration class for each version change but you can also provide
  * Migrations that can handle multiple version changes.
+ * <p>
+ * Room expects the migrated table to have the exact same structure as if it is created from
+ * scratch. This means the order of columns in the table must also be modified during the migration
+ * if necessary.
  */
 public abstract class Migration {
     public final int startVersion;
