@@ -57,6 +57,9 @@ class RoomProcessor : BasicAnnotationProcessor() {
             databases?.forEach {
                 DatabaseWriter(it).write(context.processingEnv)
             }
+            context.databaseVerifier?.let {
+                it.closeConnection()
+            }
             return mutableSetOf()
         }
 

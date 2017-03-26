@@ -76,4 +76,14 @@ class DatabaseVerifier private constructor(
             QueryResultInfo(emptyList(), ex)
         }
     }
+
+    fun closeConnection() {
+        if (!connection.isClosed) {
+            try {
+                connection.close()
+            } catch (t : Throwable) {
+                //ignore.
+            }
+        }
+    }
 }
