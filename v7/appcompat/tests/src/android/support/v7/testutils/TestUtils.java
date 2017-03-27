@@ -16,6 +16,7 @@
 
 package android.support.v7.testutils;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -26,7 +27,10 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.TintTypedArray;
+import android.view.InputDevice;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewParent;
 
 import junit.framework.Assert;
@@ -278,5 +282,62 @@ public class TestUtils {
         } finally {
             a.recycle();
         }
+    }
+
+    /**
+     * Emulates a tap on a point relative to the top-left corner of the passed {@link View}. Offset
+     * parameters are used to compute the final screen coordinates of the tap point.
+     *
+     * @param instrumentation the instrumentation used to run the test
+     * @param anchorView the anchor view to determine the tap location on the screen
+     * @param offsetX extra X offset for the tap
+     * @param offsetY extra Y offset for the tap
+     */
+    public static void emulateTapOnView(Instrumentation instrumentation, View anchorView,
+            int offsetX, int offsetY) {
+        final int touchSlop = ViewConfiguration.get(anchorView.getContext()).getScaledTouchSlop();
+        // Get anchor coordinates on the screen
+        final int[] viewOnScreenXY = new int[2];
+        anchorView.getLocationOnScreen(viewOnScreenXY);
+        int xOnScreen = viewOnScreenXY[0] + offsetX;
+        int yOnScreen = viewOnScreenXY[1] + offsetY;
+        final long downTime = SystemClock.uptimeMillis();
+
+        injectDownEvent(instrumentation, downTime, xOnScreen, yOnScreen);
+        injectMoveEventForTap(instrumentation, downTime, touchSlop, xOnScreen, yOnScreen);
+        injectUpEvent(instrumentation, downTime, false, xOnScreen, yOnScreen);
+
+        // Wait for the system to process all events in the queue
+        instrumentation.waitForIdleSync();
+    }
+
+    private static long injectDownEvent(Instrumentation instrumentation, long downTime,
+            int xOnScreen, int yOnScreen) {
+        MotionEvent eventDown = MotionEvent.obtain(
+                downTime, downTime, MotionEvent.ACTION_DOWN, xOnScreen, yOnScreen, 1);
+        eventDown.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        instrumentation.sendPointerSync(eventDown);
+        eventDown.recycle();
+        return downTime;
+    }
+
+    private static void injectMoveEventForTap(Instrumentation instrumentation, long downTime,
+            int touchSlop, int xOnScreen, int yOnScreen) {
+        MotionEvent eventMove = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_MOVE,
+                xOnScreen + (touchSlop / 2.0f), yOnScreen + (touchSlop / 2.0f), 1);
+        eventMove.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        instrumentation.sendPointerSync(eventMove);
+        eventMove.recycle();
+    }
+
+
+    private static void injectUpEvent(Instrumentation instrumentation, long downTime,
+            boolean useCurrentEventTime, int xOnScreen, int yOnScreen) {
+        long eventTime = useCurrentEventTime ? SystemClock.uptimeMillis() : downTime;
+        MotionEvent eventUp = MotionEvent.obtain(
+                downTime, eventTime, MotionEvent.ACTION_UP, xOnScreen, yOnScreen, 1);
+        eventUp.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        instrumentation.sendPointerSync(eventUp);
+        eventUp.recycle();
     }
 }

@@ -16,6 +16,7 @@ dependencies {
     androidTestCompile libs.mockito_core
     androidTestCompile libs.dexmaker
     androidTestCompile libs.dexmaker_mockito
+    androidTestCompile project(':support-testutils')
 }
 
 android {
