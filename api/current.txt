@@ -4577,7 +4577,6 @@ package android.support.v4.app {
     method public final android.support.v4.app.FragmentManager getFragmentManager();
     method public final java.lang.Object getHost();
     method public final int getId();
-    method public android.view.LayoutInflater getLayoutInflater(android.os.Bundle);
     method public android.support.v4.app.LoaderManager getLoaderManager();
     method public final android.support.v4.app.Fragment getParentFragment();
     method public java.lang.Object getReenterTransition();
@@ -4620,6 +4619,7 @@ package android.support.v4.app {
     method public void onDestroyOptionsMenu();
     method public void onDestroyView();
     method public void onDetach();
+    method public android.view.LayoutInflater onGetLayoutInflater(android.os.Bundle);
     method public void onHiddenChanged(boolean);
     method public void onInflate(android.content.Context, android.util.AttributeSet, android.os.Bundle);
     method public deprecated void onInflate(android.app.Activity, android.util.AttributeSet, android.os.Bundle);
