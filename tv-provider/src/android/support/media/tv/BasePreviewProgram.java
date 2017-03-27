@@ -156,9 +156,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     /**
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_TRANSIENT} for the program.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public boolean isTransient() {
         return mTransient == IS_TRANSIENT;
     }
@@ -722,9 +720,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * @param transientValue The value of {@link BasePreviewProgramColumns#COLUMN_TRANSIENT} for
          *                       the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public T setTransient(boolean transientValue) {
             mTransient = transientValue ? IS_TRANSIENT : 0;
             return (T) this;
