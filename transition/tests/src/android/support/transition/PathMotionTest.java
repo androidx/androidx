@@ -17,6 +17,7 @@
 package android.support.transition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.graphics.Path;
 import android.graphics.PathMeasure;
@@ -27,23 +28,35 @@ public abstract class PathMotionTest {
         PathMeasure expectedMeasure = new PathMeasure(expectedPath, false);
         PathMeasure pathMeasure = new PathMeasure(path, false);
 
-        float expectedLength = expectedMeasure.getLength();
-        assertEquals("Lengths differ", expectedLength, pathMeasure.getLength(), 0.01f);
+        boolean expectedNextContour;
+        boolean pathNextContour;
+        int contourIndex = 0;
+        do {
+            float expectedLength = expectedMeasure.getLength();
+            assertEquals("Lengths differ", expectedLength, pathMeasure.getLength(), 0.01f);
 
-        float minLength = Math.min(expectedLength, pathMeasure.getLength());
+            float minLength = Math.min(expectedLength, pathMeasure.getLength());
 
-        float[] pos = new float[2];
+            float[] pos = new float[2];
 
-        float increment = minLength / 5f;
-        for (float along = 0; along <= minLength; along += increment) {
-            expectedMeasure.getPosTan(along, pos, null);
-            float expectedX = pos[0];
-            float expectedY = pos[1];
+            float increment = minLength / 5f;
+            for (float along = 0; along <= minLength; along += increment) {
+                expectedMeasure.getPosTan(along, pos, null);
+                float expectedX = pos[0];
+                float expectedY = pos[1];
 
-            pathMeasure.getPosTan(along, pos, null);
-            assertEquals("Failed at " + increment, expectedX, pos[0], 0.01f);
-            assertEquals("Failed at " + increment, expectedY, pos[1], 0.01f);
-        }
+                pathMeasure.getPosTan(along, pos, null);
+                assertEquals("Failed at " + increment + " in contour " + contourIndex,
+                        expectedX, pos[0], 0.01f);
+                assertEquals("Failed at " + increment + " in contour " + contourIndex,
+                        expectedY, pos[1], 0.01f);
+            }
+            expectedNextContour = expectedMeasure.nextContour();
+            pathNextContour = pathMeasure.nextContour();
+            contourIndex++;
+        } while (expectedNextContour && pathNextContour);
+        assertFalse(expectedNextContour);
+        assertFalse(pathNextContour);
     }
 
 }
