@@ -28,7 +28,6 @@ import com.example.android.supportv4.R;
  */
 public class MediaBrowserSupport extends FragmentActivity
         implements BrowseFragment.FragmentDataHelper {
-    private MediaControllerCompat mMediaController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,12 +43,15 @@ public class MediaBrowserSupport extends FragmentActivity
     @Override
     public void onMediaItemSelected(MediaBrowserCompat.MediaItem item) {
         if (item.isPlayable()) {
-            mMediaController.getTransportControls().playFromMediaId(item.getMediaId(), null);
-            QueueFragment queueFragment = QueueFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, queueFragment)
-                    .addToBackStack(null)
-                    .commit();
+            MediaControllerCompat mediaController = MediaControllerCompat.getMediaController(this);
+            if (mediaController != null) {
+                mediaController.getTransportControls().playFromMediaId(item.getMediaId(), null);
+                QueueFragment queueFragment = QueueFragment.newInstance();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, queueFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
         } else if (item.isBrowsable()) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, BrowseFragment.newInstance(item.getMediaId()))
@@ -59,6 +61,6 @@ public class MediaBrowserSupport extends FragmentActivity
     }
 
     public void setMediaController(MediaControllerCompat mediaController) {
-        mMediaController = mediaController;
+        MediaControllerCompat.setMediaController(this, mediaController);
     }
 }
