@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -808,6 +809,58 @@ public class RecyclerViewCacheTest {
                 .setInitialPrefetchItemCount(4);
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         CacheUtils.verifyCacheContainsPrefetchedPositions(innerView, 0, 1, 2, 3);
+    }
+
+    @Test
+    public void nestedPrefetchNotClearInnerStructureChangeFlag() {
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        assertEquals(2, llm.getInitialPrefetchItemCount());
+
+        mRecyclerView.setLayoutManager(llm);
+        mRecyclerView.setAdapter(new OuterAdapter());
+
+        layout(200, 200);
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+
+        // prefetch 2 (default)
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
+        assertNotNull(holder);
+        assertNotNull(holder.mNestedRecyclerView);
+        RecyclerView innerView = holder.mNestedRecyclerView.get();
+        RecyclerView.Adapter innerAdapter = innerView.getAdapter();
+        CacheUtils.verifyCacheContainsPrefetchedPositions(innerView, 0, 1);
+        // mStructureChanged is initially true before first layout pass.
+        assertTrue(innerView.mState.mStructureChanged);
+        assertTrue(innerView.hasPendingAdapterUpdates());
+
+        // layout position 2 and clear mStructureChanged
+        mRecyclerView.scrollToPosition(2);
+        layout(200, 200);
+        mRecyclerView.scrollToPosition(0);
+        layout(200, 200);
+        assertFalse(innerView.mState.mStructureChanged);
+        assertFalse(innerView.hasPendingAdapterUpdates());
+
+        // notify change on the cached innerView.
+        innerAdapter.notifyDataSetChanged();
+        assertTrue(innerView.mState.mStructureChanged);
+        assertTrue(innerView.hasPendingAdapterUpdates());
+
+        // prefetch again
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+        ((LinearLayoutManager) innerView.getLayoutManager())
+                .setInitialPrefetchItemCount(2);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+        CacheUtils.verifyCacheContainsPrefetchedPositions(innerView, 0, 1);
+
+        // The re-prefetch is not necessary get the same inner view but we will get same Adapter
+        holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 2);
+        innerView = holder.mNestedRecyclerView.get();
+        assertSame(innerAdapter, innerView.getAdapter());
+        // prefetch shouldn't clear the mStructureChanged flag
+        assertTrue(innerView.mState.mStructureChanged);
+        assertTrue(innerView.hasPendingAdapterUpdates());
     }
 
     @Test
