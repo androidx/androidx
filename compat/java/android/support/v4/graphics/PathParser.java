@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,24 @@
  * limitations under the License.
  */
 
-package android.support.graphics.drawable;
+package android.support.v4.graphics;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Path;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-// This class is a duplicate from the PathParser.java of frameworks/base, with slight
-// update on incompatible API like copyOfRange().
-class PathParser {
+/**
+ * This class is a duplicate from the PathParser.java of frameworks/base, with slight
+ * update on incompatible API like copyOfRange().
+ *
+ * @hide
+ */
+@RestrictTo(LIBRARY_GROUP)
+public class PathParser {
     private static final String LOGTAG = "PathParser";
 
     // Copy from Arrays.copyOfRange() which is only available from API level 9.
@@ -295,9 +303,18 @@ class PathParser {
      * An array of PathDataNode can represent the whole "d" attribute.
      */
     public static class PathDataNode {
-        /*package*/
-        char mType;
-        float[] mParams;
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public char mType;
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public float[] mParams;
 
         PathDataNode(char type, float[] params) {
             this.mType = type;

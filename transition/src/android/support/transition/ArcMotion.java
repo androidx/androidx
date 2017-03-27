@@ -16,7 +16,13 @@
 
 package android.support.transition;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Path;
+import android.support.v4.content.res.TypedArrayUtils;
+import android.util.AttributeSet;
+
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  * A PathMotion that generates a curved path along an arc on an imaginary circle containing
@@ -34,6 +40,7 @@ import android.graphics.Path;
  */
 public class ArcMotion extends PathMotion {
 
+    private static final float DEFAULT_MIN_ANGLE_DEGREES = 0;
     private static final float DEFAULT_MAX_ANGLE_DEGREES = 70;
     private static final float DEFAULT_MAX_TANGENT = (float)
             Math.tan(Math.toRadians(DEFAULT_MAX_ANGLE_DEGREES / 2));
@@ -46,6 +53,24 @@ public class ArcMotion extends PathMotion {
     private float mMaximumTangent = DEFAULT_MAX_TANGENT;
 
     public ArcMotion() {
+    }
+
+    public ArcMotion(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, Styleable.ARC_MOTION);
+        XmlPullParser parser = (XmlPullParser) attrs;
+        float minimumVerticalAngle = TypedArrayUtils.getNamedFloat(a, parser,
+                "minimumVerticalAngle", Styleable.ArcMotion.MINIMUM_VERTICAL_ANGLE,
+                DEFAULT_MIN_ANGLE_DEGREES);
+        setMinimumVerticalAngle(minimumVerticalAngle);
+        float minimumHorizontalAngle = TypedArrayUtils.getNamedFloat(a, parser,
+                "minimumHorizontalAngle", Styleable.ArcMotion.MINIMUM_HORIZONTAL_ANGLE,
+                DEFAULT_MIN_ANGLE_DEGREES);
+        setMinimumHorizontalAngle(minimumHorizontalAngle);
+        float maximumAngle = TypedArrayUtils.getNamedFloat(a, parser, "maximumAngle",
+                Styleable.ArcMotion.MAXIMUM_ANGLE, DEFAULT_MAX_ANGLE_DEGREES);
+        setMaximumAngle(maximumAngle);
+        a.recycle();
     }
 
     /**
