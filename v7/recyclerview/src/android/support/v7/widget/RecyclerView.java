@@ -11815,7 +11815,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param velocityX the fling velocity on the X axis
          * @param velocityY the fling velocity on the Y axis
          *
-         * @return true if the fling washandled, false otherwise.
+         * @return true if the fling was handled, false otherwise.
          */
         public abstract boolean onFling(int velocityX, int velocityY);
     }
