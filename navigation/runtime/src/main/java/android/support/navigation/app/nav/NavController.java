@@ -24,8 +24,9 @@ import android.support.annotation.IdRes;
 import android.support.annotation.XmlRes;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -46,22 +47,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class NavController implements NavigatorProvider {
     private static final String KEY_GRAPH_ID = "android-support-nav:controller:graphId";
-    private static final String KEY_CUR_DEST_ID = "android-support-nav:controller:curDestId";
+    private static final String KEY_BACK_STACK_IDS = "android-support-nav:controller:backStackIds";
 
     private Context mContext;
     private NavInflater mInflater;
     private NavGraph mGraph;
     private int mGraphId;
-    private NavDestination mCurrentNode;
 
     private final HashMap<String, Navigator> mNavigators = new HashMap<>();
-    private final ArrayList<Navigator> mNavigatorBackStack = new ArrayList<>();
+    private final Deque<NavDestination> mBackStack = new LinkedList<>();
 
     private final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
             new Navigator.OnNavigatorNavigatedListener() {
                 @Override
                 public void onNavigatorNavigated(Navigator navigator, @IdRes int destId,
-                                                 boolean isBackStackEmpty) {
+                                                 boolean isPopOperation) {
                     if (destId != 0) {
                         NavDestination newDest = mGraph.findNode(destId);
                         if (newDest == null) {
@@ -69,11 +69,15 @@ public class NavController implements NavigatorProvider {
                                     + " reported navigation to unknown destination id "
                                     + mContext.getResources().getResourceName(destId));
                         }
-                        mCurrentNode = newDest;
+                        if (isPopOperation) {
+                            while (!mBackStack.isEmpty()
+                                    && mBackStack.peekLast().getId() != destId) {
+                                mBackStack.removeLast();
+                            }
+                        } else {
+                            mBackStack.add(newDest);
+                        }
                         dispatchOnNavigated(newDest);
-                    }
-                    if (isBackStackEmpty) {
-                onNavigatorBackStackEmpty(navigator);
                     }
                 }
             };
@@ -140,9 +144,6 @@ public class NavController implements NavigatorProvider {
         mNavigators.put(NavGraphNavigator.NAME, navGraphNavigator);
         final ActivityNavigator activityNavigator = new ActivityNavigator(activity);
         mNavigators.put(ActivityNavigator.NAME, activityNavigator);
-
-        // The host activity is always at the root.
-        mNavigatorBackStack.add(activityNavigator);
     }
 
     /**
@@ -173,10 +174,17 @@ public class NavController implements NavigatorProvider {
      * @return true if the stack was popped, false otherwise
      */
     public boolean popBackStack() {
-        if (mNavigatorBackStack.isEmpty()) {
+        if (mBackStack.isEmpty()) {
             throw new IllegalArgumentException("NavController back stack is empty");
         }
-        return mNavigatorBackStack.get(mNavigatorBackStack.size() - 1).popBackStack();
+        boolean popped = false;
+        while (!mBackStack.isEmpty()) {
+            popped = mBackStack.removeLast().getNavigator().popBackStack();
+            if (popped) {
+                break;
+            }
+        }
+        return popped;
     }
 
     /**
@@ -299,7 +307,7 @@ public class NavController implements NavigatorProvider {
 
     private void onGraphCreated() {
         // Navigate to the first destination in the graph
-        if (mGraph != null && mCurrentNode == null) {
+        if (mGraph != null && mBackStack.isEmpty()) {
             mGraph.navigate(null, null);
         }
     }
@@ -319,7 +327,7 @@ public class NavController implements NavigatorProvider {
      * Gets the current destination.
      */
     public NavDestination getCurrentDestination() {
-        return mCurrentNode;
+        return mBackStack.peekLast();
     }
 
     /**
@@ -403,14 +411,15 @@ public class NavController implements NavigatorProvider {
      * @param navOptions special options for this navigation operation
      */
     public void navigate(@IdRes int action, Bundle args, NavOptions navOptions) {
-        if (mCurrentNode == null) {
+        NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
+        if (currentNode == null) {
             throw new IllegalStateException("no current navigation node");
         }
-        final int dest = mCurrentNode.getActionDestination(action);
+        final int dest = currentNode.getActionDestination(action);
         if (dest == 0) {
             final Resources res = mContext.getResources();
             throw new IllegalStateException("no destination defined from "
-                    + res.getResourceName(mCurrentNode.getId())
+                    + res.getResourceName(currentNode.getId())
                     + " for action " + res.getResourceName(action));
         }
         navigateTo(dest, args, navOptions);
@@ -431,11 +440,16 @@ public class NavController implements NavigatorProvider {
             b = new Bundle();
             b.putInt(KEY_GRAPH_ID, mGraphId);
         }
-        if (mCurrentNode != null) {
+        if (!mBackStack.isEmpty()) {
             if (b == null) {
                 b = new Bundle();
             }
-            b.putInt(KEY_CUR_DEST_ID, mCurrentNode.getId());
+            int[] backStack = new int[mBackStack.size()];
+            int index = 0;
+            for (NavDestination destination : mBackStack) {
+                backStack[index++] = destination.getId();
+            }
+            b.putIntArray(KEY_BACK_STACK_IDS, backStack);
         }
         return b;
     }
@@ -460,31 +474,18 @@ public class NavController implements NavigatorProvider {
         }
 
         // Restore the current location first, or onGraphCreated will perform navigation
-        // if mCurrentNode is null.
-        final int loc = navState.getInt(KEY_CUR_DEST_ID);
-        if (loc != 0) {
-            NavDestination node = mGraph.findNode(loc);
-            if (node == null) {
-                throw new IllegalStateException("unknown current destination during restore: "
-                        + mContext.getResources().getResourceName(loc));
+        // if there are no nodes on the back stack.
+        final int[] backStack = navState.getIntArray(KEY_BACK_STACK_IDS);
+        if (backStack != null) {
+            for (int destinationId : backStack) {
+                NavDestination node = mGraph.findNode(destinationId);
+                if (node == null) {
+                    throw new IllegalStateException("unknown destination during restore: "
+                            + mContext.getResources().getResourceName(destinationId));
+                }
+                mBackStack.add(node);
             }
-            mCurrentNode = node;
         }
         onGraphCreated();
-    }
-
-    void onNavigatorBackStackEmpty(Navigator emptyNavigator) {
-        if (mNavigatorBackStack.isEmpty()) {
-            throw new IllegalStateException("Navigator " + emptyNavigator
-                    + " reported empty, but this NavController has no back stack!");
-        }
-        // If a navigator's back stack is empty, it can't have any presence in our
-        // navigator stack either. Remove all instances of it.
-        for (int i = mNavigatorBackStack.size() - 1; i >= 0; i--) {
-            final Navigator n = mNavigatorBackStack.get(i);
-            if (n == emptyNavigator) {
-                mNavigatorBackStack.remove(i);
-            }
-        }
     }
 }

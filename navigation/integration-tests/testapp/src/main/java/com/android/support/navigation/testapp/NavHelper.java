@@ -159,7 +159,7 @@ public class NavHelper {
                     == navController.getGraph().getStartDestination()) {
                 drawerLayout.openDrawer(GravityCompat.START);
             } else {
-                // TODO Handle up pressed
+                navController.navigateUp();
             }
             return true;
         }

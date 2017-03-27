@@ -108,11 +108,11 @@ public abstract class Navigator<D extends NavDestination> {
      * Utility for navigator implementations.
      *
      * @param destId id of the new destination
-     * @param isBackStackEmpty true if this navigator's back stack is empty after this navigation
+     * @param isPopOperation true if this was the result of a pop operation
      */
-    public final void dispatchOnNavigatorNavigated(@IdRes int destId, boolean isBackStackEmpty) {
+    public final void dispatchOnNavigatorNavigated(@IdRes int destId, boolean isPopOperation) {
         for (OnNavigatorNavigatedListener listener : mOnNavigatedListeners) {
-            listener.onNavigatorNavigated(this, destId, isBackStackEmpty);
+            listener.onNavigatorNavigated(this, destId, isPopOperation);
         }
     }
 
@@ -126,8 +126,8 @@ public abstract class Navigator<D extends NavDestination> {
          *
          * @param navigator
          * @param destId
-         * @param isBackStackEmpty
+         * @param isPopOperation
          */
-        void onNavigatorNavigated(Navigator navigator, @IdRes int destId, boolean isBackStackEmpty);
+        void onNavigatorNavigated(Navigator navigator, @IdRes int destId, boolean isPopOperation);
     }
 }

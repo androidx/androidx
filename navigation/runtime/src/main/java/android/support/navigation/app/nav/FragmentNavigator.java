@@ -43,6 +43,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     private Context mContext;
     private FragmentManager mFragmentManager;
     private int mContainerId;
+    private int mBackStackCount;
     private HashMap<String, Class<? extends Fragment>> mFragmentClasses = new HashMap<>();
 
     private final FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
@@ -50,13 +51,15 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 @Override
                 public void onBackStackChanged() {
                     int newCount = mFragmentManager.getBackStackEntryCount();
+                    boolean isPopOperation = newCount < mBackStackCount;
+                    mBackStackCount = newCount;
 
                     int destId = 0;
                     StateFragment state = getState();
                     if (state != null) {
                         destId = state.mCurrentDestId;
                     }
-                    dispatchOnNavigatorNavigated(destId, newCount == 0);
+                    dispatchOnNavigatorNavigated(destId, isPopOperation);
                 }
             };
 
@@ -65,6 +68,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         mFragmentManager = manager;
         mContainerId = containerId;
 
+        mBackStackCount = mFragmentManager.getBackStackEntryCount();
         mFragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener);
     }
 
