@@ -16,9 +16,11 @@
 
 package android.support.v7.testutils;
 
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 
 import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.AnyOf.anyOf;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -27,13 +29,15 @@ import android.support.annotation.DrawableRes;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.ImageViewCompat;
 import android.view.View;
+import android.widget.ImageView;
 
 import org.hamcrest.Matcher;
 
 public class AppCompatTintableViewActions {
     /**
-     * Sets the passed color state list as the background layer on a {@link View}.
+     * Sets the passed color state list as the background tint on a {@link View}.
      */
     public static ViewAction setBackgroundTintList(final ColorStateList tint) {
         return new ViewAction() {
@@ -78,6 +82,58 @@ public class AppCompatTintableViewActions {
                 uiController.loopMainThreadUntilIdle();
 
                 ViewCompat.setBackgroundTintMode(view, mode);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets the passed color state list as the image source tint on a {@link View}.
+     */
+    public static ViewAction setImageSourceTintList(final ColorStateList tint) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return anyOf(isAssignableFrom(ImageView.class));
+            }
+
+            @Override
+            public String getDescription() {
+                return "set image source tint list";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ImageViewCompat.setImageTintList((ImageView) view, tint);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    /**
+     * Sets the passed mode as the image source tint mode on a <code>View</code>.
+     */
+    public static ViewAction setImageSourceTintMode(final PorterDuff.Mode mode) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return anyOf(isAssignableFrom(ImageView.class));
+            }
+
+            @Override
+            public String getDescription() {
+                return "set image source tint mode";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ImageViewCompat.setImageTintMode((ImageView) view, mode);
 
                 uiController.loopMainThreadUntilIdle();
             }
@@ -138,4 +194,32 @@ public class AppCompatTintableViewActions {
         };
     }
 
+    /**
+     * Sets image resource on a <code>View</code> that implements the
+     * <code>TintableBackgroundView</code> interface and also extends the
+     * <code>ImageView</code> base class.
+     */
+    public static ViewAction setImageResource(final @DrawableRes int resId) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return allOf(TestUtilsMatchers.isTintableBackgroundView(),
+                        isAssignableFrom(ImageView.class));
+            }
+
+            @Override
+            public String getDescription() {
+                return "set image resource";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                ((ImageView) view).setImageResource(resId);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
 }
