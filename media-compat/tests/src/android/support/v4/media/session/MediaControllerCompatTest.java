@@ -40,6 +40,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Test {@link MediaControllerCompat}.
  */
@@ -120,45 +123,51 @@ public class MediaControllerCompatTest {
     @Test
     @SmallTest
     public void testAddRemoveQueueItems() throws Exception {
-        final String mediaId = "media_id";
-        final String mediaTitle = "media_title";
-        MediaDescriptionCompat itemDescription = new MediaDescriptionCompat.Builder()
-                .setMediaId(mediaId).setTitle(mediaTitle).build();
+        final String mediaId1 = "media_id_1";
+        final String mediaTitle1 = "media_title_1";
+        MediaDescriptionCompat itemDescription1 = new MediaDescriptionCompat.Builder()
+                .setMediaId(mediaId1).setTitle(mediaTitle1).build();
+
+        final String mediaId2 = "media_id_2";
+        final String mediaTitle2 = "media_title_2";
+        MediaDescriptionCompat itemDescription2 = new MediaDescriptionCompat.Builder()
+                .setMediaId(mediaId2).setTitle(mediaTitle2).build();
 
         synchronized (mWaitLock) {
             mCallback.reset();
-            mController.addQueueItem(itemDescription);
+            mController.addQueueItem(itemDescription1);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnAddQueueItemCalled);
             assertEquals(-1, mCallback.mQueueIndex);
-            assertEquals(mediaId, mCallback.mQueueDescription.getMediaId());
-            assertEquals(mediaTitle, mCallback.mQueueDescription.getTitle());
+            assertEquals(mediaId1, mCallback.mQueueDescription.getMediaId());
+            assertEquals(mediaTitle1, mCallback.mQueueDescription.getTitle());
 
             mCallback.reset();
-            mController.addQueueItem(itemDescription, 0);
+            mController.addQueueItem(itemDescription2, 0);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnAddQueueItemAtCalled);
             assertEquals(0, mCallback.mQueueIndex);
-            assertEquals(mediaId, mCallback.mQueueDescription.getMediaId());
-            assertEquals(mediaTitle, mCallback.mQueueDescription.getTitle());
+            assertEquals(mediaId2, mCallback.mQueueDescription.getMediaId());
+            assertEquals(mediaTitle2, mCallback.mQueueDescription.getTitle());
 
             mCallback.reset();
             mController.removeQueueItemAt(0);
             mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnRemoveQueueItemAtCalled);
-            assertEquals(0, mCallback.mQueueIndex);
+            assertTrue(mCallback.mOnRemoveQueueItemCalled);
+            assertEquals(mediaId2, mCallback.mQueueDescription.getMediaId());
+            assertEquals(mediaTitle2, mCallback.mQueueDescription.getTitle());
 
             mCallback.reset();
-            mController.removeQueueItem(itemDescription);
+            mController.removeQueueItem(itemDescription1);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnRemoveQueueItemCalled);
-            assertEquals(mediaId, mCallback.mQueueDescription.getMediaId());
-            assertEquals(mediaTitle, mCallback.mQueueDescription.getTitle());
+            assertEquals(mediaId1, mCallback.mQueueDescription.getMediaId());
+            assertEquals(mediaTitle1, mCallback.mQueueDescription.getTitle());
 
             // Try to modify the queue when the session does not support queue management.
             mSession.setFlags(0);
             try {
-                mController.addQueueItem(itemDescription);
+                mController.addQueueItem(itemDescription1);
                 fail();
             } catch (UnsupportedOperationException e) {
                 // Expected.
@@ -405,6 +414,7 @@ public class MediaControllerCompatTest {
         private boolean mShuffleModeEnabled;
         private int mQueueIndex;
         private MediaDescriptionCompat mQueueDescription;
+        private List<MediaSessionCompat.QueueItem> mQueue = new ArrayList<>();
 
         private boolean mOnPlayCalled;
         private boolean mOnPauseCalled;
@@ -431,7 +441,6 @@ public class MediaControllerCompatTest {
         private boolean mOnAddQueueItemCalled;
         private boolean mOnAddQueueItemAtCalled;
         private boolean mOnRemoveQueueItemCalled;
-        private boolean mOnRemoveQueueItemAtCalled;
 
         public void reset() {
             mSeekPosition = -1;
@@ -475,7 +484,6 @@ public class MediaControllerCompatTest {
             mOnAddQueueItemCalled = false;
             mOnAddQueueItemAtCalled = false;
             mOnRemoveQueueItemCalled = false;
-            mOnRemoveQueueItemAtCalled = false;
         }
 
         @Override
@@ -664,6 +672,8 @@ public class MediaControllerCompatTest {
             synchronized (mWaitLock) {
                 mOnAddQueueItemCalled = true;
                 mQueueDescription = description;
+                mQueue.add(new MediaSessionCompat.QueueItem(description, mQueue.size()));
+                mSession.setQueue(mQueue);
                 mWaitLock.notify();
             }
         }
@@ -674,6 +684,8 @@ public class MediaControllerCompatTest {
                 mOnAddQueueItemAtCalled = true;
                 mQueueIndex = index;
                 mQueueDescription = description;
+                mQueue.add(index, new MediaSessionCompat.QueueItem(description, mQueue.size()));
+                mSession.setQueue(mQueue);
                 mWaitLock.notify();
             }
         }
@@ -682,7 +694,14 @@ public class MediaControllerCompatTest {
         public void onRemoveQueueItem(MediaDescriptionCompat description) {
             synchronized (mWaitLock) {
                 mOnRemoveQueueItemCalled = true;
-                mQueueDescription = description;
+                String mediaId = description.getMediaId();
+                for (int i = mQueue.size() - 1; i >= 0; --i) {
+                    if (mediaId.equals(mQueue.get(i).getDescription().getMediaId())) {
+                        mQueueDescription = mQueue.remove(i).getDescription();
+                        mSession.setQueue(mQueue);
+                        break;
+                    }
+                }
                 mWaitLock.notify();
             }
         }
@@ -701,15 +720,6 @@ public class MediaControllerCompatTest {
             synchronized (mWaitLock) {
                 mOnSetShuffleModeEnabledCalled = true;
                 mShuffleModeEnabled = enabled;
-                mWaitLock.notify();
-            }
-        }
-
-        @Override
-        public void onRemoveQueueItemAt(int index) {
-            synchronized (mWaitLock) {
-                mOnRemoveQueueItemAtCalled = true;
-                mQueueIndex = index;
                 mWaitLock.notify();
             }
         }
