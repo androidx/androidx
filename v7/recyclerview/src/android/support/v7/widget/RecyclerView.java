@@ -4160,31 +4160,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     /**
      * Call this method to signal that *all* adapter content has changed (generally, because of
      * swapAdapter, or notifyDataSetChanged), and that once layout occurs, all attached items should
-     * be discarded or animated. Note that this work is deferred because RecyclerView requires a
-     * layout to resolve non-incremental changes to the data set.
+     * be discarded or animated.
      *
-     * Attached items are labeled as position unknown, and may no longer be cached.
+     * Attached items are labeled as invalid, and all cached items are discarded.
      *
      * It is still possible for items to be prefetched while mDataSetHasChangedAfterLayout == true,
-     * so calling this method *must* be associated with marking the cache invalid, so that the
-     * only valid items that remain in the cache, once layout occurs, are prefetched items.
+     * so this method must always discard all cached views so that the only valid items that remain
+     * in the cache, once layout occurs, are valid prefetched items.
      */
     void setDataSetChangedAfterLayout() {
-        if (mDataSetHasChangedAfterLayout) {
-            return;
-        }
         mDataSetHasChangedAfterLayout = true;
-        final int childCount = mChildHelper.getUnfilteredChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
-            if (holder != null && !holder.shouldIgnore()) {
-                holder.addFlags(ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
-            }
-        }
-        mRecycler.setAdapterPositionsAsUnknown();
-
-        // immediately mark all views as invalid, so prefetched views can be
-        // differentiated from views bound to previous data set - both in children, and cache
         markKnownViewsInvalid();
     }
 
@@ -6215,16 +6200,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     recycleCachedViewAt(i);
                     // cached views should not be flagged as changed because this will cause them
                     // to animate when they are returned from cache.
-                }
-            }
-        }
-
-        void setAdapterPositionsAsUnknown() {
-            final int cachedCount = mCachedViews.size();
-            for (int i = 0; i < cachedCount; i++) {
-                final ViewHolder holder = mCachedViews.get(i);
-                if (holder != null) {
-                    holder.addFlags(ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
                 }
             }
         }

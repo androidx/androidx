@@ -283,7 +283,7 @@ final class GapWorker implements Runnable {
                 position, false, deadlineNs);
 
         if (holder != null) {
-            if (holder.isBound()) {
+            if (holder.isBound() && !holder.isInvalid()) {
                 // Only give the view a chance to go into the cache if binding succeeded
                 // Note that we must use public method, since item may need cleanup
                 recycler.recycleView(holder.itemView);
@@ -335,7 +335,10 @@ final class GapWorker implements Runnable {
         long taskDeadlineNs = task.immediate ? RecyclerView.FOREVER_NS : deadlineNs;
         RecyclerView.ViewHolder holder = prefetchPositionWithDeadline(task.view,
                 task.position, taskDeadlineNs);
-        if (holder != null && holder.mNestedRecyclerView != null) {
+        if (holder != null
+                && holder.mNestedRecyclerView != null
+                && holder.isBound()
+                && !holder.isInvalid()) {
             prefetchInnerRecyclerViewWithDeadline(holder.mNestedRecyclerView.get(), deadlineNs);
         }
     }
