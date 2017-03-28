@@ -22,12 +22,15 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.text.AllCapsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 @RequiresApi(9)
@@ -47,16 +50,11 @@ class AppCompatTextHelper {
     private TintInfo mDrawableRightTint;
     private TintInfo mDrawableBottomTint;
 
-    private final AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
+    private final @NonNull AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
 
     AppCompatTextHelper(TextView view) {
         mView = view;
-        // Auto-size is supported by the framework starting from Android O.
-        if (Build.VERSION.SDK_INT < 26) {
-            mAutoSizeTextHelper = new AppCompatTextViewAutoSizeHelper(mView);
-        } else {
-            mAutoSizeTextHelper = null;
-        }
+        mAutoSizeTextHelper = new AppCompatTextViewAutoSizeHelper(mView);
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
@@ -159,8 +157,29 @@ class AppCompatTextHelper {
             setAllCaps(allCaps);
         }
 
-        if (mAutoSizeTextHelper != null) {
-            mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
+        mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            // Delegate auto-size functionality to the framework implementation.
+            if (mAutoSizeTextHelper.getAutoSizeTextType()
+                    != TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE) {
+                final int[] autoSizeTextSizesInPx =
+                        mAutoSizeTextHelper.getAutoSizeTextAvailableSizes();
+                if (autoSizeTextSizesInPx.length > 0) {
+                    if (mView.getAutoSizeStepGranularity() != AppCompatTextViewAutoSizeHelper
+                            .UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE) {
+                        // Configured with granularity, preserve details.
+                        mView.setAutoSizeTextTypeUniformWithConfiguration(
+                                mAutoSizeTextHelper.getAutoSizeMinTextSize(),
+                                mAutoSizeTextHelper.getAutoSizeMaxTextSize(),
+                                mAutoSizeTextHelper.getAutoSizeStepGranularity(),
+                                TypedValue.COMPLEX_UNIT_PX);
+                    } else {
+                        mView.setAutoSizeTextTypeUniformWithPresetSizes(
+                                autoSizeTextSizesInPx, TypedValue.COMPLEX_UNIT_PX);
+                    }
+                }
+            }
         }
     }
 
@@ -252,28 +271,61 @@ class AppCompatTextHelper {
     }
 
     private boolean isAutoSizeEnabled() {
-        return mAutoSizeTextHelper != null && mAutoSizeTextHelper.isAutoSizeEnabled();
+        return mAutoSizeTextHelper.isAutoSizeEnabled();
     }
 
     private boolean getNeedsAutoSizeText() {
-        return mAutoSizeTextHelper != null && mAutoSizeTextHelper.getNeedsAutoSizeText();
+        return mAutoSizeTextHelper.getNeedsAutoSizeText();
     }
 
     private void setNeedsAutoSizeText(boolean needsAutoSizeText) {
-        if (mAutoSizeTextHelper != null) {
-            mAutoSizeTextHelper.setNeedsAutoSizeText(needsAutoSizeText);
-        }
+        mAutoSizeTextHelper.setNeedsAutoSizeText(needsAutoSizeText);
     }
 
     private void autoSizeText() {
-        if (mAutoSizeTextHelper != null) {
-            mAutoSizeTextHelper.autoSizeText();
-        }
+        mAutoSizeTextHelper.autoSizeText();
     }
 
     private void setTextSizeInternal(int unit, float size) {
-        if (mAutoSizeTextHelper != null) {
-            mAutoSizeTextHelper.setTextSizeInternal(unit, size);
-        }
+        mAutoSizeTextHelper.setTextSizeInternal(unit, size);
+    }
+
+    void setAutoSizeTextTypeWithDefaults(@TextViewCompat.AutoSizeTextType int autoSizeTextType) {
+        mAutoSizeTextHelper.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+    }
+
+    void setAutoSizeTextTypeUniformWithConfiguration(
+            int autoSizeMinTextSize,
+            int autoSizeMaxTextSize,
+            int autoSizeStepGranularity,
+            int unit) throws IllegalArgumentException {
+        mAutoSizeTextHelper.setAutoSizeTextTypeUniformWithConfiguration(
+                autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+    }
+
+    void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
+            throws IllegalArgumentException {
+        mAutoSizeTextHelper.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+    }
+
+    @TextViewCompat.AutoSizeTextType
+    int getAutoSizeTextType() {
+        return mAutoSizeTextHelper.getAutoSizeTextType();
+    }
+
+    int getAutoSizeStepGranularity() {
+        return mAutoSizeTextHelper.getAutoSizeStepGranularity();
+    }
+
+    int getAutoSizeMinTextSize() {
+        return mAutoSizeTextHelper.getAutoSizeMinTextSize();
+    }
+
+    int getAutoSizeMaxTextSize() {
+        return mAutoSizeTextHelper.getAutoSizeMaxTextSize();
+    }
+
+    int[] getAutoSizeTextAvailableSizes() {
+        return mAutoSizeTextHelper.getAutoSizeTextAvailableSizes();
     }
 }

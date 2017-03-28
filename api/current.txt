@@ -9191,13 +9191,23 @@ package android.support.v4.widget {
   }
 
   public final class TextViewCompat {
+    method public static int getAutoSizeMaxTextSize(android.widget.TextView);
+    method public static int getAutoSizeMinTextSize(android.widget.TextView);
+    method public static int getAutoSizeStepGranularity(android.widget.TextView);
+    method public static int[] getAutoSizeTextAvailableSizes(android.widget.TextView);
+    method public static int getAutoSizeTextType(android.widget.TextView);
     method public static android.graphics.drawable.Drawable[] getCompoundDrawablesRelative(android.widget.TextView);
     method public static int getMaxLines(android.widget.TextView);
     method public static int getMinLines(android.widget.TextView);
+    method public static void setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int) throws java.lang.IllegalArgumentException;
+    method public static void setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int) throws java.lang.IllegalArgumentException;
+    method public static void setAutoSizeTextTypeWithDefaults(android.widget.TextView, int);
     method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable, android.graphics.drawable.Drawable);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, int, int, int, int);
     method public static void setTextAppearance(android.widget.TextView, int);
+    field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
+    field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
   }
 
   public abstract interface TintableCompoundButton {
@@ -10884,8 +10894,6 @@ package android.support.v7.widget {
     ctor public AppCompatTextView(android.content.Context);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet, int);
-    field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
-    field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
   }
 
   public class CardView extends android.widget.FrameLayout {
