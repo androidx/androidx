@@ -1119,8 +1119,10 @@ public class RecyclerViewCacheTest {
 
         @Override
         public void onViewRecycled(ViewHolder holder) {
-            mSavedStates.set(holder.getAdapterPosition(),
-                    holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
+            if (holder.getAdapterPosition() >= 0) {
+                mSavedStates.set(holder.getAdapterPosition(),
+                        holder.mRecyclerView.getLayoutManager().onSaveInstanceState());
+            }
         }
 
         @Override
@@ -1174,5 +1176,56 @@ public class RecyclerViewCacheTest {
         // but if we give it more time to bind items, it'll now acquire its inner items
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         CacheUtils.verifyCacheContainsPrefetchedPositions(holder.mNestedRecyclerView.get(), 0, 1);
+    }
+
+
+    @Test
+    public void nestedPrefetchDiscardStalePrefetch() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        OuterNotifyAdapter outerAdapter = new OuterNotifyAdapter();
+        mRecyclerView.setAdapter(outerAdapter);
+
+        // zero cache, so item we prefetch can't already be ready
+        mRecyclerView.setItemViewCacheSize(0);
+
+        // layout as 2x2, starting on row index 2, with empty cache
+        layout(200, 200);
+        mRecyclerView.scrollBy(0, 200);
+
+        // no views cached, or previously used (so we can trust number in mItemsBound)
+        mRecycler.mRecyclerPool.clear();
+        assertEquals(0, mRecycler.mRecyclerPool.getRecycledViewCount(0));
+        assertEquals(0, mRecycler.mCachedViews.size());
+
+        // prefetch the outer item and its inner children
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+
+        // 4 is prefetched with 2 inner children, first two binds
+        CacheUtils.verifyCacheContainsPrefetchedPositions(mRecyclerView, 4);
+        RecyclerView.ViewHolder holder = CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 4);
+        assertNotNull(holder);
+        assertNotNull(holder.mNestedRecyclerView);
+        RecyclerView innerRecyclerView = holder.mNestedRecyclerView.get();
+        assertEquals(0, innerRecyclerView.mChildHelper.getUnfilteredChildCount());
+        assertEquals(2, innerRecyclerView.mRecycler.mCachedViews.size());
+        assertEquals(2, ((InnerAdapter) innerRecyclerView.getAdapter()).mItemsBound);
+
+        // notify data set changed, so any previously prefetched items invalid, and re-prefetch
+        innerRecyclerView.getAdapter().notifyDataSetChanged();
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+
+        // 4 is prefetched again...
+        CacheUtils.verifyCacheContainsPrefetchedPositions(mRecyclerView, 4);
+
+        // reusing the same instance with 2 inner children...
+        assertSame(holder, CacheUtils.peekAtCachedViewForPosition(mRecyclerView, 4));
+        assertSame(innerRecyclerView, holder.mNestedRecyclerView.get());
+        assertEquals(0, innerRecyclerView.mChildHelper.getUnfilteredChildCount());
+        assertEquals(2, innerRecyclerView.mRecycler.mCachedViews.size());
+
+        // ... but there should be two new binds
+        assertEquals(4, ((InnerAdapter) innerRecyclerView.getAdapter()).mItemsBound);
     }
 }
