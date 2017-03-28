@@ -24,7 +24,6 @@ android {
         main.java.srcDirs = [
                 'ics',
                 'jellybean',
-                'jellybean-mr1',
                 'kitkat',
                 'api20',
                 'api21',

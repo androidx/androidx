@@ -7378,7 +7378,7 @@ package android.support.v4.text {
   public final class TextUtilsCompat {
     method public static int getLayoutDirectionFromLocale(java.util.Locale);
     method public static java.lang.String htmlEncode(java.lang.String);
-    field public static final java.util.Locale ROOT;
+    field public static final deprecated java.util.Locale ROOT;
   }
 
 }
