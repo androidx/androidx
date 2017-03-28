@@ -34,24 +34,6 @@ class ActivityCompatApi23 {
         void onSharedElementsReady();
     }
 
-    public interface RequestPermissionsRequestCodeValidator {
-        void validateRequestPermissionsRequestCode(int requestCode);
-    }
-
-    public static void requestPermissions(Activity activity, String[] permissions,
-            int requestCode) {
-        if (activity instanceof RequestPermissionsRequestCodeValidator) {
-            ((RequestPermissionsRequestCodeValidator) activity)
-                    .validateRequestPermissionsRequestCode(requestCode);
-        }
-        activity.requestPermissions(permissions, requestCode);
-    }
-
-    public static boolean shouldShowRequestPermissionRationale(Activity activity,
-            String permission) {
-        return activity.shouldShowRequestPermissionRationale(permission);
-    }
-
     public static void setEnterSharedElementCallback(Activity activity,
             SharedElementCallback23 callback) {
         activity.setEnterSharedElementCallback(createCallback(callback));
