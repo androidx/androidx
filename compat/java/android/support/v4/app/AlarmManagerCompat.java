@@ -55,7 +55,7 @@ public final class AlarmManagerCompat {
     public static void setAlarmClock(AlarmManager alarmManager, long triggerTime,
             PendingIntent showIntent, PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 21) {
-            AlarmManagerCompatApi21.setAlarmClock(alarmManager, triggerTime, showIntent,
+            alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, showIntent),
                     operation);
         } else {
             AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, triggerTime,
@@ -113,8 +113,7 @@ public final class AlarmManagerCompat {
     public static void setAndAllowWhileIdle(AlarmManager alarmManager, int type,
             long triggerAtMillis, PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 23) {
-            AlarmManagerCompatApi23.setAndAllowWhileIdle(alarmManager, type, triggerAtMillis,
-                    operation);
+            alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
         } else {
             alarmManager.set(type, triggerAtMillis, operation);
         }
@@ -159,7 +158,7 @@ public final class AlarmManagerCompat {
     public static void setExact(AlarmManager alarmManager, int type, long triggerAtMillis,
             PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 19) {
-            AlarmManagerCompatKitKat.setExact(alarmManager, type, triggerAtMillis, operation);
+            alarmManager.setExact(type, triggerAtMillis, operation);
         } else {
             alarmManager.set(type, triggerAtMillis, operation);
         }
@@ -219,8 +218,7 @@ public final class AlarmManagerCompat {
     public static void setExactAndAllowWhileIdle(AlarmManager alarmManager, int type,
             long triggerAtMillis, PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 23) {
-            AlarmManagerCompatApi23.setExactAndAllowWhileIdle(alarmManager, type, triggerAtMillis,
-                    operation);
+            alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);
         } else {
             AlarmManagerCompat.setExact(alarmManager, type, triggerAtMillis, operation);
         }
