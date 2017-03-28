@@ -30,7 +30,6 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under,ics) \
     $(call all-java-files-under,jellybean) \
     $(call all-java-files-under,jellybean-mr1) \
-    $(call all-java-files-under,jellybean-mr2) \
     $(call all-java-files-under,kitkat) \
     $(call all-java-files-under,api20) \
     $(call all-java-files-under,api21) \
