@@ -25,10 +25,10 @@ external/noto-fonts/emoji/NotoColorEmoji.ttf
 
 - Unicode files: Unicode files that are in the framework, and lists information about all the
 emojis. These files are emoji-data.txt, emoji-sequences.txt, emoji-zwj-sequences.txt,
-StandardizedVariants.txt. Currently at external/unicode/.
+and StandardizedVariants.txt. Currently at external/unicode/.
 
-- android-emoji-data.txt: Includes emojis that are not defined in Unicode files, but are in
-the Android font.
+- additions/emoji-zwj-sequences.txt: Includes emojis that are not defined in Unicode files, but are
+in the Android font. Resides in framework and currently under external/unicode/.
 
 - data/emoji_metadata.txt: The file that includes the id, codepoints, the first Android OS version
 that the emoji was added (sdkAdded), and finally the first EmojiCompat font version that the emoji
@@ -64,10 +64,13 @@ EMOJI_DATA_FILE = 'emoji-data.txt'
 EMOJI_SEQ_FILE = 'emoji-sequences.txt'
 EMOJI_ZWJ_FILE = 'emoji-zwj-sequences.txt'
 EMOJI_STD_VARIANTS_FILE = 'StandardizedVariants.txt'
+# Android OS emoji file for emojis that are not in Unicode files
+ANDROID_EMOJIS_FILE = os.path.join('additions', 'emoji-zwj-sequences.txt')
+# Android OS emoji style override file. Codepoints that are rendered with emoji style by default
+# even though not defined so in <code>emoji-data.txt</code>.
+EMOJI_STYLE_OVERRIDE_FILE = os.path.join('additions', 'emoji-data.txt')
 # library specific input directory
 INPUT_DIR = os.path.join(SCRIPT_DIR, "data")
-# emojis that are not defined in unicode files
-ANDROID_EMOJIS_FILE = os.path.join(INPUT_DIR, 'android-emoji-data.txt')
 # emoji metadata file
 INPUT_CSV_FILE = os.path.join(INPUT_DIR, 'emoji_metadata.txt')
 # flatbuffer schema
@@ -105,10 +108,6 @@ FLATBUFFER_JAVA_TARGET = os.path.join(EMOJI_CORE_DIR, 'src', FLATBUFFER_PACKAGE_
 # meta tag name used in the font to embed the emoji metadata. This value is also used in
 # MetadataListReader.java in order to locate the metadata location.
 EMOJI_META_TAG_NAME = 'Emji'
-# Codepoints that are rendered with emoji style by default even though not defined so in
-# <code>emoji-data.txt</code>. Defined in <code>fontchain_lint.py</code>.
-EMOJI_STYLE_EXCEPTIONS = [0x2600, 0x2601, 0x260e, 0x261d, 0x263a, 0x2660,
-                          0x2663, 0x2665, 0x2666, 0x270c, 0x2744, 0x2764]
 
 EMOJI_PRESENTATION_STR = 'EMOJI_PRESENTATION'
 STD_VARIANTS_EMOJI_STYLE = 'EMOJI STYLE'
@@ -138,7 +137,6 @@ def codepoint_to_string(codepoints):
     """Converts a list of codepoints into a string separated with space."""
     return ' '.join([to_hex_str(x) for x in codepoints])
 
-
 def prepend_header_to_file(file_path):
     """Prepends the header to the file. Used to update flatbuffer java files with header, comments
     and annotations."""
@@ -162,9 +160,15 @@ def update_flatbuffer_java_files(flatbuffer_java_dir):
 def create_test_data(unicode_path):
     """Read all the emojis in the unicode files and update the test file"""
     lines = read_emoji_lines(os.path.join(unicode_path, EMOJI_ZWJ_FILE))
-    lines = lines + read_emoji_lines(os.path.join(unicode_path, EMOJI_SEQ_FILE))
-    if os.path.isfile(ANDROID_EMOJIS_FILE):
-        lines = lines + read_emoji_lines(ANDROID_EMOJIS_FILE)
+    lines += read_emoji_lines(os.path.join(unicode_path, EMOJI_SEQ_FILE))
+
+    android_emojis_file_path = os.path.join(unicode_path, ANDROID_EMOJIS_FILE)
+    # Add the optional ANDROID_EMOJIS_FILE if it exists.
+    try:
+        lines += read_emoji_lines(android_emojis_file_path)
+    except IOError:
+        pass
+
     # standardized variants contains a huge list of sequences, only read the ones that are emojis
     # and also the ones with FE0F (emoji style)
     standardized_variants_lines = read_emoji_lines(
@@ -187,8 +191,9 @@ def create_test_data(unicode_path):
                           codepoints_for_emojirange(codepoints_range)]
             emojis_set.update(codepoints)
 
+    emoji_style_exceptions = get_emoji_style_exceptions(unicode_path)
     #  finally add the android default emoji exceptions
-    emojis_set.update([to_hex_str(x) for x in EMOJI_STYLE_EXCEPTIONS])
+    emojis_set.update([to_hex_str(x) for x in emoji_style_exceptions])
 
     emojis_list = list(emojis_set)
     emojis_list.sort()
@@ -251,11 +256,21 @@ def read_emoji_lines(file_path):
     :return: list of uppercase strings
     """
     result = []
-    for line in open(file_path):
-        line = line.strip()
-        if line and not line.startswith('#'):
-            result.append(line.upper())
+    with open(file_path) as file_stream:
+        for line in file_stream:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                result.append(line.upper())
     return result
+
+def get_emoji_style_exceptions(unicode_path):
+    """Read EMOJI_STYLE_OVERRIDE_FILE and return the codepoints as integers"""
+    lines = read_emoji_lines(os.path.join(unicode_path, EMOJI_STYLE_OVERRIDE_FILE))
+    exceptions = []
+    for line in lines:
+        codepoint = hex_str_to_int(codepoints_and_emoji_prop(line)[0])
+        exceptions.append(codepoint)
+    return exceptions
 
 def codepoints_for_emojirange(codepoints_range):
     """ Return codepoints given in emoji files. Expand the codepoints that are given as a range
@@ -285,7 +300,7 @@ def codepoints_and_emoji_prop(line):
 
     return codepoints_range, emoji_property
 
-def read_emoji_intervals(emoji_data_map, file_path):
+def read_emoji_intervals(emoji_data_map, file_path, emoji_style_exceptions):
     """Read unicode lines of unicode emoji file in which each line describes a set of codepoint
     intervals. Expands the interval on a line and inserts related EmojiDatas into emoji_data_map.
     A line format that is expected is as follows:
@@ -299,7 +314,7 @@ def read_emoji_intervals(emoji_data_map, file_path):
 
         for codepoint in codepoints:
             key = codepoint_to_string([codepoint])
-            codepoint_is_emoji_style = is_emoji_style or codepoint in EMOJI_STYLE_EXCEPTIONS
+            codepoint_is_emoji_style = is_emoji_style or codepoint in emoji_style_exceptions
             if key in emoji_data_map:
                 # since there are multiple definitions of emojis, only update when emoji style is
                 # True
@@ -329,13 +344,18 @@ def load_emoji_data_map(unicode_path):
     :return: map of space separated codepoints to EmojiData
     """
     emoji_data_map = {}
-    read_emoji_intervals(emoji_data_map, os.path.join(unicode_path, EMOJI_DATA_FILE))
+    emoji_style_exceptions = get_emoji_style_exceptions(unicode_path)
+    read_emoji_intervals(emoji_data_map, os.path.join(unicode_path, EMOJI_DATA_FILE),
+                         emoji_style_exceptions)
     read_emoji_sequences(emoji_data_map, os.path.join(unicode_path, EMOJI_ZWJ_FILE))
     read_emoji_sequences(emoji_data_map, os.path.join(unicode_path, EMOJI_SEQ_FILE))
 
-    # EMOJI_NEW_FILE is optional
-    if os.path.isfile(ANDROID_EMOJIS_FILE):
-        read_emoji_sequences(emoji_data_map, ANDROID_EMOJIS_FILE)
+    # Add the optional ANDROID_EMOJIS_FILE if it exists.
+    android_emojis_file_path = os.path.join(unicode_path, ANDROID_EMOJIS_FILE)
+    try:
+        read_emoji_sequences(emoji_data_map, android_emojis_file_path)
+    except IOError:
+        pass
 
     return emoji_data_map
 
