@@ -14,6 +14,7 @@
 package android.support.v4.os;
 
 import android.os.Build;
+import android.os.Trace;
 
 /**
  * Writes trace events to the system trace buffer.  These trace events can be
@@ -41,7 +42,7 @@ public final class TraceCompat {
 
     public static void beginSection(String sectionName) {
         if (Build.VERSION.SDK_INT >= 18) {
-            TraceJellybeanMR2.beginSection(sectionName);
+            Trace.beginSection(sectionName);
         }
     }
 
@@ -54,7 +55,7 @@ public final class TraceCompat {
      */
     public static void endSection() {
         if (Build.VERSION.SDK_INT >= 18) {
-            TraceJellybeanMR2.endSection();
+            Trace.endSection();
         }
     }
 
