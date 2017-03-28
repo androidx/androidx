@@ -75,6 +75,11 @@
                 android:theme="@style/Theme.TextColors" />
 
         <activity
+                android:name="android.support.v7.widget.AppCompatImageButtonActivity"
+                android:label="@string/app_compat_image_button_activity"
+                android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
                 android:name="android.support.v7.widget.AppCompatImageViewActivity"
                 android:label="@string/app_compat_image_view_activity"
                 android:theme="@style/Theme.AppCompat.Light" />
