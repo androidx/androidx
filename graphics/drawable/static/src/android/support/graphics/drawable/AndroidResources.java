@@ -49,7 +49,7 @@ class AndroidResources {
             android.R.attr.strokeColor, android.R.attr.strokeWidth, android.R.attr.trimPathStart,
             android.R.attr.trimPathEnd, android.R.attr.trimPathOffset, android.R.attr.strokeLineCap,
             android.R.attr.strokeLineJoin, android.R.attr.strokeMiterLimit,
-            android.R.attr.strokeAlpha, android.R.attr.fillAlpha
+            android.R.attr.strokeAlpha, android.R.attr.fillAlpha, android.R.attr.fillType
     };
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_ALPHA = 12;
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_COLOR = 1;
@@ -64,6 +64,7 @@ class AndroidResources {
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_END = 6;
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_OFFSET = 7;
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_START = 5;
+    static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_FILLTYPE = 13;
     static final int[] STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH = {
             android.R.attr.name, android.R.attr.pathData
     };
