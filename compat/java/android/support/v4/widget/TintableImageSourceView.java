@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,57 +14,62 @@
  * limitations under the License.
  */
 
-package android.support.v4.view;
+package android.support.v4.widget;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 /**
- * Interface which allows a {@link android.view.View} to receive background tinting calls from
- * {@link ViewCompat} when running on API v20 devices or lower.
+ * Interface which allows an {@link android.widget.ImageView} to receive image tinting calls
+ * from {@link ImageViewCompat} when running on API v20 devices or lower.
+ *
+ * @hide Internal use only
  */
-public interface TintableBackgroundView {
+@RestrictTo(LIBRARY_GROUP)
+public interface TintableImageSourceView {
 
     /**
-     * Applies a tint to the background drawable. Does not modify the current tint
+     * Applies a tint to the image drawable. Does not modify the current tint
      * mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
      * <p>
-     * Subsequent calls to {@code View.setBackground(Drawable)} will automatically
+     * Subsequent calls to the source's image will automatically
      * mutate the drawable and apply the specified tint and tint mode.
      *
      * @param tint the tint to apply, may be {@code null} to clear tint
      *
-     * @see #getSupportBackgroundTintList()
+     * @see #getSupportImageTintList()
      */
-    void setSupportBackgroundTintList(@Nullable ColorStateList tint);
+    void setSupportImageTintList(@Nullable ColorStateList tint);
 
     /**
-     * Return the tint applied to the background drawable, if specified.
+     * Return the tint applied to the image drawable, if specified.
      *
-     * @return the tint applied to the background drawable
+     * @return the tint applied to the image drawable
      */
     @Nullable
-    ColorStateList getSupportBackgroundTintList();
+    ColorStateList getSupportImageTintList();
 
     /**
      * Specifies the blending mode used to apply the tint specified by
-     * {@link #setSupportBackgroundTintList(ColorStateList)}} to the background
+     * {@link #setSupportImageTintList(ColorStateList)}} to the image
      * drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
      *
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
-     * @see #getSupportBackgroundTintMode()
+     * @see #getSupportImageTintMode()
      */
-    void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode);
+    void setSupportImageTintMode(@Nullable PorterDuff.Mode tintMode);
 
     /**
-     * Return the blending mode used to apply the tint to the background
+     * Return the blending mode used to apply the tint to the image
      * drawable, if specified.
      *
-     * @return the blending mode used to apply the tint to the background
-     *         drawable
+     * @return the blending mode used to apply the tint to the image drawable
      */
     @Nullable
-    PorterDuff.Mode getSupportBackgroundTintMode();
+    PorterDuff.Mode getSupportImageTintMode();
 }

@@ -2867,7 +2867,7 @@ public class ViewCompat {
      * Applies a tint to the background drawable.
      * <p>
      * This will always take effect when running on API v21 or newer. When running on platforms
-     * previous to API v21, it will only take effect if {@code view} implement the
+     * previous to API v21, it will only take effect if {@code view} implements the
      * {@code TintableBackgroundView} interface.
      */
     public static void setBackgroundTintList(View view, ColorStateList tintList) {
@@ -2897,6 +2897,7 @@ public class ViewCompat {
     public static void setBackgroundTintMode(View view, PorterDuff.Mode mode) {
         IMPL.setBackgroundTintMode(view, mode);
     }
+
     // TODO: getters for various view properties (rotation, etc)
 
     /**
