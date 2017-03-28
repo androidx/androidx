@@ -17,6 +17,7 @@
 package com.android.support.room.solver.query.result
 
 import com.android.support.room.ext.L
+import com.android.support.room.ext.S
 import com.android.support.room.ext.T
 import com.android.support.room.ext.typeName
 import com.android.support.room.processor.Context
@@ -29,6 +30,8 @@ import com.android.support.room.vo.Pojo
 import com.android.support.room.vo.RelationCollector
 import com.android.support.room.vo.Warning
 import com.android.support.room.writer.FieldReadWriteWriter
+import com.squareup.javapoet.TypeName
+import stripNonJava
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -45,7 +48,7 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
         // toMutableList documentation is not clear if it copies so lets be safe.
         val remainingFields = pojo.fields.mapTo(mutableListOf<Field>(), { it })
         val unusedColumns = arrayListOf<String>()
-        val associations = info.columns.mapIndexed { index, column ->
+        val matchedFields = info.columns.map { column ->
             // first check remaining, otherwise check any. maybe developer wants to map the same
             // column into 2 fields. (if they want to post process etc)
             val field = remainingFields.firstOrNull { it.columnName == column.name } ?:
@@ -55,7 +58,7 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
                 null
             } else {
                 remainingFields.remove(field)
-                FieldWithIndex(field, index.toString())
+                field
             }
         }.filterNotNull()
         if (unusedColumns.isNotEmpty() || remainingFields.isNotEmpty()) {
@@ -68,14 +71,14 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
             )
             context.logger.w(Warning.CURSOR_MISMATCH, null, warningMsg)
         }
-        if (associations.isEmpty()) {
+        if (matchedFields.isEmpty()) {
             context.logger.e(ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
         }
 
         relationCollectors = RelationCollector.createCollectors(context, pojo.relations)
 
         mapping = Mapping(
-                associations = associations,
+                matchedFields = matchedFields,
                 unusedColumns = unusedColumns,
                 unusedFields = remainingFields
         )
@@ -94,18 +97,24 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
 
     override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
         relationCollectors.forEach { it.writeInitCode(scope) }
+        mapping.fieldsWithIndices = mapping.matchedFields.map {
+            val indexVar = scope.getTmpVar("_cursorIndexOf${it.name.stripNonJava().capitalize()}")
+            scope.builder().addStatement("final $T $L = $L.getColumnIndexOrThrow($S)",
+                    TypeName.INT, indexVar, cursorVarName, it.columnName)
+            FieldWithIndex(it, indexVar)
+        }
     }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             addStatement("$L = new $T()", outVarName, out.typeName())
             FieldReadWriteWriter.readFromCursor(outVarName, cursorVarName,
-                    mapping.associations, scope)
+                    mapping.fieldsWithIndices, scope)
             relationCollectors.forEach {
                 it.writeReadParentKeyCode(
                         cursorVarName = cursorVarName,
                         itemVar = outVarName,
-                        fieldsWithIndices = mapping.associations,
+                        fieldsWithIndices = mapping.fieldsWithIndices,
                         scope = scope)
             }
         }
@@ -124,7 +133,10 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
                 }
             }
 
-    data class Mapping(val associations: List<FieldWithIndex>,
+    data class Mapping(val matchedFields: List<Field>,
                        val unusedColumns: List<String>,
-                       val unusedFields: List<Field>)
+                       val unusedFields: List<Field>) {
+        // set when cursor is ready.
+        lateinit var fieldsWithIndices: List<FieldWithIndex>
+    }
 }

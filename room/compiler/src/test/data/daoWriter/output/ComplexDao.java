@@ -29,12 +29,14 @@ public class ComplexDao_Impl extends ComplexDao {
         _statement.bindLong(_argIndex, id);
         final Cursor _cursor = __db.query(_statement);
         try {
+            final int _cursorIndexOfFullName = _cursor.getColumnIndexOrThrow("fullName");
+            final int _cursorIndexOfId = _cursor.getColumnIndexOrThrow("id");
             final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final ComplexDao.FullName _item;
                 _item = new ComplexDao.FullName();
-                _item.fullName = _cursor.getString(0);
-                _item.id = _cursor.getInt(1);
+                _item.fullName = _cursor.getString(_cursorIndexOfFullName);
+                _item.id = _cursor.getInt(_cursorIndexOfId);
                 _result.add(_item);
             }
             return _result;
