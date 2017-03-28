@@ -25,7 +25,6 @@ android {
                 'ics',
                 'jellybean',
                 'jellybean-mr1',
-                'jellybean-mr2',
                 'kitkat',
                 'api20',
                 'api21',
