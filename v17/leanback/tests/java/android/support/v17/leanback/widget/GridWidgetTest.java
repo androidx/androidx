@@ -791,6 +791,73 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testAddLastItemHorizontal() throws Throwable {
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mGridView.setSelectedPositionSmooth(49);
+                    }
+                }
+        );
+        waitForScrollIdle(mVerifyLayout);
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(50, new int[]{150});
+            }
+        });
+
+        // assert new added item aligned to right edge
+        assertEquals(mGridView.getWidth() - mGridView.getPaddingRight(),
+                mGridView.getLayoutManager().findViewByPosition(50).getRight());
+    }
+
+    @Test
+    public void testAddMultipleLastItemsHorizontal() throws Throwable {
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_BOTH_EDGE);
+                        mGridView.setWindowAlignmentOffsetPercent(50);
+                        mGridView.setSelectedPositionSmooth(49);
+                    }
+                }
+        );
+        waitForScrollIdle(mVerifyLayout);
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(50, new int[]{150, 150, 150, 150, 150, 150, 150, 150, 150,
+                        150, 150, 150, 150, 150});
+            }
+        });
+
+        // The focused item will be at center of window
+        View view = mGridView.getLayoutManager().findViewByPosition(49);
+        assertEquals(mGridView.getWidth() / 2, (view.getLeft() + view.getRight()) / 2);
+    }
+
+    @Test
     public void testItemAddRemoveHorizontal() throws Throwable {
 
         Intent intent = new Intent();
