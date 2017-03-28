@@ -2019,10 +2019,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (mInFastRelayout = layoutInit()) {
             fastRelayout();
-            // appends items till focus position.
-            if (mFocusPosition != NO_POSITION) {
-                scrollToFocusViewInLayout(hadFocus, scrollToFocus);
-            }
         } else {
             mInLayoutSearchFocus = hadFocus;
             if (mFocusPosition != NO_POSITION) {
@@ -2030,23 +2026,24 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 while (appendOneColumnVisibleItems()
                         && findViewByPosition(mFocusPosition) == null) ;
             }
-            // multiple rounds: scrollToView of first round may drag first/last child into
-            // "visible window" and we update scrollMin/scrollMax then run second scrollToView
-            int oldFirstVisible;
-            int oldLastVisible;
-            do {
-                updateScrollMin();
-                updateScrollMax();
-                oldFirstVisible = mGrid.getFirstVisibleIndex();
-                oldLastVisible = mGrid.getLastVisibleIndex();
-                scrollToFocusViewInLayout(hadFocus, true);
-                appendVisibleItems();
-                prependVisibleItems();
-                removeInvisibleViewsAtFront();
-                removeInvisibleViewsAtEnd();
-            } while (mGrid.getFirstVisibleIndex() != oldFirstVisible
-                    || mGrid.getLastVisibleIndex() != oldLastVisible);
         }
+        // multiple rounds: scrollToView of first round may drag first/last child into
+        // "visible window" and we update scrollMin/scrollMax then run second scrollToView
+        // we must do this for fastRelayout() for the append item case
+        int oldFirstVisible;
+        int oldLastVisible;
+        do {
+            updateScrollMin();
+            updateScrollMax();
+            oldFirstVisible = mGrid.getFirstVisibleIndex();
+            oldLastVisible = mGrid.getLastVisibleIndex();
+            scrollToFocusViewInLayout(hadFocus, scrollToFocus);
+            appendVisibleItems();
+            prependVisibleItems();
+            removeInvisibleViewsAtFront();
+            removeInvisibleViewsAtEnd();
+        } while (mGrid.getFirstVisibleIndex() != oldFirstVisible
+                || mGrid.getLastVisibleIndex() != oldLastVisible);
 
         if (scrollToFocus) {
             scrollDirectionPrimary(-delta);
