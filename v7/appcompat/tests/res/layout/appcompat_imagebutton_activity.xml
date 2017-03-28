@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2016 The Android Open Source Project
+<!-- Copyright (C) 2017 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -25,75 +25,63 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_tinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:src="@drawable/test_drawable_blue"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in" />
+            app:backgroundTintMode="src_in"/>
 
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_tinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/test_drawable_blue"
             android:background="@drawable/test_drawable"
+            android:src="@drawable/test_drawable_blue"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in" />
+            app:backgroundTintMode="src_in"/>
 
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/test_drawable_blue" />
+            android:background="@null"
+            android:src="@drawable/test_drawable_blue"/>
 
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/test_drawable_blue"
-            android:background="@drawable/test_background_green" />
+            android:background="@drawable/test_background_green"
+            android:src="@drawable/test_drawable_blue"/>
 
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/view_android_src_srccompat"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/test_drawable_blue"
-            app:srcCompat="@drawable/test_drawable_red" />
-
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_tinted_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/test_drawable_blue"
             app:tint="@color/color_state_list_lilac"
-            app:tintMode="src_in" />
+            app:tintMode="src_in"/>
 
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_tinted_no_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tint="@color/color_state_list_lilac"
-            app:tintMode="src_in" />
+            app:tintMode="src_in"/>
 
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_untinted_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/test_drawable_blue" />
+            android:src="@drawable/test_drawable_blue"/>
 
-        <android.support.v7.widget.AppCompatImageView
+        <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/view_untinted_no_source"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/view_tinted_android_src_srccompat"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/test_drawable_blue"
-            app:srcCompat="@drawable/test_drawable_red" />
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
