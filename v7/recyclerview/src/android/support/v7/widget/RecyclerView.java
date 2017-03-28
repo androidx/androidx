@@ -11627,7 +11627,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         void prepareForNestedPrefetch(Adapter adapter) {
             mLayoutStep = STEP_START;
             mItemCount = adapter.getItemCount();
-            mStructureChanged = false;
             mInPreLayout = false;
             mTrackOldChangeHolders = false;
             mIsMeasuring = false;
