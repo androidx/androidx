@@ -195,6 +195,8 @@
      <public type="attr" name="tickMark"/>
      <public type="attr" name="tickMarkTint"/>
      <public type="attr" name="tickMarkTintMode"/>
+     <public type="attr" name="tint"/>
+     <public type="attr" name="tintMode"/>
      <public type="attr" name="title"/>
      <public type="attr" name="titleMargin"/>
      <public type="attr" name="titleMarginBottom"/>
