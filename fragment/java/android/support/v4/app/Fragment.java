@@ -1127,9 +1127,21 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      * @return The LayoutInflater used to inflate Views of this Fragment.
      */
-    public LayoutInflater getLayoutInflater(Bundle savedInstanceState) {
+    public LayoutInflater onGetLayoutInflater(Bundle savedInstanceState) {
+        // TODO: move the implementation in getLayoutInflater to here
+        return getLayoutInflater(savedInstanceState);
+    }
+
+    /**
+     * Use {@link #onGetLayoutInflater(Bundle)} instead
+     * @hide
+     * @deprecated Use {@link #onGetLayoutInflater(Bundle)} instead.
+     */
+    @Deprecated
+    @RestrictTo(LIBRARY_GROUP)
+    public LayoutInflater getLayoutInflater(Bundle savedFragmentState) {
         if (mHost == null) {
-            throw new IllegalStateException("getLayoutInflater() cannot be executed until the "
+            throw new IllegalStateException("onGetLayoutInflater() cannot be executed until the "
                     + "Fragment is attached to the FragmentManager.");
         }
         LayoutInflater result = mHost.onGetLayoutInflater();
