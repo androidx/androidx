@@ -352,6 +352,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onCreate(vh);
             }
+            RowPresenter rowPresenter = (RowPresenter) vh.getPresenter();
+            RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(vh.getViewHolder());
+            rowVh.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
+            rowVh.setOnItemViewClickedListener(mOnItemViewClickedListener);
         }
 
         @Override
@@ -365,8 +369,6 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
             setRowViewExpanded(vh, mExpand);
             RowPresenter rowPresenter = (RowPresenter) vh.getPresenter();
             RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(vh.getViewHolder());
-            rowVh.setOnItemViewSelectedListener(mOnItemViewSelectedListener);
-            rowVh.setOnItemViewClickedListener(mOnItemViewClickedListener);
             rowPresenter.setEntranceTransitionState(rowVh, mAfterEntranceTransition);
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onAttachedToWindow(vh);
