@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 
 package com.android.support.lifecycle;
 
-import android.app.Application;
-
 /**
  * ViewModel is a class that is responsible for preparing and managing the data for
  * an {@link android.app.Activity Activity} or a {@link android.support.v4.app.Fragment Fragment}.
  * It also handles the communication of the Activity / Fragment with the rest of the application
  * (e.g. calling the business logic classes).
  * <p>
- * A ViewModel is always created in association with a LifecycleProvider and will be retained
- * as long as the scope (LifecycleProvider) is alive. E.g. if it is an Activity, until it is
+ * A ViewModel is always created in association with a scope (an fragment or an activity) and will
+ * be retained as long as the scope is alive. E.g. if it is an Activity, until it is
  * finished.
  * <p>
  * In other words, this means that a ViewModel will not be destroyed if its owner is destroyed for a
@@ -48,7 +46,7 @@ import android.app.Application;
  *     protected void onCreate(Bundle savedInstanceState) {
  *         super.onCreate(savedInstanceState);
  *         setContentView(R.layout.user_activity_layout);
- *         final UserModel viewModel = ViewModelStore.get(this, "userModel", UserModel.class);
+ *         final UserModel viewModel = ViewModelProviders.of(this).get(UserModel.class);
  *         viewModel.userLiveData.observer(this, new Observer<User>() {
  *            {@literal @}Override
  *             public void onChanged(@Nullable User data) {
@@ -89,33 +87,13 @@ import android.app.Application;
  * <pre>
  * public class MyFragment extends Fragment {
  *     public void onStart() {
- *         UserModel userModel = ViewModelStore.get(getActivity(), "sharedModel", UserModel.class);
+ *         UserModel userModel = ViewModelProviders.of(getActivity()).get(UserModel.class);
  *     }
  * }
  * </pre>
  * </>
  */
-@SuppressWarnings("WeakerAccess")
 public abstract class ViewModel {
-
-    private final Application mApplication;
-
-    /**
-     * Constructor used by {@link ViewModelStore} to instantiate this ViewModel
-     */
-    public ViewModel() {
-        this(ViewModelStore.getApplication());
-    }
-
-    /**
-     * Convenience constructor for testing to give developers a way to mock an application used in
-     * this ViewModel
-     * @param application an application to use in this ViewModel
-     */
-    public ViewModel(Application application) {
-        mApplication = application;
-    }
-
     /**
      * This method will be called when this ViewModel is no longer used and will be destroyed.
      * <p>
@@ -124,15 +102,5 @@ public abstract class ViewModel {
      */
     @SuppressWarnings("WeakerAccess")
     protected void onCleared() {
-    }
-
-    /**
-     * Return an application.
-     *
-     * @return an application
-     */
-    public <T extends Application> T getApplication() {
-        //noinspection unchecked
-        return (T) mApplication;
     }
 }

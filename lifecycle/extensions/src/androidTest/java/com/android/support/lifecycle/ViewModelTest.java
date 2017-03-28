@@ -36,7 +36,6 @@ import com.android.support.lifecycle.viewmodeltest.TestViewModel;
 import com.android.support.lifecycle.viewmodeltest.ViewModelActivity;
 import com.android.support.lifecycle.viewmodeltest.ViewModelActivity.ViewModelFragment;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,41 +112,6 @@ public class ViewModelTest {
     }
 
     @Test
-    @UiThreadTest
-    public void twoViewModels() throws Throwable {
-        ViewModelActivity activity = mActivityRule.getActivity();
-        ViewModel1 model1 = ViewModelStore.get(activity, ViewModel1.class);
-        ViewModel2 model2 = ViewModelStore.get(activity, ViewModel2.class);
-        assertThat(ViewModelStore.get(activity, ViewModel1.class), is(model1));
-        assertThat(ViewModelStore.get(activity, ViewModel2.class), is(model2));
-    }
-
-    @Test
-    @UiThreadTest
-    public void twoViewModelsWithSameKey() throws Throwable {
-        ViewModelActivity activity = mActivityRule.getActivity();
-        String key = "the_key";
-        ViewModel1 vm1 = ViewModelStore.get(activity, key, ViewModel1.class);
-        assertThat(vm1.mCleared, is(false));
-        ViewModel2 vw2 = ViewModelStore.get(activity, key, ViewModel2.class);
-        assertThat(vw2, notNullValue());
-        assertThat(vm1.mCleared, is(true));
-    }
-
-    @Test
-    @UiThreadTest
-    public void localViewModel() throws Throwable {
-        ViewModelActivity activity = mActivityRule.getActivity();
-        class VM extends ViewModel1 {
-        }
-        try {
-            ViewModelStore.get(activity, VM.class);
-            Assert.fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-    }
-
-    @Test
     public void testOnClear() throws Throwable {
         final ViewModelActivity activity = mActivityRule.getActivity();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -159,7 +123,7 @@ public class ViewModelTest {
                     final FragmentManager manager = activity.getSupportFragmentManager();
                     LifecycleFragment fragment = new LifecycleFragment();
                     manager.beginTransaction().add(fragment, "temp").commitNow();
-                    ViewModel1 vm = ViewModelStore.get(fragment, ViewModel1.class);
+                    ViewModel1 vm = ViewModelProviders.of(fragment).get(ViewModel1.class);
                     assertThat(vm.mCleared, is(false));
                     manager.beginTransaction().remove(fragment).commitNow();
                     assertThat(vm.mCleared, is(true));
@@ -176,18 +140,6 @@ public class ViewModelTest {
             }
         });
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS), is(true));
-    }
-
-    public static class ViewModel1 extends ViewModel {
-        boolean mCleared = false;
-
-        @Override
-        protected void onCleared() {
-            mCleared = true;
-        }
-    }
-
-    public static class ViewModel2 extends ViewModel {
     }
 
     private ViewModelFragment getFragment(FragmentActivity activity, String tag) {
@@ -214,9 +166,9 @@ public class ViewModelTest {
         //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (monitor) {
             do {
-                // the documetation says "Block until an Activity is created
+                // the documentation says "Block until an Activity is created
                 // that matches this monitor." This statement is true, but there are some other
-                // true statements like: "Block until an Activity is destoyed" or
+                // true statements like: "Block until an Activity is destroyed" or
                 // "Block until an Activity is resumed"...
 
                 // this call will release synchronization monitor's monitor
@@ -227,5 +179,14 @@ public class ViewModelTest {
             } while (result == previous);
         }
         return result;
+    }
+
+    public static class ViewModel1 extends ViewModel {
+        boolean mCleared = false;
+
+        @Override
+        protected void onCleared() {
+            mCleared = true;
+        }
     }
 }

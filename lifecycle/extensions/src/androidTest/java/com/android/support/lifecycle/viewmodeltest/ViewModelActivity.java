@@ -21,8 +21,7 @@ import android.support.annotation.Nullable;
 
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.LifecycleFragment;
-import com.android.support.lifecycle.LifecycleProvider;
-import com.android.support.lifecycle.ViewModelStore;
+import com.android.support.lifecycle.ViewModelProviders;
 import com.android.support.lifecycle.extensions.test.R;
 
 public class ViewModelActivity extends LifecycleActivity {
@@ -44,8 +43,8 @@ public class ViewModelActivity extends LifecycleActivity {
                     .add(new ViewModelFragment(), FRAGMENT_TAG_2)
                     .commit();
         }
-        activityModel = ViewModelStore.get(this, KEY_ACTIVITY_MODEL, TestViewModel.class);
-        defaultActivityModel = ViewModelStore.get(this, TestViewModel.class);
+        activityModel = ViewModelProviders.of(this).get(KEY_ACTIVITY_MODEL, TestViewModel.class);
+        defaultActivityModel = ViewModelProviders.of(this).get(TestViewModel.class);
     }
 
     public static class ViewModelFragment extends LifecycleFragment {
@@ -56,12 +55,11 @@ public class ViewModelActivity extends LifecycleActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            fragmentModel = ViewModelStore.get(this, KEY_FRAGMENT_MODEL,
+            fragmentModel = ViewModelProviders.of(this).get(KEY_FRAGMENT_MODEL,
                     TestViewModel.class);
-            activityModel = ViewModelStore.get((LifecycleProvider) getActivity(),
-                    KEY_ACTIVITY_MODEL, TestViewModel.class);
-            defaultActivityModel = ViewModelStore.get((LifecycleProvider) getActivity(),
+            activityModel = ViewModelProviders.of(getActivity()).get(KEY_ACTIVITY_MODEL,
                     TestViewModel.class);
+            defaultActivityModel = ViewModelProviders.of(getActivity()).get(TestViewModel.class);
         }
     }
 }

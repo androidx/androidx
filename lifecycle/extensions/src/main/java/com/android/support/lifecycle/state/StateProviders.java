@@ -16,12 +16,10 @@
 
 package com.android.support.lifecycle.state;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 
 import com.android.support.lifecycle.HolderFragment;
 import com.android.support.lifecycle.LifecycleProvider;
@@ -35,41 +33,6 @@ import com.android.support.lifecycle.LifecycleProvider;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class StateProviders {
-
-    static final String HOLDER_TAG =
-            "com.android.support.lifecycle.state.StateProviderHolderFragment";
-
-    @SuppressLint("CommitTransaction")
-    private static HolderFragment holderFragmentFor(FragmentManager manager) {
-        Fragment fragmentByTag = manager.findFragmentByTag(HOLDER_TAG);
-        if (fragmentByTag != null && !(fragmentByTag instanceof HolderFragment)) {
-            throw new IllegalStateException("Unexpected "
-                    + "fragment instance was returned by HOLDER_TAG");
-        }
-
-        HolderFragment holder = (HolderFragment) fragmentByTag;
-        if (holder == null) {
-            holder = new HolderFragment();
-            manager.beginTransaction().add(holder, HOLDER_TAG).commitNowAllowingStateLoss();
-        }
-        return holder;
-    }
-
-    /**
-     * @hide
-     */
-    public static HolderFragment holderFragmentFor(LifecycleProvider scope) {
-        if (scope instanceof Fragment) {
-            return holderFragmentFor(((Fragment) scope).getChildFragmentManager());
-        }
-        if (scope instanceof FragmentActivity) {
-            return holderFragmentFor(((FragmentActivity) scope).getSupportFragmentManager());
-        }
-        throw new IllegalArgumentException();
-    }
-
-    //TODO: figure out how to handle LifecycleProvider
-
     /**
      * Returns {@link SavedStateProvider} associated with the given LifecycleProvider.
      *
@@ -83,6 +46,7 @@ public class StateProviders {
         if (provider instanceof FragmentActivity) {
             return savedStateProvider((FragmentActivity) provider);
         }
+        //TODO: figure out how to handle LifecycleProvider
         throw new IllegalArgumentException("SavedStateProvider for " + provider.getClass()
                 + " is not implemented yet.");
     }
@@ -95,7 +59,7 @@ public class StateProviders {
      */
     @MainThread
     public static SavedStateProvider savedStateProvider(Fragment fragment) {
-        return holderFragmentFor(fragment.getChildFragmentManager()).getSavedStateProvider();
+        return HolderFragment.holderFragmentFor(fragment).getSavedStateProvider();
     }
 
     /**
@@ -106,6 +70,6 @@ public class StateProviders {
      */
     @MainThread
     public static SavedStateProvider savedStateProvider(FragmentActivity activity) {
-        return holderFragmentFor(activity.getSupportFragmentManager()).getSavedStateProvider();
+        return HolderFragment.holderFragmentFor(activity).getSavedStateProvider();
     }
 }

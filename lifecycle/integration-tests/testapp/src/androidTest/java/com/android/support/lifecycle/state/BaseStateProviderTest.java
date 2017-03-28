@@ -16,6 +16,7 @@
 
 package com.android.support.lifecycle.state;
 
+import static com.android.support.lifecycle.HolderFragment.HOLDER_TAG;
 import static com.android.support.lifecycle.TestUtils.recreateActivity;
 
 import android.support.test.rule.ActivityTestRule;
@@ -70,7 +71,7 @@ abstract class BaseStateProviderTest<T> {
         } else {
             fragmentManager = activity.getSupportFragmentManager();
         }
-        fragmentManager.findFragmentByTag(StateProviders.HOLDER_TAG).setRetainInstance(false);
+        fragmentManager.findFragmentByTag(HOLDER_TAG).setRetainInstance(false);
     }
 
     @SafeVarargs

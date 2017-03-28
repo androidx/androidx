@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package com.android.support.lifecycle.viewmodeltest;
+package com.android.support.lifecycle;
 
 import android.app.Application;
 
-import com.android.support.lifecycle.AndroidViewModel;
+/**
+ * Application context aware {@link ViewModel}.
+ * <p>
+ * Subclasses must have a constructor which accepts {@link Application} as the only parameter.
+ * <p>
+ */
+public class AndroidViewModel extends ViewModel {
+    private Application mApplication;
 
-public class TestViewModel extends AndroidViewModel {
+    public AndroidViewModel(Application application) {
+        mApplication = application;
+    }
 
-    public TestViewModel(Application application) {
-        super(application);
+    /**
+     * Return the application.
+     */
+    public <T extends Application> T getApplication() {
+        return (T) mApplication;
     }
 }
