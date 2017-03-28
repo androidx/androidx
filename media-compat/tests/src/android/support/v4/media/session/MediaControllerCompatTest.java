@@ -376,6 +376,12 @@ public class MediaControllerCompatTest {
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnSetShuffleModeEnabledCalled);
             assertEquals(ENABLED, mCallback.mShuffleModeEnabled);
+
+            mCallback.reset();
+            controls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnSetShuffleModeCalled);
+            assertEquals(PlaybackStateCompat.SHUFFLE_MODE_ALL, mCallback.mShuffleMode);
         }
     }
 
@@ -412,6 +418,7 @@ public class MediaControllerCompatTest {
         private boolean mCaptioningEnabled;
         private int mRepeatMode;
         private boolean mShuffleModeEnabled;
+        private int mShuffleMode;
         private int mQueueIndex;
         private MediaDescriptionCompat mQueueDescription;
         private List<MediaSessionCompat.QueueItem> mQueue = new ArrayList<>();
@@ -438,6 +445,7 @@ public class MediaControllerCompatTest {
         private boolean mOnSetCaptioningEnabledCalled;
         private boolean mOnSetRepeatModeCalled;
         private boolean mOnSetShuffleModeEnabledCalled;
+        private boolean mOnSetShuffleModeCalled;
         private boolean mOnAddQueueItemCalled;
         private boolean mOnAddQueueItemAtCalled;
         private boolean mOnRemoveQueueItemCalled;
@@ -456,6 +464,7 @@ public class MediaControllerCompatTest {
             mCaptioningEnabled = false;
             mShuffleModeEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
+            mShuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
             mQueueIndex = -1;
             mQueueDescription = null;
 
@@ -481,6 +490,7 @@ public class MediaControllerCompatTest {
             mOnSetCaptioningEnabledCalled = false;
             mOnSetRepeatModeCalled = false;
             mOnSetShuffleModeEnabledCalled = false;
+            mOnSetShuffleModeCalled = false;
             mOnAddQueueItemCalled = false;
             mOnAddQueueItemAtCalled = false;
             mOnRemoveQueueItemCalled = false;
@@ -720,6 +730,15 @@ public class MediaControllerCompatTest {
             synchronized (mWaitLock) {
                 mOnSetShuffleModeEnabledCalled = true;
                 mShuffleModeEnabled = enabled;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onSetShuffleMode(int shuffleMode) {
+            synchronized (mWaitLock) {
+                mOnSetShuffleModeCalled = true;
+                mShuffleMode = shuffleMode;
                 mWaitLock.notify();
             }
         }
