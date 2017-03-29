@@ -55,11 +55,11 @@ import android.widget.SpinnerAdapter;
  * A {@link Spinner} which supports compatible features on older versions of the platform,
  * including:
  * <ul>
- * <li>Dynamic tinting of the background via the background tint methods in
- * {@link android.support.v4.view.ViewCompat}.</li>
- * <li>Configuring the background tint using {@link R.attr#backgroundTint} and
- * {@link R.attr#backgroundTintMode}.</li>
- * <li>Setting the popup theme using {@link R.attr#popupTheme}.</li>
+ *     <li>Allows dynamic tint of its background via the background tint methods in
+ *     {@link android.support.v4.widget.CompoundButtonCompat}.</li>
+ *     <li>Allows setting of the background tint using {@link R.attr#buttonTint} and
+ *     {@link R.attr#buttonTintMode}.</li>
+ *     <li>Setting the popup theme using {@link R.attr#popupTheme}.</li>
  * </ul>
  *
  * <p>This will automatically be used when you use {@link Spinner} in your layouts.
@@ -77,10 +77,10 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     private static final int MODE_DROPDOWN = 1;
     private static final int MODE_THEME = -1;
 
-    private AppCompatBackgroundHelper mBackgroundTintHelper;
+    private final AppCompatBackgroundHelper mBackgroundTintHelper;
 
     /** Context used to inflate the popup window or dialog. */
-    private Context mPopupContext;
+    private final Context mPopupContext;
 
     /** Forwarding listener used to implement drag-to-open. */
     private ForwardingListener mForwardingListener;
@@ -88,13 +88,13 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     /** Temporary holder for setAdapter() calls from the super constructor. */
     private SpinnerAdapter mTempAdapter;
 
-    private boolean mPopupSet;
+    private final boolean mPopupSet;
 
-    DropdownPopup mPopup;
+    private DropdownPopup mPopup;
 
-    int mDropDownWidth;
+    private int mDropDownWidth;
 
-    final Rect mTempRect = new Rect();
+    private final Rect mTempRect = new Rect();
 
     /**
      * Construct a new spinner with the given context's theme.
