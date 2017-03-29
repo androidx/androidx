@@ -164,7 +164,7 @@ public class BrowseFragment extends Fragment {
         @Override
         public void onConnectionSuspended() {
             Log.d(TAG, "onConnectionSuspended");
-            getActivity().setMediaController(null);
+            ((MediaBrowserSupport) getActivity()).setMediaController((MediaControllerCompat) null);
         }
     };
 

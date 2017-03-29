@@ -98,7 +98,7 @@ public class QueueFragment extends Fragment {
             mMediaController.unregisterCallback(mSessionCallback);
             mTransportControls = null;
             mMediaController = null;
-            getActivity().setMediaController(null);
+            ((MediaBrowserSupport) getActivity()).setMediaController((MediaControllerCompat) null);
         }
     };
 
