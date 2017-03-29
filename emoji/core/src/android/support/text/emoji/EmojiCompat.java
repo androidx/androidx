@@ -91,34 +91,6 @@ public class EmojiCompat {
     public static final String EDITOR_INFO_REPLACE_ALL_KEY =
             "android.support.text.emoji.emojiCompat_replaceAll";
 
-    private static final Object sInstanceLock = new Object();
-
-    @GuardedBy("sInstanceLock")
-    private static volatile EmojiCompat sInstance;
-
-    private final ReadWriteLock mInitLock;
-
-    @GuardedBy("mInitLock")
-    private final Set<InitCallback> mInitCallbacks;
-
-    @GuardedBy("mInitLock")
-    @LoadState
-    private int mLoadState;
-
-    private final Config mConfig;
-    private final Handler mMainHandler;
-
-    /**
-     * Responsible to process a CharSequence and add the spans. @{code Null} until the time the
-     * metadata is loaded.
-     */
-    private EmojiProcessor mProcessor;
-
-    /**
-     * Keeps the information about emojis. Null until the time the data is loaded.
-     */
-    private MetadataRepo mMetadataRepo;
-
     /**
      * EmojiCompat is initializing.
      */
@@ -144,6 +116,61 @@ public class EmojiCompat {
     public @interface LoadState {
     }
 
+    private static final Object sInstanceLock = new Object();
+
+    @GuardedBy("sInstanceLock")
+    private static volatile EmojiCompat sInstance;
+
+    private final ReadWriteLock mInitLock;
+
+    @GuardedBy("mInitLock")
+    private final Set<InitCallback> mInitCallbacks;
+
+    @GuardedBy("mInitLock")
+    @LoadState
+    private int mLoadState;
+
+    /**
+     * Handler with main looper to run the callbacks on.
+     */
+    private final Handler mMainHandler;
+
+    /**
+     * Responsible to process a CharSequence and add the spans. @{code Null} until the time the
+     * metadata is loaded.
+     */
+    private EmojiProcessor mProcessor;
+
+    /**
+     * Keeps the information about emojis. Null until the time the data is loaded.
+     */
+    private MetadataRepo mMetadataRepo;
+
+    /**
+     * MetadataLoader instance given in the Config instance.
+     */
+    private final MetadataLoader mMetadataLoader;
+
+    /**
+     * @see Config#setMaxEmojiPerText(int)
+     */
+    private final int mMaxEmojiPerText;
+
+    /**
+     * @see Config#setReplaceAll(boolean)
+     */
+    private final boolean mReplaceAll;
+
+    /**
+     * @see Config#setEmojiSpanIndicatorEnabled(boolean)
+     */
+    private final boolean mEmojiSpanIndicatorEnabled;
+
+    /**
+     * @see Config#setEmojiSpanIndicatorColor(int)
+     */
+    private final int mEmojiSpanIndicatorColor;
+
     /**
      * Private constructor for singleton instance.
      *
@@ -151,11 +178,15 @@ public class EmojiCompat {
      */
     private EmojiCompat(@NonNull final Config config) {
         mInitLock = new ReentrantReadWriteLock();
-        mConfig = config;
+        mMaxEmojiPerText = config.mMaxEmojiPerText;
+        mReplaceAll = config.mReplaceAll;
+        mEmojiSpanIndicatorEnabled = config.mEmojiSpanIndicatorEnabled;
+        mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
+        mMetadataLoader = config.mMetadataLoader;
         mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
-        if (mConfig.mInitCallbacks != null && !mConfig.mInitCallbacks.isEmpty()) {
-            mInitCallbacks.addAll(mConfig.mInitCallbacks);
+        if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
+            mInitCallbacks.addAll(config.mInitCallbacks);
         }
         loadMetadata();
     }
@@ -230,7 +261,7 @@ public class EmojiCompat {
         }
 
         try {
-            mConfig.mMetadataLoader.load(new LoaderCallback() {
+            mMetadataLoader.load(new LoaderCallback() {
                 @Override
                 public void onLoaded(@NonNull MetadataRepo metadataRepo) {
                     onMetadataLoadSuccess(metadataRepo);
@@ -253,8 +284,8 @@ public class EmojiCompat {
         }
 
         mMetadataRepo = metadataRepo;
-        mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(),
-                mConfig.mReplaceAll, mConfig.mMaxEmojiPerText);
+        mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(), mReplaceAll,
+                mMaxEmojiPerText);
 
         final Collection<InitCallback> initCallbacks = new ArrayList<>();
         mInitLock.writeLock().lock();
@@ -354,7 +385,7 @@ public class EmojiCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     boolean isEmojiSpanIndicatorEnabled() {
-        return mConfig.mEmojiSpanIndicatorEnabled;
+        return mEmojiSpanIndicatorEnabled;
     }
 
     /**
@@ -363,7 +394,7 @@ public class EmojiCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     @ColorInt int getEmojiSpanIndicatorColor() {
-        return mConfig.mEmojiSpanIndicatorColor;
+        return mEmojiSpanIndicatorColor;
     }
 
     /**
@@ -503,7 +534,7 @@ public class EmojiCompat {
     public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
         if (isInitialized() && outAttrs != null && outAttrs.extras != null) {
             outAttrs.extras.putInt(EDITOR_INFO_METAVERSION_KEY, mMetadataRepo.getMetadataVersion());
-            outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mConfig.mReplaceAll);
+            outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mReplaceAll);
         }
     }
 
@@ -579,7 +610,8 @@ public class EmojiCompat {
     }
 
     /**
-     * Configuration class for EmojiCompat.
+     * Configuration class for EmojiCompat. Changes to the values will be ignored after
+     * {@link #init(Config)} is called.
      *
      * @see #init(EmojiCompat.Config)
      */
