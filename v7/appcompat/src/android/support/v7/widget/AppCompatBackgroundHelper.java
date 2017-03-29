@@ -148,18 +148,18 @@ class AppCompatBackgroundHelper {
 
     private boolean shouldApplyFrameworkTintUsingColorFilter() {
         final int sdk = Build.VERSION.SDK_INT;
-        if (sdk < 21) {
-            // API 19 and below doesn't have framework tint
-            return false;
+        if (sdk > 21) {
+            // On API 22+, if we're using an internal compat background tint, we're also
+            // responsible for applying any custom tint set via the framework impl
+            return mInternalBackgroundTint != null;
         } else if (sdk == 21) {
             // GradientDrawable doesn't implement setTintList on API 21, and since there is
             // no nice way to unwrap DrawableContainers we have to blanket apply this
             // on API 21
             return true;
         } else {
-            // On API 22+, if we're using an internal compat background tint, we're also
-            // responsible for applying any custom tint set via the framework impl
-            return mInternalBackgroundTint != null;
+            // API 19 and below doesn't have framework tint
+            return false;
         }
     }
 
