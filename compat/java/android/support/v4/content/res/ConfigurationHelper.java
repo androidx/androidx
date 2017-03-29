@@ -16,42 +16,18 @@
 
 package android.support.v4.content.res;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 
 /**
  * Helper class which allows access to properties of {@link Configuration} in
  * a backward compatible fashion.
  */
 public final class ConfigurationHelper {
-
-    private static final ConfigurationHelperBaseImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 17) {
-            IMPL = new ConfigurationHelperApi17Impl();
-        } else {
-            IMPL = new ConfigurationHelperBaseImpl();
-        }
-    }
-
-    private ConfigurationHelper() {}
-
-    private static class ConfigurationHelperBaseImpl {
-        public int getDensityDpi(@NonNull Resources resources) {
-            return resources.getDisplayMetrics().densityDpi;
-        }
-    }
-
-    @RequiresApi(17)
-    private static class ConfigurationHelperApi17Impl extends ConfigurationHelperBaseImpl {
-        @Override
-        public int getDensityDpi(@NonNull Resources resources) {
-            return ConfigurationHelperJellybeanMr1.getDensityDpi(resources);
-        }
+    private ConfigurationHelper() {
     }
 
     /**
@@ -100,6 +76,10 @@ public final class ConfigurationHelper {
      * is computed and returned.</p>
      */
     public static int getDensityDpi(@NonNull Resources resources) {
-        return IMPL.getDensityDpi(resources);
+        if (SDK_INT >= 17) {
+            return resources.getConfiguration().densityDpi;
+        } else {
+            return resources.getDisplayMetrics().densityDpi;
+        }
     }
 }
