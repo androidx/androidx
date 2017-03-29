@@ -37,7 +37,7 @@ import android.widget.MultiAutoCompleteTextView;
  * <ul>
  *     <li>Supports {@link R.attr#textAllCaps} style attribute which works back to
  *     {@link android.os.Build.VERSION_CODES#GINGERBREAD Gingerbread}.</li>
- *     <li>Allows dynamic tint of it background via the background tint methods in
+ *     <li>Allows dynamic tint of its background via the background tint methods in
  *     {@link android.support.v4.view.ViewCompat}.</li>
  *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
  *     {@link R.attr#backgroundTintMode}.</li>
@@ -53,8 +53,8 @@ public class AppCompatMultiAutoCompleteTextView extends MultiAutoCompleteTextVie
             android.R.attr.popupBackground
     };
 
-    private AppCompatBackgroundHelper mBackgroundTintHelper;
-    private AppCompatTextHelper mTextHelper;
+    private final AppCompatBackgroundHelper mBackgroundTintHelper;
+    private final AppCompatTextHelper mTextHelper;
 
     public AppCompatMultiAutoCompleteTextView(Context context) {
         this(context, null);
