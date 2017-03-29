@@ -70,6 +70,18 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     }
 
     @Test
+    public void testNotificationChannel_assignedFromBuilder() throws Throwable {
+        String channelId = "new ID";
+        Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity(), channelId)
+                .build();
+        if (BuildCompat.isAtLeastO()) {
+            assertEquals(channelId, NotificationCompat.getChannel(n));
+        } else {
+            assertNull(NotificationCompat.getChannel(n));
+        }
+    }
+
+    @Test
     public void testNotificationActionBuilder_copiesRemoteInputs() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()
                 .addRemoteInput(new RemoteInput("a", "b", null, false, null, null)).build();

@@ -1149,15 +1149,28 @@ public class NotificationCompat {
          * @param context A {@link Context} that will be used to construct the
          *      RemoteViews. The Context will not be held past the lifetime of this
          *      Builder object.
+         * @param channelId The constructed Notification will be posted on this
+         *      NotificationChannel.
          */
-        public Builder(Context context) {
+        public Builder(@NonNull Context context, @NonNull String channelId) {
             mContext = context;
+            mChannelId = channelId;
 
             // Set defaults to match the defaults of a Notification
             mNotification.when = System.currentTimeMillis();
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
             mPriority = PRIORITY_DEFAULT;
             mPeople = new ArrayList<String>();
+        }
+
+        /**
+         * @deprecated use
+         * {@link NotificationCompat.Builder#NotificationCompat.Builder(Context, String)} instead.
+         * All posted Notifications must specify a NotificationChannel Id.
+         */
+        @Deprecated
+        public Builder(Context context) {
+            this(context, null);
         }
 
         /**
