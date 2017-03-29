@@ -145,9 +145,10 @@ public class FragmentTestUtil {
         }
     }
 
-    public static FragmentController createController(ActivityTestRule<FragmentTestActivity> rule) {
+    public static FragmentController createController(
+            ActivityTestRule<? extends FragmentActivity> rule) {
         final FragmentController[] controller = new FragmentController[1];
-        final FragmentTestActivity activity = rule.getActivity();
+        final FragmentActivity activity = rule.getActivity();
         runOnUiThreadRethrow(rule, new Runnable() {
             @Override
             public void run() {

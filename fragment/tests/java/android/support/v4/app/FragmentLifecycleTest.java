@@ -684,6 +684,52 @@ public class FragmentLifecycleTest {
         assertTrue(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * When a fragment is saved in non-config, it should be restored to the same index.
+     */
+    @Test
+    @UiThreadTest
+    public void restoreNonConfig() throws Throwable {
+        FragmentController fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        Fragment fragment1 = new StrictFragment();
+        fm.beginTransaction()
+                .add(fragment1, "1")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+        Fragment fragment2 = new StrictFragment();
+        fragment2.setRetainInstance(true);
+        fragment2.setTargetFragment(fragment1, 0);
+        Fragment fragment3 = new StrictFragment();
+        fm.beginTransaction()
+                .remove(fragment1)
+                .add(fragment2, "2")
+                .add(fragment3, "3")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+        Pair<Parcelable, FragmentManagerNonConfig> savedState =
+                FragmentTestUtil.destroy(mActivityRule, fc);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+        boolean foundFragment2 = false;
+        for (Fragment fragment : fc.getSupportFragmentManager().getFragments()) {
+            if (fragment == fragment2) {
+                foundFragment2 = true;
+                assertNotNull(fragment.getTargetFragment());
+                assertEquals("1", fragment.getTargetFragment().getTag());
+            } else {
+                assertNotEquals("2", fragment.getTag());
+            }
+        }
+        assertTrue(foundFragment2);
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
