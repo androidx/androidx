@@ -1219,7 +1219,6 @@ public class MediaSessionCompat {
         public void writeToParcel(Parcel dest, int flags) {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
                 dest.writeParcelable((Parcelable) mInner, flags);
-                dest.writeStrongBinder(mExtraBinder == null ? null : mExtraBinder.asBinder());
             } else {
                 dest.writeStrongBinder((IBinder) mInner);
             }
@@ -1278,14 +1277,12 @@ public class MediaSessionCompat {
             @Override
             public Token createFromParcel(Parcel in) {
                 Object inner;
-                IMediaSession extraBinder = null;
                 if (android.os.Build.VERSION.SDK_INT >= 21) {
                     inner = in.readParcelable(null);
-                    extraBinder = IMediaSession.Stub.asInterface(in.readStrongBinder());
                 } else {
                     inner = in.readStrongBinder();
                 }
-                return new Token(inner, extraBinder);
+                return new Token(inner);
             }
 
             @Override
