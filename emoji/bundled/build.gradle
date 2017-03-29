@@ -1,5 +1,5 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-emoji-typeface'
+archivesBaseName = 'support-emoji-bundled'
 
 android {
     compileSdkVersion project.ext.currentSdk

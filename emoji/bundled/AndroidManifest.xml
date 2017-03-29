@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.text.emoji.typeface">
+          package="android.support.text.emoji.bundled">
     <uses-sdk android:minSdkVersion="19"/>
     <application>
         <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
