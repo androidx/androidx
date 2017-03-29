@@ -57,7 +57,7 @@ public class WearableRecyclerViewTest {
 
     private static final long MAX_WAIT_TIME = 10000;
     @Mock
-    WearableRecyclerView.OffsettingLayoutManager mMockOffsettingLayoutManager;
+    WearableRecyclerView.LayoutManager mMockChildLayoutManager;
 
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
@@ -74,7 +74,7 @@ public class WearableRecyclerViewTest {
     @Test
     public void testCaseInitState() {
         WearableRecyclerView wrv = new WearableRecyclerView(mActivityRule.getActivity());
-        wrv.setLayoutManager(new CurvedOffsettingLayoutManager(wrv.getContext()));
+        wrv.setLayoutManager(new WearableLinearLayoutManager(wrv.getContext()));
 
         assertFalse(wrv.getEdgeItemsCenteringEnabled());
         assertFalse(wrv.isCircularScrollingGestureEnabled());
@@ -155,7 +155,7 @@ public class WearableRecyclerViewTest {
             public void run() {
                 WearableRecyclerView wrv =
                         (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
-                wrv.setLayoutManager(new CurvedOffsettingLayoutManager(wrv.getContext()));
+                wrv.setLayoutManager(new WearableLinearLayoutManager(wrv.getContext()));
             }
         });
 

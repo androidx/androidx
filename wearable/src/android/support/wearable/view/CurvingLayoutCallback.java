@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.wearable.view;
 
 import android.content.Context;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
+import android.support.annotation.VisibleForTesting;
+import android.support.v7.widget.RecyclerView;
 import android.support.wearable.R;
 import android.view.View;
 
 /**
- * This implementation of {@link WearableRecyclerView.OffsettingLayoutManager} provides basic
- * offsetting logic for updating child layout. For round devices it offsets the children
- * horizontally to make them appear to travel around a circle. For square devices it aligns them in
- * a straight list.
+ * An implementation of the {@link WearableLinearLayoutManager.LayoutCallback} aligning the children
+ * of the associated {@link WearableRecyclerView} along a pre-defined vertical curve.
  */
-public class CurvedOffsettingLayoutManager extends WearableRecyclerView.OffsettingLayoutManager {
+public class CurvingLayoutCallback extends WearableLinearLayoutManager.LayoutCallback {
     private static final float EPSILON = 0.001f;
 
     private final Path mCurvePath;
@@ -42,28 +43,25 @@ public class CurvedOffsettingLayoutManager extends WearableRecyclerView.Offsetti
     private final float[] mPathTangent = new float[2];
     private final float[] mAnchorOffsetXY = new float[2];
 
-    private WearableRecyclerView mParentView;
+    private RecyclerView mParentView;
     private boolean mIsScreenRound;
     private int mLayoutWidth;
     private int mLayoutHeight;
 
-    public CurvedOffsettingLayoutManager(Context context) {
-        super(context);
+    public CurvingLayoutCallback(Context context) {
         mCurvePath = new Path();
         mPathMeasure = new PathMeasure();
+        mIsScreenRound = context.getResources().getConfiguration().isScreenRound();
+        mXCurveOffset = context.getResources().getDimensionPixelSize(
+                R.dimen.wrv_curve_default_x_offset);
     }
 
     @Override
-    public void updateChild(View child, WearableRecyclerView parent) {
+    public void onLayoutFinished(View child, RecyclerView parent) {
         if (mParentView != parent || (mParentView != null && (
                 mParentView.getWidth() != parent.getWidth()
                         || mParentView.getHeight() != parent.getHeight()))) {
             mParentView = parent;
-            mIsScreenRound =
-                    mParentView.getContext().getResources().getConfiguration().isScreenRound();
-            mXCurveOffset =
-                    mParentView.getResources().getDimensionPixelSize(
-                            R.dimen.wrv_curve_default_x_offset);
             mLayoutWidth = mParentView.getWidth();
             mLayoutHeight = mParentView.getHeight();
         }
@@ -81,11 +79,13 @@ public class CurvedOffsettingLayoutManager extends WearableRecyclerView.Offsetti
             mPathMeasure.getPosTan(mYScrollProgress * mPathLength, mPathPoints, mPathTangent);
 
             boolean topClusterRisk =
-                    Math.abs(mPathPoints[1] - mCurveBottom) < EPSILON && minCenter < mPathPoints[1];
+                    Math.abs(mPathPoints[1] - mCurveBottom) < EPSILON
+                            && minCenter < mPathPoints[1];
             boolean bottomClusterRisk =
-                    Math.abs(mPathPoints[1] - mCurveTop) < EPSILON && maxCenter > mPathPoints[1];
-            // Continue offsetting the child along the straight-line part of the curve, if it has
-            // not gone off the screen when it reached the end of the original curve.
+                    Math.abs(mPathPoints[1] - mCurveTop) < EPSILON
+                            && maxCenter > mPathPoints[1];
+            // Continue offsetting the child along the straight-line part of the curve, if it
+            // has not gone off the screen when it reached the end of the original curve.
             if (topClusterRisk || bottomClusterRisk) {
                 mPathPoints[1] = verticalAnchor;
                 mPathPoints[0] = (Math.abs(verticalAnchor) * mLineGradient);
@@ -96,21 +96,33 @@ public class CurvedOffsettingLayoutManager extends WearableRecyclerView.Offsetti
             child.offsetLeftAndRight(newLeft - child.getLeft());
             float verticalTranslation = mPathPoints[1] - verticalAnchor;
             child.setTranslationY(verticalTranslation);
+        } else {
+            child.setTranslationY(0);
         }
     }
 
     /**
-     * Override this method if you wish to adjust the anchor coordinates for each child view during
-     * a layout pass. In the override set the new desired anchor coordinates in the provided array.
-     * The coordinates should be provided in relation to the child view.
+     * Override this method if you wish to adjust the anchor coordinates for each child view
+     * during a layout pass. In the override set the new desired anchor coordinates in
+     * the provided array. The coordinates should be provided in relation to the child view.
      *
      * @param child          The child view to which the anchor coordinates will apply.
-     * @param anchorOffsetXY The anchor coordinates for the provided child view, by default set to
-     *                       a pre-defined constant on the horizontal axis and half of the child
-     *                       height on the vertical axis (vertical center).
+     * @param anchorOffsetXY The anchor coordinates for the provided child view, by default set
+     *                       to a pre-defined constant on the horizontal axis and half of the
+     *                       child height on the vertical axis (vertical center).
      */
     public void adjustAnchorOffsetXY(View child, float[] anchorOffsetXY) {
         return;
+    };
+
+    @VisibleForTesting
+    void setRound(boolean isScreenRound) {
+        mIsScreenRound = isScreenRound;
+    }
+
+    @VisibleForTesting
+    void setOffset(int offset) {
+        mXCurveOffset = offset;
     }
 
     /** Set up the initial layout for round screens. */

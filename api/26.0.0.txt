@@ -12109,10 +12109,10 @@ package android.support.wearable.view {
     field public int boxedEdges;
   }
 
-  public class CurvedOffsettingLayoutManager extends android.support.wearable.view.WearableRecyclerView.OffsettingLayoutManager {
-    ctor public CurvedOffsettingLayoutManager(android.content.Context);
+  public class CurvingLayoutCallback extends android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback {
+    ctor public CurvingLayoutCallback(android.content.Context);
     method public void adjustAnchorOffsetXY(android.view.View, float[]);
-    method public void updateChild(android.view.View, android.support.wearable.view.WearableRecyclerView);
+    method public void onLayoutFinished(android.view.View, android.support.v7.widget.RecyclerView);
   }
 
   public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
@@ -12132,6 +12132,18 @@ package android.support.wearable.view {
     method public void onSwipeStarted();
   }
 
+  public class WearableLinearLayoutManager extends android.support.v7.widget.LinearLayoutManager {
+    ctor public WearableLinearLayoutManager(android.content.Context, android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback);
+    ctor public WearableLinearLayoutManager(android.content.Context);
+    method public android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback getLayoutCallback();
+    method public void setLayoutCallback(android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback);
+  }
+
+  public static abstract class WearableLinearLayoutManager.LayoutCallback {
+    ctor public WearableLinearLayoutManager.LayoutCallback();
+    method public abstract void onLayoutFinished(android.view.View, android.support.v7.widget.RecyclerView);
+  }
+
   public class WearableRecyclerView extends android.support.v7.widget.RecyclerView {
     ctor public WearableRecyclerView(android.content.Context);
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet);
@@ -12145,11 +12157,6 @@ package android.support.wearable.view {
     method public void setCircularScrollingGestureEnabled(boolean);
     method public void setEdgeItemsCenteringEnabled(boolean);
     method public void setScrollDegreesPerScreen(float);
-  }
-
-  public static abstract class WearableRecyclerView.OffsettingLayoutManager extends android.support.v7.widget.LinearLayoutManager {
-    ctor public WearableRecyclerView.OffsettingLayoutManager(android.content.Context);
-    method public abstract void updateChild(android.view.View, android.support.wearable.view.WearableRecyclerView);
   }
 
 }

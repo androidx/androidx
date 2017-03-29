@@ -22,7 +22,6 @@ import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.wearable.R;
 import android.util.AttributeSet;
@@ -236,55 +235,5 @@ public class WearableRecyclerView extends RecyclerView {
      */
     public boolean getEdgeItemsCenteringEnabled() {
         return mEdgeItemsCenteringEnabled;
-    }
-
-    /**
-     * This class defines the offsetting logic for updating layout of children in a
-     * WearableRecyclerView.
-     */
-    public abstract static class OffsettingLayoutManager extends LinearLayoutManager {
-        /**
-         * Creates a vertical OffsettingLinearLayoutManager
-         *
-         * @param context Current context, will be used to access resources.
-         */
-        public OffsettingLayoutManager(Context context) {
-            super(context, VERTICAL, false);
-        }
-
-        @Override
-        public int scrollVerticallyBy(
-                int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-            int scrolled = super.scrollVerticallyBy(dy, recycler, state);
-
-            updateLayout();
-            return scrolled;
-        }
-
-        @Override
-        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-            super.onLayoutChildren(recycler, state);
-            if (getChildCount() == 0) {
-                return;
-            }
-
-            updateLayout();
-        }
-
-        private void updateLayout() {
-            final int childCount = getChildCount();
-            for (int count = 0; count < childCount; count++) {
-                View child = getChildAt(count);
-                updateChild(child, (WearableRecyclerView) child.getParent());
-            }
-        }
-
-        /**
-         * Override this method if you wish to implement custom child layout behavior on scroll.
-         *
-         * @param child the current child to be affected.
-         * @param parent the {@link WearableRecyclerView} parent that this helper is attached to.
-         */
-        public abstract void updateChild(View child, WearableRecyclerView parent);
     }
 }
