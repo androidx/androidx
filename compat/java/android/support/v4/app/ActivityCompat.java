@@ -32,6 +32,7 @@ import android.os.Parcelable;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -269,9 +270,15 @@ public class ActivityCompat extends ContextCompat {
     public static void setEnterSharedElementCallback(Activity activity,
             SharedElementCallback callback) {
         if (Build.VERSION.SDK_INT >= 23) {
-            ActivityCompatApi23.setEnterSharedElementCallback(activity, createCallback23(callback));
+            android.app.SharedElementCallback frameworkCallback = callback != null
+                    ? new SharedElementCallback23Impl(callback)
+                    : null;
+            activity.setEnterSharedElementCallback(frameworkCallback);
         } else if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompatApi21.setEnterSharedElementCallback(activity, createCallback(callback));
+            android.app.SharedElementCallback frameworkCallback = callback != null
+                    ? new SharedElementCallback21Impl(callback)
+                    : null;
+            activity.setEnterSharedElementCallback(frameworkCallback);
         }
     }
 
@@ -287,9 +294,15 @@ public class ActivityCompat extends ContextCompat {
     public static void setExitSharedElementCallback(Activity activity,
             SharedElementCallback callback) {
         if (Build.VERSION.SDK_INT >= 23) {
-            ActivityCompatApi23.setExitSharedElementCallback(activity, createCallback23(callback));
+            android.app.SharedElementCallback frameworkCallback = callback != null
+                    ? new SharedElementCallback23Impl(callback)
+                    : null;
+            activity.setExitSharedElementCallback(frameworkCallback);
         } else if (Build.VERSION.SDK_INT >= 21) {
-            ActivityCompatApi21.setExitSharedElementCallback(activity, createCallback(callback));
+            android.app.SharedElementCallback frameworkCallback = callback != null
+                    ? new SharedElementCallback21Impl(callback)
+                    : null;
+            activity.setExitSharedElementCallback(frameworkCallback);
         }
     }
 
@@ -431,28 +444,10 @@ public class ActivityCompat extends ContextCompat {
         return false;
     }
 
-    private static ActivityCompatApi21.SharedElementCallback21 createCallback(
-            SharedElementCallback callback) {
-        ActivityCompatApi21.SharedElementCallback21 newCallback = null;
-        if (callback != null) {
-            newCallback = new ActivityCompat.SharedElementCallback21Impl(callback);
-        }
-        return newCallback;
-    }
+    @RequiresApi(21)
+    private static class SharedElementCallback21Impl extends android.app.SharedElementCallback {
 
-    private static ActivityCompatApi23.SharedElementCallback23 createCallback23(
-            SharedElementCallback callback) {
-        ActivityCompatApi23.SharedElementCallback23 newCallback = null;
-        if (callback != null) {
-            newCallback = new ActivityCompat.SharedElementCallback23Impl(callback);
-        }
-        return newCallback;
-    }
-
-    private static class SharedElementCallback21Impl
-            extends ActivityCompatApi21.SharedElementCallback21 {
-
-        private SharedElementCallback mCallback;
+        protected SharedElementCallback mCallback;
 
         public SharedElementCallback21Impl(SharedElementCallback callback) {
             mCallback = callback;
@@ -495,55 +490,15 @@ public class ActivityCompat extends ContextCompat {
         }
     }
 
-    private static class SharedElementCallback23Impl
-            extends ActivityCompatApi23.SharedElementCallback23 {
-
-        private SharedElementCallback mCallback;
-
+    @RequiresApi(23)
+    private static class SharedElementCallback23Impl extends SharedElementCallback21Impl {
         public SharedElementCallback23Impl(SharedElementCallback callback) {
-            mCallback = callback;
-        }
-
-        @Override
-        public void onSharedElementStart(List<String> sharedElementNames,
-                List<View> sharedElements, List<View> sharedElementSnapshots) {
-            mCallback.onSharedElementStart(sharedElementNames, sharedElements,
-                    sharedElementSnapshots);
-        }
-
-        @Override
-        public void onSharedElementEnd(List<String> sharedElementNames, List<View> sharedElements,
-                List<View> sharedElementSnapshots) {
-            mCallback.onSharedElementEnd(sharedElementNames, sharedElements,
-                    sharedElementSnapshots);
-        }
-
-        @Override
-        public void onRejectSharedElements(List<View> rejectedSharedElements) {
-            mCallback.onRejectSharedElements(rejectedSharedElements);
-        }
-
-        @Override
-        public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-            mCallback.onMapSharedElements(names, sharedElements);
-        }
-
-        @Override
-        public Parcelable onCaptureSharedElementSnapshot(View sharedElement,
-                Matrix viewToGlobalMatrix, RectF screenBounds) {
-            return mCallback.onCaptureSharedElementSnapshot(sharedElement, viewToGlobalMatrix,
-                    screenBounds);
-        }
-
-        @Override
-        public View onCreateSnapshotView(Context context, Parcelable snapshot) {
-            return mCallback.onCreateSnapshotView(context, snapshot);
+            super(callback);
         }
 
         @Override
         public void onSharedElementsArrived(List<String> sharedElementNames,
-                List<View> sharedElements,
-                final ActivityCompatApi23.OnSharedElementsReadyListenerBridge listener) {
+                List<View> sharedElements, final OnSharedElementsReadyListener listener) {
             mCallback.onSharedElementsArrived(sharedElementNames, sharedElements,
                     new SharedElementCallback.OnSharedElementsReadyListener() {
                         @Override
