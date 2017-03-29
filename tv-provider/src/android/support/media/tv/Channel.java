@@ -319,9 +319,7 @@ public final class Channel {
 
     /**
      * @return The value of {@link Channels#COLUMN_TRANSIENT} for the channel.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public boolean isTransient() {
         return mTransient == IS_TRANSIENT;
     }
@@ -1024,9 +1022,7 @@ public final class Channel {
          *
          * @param value The value of {@link Channels#COLUMN_TRANSIENT} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public Builder setTransient(boolean value) {
             mTransient = value ? IS_TRANSIENT : 0;
             return this;
