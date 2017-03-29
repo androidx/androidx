@@ -24,6 +24,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -32,6 +33,7 @@ import org.junit.rules.TestName;
 public class SingleSupportFragmentTestBase {
 
     private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
+    private static final String TAG = "SingleSupportFragmentTestBase";
 
     @Rule
     public TestName mUnitTestName = new TestName();
@@ -46,6 +48,7 @@ public class SingleSupportFragmentTestBase {
     public void afterTest() throws Throwable {
         final SingleSupportFragmentTestActivity activity = mActivity;
         if (activity != null) {
+            Log.d(TAG, "wait finish " + activity + " for " + this);
             mActivity = null;
             activityTestRule.runOnUiThread(new Runnable() {
                 public void run() {
@@ -108,6 +111,7 @@ public class SingleSupportFragmentTestBase {
             options.collect(intent);
         }
         mActivity = activityTestRule.launchActivity(intent);
+        Log.d(TAG, "launched " + mActivity + " for " + this, new Exception());
         SystemClock.sleep(waitTimeMs);
     }
 
