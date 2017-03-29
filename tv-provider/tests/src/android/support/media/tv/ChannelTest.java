@@ -138,6 +138,7 @@ public class ChannelTest extends TestCase {
                 .setInternalProviderFlag4(0x1)
                 .setTransient(true)
                 .setBrowsable(true)
+                .setLocked(true)
                 .setSystemApproved(true)
                 .build();
     }
@@ -173,6 +174,7 @@ public class ChannelTest extends TestCase {
             // When we insert a channel using toContentValues() to the system, we drop some
             // protected fields since they only can be modified by system apps.
             assertEquals(channelA.isBrowsable(), channelB.isBrowsable());
+            assertEquals(channelA.isLocked(), channelB.isLocked());
             if (BuildCompat.isAtLeastO()) {
                 assertEquals(channelA.isSystemApproved(), channelB.isSystemApproved());
             }

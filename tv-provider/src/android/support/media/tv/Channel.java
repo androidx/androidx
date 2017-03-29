@@ -77,6 +77,7 @@ public final class Channel {
     private static final int IS_TRANSIENT = 1;
     private static final int IS_BROWSABLE = 1;
     private static final int IS_SYSTEM_APPROVED = 1;
+    private static final int IS_LOCKED = 1;
 
     private final long mId;
     private final String mPackageName;
@@ -105,6 +106,7 @@ public final class Channel {
     private final int mTransient;
     private final int mBrowsable;
     private final int mSystemApproved;
+    private final int mLocked;
 
     private Channel(Builder builder) {
         mId = builder.mId;
@@ -134,6 +136,7 @@ public final class Channel {
         mTransient = builder.mTransient;
         mBrowsable = builder.mBrowsable;
         mSystemApproved = builder.mSystemApproved;
+        mLocked = builder.mLocked;
     }
 
     /**
@@ -339,6 +342,13 @@ public final class Channel {
         return mSystemApproved == IS_SYSTEM_APPROVED;
     }
 
+    /**
+     * @return The value of {@link Channels#COLUMN_LOCKED} for the channel.
+     */
+    public boolean isLocked() {
+        return mLocked == IS_LOCKED;
+    }
+
     @Override
     public String toString() {
         return "Channel{"
@@ -464,6 +474,7 @@ public final class Channel {
 
         if (includeProtectedFields) {
             values.put(Channels.COLUMN_BROWSABLE, mBrowsable);
+            values.put(Channels.COLUMN_LOCKED, mLocked);
             if (BuildCompat.isAtLeastO()) {
                 values.put(Channels.COLUMN_SYSTEM_APPROVED, mSystemApproved);
             }
@@ -543,6 +554,10 @@ public final class Channel {
                 && !cursor.isNull(index)) {
             builder.setBrowsable(cursor.getInt(index) == IS_BROWSABLE);
         }
+        if ((index = cursor.getColumnIndex(Channels.COLUMN_LOCKED)) >= 0
+                && !cursor.isNull(index)) {
+            builder.setLocked(cursor.getInt(index) == IS_LOCKED);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if ((index = cursor.getColumnIndex(Channels.COLUMN_APP_LINK_COLOR)) >= 0
                     && !cursor.isNull(index)) {
@@ -612,6 +627,7 @@ public final class Channel {
                 Channels.COLUMN_TYPE,
                 Channels.COLUMN_VIDEO_FORMAT,
                 Channels.COLUMN_BROWSABLE,
+                Channels.COLUMN_LOCKED,
         };
         String[] marshmallowColumns = new String[] {
                 Channels.COLUMN_APP_LINK_COLOR,
@@ -668,6 +684,7 @@ public final class Channel {
         private int mTransient;
         private int mBrowsable;
         private int mSystemApproved;
+        private int mLocked;
 
         public Builder() {
         }
@@ -700,6 +717,7 @@ public final class Channel {
             mTransient = other.mTransient;
             mBrowsable = other.mBrowsable;
             mSystemApproved = other.mSystemApproved;
+            mLocked = other.mLocked;
         }
 
         /**
@@ -1037,6 +1055,19 @@ public final class Channel {
         @RestrictTo(LIBRARY_GROUP)
         public Builder setSystemApproved(boolean value) {
             mSystemApproved = value ? IS_SYSTEM_APPROVED : 0;
+            return this;
+        }
+
+        /**
+         * Sets whether this channel is locked or not.
+         *
+         * @param value The value of {@link Channels#COLUMN_LOCKED} for the channel.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public Builder setLocked(boolean value) {
+            mLocked = value ? IS_LOCKED : 0;
             return this;
         }
 

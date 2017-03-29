@@ -1937,10 +1937,11 @@ public final class TvContractCompat {
          * channel is not locked thus the user is not prompted to enter passcode If not specified,
          * this value is set to 0 (not locked) by default.
          *
+         * <p>This column can only be set by applications having proper system permission to
+         * modify parental control settings.
+         *
          * <p>Type: INTEGER (boolean)
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         public static final String COLUMN_LOCKED = "locked";
 
         /**
