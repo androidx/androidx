@@ -17,6 +17,7 @@
 package android.support.v4.app;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -29,8 +30,8 @@ import android.support.v4.util.Pair;
 import android.view.View;
 
 /**
- * Helper for accessing features in {@link android.app.ActivityOptions}
- * introduced in API level 16 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.ActivityOptions} in a backwards compatible
+ * fashion.
  */
 public class ActivityOptionsCompat {
     /**
@@ -61,18 +62,8 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeCustomAnimation(Context context,
             int enterResId, int exitResId) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ActivityOptionsImpl24(
-                ActivityOptionsCompat24.makeCustomAnimation(context, enterResId, exitResId));
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsImpl23(
-                ActivityOptionsCompat23.makeCustomAnimation(context, enterResId, exitResId));
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return new ActivityOptionsImpl21(
-                ActivityOptionsCompat21.makeCustomAnimation(context, enterResId, exitResId));
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsImplJB(
-                ActivityOptionsCompatJB.makeCustomAnimation(context, enterResId, exitResId));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return createImpl(ActivityOptions.makeCustomAnimation(context, enterResId, exitResId));
         }
         return new ActivityOptionsCompat();
     }
@@ -99,22 +90,9 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeScaleUpAnimation(View source,
             int startX, int startY, int startWidth, int startHeight) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ActivityOptionsImpl24(
-                ActivityOptionsCompat24.makeScaleUpAnimation(source, startX, startY,
-                        startWidth, startHeight));
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsImpl23(
-                ActivityOptionsCompat23.makeScaleUpAnimation(source, startX, startY,
-                        startWidth, startHeight));
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return new ActivityOptionsImpl21(
-                ActivityOptionsCompat21.makeScaleUpAnimation(source, startX, startY,
-                        startWidth, startHeight));
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsImplJB(
-                ActivityOptionsCompatJB.makeScaleUpAnimation(source, startX, startY,
-                        startWidth, startHeight));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return createImpl(ActivityOptions.makeScaleUpAnimation(
+                    source, startX, startY, startWidth, startHeight));
         }
         return new ActivityOptionsCompat();
     }
@@ -135,14 +113,9 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeClipRevealAnimation(View source,
             int startX, int startY, int width, int height) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ActivityOptionsImpl24(
-                ActivityOptionsCompat24.makeClipRevealAnimation(source, startX, startY,
-                        width, height));
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsImpl23(
-                ActivityOptionsCompat23.makeClipRevealAnimation(source, startX, startY,
-                        width, height));
+        if (Build.VERSION.SDK_INT >= 23) {
+            return createImpl(ActivityOptions.makeClipRevealAnimation(
+                    source, startX, startY, width, height));
         }
         return new ActivityOptionsCompat();
     }
@@ -168,22 +141,9 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeThumbnailScaleUpAnimation(View source,
             Bitmap thumbnail, int startX, int startY) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ActivityOptionsImpl24(
-                ActivityOptionsCompat24.makeThumbnailScaleUpAnimation(source, thumbnail,
-                        startX, startY));
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsImpl23(
-                ActivityOptionsCompat23.makeThumbnailScaleUpAnimation(source, thumbnail,
-                        startX, startY));
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return new ActivityOptionsImpl21(
-                ActivityOptionsCompat21.makeThumbnailScaleUpAnimation(source, thumbnail,
-                        startX, startY));
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsImplJB(
-                ActivityOptionsCompatJB.makeThumbnailScaleUpAnimation(source, thumbnail,
-                        startX, startY));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return createImpl(ActivityOptions.makeThumbnailScaleUpAnimation(
+                    source, thumbnail, startX, startY));
         }
         return new ActivityOptionsCompat();
     }
@@ -208,18 +168,9 @@ public class ActivityOptionsCompat {
      */
     public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
             View sharedElement, String sharedElementName) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl24(
-                    ActivityOptionsCompat24.makeSceneTransitionAnimation(activity,
-                            sharedElement, sharedElementName));
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl23(
-                    ActivityOptionsCompat23.makeSceneTransitionAnimation(activity,
-                            sharedElement, sharedElementName));
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl21(
-                    ActivityOptionsCompat21.makeSceneTransitionAnimation(activity,
-                            sharedElement, sharedElementName));
+        if (Build.VERSION.SDK_INT >= 21) {
+            return createImpl(ActivityOptions.makeSceneTransitionAnimation(
+                    activity, sharedElement, sharedElementName));
         }
         return new ActivityOptionsCompat();
     }
@@ -241,29 +192,19 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to
      *         supply these options as the options Bundle when starting an activity.
      */
+    @SuppressWarnings("unchecked")
     public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
             Pair<View, String>... sharedElements) {
         if (Build.VERSION.SDK_INT >= 21) {
-            View[] views = null;
-            String[] names = null;
+            android.util.Pair<View, String>[] pairs = null;
             if (sharedElements != null) {
-                views = new View[sharedElements.length];
-                names = new String[sharedElements.length];
+                pairs = new android.util.Pair[sharedElements.length];
                 for (int i = 0; i < sharedElements.length; i++) {
-                    views[i] = sharedElements[i].first;
-                    names[i] = sharedElements[i].second;
+                    pairs[i] = android.util.Pair.create(
+                            sharedElements[i].first, sharedElements[i].second);
                 }
             }
-            if (Build.VERSION.SDK_INT >= 24) {
-                return new ActivityOptionsCompat.ActivityOptionsImpl24(
-                        ActivityOptionsCompat24.makeSceneTransitionAnimation(activity, views, names));
-            } else if (Build.VERSION.SDK_INT >= 23) {
-                return new ActivityOptionsCompat.ActivityOptionsImpl23(
-                        ActivityOptionsCompat23.makeSceneTransitionAnimation(activity, views, names));
-            } else {
-                return new ActivityOptionsCompat.ActivityOptionsImpl21(
-                        ActivityOptionsCompat21.makeSceneTransitionAnimation(activity, views, names));
-            }
+            return createImpl(ActivityOptions.makeSceneTransitionAnimation(activity, pairs));
         }
         return new ActivityOptionsCompat();
     }
@@ -279,15 +220,8 @@ public class ActivityOptionsCompat {
      * <code>singleInstance</code> or <code>singleTask</code>.
      */
     public static ActivityOptionsCompat makeTaskLaunchBehind() {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl24(
-                    ActivityOptionsCompat24.makeTaskLaunchBehind());
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl23(
-                    ActivityOptionsCompat23.makeTaskLaunchBehind());
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl21(
-                    ActivityOptionsCompat21.makeTaskLaunchBehind());
+        if (Build.VERSION.SDK_INT >= 21) {
+            return createImpl(ActivityOptions.makeTaskLaunchBehind());
         }
         return new ActivityOptionsCompat();
     }
@@ -297,124 +231,73 @@ public class ActivityOptionsCompat {
      * Other options can still be set.
      */
     public static ActivityOptionsCompat makeBasic() {
-        if (Build.VERSION.SDK_INT >= 24) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl24(
-                    ActivityOptionsCompat24.makeBasic());
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsCompat.ActivityOptionsImpl23(
-                    ActivityOptionsCompat23.makeBasic());
+        if (Build.VERSION.SDK_INT >= 23) {
+            return createImpl(ActivityOptions.makeBasic());
         }
         return new ActivityOptionsCompat();
     }
 
     @RequiresApi(16)
-    private static class ActivityOptionsImplJB extends ActivityOptionsCompat {
-        private final ActivityOptionsCompatJB mImpl;
-
-        ActivityOptionsImplJB(ActivityOptionsCompatJB impl) {
-            mImpl = impl;
-        }
-
-        @Override
-        public Bundle toBundle() {
-            return mImpl.toBundle();
-        }
-
-        @Override
-        public void update(ActivityOptionsCompat otherOptions) {
-            if (otherOptions instanceof ActivityOptionsImplJB) {
-                ActivityOptionsImplJB otherImpl = (ActivityOptionsImplJB)otherOptions;
-                mImpl.update(otherImpl.mImpl);
-            }
+    private static ActivityOptionsCompat createImpl(ActivityOptions options) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return new ActivityOptionsCompatApi24Impl(options);
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            return new ActivityOptionsCompatApi23Impl(options);
+        } else {
+            return new ActivityOptionsCompatApi16Impl(options);
         }
     }
 
-    @RequiresApi(21)
-    private static class ActivityOptionsImpl21 extends ActivityOptionsCompat {
-        private final ActivityOptionsCompat21 mImpl;
+    @RequiresApi(16)
+    private static class ActivityOptionsCompatApi16Impl extends ActivityOptionsCompat {
+        protected final ActivityOptions mActivityOptions;
 
-        ActivityOptionsImpl21(ActivityOptionsCompat21 impl) {
-            mImpl = impl;
+        ActivityOptionsCompatApi16Impl(ActivityOptions activityOptions) {
+            mActivityOptions = activityOptions;
         }
 
         @Override
         public Bundle toBundle() {
-            return mImpl.toBundle();
+            return mActivityOptions.toBundle();
         }
 
         @Override
         public void update(ActivityOptionsCompat otherOptions) {
-            if (otherOptions instanceof ActivityOptionsCompat.ActivityOptionsImpl21) {
-                ActivityOptionsCompat.ActivityOptionsImpl21
-                        otherImpl = (ActivityOptionsCompat.ActivityOptionsImpl21)otherOptions;
-                mImpl.update(otherImpl.mImpl);
+            if (otherOptions instanceof ActivityOptionsCompatApi16Impl) {
+                ActivityOptionsCompatApi16Impl otherImpl =
+                        (ActivityOptionsCompatApi16Impl) otherOptions;
+                mActivityOptions.update(otherImpl.mActivityOptions);
             }
         }
     }
 
     @RequiresApi(23)
-    private static class ActivityOptionsImpl23 extends ActivityOptionsCompat {
-        private final ActivityOptionsCompat23 mImpl;
-
-        ActivityOptionsImpl23(ActivityOptionsCompat23 impl) {
-            mImpl = impl;
-        }
-
-        @Override
-        public Bundle toBundle() {
-            return mImpl.toBundle();
-        }
-
-        @Override
-        public void update(ActivityOptionsCompat otherOptions) {
-            if (otherOptions instanceof ActivityOptionsCompat.ActivityOptionsImpl23) {
-                ActivityOptionsCompat.ActivityOptionsImpl23
-                        otherImpl = (ActivityOptionsCompat.ActivityOptionsImpl23)otherOptions;
-                mImpl.update(otherImpl.mImpl);
-            }
+    private static class ActivityOptionsCompatApi23Impl extends ActivityOptionsCompatApi16Impl {
+        ActivityOptionsCompatApi23Impl(ActivityOptions activityOptions) {
+            super(activityOptions);
         }
 
         @Override
         public void requestUsageTimeReport(PendingIntent receiver) {
-            mImpl.requestUsageTimeReport(receiver);
+            mActivityOptions.requestUsageTimeReport(receiver);
         }
     }
 
     @RequiresApi(24)
-    private static class ActivityOptionsImpl24 extends ActivityOptionsCompat {
-        private final ActivityOptionsCompat24 mImpl;
-
-        ActivityOptionsImpl24(ActivityOptionsCompat24 impl) {
-            mImpl = impl;
-        }
-
-        @Override
-        public Bundle toBundle() {
-            return mImpl.toBundle();
-        }
-
-        @Override
-        public void update(ActivityOptionsCompat otherOptions) {
-            if (otherOptions instanceof ActivityOptionsCompat.ActivityOptionsImpl24) {
-                ActivityOptionsCompat.ActivityOptionsImpl24
-                        otherImpl = (ActivityOptionsCompat.ActivityOptionsImpl24)otherOptions;
-                mImpl.update(otherImpl.mImpl);
-            }
+    private static class ActivityOptionsCompatApi24Impl extends ActivityOptionsCompatApi23Impl {
+        ActivityOptionsCompatApi24Impl(ActivityOptions activityOptions) {
+            super(activityOptions);
         }
 
         @Override
         public ActivityOptionsCompat setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
-            return new ActivityOptionsImpl24(mImpl.setLaunchBounds(screenSpacePixelRect));
+            return new ActivityOptionsCompatApi24Impl(
+                    mActivityOptions.setLaunchBounds(screenSpacePixelRect));
         }
 
         @Override
         public Rect getLaunchBounds() {
-            return mImpl.getLaunchBounds();
-        }
-
-        @Override
-        public void requestUsageTimeReport(PendingIntent receiver) {
-            mImpl.requestUsageTimeReport(receiver);
+            return mActivityOptions.getLaunchBounds();
         }
     }
 
@@ -487,7 +370,7 @@ public class ActivityOptionsCompat {
      * the launcher and recents stops time tracking of the session); it is the act of
      * going somewhere else that completes the tracking.</p>
      *
-     * @param receiver A broadcast receiver that willl receive the report.
+     * @param receiver A broadcast receiver that will receive the report.
      */
     public void requestUsageTimeReport(PendingIntent receiver) {
         // Do nothing.
