@@ -1286,9 +1286,7 @@ public final class TvContractCompat {
          *
          * <p>Type: INTEGER (boolean)
          * @see Channels#COLUMN_TRANSIENT
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
         String COLUMN_TRANSIENT = "transient";
 
         /**
@@ -2131,9 +2129,8 @@ public final class TvContractCompat {
          *
          * <p>Type: INTEGER (boolean)
          * @see PreviewPrograms#COLUMN_TRANSIENT
-         * @hide
+         * @see WatchNextPrograms#COLUMN_TRANSIENT
          */
-        @RestrictTo(LIBRARY_GROUP)
         public static final String COLUMN_TRANSIENT = "transient";
 
         /**
