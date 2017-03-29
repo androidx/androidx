@@ -33,7 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Tests usage of the {@link FragmentTransaction} class.
@@ -179,9 +179,9 @@ public class FragmentTransactionTest {
                 .commit();
 
         FragmentTestUtil.executePendingTransactions(mActivityRule);
-        List<Fragment> fragments = fm.getFragments();
+        Collection<Fragment> fragments = fm.getFragments();
         assertEquals(1, fragments.size());
-        assertEquals(fragment, fragments.get(0));
+        assertTrue(fragments.contains(fragment));
 
         // Removed fragments shouldn't show
         fm.beginTransaction()
@@ -209,13 +209,13 @@ public class FragmentTransactionTest {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         fragments = fm.getFragments();
         assertEquals(1, fragments.size());
-        assertEquals(fragment, fragments.get(0));
+        assertTrue(fragments.contains(fragment));
 
         // And showing it again shouldn't change anything:
         FragmentTestUtil.popBackStackImmediate(mActivityRule);
         fragments = fm.getFragments();
         assertEquals(1, fragments.size());
-        assertEquals(fragment, fragments.get(0));
+        assertTrue(fragments.contains(fragment));
 
         // Now pop back to the start state
         FragmentTestUtil.popBackStackImmediate(mActivityRule);
@@ -223,8 +223,9 @@ public class FragmentTransactionTest {
         // We can't force concurrency, but we can do it lots of times and hope that
         // we hit it.
         for (int i = 0; i < 100; i++) {
+            Fragment fragment2 = new CorrectFragment();
             fm.beginTransaction()
-                    .add(R.id.content, fragment)
+                    .add(R.id.content, fragment2)
                     .addToBackStack(null)
                     .commit();
             getFragmentsUntilSize(1);

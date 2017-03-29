@@ -62,6 +62,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -328,14 +329,14 @@ public abstract class FragmentManager {
     public abstract Fragment getFragment(Bundle bundle, String key);
 
     /**
-     * Get a list of all fragments that are currently added to the FragmentManager.
+     * Get a collection of all fragments that are currently added to the FragmentManager.
      * This may include those that are hidden as well as those that are shown.
      * This will not include any fragments only in the back stack, or fragments that
      * are detached or removed.
      *
-     * @return A list of all fragments that are added to the FragmentManager.
+     * @return A collection of all fragments that are added to the FragmentManager.
      */
-    public abstract List<Fragment> getFragments();
+    public abstract Collection<Fragment> getFragments();
 
     /**
      * Save the current instance state of the given Fragment.  This can be
@@ -885,12 +886,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public List<Fragment> getFragments() {
+    public Collection<Fragment> getFragments() {
         if (mAdded == null) {
             return Collections.EMPTY_LIST;
         }
         synchronized (mAdded) {
-            return (List<Fragment>) mAdded.clone();
+            return (Collection<Fragment>) mAdded.clone();
         }
     }
 
