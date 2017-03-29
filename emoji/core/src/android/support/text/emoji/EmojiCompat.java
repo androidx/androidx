@@ -481,10 +481,33 @@ public class EmojiCompat {
      *            equal to {@code start} parameter, also less than {@code charSequence.length()}
      *
      * @throws IllegalStateException if not initialized yet
+     * @throws IllegalArgumentException in the following cases:
+     *                                  {@code start < 0}, {@code end < 0}, {@code end < start},
+     *                                  {@code start > charSequence.length()},
+     *                                  {@code end > charSequence.length()}
      */
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
+        Preconditions.checkArgumentNonnegative(start, "start cannot be negative");
+        Preconditions.checkArgumentNonnegative(end, "end cannot be negative");
+        Preconditions.checkArgument(start <= end, "start should be <= than end");
+
+        // early return since there is nothing to do
+        if (charSequence == null) {
+            return charSequence;
+        }
+
+        Preconditions.checkArgument(start <= charSequence.length(),
+                "start should be < than charSequence length");
+        Preconditions.checkArgument(end <= charSequence.length(),
+                "end should be < than charSequence length");
+
+        // early return since there is nothing to do
+        if (charSequence.length() == 0 || start == end) {
+            return charSequence;
+        }
+
         return mProcessor.process(charSequence, start, end);
     }
 
