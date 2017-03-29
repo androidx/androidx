@@ -17,122 +17,16 @@
 
 package android.support.v4.view;
 
-import android.support.annotation.RequiresApi;
-import android.os.Build;
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.view.ViewGroup;
 
 /**
  * Helper for accessing API features in
- * {@link android.view.ViewGroup.MarginLayoutParams MarginLayoutParams} added after API 4.
+ * {@link android.view.ViewGroup.MarginLayoutParams MarginLayoutParams} in a backwards compatible
+ * way.
  */
 public final class MarginLayoutParamsCompat {
-    interface MarginLayoutParamsCompatImpl {
-        int getMarginStart(ViewGroup.MarginLayoutParams lp);
-        int getMarginEnd(ViewGroup.MarginLayoutParams lp);
-        void setMarginStart(ViewGroup.MarginLayoutParams lp, int marginStart);
-        void setMarginEnd(ViewGroup.MarginLayoutParams lp, int marginEnd);
-        boolean isMarginRelative(ViewGroup.MarginLayoutParams lp);
-        int getLayoutDirection(ViewGroup.MarginLayoutParams lp);
-        void setLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection);
-        void resolveLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection);
-    }
-
-    static class MarginLayoutParamsCompatImplBase implements MarginLayoutParamsCompatImpl {
-
-        @Override
-        public int getMarginStart(ViewGroup.MarginLayoutParams lp) {
-            return lp.leftMargin;
-        }
-
-        @Override
-        public int getMarginEnd(ViewGroup.MarginLayoutParams lp) {
-            return lp.rightMargin;
-        }
-
-        @Override
-        public void setMarginStart(ViewGroup.MarginLayoutParams lp, int marginStart) {
-            lp.leftMargin = marginStart;
-        }
-
-        @Override
-        public void setMarginEnd(ViewGroup.MarginLayoutParams lp, int marginEnd) {
-            lp.rightMargin = marginEnd;
-        }
-
-        @Override
-        public boolean isMarginRelative(ViewGroup.MarginLayoutParams lp) {
-            return false;
-        }
-
-        @Override
-        public int getLayoutDirection(ViewGroup.MarginLayoutParams lp) {
-            return ViewCompat.LAYOUT_DIRECTION_LTR;
-        }
-
-        @Override
-        public void setLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection) {
-            // No-op
-        }
-
-        @Override
-        public void resolveLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection) {
-            // No-op
-        }
-    }
-
-    @RequiresApi(17)
-    static class MarginLayoutParamsCompatImplJbMr1 implements MarginLayoutParamsCompatImpl {
-
-        @Override
-        public int getMarginStart(ViewGroup.MarginLayoutParams lp) {
-            return MarginLayoutParamsCompatJellybeanMr1.getMarginStart(lp);
-        }
-
-        @Override
-        public int getMarginEnd(ViewGroup.MarginLayoutParams lp) {
-            return MarginLayoutParamsCompatJellybeanMr1.getMarginEnd(lp);
-        }
-
-        @Override
-        public void setMarginStart(ViewGroup.MarginLayoutParams lp, int marginStart) {
-            MarginLayoutParamsCompatJellybeanMr1.setMarginStart(lp, marginStart);
-        }
-
-        @Override
-        public void setMarginEnd(ViewGroup.MarginLayoutParams lp, int marginEnd) {
-            MarginLayoutParamsCompatJellybeanMr1.setMarginEnd(lp, marginEnd);
-        }
-
-        @Override
-        public boolean isMarginRelative(ViewGroup.MarginLayoutParams lp) {
-            return MarginLayoutParamsCompatJellybeanMr1.isMarginRelative(lp);
-        }
-
-        @Override
-        public int getLayoutDirection(ViewGroup.MarginLayoutParams lp) {
-            return MarginLayoutParamsCompatJellybeanMr1.getLayoutDirection(lp);
-        }
-
-        @Override
-        public void setLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection) {
-            MarginLayoutParamsCompatJellybeanMr1.setLayoutDirection(lp, layoutDirection);
-        }
-
-        @Override
-        public void resolveLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection) {
-            MarginLayoutParamsCompatJellybeanMr1.resolveLayoutDirection(lp, layoutDirection);
-        }
-    }
-
-    static final MarginLayoutParamsCompatImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 17) { // jb-mr1
-            IMPL = new MarginLayoutParamsCompatImplJbMr1();
-        } else {
-            IMPL = new MarginLayoutParamsCompatImplBase();
-        }
-    }
-
     /**
      * Get the relative starting margin that was set.
      *
@@ -145,7 +39,11 @@ public final class MarginLayoutParamsCompat {
      * @return the margin along the starting edge in pixels
      */
     public static int getMarginStart(ViewGroup.MarginLayoutParams lp) {
-        return IMPL.getMarginStart(lp);
+        if (SDK_INT >= 17) {
+            return lp.getMarginStart();
+        } else {
+            return lp.leftMargin;
+        }
     }
 
     /**
@@ -160,7 +58,11 @@ public final class MarginLayoutParamsCompat {
      * @return the margin along the ending edge in pixels
      */
     public static int getMarginEnd(ViewGroup.MarginLayoutParams lp) {
-        return IMPL.getMarginEnd(lp);
+        if (SDK_INT >= 17) {
+            return lp.getMarginEnd();
+        } else {
+            return lp.rightMargin;
+        }
     }
 
     /**
@@ -175,7 +77,11 @@ public final class MarginLayoutParamsCompat {
      * @param marginStart the desired start margin in pixels
      */
     public static void setMarginStart(ViewGroup.MarginLayoutParams lp, int marginStart) {
-        IMPL.setMarginStart(lp, marginStart);
+        if (SDK_INT >= 17) {
+            lp.setMarginStart(marginStart);
+        } else {
+            lp.leftMargin = marginStart;
+        }
     }
 
     /**
@@ -190,7 +96,11 @@ public final class MarginLayoutParamsCompat {
      * @param marginEnd the desired end margin in pixels
      */
     public static void setMarginEnd(ViewGroup.MarginLayoutParams lp, int marginEnd) {
-        IMPL.setMarginEnd(lp, marginEnd);
+        if (SDK_INT >= 17) {
+            lp.setMarginEnd(marginEnd);
+        } else {
+            lp.rightMargin = marginEnd;
+        }
     }
 
     /**
@@ -199,7 +109,11 @@ public final class MarginLayoutParamsCompat {
      * @return true if either marginStart or marginEnd has been set.
      */
     public static boolean isMarginRelative(ViewGroup.MarginLayoutParams lp) {
-        return IMPL.isMarginRelative(lp);
+        if (SDK_INT >= 17) {
+            return lp.isMarginRelative();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -209,7 +123,13 @@ public final class MarginLayoutParamsCompat {
      * @return the layout direction.
      */
     public static int getLayoutDirection(ViewGroup.MarginLayoutParams lp) {
-        int result = IMPL.getLayoutDirection(lp);
+        int result;
+        if (SDK_INT >= 17) {
+            result = lp.getLayoutDirection();
+        } else {
+            result = ViewCompat.LAYOUT_DIRECTION_LTR;
+        }
+
         if ((result != ViewCompat.LAYOUT_DIRECTION_LTR)
                 && (result != ViewCompat.LAYOUT_DIRECTION_RTL)) {
             // This can happen on older platform releases where the default (unset) layout direction
@@ -227,7 +147,9 @@ public final class MarginLayoutParamsCompat {
      *                     or {@link ViewCompat#LAYOUT_DIRECTION_RTL}.
      */
     public static void setLayoutDirection(ViewGroup.MarginLayoutParams lp, int layoutDirection) {
-        IMPL.setLayoutDirection(lp, layoutDirection);
+        if (SDK_INT >= 17) {
+            lp.setLayoutDirection(layoutDirection);
+        }
     }
 
     /**
@@ -236,7 +158,9 @@ public final class MarginLayoutParamsCompat {
      */
     public static void resolveLayoutDirection(ViewGroup.MarginLayoutParams lp,
             int layoutDirection) {
-        IMPL.resolveLayoutDirection(lp, layoutDirection);
+        if (SDK_INT >= 17) {
+            lp.resolveLayoutDirection(layoutDirection);
+        }
     }
 
     private MarginLayoutParamsCompat() {}
