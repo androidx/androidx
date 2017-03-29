@@ -25,7 +25,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.widget.SpannableBuilder;
 import android.support.v4.graphics.PaintCompat;
-import android.support.v4.util.Preconditions;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -162,25 +161,6 @@ final class EmojiProcessor {
      */
     CharSequence process(@NonNull final CharSequence charSequence, @IntRange(from = 0) int start,
             @IntRange(from = 0) int end) {
-        Preconditions.checkArgumentNonnegative(start, "start cannot be negative");
-        Preconditions.checkArgumentNonnegative(end, "end cannot be negative");
-        Preconditions.checkArgument(start <= end, "start should be <= than end");
-
-        // early return since there is nothing to do
-        if (charSequence == null) {
-            return charSequence;
-        }
-
-        Preconditions.checkArgument(start <= charSequence.length(),
-                "start should be < than charSequence length");
-        Preconditions.checkArgument(end <= charSequence.length(),
-                "end should be < than charSequence length");
-
-        // early return since there is nothing to do
-        if (charSequence.length() == 0 || start == end) {
-            return charSequence;
-        }
-
         final boolean isSpannableBuilder = charSequence instanceof SpannableBuilder;
         if (isSpannableBuilder) {
             ((SpannableBuilder) charSequence).beginBatchEdit();
