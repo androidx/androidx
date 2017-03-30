@@ -371,7 +371,11 @@ class SwipeDismissLayout extends FrameLayout {
             float deltaX = ev.getRawX() - mDownX;
             float deltaY = ev.getRawY() - mDownY;
             if (isPotentialSwipe(deltaX, deltaY)) {
-                mSwiping = mCanStartSwipe && Math.abs(deltaY) < Math.abs(deltaX);
+                // There are three conditions on which we want want to start swiping:
+                // 1. The swipe is from left to right AND
+                // 2. It is horizontal AND
+                // 3. We actually can start swiping
+                mSwiping = mCanStartSwipe && Math.abs(deltaY) < Math.abs(deltaX) && deltaX > 0;
                 mCanStartSwipe = mSwiping;
             }
         }
