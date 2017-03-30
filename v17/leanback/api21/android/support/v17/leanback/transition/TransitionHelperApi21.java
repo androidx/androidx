@@ -53,8 +53,16 @@ final class TransitionHelperApi21 {
         return window.getSharedElementEnterTransition();
     }
 
+    public static void setSharedElementEnterTransition(Window window, Object transition) {
+        window.setSharedElementEnterTransition((Transition) transition);
+    }
+
     public static Object getSharedElementReturnTransition(Window window) {
         return window.getSharedElementReturnTransition();
+    }
+
+    public static void setSharedElementReturnTransition(Window window, Object transition) {
+        window.setSharedElementReturnTransition((Transition) transition);
     }
 
     public static Object getSharedElementExitTransition(Window window) {
@@ -69,8 +77,16 @@ final class TransitionHelperApi21 {
         return window.getEnterTransition();
     }
 
+    public static void setEnterTransition(Window window, Object transition) {
+        window.setEnterTransition((Transition) transition);
+    }
+
     public static Object getReturnTransition(Window window) {
         return window.getReturnTransition();
+    }
+
+    public static void setReturnTransition(Window window, Object transition) {
+        window.setReturnTransition((Transition) transition);
     }
 
     public static Object getExitTransition(Window window) {
