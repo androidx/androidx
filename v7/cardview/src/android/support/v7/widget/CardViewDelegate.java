@@ -16,7 +16,6 @@
 package android.support.v7.widget;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.RequiresApi;
 import android.view.View;
 
 /**
@@ -24,7 +23,6 @@ import android.view.View;
  * <p>
  * Necessary to resolve circular dependency between base CardView and platform implementations.
  */
-@RequiresApi(9)
 interface CardViewDelegate {
     void setCardBackground(Drawable drawable);
     Drawable getCardBackground();

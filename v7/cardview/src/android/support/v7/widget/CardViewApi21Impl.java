@@ -22,7 +22,7 @@ import android.support.annotation.RequiresApi;
 import android.view.View;
 
 @RequiresApi(21)
-class CardViewApi21 implements CardViewImpl {
+class CardViewApi21Impl implements CardViewImpl {
 
     @Override
     public void initialize(CardViewDelegate cardView, Context context,
