@@ -32,6 +32,10 @@ interface ViewUtilsImpl {
 
     float getTransitionAlpha(@NonNull View view);
 
+    void saveNonTransitionAlpha(@NonNull View view);
+
+    void clearNonTransitionAlpha(@NonNull View view);
+
     void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix);
 
     void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix);
