@@ -1734,6 +1734,7 @@ package android.support.text.emoji {
     method public static android.support.text.emoji.EmojiCompat init(android.support.text.emoji.EmojiCompat.Config);
     method public java.lang.CharSequence process(java.lang.CharSequence);
     method public java.lang.CharSequence process(java.lang.CharSequence, int, int);
+    method public java.lang.CharSequence process(java.lang.CharSequence, int, int, int);
     method public void registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     method public void unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     field public static final java.lang.String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
@@ -1748,7 +1749,6 @@ package android.support.text.emoji {
     method public android.support.text.emoji.EmojiCompat.Config registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorColor(int);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorEnabled(boolean);
-    method public android.support.text.emoji.EmojiCompat.Config setMaxEmojiPerText(int);
     method public android.support.text.emoji.EmojiCompat.Config setReplaceAll(boolean);
     method public android.support.text.emoji.EmojiCompat.Config unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
   }

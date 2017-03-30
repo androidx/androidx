@@ -84,14 +84,15 @@ final class EmojiProcessor {
     private static final ThreadLocal<StringBuilder> sStringBuilder = new ThreadLocal<>();
 
     /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
+
+    /**
      * Factory used to create EmojiSpans.
      */
     private final EmojiCompat.SpanFactory mSpanFactory;
-
-    /**
-     * @see EmojiCompat.Config#setMaxEmojiPerText(int)
-     */
-    private final int mMaxEmojiPerText;
 
     /**
      * @see EmojiCompat.Config#setReplaceAll(boolean)
@@ -110,9 +111,8 @@ final class EmojiProcessor {
 
     EmojiProcessor(@NonNull final MetadataRepo metadataRepo,
             @NonNull final EmojiCompat.SpanFactory spanFactory,
-            final boolean replaceAll, @IntRange(from = 0) final int maxEmojiPerText) {
+            final boolean replaceAll) {
         mSpanFactory = spanFactory;
-        mMaxEmojiPerText = maxEmojiPerText;
         mMetadataRepo = metadataRepo;
         mReplaceAll = replaceAll;
         mTextPaint = new TextPaint();
@@ -157,10 +157,11 @@ final class EmojiProcessor {
      *              equal to {@code 0}, also less than {@code charSequence.length()}
      * @param end end index in the charSequence to look for emojis, should be greater than or
      *            equal to {@code start} parameter, also less than {@code charSequence.length()}
-     *
+     * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
+     *                      than or equal to {@code 0}
      */
     CharSequence process(@NonNull final CharSequence charSequence, @IntRange(from = 0) int start,
-            @IntRange(from = 0) int end) {
+            @IntRange(from = 0) int end, @IntRange(from = 0) int maxEmojiCount) {
         final boolean isSpannableBuilder = charSequence instanceof SpannableBuilder;
         if (isSpannableBuilder) {
             ((SpannableBuilder) charSequence).beginBatchEdit();
@@ -202,6 +203,11 @@ final class EmojiProcessor {
                 return charSequence;
             }
 
+            // calculate max number of emojis that can be added. since getSpans call is a relatively
+            // expensive operation, do it only when maxEmojiCount is not unlimited.
+            if (maxEmojiCount != EMOJI_COUNT_UNLIMITED && spannable != null) {
+                maxEmojiCount -= spannable.getSpans(0, spannable.length(), EmojiSpan.class).length;
+            }
             // add new ones
             int addedCount = 0;
             final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode());
@@ -209,7 +215,7 @@ final class EmojiProcessor {
             int currentOffset = start;
             int codePoint = Character.codePointAt(charSequence, currentOffset);
 
-            while (currentOffset < end && addedCount < mMaxEmojiPerText) {
+            while (currentOffset < end && addedCount < maxEmojiCount) {
                 final int action = sm.check(codePoint);
 
                 switch (action) {
@@ -244,7 +250,7 @@ final class EmojiProcessor {
             // identified an emoji before. i.e. abc[women-emoji] when the last codepoint is consumed
             // state machine is waiting to see if there is an emoji sequence (i.e. ZWJ).
             // Need to check if it is in such a state.
-            if (sm.isInFlushableState() && addedCount < mMaxEmojiPerText) {
+            if (sm.isInFlushableState() && addedCount < maxEmojiCount) {
                 if (mReplaceAll || !hasGlyph(charSequence, start, currentOffset,
                         sm.getCurrentMetadata())) {
                     if (spannable == null) {

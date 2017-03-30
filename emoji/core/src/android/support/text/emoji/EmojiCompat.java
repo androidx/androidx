@@ -152,11 +152,6 @@ public class EmojiCompat {
     private final MetadataLoader mMetadataLoader;
 
     /**
-     * @see Config#setMaxEmojiPerText(int)
-     */
-    private final int mMaxEmojiPerText;
-
-    /**
      * @see Config#setReplaceAll(boolean)
      */
     private final boolean mReplaceAll;
@@ -178,7 +173,6 @@ public class EmojiCompat {
      */
     private EmojiCompat(@NonNull final Config config) {
         mInitLock = new ReentrantReadWriteLock();
-        mMaxEmojiPerText = config.mMaxEmojiPerText;
         mReplaceAll = config.mReplaceAll;
         mEmojiSpanIndicatorEnabled = config.mEmojiSpanIndicatorEnabled;
         mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
@@ -284,8 +278,7 @@ public class EmojiCompat {
         }
 
         mMetadataRepo = metadataRepo;
-        mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(), mReplaceAll,
-                mMaxEmojiPerText);
+        mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(), mReplaceAll);
 
         final Collection<InitCallback> initCallbacks = new ArrayList<>();
         mInitLock.writeLock().lock();
@@ -519,9 +512,43 @@ public class EmojiCompat {
      */
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end) {
+        return process(charSequence, start, end, EmojiProcessor.EMOJI_COUNT_UNLIMITED);
+    }
+
+    /**
+     * Checks a given CharSequence for emojis, and adds EmojiSpans if any emojis are found.
+     * <p>
+     * <ul>
+     * <li>If no emojis are found, {@code charSequence} given as the input is returned without
+     * any changes. i.e. charSequence is a String, and no emojis are found, the same String is
+     * returned.</li>
+     * <li>If the given input is not a Spannable (such as String), and at least one emoji is found
+     * a new {@link android.text.Spannable} instance is returned. </li>
+     * <li>If the given input is a Spannable, the same instance is returned. </li>
+     * </ul>
+     *
+     * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
+     * @param start start index in the charSequence to look for emojis, should be greater than or
+     *              equal to {@code 0}, also less than {@code charSequence.length()}
+     * @param end end index in the charSequence to look for emojis, should be greater than or
+     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
+     *                      than or equal to {@code 0}
+     *
+     * @throws IllegalStateException if not initialized yet
+     * @throws IllegalArgumentException in the following cases:
+     *                                  {@code start < 0}, {@code end < 0}, {@code end < start},
+     *                                  {@code start > charSequence.length()},
+     *                                  {@code end > charSequence.length()}
+     *                                  {@code maxEmojiCount < 0}
+     */
+    public CharSequence process(@NonNull final CharSequence charSequence,
+            @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
+            @IntRange(from = 0) final int maxEmojiCount) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
         Preconditions.checkArgumentNonnegative(start, "start cannot be negative");
         Preconditions.checkArgumentNonnegative(end, "end cannot be negative");
+        Preconditions.checkArgumentNonnegative(maxEmojiCount, "maxEmojiCount cannot be negative");
         Preconditions.checkArgument(start <= end, "start should be <= than end");
 
         // early return since there is nothing to do
@@ -539,7 +566,7 @@ public class EmojiCompat {
             return charSequence;
         }
 
-        return mProcessor.process(charSequence, start, end);
+        return mProcessor.process(charSequence, start, end, maxEmojiCount);
     }
 
     /**
@@ -640,11 +667,6 @@ public class EmojiCompat {
      */
     public abstract static class Config {
         private final MetadataLoader mMetadataLoader;
-        /**
-         * Measurements on Pixel XL, Android N MR2, EditText delete operation takes 7ms for
-         * 100 EmojiSpans.
-         */
-        private int mMaxEmojiPerText = 100;
         private boolean mReplaceAll;
         private Set<InitCallback> mInitCallbacks;
         private boolean mEmojiSpanIndicatorEnabled;
@@ -658,24 +680,6 @@ public class EmojiCompat {
         protected Config(@NonNull final MetadataLoader metadataLoader) {
             Preconditions.checkNotNull(metadataLoader, "metadataLoader cannot be null.");
             mMetadataLoader = metadataLoader;
-        }
-
-        /**
-         * Set the limit of EmojiSpans to be added to a CharSequence. The number of spans in a
-         * CharSequence affects the performance of the EditText, TextView.
-         * <p/>
-         * Default value is {@code 100}.
-         *
-         * @param maxEmojiPerText maximum number of EmojiSpans to be added to a single
-         *                        CharSequence, should be equal or greater than 0
-         *
-         * @return EmojiCompat.Config instance
-         */
-        public Config setMaxEmojiPerText(@IntRange(from = 0) final int maxEmojiPerText) {
-            Preconditions.checkArgumentNonnegative(maxEmojiPerText,
-                    "maxEmojiPerText cannot be negative");
-            mMaxEmojiPerText = maxEmojiPerText;
-            return this;
         }
 
         /**
