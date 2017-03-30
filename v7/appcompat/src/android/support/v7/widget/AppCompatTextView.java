@@ -23,9 +23,12 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.TintableBackgroundView;
+import android.support.v4.widget.AutoSizeableTextView;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -45,18 +48,8 @@ import android.widget.TextView;
  * <p>This will automatically be used when you use {@link TextView} in your layouts.
  * You should only need to manually use this class when writing custom views.</p>
  */
-public class AppCompatTextView extends TextView implements TintableBackgroundView {
-
-    /**
-     * The TextView does not auto-size text (default).
-     */
-    public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0;
-
-    /**
-     * The TextView scales text size both horizontally and vertically to fit within the
-     * container.
-     */
-    public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1;
+public class AppCompatTextView extends TextView implements TintableBackgroundView,
+        AutoSizeableTextView {
 
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
@@ -186,5 +179,133 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         } else {
             super.setTextSize(unit, size);
         }
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#setAutoSizeTextTypeWithDefaults(
+     *        TextView, int)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void setAutoSizeTextTypeWithDefaults(
+            @TextViewCompat.AutoSizeTextType int autoSizeTextType) {
+        if (mTextHelper != null) {
+            mTextHelper.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+        }
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(
+     *        TextView, int, int, int, int)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void setAutoSizeTextTypeUniformWithConfiguration(
+            int autoSizeMinTextSize,
+            int autoSizeMaxTextSize,
+            int autoSizeStepGranularity,
+            int unit) throws IllegalArgumentException {
+        if (mTextHelper != null) {
+            mTextHelper.setAutoSizeTextTypeUniformWithConfiguration(
+                    autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+        }
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(
+     *        TextView, int[], int)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
+            throws IllegalArgumentException {
+        if (mTextHelper != null) {
+            mTextHelper.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+        }
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#getAutoSizeTextType(TextView)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    @TextViewCompat.AutoSizeTextType
+    public int getAutoSizeTextType() {
+        if (mTextHelper != null) {
+            return mTextHelper.getAutoSizeTextType();
+        }
+        return TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#getAutoSizeStepGranularity(TextView)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public int getAutoSizeStepGranularity() {
+        if (mTextHelper != null) {
+            return mTextHelper.getAutoSizeStepGranularity();
+        }
+        return -1;
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#getAutoSizeMinTextSize(TextView)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public int getAutoSizeMinTextSize() {
+        if (mTextHelper != null) {
+            return mTextHelper.getAutoSizeMinTextSize();
+        }
+        return -1;
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#getAutoSizeMaxTextSize(TextView)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public int getAutoSizeMaxTextSize() {
+        if (mTextHelper != null) {
+            return mTextHelper.getAutoSizeMaxTextSize();
+        }
+        return -1;
+    }
+
+    /**
+     * This should be accessed via
+     * {@link android.support.v4.widget.TextViewCompat#getAutoSizeTextAvailableSizes(TextView)}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    public int[] getAutoSizeTextAvailableSizes() {
+        if (mTextHelper != null) {
+            return mTextHelper.getAutoSizeTextAvailableSizes();
+        }
+        return new int[0];
     }
 }

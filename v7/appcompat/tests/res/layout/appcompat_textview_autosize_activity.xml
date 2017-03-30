@@ -19,7 +19,7 @@
     android:id="@+id/layout_textviewtest"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/textview_autosize_uniform"
@@ -30,6 +30,28 @@
         app:autoSizeMinTextSize="2px"
         app:autoSizeMaxTextSize="50dp"
         app:autoSizeStepGranularity="1px" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textview_autosize_uniform_predef_sizes"
+        android:layout_width="100dp"
+        android:layout_height="200dp"
+        android:text="@string/sample_text1"
+        app:autoSizeTextType="uniform"
+        app:autoSizePresetSizes="@array/auto_size_predefined_sizes" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textview_autosize_uniform_predef_sizes_redundant_values"
+        android:layout_width="100dp"
+        android:layout_height="200dp"
+        android:text="@string/sample_text1"
+        app:autoSizeTextType="uniform"
+        app:autoSizePresetSizes="@array/auto_size_predefined_sizes_redundant_values" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textview_text"
+        android:text="@string/sample_text1"
+        android:layout_width="100dp"
+        android:layout_height="200dp"/>
 
     <android.support.v7.widget.AppCompatEditText
         android:id="@+id/edittext_autosize_uniform"
