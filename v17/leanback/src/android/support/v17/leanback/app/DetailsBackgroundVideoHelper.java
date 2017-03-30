@@ -77,6 +77,7 @@ final class DetailsBackgroundVideoHelper {
         this.mDetailsParallax = detailsParallax;
         this.mBackgroundDrawable = backgroundDrawable;
         mBackgroundDrawableVisible = true;
+        mBackgroundDrawable.setAlpha(255);
         startParallax();
     }
 
@@ -163,9 +164,23 @@ final class DetailsBackgroundVideoHelper {
         }, CROSSFADE_DELAY);
     }
 
-    private void crossFadeBackgroundToVideo(final boolean crossFadeToVideo) {
+    void crossFadeBackgroundToVideo(boolean crossFadeToVideo) {
+        crossFadeBackgroundToVideo(crossFadeToVideo, false);
+    }
+
+    void crossFadeBackgroundToVideo(boolean crossFadeToVideo, boolean immediate) {
         final boolean newVisible = !crossFadeToVideo;
         if (mBackgroundDrawableVisible == newVisible) {
+            if (immediate) {
+                if (mBackgroundAnimator != null) {
+                    mBackgroundAnimator.cancel();
+                    mBackgroundAnimator = null;
+                }
+                if (mBackgroundDrawable != null) {
+                    mBackgroundDrawable.setAlpha(crossFadeToVideo ? 0 : 255);
+                    return;
+                }
+            }
             return;
         }
         mBackgroundDrawableVisible = newVisible;
@@ -178,6 +193,10 @@ final class DetailsBackgroundVideoHelper {
         float endAlpha = crossFadeToVideo ? 0f : 1f;
 
         if (mBackgroundDrawable == null) {
+            return;
+        }
+        if (immediate) {
+            mBackgroundDrawable.setAlpha(crossFadeToVideo ? 0 : 255);
             return;
         }
         mBackgroundAnimator = ValueAnimator.ofFloat(startAlpha, endAlpha);

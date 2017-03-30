@@ -16,42 +16,169 @@ package android.support.v17.leanback.util;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.support.annotation.RestrictTo;
+import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
- * Linear or DAG of {@link State}s. StateMachine is by default a linear model, until
- * {@link #addState(State, State)} is called.  Each State has three status:
- * STATUS_ZERO, STATUS_INVOKED, STATUS_EXECUTED.   We allow client to run a State, which will
- * put State in STATUS_INVOKED.  A State will be executed when prior States are executed and
- * Precondition for this State is true, then the State will be marked as STATUS_EXECUTED.
- *
+ * State: each State has incoming Transitions and outgoing Transitions.
+ * When {@link State#mBranchStart} is true, all the outgoing Transitions may be triggered, when
+ * {@link State#mBranchStart} is false, only first outgoing Transition will be triggered.
+ * When {@link State#mBranchEnd} is true, all the incoming Transitions must be triggered for the
+ * State to run. When {@link State#mBranchEnd} is false, only need one incoming Transition triggered
+ * for the State to run.
+ * Transition: three types:
+ * 1. Event based transition, transition will be triggered when {@link #fireEvent(Event)} is called.
+ * 2. Auto transition, transition will be triggered when {@link Transition#mFromState} is executed.
+ * 3. Condiitonal Auto transition, transition will be triggered when {@link Transition#mFromState}
+ * is executed and {@link Transition#mCondition} passes.
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public final class StateMachine {
 
+    static boolean DEBUG = false;
+    static final String TAG = "StateMachine";
+
     /**
      * No request on the State
      */
     public static final int STATUS_ZERO = 0;
+
     /**
-     * Somebody wants to run the state but not yet executed because either the condition is
-     * false or lower States are not executed.
+     * Has been executed
      */
     public static final int STATUS_INVOKED = 1;
-    /**
-     * Somebody wants to run the State and the State was executed.
-     */
-    public static final int STATUS_EXECUTED = 2;
 
+    /**
+     * Used in Transition
+     */
+    public static class Event {
+        final String mName;
+
+        public Event(String name) {
+            mName = name;
+        }
+    }
+
+    /**
+     * Used in transition
+     */
+    public static class Condition {
+        final String mName;
+
+        public Condition(String name) {
+            mName = name;
+        }
+
+        /**
+         * @return True if can proceed and mark the transition INVOKED
+         */
+        public boolean canProceed() {
+            return true;
+        }
+    }
+
+    static class Transition {
+        final State mFromState;
+        final State mToState;
+        final Event mEvent;
+        final Condition mCondition;
+        int mState = STATUS_ZERO;
+
+        Transition(State fromState, State toState, Event event) {
+            if (event == null) {
+                throw new IllegalArgumentException();
+            }
+            mFromState = fromState;
+            mToState = toState;
+            mEvent = event;
+            mCondition = null;
+        }
+
+        Transition(State fromState, State toState) {
+            mFromState = fromState;
+            mToState = toState;
+            mEvent = null;
+            mCondition = null;
+        }
+
+        Transition(State fromState, State toState, Condition condition) {
+            if (condition == null) {
+                throw new IllegalArgumentException();
+            }
+            mFromState = fromState;
+            mToState = toState;
+            mEvent = null;
+            mCondition = condition;
+        }
+
+        @Override
+        public String toString() {
+            String signalName;
+            if (mEvent != null) {
+                signalName = mEvent.mName;
+            } else if (mCondition != null) {
+                signalName = mCondition.mName;
+            } else {
+                signalName = "auto";
+            }
+            return "[" + mFromState.mName + " -> " + mToState.mName + " <"
+                    + signalName + ">]";
+        }
+    }
+
+    /**
+     * @see StateMachine
+     */
     public static class State {
 
-        private int mStatus;
-        ArrayList<State> mPriorStates;
+        final String mName;
+        final boolean mBranchStart;
+        final boolean mBranchEnd;
+        int mStatus = STATUS_ZERO;
+        int mInvokedOutTransitions = 0;
+        ArrayList<Transition> mIncomings;
+        ArrayList<Transition> mOutgoings;
+
+        @Override
+        public String toString() {
+            return "[" + mName + " " + mStatus + "]";
+        }
+
+        /**
+         * Create a State which is not branch start and a branch end.
+         */
+        public State(String name) {
+            this(name, false, true);
+        }
+
+        /**
+         * Create a State
+         * @param branchStart True if can run all out going transitions or false execute the first
+         *                    out going transition.
+         * @param branchEnd True if wait all incoming transitions executed or false
+         *                              only need one of the transition executed.
+         */
+        public State(String name, boolean branchStart, boolean branchEnd) {
+            mName = name;
+            mBranchStart = branchStart;
+            mBranchEnd = branchEnd;
+        }
+
+        void addIncoming(Transition t) {
+            if (mIncomings == null) {
+                mIncomings = new ArrayList();
+            }
+            mIncomings.add(t);
+        }
+
+        void addOutgoing(Transition t) {
+            if (mOutgoings == null) {
+                mOutgoings = new ArrayList();
+            }
+            mOutgoings.add(t);
+        }
 
         /**
          * Run State, Subclass may override.
@@ -59,51 +186,66 @@ public final class StateMachine {
         public void run() {
         }
 
-        /**
-         * Returns true if State can run, false otherwise.  Subclass may override.
-         * @return True if State can run, false otherwise.  Subclass may override.
-         */
-        public boolean canRun() {
-            return true;
+        final boolean checkPreCondition() {
+            if (mIncomings == null) {
+                return true;
+            }
+            if (mBranchEnd) {
+                for (Transition t: mIncomings) {
+                    if (t.mState != STATUS_INVOKED) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                for (Transition t: mIncomings) {
+                    if (t.mState == STATUS_INVOKED) {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
 
         /**
          * @return True if the State has been executed.
          */
         final boolean runIfNeeded() {
-            if (mStatus!= STATUS_EXECUTED) {
-                if (mStatus == STATUS_INVOKED && canRun()) {
+            if (mStatus != STATUS_INVOKED) {
+                if (checkPreCondition()) {
+                    if (DEBUG) {
+                        Log.d(TAG, "execute " + this);
+                    }
+                    mStatus = STATUS_INVOKED;
                     run();
-                    mStatus = STATUS_EXECUTED;
-                } else {
-                    return false;
+                    signalAutoTransitionsAfterRun();
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
-        void addPriorState(State state) {
-            if (mPriorStates == null) {
-                mPriorStates = new ArrayList<State>();
+        final void signalAutoTransitionsAfterRun() {
+            if (mOutgoings != null) {
+                for (Transition t: mOutgoings) {
+                    if (t.mEvent == null) {
+                        if (t.mCondition == null || t.mCondition.canProceed()) {
+                            if (DEBUG) {
+                                Log.d(TAG, "signal " + t);
+                            }
+                            mInvokedOutTransitions++;
+                            t.mState = STATUS_INVOKED;
+                            if (!mBranchStart) {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-            if (!mPriorStates.contains(state)) {
-                mPriorStates.add(state);
-            }
-        }
-
-        final void markInvoked() {
-            if (mStatus == STATUS_ZERO) {
-                mStatus = STATUS_INVOKED;
-            }
-        }
-
-        final void updateStatus(int status) {
-            mStatus = status;
         }
 
         /**
-         * Get status, return one of {@link #STATUS_ZERO}, {@link #STATUS_INVOKED},
-         * {@link #STATUS_EXECUTED}.
+         * Get status, return one of {@link #STATUS_ZERO}, {@link #STATUS_INVOKED}.
          * @return Status of the State.
          */
         public final int getStatus() {
@@ -111,109 +253,127 @@ public final class StateMachine {
         }
     }
 
-    private boolean mSorted = true;
-    private final ArrayList<State> mSortedList = new ArrayList<State>();
+    final ArrayList<State> mStates = new ArrayList<State>();
+    final ArrayList<State> mFinishedStates = new ArrayList();
+    final ArrayList<State> mUnfinishedStates = new ArrayList();
+
+    public StateMachine() {
+    }
 
     /**
      * Add a State to StateMachine, ignore if it is already added.
      * @param state The state to add.
      */
     public void addState(State state) {
-        if (!mSortedList.contains(state)) {
-            state.updateStatus(STATUS_ZERO);
-            mSortedList.add(state);
+        if (!mStates.contains(state)) {
+            mStates.add(state);
         }
     }
 
     /**
-     * Add two States to StateMachine and create an edge between this two.
-     * StateMachine is by default a linear model, until {@link #addState(State, State)} is called.
-     * sort() is required to sort the Direct acyclic graph.
+     * Add event-triggered transition between two states.
+     * @param fromState The from state.
+     * @param toState The to state.
+     * @param event The event that needed to perform the transition.
+     */
+    public void addTransition(State fromState, State toState, Event event) {
+        Transition transition = new Transition(fromState, toState, event);
+        toState.addIncoming(transition);
+        fromState.addOutgoing(transition);
+    }
+
+    /**
+     * Add a conditional auto transition between two states.
+     * @param fromState The from state.
+     * @param toState The to state.
+     */
+    public void addTransition(State fromState, State toState, Condition condition) {
+        Transition transition = new Transition(fromState, toState, condition);
+        toState.addIncoming(transition);
+        fromState.addOutgoing(transition);
+    }
+
+    /**
+     * Add an auto transition between two states.
      * @param fromState The from state to add.
      * @param toState The to state to add.
      */
-    public void addState(State fromState, State toState) {
-        addState(fromState);
-        addState(toState);
-        toState.addPriorState(fromState);
-        mSorted = false;
-    }
-
-    void verifySorted() {
-        if (!mSorted) {
-            throw new RuntimeException("Graph not sorted");
-        }
-    }
-
-    public void runState(State state) {
-        verifySorted();
-        state.markInvoked();
-        runPendingStates();
-    }
-
-    public void runPendingStates() {
-        verifySorted();
-        for (int i = 0, size = mSortedList.size(); i < size; i++) {
-            if (!mSortedList.get(i).runIfNeeded()) {
-                break;
-            }
-        }
-    }
-
-    public void resetStatus() {
-        for (int i = 0, size = mSortedList.size(); i < size; i++) {
-            mSortedList.get(i).updateStatus(STATUS_ZERO);
-        }
+    public void addTransition(State fromState, State toState) {
+        Transition transition = new Transition(fromState, toState);
+        toState.addIncoming(transition);
+        fromState.addOutgoing(transition);
     }
 
     /**
-     * StateMachine is by default a linear model, until {@link #addState(State, State)} is called.
-     * sort() is required to sort the Direct acyclic graph.
+     * Start the state machine.
      */
-    public void sort() {
-        if (mSorted) {
-            return;
+    public void start() {
+        if (DEBUG) {
+            Log.d(TAG, "start");
         }
-        // L: Empty list that will contain the sorted States
-        ArrayList<State> L = new ArrayList<State>();
-        // S: Set of all nodes with no incoming edges
-        ArrayList<State> S = new ArrayList<State>();
-        HashMap<State, ArrayList<State>> edges = new HashMap<State, ArrayList<State>>();
-        for (int i = mSortedList.size() - 1; i >= 0 ; i--) {
-            State state = mSortedList.get(i);
-            if (state.mPriorStates != null && state.mPriorStates.size() > 0) {
-                edges.put(state, new ArrayList<State>(state.mPriorStates));
-            } else {
-                S.add(state);
-            }
-        }
+        mUnfinishedStates.addAll(mStates);
+        runUnfinishedStates();
+    }
 
-        while (!S.isEmpty()) {
-            // remove a State without incoming Node from S, add to L
-            State state = S.remove(S.size() - 1);
-            L.add(state);
-            // for each toState that having an incoming edge from "state":
-            for (Iterator<Map.Entry<State, ArrayList<State>>> iterator =
-                    edges.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry<State, ArrayList<State>> entry = iterator.next();
-                ArrayList<State> fromStates = entry.getValue();
-                // remove edge from graph
-                if (fromStates.remove(state)) {
-                    if (fromStates.size() == 0) {
-                        State toState = entry.getKey();
-                        // insert the toState to S if it has no more incoming edges
-                        S.add(toState);
-                        iterator.remove();
+    void runUnfinishedStates() {
+        boolean changed;
+        do {
+            changed = false;
+            for (int i = mUnfinishedStates.size() - 1; i >= 0; i--) {
+                State state = mUnfinishedStates.get(i);
+                if (state.runIfNeeded()) {
+                    mUnfinishedStates.remove(i);
+                    mFinishedStates.add(state);
+                    changed = true;
+                }
+            }
+        } while (changed);
+    }
+
+    /**
+     * Find outgoing Transitions of invoked State whose Event matches, mark the Transition invoked.
+     */
+    public void fireEvent(Event event) {
+        for (int i = 0; i < mFinishedStates.size(); i++) {
+            State state = mFinishedStates.get(i);
+            if (state.mOutgoings != null) {
+                if (!state.mBranchStart && state.mInvokedOutTransitions > 0) {
+                    continue;
+                }
+                for (Transition t : state.mOutgoings) {
+                    if (t.mState != STATUS_INVOKED && t.mEvent == event) {
+                        if (DEBUG) {
+                            Log.d(TAG, "signal " + t);
+                        }
+                        t.mState = STATUS_INVOKED;
+                        state.mInvokedOutTransitions++;
+                        if (!state.mBranchStart) {
+                            break;
+                        }
                     }
                 }
             }
         }
-        if (edges.size() > 0) {
-            throw new RuntimeException("Cycle in Graph");
-        }
+        runUnfinishedStates();
+    }
 
-        mSortedList.clear();
-        mSortedList.addAll(L);
-        mSorted = true;
+    /**
+     * Reset status to orignal status
+     */
+    public void reset() {
+        if (DEBUG) {
+            Log.d(TAG, "reset");
+        }
+        mUnfinishedStates.clear();
+        mFinishedStates.clear();
+        for (State state: mStates) {
+            state.mStatus = STATUS_ZERO;
+            state.mInvokedOutTransitions = 0;
+            if (state.mOutgoings != null) {
+                for (Transition t: state.mOutgoings) {
+                    t.mState = STATUS_ZERO;
+                }
+            }
+        }
     }
 }
