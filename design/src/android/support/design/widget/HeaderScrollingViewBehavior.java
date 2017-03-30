@@ -19,6 +19,7 @@ package android.support.design.widget;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.design.widget.CoordinatorLayout.Behavior;
+import android.support.v4.math.MathUtils;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -142,7 +143,7 @@ abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<View> {
     }
 
     final int getOverlapPixelsForOffset(final View header) {
-        return mOverlayTop == 0 ? 0 : MathUtils.constrain(
+        return mOverlayTop == 0 ? 0 : MathUtils.clamp(
                 (int) (getOverlapRatioForOffset(header) * mOverlayTop), 0, mOverlayTop);
     }
 
