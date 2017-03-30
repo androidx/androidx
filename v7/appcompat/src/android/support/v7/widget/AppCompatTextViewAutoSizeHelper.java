@@ -26,6 +26,7 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -60,9 +61,9 @@ class AppCompatTextViewAutoSizeHelper {
     // Default value for the step size in pixels.
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
     // Use this to specify that any of the auto-size configuration int values have not been set.
-    private static final int UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1;
+    static final int UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1;
     // Auto-size text type.
-    private int mAutoSizeTextType = AppCompatTextView.AUTO_SIZE_TEXT_TYPE_NONE;
+    private int mAutoSizeTextType = TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
     // Specify if auto-size text is needed.
     private boolean mNeedsAutoSizeText = false;
     // Step size for auto-sizing in pixels.
@@ -99,7 +100,7 @@ class AppCompatTextViewAutoSizeHelper {
                 defStyleAttr, 0);
         if (a.hasValue(R.styleable.AppCompatTextView_autoSizeTextType)) {
             mAutoSizeTextType = a.getInt(R.styleable.AppCompatTextView_autoSizeTextType,
-                    AppCompatTextView.AUTO_SIZE_TEXT_TYPE_NONE);
+                    TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
         }
         if (a.hasValue(R.styleable.AppCompatTextView_autoSizeStepGranularity)) {
             autoSizeStepGranularityInPx = a.getDimensionPixelSize(
@@ -129,7 +130,7 @@ class AppCompatTextViewAutoSizeHelper {
         a.recycle();
 
         if (supportsAutoSizeText()) {
-            if (mAutoSizeTextType == AppCompatTextView.AUTO_SIZE_TEXT_TYPE_UNIFORM) {
+            if (mAutoSizeTextType == TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM) {
                 // If uniform auto-size has been specified but preset values have not been set then
                 // replace the auto-size configuration values that have not been specified with the
                 // defaults.
@@ -164,8 +165,239 @@ class AppCompatTextViewAutoSizeHelper {
                 setupAutoSizeText();
             }
         } else {
-            mAutoSizeTextType = AppCompatTextView.AUTO_SIZE_TEXT_TYPE_NONE;
+            mAutoSizeTextType = TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
         }
+    }
+
+    /**
+     * Specify whether this widget should automatically scale the text to try to perfectly fit
+     * within the layout bounds by using the default auto-size configuration.
+     *
+     * @param autoSizeTextType the type of auto-size. Must be one of
+     *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
+     *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
+     *
+     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
+     *
+     * @see #getAutoSizeTextType()
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    void setAutoSizeTextTypeWithDefaults(@TextViewCompat.AutoSizeTextType int autoSizeTextType) {
+        if (supportsAutoSizeText()) {
+            switch (autoSizeTextType) {
+                case TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE:
+                    clearAutoSizeConfiguration();
+                    break;
+                case TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM:
+                    final DisplayMetrics displayMetrics =
+                            mContext.getResources().getDisplayMetrics();
+                    final int autoSizeMinTextSizeInPx = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_SP,
+                            DEFAULT_AUTO_SIZE_MIN_TEXT_SIZE_IN_SP,
+                            displayMetrics);
+                    final int autoSizeMaxTextSizeInPx = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_SP,
+                            DEFAULT_AUTO_SIZE_MAX_TEXT_SIZE_IN_SP,
+                            displayMetrics);
+
+                    validateAndSetAutoSizeTextTypeUniformConfiguration(
+                            autoSizeMinTextSizeInPx,
+                            autoSizeMaxTextSizeInPx,
+                            DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX);
+                    setupAutoSizeText();
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            "Unknown auto-size text type: " + autoSizeTextType);
+            }
+        }
+    }
+
+    /**
+     * Specify whether this widget should automatically scale the text to try to perfectly fit
+     * within the layout bounds. If all the configuration params are valid the type of auto-size is
+     * set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
+     *
+     * @param autoSizeMinTextSize the minimum text size available for auto-size
+     * @param autoSizeMaxTextSize the maximum text size available for auto-size
+     * @param autoSizeStepGranularity the auto-size step granularity. It is used in conjunction with
+     *                                the minimum and maximum text size in order to build the set of
+     *                                text sizes the system uses to choose from when auto-sizing
+     * @param unit the desired dimension unit for all sizes above. See {@link TypedValue} for the
+     *             possible dimension units
+     *
+     * @throws IllegalArgumentException if any of the configuration params are invalid.
+     *
+     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
+     * @attr ref R.styleable#AppCompatTextView_autoSizeMinTextSize
+     * @attr ref R.styleable#AppCompatTextView_autoSizeMaxTextSize
+     * @attr ref R.styleable#AppCompatTextView_autoSizeStepGranularity
+     *
+     * @see #setAutoSizeTextTypeWithDefaults(int)
+     * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
+     * @see #getAutoSizeMinTextSize()
+     * @see #getAutoSizeMaxTextSize()
+     * @see #getAutoSizeStepGranularity()
+     * @see #getAutoSizeTextAvailableSizes()
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    void setAutoSizeTextTypeUniformWithConfiguration(
+            int autoSizeMinTextSize,
+            int autoSizeMaxTextSize,
+            int autoSizeStepGranularity,
+            int unit) throws IllegalArgumentException {
+        if (supportsAutoSizeText()) {
+            final DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
+            final int autoSizeMinTextSizeInPx = (int) TypedValue.applyDimension(
+                    unit, autoSizeMinTextSize, displayMetrics);
+            final int autoSizeMaxTextSizeInPx = (int) TypedValue.applyDimension(
+                    unit, autoSizeMaxTextSize, displayMetrics);
+            final int autoSizeStepGranularityInPx = (int) TypedValue.applyDimension(
+                    unit, autoSizeStepGranularity, displayMetrics);
+
+            validateAndSetAutoSizeTextTypeUniformConfiguration(autoSizeMinTextSizeInPx,
+                    autoSizeMaxTextSizeInPx,
+                    autoSizeStepGranularityInPx);
+            setupAutoSizeText();
+        }
+    }
+
+    /**
+     * Specify whether this widget should automatically scale the text to try to perfectly fit
+     * within the layout bounds. If at least one value from the <code>presetSizes</code> is valid
+     * then the type of auto-size is set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
+     *
+     * @param presetSizes an {@code int} array of sizes in pixels
+     * @param unit the desired dimension unit for the preset sizes above. See {@link TypedValue} for
+     *             the possible dimension units
+     *
+     * @throws IllegalArgumentException if all of the <code>presetSizes</code> are invalid.
+     *_
+     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
+     * @attr ref R.styleable#AppCompatTextView_autoSizePresetSizes
+     *
+     * @see #setAutoSizeTextTypeWithDefaults(int)
+     * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
+     * @see #getAutoSizeMinTextSize()
+     * @see #getAutoSizeMaxTextSize()
+     * @see #getAutoSizeTextAvailableSizes()
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
+            throws IllegalArgumentException {
+        if (supportsAutoSizeText()) {
+            final int presetSizesLength = presetSizes.length;
+            if (presetSizesLength > 0) {
+                int[] presetSizesInPx = new int[presetSizesLength];
+
+                if (unit == TypedValue.COMPLEX_UNIT_PX) {
+                    presetSizesInPx = Arrays.copyOf(presetSizes, presetSizesLength);
+                } else {
+                    final DisplayMetrics displayMetrics =
+                            mContext.getResources().getDisplayMetrics();
+                    // Convert all to sizes to pixels.
+                    for (int i = 0; i < presetSizesLength; i++) {
+                        presetSizesInPx[i] = (int) TypedValue.applyDimension(unit, presetSizes[i],
+                                displayMetrics);
+                    }
+                }
+
+                mAutoSizeTextSizesInPx = cleanupAutoSizePresetSizes(presetSizesInPx);
+                if (!setupAutoSizeUniformPresetSizesConfiguration()) {
+                    throw new IllegalArgumentException("None of the preset sizes is valid: "
+                            + Arrays.toString(presetSizes));
+                }
+            } else {
+                mHasPresetAutoSizeValues = false;
+            }
+            setupAutoSizeText();
+        }
+    }
+
+    /**
+     * Returns the type of auto-size set for this widget.
+     *
+     * @return an {@code int} corresponding to one of the auto-size types:
+     *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
+     *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
+     *
+     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
+     *
+     * @see #setAutoSizeTextTypeWithDefaults(int)
+     * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
+     * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @TextViewCompat.AutoSizeTextType
+    int getAutoSizeTextType() {
+        return mAutoSizeTextType;
+    }
+
+    /**
+     * @return the current auto-size step granularity in pixels.
+     *
+     * @attr ref R.styleable#AppCompatTextView_autoSizeStepGranularity
+     *
+     * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int getAutoSizeStepGranularity() {
+        return mAutoSizeStepGranularityInPx;
+    }
+
+    /**
+     * @return the current auto-size minimum text size in pixels (the default is 12sp). Note that
+     *         if auto-size has not been configured this function returns {@code -1}.
+     *
+     * @attr ref R.styleable#AppCompatTextView_autoSizeMinTextSize
+     *
+     * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
+     * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int getAutoSizeMinTextSize() {
+        return mAutoSizeMinTextSizeInPx;
+    }
+
+    /**
+     * @return the current auto-size maximum text size in pixels (the default is 112sp). Note that
+     *         if auto-size has not been configured this function returns {@code -1}.
+     *
+     * @attr ref R.styleable#AppCompatTextView_autoSizeMaxTextSize
+     *
+     * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
+     * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int getAutoSizeMaxTextSize() {
+        return mAutoSizeMaxTextSizeInPx;
+    }
+
+    /**
+     * @return the current auto-size {@code int} sizes array (in pixels).
+     *
+     * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
+     * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int[] getAutoSizeTextAvailableSizes() {
+        return mAutoSizeTextSizesInPx;
     }
 
     private void setupAutoSizeUniformPresetSizes(TypedArray textSizes) {
@@ -185,7 +417,7 @@ class AppCompatTextViewAutoSizeHelper {
         final int sizesLength = mAutoSizeTextSizesInPx.length;
         mHasPresetAutoSizeValues = sizesLength > 0;
         if (mHasPresetAutoSizeValues) {
-            mAutoSizeTextType = AppCompatTextView.AUTO_SIZE_TEXT_TYPE_UNIFORM;
+            mAutoSizeTextType = TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM;
             mAutoSizeMinTextSizeInPx = mAutoSizeTextSizesInPx[0];
             mAutoSizeMaxTextSizeInPx = mAutoSizeTextSizesInPx[sizesLength - 1];
             mAutoSizeStepGranularityInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
@@ -250,7 +482,7 @@ class AppCompatTextViewAutoSizeHelper {
         }
 
         // All good, persist the configuration.
-        mAutoSizeTextType = AppCompatTextView.AUTO_SIZE_TEXT_TYPE_UNIFORM;
+        mAutoSizeTextType = TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM;
         mAutoSizeMinTextSizeInPx = autoSizeMinTextSizeInPx;
         mAutoSizeMaxTextSizeInPx = autoSizeMaxTextSizeInPx;
         mAutoSizeStepGranularityInPx = autoSizeStepGranularityInPx;
@@ -259,7 +491,7 @@ class AppCompatTextViewAutoSizeHelper {
 
     private void setupAutoSizeText() {
         if (supportsAutoSizeText()
-                && mAutoSizeTextType == AppCompatTextView.AUTO_SIZE_TEXT_TYPE_UNIFORM) {
+                && mAutoSizeTextType == TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM) {
             // Calculate the sizes set based on minimum size, maximum size and step size if we do
             // not have a predefined set of sizes or if the current sizes array is empty.
             if (!mHasPresetAutoSizeValues || mAutoSizeTextSizesInPx.length == 0) {
@@ -281,7 +513,15 @@ class AppCompatTextViewAutoSizeHelper {
             }
 
             mNeedsAutoSizeText = true;
-            autoSizeText();
+            // If the build version is at least 26 there is no need to auto-size using this
+            // helper because the job has been delegated to the actual TextView but the
+            // configuration still needs to be done for the case where this function is called
+            // from {@link #loadFromAttributes}, in which case the auto-size configuration
+            // attributes set up in this function will be read by {@link AppCompatTextHelper}
+            // and after passed on to the actual TextView which will take care of auto-sizing.
+            if (Build.VERSION.SDK_INT < 26) {
+                autoSizeText();
+            }
         }
     }
 
@@ -313,6 +553,15 @@ class AppCompatTextViewAutoSizeHelper {
                 setTextSizeInternal(TypedValue.COMPLEX_UNIT_PX, optimalTextSize);
             }
         }
+    }
+
+    private void clearAutoSizeConfiguration() {
+        mAutoSizeTextType = TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
+        mAutoSizeMinTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+        mAutoSizeMaxTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+        mAutoSizeStepGranularityInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+        mAutoSizeTextSizesInPx = new int[0];
+        mNeedsAutoSizeText = false;
     }
 
     /** @hide */
@@ -513,7 +762,7 @@ class AppCompatTextViewAutoSizeHelper {
     @RestrictTo(LIBRARY_GROUP)
     boolean isAutoSizeEnabled() {
         return supportsAutoSizeText()
-                && mAutoSizeTextType != AppCompatTextView.AUTO_SIZE_TEXT_TYPE_NONE;
+                && mAutoSizeTextType != TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
     }
 
     /** @hide */

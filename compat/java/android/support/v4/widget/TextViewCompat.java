@@ -16,23 +16,47 @@
 
 package android.support.v4.widget;
 
-import android.support.annotation.RequiresApi;
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 
 /**
  * Helper for accessing features in {@link TextView} in a backwards compatible fashion.
  */
 public final class TextViewCompat {
+
+    /**
+     * The TextView does not auto-size text (default).
+     */
+    public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0;
+
+    /**
+     * The TextView scales text size both horizontally and vertically to fit within the
+     * container.
+     */
+    public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1;
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({AUTO_SIZE_TEXT_TYPE_NONE, AUTO_SIZE_TEXT_TYPE_UNIFORM})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AutoSizeTextType {}
 
     // Hide constructor
     private TextViewCompat() {}
@@ -133,6 +157,67 @@ public final class TextViewCompat {
         public Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
             return textView.getCompoundDrawables();
         }
+
+        public void setAutoSizeTextTypeWithDefaults(TextView textView, int autoSizeTextType) {
+            if (textView instanceof AutoSizeableTextView) {
+                ((AutoSizeableTextView) textView).setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+            }
+        }
+
+        public void setAutoSizeTextTypeUniformWithConfiguration(
+                TextView textView,
+                int autoSizeMinTextSize,
+                int autoSizeMaxTextSize,
+                int autoSizeStepGranularity,
+                int unit) throws IllegalArgumentException {
+            if (textView instanceof AutoSizeableTextView) {
+                ((AutoSizeableTextView) textView).setAutoSizeTextTypeUniformWithConfiguration(
+                        autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+            }
+        }
+
+        public void setAutoSizeTextTypeUniformWithPresetSizes(TextView textView,
+                @NonNull int[] presetSizes, int unit) throws IllegalArgumentException {
+            if (textView instanceof AutoSizeableTextView) {
+                ((AutoSizeableTextView) textView).setAutoSizeTextTypeUniformWithPresetSizes(
+                        presetSizes, unit);
+            }
+        }
+
+        public int getAutoSizeTextType(TextView textView) {
+            if (textView instanceof AutoSizeableTextView) {
+                return ((AutoSizeableTextView) textView).getAutoSizeTextType();
+            }
+            return AUTO_SIZE_TEXT_TYPE_NONE;
+        }
+
+        public int getAutoSizeStepGranularity(TextView textView) {
+            if (textView instanceof AutoSizeableTextView) {
+                return ((AutoSizeableTextView) textView).getAutoSizeStepGranularity();
+            }
+            return -1;
+        }
+
+        public int getAutoSizeMinTextSize(TextView textView) {
+            if (textView instanceof AutoSizeableTextView) {
+                return ((AutoSizeableTextView) textView).getAutoSizeMinTextSize();
+            }
+            return -1;
+        }
+
+        public int getAutoSizeMaxTextSize(TextView textView) {
+            if (textView instanceof AutoSizeableTextView) {
+                return ((AutoSizeableTextView) textView).getAutoSizeMaxTextSize();
+            }
+            return -1;
+        }
+
+        public int[] getAutoSizeTextAvailableSizes(TextView textView) {
+            if (textView instanceof AutoSizeableTextView) {
+                return ((AutoSizeableTextView) textView).getAutoSizeTextAvailableSizes();
+            }
+            return new int[0];
+        }
     }
 
     @RequiresApi(16)
@@ -228,10 +313,61 @@ public final class TextViewCompat {
         }
     }
 
+    @RequiresApi(26)
+    static class TextViewCompatApi26Impl extends TextViewCompatApi23Impl {
+        @Override
+        public void setAutoSizeTextTypeWithDefaults(TextView textView, int autoSizeTextType) {
+            textView.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+        }
+
+        @Override
+        public void setAutoSizeTextTypeUniformWithConfiguration(
+                TextView textView,
+                int autoSizeMinTextSize,
+                int autoSizeMaxTextSize,
+                int autoSizeStepGranularity,
+                int unit) throws IllegalArgumentException {
+            textView.setAutoSizeTextTypeUniformWithConfiguration(
+                    autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+        }
+
+        @Override
+        public void setAutoSizeTextTypeUniformWithPresetSizes(TextView textView,
+                @NonNull int[] presetSizes, int unit) throws IllegalArgumentException {
+            textView.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+        }
+
+        public int getAutoSizeTextType(TextView textView) {
+            return textView.getAutoSizeTextType();
+        }
+
+        @Override
+        public int getAutoSizeStepGranularity(TextView textView) {
+            return textView.getAutoSizeStepGranularity();
+        }
+
+        @Override
+        public int getAutoSizeMinTextSize(TextView textView) {
+            return textView.getAutoSizeMinTextSize();
+        }
+
+        @Override
+        public int getAutoSizeMaxTextSize(TextView textView) {
+            return textView.getAutoSizeMaxTextSize();
+        }
+
+        @Override
+        public int[] getAutoSizeTextAvailableSizes(TextView textView) {
+            return textView.getAutoSizeTextAvailableSizes();
+        }
+    }
+
     static final TextViewCompatBaseImpl IMPL;
 
     static {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            IMPL = new TextViewCompatApi26Impl();
+        } else if (Build.VERSION.SDK_INT >= 23) {
             IMPL = new TextViewCompatApi23Impl();
         } else if (Build.VERSION.SDK_INT >= 18) {
             IMPL = new TextViewCompatApi18Impl();
@@ -343,5 +479,120 @@ public final class TextViewCompat {
      */
     public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
         return IMPL.getCompoundDrawablesRelative(textView);
+    }
+
+    /**
+     * Specify whether this widget should automatically scale the text to try to perfectly fit
+     * within the layout bounds by using the default auto-size configuration.
+     *
+     * @param autoSizeTextType the type of auto-size. Must be one of
+     *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
+     *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
+     *
+     * @attr name android:autoSizeTextType
+     */
+    public static void setAutoSizeTextTypeWithDefaults(TextView textView, int autoSizeTextType) {
+        IMPL.setAutoSizeTextTypeWithDefaults(textView, autoSizeTextType);
+    }
+
+    /**
+     * Specify whether this widget should automatically scale the text to try to perfectly fit
+     * within the layout bounds. If all the configuration params are valid the type of auto-size is
+     * set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
+     *
+     * @param autoSizeMinTextSize the minimum text size available for auto-size
+     * @param autoSizeMaxTextSize the maximum text size available for auto-size
+     * @param autoSizeStepGranularity the auto-size step granularity. It is used in conjunction with
+     *                                the minimum and maximum text size in order to build the set of
+     *                                text sizes the system uses to choose from when auto-sizing
+     * @param unit the desired dimension unit for all sizes above. See {@link TypedValue} for the
+     *             possible dimension units
+     *
+     * @throws IllegalArgumentException if any of the configuration params are invalid.
+     *
+     * @attr name android:autoSizeTextType
+     * @attr name android:autoSizeTextType
+     * @attr name android:autoSizeMinTextSize
+     * @attr name android:autoSizeMaxTextSize
+     * @attr name android:autoSizeStepGranularity
+     */
+    public static void setAutoSizeTextTypeUniformWithConfiguration(
+            TextView textView,
+            int autoSizeMinTextSize,
+            int autoSizeMaxTextSize,
+            int autoSizeStepGranularity,
+            int unit) throws IllegalArgumentException {
+        IMPL.setAutoSizeTextTypeUniformWithConfiguration(textView, autoSizeMinTextSize,
+                autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+    }
+
+    /**
+     * Specify whether this widget should automatically scale the text to try to perfectly fit
+     * within the layout bounds. If at least one value from the <code>presetSizes</code> is valid
+     * then the type of auto-size is set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
+     *
+     * @param presetSizes an {@code int} array of sizes in pixels
+     * @param unit the desired dimension unit for the preset sizes above. See {@link TypedValue} for
+     *             the possible dimension units
+     *
+     * @throws IllegalArgumentException if all of the <code>presetSizes</code> are invalid.
+     *_
+     * @attr name android:autoSizeTextType
+     * @attr name android:autoSizePresetSizes
+     */
+    public static void setAutoSizeTextTypeUniformWithPresetSizes(TextView textView,
+            @NonNull int[] presetSizes, int unit) throws IllegalArgumentException {
+        IMPL.setAutoSizeTextTypeUniformWithPresetSizes(textView, presetSizes, unit);
+    }
+
+    /**
+     * Returns the type of auto-size set for this widget.
+     *
+     * @return an {@code int} corresponding to one of the auto-size types:
+     *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
+     *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
+     *
+     * @attr name android:autoSizeTextType
+     */
+    public static int getAutoSizeTextType(TextView textView) {
+        return IMPL.getAutoSizeTextType(textView);
+    }
+
+    /**
+     * @return the current auto-size step granularity in pixels.
+     *
+     * @attr name android:autoSizeStepGranularity
+     */
+    public static int getAutoSizeStepGranularity(TextView textView) {
+        return IMPL.getAutoSizeStepGranularity(textView);
+    }
+
+    /**
+     * @return the current auto-size minimum text size in pixels (the default is 12sp). Note that
+     *         if auto-size has not been configured this function returns {@code -1}.
+     *
+     * @attr name android:autoSizeMinTextSize
+     */
+    public static int getAutoSizeMinTextSize(TextView textView) {
+        return IMPL.getAutoSizeMinTextSize(textView);
+    }
+
+    /**
+     * @return the current auto-size maximum text size in pixels (the default is 112sp). Note that
+     *         if auto-size has not been configured this function returns {@code -1}.
+     *
+     * @attr name android:autoSizeMaxTextSize
+     */
+    public static int getAutoSizeMaxTextSize(TextView textView) {
+        return IMPL.getAutoSizeMaxTextSize(textView);
+    }
+
+    /**
+     * @return the current auto-size {@code int} sizes array (in pixels).
+     *
+     * @attr name android:autoSizePresetSizes
+     */
+    public static int[] getAutoSizeTextAvailableSizes(TextView textView) {
+        return IMPL.getAutoSizeTextAvailableSizes(textView);
     }
 }
