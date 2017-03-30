@@ -190,18 +190,18 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
             : com.android.support.room.vo.Relation? {
         val annotation = MoreElements.getAnnotationMirror(relationElement, Relation::class.java)
                 .orNull()!!
-        val parentFieldInput = AnnotationMirrors.getAnnotationValue(annotation, "parentField")
+        val parentColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "parentColumn")
                 .getAsString("") ?: ""
 
         val parentField = myFields.firstOrNull {
-            it.pathWithDotNotation == parentFieldInput
+            it.columnName == parentColumnInput
         }
         if (parentField == null) {
             context.logger.e(relationElement,
                     ProcessorErrors.relationCannotFindParentEntityField(
                             entityName = element.qualifiedName.toString(),
-                            fieldName = parentFieldInput,
-                            availableFields = myFields.map { it.pathWithDotNotation }))
+                            columnName = parentColumnInput,
+                            availableColumns = myFields.map { it.columnName }))
             return null
         }
         // parse it as an entity.
@@ -238,18 +238,18 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                     parent = parent).process()
         }
         // now find the field in the entity.
-        val entityFieldInput = AnnotationMirrors.getAnnotationValue(annotation, "entityField")
+        val entityColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "entityColumn")
                 .getAsString() ?: ""
         val entityField = entity.fields.firstOrNull {
-            it.pathWithDotNotation == entityFieldInput
+            it.columnName == entityColumnInput
         }
 
         if (entityField == null) {
             context.logger.e(relationElement,
                     ProcessorErrors.relationCannotFindEntityField(
                             entityName = entity.typeName.toString(),
-                            fieldName = entityFieldInput,
-                            availableFields = entity.fields.map { it.pathWithDotNotation }))
+                            columnName = entityColumnInput,
+                            availableColumns = entity.fields.map { it.columnName }))
             return null
         }
 

@@ -135,8 +135,8 @@ data class RelationCollector(val relation: Relation,
                 } else {
                     context.logger.w(Warning.RELATION_TYPE_MISMATCH, relation.field.element,
                             relationAffinityMismatch(
-                                    parentField = relation.parentField.pathWithDotNotation,
-                                    childField = relation.entityField.pathWithDotNotation,
+                                    parentColumn = relation.parentField.columnName,
+                                    childColumn = relation.entityField.columnName,
                                     parentAffinity = parentAffinity,
                                     childAffinity = childAffinity))
                     SQLTypeAffinity.TEXT

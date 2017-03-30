@@ -27,7 +27,7 @@ import java.util.List;
 public class UserIdAndPetNames {
     @ColumnInfo(name = "mId")
     public int userId;
-    @Relation(entity = Pet.class, parentField = "userId", entityField = "mUserId",
+    @Relation(entity = Pet.class, parentColumn = "mId", entityColumn = "mUserId",
             projection = "mPetName")
     public List<String> names;
 }

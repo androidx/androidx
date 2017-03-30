@@ -24,6 +24,6 @@ import java.util.List;
 public class UserAndAllPets {
     @Decompose
     public User user;
-    @Relation(parentField = "user.mId", entityField = "mUserId")
+    @Relation(parentColumn = "mId", entityColumn = "mUserId")
     public List<Pet> pets;
 }

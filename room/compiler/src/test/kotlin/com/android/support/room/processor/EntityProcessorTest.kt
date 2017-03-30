@@ -1078,7 +1078,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 @PrimaryKey
                 int id;
-                @Relation(parentField = "id", entityField = "uid")
+                @Relation(parentColumn = "id", entityColumn = "uid")
                 java.util.List<User> users;
                 """, jfos = listOf(COMMON.USER)
         ) { entity, invocation ->

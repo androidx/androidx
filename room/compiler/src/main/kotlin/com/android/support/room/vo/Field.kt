@@ -52,7 +52,7 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
         }
     }
 
-    val pathWithDotNotation : String by lazy {
+    private val pathWithDotNotation : String by lazy {
         if (parent == null) {
             name
         } else {

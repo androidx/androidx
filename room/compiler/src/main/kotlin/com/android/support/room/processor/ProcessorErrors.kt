@@ -299,28 +299,28 @@ object ProcessorErrors {
 
     val RELATION_NOT_COLLECTION = "Fields annotated with @Relation must be a List or Set."
 
-    fun relationCannotFindEntityField(entityName : String, fieldName : String,
-                                      availableFields : List<String>) : String {
-        return "Cannot find the child entity field `$fieldName` in $entityName." +
-                " Options: ${availableFields.joinToString(", ")}"
+    fun relationCannotFindEntityField(entityName : String, columnName: String,
+                                      availableColumns: List<String>) : String {
+        return "Cannot find the child entity column `$columnName` in $entityName." +
+                " Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindParentEntityField(entityName : String, fieldName : String,
-                                            availableFields : List<String>) : String {
-        return "Cannot find the parent entity field `$fieldName` in $entityName." +
-                " Options: ${availableFields.joinToString(", ")}"
+    fun relationCannotFindParentEntityField(entityName : String, columnName: String,
+                                            availableColumns: List<String>) : String {
+        return "Cannot find the parent entity column `$columnName` in $entityName." +
+                " Options: ${availableColumns.joinToString(", ")}"
     }
 
     val RELATION_IN_ENTITY = "Entities cannot have relations."
 
     val CANNOT_FIND_TYPE = "Cannot find type."
 
-    fun relationAffinityMismatch(parentField : String, childField : String,
+    fun relationAffinityMismatch(parentColumn: String, childColumn: String,
                                  parentAffinity : SQLTypeAffinity?,
                                  childAffinity : SQLTypeAffinity?) : String {
         return """
-        The affinity of parent field ($parentField : $parentAffinity) does not match the type
-        affinity of the child field ($childField : $childAffinity).
+        The affinity of parent column ($parentColumn : $parentAffinity) does not match the type
+        affinity of the child column ($childColumn : $childAffinity).
         """.trim()
     }
 

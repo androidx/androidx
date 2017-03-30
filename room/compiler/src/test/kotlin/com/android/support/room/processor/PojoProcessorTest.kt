@@ -227,7 +227,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 int id;
-                @Relation(parentField = "id", entityField = "uid")
+                @Relation(parentColumn = "id", entityColumn = "uid")
                 public User user;
                 """, COMMON.USER
         ) { pojo ->
@@ -240,7 +240,7 @@ class PojoProcessorTest {
                 """
                 int id;
                 @ColumnInfo
-                @Relation(parentField = "id", entityField = "uid")
+                @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """, COMMON.USER
         ) { pojo ->
@@ -253,7 +253,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 int id;
-                @Relation(parentField = "id", entityField = "uid")
+                @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<NotAnEntity> user;
                 """, COMMON.NOT_AN_ENTITY
         ) { pojo ->
@@ -265,7 +265,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 int id;
-                @Relation(parentField = "idk", entityField = "uid")
+                @Relation(parentColumn = "idk", entityColumn = "uid")
                 public List<User> user;
                 """, COMMON.USER
         ) { pojo ->
@@ -279,7 +279,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 int id;
-                @Relation(parentField = "id", entityField = "idk")
+                @Relation(parentColumn = "id", entityColumn = "idk")
                 public List<User> user;
                 """, COMMON.USER
         ) { pojo ->
@@ -294,7 +294,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 int id;
-                @Relation(parentField = "id", entityField = "uid")
+                @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """
         ) { pojo ->
@@ -311,7 +311,7 @@ class PojoProcessorTest {
                 }
                 @Decompose
                 Nested nested;
-                @Relation(parentField = "nested.id", entityField = "uid")
+                @Relation(parentColumn = "foo", entityColumn = "uid")
                 public List<User> user;
                 """, COMMON.USER
         ) { pojo ->
@@ -326,11 +326,11 @@ class PojoProcessorTest {
                 static class UserWithNested {
                     @Decompose
                     public User user;
-                    @Relation(parentField = "user.uid", entityField = "uid")
+                    @Relation(parentColumn = "uid", entityColumn = "uid")
                     public List<User> selfs;
                 }
                 int id;
-                @Relation(parentField = "id", entityField = "uid", entity = User.class)
+                @Relation(parentColumn = "id", entityColumn = "uid", entity = User.class)
                 public List<UserWithNested> user;
                 """, COMMON.USER
         ) { pojo, invocation ->
@@ -343,7 +343,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 String id;
-                @Relation(parentField = "id", entityField = "uid")
+                @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """, COMMON.USER
         ) { pojo, invocation ->
@@ -356,8 +356,8 @@ class PojoProcessorTest {
                 ProcessorErrors.relationAffinityMismatch(
                         parentAffinity = SQLTypeAffinity.TEXT,
                         childAffinity = SQLTypeAffinity.INTEGER,
-                        parentField = "id",
-                        childField = "uid")
+                        parentColumn = "id",
+                        childColumn = "uid")
         )
     }
 
@@ -366,7 +366,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 int id;
-                @Relation(parentField = "id", entityField = "uid")
+                @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """, COMMON.USER
         ) { pojo ->
@@ -381,7 +381,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 int id;
-                @Relation(parentField = "id", entityField = "uid", projection={"i_dont_exist"})
+                @Relation(parentColumn = "id", entityColumn = "uid", projection={"i_dont_exist"})
                 public List<User> user;
                 """, COMMON.USER
         ) { pojo ->

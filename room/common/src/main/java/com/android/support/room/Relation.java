@@ -30,7 +30,7 @@ package com.android.support.room;
  * public class UserNameAndAllPets {
  *   public int id;
  *   public String name;
- *   {@literal @}Relation(parentField = "id", entityField = "userId")
+ *   {@literal @}Relation(parentColumn = "id", entityColumn = "userId")
  *   public List&lt;Pet&gt; pets;
  * }
  *
@@ -57,7 +57,7 @@ package com.android.support.room;
  * public class UserAllPets {
  *   {@literal @}Decompose
  *   public User user;
- *   {@literal @}Relation(parentField = "user.id", entityField = "userId", entity = Pet.class)
+ *   {@literal @}Relation(parentColumn = "user.id", entityColumn = "userId", entity = Pet.class)
  *   public List<PetNameAndId> pets;
  * }
  * {@literal @}Dao
@@ -78,7 +78,7 @@ package com.android.support.room;
  * public class UserAndAllPets {
  *   {@literal @}Decompose
  *   public User user;
- *   {@literal @}Relation(parentField = "user.id", entityField = "userId", entity = Pet.class,
+ *   {@literal @}Relation(parentColumn = "user.id", entityColumn = "userId", entity = Pet.class,
  *           projection = {"name"})
  *   public List<String> petNames;
  * }
@@ -107,17 +107,17 @@ public @interface Relation {
      * For instance, if you have a {@link Decompose}d field named {@code user} with a sub field
      * {@code id}, you can reference it via {@code user.id}.
      * <p>
-     * This value will be matched against the value defined in {@link #entityField()}.
+     * This value will be matched against the value defined in {@link #entityColumn()}.
      *
      * @return The field reference in the parent object.
      */
-    String parentField();
+    String parentColumn();
 
     /**
      * The field path to match in the {@link #entity()}. This value will be matched against the
-     * value defined in {@link #parentField()}.
+     * value defined in {@link #parentColumn()}.
      */
-    String entityField();
+    String entityColumn();
 
     /**
      * If sub fields should be fetched from the entity, you can specify them using this field.
