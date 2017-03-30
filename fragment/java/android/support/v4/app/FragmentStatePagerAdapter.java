@@ -145,6 +145,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
+    @SuppressWarnings("ReferenceEquality")
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
         Fragment fragment = (Fragment)object;
         if (fragment != mCurrentPrimaryItem) {
