@@ -10896,6 +10896,8 @@ package android.support.v7.widget {
     ctor public AppCompatTextView(android.content.Context);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet, int);
+    field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
+    field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
   }
 
   public class CardView extends android.widget.FrameLayout {

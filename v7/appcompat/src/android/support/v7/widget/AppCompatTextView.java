@@ -47,6 +47,17 @@ import android.widget.TextView;
  */
 public class AppCompatTextView extends TextView implements TintableBackgroundView {
 
+    /**
+     * The TextView does not auto-size text (default).
+     */
+    public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0;
+
+    /**
+     * The TextView scales text size both horizontally and vertically to fit within the
+     * container.
+     */
+    public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1;
+
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
 
@@ -157,6 +168,23 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         }
         if (mTextHelper != null) {
             mTextHelper.applyCompoundDrawablesTints();
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (mTextHelper != null) {
+            mTextHelper.onLayout(changed, left, top, right, bottom);
+        }
+    }
+
+    @Override
+    public void setTextSize(int unit, float size) {
+        if (mTextHelper != null) {
+            mTextHelper.setTextSize(unit, size);
+        } else {
+            super.setTextSize(unit, size);
         }
     }
 }
