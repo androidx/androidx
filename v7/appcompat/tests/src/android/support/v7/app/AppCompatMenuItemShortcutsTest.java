@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.appcompat.test.R;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -55,31 +56,34 @@ public class AppCompatMenuItemShortcutsTest {
 
     @Test
     public void testPerformShortcut() {
-        final long downTime = SystemClock.uptimeMillis();
-        int keyCodeToSend, metaState;
-        KeyEvent keyEventToSend;
+        // The support library is only needed for API 25 or lower.
+        if (!BuildCompat.isAtLeastO()) {
+            final long downTime = SystemClock.uptimeMillis();
+            int keyCodeToSend, metaState;
+            KeyEvent keyEventToSend;
 
-        // Test shortcut trigger in case of non-default single modifier
-        keyCodeToSend = KeyEvent.KEYCODE_C;
-        metaState = KeyEvent.META_SHIFT_ON;
-        keyEventToSend = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
-                keyCodeToSend, 0, metaState);
-        assertTrue(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
-        assertEquals(mActivity.getMenuItemIdTracker(), R.id.single_modifier);
+            // Test shortcut trigger in case of non-default single modifier
+            keyCodeToSend = KeyEvent.KEYCODE_C;
+            metaState = KeyEvent.META_SHIFT_ON;
+            keyEventToSend = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
+                    keyCodeToSend, 0, metaState);
+            assertTrue(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
+            assertEquals(mActivity.getMenuItemIdTracker(), R.id.single_modifier);
 
-        // Test shortcut trigger in case of multiple non-default modifiers
-        keyCodeToSend = KeyEvent.KEYCODE_D;
-        metaState = KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON;
-        keyEventToSend = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
-                keyCodeToSend, 0, metaState);
-        assertTrue(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
-        assertEquals(mActivity.getMenuItemIdTracker(), R.id.multiple_modifiers);
+            // Test shortcut trigger in case of multiple non-default modifiers
+            keyCodeToSend = KeyEvent.KEYCODE_D;
+            metaState = KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON;
+            keyEventToSend = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
+                    keyCodeToSend, 0, metaState);
+            assertTrue(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
+            assertEquals(mActivity.getMenuItemIdTracker(), R.id.multiple_modifiers);
 
-        // Test no shortcut trigger in case of incorrect modifier
-        keyCodeToSend = KeyEvent.KEYCODE_E;
-        metaState = KeyEvent.META_CTRL_ON;
-        keyEventToSend = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
-                keyCodeToSend, 0, metaState);
-        assertFalse(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
+            // Test no shortcut trigger in case of incorrect modifier
+            keyCodeToSend = KeyEvent.KEYCODE_E;
+            metaState = KeyEvent.META_CTRL_ON;
+            keyEventToSend = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
+                    keyCodeToSend, 0, metaState);
+            assertFalse(mActivity.onKeyDown(keyCodeToSend, keyEventToSend));
+        }
     }
 }
