@@ -15,7 +15,9 @@
  */
 package android.support.v4.view;
 
-import android.support.annotation.RequiresApi;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.os.Build;
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -36,100 +38,50 @@ public final class ViewPropertyAnimatorCompat {
         mView = new WeakReference<View>(view);
     }
 
-    interface ViewPropertyAnimatorCompatImpl {
-        Interpolator getInterpolator(ViewPropertyAnimatorCompat vpa, View view);
-        void z(ViewPropertyAnimatorCompat vpa, View view, float value);
-        void zBy(ViewPropertyAnimatorCompat vpa, View view, float value);
-        void translationZ(ViewPropertyAnimatorCompat vpa, View view, float value);
-        void translationZBy(ViewPropertyAnimatorCompat vpa, View view, float value);
-        void withLayer(ViewPropertyAnimatorCompat vpa, View view);
-        void withStartAction(ViewPropertyAnimatorCompat vpa, View view, Runnable runnable);
-        void withEndAction(ViewPropertyAnimatorCompat vpa, View view, Runnable runnable);
-        void setListener(ViewPropertyAnimatorCompat vpa, View view,
-                ViewPropertyAnimatorListener listener);
-        void setUpdateListener(ViewPropertyAnimatorCompat vpa, View view,
-                ViewPropertyAnimatorUpdateListener listener);
-    }
+    static class ViewPropertyAnimatorListenerApi14 implements ViewPropertyAnimatorListener {
+        ViewPropertyAnimatorCompat mVpa;
+        boolean mAnimEndCalled;
 
-    static class ViewPropertyAnimatorCompatBaseImpl implements ViewPropertyAnimatorCompatImpl {
-        @Override
-        public void setListener(ViewPropertyAnimatorCompat vpa, View view,
-                ViewPropertyAnimatorListener listener) {
-            view.setTag(LISTENER_TAG_ID, listener);
-            ViewPropertyAnimatorCompatICS.setListener(view, new MyVpaListener(vpa));
+        ViewPropertyAnimatorListenerApi14(ViewPropertyAnimatorCompat vpa) {
+            mVpa = vpa;
         }
 
         @Override
-        public void withEndAction(ViewPropertyAnimatorCompat vpa, View view,
-                final Runnable runnable) {
-            ViewPropertyAnimatorCompatICS.setListener(view, new MyVpaListener(vpa));
-            vpa.mEndAction = runnable;
-        }
+        public void onAnimationStart(View view) {
+            // Reset our end called flag, since this is a new animation...
+            mAnimEndCalled = false;
 
-        @Override
-        public void withStartAction(ViewPropertyAnimatorCompat vpa, View view,
-                final Runnable runnable) {
-            ViewPropertyAnimatorCompatICS.setListener(view, new MyVpaListener(vpa));
-            vpa.mStartAction = runnable;
-        }
-
-        @Override
-        public void withLayer(ViewPropertyAnimatorCompat vpa, View view) {
-            vpa.mOldLayerType = view.getLayerType();
-            ViewPropertyAnimatorCompatICS.setListener(view, new MyVpaListener(vpa));
-        }
-
-        @Override
-        public Interpolator getInterpolator(ViewPropertyAnimatorCompat vpa, View view) {
-            return null;
-        }
-
-        @Override
-        public void z(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            // noop on versions prior to Lollipop
-        }
-
-        @Override
-        public void zBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            // noop on versions prior to Lollipop
-        }
-
-        @Override
-        public void translationZ(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            // noop on versions prior to Lollipop
-        }
-
-        @Override
-        public void translationZBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            // noop on versions prior to Lollipop
-        }
-
-        @Override
-        public void setUpdateListener(ViewPropertyAnimatorCompat vpa, View view,
-                ViewPropertyAnimatorUpdateListener listener) {
-            // noop
-        }
-
-        static class MyVpaListener implements ViewPropertyAnimatorListener {
-            ViewPropertyAnimatorCompat mVpa;
-            boolean mAnimEndCalled;
-
-            MyVpaListener(ViewPropertyAnimatorCompat vpa) {
-                mVpa = vpa;
+            if (mVpa.mOldLayerType > -1) {
+                view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             }
+            if (mVpa.mStartAction != null) {
+                Runnable startAction = mVpa.mStartAction;
+                mVpa.mStartAction = null;
+                startAction.run();
+            }
+            Object listenerTag = view.getTag(LISTENER_TAG_ID);
+            ViewPropertyAnimatorListener listener = null;
+            if (listenerTag instanceof ViewPropertyAnimatorListener) {
+                listener = (ViewPropertyAnimatorListener) listenerTag;
+            }
+            if (listener != null) {
+                listener.onAnimationStart(view);
+            }
+        }
 
-            @Override
-            public void onAnimationStart(View view) {
-                // Reset our end called flag, since this is a new animation...
-                mAnimEndCalled = false;
-
-                if (mVpa.mOldLayerType >= 0) {
-                    view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-                }
-                if (mVpa.mStartAction != null) {
-                    Runnable startAction = mVpa.mStartAction;
-                    mVpa.mStartAction = null;
-                    startAction.run();
+        @Override
+        public void onAnimationEnd(View view) {
+            if (mVpa.mOldLayerType > -1) {
+                view.setLayerType(mVpa.mOldLayerType, null);
+                mVpa.mOldLayerType = -1;
+            }
+            if (Build.VERSION.SDK_INT >= 16 || !mAnimEndCalled) {
+                // Pre-v16 seems to have a bug where onAnimationEnd is called
+                // twice, therefore we only dispatch on the first call
+                if (mVpa.mEndAction != null) {
+                    Runnable endAction = mVpa.mEndAction;
+                    mVpa.mEndAction = null;
+                    endAction.run();
                 }
                 Object listenerTag = view.getTag(LISTENER_TAG_ID);
                 ViewPropertyAnimatorListener listener = null;
@@ -137,128 +89,22 @@ public final class ViewPropertyAnimatorCompat {
                     listener = (ViewPropertyAnimatorListener) listenerTag;
                 }
                 if (listener != null) {
-                    listener.onAnimationStart(view);
+                    listener.onAnimationEnd(view);
                 }
-            }
-
-            @Override
-            public void onAnimationEnd(View view) {
-                if (mVpa.mOldLayerType >= 0) {
-                    view.setLayerType(mVpa.mOldLayerType, null);
-                    mVpa.mOldLayerType = -1;
-                }
-                if (Build.VERSION.SDK_INT >= 16 || !mAnimEndCalled) {
-                    // Pre-v16 seems to have a bug where onAnimationEnd is called
-                    // twice, therefore we only dispatch on the first call
-                    if (mVpa.mEndAction != null) {
-                        Runnable endAction = mVpa.mEndAction;
-                        mVpa.mEndAction = null;
-                        endAction.run();
-                    }
-                    Object listenerTag = view.getTag(LISTENER_TAG_ID);
-                    ViewPropertyAnimatorListener listener = null;
-                    if (listenerTag instanceof ViewPropertyAnimatorListener) {
-                        listener = (ViewPropertyAnimatorListener) listenerTag;
-                    }
-                    if (listener != null) {
-                        listener.onAnimationEnd(view);
-                    }
-                    mAnimEndCalled = true;
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(View view) {
-                Object listenerTag = view.getTag(LISTENER_TAG_ID);
-                ViewPropertyAnimatorListener listener = null;
-                if (listenerTag instanceof ViewPropertyAnimatorListener) {
-                    listener = (ViewPropertyAnimatorListener) listenerTag;
-                }
-                if (listener != null) {
-                    listener.onAnimationCancel(view);
-                }
+                mAnimEndCalled = true;
             }
         }
-    }
-
-    @RequiresApi(16)
-    static class ViewPropertyAnimatorCompatApi16Impl extends ViewPropertyAnimatorCompatBaseImpl {
 
         @Override
-        public void setListener(ViewPropertyAnimatorCompat vpa, View view, ViewPropertyAnimatorListener listener) {
-            ViewPropertyAnimatorCompatJB.setListener(view, listener);
-        }
-
-        @Override
-        public void withStartAction(ViewPropertyAnimatorCompat vpa, View view, Runnable runnable) {
-            view.animate().withStartAction(runnable);
-        }
-
-        @Override
-        public void withEndAction(ViewPropertyAnimatorCompat vpa, View view, Runnable runnable) {
-            view.animate().withEndAction(runnable);
-        }
-
-        @Override
-        public void withLayer(ViewPropertyAnimatorCompat vpa, View view) {
-            view.animate().withLayer();
-        }
-    }
-
-    @RequiresApi(18)
-    static class ViewPropertyAnimatorCompatApi18Impl extends ViewPropertyAnimatorCompatApi16Impl {
-
-        @Override
-        public Interpolator getInterpolator(ViewPropertyAnimatorCompat vpa, View view) {
-            return (Interpolator) view.animate().getInterpolator();
-        }
-    }
-
-    @RequiresApi(19)
-    static class ViewPropertyAnimatorCompatApi19Impl extends ViewPropertyAnimatorCompatApi18Impl {
-        @Override
-        public void setUpdateListener(ViewPropertyAnimatorCompat vpa, View view,
-                ViewPropertyAnimatorUpdateListener listener) {
-            ViewPropertyAnimatorCompatKK.setUpdateListener(view, listener);
-        }
-    }
-
-    @RequiresApi(21)
-    static class ViewPropertyAnimatorCompatApi21Impl extends
-            ViewPropertyAnimatorCompatApi19Impl {
-        @Override
-        public void translationZ(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            view.animate().translationZ(value);
-        }
-
-        @Override
-        public void translationZBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            view.animate().translationZBy(value);
-        }
-
-        @Override
-        public void z(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            view.animate().z(value);
-        }
-
-        @Override
-        public void zBy(ViewPropertyAnimatorCompat vpa, View view, float value) {
-            view.animate().zBy(value);
-        }
-    }
-
-    static final ViewPropertyAnimatorCompatImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new ViewPropertyAnimatorCompatApi21Impl();
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new ViewPropertyAnimatorCompatApi19Impl();
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            IMPL = new ViewPropertyAnimatorCompatApi18Impl();
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new ViewPropertyAnimatorCompatApi16Impl();
-        } else {
-            IMPL = new ViewPropertyAnimatorCompatBaseImpl();
+        public void onAnimationCancel(View view) {
+            Object listenerTag = view.getTag(LISTENER_TAG_ID);
+            ViewPropertyAnimatorListener listener = null;
+            if (listenerTag instanceof ViewPropertyAnimatorListener) {
+                listener = (ViewPropertyAnimatorListener) listenerTag;
+            }
+            if (listener != null) {
+                listener.onAnimationCancel(view);
+            }
         }
     }
 
@@ -357,8 +203,6 @@ public final class ViewPropertyAnimatorCompat {
      *     view.animate().x(200).withEndAction(endAction);
      * </pre>
      *
-     * <p>Prior to API 14, this method will run the action immediately.</p>
-     *
      * <p>For API 14 and 15, this method will run by setting
      * a listener on the ViewPropertyAnimatorCompat object and running the action
      * in that listener's {@link ViewPropertyAnimatorListener#onAnimationEnd(View)} method.</p>
@@ -369,7 +213,12 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat withEndAction(Runnable runnable) {
         View view;
         if ((view = mView.get()) != null) {
-            IMPL.withEndAction(this, view, runnable);
+            if (Build.VERSION.SDK_INT >= 16) {
+                view.animate().withEndAction(runnable);
+            } else {
+                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
+                mEndAction = runnable;
+            }
         }
         return this;
     }
@@ -415,9 +264,11 @@ public final class ViewPropertyAnimatorCompat {
     public Interpolator getInterpolator() {
         View view;
         if ((view = mView.get()) != null) {
-            return IMPL.getInterpolator(this, view);
+            if (Build.VERSION.SDK_INT >= 18) {
+                return (Interpolator) view.animate().getInterpolator();
+            }
         }
-        else return null;
+        return null;
     }
 
     /**
@@ -716,7 +567,9 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat translationZBy(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            IMPL.translationZBy(this, view, value);
+            if (Build.VERSION.SDK_INT >= 21) {
+                view.animate().translationZBy(value);
+            }
         }
         return this;
     }
@@ -733,7 +586,9 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat translationZ(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            IMPL.translationZ(this, view, value);
+            if (Build.VERSION.SDK_INT >= 21) {
+                view.animate().translationZ(value);
+            }
         }
         return this;
     }
@@ -750,7 +605,9 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat z(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            IMPL.z(this, view, value);
+            if (Build.VERSION.SDK_INT >= 21) {
+                view.animate().z(value);
+            }
         }
         return this;
     }
@@ -767,7 +624,9 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat zBy(float value) {
         View view;
         if ((view = mView.get()) != null) {
-            IMPL.zBy(this, view, value);
+            if (Build.VERSION.SDK_INT >= 21) {
+                view.animate().zBy(value);
+            }
         }
         return this;
     }
@@ -805,8 +664,6 @@ public final class ViewPropertyAnimatorCompat {
      * inconsistency, including having the layer type restored to its pre-withLayer()
      * value when the animation ends.</p>
      *
-     * <p>Prior to API 14, this method will do nothing.</p>
-     *
      * <p>For API 14 and 15, this method will run by setting
      * a listener on the ViewPropertyAnimatorCompat object, setting a hardware layer in
      * the listener's {@link ViewPropertyAnimatorListener#onAnimationStart(View)} method,
@@ -819,7 +676,12 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat withLayer() {
         View view;
         if ((view = mView.get()) != null) {
-            IMPL.withLayer(this, view);
+            if (Build.VERSION.SDK_INT >= 16) {
+                view.animate().withLayer();
+            } else {
+                mOldLayerType = view.getLayerType();
+                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
+            }
         }
         return this;
     }
@@ -832,8 +694,6 @@ public final class ViewPropertyAnimatorCompat {
      * choreographing ViewPropertyAnimator animations with other animations or actions
      * in the application.
      *
-     * <p>Prior to API 14, this method will run the action immediately.</p>
-     *
      * <p>For API 14 and 15, this method will run by setting
      * a listener on the ViewPropertyAnimatorCompat object and running the action
      * in that listener's {@link ViewPropertyAnimatorListener#onAnimationStart(View)} method.</p>
@@ -844,7 +704,12 @@ public final class ViewPropertyAnimatorCompat {
     public ViewPropertyAnimatorCompat withStartAction(Runnable runnable) {
         View view;
         if ((view = mView.get()) != null) {
-            IMPL.withStartAction(this, view, runnable);
+            if (Build.VERSION.SDK_INT >= 16) {
+                view.animate().withStartAction(runnable);
+            } else {
+                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
+                mStartAction = runnable;
+            }
         }
         return this;
     }
@@ -853,18 +718,44 @@ public final class ViewPropertyAnimatorCompat {
      * Sets a listener for events in the underlying Animators that run the property
      * animations.
      *
-     * <p>Prior to API 14, this method will do nothing.</p>
-     *
      * @param listener The listener to be called with AnimatorListener events. A value of
      * <code>null</code> removes any existing listener.
      * @return This object, allowing calls to methods in this class to be chained.
      */
-    public ViewPropertyAnimatorCompat setListener(ViewPropertyAnimatorListener listener) {
-        View view;
+    public ViewPropertyAnimatorCompat setListener(final ViewPropertyAnimatorListener listener) {
+        final View view;
         if ((view = mView.get()) != null) {
-            IMPL.setListener(this, view, listener);
+            if (Build.VERSION.SDK_INT >= 16) {
+                setListenerInternal(view, listener);
+            } else {
+                view.setTag(LISTENER_TAG_ID, listener);
+                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
+            }
         }
         return this;
+    }
+
+    private void setListenerInternal(final View view, final ViewPropertyAnimatorListener listener) {
+        if (listener != null) {
+            view.animate().setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    listener.onAnimationCancel(view);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    listener.onAnimationEnd(view);
+                }
+
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    listener.onAnimationStart(view);
+                }
+            });
+        } else {
+            view.animate().setListener(null);
+        }
     }
 
     /**
@@ -878,10 +769,21 @@ public final class ViewPropertyAnimatorCompat {
      * @return This object, allowing calls to methods in this class to be chained.
      */
     public ViewPropertyAnimatorCompat setUpdateListener(
-            ViewPropertyAnimatorUpdateListener listener) {
-        View view;
+            final ViewPropertyAnimatorUpdateListener listener) {
+        final View view;
         if ((view = mView.get()) != null) {
-            IMPL.setUpdateListener(this, view, listener);
+            if (Build.VERSION.SDK_INT >= 19) {
+                ValueAnimator.AnimatorUpdateListener wrapped = null;
+                if (listener != null) {
+                    wrapped = new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                            listener.onAnimationUpdate(view);
+                        }
+                    };
+                }
+                view.animate().setUpdateListener(wrapped);
+            }
         }
         return this;
     }
