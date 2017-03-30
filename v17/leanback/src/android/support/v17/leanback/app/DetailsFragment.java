@@ -24,6 +24,8 @@ import android.support.annotation.CallSuper;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.util.StateMachine.Event;
+import android.support.v17.leanback.util.StateMachine.State;
 import android.support.v17.leanback.widget.BaseOnItemViewClickedListener;
 import android.support.v17.leanback.widget.BaseOnItemViewSelectedListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
@@ -41,6 +43,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import java.lang.ref.WeakReference;
 
@@ -87,22 +90,190 @@ public class DetailsFragment extends BaseFragment {
     static final String TAG = "DetailsFragment";
     static boolean DEBUG = false;
 
+    final State STATE_SET_ENTRANCE_START_STATE = new State("STATE_SET_ENTRANCE_START_STATE") {
+        @Override
+        public void run() {
+            mRowsFragment.setEntranceTransitionState(false);
+        }
+    };
+
+    final State STATE_ENTER_TRANSITION_INIT = new State("STATE_ENTER_TRANSIITON_INIT");
+
+    void switchToVideoBeforeVideoFragmentCreated() {
+        // if the video fragment is not ready: immediately fade out covering drawable,
+        // hide title and mark mPendingFocusOnVideo and set focus on it later.
+        mDetailsBackgroundController.crossFadeBackgroundToVideo(true, true);
+        showTitle(false);
+        mPendingFocusOnVideo = true;
+        slideOutGridView();
+    }
+
+    final State STATE_SWITCH_TO_VIDEO_IN_ON_CREATE = new State("STATE_SWITCH_TO_VIDEO_IN_ON_CREATE",
+            false, false) {
+        @Override
+        public void run() {
+            switchToVideoBeforeVideoFragmentCreated();
+        }
+    };
+
+    final State STATE_ENTER_TRANSITION_CANCEL = new State("STATE_ENTER_TRANSITION_CANCEL",
+            false, false) {
+        @Override
+        public void run() {
+            if (mWaitEnterTransitionTimeout != null) {
+                mWaitEnterTransitionTimeout.mRef.clear();
+            }
+            // clear the activity enter/sharedElement transition, return transitions are kept.
+            // keep the return transitions and clear enter transition
+            if (getActivity() != null) {
+                Window window = getActivity().getWindow();
+                Object returnTransition = TransitionHelper.getReturnTransition(window);
+                Object sharedReturnTransition = TransitionHelper
+                        .getSharedElementReturnTransition(window);
+                TransitionHelper.setEnterTransition(window, null);
+                TransitionHelper.setSharedElementEnterTransition(window, null);
+                TransitionHelper.setReturnTransition(window, returnTransition);
+                TransitionHelper.setSharedElementReturnTransition(window, sharedReturnTransition);
+            }
+        }
+    };
+
+    final State STATE_ENTER_TRANSITION_COMPLETE = new State("STATE_ENTER_TRANSIITON_COMPLETE",
+            true, false);
+
+    final State STATE_ENTER_TRANSITION_ADDLISTENER = new State("STATE_ENTER_TRANSITION_PENDING") {
+        @Override
+        public void run() {
+            Object transition = TransitionHelper.getEnterTransition(getActivity().getWindow());
+            TransitionHelper.addTransitionListener(transition, mEnterTransitionListener);
+        }
+    };
+
+    final State STATE_ENTER_TRANSITION_PENDING = new State("STATE_ENTER_TRANSITION_PENDING") {
+        @Override
+        public void run() {
+            if (mWaitEnterTransitionTimeout == null) {
+                new WaitEnterTransitionTimeout(DetailsFragment.this);
+            }
+        }
+    };
+
     /**
-     * Flag for "possibly" having enter transition not finished yet.
-     * @see #mStartAndTransitionFlag
+     * Start this task when first DetailsOverviewRow is created, if there is no entrance transition
+     * started, it will clear PF_ENTRANCE_TRANSITION_PENDING.
      */
-    static final int PF_ENTER_TRANSITION_PENDING = 0x1 << 0;
-    /**
-     * Flag for having entrance transition not finished yet.
-     * @see #mStartAndTransitionFlag
-     */
-    static final int PF_ENTRANCE_TRANSITION_PENDING = 0x1 << 1;
-    /**
-     * Flag that onStart() has been called and about to call onSafeStart() when
-     * pending transitions are finished.
-     * @see #mStartAndTransitionFlag
-     */
-    static final int PF_PENDING_START = 0x1 << 2;
+    static class WaitEnterTransitionTimeout implements Runnable {
+        static final long WAIT_ENTERTRANSITION_START = 200;
+
+        final WeakReference<DetailsFragment> mRef;
+
+        WaitEnterTransitionTimeout(DetailsFragment f) {
+            mRef = new WeakReference<>(f);
+            f.getView().postDelayed(this, WAIT_ENTERTRANSITION_START);
+        }
+
+        @Override
+        public void run() {
+            DetailsFragment f = mRef.get();
+            if (f != null) {
+                f.mStateMachine.fireEvent(f.EVT_ENTER_TRANSIITON_DONE);
+            }
+        }
+    }
+
+    final State STATE_ON_SAFE_START = new State("STATE_ON_SAFE_START") {
+        @Override
+        public void run() {
+            onSafeStart();
+        }
+    };
+
+    final Event EVT_ONSTART = new Event("onStart");
+
+    final Event EVT_NO_ENTER_TRANSITION = new Event("EVT_NO_ENTER_TRANSITION");
+
+    final Event EVT_DETAILS_ROW_LOADED = new Event("onFirstRowLoaded");
+
+    final Event EVT_ENTER_TRANSIITON_DONE = new Event("onEnterTransitionDone");
+
+    final Event EVT_SWITCH_TO_VIDEO = new Event("switchToVideo");
+
+    @Override
+    void createStateMachineStates() {
+        super.createStateMachineStates();
+        mStateMachine.addState(STATE_SET_ENTRANCE_START_STATE);
+        mStateMachine.addState(STATE_ON_SAFE_START);
+        mStateMachine.addState(STATE_SWITCH_TO_VIDEO_IN_ON_CREATE);
+        mStateMachine.addState(STATE_ENTER_TRANSITION_INIT);
+        mStateMachine.addState(STATE_ENTER_TRANSITION_ADDLISTENER);
+        mStateMachine.addState(STATE_ENTER_TRANSITION_CANCEL);
+        mStateMachine.addState(STATE_ENTER_TRANSITION_PENDING);
+        mStateMachine.addState(STATE_ENTER_TRANSITION_COMPLETE);
+    }
+
+    @Override
+    void createStateMachineTransitions() {
+        super.createStateMachineTransitions();
+        /**
+         * Part 1: Processing enter transitions after fragment.onCreate
+         */
+        mStateMachine.addTransition(STATE_START, STATE_ENTER_TRANSITION_INIT, EVT_ON_CREATE);
+        // if transition is not supported, skip to complete
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_INIT, STATE_ENTER_TRANSITION_COMPLETE,
+                COND_TRANSITION_NOT_SUPPORTED);
+        // if transition is not set on Activity, skip to complete
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_INIT, STATE_ENTER_TRANSITION_COMPLETE,
+                EVT_NO_ENTER_TRANSITION);
+        // if switchToVideo is called before EVT_ON_CREATEVIEW, clear enter transition and skip to
+        // complete.
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_INIT, STATE_ENTER_TRANSITION_CANCEL,
+                EVT_SWITCH_TO_VIDEO);
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_CANCEL, STATE_ENTER_TRANSITION_COMPLETE);
+        // once after onCreateView, we cannot skip the enter transition, add a listener and wait
+        // it to finish
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_INIT, STATE_ENTER_TRANSITION_ADDLISTENER,
+                EVT_ON_CREATEVIEW);
+        // when enter transition finishes, go to complete, however this might never happen if
+        // the activity is not giving transition options in startActivity, there is no API to query
+        // if this activity is started in a enter transition mode. So we rely on a timer below:
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_ADDLISTENER,
+                STATE_ENTER_TRANSITION_COMPLETE, EVT_ENTER_TRANSIITON_DONE);
+        // we are expecting app to start delayed enter transition shortly after details row is
+        // loaded, so create a timer and wait for enter transition start.
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_ADDLISTENER,
+                STATE_ENTER_TRANSITION_PENDING, EVT_DETAILS_ROW_LOADED);
+        // if enter transition not started in the timer, skip to DONE, this can be also true when
+        // startActivity is not giving transition option.
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_PENDING, STATE_ENTER_TRANSITION_COMPLETE,
+                EVT_ENTER_TRANSIITON_DONE);
+
+        /**
+         * Part 2: modification to the entrance transition defined in BaseFragment
+         */
+        // Must finish enter transition before perform entrance transition.
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_COMPLETE, STATE_ENTRANCE_PERFORM);
+        // Calling switch to video would hide immediately and skip entrance transition
+        mStateMachine.addTransition(STATE_ENTRANCE_INIT, STATE_SWITCH_TO_VIDEO_IN_ON_CREATE,
+                EVT_SWITCH_TO_VIDEO);
+        mStateMachine.addTransition(STATE_SWITCH_TO_VIDEO_IN_ON_CREATE, STATE_ENTRANCE_COMPLETE);
+        // if the entrance transition is skipped to complete by COND_TRANSITION_NOT_SUPPORTED, we
+        // still need to do the switchToVideo.
+        mStateMachine.addTransition(STATE_ENTRANCE_COMPLETE, STATE_SWITCH_TO_VIDEO_IN_ON_CREATE,
+                EVT_SWITCH_TO_VIDEO);
+
+        // for once the view is created in onStart and prepareEntranceTransition was called, we
+        // could setEntranceStartState:
+        mStateMachine.addTransition(STATE_ENTRANCE_ON_PREPARED,
+                STATE_SET_ENTRANCE_START_STATE, EVT_ONSTART);
+
+        /**
+         * Part 3: onSafeStart()
+         */
+        // for onSafeStart: the condition is onStart called, entrance transition complete
+        mStateMachine.addTransition(STATE_START, STATE_ON_SAFE_START, EVT_ONSTART);
+        mStateMachine.addTransition(STATE_ENTRANCE_COMPLETE, STATE_ON_SAFE_START);
+        mStateMachine.addTransition(STATE_ENTER_TRANSITION_COMPLETE, STATE_ON_SAFE_START);
+    }
 
     private class SetSelectionRunnable implements Runnable {
         int mPosition;
@@ -120,33 +291,6 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
-    /**
-     * Start this task when first DetailsOverviewRow is created, if there is no entrance transition
-     * started, it will clear PF_ENTRANCE_TRANSITION_PENDING.
-     * @see #mStartAndTransitionFlag
-     */
-    static class WaitEnterTransitionTimeout implements Runnable {
-        static final long WAIT_ENTERTRANSITION_START = 200;
-
-        final WeakReference<DetailsFragment> mRef;
-
-        WaitEnterTransitionTimeout(DetailsFragment f) {
-            mRef = new WeakReference<>(f);
-            f.getView().postDelayed(this, WAIT_ENTERTRANSITION_START);
-        }
-
-        @Override
-        public void run() {
-            DetailsFragment f = mRef.get();
-            if (f != null) {
-                f.clearPendingEnterTransition();
-            }
-        }
-    }
-
-    /**
-     * @see #mStartAndTransitionFlag
-     */
     TransitionListener mEnterTransitionListener = new TransitionListener() {
         @Override
         public void onTransitionStart(Object transition) {
@@ -159,12 +303,12 @@ public class DetailsFragment extends BaseFragment {
 
         @Override
         public void onTransitionCancel(Object transition) {
-            clearPendingEnterTransition();
+            mStateMachine.fireEvent(EVT_ENTER_TRANSIITON_DONE);
         }
 
         @Override
         public void onTransitionEnd(Object transition) {
-            clearPendingEnterTransition();
+            mStateMachine.fireEvent(EVT_ENTER_TRANSIITON_DONE);
         }
     };
 
@@ -187,23 +331,10 @@ public class DetailsFragment extends BaseFragment {
     BaseOnItemViewClickedListener mOnItemViewClickedListener;
     DetailsFragmentBackgroundController mDetailsBackgroundController;
 
+    // A temporarily flag when switchToVideo() is called in onCreate(), if mPendingFocusOnVideo is
+    // true, we will focus to VideoFragment immediately after video fragment's view is created.
+    boolean mPendingFocusOnVideo = false;
 
-    /**
-     * Flags for enter transition, entrance transition and onStart.  When onStart() is called
-     * and both enter transiton and entrance transition are finished, we could call onSafeStart().
-     * 1. in onCreate:
-     *      if user call prepareEntranceTransition, set PF_ENTRANCE_TRANSITION_PENDING
-     *      if there is enterTransition, set PF_ENTER_TRANSITION_PENDING, but we dont know if
-     *      user will run enterTransition or not.
-     * 2. when user add row, start WaitEnterTransitionTimeout to wait possible enter transition
-     * start. If enter transition onTransitionStart is not invoked with a period, we can assume
-     * there is no enter transition running, then WaitEnterTransitionTimeout will clear
-     * PF_ENTER_TRANSITION_PENDING.
-     * 3. When enterTransition runs (either postponed or not),  we will stop the
-     * WaitEnterTransitionTimeout, and let onTransitionEnd/onTransitionCancel to clear
-     * PF_ENTER_TRANSITION_PENDING.
-     */
-    int mStartAndTransitionFlag = 0;
     WaitEnterTransitionTimeout mWaitEnterTransitionTimeout;
 
     Object mSceneAfterEntranceTransition;
@@ -287,14 +418,15 @@ public class DetailsFragment extends BaseFragment {
         Activity activity = getActivity();
         if (activity != null) {
             Object transition = TransitionHelper.getEnterTransition(activity.getWindow());
-            if (transition != null) {
-                mStartAndTransitionFlag |= PF_ENTER_TRANSITION_PENDING;
-                TransitionHelper.addTransitionListener(transition, mEnterTransitionListener);
+            if (transition == null) {
+                mStateMachine.fireEvent(EVT_NO_ENTER_TRANSITION);
             }
             transition = TransitionHelper.getReturnTransition(activity.getWindow());
             if (transition != null) {
                 TransitionHelper.addTransitionListener(transition, mReturnTransitionListener);
             }
+        } else {
+            mStateMachine.fireEvent(EVT_NO_ENTER_TRANSITION);
         }
     }
 
@@ -449,6 +581,22 @@ public class DetailsFragment extends BaseFragment {
         }
     }
 
+    void switchToVideo() {
+        if (mVideoFragment != null && mVideoFragment.getView() != null) {
+            mVideoFragment.getView().requestFocus();
+        } else {
+            mStateMachine.fireEvent(EVT_SWITCH_TO_VIDEO);
+        }
+    }
+
+    void switchToRows() {
+        mPendingFocusOnVideo = false;
+        VerticalGridView verticalGridView = getVerticalGridView();
+        if (verticalGridView != null && verticalGridView.getChildCount() > 0) {
+            verticalGridView.requestFocus();
+        }
+    }
+
     /**
      * This method asks DetailsFragmentBackgroundController to add a fragment for rendering video.
      * In case the fragment is already there, it will return the existing one. The method must be
@@ -465,6 +613,18 @@ public class DetailsFragment extends BaseFragment {
             ft2.add(android.support.v17.leanback.R.id.video_surface_container,
                     fragment = mDetailsBackgroundController.onCreateVideoFragment());
             ft2.commit();
+            if (mPendingFocusOnVideo) {
+                // wait next cycle for Fragment view created so we can focus on it.
+                // This is a bit hack eventually we will do commitNow() which get view immediately.
+                getView().post(new Runnable() {
+                    public void run() {
+                        if (getView() != null) {
+                            switchToVideo();
+                        }
+                        mPendingFocusOnVideo = false;
+                    }
+                });
+            }
         }
         mVideoFragment = fragment;
         return mVideoFragment;
@@ -473,7 +633,7 @@ public class DetailsFragment extends BaseFragment {
     void onRowSelected(int selectedPosition, int selectedSubPosition) {
         ObjectAdapter adapter = getAdapter();
         if (( mRowsFragment != null && mRowsFragment.getView() != null
-                && mRowsFragment.getView().hasFocus())
+                && mRowsFragment.getView().hasFocus() && !mPendingFocusOnVideo)
                 && (adapter == null || adapter.size() == 0
                 || (getVerticalGridView().getSelectedPosition() == 0
                 && getVerticalGridView().getSelectedSubPosition() == 0))) {
@@ -484,10 +644,8 @@ public class DetailsFragment extends BaseFragment {
         if (adapter != null && adapter.size() > selectedPosition) {
             final VerticalGridView gridView = getVerticalGridView();
             final int count = gridView.getChildCount();
-            if (count > 0 && (mStartAndTransitionFlag & PF_ENTER_TRANSITION_PENDING) != 0) {
-                if (mWaitEnterTransitionTimeout == null) {
-                    mWaitEnterTransitionTimeout = new WaitEnterTransitionTimeout(this);
-                }
+            if (count > 0) {
+                mStateMachine.fireEvent(EVT_DETAILS_ROW_LOADED);
             }
             for (int i = 0; i < count; i++) {
                 ItemBridgeAdapter.ViewHolder bridgeViewHolder = (ItemBridgeAdapter.ViewHolder)
@@ -498,25 +656,6 @@ public class DetailsFragment extends BaseFragment {
                         bridgeViewHolder.getAdapterPosition(),
                         selectedPosition, selectedSubPosition);
             }
-        }
-    }
-
-    void clearPendingEnterTransition() {
-        if ((mStartAndTransitionFlag & PF_ENTER_TRANSITION_PENDING) != 0) {
-            mStartAndTransitionFlag &= ~PF_ENTER_TRANSITION_PENDING;
-            dispatchOnStartAndTransitionFinished();
-        }
-    }
-
-    void dispatchOnStartAndTransitionFinished() {
-        /**
-         * if onStart() was called and there is no pending enter transition or entrance transition.
-         */
-        if ((mStartAndTransitionFlag & PF_PENDING_START) != 0
-                && (mStartAndTransitionFlag
-                & (PF_ENTER_TRANSITION_PENDING | PF_ENTRANCE_TRANSITION_PENDING)) == 0) {
-            mStartAndTransitionFlag &= ~PF_PENDING_START;
-            onSafeStart();
         }
     }
 
@@ -614,17 +753,14 @@ public class DetailsFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
 
-        mStartAndTransitionFlag |= PF_PENDING_START;
-        dispatchOnStartAndTransitionFinished();
-
         setupChildFragmentLayout();
-        if (isEntranceTransitionEnabled()) {
-            mRowsFragment.setEntranceTransitionState(false);
-        }
+        mStateMachine.fireEvent(EVT_ONSTART);
         if (mDetailsParallax != null) {
             mDetailsParallax.setRecyclerView(mRowsFragment.getVerticalGridView());
         }
-        if (!getView().hasFocus()) {
+        if (mPendingFocusOnVideo) {
+            slideOutGridView();
+        } else if (!getView().hasFocus()) {
             mRowsFragment.getVerticalGridView().requestFocus();
         }
     }
@@ -642,14 +778,11 @@ public class DetailsFragment extends BaseFragment {
 
     @Override
     protected void onEntranceTransitionEnd() {
-        mStartAndTransitionFlag &= ~PF_ENTRANCE_TRANSITION_PENDING;
-        dispatchOnStartAndTransitionFinished();
         mRowsFragment.onTransitionEnd();
     }
 
     @Override
     protected void onEntranceTransitionPrepare() {
-        mStartAndTransitionFlag |= PF_ENTRANCE_TRANSITION_PENDING;
         mRowsFragment.onTransitionPrepare();
     }
 
@@ -711,8 +844,10 @@ public class DetailsFragment extends BaseFragment {
             public void onRequestChildFocus(View child, View focused) {
                 if (child != mRootView.getFocusedChild()) {
                     if (child.getId() == R.id.details_fragment_root) {
-                        slideInGridView();
-                        showTitle(true);
+                        if (!mPendingFocusOnVideo) {
+                            slideInGridView();
+                            showTitle(true);
+                        }
                     } else if (child.getId() == R.id.video_surface_container) {
                         slideOutGridView();
                         showTitle(false);
@@ -758,8 +893,10 @@ public class DetailsFragment extends BaseFragment {
                 if (mVideoFragment != null && mVideoFragment.getView() != null
                         && mVideoFragment.getView().hasFocus()) {
                     if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE) {
-                        getVerticalGridView().requestFocus();
-                        return true;
+                        if (getVerticalGridView().getChildCount() > 0) {
+                            getVerticalGridView().requestFocus();
+                            return true;
+                        }
                     }
                 }
 
