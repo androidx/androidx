@@ -17,15 +17,17 @@
 package com.android.support.lifecycle;
 
 /**
- * Specialization of {@link LifecycleProvider} that explicitly returns {@link LifecycleRegistry}.
- * <p>
- * This method may be used if an object which updates state of {@link Lifecycle} doesn't own it.
- * <p>
- * This class is a temporary implementation detail until Lifecycles are integrated with support
- * library.
+ * A class that has an Android lifecycle. These events can be used by custom components to
+ * handle lifecycle changes without implementing any code inside the Activity or the Fragment.
+ *
+ * @see Lifecycle
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public interface LifecycleRegistryProvider extends LifecycleProvider {
-    @Override
-    LifecycleRegistry getLifecycle();
+public interface LifecycleOwner {
+    /**
+     * Returns the Lifecycle of the provider.
+     *
+     * @return The lifecycle of the provider.
+     */
+    Lifecycle getLifecycle();
 }

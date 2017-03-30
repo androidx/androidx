@@ -18,17 +18,17 @@ package foo;
 
 import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 class InheritanceOk3Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleProvider provider, int lastEvent) {
+    public void onStop(LifecycleOwner provider, int lastEvent) {
     }
 }
 
 class InheritanceOk3Derived extends InheritanceOk3Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleProvider provider, int lastEvent) {
+    public void onStop(LifecycleOwner provider, int lastEvent) {
     }
 }

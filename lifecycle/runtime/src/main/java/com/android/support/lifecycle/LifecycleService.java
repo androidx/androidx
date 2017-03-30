@@ -23,9 +23,9 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 
 /**
- * A Service that is also a {@link LifecycleProvider}.
+ * A Service that is also a {@link LifecycleOwner}.
  */
-public class LifecycleService extends Service implements LifecycleProvider {
+public class LifecycleService extends Service implements LifecycleOwner {
 
     private final ServiceLifecycleDispatcher mDispatcher = new ServiceLifecycleDispatcher(this);
 

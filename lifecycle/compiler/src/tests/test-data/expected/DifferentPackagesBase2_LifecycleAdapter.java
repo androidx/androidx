@@ -17,7 +17,7 @@
 package foo;
 
 import com.android.support.lifecycle.GenericLifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import java.lang.Object;
 import java.lang.Override;
 
@@ -29,9 +29,9 @@ public class DifferentPackagesBase2_LifecycleAdapter implements GenericLifecycle
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider provider, int event) {
+    public void onStateChanged(LifecycleOwner owner, int event) {
         if ((event & 8192) != 0) {
-            mReceiver.onStop(provider, event);
+            mReceiver.onStop(owner, event);
         }
     }
 

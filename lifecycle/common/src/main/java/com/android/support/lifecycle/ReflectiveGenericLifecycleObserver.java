@@ -41,13 +41,13 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider source, @Lifecycle.Event int event) {
+    public void onStateChanged(LifecycleOwner source, @Lifecycle.Event int event) {
         final int state = source.getLifecycle().getCurrentState();
         invokeCallbacks(mInfo, source, state, event);
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void invokeCallbacks(CallbackInfo info, LifecycleProvider source,
+    private void invokeCallbacks(CallbackInfo info, LifecycleOwner source,
             @Lifecycle.State int state, @Lifecycle.Event int event) {
         if ((info.mEvents & event) != 0) {
             for (int i = info.mMethodReferences.size() - 1; i >= 0; i--) {
@@ -67,7 +67,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         }
     }
 
-    private void invokeCallback(MethodReference reference, LifecycleProvider source,
+    private void invokeCallback(MethodReference reference, LifecycleOwner source,
             @Lifecycle.State int state, @Lifecycle.Event  int event) {
         if ((reference.mEvents & event) != 0) {
             try {
@@ -117,9 +117,9 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
             int callType = CALL_TYPE_NO_ARG;
             if (params.length > 0) {
                 callType = CALL_TYPE_PROVIDER;
-                if (!params[0].isAssignableFrom(LifecycleProvider.class)) {
+                if (!params[0].isAssignableFrom(LifecycleOwner.class)) {
                     throw new IllegalArgumentException(
-                            "invalid parameter type. Must be one and instanceof LifecycleProvider");
+                            "invalid parameter type. Must be one and instanceof LifecycleOwner");
                 }
             }
             if (params.length > 1) {

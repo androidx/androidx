@@ -41,10 +41,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RunWith(JUnit4.class)
 public class ComputableLiveDataTest {
     private TaskExecutor mTaskExecutor;
-    private TestLifecycleProvider mLifecycleProvider;
+    private TestLifecycleOwner mLifecycleOwner;
     @Before
     public void setup() {
-        mLifecycleProvider = new TestLifecycleProvider();
+        mLifecycleOwner = new TestLifecycleOwner();
     }
 
     @Before
@@ -68,9 +68,9 @@ public class ComputableLiveDataTest {
     @Test
     public void addingObserverShouldTriggerAComputation() {
         TestComputable computable = new TestComputable(1);
-        mLifecycleProvider.handleEvent(Lifecycle.ON_CREATE);
+        mLifecycleOwner.handleEvent(Lifecycle.ON_CREATE);
         final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleProvider, new Observer<Integer>() {
+        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
                 //noinspection ConstantConditions
@@ -79,7 +79,7 @@ public class ComputableLiveDataTest {
         });
         verify(mTaskExecutor, never()).executeOnDiskIO(any(Runnable.class));
         assertThat(mValue.get(), is(-1));
-        mLifecycleProvider.handleEvent(Lifecycle.ON_START);
+        mLifecycleOwner.handleEvent(Lifecycle.ON_START);
         verify(mTaskExecutor).executeOnDiskIO(computable.mRefreshRunnable);
         assertThat(mValue.get(), is(1));
     }
@@ -87,9 +87,9 @@ public class ComputableLiveDataTest {
     @Test
     public void invalidationShouldNotReTriggerComputationIfObserverIsInActive() {
         TestComputable computable = new TestComputable(1, 2);
-        mLifecycleProvider.handleEvent(Lifecycle.ON_START);
+        mLifecycleOwner.handleEvent(Lifecycle.ON_START);
         final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleProvider, new Observer<Integer>() {
+        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
                 //noinspection ConstantConditions
@@ -97,7 +97,7 @@ public class ComputableLiveDataTest {
             }
         });
         assertThat(mValue.get(), is(1));
-        mLifecycleProvider.handleEvent(Lifecycle.ON_STOP);
+        mLifecycleOwner.handleEvent(Lifecycle.ON_STOP);
         computable.invalidate();
         reset(mTaskExecutor);
         verify(mTaskExecutor, never()).executeOnDiskIO(computable.mRefreshRunnable);
@@ -107,9 +107,9 @@ public class ComputableLiveDataTest {
     @Test
     public void invalidationShouldReTriggerQueryIfObserverIsActive() {
         TestComputable computable = new TestComputable(1, 2);
-        mLifecycleProvider.handleEvent(Lifecycle.ON_START);
+        mLifecycleOwner.handleEvent(Lifecycle.ON_START);
         final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleProvider, new Observer<Integer>() {
+        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
                 //noinspection ConstantConditions
@@ -135,10 +135,10 @@ public class ComputableLiveDataTest {
         }
     }
 
-    static class TestLifecycleProvider implements LifecycleProvider {
+    static class TestLifecycleOwner implements LifecycleOwner {
         private LifecycleRegistry mLifecycle;
 
-        TestLifecycleProvider() {
+        TestLifecycleOwner() {
             mLifecycle = new LifecycleRegistry(this);
         }
 

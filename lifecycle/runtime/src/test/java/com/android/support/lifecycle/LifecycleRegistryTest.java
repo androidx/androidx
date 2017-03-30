@@ -45,16 +45,16 @@ import org.mockito.InOrder;
 @RunWith(JUnit4.class)
 @SmallTest
 public class LifecycleRegistryTest {
-    private LifecycleProvider mLifecycleProvider;
+    private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;
     private LifecycleRegistry mRegistry;
 
     @Before
     public void init() {
-        mLifecycleProvider = mock(LifecycleProvider.class);
+        mLifecycleOwner = mock(LifecycleOwner.class);
         mLifecycle = mock(Lifecycle.class);
-        when(mLifecycleProvider.getLifecycle()).thenReturn(mLifecycle);
-        mRegistry = new LifecycleRegistry(mLifecycleProvider);
+        when(mLifecycleOwner.getLifecycle()).thenReturn(mLifecycle);
+        mRegistry = new LifecycleRegistry(mLifecycleOwner);
     }
 
     @Test
@@ -71,10 +71,10 @@ public class LifecycleRegistryTest {
         GenericLifecycleObserver generic = mock(GenericLifecycleObserver.class);
         mRegistry.addObserver(generic);
         dispatchEvent(ON_CREATE);
-        verify(generic).onStateChanged(mLifecycleProvider, ON_CREATE);
+        verify(generic).onStateChanged(mLifecycleOwner, ON_CREATE);
         reset(generic);
         dispatchEvent(ON_CREATE);
-        verify(generic, never()).onStateChanged(mLifecycleProvider, ON_CREATE);
+        verify(generic, never()).onStateChanged(mLifecycleOwner, ON_CREATE);
     }
 
     @Test

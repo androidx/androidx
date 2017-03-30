@@ -32,9 +32,9 @@ public class ServiceLifecycleDispatcher {
     private DispatchRunnable mLastDispatchRunnable;
 
     /**
-     * @param provider {@link LifecycleProvider} for a service, usually it is a service itself
+     * @param provider {@link LifecycleOwner} for a service, usually it is a service itself
      */
-    public ServiceLifecycleDispatcher(@NonNull LifecycleProvider provider) {
+    public ServiceLifecycleDispatcher(@NonNull LifecycleOwner provider) {
         mRegistry = new LifecycleRegistry(provider);
         mHandler = new Handler();
     }
@@ -81,7 +81,7 @@ public class ServiceLifecycleDispatcher {
     }
 
     /**
-     * @return {@link Lifecycle} for the given {@link LifecycleProvider}
+     * @return {@link Lifecycle} for the given {@link LifecycleOwner}
      */
     public Lifecycle getLifecycle() {
         return mRegistry;

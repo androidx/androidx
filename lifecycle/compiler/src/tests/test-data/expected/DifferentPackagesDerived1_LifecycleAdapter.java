@@ -17,7 +17,7 @@
 package bar;
 
 import com.android.support.lifecycle.GenericLifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import foo.DifferentPackagesBase1_LifecycleAdapter;
 import java.lang.Object;
 import java.lang.Override;
@@ -30,10 +30,10 @@ public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecy
     }
 
     @Override
-    public void onStateChanged(LifecycleProvider provider, int event) {
+    public void onStateChanged(LifecycleOwner owner, int event) {
         if ((event & 8192) != 0) {
-            DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver, provider, event);
-            mReceiver.onStop2(provider, event);
+            DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver, owner, event);
+            mReceiver.onStop2(owner, event);
         }
     }
 

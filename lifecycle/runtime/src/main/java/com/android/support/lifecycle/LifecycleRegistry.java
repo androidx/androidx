@@ -26,7 +26,7 @@ import java.util.Map;
  * An implementation of {@link Lifecycle} that can handle multiple observers.
  * <p>
  * It is used by Fragments and Support Library Activities. You can also directly use it if you have
- * a custom LifecycleProvider.
+ * a custom LifecycleOwner.
  */
 @SuppressWarnings("WeakerAccess")
 public class LifecycleRegistry implements Lifecycle {
@@ -50,18 +50,18 @@ public class LifecycleRegistry implements Lifecycle {
     /**
      * The provider that owns this Lifecycle.
      */
-    private final LifecycleProvider mLifecycleProvider;
+    private final LifecycleOwner mLifecycleOwner;
 
     /**
      * Creates a new LifecycleRegistry for the given provider.
      * <p>
-     * You should usually create this inside your LifecycleProvider class's constructor and hold
+     * You should usually create this inside your LifecycleOwner class's constructor and hold
      * onto the same instance.
      *
-     * @param provider The owner LifecycleProvider
+     * @param provider The owner LifecycleOwner
      */
-    public LifecycleRegistry(@NonNull LifecycleProvider provider) {
-        mLifecycleProvider = provider;
+    public LifecycleRegistry(@NonNull LifecycleOwner provider) {
+        mLifecycleOwner = provider;
         mState = INITIALIZED;
     }
 
@@ -199,7 +199,7 @@ public class LifecycleRegistry implements Lifecycle {
                 int event = mObserverCurrentState > mState ? downEvent(mObserverCurrentState)
                         : upEvent(mObserverCurrentState);
                 mObserverCurrentState = getStateAfter(event);
-                mCallback.onStateChanged(mLifecycleProvider, event);
+                mCallback.onStateChanged(mLifecycleOwner, event);
             }
         }
     }

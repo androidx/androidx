@@ -51,7 +51,7 @@ import org.mockito.Mockito;
 @SmallTest
 public class LiveDataTest {
     private PublicLiveData<String> mLiveData;
-    private LifecycleProvider mProvider;
+    private LifecycleOwner mOwner;
     private LifecycleRegistry mRegistry;
     private MethodExec mActiveObserversChanged;
     private boolean mInObserver;
@@ -59,9 +59,9 @@ public class LiveDataTest {
     @Before
     public void init() {
         mLiveData = new PublicLiveData<>();
-        mProvider = mock(LifecycleProvider.class);
-        mRegistry = new LifecycleRegistry(mProvider);
-        when(mProvider.getLifecycle()).thenReturn(mRegistry);
+        mOwner = mock(LifecycleOwner.class);
+        mRegistry = new LifecycleRegistry(mOwner);
+        when(mOwner.getLifecycle()).thenReturn(mRegistry);
         mActiveObserversChanged = mock(MethodExec.class);
         mLiveData.activeObserversChanged = mActiveObserversChanged;
         mInObserver = false;
@@ -80,7 +80,7 @@ public class LiveDataTest {
     @Test
     public void testObserverToggle() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
 
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
         assertThat(mLiveData.getObserverCount(), is(1));
@@ -95,7 +95,7 @@ public class LiveDataTest {
     @Test
     public void testActiveObserverToggle() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
 
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
         assertThat(mLiveData.getObserverCount(), is(1));
@@ -129,17 +129,17 @@ public class LiveDataTest {
     @Test
     public void testReAddSameObserverTuple() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
-        mLiveData.observe(mProvider, observer);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
+        mLiveData.observe(mOwner, observer);
         assertThat(mLiveData.getObserverCount(), is(1));
     }
 
     @Test
-    public void testAdd2ObserversWithSameProviderAndRemove() {
+    public void testAdd2ObserversWithSameOwnerAndRemove() {
         Observer<String> o1 = (Observer<String>) mock(Observer.class);
         Observer<String> o2 = (Observer<String>) mock(Observer.class);
-        mLiveData.observe(mProvider, o1);
-        mLiveData.observe(mProvider, o2);
+        mLiveData.observe(mOwner, o1);
+        mLiveData.observe(mOwner, o2);
         assertThat(mLiveData.getObserverCount(), is(2));
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
 
@@ -149,23 +149,23 @@ public class LiveDataTest {
         verify(o1).onChanged("a");
         verify(o2).onChanged("a");
 
-        mLiveData.removeObservers(mProvider);
+        mLiveData.removeObservers(mOwner);
 
         assertThat(mLiveData.getObserverCount(), is(0));
         assertThat(mRegistry.getObserverCount(), is(0));
     }
 
     @Test
-    public void testAddSameObserverIn2LifecycleProviders() {
+    public void testAddSameObserverIn2LifecycleOwners() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
-        LifecycleProvider provider2 = mock(LifecycleProvider.class);
-        LifecycleRegistry registry2 = new LifecycleRegistry(provider2);
-        when(provider2.getLifecycle()).thenReturn(registry2);
+        LifecycleOwner owner2 = mock(LifecycleOwner.class);
+        LifecycleRegistry registry2 = new LifecycleRegistry(owner2);
+        when(owner2.getLifecycle()).thenReturn(registry2);
 
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         Throwable throwable = null;
         try {
-            mLiveData.observe(provider2, observer);
+            mLiveData.observe(owner2, observer);
         } catch (Throwable t) {
             throwable = t;
         }
@@ -178,7 +178,7 @@ public class LiveDataTest {
     @Test
     public void testRemoveDestroyedObserver() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         mRegistry.handleLifecycleEvent(ON_START);
         verify(mActiveObserversChanged).onCall(true);
         assertThat(mLiveData.getObserverCount(), is(1));
@@ -196,7 +196,7 @@ public class LiveDataTest {
     public void testInactiveRegistry() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mRegistry.handleLifecycleEvent(ON_DESTROY);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         assertThat(mLiveData.getObserverCount(), is(0));
     }
 
@@ -204,7 +204,7 @@ public class LiveDataTest {
     public void testNotifyActiveInactive() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mRegistry.handleLifecycleEvent(ON_CREATE);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         mLiveData.setValue("a");
         verify(observer, never()).onChanged(anyString());
         mRegistry.handleLifecycleEvent(ON_START);
@@ -227,20 +227,20 @@ public class LiveDataTest {
     }
 
     @Test
-    public void testStopObservingProvider_onDestroy() {
+    public void testStopObservingOwner_onDestroy() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mRegistry.handleLifecycleEvent(ON_CREATE);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         assertThat(mRegistry.getObserverCount(), is(1));
         mRegistry.handleLifecycleEvent(ON_DESTROY);
         assertThat(mRegistry.getObserverCount(), is(0));
     }
 
     @Test
-    public void testStopObservingProvider_onStopObserving() {
+    public void testStopObservingOwner_onStopObserving() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mRegistry.handleLifecycleEvent(ON_CREATE);
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         assertThat(mRegistry.getObserverCount(), is(1));
 
         mLiveData.removeObserver(observer);
@@ -259,8 +259,8 @@ public class LiveDataTest {
             }
         });
         final Observer observer2 = mock(Observer.class);
-        mLiveData.observe(mProvider, observer1);
-        mLiveData.observe(mProvider, observer2);
+        mLiveData.observe(mOwner, observer1);
+        mLiveData.observe(mOwner, observer2);
         mLiveData.setValue("bla");
         verify(observer1).onChanged(anyString());
         verify(observer2, Mockito.never()).onChanged(anyString());
@@ -282,7 +282,7 @@ public class LiveDataTest {
         });
         final Observer observer2 = spy(new FailReentranceObserver());
         mLiveData.observeForever(observer1);
-        mLiveData.observe(mProvider, observer2);
+        mLiveData.observe(mOwner, observer2);
         mLiveData.setValue("bla");
         verify(observer1).onChanged(anyString());
         verify(observer2).onChanged(anyString());
@@ -301,7 +301,7 @@ public class LiveDataTest {
                 assertThat(mLiveData.getObserverCount(), is(0));
             }
         });
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         mLiveData.setValue("bla");
         verify(observer).onChanged(anyString());
         assertThat(mLiveData.getObserverCount(), is(0));
@@ -316,13 +316,13 @@ public class LiveDataTest {
             public void onChanged(@Nullable String s) {
                 assertThat(mInObserver, is(false));
                 mInObserver = true;
-                mLiveData.observe(mProvider, observer2);
+                mLiveData.observe(mOwner, observer2);
                 assertThat(mLiveData.getObserverCount(), is(2));
                 assertThat(mLiveData.getActiveObserverCount(), is(2));
                 mInObserver = false;
             }
         });
-        mLiveData.observe(mProvider, observer1);
+        mLiveData.observe(mOwner, observer1);
         mLiveData.setValue("bla");
         verify(observer1).onChanged(anyString());
         verify(observer2).onChanged(anyString());
@@ -331,7 +331,7 @@ public class LiveDataTest {
     }
 
     @Test
-    public void testObserverWithoutLifecycleProvider() {
+    public void testObserverWithoutLifecycleOwner() {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mLiveData.setValue("boring");
         mLiveData.observeForever(observer);
@@ -361,8 +361,8 @@ public class LiveDataTest {
             }
         });
         final Observer observer2 = spy(new FailReentranceObserver());
-        mLiveData.observe(mProvider, observer1);
-        mLiveData.observe(mProvider, observer2);
+        mLiveData.observe(mOwner, observer1);
+        mLiveData.observe(mOwner, observer2);
         mLiveData.setValue("bla");
         verify(observer1, Mockito.atMost(2)).onChanged("gt");
         verify(observer2, Mockito.atMost(2)).onChanged("gt");
@@ -380,7 +380,7 @@ public class LiveDataTest {
         });
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mLiveData.setValue("a");
-        mLiveData.observe(mProvider, observer);
+        mLiveData.observe(mOwner, observer);
         verify(observer).onChanged("a");
         mRegistry.handleLifecycleEvent(ON_PAUSE);
         mRegistry.handleLifecycleEvent(ON_STOP);

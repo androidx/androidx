@@ -19,7 +19,7 @@ package com.android.support.lifecycle.testapp;
 import com.android.support.lifecycle.LifecycleActivity;
 
 /**
- * Activity for ProcessProviderTest
+ * Activity for ProcessOwnerTest
  */
 public class NavigationTestActivityFirst extends LifecycleActivity {
 }

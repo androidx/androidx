@@ -33,7 +33,7 @@ public class LifecycleRuntimeTrojanProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         LifecycleDispatcher.init(getContext());
-        ProcessProvider.init(getContext());
+        ProcessLifecycleOwner.init(getContext());
         return true;
     }
 

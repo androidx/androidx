@@ -18,18 +18,18 @@ package foo;
 
 import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 class InterfaceOk2Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop1(LifecycleProvider provider, int lastEvent) {
+    public void onStop1(LifecycleOwner provider, int lastEvent) {
     }
 }
 
 interface InterfaceOk2Interface {
     @OnLifecycleEvent(ON_STOP)
-    void onStop2(LifecycleProvider provider, int prevstate);
+    void onStop2(LifecycleOwner provider, int prevstate);
 }
 
 class InterfaceOk2Proxy extends InterfaceOk2Base {
@@ -37,8 +37,8 @@ class InterfaceOk2Proxy extends InterfaceOk2Base {
 
 class InterfaceOk2Derived extends InterfaceOk2Proxy implements InterfaceOk2Interface {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop3(LifecycleProvider provider, int lastEvent) {
+    public void onStop3(LifecycleOwner provider, int lastEvent) {
     }
 
-    public void onStop2(LifecycleProvider provider, int prevstate) {}
+    public void onStop2(LifecycleOwner provider, int prevstate) {}
 }

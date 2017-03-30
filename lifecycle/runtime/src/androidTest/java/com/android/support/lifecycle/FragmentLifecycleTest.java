@@ -118,7 +118,7 @@ public class FragmentLifecycleTest {
                 assertThat("test sanity", nestedFragment != null, is(mNested));
             }
         });
-        assertThat(activity.getObservedProvider(), instanceOf(
+        assertThat(activity.getObservedOwner(), instanceOf(
                 mNested ? FragmentLifecycleActivity.NestedFragment.class
                         : FragmentLifecycleActivity.MainFragment.class
         ));

@@ -53,7 +53,7 @@ class LifecycleProcessor : AbstractProcessor() {
         const val INVALID_SECOND_ARGUMENT = "2nd argument of a callback method" +
                 " must be an int and represent the previous state"
         const val INVALID_FIRST_ARGUMENT = "1st argument of a callback method must be " +
-                "a LifecycleProvider which represents the source of the event"
+                "a LifecycleOwner which represents the source of the event"
         const val INVALID_METHOD_MODIFIER = "method marked with OnLifecycleEvent annotation can " +
                 "not be private"
         const val INVALID_CLASS_MODIFIER = "class containing OnLifecycleEvent methods can not be " +
@@ -62,7 +62,7 @@ class LifecycleProcessor : AbstractProcessor() {
                 "onState changes as original method"
     }
 
-    private val LIFECYCLE_PROVIDER = ClassName.get(LifecycleProvider::class.java)
+    private val LIFECYCLE_OWNER = ClassName.get(LifecycleOwner::class.java)
     private val T = "\$T"
     private val N = "\$N"
     private val L = "\$L"
@@ -94,7 +94,7 @@ class LifecycleProcessor : AbstractProcessor() {
             return validateParam(method.parameters[1], Integer.TYPE, INVALID_SECOND_ARGUMENT)
         }
         if (method.parameters.size > 0) {
-            return validateParam(method.parameters[0], LifecycleProvider::class.java,
+            return validateParam(method.parameters[0], LifecycleOwner::class.java,
                     INVALID_FIRST_ARGUMENT)
         }
         return true
@@ -238,7 +238,7 @@ class LifecycleProcessor : AbstractProcessor() {
     }
 
     private fun writeAdapter(observer: LifecycleObserverInfo) {
-        val providerParam = ParameterSpec.builder(LIFECYCLE_PROVIDER, "provider").build()
+        val ownerParam = ParameterSpec.builder(LIFECYCLE_OWNER, "owner").build()
         val eventParam = ParameterSpec.builder(TypeName.INT, "event").build()
         val receiverName = "mReceiver"
         val receiverField = FieldSpec.builder(ClassName.get(observer.type), receiverName,
@@ -246,7 +246,7 @@ class LifecycleProcessor : AbstractProcessor() {
 
         val dispatchMethodBuilder = MethodSpec.methodBuilder("onStateChanged")
                 .returns(TypeName.VOID)
-                .addParameter(providerParam)
+                .addParameter(ownerParam)
                 .addParameter(eventParam)
                 .addModifiers(PUBLIC)
                 .addAnnotation(Override::class.java)
@@ -261,7 +261,7 @@ class LifecycleProcessor : AbstractProcessor() {
                             val paramString = generateParamString(count)
                             addStatement("$N.$L($paramString)", receiverField,
                                     method.method.name(),
-                                    *takeParams(count, providerParam, eventParam))
+                                    *takeParams(count, ownerParam, eventParam))
 
                         } else {
                             val originalType = method.syntheticAccess
@@ -270,7 +270,7 @@ class LifecycleProcessor : AbstractProcessor() {
                                     getAdapterName(originalType))
                             addStatement("$T.$L($paramString)", className,
                                     syntheticName(method.method),
-                                    *takeParams(count + 1, receiverField, providerParam,
+                                    *takeParams(count + 1, receiverField, ownerParam,
                                             eventParam))
                         }
                     }
@@ -295,7 +295,7 @@ class LifecycleProcessor : AbstractProcessor() {
                     .addModifiers(Modifier.STATIC)
                     .addParameter(receiverParam)
             if (it.parameters.size >= 1) {
-                method.addParameter(providerParam)
+                method.addParameter(ownerParam)
             }
             if (it.parameters.size == 2) {
                 method.addParameter(eventParam)
@@ -304,7 +304,7 @@ class LifecycleProcessor : AbstractProcessor() {
             val count = it.parameters.size
             val paramString = generateParamString(count)
             method.addStatement("$N.$L($paramString)", receiverParam, it.name(),
-                    *takeParams(count, providerParam, eventParam))
+                    *takeParams(count, ownerParam, eventParam))
             method.build()
         }
 

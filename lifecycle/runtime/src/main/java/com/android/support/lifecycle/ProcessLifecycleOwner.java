@@ -28,14 +28,14 @@ import com.android.support.lifecycle.ReportFragment.ActivityInitializationListen
 /**
  * Class that provides lifecycle for the whole application process.
  * <p>
- * You can consider this LifecycleProvider as the composite of all of your Activities, except that
+ * You can consider this LifecycleOwner as the composite of all of your Activities, except that
  * {@link Lifecycle#ON_CREATE} will be dispatched once and {@link Lifecycle#ON_DESTROY} will never
  * be dispatched. Other lifecycle events will be dispatched with following rules:
- * ProcessProvider will dispatch {@link Lifecycle#ON_START}, {@link Lifecycle#ON_RESUME} events,
- * as a first activity moves through these events.
+ * ProcessLifecycleOwner will dispatch {@link Lifecycle#ON_START}, {@link Lifecycle#ON_RESUME}
+ * events, as a first activity moves through these events.
  * {@link Lifecycle#ON_PAUSE}, {@link Lifecycle#ON_STOP}, events will be dispatched with a
  * <b>delay</b> after a last activity
- * passed through them. This delay is long enough to guarantee that ProcessProvider
+ * passed through them. This delay is long enough to guarantee that ProcessLifecycleOwner
  * won't send any events if activities are destroyed and recreated due to a
  * configuration change.
  *
@@ -45,7 +45,7 @@ import com.android.support.lifecycle.ReportFragment.ActivityInitializationListen
  * events.
  */
 @SuppressWarnings("WeakerAccess")
-public class ProcessProvider implements LifecycleProvider {
+public class ProcessLifecycleOwner implements LifecycleOwner {
 
     @VisibleForTesting
     static final long TIMEOUT_MS = 700; //mls
@@ -85,15 +85,15 @@ public class ProcessProvider implements LifecycleProvider {
                 }
             };
 
-    private static final ProcessProvider sInstance = new ProcessProvider();
+    private static final ProcessLifecycleOwner sInstance = new ProcessLifecycleOwner();
 
     /**
-     * The LifecycleProvider for the whole application process. Note that if your application
+     * The LifecycleOwner for the whole application process. Note that if your application
      * has multiple processes, this provider does not know about other processes.
      *
-     * @return {@link LifecycleProvider} for the whole application.
+     * @return {@link LifecycleOwner} for the whole application.
      */
-    public static LifecycleProvider get() {
+    public static LifecycleOwner get() {
         return sInstance;
     }
 
@@ -147,7 +147,7 @@ public class ProcessProvider implements LifecycleProvider {
         }
     }
 
-    private ProcessProvider() {
+    private ProcessLifecycleOwner() {
     }
 
     void attach(Context context) {

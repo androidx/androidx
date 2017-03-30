@@ -22,9 +22,9 @@ import android.util.Pair;
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
-import com.android.support.lifecycle.ProcessProvider;
+import com.android.support.lifecycle.ProcessLifecycleOwner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class SimpleAppLifecycleTestActivity extends LifecycleActivity {
 
         @SuppressWarnings("UnusedParameters")
         @OnLifecycleEvent(Lifecycle.ON_ANY)
-        void onEvent(LifecycleProvider provider, @Lifecycle.Event int event) {
+        void onEvent(LifecycleOwner provider, @Lifecycle.Event int event) {
             sCollectedEvents.add(new Pair<>(mType, event));
             sLatch.countDown();
         }
@@ -66,14 +66,14 @@ public class SimpleAppLifecycleTestActivity extends LifecycleActivity {
      * start process observer
      */
     public static void startProcessObserver() {
-        ProcessProvider.get().getLifecycle().addObserver(sProcessObserver);
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(sProcessObserver);
     }
 
     /**
      * stop process observer
      */
     public static void stopProcessObserver() {
-        ProcessProvider.get().getLifecycle().removeObserver(sProcessObserver);
+        ProcessLifecycleOwner.get().getLifecycle().removeObserver(sProcessObserver);
     }
 
     private static TestObserver sProcessObserver = new TestObserver(TestEventType.PROCESS_EVENT);

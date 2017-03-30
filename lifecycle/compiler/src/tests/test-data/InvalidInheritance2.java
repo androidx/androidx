@@ -19,7 +19,7 @@ package foo;
 import static com.android.support.lifecycle.Lifecycle.ON_START;
 import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 interface Base {

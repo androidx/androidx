@@ -45,7 +45,7 @@ import java.util.List;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class ProcessProviderTest {
+public class ProcessOwnerTest {
 
     @Rule
     public ActivityTestRule<NavigationTestActivityFirst> activityTestRule =
@@ -115,14 +115,14 @@ public class ProcessProviderTest {
 
         LifecycleObserver collectingObserver = new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.ON_ANY)
-            public void onStateChanged(LifecycleProvider provider, @Lifecycle.Event int event) {
+            public void onStateChanged(LifecycleOwner provider, @Lifecycle.Event int event) {
                 events.add(event);
             }
         };
         addProcessObserver(collectingObserver);
         events.clear();
         assertThat(activity.moveTaskToBack(true), is(true));
-        Thread.sleep(ProcessProvider.TIMEOUT_MS * 2);
+        Thread.sleep(ProcessLifecycleOwner.TIMEOUT_MS * 2);
         assertThat(events.toArray(), is(new Integer[]{Lifecycle.ON_PAUSE, Lifecycle.ON_STOP}));
         events.clear();
         Context context = InstrumentationRegistry.getContext();
@@ -143,18 +143,18 @@ public class ProcessProviderTest {
 
     private void addProcessObserver(LifecycleObserver observer) throws Throwable {
         activityTestRule.runOnUiThread(() ->
-                ProcessProvider.get().getLifecycle().addObserver(observer));
+                ProcessLifecycleOwner.get().getLifecycle().addObserver(observer));
     }
 
     private void removeProcessObserver(LifecycleObserver observer) throws Throwable {
         activityTestRule.runOnUiThread(() ->
-                ProcessProvider.get().getLifecycle().removeObserver(observer));
+                ProcessLifecycleOwner.get().getLifecycle().removeObserver(observer));
     }
 
     private void checkProcessObserverSilent(LifecycleActivity activity) throws Throwable {
         waitTillResumed(activity, activityTestRule);
         assertThat(mObserver.mChangedState, is(false));
         activityTestRule.runOnUiThread(() ->
-                ProcessProvider.get().getLifecycle().removeObserver(mObserver));
+                ProcessLifecycleOwner.get().getLifecycle().removeObserver(mObserver));
     }
 }

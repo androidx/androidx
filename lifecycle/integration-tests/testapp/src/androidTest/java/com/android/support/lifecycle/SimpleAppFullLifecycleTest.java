@@ -71,7 +71,7 @@ public class SimpleAppFullLifecycleTest {
     public void setup() {
         // cool down period, so application state will become DESTROYED
         try {
-            Thread.sleep(ProcessProvider.TIMEOUT_MS * 2);
+            Thread.sleep(ProcessLifecycleOwner.TIMEOUT_MS * 2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -85,7 +85,7 @@ public class SimpleAppFullLifecycleTest {
 
     @Test
     public void testFullLifecycle() throws InterruptedException {
-        int currentState = ProcessProvider.get().getLifecycle().getCurrentState();
+        int currentState = ProcessLifecycleOwner.get().getLifecycle().getCurrentState();
         assertThat(currentState, is(Lifecycle.STOPPED));
         activityTestRule.launchActivity(null);
         List<Pair<TestEventType, Integer>> events = SimpleAppLifecycleTestActivity.awaitForEvents();

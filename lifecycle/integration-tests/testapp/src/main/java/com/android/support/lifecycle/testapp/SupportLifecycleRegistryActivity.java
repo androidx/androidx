@@ -24,7 +24,7 @@ import android.util.Pair;
 
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleRegistry;
-import com.android.support.lifecycle.LifecycleRegistryProvider;
+import com.android.support.lifecycle.LifecycleRegistryOwner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +32,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * LifecycleRegistryProvider that extends FragmentActivity.
+ * LifecycleRegistryOwner that extends FragmentActivity.
  */
 public class SupportLifecycleRegistryActivity extends FragmentActivity implements
-        LifecycleRegistryProvider, CollectingActivity {
+        LifecycleRegistryOwner, CollectingActivity {
     private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
     @Override
     public LifecycleRegistry getLifecycle() {

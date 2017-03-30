@@ -16,10 +16,10 @@
 
 import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 interface InterfaceOk1 {
     @OnLifecycleEvent(ON_STOP)
-    void onStop(LifecycleProvider provider, int prevstate);
+    void onStop(LifecycleOwner provider, int prevstate);
 }

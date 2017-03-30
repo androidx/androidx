@@ -51,7 +51,7 @@ public final class LiveDataReactiveStreams {
      * other items emitted during the time there was no backpressure requested will be dropped.
      */
     public static <T> Publisher<T> toPublisher(
-            final LifecycleProvider lifecycle, final LiveData<T> liveData) {
+            final LifecycleOwner lifecycle, final LiveData<T> liveData) {
 
         return new Publisher<T>() {
             boolean mObserving;

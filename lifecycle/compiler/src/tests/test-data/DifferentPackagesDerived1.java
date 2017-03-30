@@ -18,11 +18,11 @@ package bar;
 
 import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 import foo.DifferentPackagesBase1;
 
 public class DifferentPackagesDerived1 extends DifferentPackagesBase1 {
     @OnLifecycleEvent(ON_STOP)
-    void onStop2(LifecycleProvider provider, int prevstate){}
+    void onStop2(LifecycleOwner provider, int prevstate){}
 }

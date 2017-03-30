@@ -22,7 +22,7 @@ import android.util.Pair;
 
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 import java.util.List;
@@ -35,31 +35,31 @@ class TestObserver implements LifecycleObserver {
     }
 
     @OnLifecycleEvent(Lifecycle.ON_CREATE)
-    public void create(LifecycleProvider pr, int event) {
+    public void create(LifecycleOwner pr, int event) {
         mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
     }
 
     @OnLifecycleEvent(Lifecycle.ON_START)
-    public void start(LifecycleProvider pr, int event) {
+    public void start(LifecycleOwner pr, int event) {
         mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
     }
 
     @OnLifecycleEvent(Lifecycle.ON_RESUME)
-    public void resume(LifecycleProvider pr, int event) {
+    public void resume(LifecycleOwner pr, int event) {
         mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
     }
     @OnLifecycleEvent(Lifecycle.ON_PAUSE)
-    public void pause(LifecycleProvider pr, int event) {
+    public void pause(LifecycleOwner pr, int event) {
         mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
     }
 
     @OnLifecycleEvent(Lifecycle.ON_STOP)
-    public void stop(LifecycleProvider pr, int event) {
+    public void stop(LifecycleOwner pr, int event) {
         mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
     }
 
     @OnLifecycleEvent(Lifecycle.ON_DESTROY)
-    public void destroy(LifecycleProvider pr, int event) {
+    public void destroy(LifecycleOwner pr, int event) {
         mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
     }
 }

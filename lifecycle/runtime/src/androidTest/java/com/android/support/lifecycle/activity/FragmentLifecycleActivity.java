@@ -25,7 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 import com.android.support.lifecycle.test.R;
 
@@ -40,7 +40,7 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
 
     private final List<Integer> mLoggedEvents = Collections
             .synchronizedList(new ArrayList<Integer>());
-    private LifecycleProvider mObservedProvider;
+    private LifecycleOwner mObservedOwner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,11 +86,11 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
         return intent;
     }
 
-    public void observe(LifecycleProvider provider) {
-        mObservedProvider = provider;
+    public void observe(LifecycleOwner provider) {
+        mObservedOwner = provider;
         provider.getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.ON_ANY)
-            public void anyEvent(LifecycleProvider owner, @Lifecycle.Event int event) {
+            public void anyEvent(LifecycleOwner owner, @Lifecycle.Event int event) {
                 mLoggedEvents.add(event);
             }
         });
@@ -100,7 +100,7 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
         return mLoggedEvents;
     }
 
-    public LifecycleProvider getObservedProvider() {
-        return mObservedProvider;
+    public LifecycleOwner getObservedOwner() {
+        return mObservedOwner;
     }
 }

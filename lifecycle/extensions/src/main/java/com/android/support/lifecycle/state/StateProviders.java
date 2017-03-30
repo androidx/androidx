@@ -22,7 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import com.android.support.lifecycle.HolderFragment;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 
 /**
  * Factory and utility methods for {@link SavedStateProvider}.
@@ -34,20 +34,20 @@ import com.android.support.lifecycle.LifecycleProvider;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class StateProviders {
     /**
-     * Returns {@link SavedStateProvider} associated with the given LifecycleProvider.
+     * Returns {@link SavedStateProvider} associated with the given {@link LifecycleOwner}.
      *
-     * @param provider The lifecycleProvider whose SavedStateProvider will be returned.
+     * @param owner The {@code LifecycleOwner} whose SavedStateProvider will be returned.
      */
     @MainThread
-    public static SavedStateProvider savedStateProvider(LifecycleProvider provider) {
-        if (provider instanceof Fragment) {
-            return savedStateProvider((Fragment) provider);
+    public static SavedStateProvider savedStateProvider(LifecycleOwner owner) {
+        if (owner instanceof Fragment) {
+            return savedStateProvider((Fragment) owner);
         }
-        if (provider instanceof FragmentActivity) {
-            return savedStateProvider((FragmentActivity) provider);
+        if (owner instanceof FragmentActivity) {
+            return savedStateProvider((FragmentActivity) owner);
         }
-        //TODO: figure out how to handle LifecycleProvider
-        throw new IllegalArgumentException("SavedStateProvider for " + provider.getClass()
+        //TODO: figure out how to handle LifecycleOwner
+        throw new IllegalArgumentException("SavedStateProvider for " + owner.getClass()
                 + " is not implemented yet.");
     }
 

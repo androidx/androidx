@@ -45,15 +45,15 @@ public class ThreadedLiveDataTest {
     public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, false);
 
     private LiveData<String> mLiveData;
-    private LifecycleProvider mProvider;
+    private LifecycleOwner mLifecycleOwner;
     private LifecycleRegistry mRegistry;
 
     @Before
     public void init() {
         mLiveData = new LiveData<>();
-        mProvider = mock(LifecycleProvider.class);
-        mRegistry = new LifecycleRegistry(mProvider);
-        when(mProvider.getLifecycle()).thenReturn(mRegistry);
+        mLifecycleOwner = mock(LifecycleOwner.class);
+        mRegistry = new LifecycleRegistry(mLifecycleOwner);
+        when(mLifecycleOwner.getLifecycle()).thenReturn(mRegistry);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class ThreadedLiveDataTest {
             @Override
             public void run() {
                 mRegistry.handleLifecycleEvent(ON_START);
-                mLiveData.observe(mProvider, observer);
+                mLiveData.observe(mLifecycleOwner, observer);
                 final CountDownLatch latch = new CountDownLatch(1);
                 taskExecutor.executeOnDiskIO(new Runnable() {
                     @Override

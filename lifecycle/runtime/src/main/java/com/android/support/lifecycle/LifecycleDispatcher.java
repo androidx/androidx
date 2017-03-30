@@ -74,7 +74,7 @@ class LifecycleDispatcher {
                 ((FragmentActivity) activity).getSupportFragmentManager()
                         .registerFragmentLifecycleCallbacks(mFragmentCallback, true);
             }
-            // ProcessProvider should always correctly work and some activities may not extend
+            // ProcessLifecycleOwner should always correctly work and some activities may not extend
             // FragmentActivity from support lib, so we use framework fragments for activities
             android.app.FragmentManager manager = activity.getFragmentManager();
             if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
@@ -136,7 +136,7 @@ class LifecycleDispatcher {
         }
 
         protected void dispatch(@Lifecycle.Event int event) {
-            dispatchIfLifecycleProvider(getParentFragment(), event);
+            dispatchIfLifecycleOwner(getParentFragment(), event);
         }
     }
 
@@ -155,8 +155,8 @@ class LifecycleDispatcher {
     }
 
     private static void markStateIn(Object object, @Lifecycle.State int state) {
-        if (object instanceof LifecycleRegistryProvider) {
-            LifecycleRegistry registry = ((LifecycleRegistryProvider) object).getLifecycle();
+        if (object instanceof LifecycleRegistryOwner) {
+            LifecycleRegistry registry = ((LifecycleRegistryOwner) object).getLifecycle();
             registry.markState(state);
         }
     }
@@ -166,9 +166,9 @@ class LifecycleDispatcher {
         markState(activity.getSupportFragmentManager(), state);
     }
 
-    private static void dispatchIfLifecycleProvider(Fragment fragment, @Lifecycle.Event int event) {
-        if (fragment instanceof LifecycleRegistryProvider) {
-            ((LifecycleRegistryProvider) fragment).getLifecycle().handleLifecycleEvent(event);
+    private static void dispatchIfLifecycleOwner(Fragment fragment, @Lifecycle.Event int event) {
+        if (fragment instanceof LifecycleRegistryOwner) {
+            ((LifecycleRegistryOwner) fragment).getLifecycle().handleLifecycleEvent(event);
         }
     }
 
@@ -178,9 +178,9 @@ class LifecycleDispatcher {
 
         @Override
         public void onFragmentCreated(FragmentManager fm, Fragment f, Bundle savedInstanceState) {
-            dispatchIfLifecycleProvider(f, Lifecycle.ON_CREATE);
+            dispatchIfLifecycleOwner(f, Lifecycle.ON_CREATE);
 
-            if (!(f instanceof LifecycleRegistryProvider)) {
+            if (!(f instanceof LifecycleRegistryOwner)) {
                 return;
             }
 
@@ -192,12 +192,12 @@ class LifecycleDispatcher {
 
         @Override
         public void onFragmentStarted(FragmentManager fm, Fragment f) {
-            dispatchIfLifecycleProvider(f, Lifecycle.ON_START);
+            dispatchIfLifecycleOwner(f, Lifecycle.ON_START);
         }
 
         @Override
         public void onFragmentResumed(FragmentManager fm, Fragment f) {
-            dispatchIfLifecycleProvider(f, Lifecycle.ON_RESUME);
+            dispatchIfLifecycleOwner(f, Lifecycle.ON_RESUME);
         }
     }
 }

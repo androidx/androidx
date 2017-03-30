@@ -90,8 +90,8 @@ public class ReportFragment extends Fragment {
     }
 
     private void dispatch(@Lifecycle.Event int event) {
-        if (getActivity() instanceof LifecycleRegistryProvider) {
-            ((LifecycleRegistryProvider) getActivity()).getLifecycle().handleLifecycleEvent(event);
+        if (getActivity() instanceof LifecycleRegistryOwner) {
+            ((LifecycleRegistryOwner) getActivity()).getLifecycle().handleLifecycleEvent(event);
         }
     }
 

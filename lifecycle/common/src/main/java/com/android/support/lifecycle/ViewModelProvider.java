@@ -100,8 +100,8 @@ public class ViewModelProvider {
      * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
      * an activity), associated with this {@code ViewModelProvider}.
      * <p>
-     * The created ViewModel is associated with the given LifecycleProvider and will be retained
-     * as long as the scope (LifecycleProvider) is alive (e.g. if it is an activity, until it is
+     * The created ViewModel is associated with the given scope and will be retained
+     * as long as the scope is alive (e.g. if it is an activity, until it is
      * finished or process is killed).
      *
      * @param key        The key to use to identify the ViewModel.

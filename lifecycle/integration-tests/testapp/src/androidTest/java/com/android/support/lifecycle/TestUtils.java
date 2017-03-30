@@ -68,7 +68,7 @@ public class TestUtils {
             }
             a.getLifecycle().addObserver(new LifecycleObserver() {
                 @OnLifecycleEvent(Lifecycle.ON_RESUME)
-                public void onStateChanged(LifecycleProvider provider) {
+                public void onStateChanged(LifecycleOwner provider) {
                     latch.countDown();
                     provider.getLifecycle().removeObserver(this);
                 }

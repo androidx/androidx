@@ -25,7 +25,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.LifecycleService;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
@@ -39,7 +39,7 @@ public class TestService extends LifecycleService {
     public TestService() {
         getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.ON_ANY)
-            public void anyEvent(LifecycleProvider owner, @Lifecycle.Event int event) {
+            public void anyEvent(LifecycleOwner owner, @Lifecycle.Event int event) {
                 Context context = (TestService) owner;
                 Intent intent = new Intent(ACTION_LOG_EVENT);
                 intent.putExtra(EXTRA_KEY_EVENT, event);

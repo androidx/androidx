@@ -3,7 +3,7 @@ package foo;
 import static com.android.support.lifecycle.Lifecycle.ON_START;
 import static com.android.support.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 public class Bar {
@@ -12,11 +12,11 @@ public class Bar {
     }
 
     @OnLifecycleEvent(ON_STOP)
-    public void doOnStop1Arg(LifecycleProvider provider) {
+    public void doOnStop1Arg(LifecycleOwner provider) {
     }
 
     @OnLifecycleEvent(ON_STOP)
-    public void doOnStop2Args(LifecycleProvider provider, int lastEvent) {
+    public void doOnStop2Args(LifecycleOwner provider, int lastEvent) {
     }
 
     public static class Inner1 {

@@ -60,7 +60,7 @@ public class LiveDataReactiveStreamsTest {
             return Lifecycle.RESUMED;
         }
     };
-    private static final LifecycleProvider sLifecycleProvider = new LifecycleProvider() {
+    private static final LifecycleOwner S_LIFECYCLE_OWNER = new LifecycleOwner() {
 
         @Override
         public Lifecycle getLifecycle() {
@@ -116,7 +116,7 @@ public class LiveDataReactiveStreamsTest {
         PublishProcessor<String> processor = PublishProcessor.create();
         LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
 
-        liveData.observe(sLifecycleProvider, mObserver);
+        liveData.observe(S_LIFECYCLE_OWNER, mObserver);
 
         processor.onNext("foo");
         processor.onNext("bar");
@@ -131,13 +131,13 @@ public class LiveDataReactiveStreamsTest {
         PublishProcessor<String> processor = PublishProcessor.create();
         LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
 
-        liveData.observe(sLifecycleProvider, mObserver);
+        liveData.observe(S_LIFECYCLE_OWNER, mObserver);
 
         processor.onNext("foo");
         processor.onNext("bar");
 
         // The second mObserver should only get the newest value and any later values.
-        liveData.observe(sLifecycleProvider, new Observer<String>() {
+        liveData.observe(S_LIFECYCLE_OWNER, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 output2.add(s);
@@ -156,7 +156,7 @@ public class LiveDataReactiveStreamsTest {
                 .concatWith(Flowable.just("bar", "baz").observeOn(sBackgroundScheduler));
         LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(input);
 
-        liveData.observe(sLifecycleProvider, mObserver);
+        liveData.observe(S_LIFECYCLE_OWNER, mObserver);
 
         assertThat(mLiveDataOutput, is(Collections.singletonList("foo")));
         sBackgroundScheduler.triggerActions();
@@ -169,7 +169,7 @@ public class LiveDataReactiveStreamsTest {
         liveData.setValue("foo");
         assertThat(liveData.getValue(), is("foo"));
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(sLifecycleProvider, liveData))
+        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
                 .subscribe(mOutputProcessor);
 
         liveData.setValue("bar");
@@ -187,7 +187,7 @@ public class LiveDataReactiveStreamsTest {
         assertThat(liveData.getValue(), is("foo"));
 
         Disposable disposable = Flowable
-                .fromPublisher(LiveDataReactiveStreams.toPublisher(sLifecycleProvider, liveData))
+                .fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
                 .subscribe(new Consumer<String>() {
                     @Override
                     public void accept(String s) throws Exception {
@@ -215,7 +215,7 @@ public class LiveDataReactiveStreamsTest {
 
         final AsyncSubject<Subscription> subscriptionSubject = AsyncSubject.create();
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(sLifecycleProvider, liveData))
+        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
                 .subscribe(new Subscriber<String>() {
                     @Override
                     public void onSubscribe(Subscription s) {
@@ -274,7 +274,7 @@ public class LiveDataReactiveStreamsTest {
     public void convertsToPublisherWithAsyncData() {
         LiveData<String> liveData = new LiveData<>();
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(sLifecycleProvider, liveData))
+        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
                 .observeOn(sBackgroundScheduler)
                 .subscribe(mOutputProcessor);
 

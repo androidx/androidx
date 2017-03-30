@@ -30,11 +30,11 @@ import java.util.Map;
 
 /**
  * LiveData is a data holder class that can be observed within a given lifecycle.
- * This means that an {@link Observer} can be added in a pair with a {@link LifecycleProvider}, and
+ * This means that an {@link Observer} can be added in a pair with a {@link LifecycleOwner}, and
  * this observer will be notified about modifications of the wrapped data only if the paired
- * LifecycleProvider is in active state. LifecycleProvider is considered as active, if its state is
+ * LifecycleOwner is in active state. LifecycleOwner is considered as active, if its state is
  * {@link Lifecycle#STARTED} or {@link Lifecycle#RESUMED}. An observer added without a
- * LifecycleProvider is considered as always active and thus will be always notified about
+ * LifecycleOwner is considered as always active and thus will be always notified about
  * modifications. For those observers, you should manually call {@link #removeObserver(Observer)}.
  *
  * <p> An observer added with a Lifecycle will be automatically removed if the corresponding
@@ -63,7 +63,7 @@ public class LiveData<T> {
     private static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
 
-    private static final LifecycleProvider ALWAYS_ON = new LifecycleProvider() {
+    private static final LifecycleOwner ALWAYS_ON = new LifecycleOwner() {
 
         private LifecycleRegistry mRegistry = init();
 
@@ -117,7 +117,7 @@ public class LiveData<T> {
         // we still first check observer.active to keep it as the entrance for events. So even if
         // the observer moved to an active state, if we've not received that event, we better not
         // notify for a more predictable notification order.
-        if (!isActiveState(observer.provider.getLifecycle().getCurrentState())) {
+        if (!isActiveState(observer.owner.getLifecycle().getCurrentState())) {
             return;
         }
         if (observer.lastVersion >= mVersion) {
@@ -153,62 +153,62 @@ public class LiveData<T> {
     }
 
     /**
-     * Adds the given observer to the observers list within the lifespan of the given provider. The
-     * events are dispatched on the main thread. If LiveData already has data set, it will be
-     * delivered to the observer.
+     * Adds the given observer to the observers list within the lifespan of the given
+     * owner. The events are dispatched on the main thread. If LiveData already has data
+     * set, it will be delivered to the observer.
      * <p>
-     * The observer will only receive events if the provider is in {@link Lifecycle#STARTED} or
-     * {@link Lifecycle#RESUMED} state (active).
+     * The observer will only receive events if the owner is in {@link Lifecycle#STARTED}
+     * or {@link Lifecycle#RESUMED} state (active).
      * <p>
-     * If the provider moves to the {@link Lifecycle#DESTROYED} state, the observer will
+     * If the owner moves to the {@link Lifecycle#DESTROYED} state, the observer will
      * automatically be removed.
      * <p>
-     * When data changes while the {@code provider} is not active, it will not receive any updates.
+     * When data changes while the {@code owner} is not active, it will not receive any updates.
      * If it becomes active again, it will receive the last available data automatically.
      * <p>
-     * LiveData keeps a strong reference to the observer and the provider as long as the given
-     * LifecycleProvider is not destroyed. When it is destroyed, LiveData removes references to
-     * the observer & the provider.
+     * LiveData keeps a strong reference to the observer and the owner as long as the
+     * given LifecycleOwner is not destroyed. When it is destroyed, LiveData removes references to
+     * the observer &amp; the owner.
      * <p>
-     * If the given provider is already in {@link Lifecycle#DESTROYED} state, LiveData ignores the
-     * call.
+     * If the given owner is already in {@link Lifecycle#DESTROYED} state, LiveData
+     * ignores the call.
      * <p>
-     * If the given provider, observer tuple is already in the list, the call is ignored.
-     * If the observer is already in the list with another provider, LiveData throws an
+     * If the given owner, observer tuple is already in the list, the call is ignored.
+     * If the observer is already in the list with another owner, LiveData throws an
      * {@link IllegalArgumentException}.
      *
-     * @param provider The LifecycleProvider which controls the observer
+     * @param owner    The LifecycleOwner which controls the observer
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observe(LifecycleProvider provider, Observer<T> observer) {
-        if (provider.getLifecycle().getCurrentState() == DESTROYED) {
+    public void observe(LifecycleOwner owner, Observer<T> observer) {
+        if (owner.getLifecycle().getCurrentState() == DESTROYED) {
             // ignore
             return;
         }
-        LifecycleBoundObserver wrapper = new LifecycleBoundObserver(provider, observer);
+        LifecycleBoundObserver wrapper = new LifecycleBoundObserver(owner, observer);
         LifecycleBoundObserver existing = mObservers.putIfAbsent(observer, wrapper);
-        if (existing != null && existing.provider != wrapper.provider) {
+        if (existing != null && existing.owner != wrapper.owner) {
             throw new IllegalArgumentException("Cannot add the same observer"
                     + " with different lifecycles");
         }
         if (existing != null) {
             return;
         }
-        provider.getLifecycle().addObserver(wrapper);
-        wrapper.activeStateChanged(isActiveState(provider.getLifecycle().getCurrentState()));
+        owner.getLifecycle().addObserver(wrapper);
+        wrapper.activeStateChanged(isActiveState(owner.getLifecycle().getCurrentState()));
     }
 
     /**
      * Adds the given observer to the observers list. This call is similar to
-     * {@link LiveData#observe(LifecycleProvider, Observer)} with a LifecycleProvider, which
+     * {@link LiveData#observe(LifecycleOwner, Observer)} with a LifecycleOwner, which
      * is always active. This means that the given observer will receive all events and will never
      * be automatically removed. You should manually call {@link #removeObserver(Observer)} to stop
      * observing this LiveData.
      * While LiveData has one of such observers, it will be considered
      * as active.
      * <p>
-     * If the observer was already added with a provider to this LiveData, LiveData throws an
+     * If the observer was already added with an owner to this LiveData, LiveData throws an
      * {@link IllegalArgumentException}.
      *
      * @param observer The observer that will receive the events
@@ -230,20 +230,20 @@ public class LiveData<T> {
         if (removed == null) {
             return;
         }
-        removed.provider.getLifecycle().removeObserver(removed);
+        removed.owner.getLifecycle().removeObserver(removed);
         removed.activeStateChanged(false);
     }
 
     /**
-     * Removes all observers that are tied to the given LifecycleProvider.
+     * Removes all observers that are tied to the given {@link LifecycleOwner}.
      *
-     * @param provider The provider scope for the observers to be removed.
+     * @param owner The {@code LifecycleOwner} scope for the observers to be removed.
      */
     @MainThread
-    public void removeObservers(final LifecycleProvider provider) {
+    public void removeObservers(final LifecycleOwner owner) {
         assertMainThread("removeObservers");
         for (Map.Entry<Observer<T>, LifecycleBoundObserver> entry : mObservers) {
-            if (entry.getValue().provider == provider) {
+            if (entry.getValue().owner == owner) {
                 removeObserver(entry.getKey());
             }
         }
@@ -357,25 +357,26 @@ public class LiveData<T> {
     }
 
     class LifecycleBoundObserver implements LifecycleObserver {
-        public final LifecycleProvider provider;
+        public final LifecycleOwner owner;
         public final Observer<T> observer;
         public boolean active;
         public int lastVersion = START_VERSION;
 
-        LifecycleBoundObserver(LifecycleProvider provider, Observer<T> observer) {
-            this.provider = provider;
+        LifecycleBoundObserver(LifecycleOwner owner, Observer<T> observer) {
+            this.owner = owner;
             this.observer = observer;
         }
 
         @SuppressWarnings("unused")
         @OnLifecycleEvent(Lifecycle.ON_ANY)
         void onStateChange() {
-            if (provider.getLifecycle().getCurrentState() == DESTROYED) {
+            if (owner.getLifecycle().getCurrentState() == DESTROYED) {
                 removeObserver(observer);
                 return;
             }
-            // immediately set active state, so we'd never dispatch anything to inactive provider
-            activeStateChanged(isActiveState(provider.getLifecycle().getCurrentState()));
+            // immediately set active state, so we'd never dispatch anything to inactive
+            // owner
+            activeStateChanged(isActiveState(owner.getLifecycle().getCurrentState()));
 
         }
 

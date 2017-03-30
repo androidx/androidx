@@ -169,7 +169,7 @@ public class SynchronousActivityLifecycleTest {
         }
 
         @Override
-        public void onStateChanged(LifecycleProvider lifecycleProvider,
+        public void onStateChanged(LifecycleOwner lifecycleOwner,
                 @Lifecycle.Event int event) {
             if (mMuted) {
                 return;

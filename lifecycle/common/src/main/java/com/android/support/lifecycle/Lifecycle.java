@@ -22,14 +22,14 @@ import android.support.annotation.MainThread;
 /**
  * Defines an object that has an Android Lifecycle. {@link android.support.v4.app.Fragment Fragment}
  * and {@link android.support.v4.app.FragmentActivity FragmentActivity} classes implement
- * {@link LifecycleProvider} interface which has the {@link LifecycleProvider#getLifecycle()
- * getLifecycle} method to access the Lifecycle. You can also implement {@link LifecycleProvider}
+ * {@link LifecycleOwner} interface which has the {@link LifecycleOwner#getLifecycle()
+ * getLifecycle} method to access the Lifecycle. You can also implement {@link LifecycleOwner}
  * in your own classes.
  * <p>
  * {@link #ON_CREATE}, {@link #ON_START}, {@link #ON_RESUME} events in this class are dispatched
- * <b>after</b> the owner {@link LifecycleProvider}'s related method returns.
+ * <b>after</b> the {@link LifecycleOwner}'s related method returns.
  * {@link #ON_PAUSE}, {@link #ON_STOP}, {@link #ON_DESTROY} events in this class are dispatched
- * <b>before</b> the owner {@link LifecycleProvider}'s related method is called.
+ * <b>before</b> the {@link LifecycleOwner}'s related method is called.
  * For instance, {@link #ON_START} will be dispatched after
  * {@link android.app.Activity#onStart onStart} returns, {@link #ON_STOP} will be dispatched
  * before {@link android.app.Activity#onStop onStop} is called.
@@ -54,14 +54,14 @@ import android.support.annotation.MainThread;
  * </pre>
  * <p>
  * Observer methods can receive 0, 1 or 2 arguments.
- * If used, the first argument must be of type {@link LifecycleProvider} and the second argument
+ * If used, the first argument must be of type {@link LifecycleOwner} and the second argument
  * must be an integer with {@link Event} type annotation.
  * <pre>
  * interface TestObserver extends LifecycleObserver {
  *   {@literal @}OnLifecycleEvent(ON_CREATE)
- *   void onCreated(LifecycleProvider provider);
+ *   void onCreated(LifecycleOwner source);
  *   {@literal @}OnLifecycleEvent(ON_STOP | ON_START)
- *   void onStoppedOrStarted(LifecycleProvider provider, {@literal @}Event int event);
+ *   void onStoppedOrStarted(LifecycleOwner source, {@literal @}Event int event);
  * }
  * </pre>
  * These additional parameters are provided to allow you to conveniently observe multiple providers
@@ -70,11 +70,11 @@ import android.support.annotation.MainThread;
 @SuppressWarnings({"UnnecessaryInterfaceModifier", "WeakerAccess", "unused"})
 public interface Lifecycle {
     /**
-     * Adds a LifecycleObserver that will be notified when the owner LifecycleProvider changes
+     * Adds a LifecycleObserver that will be notified when the LifecycleOwner changes
      * state.
      * <p>
-     * The given observer will be brought to the current state of the owner LifecycleProvider.
-     * For example, if the owner LifecycleProvider is in {@link #STARTED} state, the given observer
+     * The given observer will be brought to the current state of the LifecycleOwner.
+     * For example, if the LifecycleOwner is in {@link #STARTED} state, the given observer
      * will receive {@link #ON_CREATE}, {@link #ON_START} events.
      *
      * @param observer The observer to notify.
@@ -99,31 +99,31 @@ public interface Lifecycle {
     void removeObserver(LifecycleObserver observer);
 
     /**
-     * Destroyed state for a LifecycleProvider. After this event, this Lifecycle will not dispatch
+     * Destroyed state for a LifecycleOwner. After this event, this Lifecycle will not dispatch
      * any more events. For instance, fo an {@link android.app.Activity}, this state is reached
      * <b>after</b> Activity's {@link android.app.Activity#onDestroy() onDestroy} returns.
      */
     int DESTROYED = 1;
     /**
-     * Initialized state for a LifecycleProvider. For an {@link android.app.Activity}, this is
+     * Initialized state for a LifecycleOwner. For an {@link android.app.Activity}, this is
      * the state when it is constructed but has not received
      * {@link android.app.Activity#onCreate(android.os.Bundle) onCreate} yet.
      */
     int INITIALIZED = DESTROYED << 1;
     /**
-     * Stopped state for a LifecycleProvider. For an {@link android.app.Activity}, this state
+     * Stopped state for a LifecycleOwner. For an {@link android.app.Activity}, this state
      * is reached after {@link android.app.Activity#onCreate(android.os.Bundle) onCreate} and
      * {@link android.app.Activity#onCreate(android.os.Bundle) onStop} calls.
      */
     int STOPPED = INITIALIZED << 1;
     /**
-     * Started state for a LifecycleProvider. For an {@link android.app.Activity}, this state
+     * Started state for a LifecycleOwner. For an {@link android.app.Activity}, this state
      * is reached after {@link android.app.Activity#onStart() onStart} and
      * {@link android.app.Activity#onCreate(android.os.Bundle) onPause} calls.
      */
     int STARTED = STOPPED << 1;
     /**
-     * Resumed state for a LifecycleProvider. For an {@link android.app.Activity}, this state
+     * Resumed state for a LifecycleOwner. For an {@link android.app.Activity}, this state
      * is reached after {@link android.app.Activity#onResume() onResume} is called.
      */
     int RESUMED = STARTED << 1;
@@ -144,27 +144,27 @@ public interface Lifecycle {
     int getCurrentState();
 
     /**
-     * Constant for onCreate event of the {@link LifecycleProvider}.
+     * Constant for onCreate event of the {@link LifecycleOwner}.
      */
     int ON_CREATE = RESUMED << 1;
     /**
-     * Constant for onStart event of the {@link LifecycleProvider}.
+     * Constant for onStart event of the {@link LifecycleOwner}.
      */
     int ON_START = ON_CREATE << 2;
     /**
-     * Constant for onResume event of the {@link LifecycleProvider}.
+     * Constant for onResume event of the {@link LifecycleOwner}.
      */
     int ON_RESUME = ON_START << 2;
     /**
-     * Constant for onPause event of the {@link LifecycleProvider}.
+     * Constant for onPause event of the {@link LifecycleOwner}.
      */
     int ON_PAUSE = ON_RESUME << 2;
     /**
-     * Constant for onStop event of the {@link LifecycleProvider}.
+     * Constant for onStop event of the {@link LifecycleOwner}.
      */
     int ON_STOP = ON_PAUSE << 2;
     /**
-     * Constant for onDestroy event of the {@link LifecycleProvider}.
+     * Constant for onDestroy event of the {@link LifecycleOwner}.
      */
     int ON_DESTROY = ON_STOP << 2;
     /**
