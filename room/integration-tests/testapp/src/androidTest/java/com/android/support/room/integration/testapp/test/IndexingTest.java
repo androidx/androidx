@@ -91,7 +91,7 @@ public class IndexingTest {
                 + " ON `foo_table` (`field2`, `mId`)"));
         assertThat(indices.get(2).sql, is("CREATE UNIQUE INDEX `customIndex`"
                 + " ON `foo_table` (`field2`)"));
-        assertThat(indices.get(3).sql, is("CREATE INDEX `index_foo_table_field3`"
+        assertThat(indices.get(3).sql, is("CREATE INDEX `index_foo_table_my_field`"
                 + " ON `foo_table` (`my_field`)"));
     }
 }

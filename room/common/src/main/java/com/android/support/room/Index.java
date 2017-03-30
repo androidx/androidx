@@ -44,24 +44,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Index {
     /**
-     * List of fields in the Index.
-     * <p>
-     * If you would like to access to a sub item of a {@link Decompose}d field, you can use
-     * the {@code .} notation.
-     * <p>
-     * For instance, if you have a {@link Decompose}d field named {@code user} with a sub field
-     * {@code id}, you can reference it via {@code user.id}.
+     * List of column names in the Index.
      * <p>
      * The order of columns is important as it defines when SQLite can use a particular index.
      * See <a href="https://www.sqlite.org/optoverview.html">SQLite documentation</a> for details on
      * index usage in the query optimizer.
      *
-     * @return The list of columns in the Index.
+     * @return The list of column names in the Index.
      */
     String[] value();
 
     /**
-     * Name of the index. If not set, Room will set it to the list of fields joined by '_' and
+     * Name of the index. If not set, Room will set it to the list of columns joined by '_' and
      * prefixed by "index_${tableName}". So if you have a table with name "Foo" and with an index
      * of {"bar", "baz"}, generated index name will be  "index_Foo_bar_baz". If you need to specify
      * the index in a query, you should never rely on this name, instead, specify a name for your

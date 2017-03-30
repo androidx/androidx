@@ -95,9 +95,9 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                         null
                     } else {
                         IndexInput(
-                                name = createIndexName(listOf(it.pathWithDotNotation), tableName),
+                                name = createIndexName(listOf(it.columnName), tableName),
                                 unique = false,
-                                fieldInputs = listOf(it.pathWithDotNotation)
+                                columnNames = listOf(it.columnName)
                         )
                     }
                 }.filterNotNull()
@@ -259,15 +259,15 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
     private fun validateAndCreateIndices(inputs: List<IndexInput>, pojo: Pojo) : List<Index> {
         // check for columns
         val indices = inputs.map { input ->
-            context.checker.check(input.fieldInputs.isNotEmpty(), element,
+            context.checker.check(input.columnNames.isNotEmpty(), element,
                     INDEX_COLUMNS_CANNOT_BE_EMPTY)
-            val fields = input.fieldInputs.map { indexColumn ->
+            val fields = input.columnNames.map { columnName ->
                 val field = pojo.fields.firstOrNull {
-                    it.pathWithDotNotation == indexColumn
+                    it.columnName == columnName
                 }
                 context.checker.check(field != null, element,
                         ProcessorErrors.indexColumnDoesNotExist(
-                                indexColumn, pojo.fields.map { it.pathWithDotNotation }
+                                columnName, pojo.fields.map { it.columnName }
                         ))
                 field
             }.filterNotNull()
@@ -321,9 +321,9 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 // rename them
                 indices.map {
                     IndexInput(
-                            name = createIndexName(it.fieldInputs, tableName),
+                            name = createIndexName(it.columnNames, tableName),
                             unique = it.unique,
-                            fieldInputs = it.fieldInputs)
+                            columnNames = it.columnNames)
                 }
             } else {
                 context.logger.w(Warning.INDEX_FROM_PARENT_IS_DROPPED,
@@ -371,13 +371,12 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         }
 
         private fun createIndexName(columnNames: List<String>, tableName: String): String {
-            return "index_" + tableName + "_" + columnNames.map(String::stripNonJava)
-                    .joinToString("_")
+            return "index_" + tableName + "_" + columnNames.joinToString("_")
         }
     }
 
     /**
      * processed Index annotation output
      */
-    data class IndexInput(val name : String, val unique : Boolean, val fieldInputs : List<String>)
+    data class IndexInput(val name : String, val unique : Boolean, val columnNames : List<String>)
 }

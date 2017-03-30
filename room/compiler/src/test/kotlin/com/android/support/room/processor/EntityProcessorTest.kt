@@ -341,7 +341,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     @Test
     fun index_multiple() {
         val annotation = mapOf(
-                "indices" to """{@Index({"foo", "id"}), @Index({"bar", "foo"})}"""
+                "indices" to """{@Index({"foo", "id"}), @Index({"bar_column", "foo"})}"""
         )
         singleEntity(
                 """
@@ -356,7 +356,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
                             fields = fieldsByName(entity, "foo", "id")),
-                            Index(name = "index_MyEntity_bar_foo",
+                            Index(name = "index_MyEntity_bar_column_foo",
                                     unique = false,
                                     fields = fieldsByName(entity, "bar", "foo")))
             ))
@@ -746,11 +746,11 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 static class Foo {
                     public int a;
                 }
-                """, attributes = mapOf("indices" to "@Index(\"foo.a\")")) { entity, invocation ->
+                """, attributes = mapOf("indices" to "@Index(\"a\")")) { entity, invocation ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(entity.indices.first(), `is`(
                     Index(
-                            name = "index_MyEntity_fooA",
+                            name = "index_MyEntity_a",
                             unique = false,
                             fields = fieldsByName(entity, "a")
                     )
