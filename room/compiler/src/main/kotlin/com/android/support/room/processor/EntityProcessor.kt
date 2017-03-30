@@ -17,22 +17,26 @@
 package com.android.support.room.processor
 
 import com.android.support.room.ext.getAsBoolean
+import com.android.support.room.ext.getAsInt
 import com.android.support.room.ext.getAsString
 import com.android.support.room.ext.getAsStringList
+import com.android.support.room.ext.toType
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
 import com.android.support.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.Entity
 import com.android.support.room.vo.Field
+import com.android.support.room.vo.ForeignKey
+import com.android.support.room.vo.ForeignKeyAction
 import com.android.support.room.vo.Index
 import com.android.support.room.vo.Pojo
 import com.android.support.room.vo.PrimaryKey
 import com.android.support.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
+import com.google.auto.common.AnnotationMirrors.getAnnotationValue
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import stripNonJava
 import javax.lang.model.element.AnnotationMirror
 import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.TypeElement
@@ -56,20 +60,17 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 com.android.support.room.Entity::class.java).orNull()
         val tableName: String
         val entityIndices: List<IndexInput>
+        val foreignKeyInputs: List<ForeignKeyInput>
         val inheritSuperIndices: Boolean
         if (annotation != null) {
-            val annotationValue = AnnotationMirrors
-                    .getAnnotationValue(annotation, "tableName").value.toString()
-            if (annotationValue == "") {
-                tableName = element.simpleName.toString()
-            } else {
-                tableName = annotationValue
-            }
+            tableName = extractTableName(element, annotation)
             entityIndices = extractIndices(annotation, tableName)
             inheritSuperIndices = AnnotationMirrors
                     .getAnnotationValue(annotation, "inheritSuperIndices").getAsBoolean(false)
+            foreignKeyInputs = extractForeignKeys(annotation)
         } else {
             tableName = element.simpleName.toString()
+            foreignKeyInputs = emptyList()
             entityIndices = emptyList()
             inheritSuperIndices = false
         }
@@ -112,15 +113,110 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 primaryKey.fields.firstOrNull()?.element ?: element,
                 ProcessorErrors.AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT
         )
+
+        val entityForeignKeys = validateAndCreateForeignKeyReferences(foreignKeyInputs, pojo)
+        checkIndicesForForeignKeys(entityForeignKeys, primaryKey, indices)
+
         val entity = Entity(element = element,
                 tableName = tableName,
                 type = pojo.type,
                 fields = pojo.fields,
                 decomposedFields = pojo.decomposedFields,
                 indices = indices,
-                primaryKey = primaryKey)
+                primaryKey = primaryKey,
+                foreignKeys = entityForeignKeys)
 
         return entity
+    }
+
+    private fun checkIndicesForForeignKeys(entityForeignKeys: List<ForeignKey>,
+                                           primaryKey: PrimaryKey,
+                                           indices: List<Index>) {
+        fun covers(columnNames: List<String>, fields : List<Field>) : Boolean =
+            fields.size >= columnNames.size && columnNames.withIndex().all {
+                fields[it.index].columnName == it.value
+            }
+
+        entityForeignKeys.forEach { fKey ->
+            val columnNames = fKey.childFields.map { it.columnName }
+            val exists = covers(columnNames, primaryKey.fields) || indices.any { index ->
+                covers(columnNames, index.fields)
+            }
+            if (!exists) {
+                if (columnNames.size == 1) {
+                    context.logger.w(Warning.MISSING_INDEX_ON_FOREIGN_KEY_CHILD, element,
+                            ProcessorErrors.foreignKeyMissingIndexInChildColumn(columnNames[0]))
+                } else {
+                    context.logger.w(Warning.MISSING_INDEX_ON_FOREIGN_KEY_CHILD, element,
+                            ProcessorErrors.foreignKeyMissingIndexInChildColumns(columnNames))
+                }
+            }
+        }
+    }
+
+    /**
+     * Does a validation on foreign keys except the parent table's columns.
+     */
+    private fun validateAndCreateForeignKeyReferences(foreignKeyInputs: List<ForeignKeyInput>,
+                                                      pojo: Pojo): List<ForeignKey> {
+        return foreignKeyInputs.map {
+            if (it.onUpdate == null) {
+                context.logger.e(element, ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
+                return@map null
+            }
+            if (it.onDelete == null) {
+                context.logger.e(element, ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
+                return@map null
+            }
+            if (it.childColumns.isEmpty()) {
+                context.logger.e(element, ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
+                return@map null
+            }
+            if (it.parentColumns.isEmpty()) {
+                context.logger.e(element, ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
+                return@map null
+            }
+            if (it.childColumns.size != it.parentColumns.size) {
+                context.logger.e(element, ProcessorErrors.foreignKeyColumnNumberMismatch(
+                        it.childColumns, it.parentColumns
+                ))
+                return@map null
+            }
+            val parentElement = try {
+                MoreTypes.asElement(it.parent) as TypeElement
+            } catch (noClass: IllegalArgumentException) {
+                context.logger.e(element, ProcessorErrors.FOREIGN_KEY_CANNOT_FIND_PARENT)
+                return@map null
+            }
+            val parentAnnotation = MoreElements.getAnnotationMirror(parentElement,
+                    com.android.support.room.Entity::class.java).orNull()
+            if (parentAnnotation == null) {
+                context.logger.e(element,
+                        ProcessorErrors.foreignKeyNotAnEntity(parentElement.toString()))
+                return@map null
+            }
+            val tableName = extractTableName(parentElement, parentAnnotation)
+            val fields = it.childColumns.map { columnName ->
+                val field = pojo.fields.find { it.columnName == columnName }
+                if (field == null) {
+                    context.logger.e(pojo.element,
+                            ProcessorErrors.foreignKeyChildColumnDoesNotExist(columnName,
+                                    pojo.fields.map { it.columnName }))
+                }
+                field
+            }.filterNotNull()
+            if (fields.size != it.childColumns.size) {
+                return@map null
+            }
+            ForeignKey(
+                    parentTable = tableName,
+                    childFields = fields,
+                    parentColumns = it.parentColumns,
+                    onDelete = it.onDelete,
+                    onUpdate = it.onUpdate,
+                    deferred = it.deferred
+            )
+        }.filterNotNull()
     }
 
     private fun findPrimaryKey(fields: List<Field>, decomposedFields: List<DecomposedField>)
@@ -256,7 +352,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         }
     }
 
-    private fun validateAndCreateIndices(inputs: List<IndexInput>, pojo: Pojo) : List<Index> {
+    private fun validateAndCreateIndices(inputs: List<IndexInput>, pojo: Pojo): List<Index> {
         // check for columns
         val indices = inputs.map { input ->
             context.checker.check(input.columnNames.isNotEmpty(), element,
@@ -338,6 +434,17 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
     }
 
     companion object {
+        private fun extractTableName(element: TypeElement, annotation: AnnotationMirror)
+                : String {
+            val annotationValue = AnnotationMirrors
+                    .getAnnotationValue(annotation, "tableName").value.toString()
+            return if (annotationValue == "") {
+                element.simpleName.toString()
+            } else {
+                annotationValue
+            }
+        }
+
         private fun extractIndices(annotation: AnnotationMirror, tableName: String)
                 : List<IndexInput> {
             val arrayOfIndexAnnotations = AnnotationMirrors.getAnnotationValue(annotation,
@@ -357,9 +464,9 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
 
         private val INDEX_VISITOR = object : SimpleAnnotationValueVisitor6<IndexInput?, String>() {
             override fun visitAnnotation(a: AnnotationMirror?, tableName: String): IndexInput? {
-                val fieldInput = AnnotationMirrors.getAnnotationValue(a, "value").getAsStringList()
-                val unique = AnnotationMirrors.getAnnotationValue(a, "unique").getAsBoolean(false)
-                val nameValue = AnnotationMirrors.getAnnotationValue(a, "name")
+                val fieldInput = getAnnotationValue(a, "value").getAsStringList()
+                val unique = getAnnotationValue(a, "unique").getAsBoolean(false)
+                val nameValue = getAnnotationValue(a, "name")
                         .getAsString("")
                 val name = if (nameValue == null || nameValue == "") {
                     createIndexName(fieldInput, tableName)
@@ -373,10 +480,57 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         private fun createIndexName(columnNames: List<String>, tableName: String): String {
             return "index_" + tableName + "_" + columnNames.joinToString("_")
         }
+
+        private fun extractForeignKeys(annotation: AnnotationMirror): List<ForeignKeyInput> {
+            val arrayOfForeignKeyAnnotations = getAnnotationValue(annotation, "foreignKeys")
+            return FOREIGN_KEY_LIST_VISITOR.visit(arrayOfForeignKeyAnnotations)
+        }
+
+        private val FOREIGN_KEY_LIST_VISITOR = object
+            : SimpleAnnotationValueVisitor6<List<ForeignKeyInput>, Void?>() {
+            override fun visitArray(values: MutableList<out AnnotationValue>?, void: Void?)
+                    : List<ForeignKeyInput> {
+                return values?.map {
+                    FOREIGN_KEY_VISITOR.visit(it)
+                }?.filterNotNull() ?: emptyList<ForeignKeyInput>()
+            }
+        }
+
+        private val FOREIGN_KEY_VISITOR = object : SimpleAnnotationValueVisitor6<ForeignKeyInput?,
+                Void?>() {
+            override fun visitAnnotation(a: AnnotationMirror?, void: Void?): ForeignKeyInput? {
+                val entityClass = try {
+                    getAnnotationValue(a, "entity").toType()
+                } catch (notPresent: TypeNotPresentException) {
+                    return null
+                }
+                val parentColumns = getAnnotationValue(a, "parentColumns").getAsStringList()
+                val childColumns = getAnnotationValue(a, "childColumns").getAsStringList()
+                val onDeleteInput = getAnnotationValue(a, "onDelete").getAsInt()
+                val onUpdateInput = getAnnotationValue(a, "onUpdate").getAsInt()
+                val deferred = getAnnotationValue(a, "deferred").getAsBoolean(true)
+                val onDelete = ForeignKeyAction.fromAnnotationValue(onDeleteInput)
+                val onUpdate = ForeignKeyAction.fromAnnotationValue(onUpdateInput)
+                return ForeignKeyInput(
+                        parent = entityClass,
+                        parentColumns = parentColumns,
+                        childColumns = childColumns,
+                        onDelete = onDelete,
+                        onUpdate = onUpdate,
+                        deferred = deferred)
+            }
+        }
     }
 
     /**
      * processed Index annotation output
      */
-    data class IndexInput(val name : String, val unique : Boolean, val columnNames : List<String>)
+    data class IndexInput(val name: String, val unique: Boolean, val columnNames: List<String>)
+
+    /**
+     * ForeignKey, before it is processed in the context of a database.
+     */
+    data class ForeignKeyInput(val parent : TypeMirror, val parentColumns : List<String>,
+                     val childColumns : List<String>, val onDelete : ForeignKeyAction?,
+                     val onUpdate : ForeignKeyAction?, val deferred : Boolean)
 }

@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.support.room.vo
 
-import com.android.support.room.migration.bundle.PrimaryKeyBundle
-import javax.lang.model.element.Element
+import com.android.support.room.ForeignKey
 
 /**
- * Represents a PrimaryKey for an Entity.
+ * Compiler representation of ForeignKey#Action.
  */
-data class PrimaryKey(val declaredIn : Element?, val fields: List<Field>,
-                      val autoGenerateId: Boolean) {
+enum class ForeignKeyAction(val annotationValue : Int) {
+    NO_ACTION(ForeignKey.NO_ACTION),
+    RESTRICT(ForeignKey.RESTRICT),
+    SET_NULL(ForeignKey.SET_NULL),
+    SET_DEFAULT(ForeignKey.SET_DEFAULT),
+    CASCADE(ForeignKey.CASCADE);
     companion object {
-        val MISSING = PrimaryKey(null, emptyList(), false)
+        private val mapping by lazy {
+            ForeignKeyAction.values().associateBy { it.annotationValue }
+        }
+        fun fromAnnotationValue(value : Int?) = mapping[value]
     }
-
-    val columnNames by lazy { fields.map {it.columnName} }
-
-    fun toHumanReadableString(): String {
-        return "PrimaryKey[" +
-                fields.joinToString(separator = ", ", transform = Field::getPath) + "]"
-    }
-
-    fun toBundle(): PrimaryKeyBundle = PrimaryKeyBundle(
-            autoGenerateId, fields.map { it.columnName })
 }

@@ -193,7 +193,8 @@ class DatabaseVerifierTest {
                 fields = fields.toList(),
                 decomposedFields = emptyList(),
                 indices = emptyList(),
-                primaryKey = PrimaryKey(null, fields.take(1), false)
+                primaryKey = PrimaryKey(null, fields.take(1), false),
+                foreignKeys = emptyList()
         )
     }
 

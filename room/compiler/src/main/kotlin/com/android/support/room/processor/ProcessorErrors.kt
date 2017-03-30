@@ -25,6 +25,7 @@ import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.vo.CustomTypeConverter
 import com.android.support.room.vo.Field
 import com.squareup.javapoet.TypeName
+import javax.lang.model.type.TypeMirror
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -340,4 +341,78 @@ object ProcessorErrors {
     val MISSING_SCHEMA_EXPORT_DIRECTORY = "Schema export directory is not provided to the" +
             " annotation processor so we cannot export the schema. You can either provide" +
             " `room.schemaLocation` annotation processor argument OR set exportSchema to false."
+
+    val INVALID_FOREIGN_KEY_ACTION = "Invalid foreign key action. It must be one of the constants" +
+            " defined in ForeignKey.Action"
+
+    fun foreignKeyNotAnEntity(className : String) : String {
+        return """
+        Classes referenced in Foreign Key annotations must be @Entity classes. $className is not
+        an entity
+        """.trim()
+    }
+
+    val FOREIGN_KEY_CANNOT_FIND_PARENT = "Cannot find parent entity class."
+
+    fun foreignKeyChildColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
+        return "($columnName) referenced in the foreign key does not exists in the Entity." +
+                " Available column names:${allColumns.joinToString(", ")}"
+    }
+
+    fun foreignKeyParentColumnDoesNotExist(parentEntity : String,
+                                           missingColumn: String,
+                                           allColumns : List<String>): String {
+        return "($missingColumn) does not exist in $parentEntity. Available columns are" +
+                " ${allColumns.joinToString(",")}"
+    }
+
+    val FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST = "Must specify at least 1 column name for the child"
+
+    val FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST = "Must specify at least 1 column name for the parent"
+
+    fun foreignKeyColumnNumberMismatch(childColumns : List<String>, parentColumns : List<String>)
+            : String {
+        return """
+                Number of child columns in foreign key must match number of parent columns.
+                Child reference has ${childColumns.joinToString(",")} and parent reference has
+                ${parentColumns.joinToString(",")}
+               """.trim()
+    }
+
+    fun foreignKeyMissingParentEntityInDatabase(parentTable : String, childEntity : String)
+            : String {
+        return """
+                $parentTable table referenced in the foreign keys of $childEntity does not exist in
+                the database. Maybe you forgot to add the referenced entity in the entities list of
+                the @Database annotation?""".trim()
+    }
+
+    fun foreignKeyMissingIndexInParent(parentEntity : String, parentColumns: List<String>,
+                                       childEntity : String, childColumns: List<String>): String {
+        return """
+                $childEntity has a foreign key (${childColumns.joinToString(",")}) that references
+                $parentEntity (${parentColumns.joinToString(",")}) but $parentEntity does not have
+                a unique index on those columns nor the columns are its primary key.
+                SQLite requires having a unique constraint on referenced parent columns so you must
+                add a unique index to $parentEntity that has
+                (${parentColumns.joinToString(",")}) column(s).
+               """.trim()
+    }
+
+    fun foreignKeyMissingIndexInChildColumns(childColumns: List<String>) : String {
+        return """
+                (${childColumns.joinToString(",")}) column(s) reference a foreign key but
+                they are not part of an index. This may trigger full table scans whenever parent
+                table is modified so you are highly advised to create an index that covers these
+                columns.
+               """.trim()
+    }
+
+    fun foreignKeyMissingIndexInChildColumn(childColumn: String) : String {
+        return """
+                $childColumn column references a foreign key but it is not part of an index. This
+                may trigger full table scans whenever parent table is modified so you are highly
+                advised to create an index that covers this column.
+               """.trim()
+    }
 }

@@ -36,6 +36,8 @@ data class Index(val name : String, val unique : Boolean, val fields : List<Fiel
             """.trimIndent().replace(System.lineSeparator(), " ")
     }
 
+    val columnNames by lazy { fields.map {it.columnName} }
+
     fun toBundle(): IndexBundle = IndexBundle(name, unique, fields.map { it.columnName },
             createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER))
 }

@@ -16,6 +16,8 @@
 
 package com.android.support.room;
 
+import android.support.annotation.RestrictTo;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -97,4 +99,13 @@ public @interface Entity {
      * with {@link PrimaryKey}.
      */
     String[] primaryKeys() default {};
+
+    /**
+     * List of {@link ForeignKey} constraints on this entity.
+     *
+     * @return The list of {@link ForeignKey} constraints on this entity.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    ForeignKey[] foreignKeys() default {};
 }

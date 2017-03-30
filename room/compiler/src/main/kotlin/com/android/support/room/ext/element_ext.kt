@@ -100,6 +100,10 @@ fun AnnotationValue.toListOfClassTypes(): List<TypeMirror> {
     return TO_LIST_OF_TYPES.visit(this)
 }
 
+fun AnnotationValue.toType(): TypeMirror {
+    return TO_TYPE.visit(this)
+}
+
 fun AnnotationValue.toClassType(): TypeMirror? {
     return TO_TYPE.visit(this)
 }

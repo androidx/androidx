@@ -24,8 +24,10 @@ import javax.lang.model.type.DeclaredType
 // TODO make data class when move to kotlin 1.1
 class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
              fields: List<Field>, decomposedFields: List<DecomposedField>,
-             val primaryKey: PrimaryKey, val indices: List<Index>)
+             val primaryKey: PrimaryKey, val indices: List<Index>,
+             val foreignKeys: List<ForeignKey>)
     : Pojo(element, type, fields, decomposedFields, emptyList()) {
+
     val createTableQuery by lazy {
         createTableQuery(tableName)
     }
@@ -36,12 +38,6 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
             it.databaseDefinition(autoIncrement)
         } + createPrimaryKeyDefinition()).filterNotNull()
         return "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
-    }
-
-    val createIndexQueries by lazy {
-        indices.map {
-            it.createQuery(tableName)
-        }
     }
 
     private fun createPrimaryKeyDefinition(): String? {
@@ -61,4 +57,17 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
             fields.map {it.toBundle()},
             primaryKey.toBundle(),
             indices.map { it.toBundle() })
+
+    fun isUnique(columns: List<String>) : Boolean {
+        return if (primaryKey.columnNames.size == columns.size
+                && primaryKey.columnNames.containsAll(columns)) {
+            true
+        } else {
+            indices.any { index ->
+                index.unique
+                        && index.fields.size == columns.size
+                        && index.columnNames.containsAll(columns)
+            }
+        }
+    }
 }

@@ -311,6 +311,176 @@ class DatabaseProcessorTest {
         )
     }
 
+    @Test
+    fun foreignKey_missingParent() {
+        val entity1 = JavaFileObjects.forSourceString("foo.bar.Entity1",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(foreignKeys = @ForeignKey(entity = ${COMMON.USER_TYPE_NAME}.class,
+                        parentColumns = "lastName",
+                        childColumns = "name"))
+                public class Entity1 {
+                    @PrimaryKey
+                    int uid;
+                    String name;
+                }
+                """)
+        singleDb("""
+                @Database(entities = {Entity1.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+                """, entity1, COMMON.USER){ db, invocation ->
+
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.foreignKeyMissingParentEntityInDatabase("User", "foo.bar.Entity1")
+        )
+    }
+
+    @Test
+    fun foreignKey_missingParentIndex() {
+        val entity1 = JavaFileObjects.forSourceString("foo.bar.Entity1",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(foreignKeys = @ForeignKey(entity = ${COMMON.USER_TYPE_NAME}.class,
+                        parentColumns = "lastName",
+                        childColumns = "name"))
+                public class Entity1 {
+                    @PrimaryKey
+                    int uid;
+                    String name;
+                }
+                """)
+        singleDb("""
+                @Database(entities = {Entity1.class, User.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+                """, entity1, COMMON.USER){ db, invocation ->
+
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.foreignKeyMissingIndexInParent(
+                        parentEntity = COMMON.USER_TYPE_NAME.toString(),
+                        parentColumns = listOf("lastName"),
+                        childEntity = "foo.bar.Entity1",
+                        childColumns = listOf("name")
+                )
+        )
+    }
+
+    @Test
+    fun foreignKey_goodWithPrimaryKey() {
+        val entity1 = JavaFileObjects.forSourceString("foo.bar.Entity1",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(foreignKeys = @ForeignKey(entity = Entity2.class,
+                    parentColumns = "uid",
+                    childColumns = "parentId"))
+                public class Entity1 {
+                    @PrimaryKey
+                    int uid;
+                    int parentId;
+                    String name;
+                }
+                """)
+
+        val entity2 = JavaFileObjects.forSourceString("foo.bar.Entity2",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity
+                public class Entity2 {
+                    @PrimaryKey
+                    int uid;
+                    String anotherName;
+                }
+                """)
+        singleDb("""
+                @Database(entities = {Entity1.class, Entity2.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+                """, entity1, entity2){ db, invocation ->
+
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun foreignKey_missingParentColumn() {
+        val entity1 = JavaFileObjects.forSourceString("foo.bar.Entity1",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(foreignKeys = @ForeignKey(entity = Entity2.class,
+                    parentColumns = {"anotherName", "anotherName2"},
+                    childColumns = {"name", "name2"}))
+                public class Entity1 {
+                    @PrimaryKey
+                    int uid;
+                    String name;
+                    String name2;
+                }
+                """)
+
+        val entity2 = JavaFileObjects.forSourceString("foo.bar.Entity2",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity
+                public class Entity2 {
+                    @PrimaryKey
+                    int uid;
+                    String anotherName;
+                }
+                """)
+        singleDb("""
+                @Database(entities = {Entity1.class, Entity2.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+                """, entity1, entity2){ db, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.foreignKeyParentColumnDoesNotExist("foo.bar.Entity2",
+                        "anotherName2", listOf("uid", "anotherName"))
+        )
+    }
+
+    @Test
+    fun foreignKey_goodWithIndex() {
+        val entity1 = JavaFileObjects.forSourceString("foo.bar.Entity1",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(foreignKeys = @ForeignKey(entity = Entity2.class,
+                    parentColumns = {"anotherName", "anotherName2"},
+                    childColumns = {"name", "name2"}))
+                public class Entity1 {
+                    @PrimaryKey
+                    int uid;
+                    String name;
+                    String name2;
+                }
+                """)
+
+        val entity2 = JavaFileObjects.forSourceString("foo.bar.Entity2",
+                """
+                package foo.bar;
+                import com.android.support.room.*;
+                @Entity(indices = @Index(value = {"anotherName2", "anotherName"}, unique = true))
+                public class Entity2 {
+                    @PrimaryKey
+                    int uid;
+                    String anotherName;
+                    String anotherName2;
+                }
+                """)
+        singleDb("""
+                @Database(entities = {Entity1.class, Entity2.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                }
+                """, entity1, entity2){ db, invocation ->
+        }.compilesWithoutError()
+    }
+
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,
                  handler: (Database, TestInvocation) -> Unit): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())

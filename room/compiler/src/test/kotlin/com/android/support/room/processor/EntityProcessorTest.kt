@@ -16,6 +16,7 @@
 
 package com.android.support.room.processor
 
+import COMMON
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import com.android.support.room.vo.CallType
@@ -1083,5 +1084,328 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """, jfos = listOf(COMMON.USER)
         ) { entity, invocation ->
         }.failsToCompile().withErrorContaining(RELATION_IN_ENTITY)
+    }
+
+    @Test
+    fun foreignKey_invalidAction() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = "name",
+                    onDelete = 101
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
+    }
+
+    @Test
+    fun foreignKey_badEntity() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = dsa.class,
+                    parentColumns = "lastName",
+                    childColumns = "name"
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+        }.failsToCompile().withErrorContaining("cannot find symbol")
+    }
+
+    @Test
+    fun foreignKey_notAnEntity() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.NOT_AN_ENTITY_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = "name"
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.NOT_AN_ENTITY)
+        ){ entity, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyNotAnEntity(
+                COMMON.NOT_AN_ENTITY_TYPE_NAME.toString()))
+    }
+
+    @Test
+    fun foreignKey_invalidChildColumn() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = "namex"
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyChildColumnDoesNotExist(
+                "namex", listOf("id", "name")))
+    }
+
+    @Test
+    fun foreignKey_columnCountMismatch() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = {"name", "id"}
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyColumnNumberMismatch(
+                listOf("name", "id"), listOf("lastName")))
+    }
+
+    @Test
+    fun foreignKey_emptyChildColumns() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = {}
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
+    }
+
+    @Test
+    fun foreignKey_emptyParentColumns() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = {},
+                    childColumns = {"name"}
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
+    }
+
+    @Test
+    fun foreignKey_simple() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = "name",
+                    onDelete = ForeignKey.SET_NULL,
+                    onUpdate = ForeignKey.CASCADE,
+                    deferred = true
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+            assertThat(entity.foreignKeys.size, `is`(1))
+            val fKey = entity.foreignKeys.first()
+            assertThat(fKey.parentTable, `is`("User"))
+            assertThat(fKey.parentColumns, `is`(listOf("lastName")))
+            assertThat(fKey.deferred, `is`(true))
+            assertThat(fKey.childFields.size, `is`(1))
+            val field = fKey.childFields.first()
+            assertThat(field.name, `is`("name"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun foreignKey_dontDuplicationChildIndex_SingleColumn() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = "name",
+                    onDelete = ForeignKey.SET_NULL,
+                    onUpdate = ForeignKey.CASCADE,
+                    deferred = true
+                )}""".trimIndent(),
+                "indices" to """@Index("name")"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ) { entity, invocation ->
+        }.compilesWithoutWarnings()
+    }
+
+    @Test
+    fun foreignKey_dontDuplicationChildIndex_MultipleColumns() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = {"lastName", "name"},
+                    childColumns = {"lName", "name"},
+                    onDelete = ForeignKey.SET_NULL,
+                    onUpdate = ForeignKey.CASCADE,
+                    deferred = true
+                )}""".trimIndent(),
+                "indices" to """@Index({"lName", "name"})"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                String lName;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ) { entity, invocation ->
+            assertThat(entity.indices.size, `is`(1))
+        }.compilesWithoutWarnings()
+    }
+
+    @Test
+    fun foreignKey_dontDuplicationChildIndex_WhenCovered() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = {"lastName"},
+                    childColumns = {"name"},
+                    onDelete = ForeignKey.SET_NULL,
+                    onUpdate = ForeignKey.CASCADE,
+                    deferred = true
+                )}""".trimIndent(),
+                "indices" to """@Index({"name", "lName"})"""
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                String lName;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ) { entity, invocation ->
+            assertThat(entity.indices.size, `is`(1))
+        }.compilesWithoutWarnings()
+    }
+
+    @Test
+    fun foreignKey_warnMissingChildIndex() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = "name",
+                    onDelete = ForeignKey.SET_NULL,
+                    onUpdate = ForeignKey.CASCADE,
+                    deferred = true
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+            assertThat(entity.indices, `is`(emptyList()))
+        }.compilesWithoutError().withWarningContaining(
+                ProcessorErrors.foreignKeyMissingIndexInChildColumn("name"))
+    }
+
+    @Test
+    fun foreignKey_warnMissingChildrenIndex() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = {"lastName", "name"},
+                    childColumns = {"lName", "name"}
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                String lName;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+            assertThat(entity.indices, `is`(emptyList()))
+        }.compilesWithoutError().withWarningContaining(
+                ProcessorErrors.foreignKeyMissingIndexInChildColumns(listOf("lName", "name")))
+    }
+
+    @Test
+    fun foreignKey_dontIndexIfAlreadyPrimaryKey() {
+        val annotation = mapOf(
+                "foreignKeys" to """{@ForeignKey(
+                    entity = ${COMMON.USER_TYPE_NAME}.class,
+                    parentColumns = "lastName",
+                    childColumns = "id",
+                    onDelete = ForeignKey.SET_NULL,
+                    onUpdate = ForeignKey.CASCADE,
+                    deferred = true
+                )}""".trimIndent()
+        )
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ entity, invocation ->
+            assertThat(entity.indices, `is`(emptyList()))
+        }.compilesWithoutWarnings()
     }
 }

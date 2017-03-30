@@ -106,4 +106,15 @@ public class RoomWarnings {
      * and also commit them into your version control system.
      */
     public static final String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
+
+    /**
+     * When there is a foreign key from Entity A to Entity B, it is a good idea to index the
+     * reference columns in B, otherwise, each modification on Entity A will trigger a full table
+     * scan on Entity B.
+     * <p>
+     * If Room cannot find a proper index in the child entity (Entity B in this case), Room will
+     * print this warning.
+     */
+    public static final String MISSING_INDEX_ON_FOREIGN_KEY_CHILD =
+            "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
 }

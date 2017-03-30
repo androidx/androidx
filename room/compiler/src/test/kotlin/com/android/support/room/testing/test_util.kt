@@ -54,6 +54,11 @@ object COMMON {
     val NOT_AN_ENTITY by lazy {
         loadJavaCode("common/input/NotAnEntity.java", "foo.bar.NotAnEntity")
     }
+
+    val NOT_AN_ENTITY_TYPE_NAME by lazy {
+        ClassName.get("foo.bar", "NotAnEntity")
+    }
+
     val MULTI_PKEY_ENTITY by lazy {
         loadJavaCode("common/input/MultiPKeyEntity.java", "MultiPKeyEntity")
     }

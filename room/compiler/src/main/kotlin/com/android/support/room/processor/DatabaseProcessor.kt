@@ -53,6 +53,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 .orNull()
         val entities = processEntities(dbAnnotation, element)
         validateUniqueTableNames(element, entities)
+        validateForeignKeys(element, entities)
         val extendsRoomDb = context.processingEnv.typeUtils.isAssignable(
                 MoreElements.asType(element).asType(), baseClassElement)
         context.checker.check(extendsRoomDb, element, ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
@@ -95,6 +96,48 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 daoMethods = daoMethods,
                 exportSchema = exportSchema)
         return database
+    }
+
+    private fun validateForeignKeys(element: TypeElement, entities: List<Entity>) {
+        val byTableName = entities.associateBy { it.tableName }
+        entities.forEach { entity ->
+            entity.foreignKeys.forEach foreignKeyLoop@ { foreignKey ->
+                val parent = byTableName[foreignKey.parentTable]
+                if (parent == null) {
+                    context.logger.e(element, ProcessorErrors
+                            .foreignKeyMissingParentEntityInDatabase(foreignKey.parentTable,
+                                    entity.element.qualifiedName.toString()))
+                    return@foreignKeyLoop
+                }
+                val parentFields = foreignKey.parentColumns.map { columnName ->
+                    val parentField = parent.fields.find {
+                        it.columnName == columnName
+                    }
+                    if (parentField == null) {
+                        context.logger.e(entity.element,
+                                ProcessorErrors.foreignKeyParentColumnDoesNotExist(
+                                        parentEntity = parent.element.qualifiedName.toString(),
+                                        missingColumn = columnName,
+                                        allColumns = parent.fields.map { it.columnName }))
+                    }
+                    parentField
+                }.filterNotNull()
+                if (parentFields.size != foreignKey.parentColumns.size) {
+                    return@foreignKeyLoop
+                }
+                // ensure that it is indexed in the parent
+                if (!parent.isUnique(foreignKey.parentColumns)) {
+                    context.logger.e(parent.element, ProcessorErrors
+                            .foreignKeyMissingIndexInParent(
+                                    parentEntity = parent.element.qualifiedName.toString(),
+                                    childEntity = entity.element.qualifiedName.toString(),
+                                    parentColumns = foreignKey.parentColumns,
+                                    childColumns = foreignKey.childFields
+                                            .map { it.columnName }))
+                    return@foreignKeyLoop
+                }
+            }
+        }
     }
 
     private fun validateUniqueIndices(element: TypeElement, entities: List<Entity>) {
