@@ -352,4 +352,70 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
                 view, ColorUtils.compositeColors(emeraldDefault, colorRed),
                 allowedComponentVariance);
     }
+
+    /**
+     * This method tests that background tinting applied on a tintable image view does not
+     * affect the tinting of the image source.
+     */
+    @Test
+    @SmallTest
+    public void testImageTintingAcrossBackgroundTintingChange() {
+        final @IdRes int viewId = R.id.view_untinted_source;
+        final Resources res = getActivity().getResources();
+        final T view = (T) mContainer.findViewById(viewId);
+
+        @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
+        @ColorInt int lilacDisabled = ResourcesCompat.getColor(res, R.color.lilac_disabled, null);
+        // This is the fill color of R.drawable.test_drawable_blue set on our view
+        // that we'll be testing in this method
+        @ColorInt int sourceColor = ResourcesCompat.getColor(
+                res, R.color.test_blue, null);
+        @ColorInt int newSourceColor = ResourcesCompat.getColor(
+                res, R.color.test_red, null);
+
+        // Test the default state for tinting set up in the layout XML file.
+        verifyImageSourceIsColoredAs("Default no tinting in enabled state", view,
+                sourceColor, 0);
+
+        // Change background tinting of our image
+        final ColorStateList lilacColor = ResourcesCompat.getColorStateList(
+                mResources, R.color.color_state_list_lilac, null);
+        onView(withId(viewId)).perform(
+                AppCompatTintableViewActions.setBackgroundResource(
+                        R.drawable.test_background_green));
+        onView(withId(viewId)).perform(
+                AppCompatTintableViewActions.setBackgroundTintMode(PorterDuff.Mode.SRC_IN));
+        onView(withId(viewId)).perform(
+                AppCompatTintableViewActions.setBackgroundTintList(lilacColor));
+
+        // Verify that the image still has the original color (untinted)
+        verifyImageSourceIsColoredAs("No image tinting after change in background tinting", view,
+                sourceColor, 0);
+
+        // Now set a different image source
+        onView(withId(viewId)).perform(
+                AppCompatTintableViewActions.setImageResource(R.drawable.test_drawable_red));
+        // And verify that the image has the new color (untinted)
+        verifyImageSourceIsColoredAs("No image tinting after change of image source", view,
+                newSourceColor, 0);
+
+        // Change the background tinting again
+        final ColorStateList sandColor = ResourcesCompat.getColorStateList(
+                mResources, R.color.color_state_list_sand, null);
+        onView(withId(viewId)).perform(
+                AppCompatTintableViewActions.setBackgroundTintList(sandColor));
+        // And verify that the image still has the same new color (untinted)
+        verifyImageSourceIsColoredAs("No image tinting after change in background tinting", view,
+                newSourceColor, 0);
+
+        // Now set up image tinting on our view. We're using a color state list with fully
+        // opaque colors, and we expect the matching entry in that list to be applied on the
+        // image source (ignoring the background tinting)
+        onView(withId(viewId)).perform(
+                AppCompatTintableViewActions.setImageSourceTintMode(PorterDuff.Mode.SRC_IN));
+        onView(withId(viewId)).perform(
+                AppCompatTintableViewActions.setImageSourceTintList(lilacColor));
+        verifyImageSourceIsColoredAs("New lilac image tinting", view,
+                lilacDefault, 0);
+    }
 }

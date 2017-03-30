@@ -24,7 +24,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.content.res.AppCompatResources;
@@ -199,12 +198,12 @@ public class AppCompatImageHelper {
         final TintInfo info = mTmpInfo;
         info.clear();
 
-        final ColorStateList tintList = ViewCompat.getBackgroundTintList(mView);
+        final ColorStateList tintList = ImageViewCompat.getImageTintList(mView);
         if (tintList != null) {
             info.mHasTintList = true;
             info.mTintList = tintList;
         }
-        final PorterDuff.Mode mode = ViewCompat.getBackgroundTintMode(mView);
+        final PorterDuff.Mode mode = ImageViewCompat.getImageTintMode(mView);
         if (mode != null) {
             info.mHasTintMode = true;
             info.mTintMode = mode;
