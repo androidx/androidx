@@ -235,6 +235,49 @@ public class FragmentTransactionTest {
         }
     }
 
+    /**
+     * When a FragmentManager is detached, it should allow commitAllowingStateLoss()
+     * and commitNowAllowingStateLoss() by just dropping the transaction.
+     */
+    @Test
+    public void commitAllowStateLossDetached() throws Throwable {
+        Fragment fragment1 = new CorrectFragment();
+        mActivity.getSupportFragmentManager()
+                .beginTransaction()
+                .add(fragment1, "1")
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        final FragmentManager fm = fragment1.getChildFragmentManager();
+        mActivity.getSupportFragmentManager()
+                .beginTransaction()
+                .remove(fragment1)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertEquals(0, mActivity.getSupportFragmentManager().getFragments().size());
+        assertEquals(0, fm.getFragments().size());
+
+        // Now the fragment1's fragment manager should allow commitAllowingStateLoss
+        // by doing nothing since it has been detached.
+        Fragment fragment2 = new CorrectFragment();
+        fm.beginTransaction()
+                .add(fragment2, "2")
+                .commitAllowingStateLoss();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertEquals(0, fm.getFragments().size());
+
+        // It should also allow commitNowAllowingStateLoss by doing nothing
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Fragment fragment3 = new CorrectFragment();
+                fm.beginTransaction()
+                        .add(fragment3, "3")
+                        .commitNowAllowingStateLoss();
+                assertEquals(0, fm.getFragments().size());
+            }
+        });
+    }
+
     private void getFragmentsUntilSize(int expectedSize) {
         final long endTime = SystemClock.uptimeMillis() + 3000;
 
