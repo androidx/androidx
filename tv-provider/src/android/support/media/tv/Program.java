@@ -164,6 +164,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
      * @return The fields of the Program in the ContentValues format to be easily inserted into the
      * TV Input Framework database.
      */
+    @Override
     public ContentValues toContentValues() {
         ContentValues values = super.toContentValues();
         if (mChannelId != INVALID_LONG_VALUE) {

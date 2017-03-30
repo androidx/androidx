@@ -668,7 +668,7 @@ public class Preference implements Comparable<Preference> {
      * @param title The title for this Preference.
      */
     public void setTitle(CharSequence title) {
-        if (title == null && mTitle != null || title != null && !title.equals(mTitle)) {
+        if ((title == null && mTitle != null) || (title != null && !title.equals(mTitle))) {
             mTitle = title;
             notifyChanged();
         }
@@ -750,7 +750,8 @@ public class Preference implements Comparable<Preference> {
      * @param summary The summary for the preference.
      */
     public void setSummary(CharSequence summary) {
-        if (summary == null && mSummary != null || summary != null && !summary.equals(mSummary)) {
+        if ((summary == null && mSummary != null)
+                || (summary != null && !summary.equals(mSummary))) {
             mSummary = summary;
             notifyChanged();
         }

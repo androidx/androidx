@@ -2802,7 +2802,7 @@ public class MediaSessionCompat {
                 if (updateTime > 0) {
                     diff = currTime - updateTime;
                     if (speed > 0 && speed != 1f) {
-                        diff *= speed;
+                        diff = (long) (diff * speed);
                     }
                 }
                 position += diff;
