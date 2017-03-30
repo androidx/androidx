@@ -20,13 +20,14 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 
 import com.android.support.navigation.R;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * NavGraph is a collection of {@link NavDestination} nodes fetchable by ID.
@@ -36,7 +37,7 @@ import java.util.Iterator;
  * {@link #getStartDestination starting destination} to be added to the back stack.</p>
  */
 public class NavGraph extends NavDestination implements Iterable<NavDestination> {
-    private final SparseArray<NavDestination> mNodes = new SparseArray<>();
+    private final SparseArrayCompat<NavDestination> mNodes = new SparseArrayCompat<>();
     private int mStartDestId;
 
     /**
@@ -155,7 +156,8 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
     @Override
     public Iterator<NavDestination> iterator() {
         return new Iterator<NavDestination>() {
-            private int mIndex = 0;
+            private int mIndex = -1;
+            private boolean mWentToNext = false;
 
             @Override
             public boolean hasNext() {
@@ -164,13 +166,23 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
 
             @Override
             public NavDestination next() {
-                return mNodes.valueAt(mIndex++);
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                mWentToNext = true;
+                return mNodes.valueAt(++mIndex);
             }
 
             @Override
             public void remove() {
+                if (!mWentToNext) {
+                    throw new IllegalStateException(
+                            "You must call next() before you can remove an element");
+                }
                 mNodes.valueAt(mIndex).setParent(null);
                 mNodes.removeAt(mIndex);
+                mIndex--;
+                mWentToNext = false;
             }
         };
     }
