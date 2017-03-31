@@ -54,6 +54,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         val entities = processEntities(dbAnnotation, element)
         validateUniqueTableNames(element, entities)
         validateForeignKeys(element, entities)
+
         val extendsRoomDb = context.processingEnv.typeUtils.isAssignable(
                 MoreElements.asType(element).asType(), baseClassElement)
         context.checker.check(extendsRoomDb, element, ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
@@ -88,13 +89,17 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 .getAsInt(1)!!.toInt()
         val exportSchema = AnnotationMirrors.getAnnotationValue(dbAnnotation, "exportSchema")
                 .getAsBoolean(true)
+
+        val hasForeignKeys = entities.any { it.foreignKeys.isNotEmpty() }
+
         val database = Database(
                 version = version,
                 element = element,
                 type = MoreElements.asType(element).asType(),
                 entities = entities,
                 daoMethods = daoMethods,
-                exportSchema = exportSchema)
+                exportSchema = exportSchema,
+                enableForeignKeys = hasForeignKeys)
         return database
     }
 

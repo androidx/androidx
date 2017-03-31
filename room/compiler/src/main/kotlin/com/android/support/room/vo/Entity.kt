@@ -36,8 +36,12 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
         val definitions = (fields.map {
             val autoIncrement = primaryKey.autoGenerateId && primaryKey.fields.contains(it)
             it.databaseDefinition(autoIncrement)
-        } + createPrimaryKeyDefinition()).filterNotNull()
+        } + createPrimaryKeyDefinition() + createForeignKeyDefinitions()).filterNotNull()
         return "CREATE TABLE IF NOT EXISTS `$tableName` (${definitions.joinToString(", ")})"
+    }
+
+    private fun createForeignKeyDefinitions() : List<String> {
+        return foreignKeys.map { it.databaseDefinition() }
     }
 
     private fun createPrimaryKeyDefinition(): String? {

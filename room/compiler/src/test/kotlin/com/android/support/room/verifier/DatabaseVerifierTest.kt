@@ -182,7 +182,8 @@ class DatabaseVerifierTest {
                 entities = entities.toList(),
                 daoMethods = emptyList(),
                 version = -1,
-                exportSchema = false)
+                exportSchema = false,
+                enableForeignKeys = false)
     }
 
     private fun entity(tableName: String, vararg fields: Field): Entity {

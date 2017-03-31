@@ -90,6 +90,9 @@ class SQLiteOpenHelperWriter(val database : Database) {
             addModifiers(PUBLIC)
             addParameter(SupportDbTypeNames.DB, "_db")
             addStatement("mDatabase = _db")
+            if (database.enableForeignKeys) {
+                addStatement("_db.execSQL($S)", "PRAGMA foreign_keys = ON")
+            }
             addStatement("internalInitInvalidationTracker(_db)")
         }.build()
     }

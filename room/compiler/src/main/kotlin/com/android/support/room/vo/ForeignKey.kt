@@ -20,8 +20,26 @@ package com.android.support.room.vo
  * Keeps information about a foreign key.
  */
 data class ForeignKey(val parentTable: String,
-                               val parentColumns : List<String>,
-                               val childFields : List<Field>,
-                               val onDelete : ForeignKeyAction,
-                               val onUpdate : ForeignKeyAction,
-                               val deferred : Boolean)
+                      val parentColumns: List<String>,
+                      val childFields: List<Field>,
+                      val onDelete: ForeignKeyAction,
+                      val onUpdate: ForeignKeyAction,
+                      val deferred: Boolean) {
+    fun databaseDefinition(): String {
+        return "FOREIGN KEY(${joinEscaped(childFields.map { it.columnName })})" +
+                " REFERENCES `$parentTable`(${joinEscaped(parentColumns)})" +
+                " ON UPDATE ${onUpdate.sqlName}" +
+                " ON DELETE ${onDelete.sqlName}" +
+                " ${deferredDeclaration()}"
+    }
+
+    private fun deferredDeclaration(): String {
+        return if (deferred) {
+            "DEFERRABLE INITIALLY DEFERRED"
+        } else {
+            ""
+        }
+    }
+
+    private fun joinEscaped(values: Iterable<String>) = values.joinToString(", ") { "`$it`" }
+}

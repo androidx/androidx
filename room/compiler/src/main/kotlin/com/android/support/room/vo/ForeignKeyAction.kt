@@ -21,12 +21,12 @@ import com.android.support.room.ForeignKey
 /**
  * Compiler representation of ForeignKey#Action.
  */
-enum class ForeignKeyAction(val annotationValue : Int) {
-    NO_ACTION(ForeignKey.NO_ACTION),
-    RESTRICT(ForeignKey.RESTRICT),
-    SET_NULL(ForeignKey.SET_NULL),
-    SET_DEFAULT(ForeignKey.SET_DEFAULT),
-    CASCADE(ForeignKey.CASCADE);
+enum class ForeignKeyAction(val annotationValue : Int, val sqlName : String) {
+    NO_ACTION(ForeignKey.NO_ACTION, "NO ACTION"),
+    RESTRICT(ForeignKey.RESTRICT, "RESTRICT"),
+    SET_NULL(ForeignKey.SET_NULL, "SET NULL"),
+    SET_DEFAULT(ForeignKey.SET_DEFAULT, "SET DEFAULT"),
+    CASCADE(ForeignKey.CASCADE, "CASCADE");
     companion object {
         private val mapping by lazy {
             ForeignKeyAction.values().associateBy { it.annotationValue }

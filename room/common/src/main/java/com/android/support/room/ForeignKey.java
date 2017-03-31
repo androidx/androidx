@@ -109,6 +109,8 @@ public @interface ForeignKey {
      * Possible value for {@link #onDelete()} or {@link #onUpdate()}.
      * <p>
      * When a parent key is modified or deleted from the database, no special action is taken.
+     * This means that SQLite will not make any effort to fix the constraint failure, instead,
+     * reject the change.
      */
     int NO_ACTION = 1;
 
