@@ -45,8 +45,8 @@ public class ChangeImageTransformUsage extends TransitionUsageBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRoot = (ViewGroup) findViewById(R.id.container);
-        mPhoto = (ImageView) findViewById(R.id.photo);
+        mRoot = findViewById(R.id.container);
+        mPhoto = findViewById(R.id.photo);
         final View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {

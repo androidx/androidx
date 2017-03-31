@@ -30,7 +30,7 @@ public class TransitionActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transition);
-        mRoot = (LinearLayout) findViewById(R.id.root);
+        mRoot = findViewById(R.id.root);
     }
 
     ViewGroup getRoot() {

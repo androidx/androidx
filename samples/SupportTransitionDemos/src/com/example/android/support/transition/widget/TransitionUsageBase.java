@@ -37,7 +37,7 @@ abstract class TransitionUsageBase extends AppCompatActivity {
         setContentView(getLayoutResId());
 
         // Retrieve the Toolbar from our content view, and set it as the action bar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 

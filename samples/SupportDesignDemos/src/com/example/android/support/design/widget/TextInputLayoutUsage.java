@@ -36,8 +36,8 @@ public class TextInputLayoutUsage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.design_text_input);
 
-        mUsernameInputLayout = (TextInputLayout) findViewById(R.id.input_username);
-        mPasswordInputLayout = (TextInputLayout) findViewById(R.id.input_password);
+        mUsernameInputLayout = findViewById(R.id.input_username);
+        mPasswordInputLayout = findViewById(R.id.input_password);
     }
 
     public void showError(View view) {

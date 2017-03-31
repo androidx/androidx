@@ -42,14 +42,14 @@ public class DrawableCompatActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawable_compat);
 
-        mImageView = (ImageView) findViewById(R.id.image);
+        mImageView = findViewById(R.id.image);
 
         Drawable d = ContextCompat.getDrawable(this, IMAGE_RES);
         mDrawable = DrawableCompat.wrap(d.mutate());
 
         mImageView.setImageDrawable(mDrawable);
 
-        RadioGroup rg = (RadioGroup) findViewById(R.id.drawable_compat_options);
+        RadioGroup rg = findViewById(R.id.drawable_compat_options);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {

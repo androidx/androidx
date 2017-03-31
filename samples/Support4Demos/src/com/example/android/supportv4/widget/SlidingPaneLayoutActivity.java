@@ -75,9 +75,9 @@ public class SlidingPaneLayoutActivity extends Activity {
 
         setContentView(R.layout.sliding_pane_layout);
 
-        mSlidingLayout = (SlidingPaneLayout) findViewById(R.id.sliding_pane_layout);
-        mList = (ListView) findViewById(R.id.left_pane);
-        mContent = (TextView) findViewById(R.id.content_text);
+        mSlidingLayout = findViewById(R.id.sliding_pane_layout);
+        mList = findViewById(R.id.left_pane);
+        mContent = findViewById(R.id.content_text);
 
         mSlidingLayout.setPanelSlideListener(new SliderListener());
         mSlidingLayout.openPane();

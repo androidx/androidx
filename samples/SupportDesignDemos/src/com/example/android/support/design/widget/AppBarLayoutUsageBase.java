@@ -45,7 +45,7 @@ abstract class AppBarLayoutUsageBase extends AppCompatActivity {
         setContentView(getLayoutId());
 
         // Retrieve the Toolbar from our content view, and set it as the action bar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)
@@ -57,22 +57,22 @@ abstract class AppBarLayoutUsageBase extends AppCompatActivity {
             collapsingToolbarLayout.setContentScrimColor(0xFFFF00FF);
         }
 
-        TextView dialog = (TextView) findViewById(R.id.textview_dialogue);
+        TextView dialog = findViewById(R.id.textview_dialogue);
         if (dialog != null) {
             dialog.setText(TextUtils.concat(Shakespeare.DIALOGUE));
         }
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.appbar_recyclerview);
+        RecyclerView recyclerView = findViewById(R.id.appbar_recyclerview);
         if (recyclerView != null) {
             setupRecyclerView(recyclerView);
         }
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         if (tabLayout != null) {
             setupTabs(tabLayout);
         }
 
-        final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        final SwipeRefreshLayout refreshLayout = findViewById(R.id.swiperefresh);
         if (refreshLayout != null) {
             refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 private final Handler mHandler = new Handler();
@@ -101,12 +101,12 @@ abstract class AppBarLayoutUsageBase extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_toggle_expand: {
-                AppBarLayout abl = (AppBarLayout) findViewById(R.id.app_bar);
+                AppBarLayout abl = findViewById(R.id.app_bar);
                 abl.setExpanded(true);
                 return true;
             }
             case R.id.action_toggle_collapse: {
-                AppBarLayout abl = (AppBarLayout) findViewById(R.id.app_bar);
+                AppBarLayout abl = findViewById(R.id.app_bar);
                 abl.setExpanded(false);
                 return true;
             }

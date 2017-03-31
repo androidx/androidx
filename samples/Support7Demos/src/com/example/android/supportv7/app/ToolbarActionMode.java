@@ -37,7 +37,7 @@ public class ToolbarActionMode extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.toolbar_action_mode);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         findViewById(R.id.btn_start_action_mode).setOnClickListener(new View.OnClickListener() {

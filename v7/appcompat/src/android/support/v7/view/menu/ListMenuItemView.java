@@ -91,14 +91,14 @@ public class ListMenuItemView extends LinearLayout implements MenuView.ItemView 
 
         ViewCompat.setBackground(this, mBackground);
 
-        mTitleView = (TextView) findViewById(R.id.title);
+        mTitleView = findViewById(R.id.title);
         if (mTextAppearance != -1) {
             mTitleView.setTextAppearance(mTextAppearanceContext,
                     mTextAppearance);
         }
 
-        mShortcutView = (TextView) findViewById(R.id.shortcut);
-        mSubMenuArrowView = (ImageView) findViewById(R.id.submenuarrow);
+        mShortcutView = findViewById(R.id.shortcut);
+        mSubMenuArrowView = findViewById(R.id.submenuarrow);
         if (mSubMenuArrowView != null) {
             mSubMenuArrowView.setImageDrawable(mSubMenuArrow);
         }

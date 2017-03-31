@@ -38,7 +38,7 @@ public class ToolbarUsage extends AppCompatActivity {
         setContentView(R.layout.toolbar_usage);
 
         // Retrieve the Toolbar from our content view, and set it as the action bar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 

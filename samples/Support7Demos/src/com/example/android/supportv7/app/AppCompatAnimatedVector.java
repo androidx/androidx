@@ -31,7 +31,7 @@ public class AppCompatAnimatedVector extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.appcompat_animated_vector);
 
-        final ImageView imageView = (ImageView) findViewById(R.id.vector_image);
+        final ImageView imageView = findViewById(R.id.vector_image);
         if (imageView != null) {
             final Drawable src = imageView.getDrawable();
             if (src instanceof Animatable) {

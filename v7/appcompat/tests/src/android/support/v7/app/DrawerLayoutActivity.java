@@ -58,9 +58,9 @@ public class DrawerLayoutActivity extends BaseTestActivity {
     protected void onContentViewSet() {
         super.onContentViewSet();
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawer = (ListView) findViewById(R.id.start_drawer);
-        mContent = (TextView) findViewById(R.id.content_text);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawer = findViewById(R.id.start_drawer);
+        mContent = findViewById(R.id.content_text);
 
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
@@ -75,7 +75,7 @@ public class DrawerLayoutActivity extends BaseTestActivity {
 
         // Find the toolbar in our layout and set it as the support action bar on the activity.
         // This is required to have the drawer slide "over" the toolbar.
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(R.string.drawer_title);
         setSupportActionBar(mToolbar);
 

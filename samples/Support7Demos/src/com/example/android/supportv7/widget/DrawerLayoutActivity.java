@@ -91,10 +91,10 @@ public class DrawerLayoutActivity extends AppCompatActivity {
 
         setContentView(R.layout.drawer_layout);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mStartDrawer = (ListView) findViewById(R.id.start_drawer);
-        mEndDrawer = (FrameLayout) findViewById(R.id.end_drawer);
-        mContent = (TextView) findViewById(R.id.content_text);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mStartDrawer = findViewById(R.id.start_drawer);
+        mEndDrawer = findViewById(R.id.end_drawer);
+        mContent = findViewById(R.id.content_text);
 
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow_end, GravityCompat.END);
@@ -110,7 +110,7 @@ public class DrawerLayoutActivity extends AppCompatActivity {
 
         // Find the toolbar in our layout and set it as the support action bar on the activity.
         // This is required to have the drawer slide "over" the toolbar.
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         mToolbar.setTitle(R.string.drawer_title);
         setSupportActionBar(mToolbar);
 

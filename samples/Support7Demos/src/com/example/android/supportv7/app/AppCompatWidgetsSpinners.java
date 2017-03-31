@@ -34,11 +34,11 @@ public class AppCompatWidgetsSpinners extends AppCompatActivity {
         setContentView(R.layout.appcompat_widgets_text_spinners);
 
         // Fetch the Spinners and set an adapter
-        Spinner spinner = (Spinner) findViewById(R.id.widgets_spinner);
+        Spinner spinner = findViewById(R.id.widgets_spinner);
         spinner.setAdapter(new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item, Cheeses.sCheeseStrings));
 
-        spinner = (Spinner) findViewById(R.id.widgets_spinner_underlined);
+        spinner = findViewById(R.id.widgets_spinner_underlined);
         spinner.setAdapter(new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item, Cheeses.sCheeseStrings));
     }
