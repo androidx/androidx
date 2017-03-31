@@ -27,7 +27,6 @@ import android.support.media.tv.TvContractCompat.PreviewProgramColumns;
 import android.support.media.tv.TvContractCompat.PreviewProgramColumns.AspectRatio;
 import android.support.media.tv.TvContractCompat.PreviewProgramColumns.Availability;
 import android.support.media.tv.TvContractCompat.PreviewProgramColumns.InteractionType;
-import android.support.media.tv.TvContractCompat.PreviewProgramColumns.ReviewRatingStyle;
 import android.support.media.tv.TvContractCompat.PreviewProgramColumns.Type;
 import android.support.media.tv.TvContractCompat.PreviewPrograms;
 import android.support.v4.os.BuildCompat;
@@ -74,8 +73,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
     private final int mInteractionType;
     private final long mInteractionCount;
     private final String mAuthor;
-    private final int mReviewRatingStyle;
-    private final String mReviewRating;
     private final int mBrowsable;
     private final String mContentId;
 
@@ -100,8 +97,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
         mInteractionType = builder.mInteractionType;
         mInteractionCount = builder.mInteractionCount;
         mAuthor = builder.mAuthor;
-        mReviewRatingStyle = builder.mReviewRatingStyle;
-        mReviewRating = builder.mReviewRating;
         mBrowsable = builder.mBrowsable;
         mContentId = builder.mContentId;
     }
@@ -269,22 +264,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
     }
 
     /**
-     * @return The review rating style for the program.
-     * @see PreviewPrograms#COLUMN_REVIEW_RATING_STYLE
-     */
-    public @ReviewRatingStyle int getReviewRatingStyle() {
-        return mReviewRatingStyle;
-    }
-
-    /**
-     * @return The review rating for the program.
-     * @see PreviewPrograms#COLUMN_REVIEW_RATING
-     */
-    public String getReviewRating() {
-        return mReviewRating;
-    }
-
-    /**
      * @return Whether the program is browsable or not.
      * @see PreviewPrograms#COLUMN_BROWSABLE;
      */
@@ -329,8 +308,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
                 && Objects.equals(mInteractionType, program.mInteractionType)
                 && Objects.equals(mInteractionCount, program.mInteractionCount)
                 && Objects.equals(mAuthor, program.mAuthor)
-                && Objects.equals(mReviewRatingStyle, program.mReviewRatingStyle)
-                && Objects.equals(mReviewRating, program.mReviewRating)
                 && Objects.equals(mBrowsable, program.mBrowsable)
                 && Objects.equals(mContentId, program.mContentId);
     }
@@ -415,12 +392,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
             }
             if (!TextUtils.isEmpty(mAuthor)) {
                 values.put(PreviewProgramColumns.COLUMN_AUTHOR, mAuthor);
-            }
-            if (mReviewRatingStyle != INVALID_INT_VALUE) {
-                values.put(PreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE, mReviewRatingStyle);
-            }
-            if (!TextUtils.isEmpty(mReviewRating)) {
-                values.put(PreviewProgramColumns.COLUMN_REVIEW_RATING, mReviewRating);
             }
             if (!TextUtils.isEmpty(mContentId)) {
                 values.put(PreviewProgramColumns.COLUMN_CONTENT_ID, mContentId);
@@ -529,15 +500,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
                     && !cursor.isNull(index)) {
                 builder.setAuthor(cursor.getString(index));
             }
-            if ((index =
-                    cursor.getColumnIndex(PreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE)) >= 0
-                    && !cursor.isNull(index)) {
-                builder.setReviewRatingStyle(cursor.getInt(index));
-            }
-            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_REVIEW_RATING)) >= 0
-                    && !cursor.isNull(index)) {
-                builder.setReviewRating(cursor.getString(index));
-            }
             if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_BROWSABLE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setBrowsable(cursor.getInt(index) == IS_BROWSABLE);
@@ -570,8 +532,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
                 PreviewProgramColumns.COLUMN_INTERACTION_TYPE,
                 PreviewProgramColumns.COLUMN_INTERACTION_COUNT,
                 PreviewProgramColumns.COLUMN_AUTHOR,
-                PreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE,
-                PreviewProgramColumns.COLUMN_REVIEW_RATING,
                 PreviewProgramColumns.COLUMN_BROWSABLE,
                 PreviewProgramColumns.COLUMN_CONTENT_ID,
         };
@@ -605,8 +565,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
         private int mInteractionType = INVALID_INT_VALUE;
         private long mInteractionCount = INVALID_LONG_VALUE;
         private String mAuthor;
-        private int mReviewRatingStyle = INVALID_INT_VALUE;
-        private String mReviewRating;
         private int mBrowsable = INVALID_INT_VALUE;
         private String mContentId;
 
@@ -641,8 +599,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
             mInteractionType = other.mInteractionType;
             mInteractionCount  = other.mInteractionCount;
             mAuthor = other.mAuthor;
-            mReviewRatingStyle = other.mReviewRatingStyle;
-            mReviewRating = other.mReviewRating;
             mBrowsable = other.mBrowsable;
             mContentId = other.mContentId;
         }
@@ -937,45 +893,6 @@ public abstract class BasePreviewProgram extends BaseProgram {
          */
         public T setAuthor(String author) {
             mAuthor = author;
-            return (T) this;
-        }
-
-        /**
-         * The review rating score style used for {@link #setReviewRating}.
-         *
-         * <p> The value should match one of the followings:
-         * {@link PreviewPrograms#REVIEW_RATING_STYLE_STARS},
-         * {@link PreviewPrograms#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, and
-         * {@link PreviewPrograms#REVIEW_RATING_STYLE_PERCENTAGE}.
-         *
-         * @param reviewRatingStyle The review rating style for the program.
-         * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_REVIEW_RATING_STYLE
-         */
-        public T setReviewRatingStyle(@ReviewRatingStyle int reviewRatingStyle) {
-            mReviewRatingStyle = reviewRatingStyle;
-            return (T) this;
-        }
-
-        /**
-         * Sets the review rating score for this program.
-         *
-         * <p>The format of the value is dependent on
-         * {@link PreviewPrograms#COLUMN_REVIEW_RATING_STYLE}. If the style is
-         * {@link PreviewPrograms#REVIEW_RATING_STYLE_STARS}, the value should be a real
-         * number between 0.0 and 5.0. (e.g. "4.5") If the style is
-         * {@link PreviewPrograms#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, the value should be
-         * two integers, one for thumbs-up count and the other for thumbs-down count, with a comma
-         * between them. (e.g. "200,40") If the style is
-         * {@link PreviewPrograms#REVIEW_RATING_STYLE_PERCENTAGE}, the value shoule be a
-         * real number between 0 and 100. (e.g. "99.9")
-         *
-         * @param reviewRating The review rating score of the program.
-         * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see PreviewPrograms#COLUMN_REVIEW_RATING
-         */
-        public T setReviewRating(String reviewRating) {
-            mReviewRating = reviewRating;
             return (T) this;
         }
 
