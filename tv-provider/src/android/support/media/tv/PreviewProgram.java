@@ -115,6 +115,7 @@ public final class PreviewProgram extends BasePreviewProgram {
      * @return The fields of the Program in the ContentValues format to be easily inserted into the
      * TV Input Framework database.
      */
+    @Override
     public ContentValues toContentValues() {
         return toContentValues(false);
     }
@@ -127,6 +128,7 @@ public final class PreviewProgram extends BasePreviewProgram {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @Override
     public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = super.toContentValues(includeProtectedFields);
         if (mChannelId != INVALID_LONG_VALUE) {
