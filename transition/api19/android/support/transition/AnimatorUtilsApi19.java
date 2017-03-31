@@ -21,12 +21,22 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 
 @RequiresApi(19)
-class AnimatorUtilsApi19 extends AnimatorUtilsApi14 {
+class AnimatorUtilsApi19 implements AnimatorUtilsImpl {
 
     @Override
     public void addPauseListener(@NonNull Animator animator,
             @NonNull AnimatorListenerAdapter listener) {
         animator.addPauseListener(listener);
+    }
+
+    @Override
+    public void pause(@NonNull Animator animator) {
+        animator.pause();
+    }
+
+    @Override
+    public void resume(@NonNull Animator animator) {
+        animator.resume();
     }
 
 }
