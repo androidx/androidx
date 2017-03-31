@@ -641,7 +641,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    private final class PrivateHandler extends Handler {
+    private static final class PrivateHandler extends Handler {
         PrivateHandler() {
         }
     }

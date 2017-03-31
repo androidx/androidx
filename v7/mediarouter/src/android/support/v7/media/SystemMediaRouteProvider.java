@@ -97,7 +97,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
      * Callbacks into the media router to synchronize state with the framework media router.
      */
     public interface SyncCallback {
-        public MediaRouter.RouteInfo getSystemRouteByDescriptorId(String id);
+        MediaRouter.RouteInfo getSystemRouteByDescriptorId(String id);
     }
 
     protected Object getDefaultRoute() {
@@ -711,7 +711,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             }
         }
 
-        protected final class SystemRouteController extends RouteController {
+        protected static final class SystemRouteController extends RouteController {
             private final Object mRouteObj;
 
             public SystemRouteController(Object routeObj) {

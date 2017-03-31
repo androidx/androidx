@@ -178,7 +178,7 @@ class AnimationHandler {
     /**
      * Default provider of timing pulse that uses Choreographer for frame callbacks.
      */
-    private class MyFrameCallbackProvider implements AnimationFrameCallbackProvider {
+    private static class MyFrameCallbackProvider implements AnimationFrameCallbackProvider {
 
         final Choreographer mChoreographer = Choreographer.getInstance();
 
