@@ -213,6 +213,10 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
         return new LinearSmoothScroller(mRecyclerView.getContext()) {
             @Override
             protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
+                if (mRecyclerView == null) {
+                    // The associated RecyclerView has been removed so there is no action to take.
+                    return;
+                }
                 int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),
                         targetView);
                 final int dx = snapDistances[0];
