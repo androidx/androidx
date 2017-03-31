@@ -22,7 +22,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
-import android.support.annotation.NonNull;
 import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -60,8 +59,6 @@ import android.view.ViewGroup;
  * attributes of {@code Fade} and {@link Transition}.</p>
  */
 public class Fade extends Visibility {
-
-    private static final String PROPNAME_TRANSITION_ALPHA = "android:fade:transitionAlpha";
 
     private static final String LOG_TAG = "Fade";
 
@@ -106,17 +103,10 @@ public class Fade extends Visibility {
         a.recycle();
     }
 
-    @Override
-    public void captureStartValues(@NonNull TransitionValues transitionValues) {
-        super.captureStartValues(transitionValues);
-        transitionValues.values.put(PROPNAME_TRANSITION_ALPHA,
-                ViewUtils.getTransitionAlpha(transitionValues.view));
-    }
-
     /**
      * Utility method to handle creating and running the Animator.
      */
-    private Animator createAnimation(final View view, float startAlpha, float endAlpha) {
+    private Animator createAnimation(View view, float startAlpha, float endAlpha) {
         if (startAlpha == endAlpha) {
             return null;
         }
@@ -128,13 +118,7 @@ public class Fade extends Visibility {
         }
         FadeAnimatorListener listener = new FadeAnimatorListener(view);
         anim.addListener(listener);
-        addListener(new TransitionListenerAdapter() {
-            @Override
-            public void onTransitionEnd(@NonNull Transition transition) {
-                ViewUtils.setTransitionAlpha(view, 1);
-                transition.removeListener(this);
-            }
-        });
+        AnimatorUtils.addPauseListener(anim, listener);
         return anim;
     }
 
@@ -147,34 +131,20 @@ public class Fade extends Visibility {
             Log.d(LOG_TAG, "Fade.onAppear: startView, startVis, endView, endVis = "
                     + startView + ", " + view);
         }
-        float startAlpha = getStartAlpha(startValues, 0);
-        if (startAlpha == 1) {
-            startAlpha = 0;
-        }
-        return createAnimation(view, startAlpha, 1);
+        return createAnimation(view, 0, 1);
     }
 
     @Override
     public Animator onDisappear(ViewGroup sceneRoot, final View view, TransitionValues startValues,
             TransitionValues endValues) {
-        float startAlpha = getStartAlpha(startValues, 1);
-        return createAnimation(view, startAlpha, 0);
-    }
-
-    private static float getStartAlpha(TransitionValues startValues, float fallbackValue) {
-        float startAlpha = fallbackValue;
-        if (startValues != null) {
-            Float startAlphaFloat = (Float) startValues.values.get(PROPNAME_TRANSITION_ALPHA);
-            if (startAlphaFloat != null) {
-                startAlpha = startAlphaFloat;
-            }
-        }
-        return startAlpha;
+        return createAnimation(view, 1, 0);
     }
 
     private static class FadeAnimatorListener extends AnimatorListenerAdapter {
 
         private final View mView;
+        private boolean mCanceled = false;
+        private float mPausedAlpha = -1;
         private boolean mLayerTypeChanged = false;
 
         FadeAnimatorListener(View view) {
@@ -191,11 +161,32 @@ public class Fade extends Visibility {
         }
 
         @Override
+        public void onAnimationCancel(Animator animation) {
+            mCanceled = true;
+            if (mPausedAlpha >= 0) {
+                ViewUtils.setTransitionAlpha(mView, mPausedAlpha);
+            }
+        }
+
+        @Override
         public void onAnimationEnd(Animator animation) {
-            ViewUtils.setTransitionAlpha(mView, 1);
+            if (!mCanceled) {
+                ViewUtils.setTransitionAlpha(mView, 1);
+            }
             if (mLayerTypeChanged) {
                 mView.setLayerType(View.LAYER_TYPE_NONE, null);
             }
+        }
+
+        @Override
+        public void onAnimationPause(Animator animation) {
+            mPausedAlpha = ViewUtils.getTransitionAlpha(mView);
+            ViewUtils.setTransitionAlpha(mView, 1);
+        }
+
+        @Override
+        public void onAnimationResume(Animator animation) {
+            ViewUtils.setTransitionAlpha(mView, mPausedAlpha);
         }
 
     }
