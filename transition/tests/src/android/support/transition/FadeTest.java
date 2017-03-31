@@ -16,26 +16,12 @@
 
 package android.support.transition;
 
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.view.View;
@@ -112,136 +98,6 @@ public class FadeTest extends BaseTest {
         Animator animator = fade.createAnimator(mRoot, startValues, endValues);
         // No visibility change; no animation should happen
         assertThat(animator, is(nullValue()));
-    }
-
-    @Test
-    public void testFadeOutThenIn() throws Throwable {
-        // Fade out
-        final Runnable interrupt = mock(Runnable.class);
-        float[] valuesOut = new float[2];
-        final InterruptibleFade fadeOut = new InterruptibleFade(Fade.MODE_OUT, interrupt,
-                valuesOut);
-        final Transition.TransitionListener listenerOut = mock(Transition.TransitionListener.class);
-        fadeOut.addListener(listenerOut);
-        changeVisibility(fadeOut, mRoot, mView, View.INVISIBLE);
-        verify(listenerOut, timeout(3000)).onTransitionStart(any(Transition.class));
-
-        // The view is in the middle of fading out
-        verify(interrupt, timeout(3000)).run();
-
-        // Fade in
-        float[] valuesIn = new float[2];
-        final InterruptibleFade fadeIn = new InterruptibleFade(Fade.MODE_IN, null, valuesIn);
-        final Transition.TransitionListener listenerIn = mock(Transition.TransitionListener.class);
-        fadeIn.addListener(listenerIn);
-        changeVisibility(fadeIn, mRoot, mView, View.VISIBLE);
-        verify(listenerOut, timeout(3000)).onTransitionPause(any(Transition.class));
-        verify(listenerIn, timeout(3000)).onTransitionStart(any(Transition.class));
-        assertThat(valuesOut[1], allOf(greaterThan(0f), lessThan(1f)));
-        if (Build.VERSION.SDK_INT >= 19) {
-            // These won't match on API levels 18 and below due to lack of Animator pause.
-            assertEquals(valuesOut[1], valuesIn[0], 0.01f);
-        }
-
-        verify(listenerIn, timeout(3000)).onTransitionEnd(any(Transition.class));
-        assertThat(mView.getVisibility(), is(View.VISIBLE));
-        assertEquals(valuesIn[1], 1.f, 0.01f);
-    }
-
-    @Test
-    public void testFadeInThenOut() throws Throwable {
-        changeVisibility(null, mRoot, mView, View.INVISIBLE);
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-
-        // Fade in
-        final Runnable interrupt = mock(Runnable.class);
-        float[] valuesIn = new float[2];
-        final InterruptibleFade fadeIn = new InterruptibleFade(Fade.MODE_IN, interrupt, valuesIn);
-        final Transition.TransitionListener listenerIn = mock(Transition.TransitionListener.class);
-        fadeIn.addListener(listenerIn);
-        changeVisibility(fadeIn, mRoot, mView, View.VISIBLE);
-        verify(listenerIn, timeout(3000)).onTransitionStart(any(Transition.class));
-
-        // The view is in the middle of fading in
-        verify(interrupt, timeout(3000)).run();
-
-        // Fade out
-        float[] valuesOut = new float[2];
-        final InterruptibleFade fadeOut = new InterruptibleFade(Fade.MODE_OUT, null, valuesOut);
-        final Transition.TransitionListener listenerOut = mock(Transition.TransitionListener.class);
-        fadeOut.addListener(listenerOut);
-        changeVisibility(fadeOut, mRoot, mView, View.INVISIBLE);
-        verify(listenerIn, timeout(3000)).onTransitionPause(any(Transition.class));
-        verify(listenerOut, timeout(3000)).onTransitionStart(any(Transition.class));
-        assertThat(valuesIn[1], allOf(greaterThan(0f), lessThan(1f)));
-        if (Build.VERSION.SDK_INT >= 19) {
-            // These won't match on API levels 18 and below due to lack of Animator pause.
-            assertEquals(valuesIn[1], valuesOut[0], 0.01f);
-        }
-
-        verify(listenerOut, timeout(3000)).onTransitionEnd(any(Transition.class));
-        assertThat(mView.getVisibility(), is(View.INVISIBLE));
-    }
-
-    private void changeVisibility(final Fade fade, final ViewGroup container, final View target,
-            final int visibility) throws Throwable {
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (fade != null) {
-                    TransitionManager.beginDelayedTransition(container, fade);
-                }
-                target.setVisibility(visibility);
-            }
-        });
-    }
-
-    /**
-     * A special version of {@link Fade} that runs a specified {@link Runnable} soon after the
-     * target starts fading in or out.
-     */
-    private static class InterruptibleFade extends Fade {
-
-        static final float ALPHA_THRESHOLD = 0.2f;
-
-        float mInitialAlpha = -1;
-        Runnable mMiddle;
-        final float[] mAlphaValues;
-
-        InterruptibleFade(int mode, Runnable middle, float[] alphaValues) {
-            super(mode);
-            mMiddle = middle;
-            mAlphaValues = alphaValues;
-        }
-
-        @Nullable
-        @Override
-        public Animator createAnimator(@NonNull ViewGroup sceneRoot,
-                @Nullable final TransitionValues startValues,
-                @Nullable final TransitionValues endValues) {
-            final Animator animator = super.createAnimator(sceneRoot, startValues, endValues);
-            if (animator instanceof ObjectAnimator) {
-                ((ObjectAnimator) animator).addUpdateListener(
-                        new ValueAnimator.AnimatorUpdateListener() {
-                            @Override
-                            public void onAnimationUpdate(ValueAnimator animation) {
-                                final float alpha = (float) animation.getAnimatedValue();
-                                mAlphaValues[1] = alpha;
-                                if (mInitialAlpha < 0) {
-                                    mInitialAlpha = alpha;
-                                    mAlphaValues[0] = mInitialAlpha;
-                                } else if (Math.abs(alpha - mInitialAlpha) > ALPHA_THRESHOLD) {
-                                    if (mMiddle != null) {
-                                        mMiddle.run();
-                                        mMiddle = null;
-                                    }
-                                }
-                            }
-                        });
-            }
-            return animator;
-        }
-
     }
 
 }
