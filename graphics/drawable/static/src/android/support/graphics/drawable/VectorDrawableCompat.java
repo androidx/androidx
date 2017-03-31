@@ -520,11 +520,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      */
     @RestrictTo(LIBRARY_GROUP)
     public float getPixelSize() {
-        if (mVectorState == null && mVectorState.mVPathRenderer == null ||
-                mVectorState.mVPathRenderer.mBaseWidth == 0 ||
-                mVectorState.mVPathRenderer.mBaseHeight == 0 ||
-                mVectorState.mVPathRenderer.mViewportHeight == 0 ||
-                mVectorState.mVPathRenderer.mViewportWidth == 0) {
+        if ((mVectorState == null && mVectorState.mVPathRenderer == null)
+                || mVectorState.mVPathRenderer.mBaseWidth == 0
+                || mVectorState.mVPathRenderer.mBaseHeight == 0
+                || mVectorState.mVPathRenderer.mViewportHeight == 0
+                || mVectorState.mVPathRenderer.mViewportWidth == 0) {
             return 1; // fall back to 1:1 pixel mapping.
         }
         float intrinsicWidth = mVectorState.mVPathRenderer.mBaseWidth;

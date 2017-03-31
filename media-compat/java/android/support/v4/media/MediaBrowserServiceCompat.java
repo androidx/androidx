@@ -807,7 +807,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 throws RemoteException;
     }
 
-    private class ServiceCallbacksCompat implements ServiceCallbacks {
+    private static class ServiceCallbacksCompat implements ServiceCallbacks {
         final Messenger mCallbacks;
 
         ServiceCallbacksCompat(Messenger callbacks) {

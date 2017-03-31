@@ -296,6 +296,7 @@ public final class RatingCompat implements Parcelable {
                 if (isRated()) {
                     return mRatingValue;
                 }
+                // fall through
             default:
                 return -1.0f;
         }
@@ -384,6 +385,7 @@ public final class RatingCompat implements Parcelable {
                         break;
                     case RATING_PERCENTAGE:
                         mRatingObj = RatingCompatKitkat.newPercentageRating(getPercentRating());
+                        break;
                     default:
                         return null;
                 }
