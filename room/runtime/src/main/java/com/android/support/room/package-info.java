@@ -36,7 +36,8 @@
  *         also the main access point for the underlying connection.
  *     </li>
  *     <li>{@link com.android.support.room.Entity Entity}: This annotation marks a class as a
- *     database table. It must be referenced in the
+ *     database row. For each {@link com.android.support.room.Entity Entity}, a database table is
+ *     created to hold the items. The Entity class must be referenced in the
  *     {@link com.android.support.room.Database#entities() Database#entities} array. Each field of
  *     the Entity is persisted in the database unless it is annotated with
  *     {@link com.android.support.room.Ignore Ignore}. Entities must have no-arg constructors.
