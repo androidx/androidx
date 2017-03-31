@@ -24,10 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.flatfoot.apireviewdemo.R;
-import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelStore;
+import com.android.support.lifecycle.ViewModelProviders;
 
 public class ChosenShapeFragment extends LifecycleFragment {
 
@@ -41,8 +40,7 @@ public class ChosenShapeFragment extends LifecycleFragment {
         View layout = inflater.inflate(R.layout.chosen_shape_layout, container);
         mNoneShapeView = layout.findViewById(R.id.none);
         mShapeView = layout.findViewById(R.id.color);
-        LifecycleActivity activity = (LifecycleActivity) getActivity();
-        SharedViewModel viewModel = ViewModelStore.get(activity, SharedViewModel.class);
+        SharedViewModel viewModel = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);
         viewModel.shapeDrawableData.observe(this, new Observer<ShapeDrawable>() {
             @Override
             public void onChanged(@Nullable ShapeDrawable shapeDrawable) {

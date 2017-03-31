@@ -25,7 +25,7 @@ import com.android.flatfoot.apireviewdemo.R;
 import com.android.flatfoot.apireviewdemo.common.entity.Person;
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelStore;
+import com.android.support.lifecycle.ViewModelProviders;
 
 import java.util.Random;
 
@@ -36,7 +36,7 @@ public class SwitchAccountsActivity extends LifecycleActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final AccountViewModel viewModel = ViewModelStore.get(this, AccountViewModel.class);
+        final AccountViewModel viewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
         viewModel.setUser(USERS[0]);
         setContentView(R.layout.switch_accounts);
 

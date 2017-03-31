@@ -28,7 +28,7 @@ import android.view.ViewGroup;
 import com.android.flatfoot.apireviewdemo.lifecycle_04_shared_viewmodel.internal.ShapesAdapter;
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.LifecycleFragment;
-import com.android.support.lifecycle.ViewModelStore;
+import com.android.support.lifecycle.ViewModelProviders;
 
 public class ShapeChooserFragment extends LifecycleFragment {
 
@@ -37,7 +37,8 @@ public class ShapeChooserFragment extends LifecycleFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         LifecycleActivity activity = (LifecycleActivity) getActivity();
-        final SharedViewModel sharedViewModel = ViewModelStore.get(activity, SharedViewModel.class);
+        final SharedViewModel sharedViewModel = ViewModelProviders.of(getActivity())
+                .get(SharedViewModel.class);
 
         RecyclerView rv = new RecyclerView(activity);
         rv.setLayoutManager(new GridLayoutManager(activity, 3));

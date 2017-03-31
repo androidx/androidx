@@ -23,13 +23,13 @@ import com.android.flatfoot.apireviewdemo.DemoApplication;
 import com.android.flatfoot.apireviewdemo.internal.SimpleLocationListener;
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 @SuppressWarnings("MissingPermission")
 class LocationListener implements LifecycleObserver {
 
-    static void listenLocation(LifecycleProvider provider,
+    static void listenLocation(LifecycleOwner provider,
             SimpleLocationListener listener) {
         new LocationListener(provider, listener);
     }
@@ -37,7 +37,7 @@ class LocationListener implements LifecycleObserver {
     private android.location.LocationManager mLocationManager;
     private final SimpleLocationListener mListener;
 
-    private LocationListener(LifecycleProvider provider, SimpleLocationListener listener) {
+    private LocationListener(LifecycleOwner provider, SimpleLocationListener listener) {
         provider.getLifecycle().addObserver(this);
         mListener = listener;
     }

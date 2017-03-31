@@ -76,14 +76,7 @@ public class ShapesAdapter extends RecyclerView.Adapter<VHolder> {
     public VHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.shape_item,
                 parent, false);
-
-        return new VHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(final VHolder holder, int position) {
-        holder.mShapeView.setBackground(mDrawables.get(position));
-        holder.mShapeDrawable = mDrawables.get(position);
+        final VHolder holder = new VHolder(view);
         holder.mShapeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +85,13 @@ public class ShapesAdapter extends RecyclerView.Adapter<VHolder> {
                 }
             }
         });
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(final VHolder holder, int position) {
+        holder.mShapeView.setBackground(mDrawables.get(position));
+        holder.mShapeDrawable = mDrawables.get(position);
     }
 
     @Override

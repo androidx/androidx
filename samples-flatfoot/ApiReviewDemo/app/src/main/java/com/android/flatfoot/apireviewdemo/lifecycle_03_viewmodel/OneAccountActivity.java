@@ -23,7 +23,7 @@ import android.widget.TextView;
 import com.android.flatfoot.apireviewdemo.R;
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelStore;
+import com.android.support.lifecycle.ViewModelProviders;
 
 public class OneAccountActivity extends LifecycleActivity {
 
@@ -32,7 +32,7 @@ public class OneAccountActivity extends LifecycleActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_model1);
 
-        AccountViewModel viewModel = ViewModelStore.get(this, AccountViewModel.class);
+        AccountViewModel viewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
         viewModel.personData.observe(this, new Observer<AccountViewModel.PersonDataWithStatus>() {
             @Override
             public void onChanged(AccountViewModel.PersonDataWithStatus data) {
