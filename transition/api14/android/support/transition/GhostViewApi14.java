@@ -68,9 +68,7 @@ class GhostViewApi14 extends View implements GhostViewImpl {
                 if (ghostView.mReferences <= 0) {
                     ViewParent parent = ghostView.getParent();
                     if (parent instanceof ViewGroup) {
-                        ViewGroup group = (ViewGroup) parent;
-                        group.endViewTransition(ghostView);
-                        group.removeView(ghostView);
+                        ((ViewGroup) parent).removeView(ghostView);
                     }
                 }
             }
