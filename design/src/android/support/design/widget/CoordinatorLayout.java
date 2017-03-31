@@ -45,6 +45,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.math.MathUtils;
 import android.support.v4.util.Pools;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.GravityCompat;
@@ -1207,7 +1208,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                     mScrimPaint = new Paint();
                 }
                 mScrimPaint.setColor(lp.mBehavior.getScrimColor(this, child));
-                mScrimPaint.setAlpha(MathUtils.constrain(Math.round(255 * scrimAlpha), 0, 255));
+                mScrimPaint.setAlpha(MathUtils.clamp(Math.round(255 * scrimAlpha), 0, 255));
 
                 final int saved = canvas.save();
                 if (child.isOpaque()) {
