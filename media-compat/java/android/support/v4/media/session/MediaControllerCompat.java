@@ -28,6 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.SupportActivity;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -853,14 +854,6 @@ public final class MediaControllerCompat {
      * to send media transport commands to the session.
      */
     public static abstract class TransportControls {
-        /**
-         * Used as an integer extra field in {@link #playFromMediaId(String, Bundle)} or
-         * {@link #prepareFromMediaId(String, Bundle)} to indicate the stream type to be used by the
-         * media player when playing or preparing the specified media id. See {@link AudioManager}
-         * for a list of stream types.
-         */
-        public static final String EXTRA_STREAM_TYPE = "android.media.session.extra.STREAM_TYPE";
-
         TransportControls() {
         }
 
