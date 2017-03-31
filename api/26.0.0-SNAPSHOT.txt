@@ -7928,6 +7928,7 @@ package android.support.v4.view {
     field public static final int SOURCE_JOYSTICK = 16777232; // 0x1000010
     field public static final int SOURCE_KEYBOARD = 257; // 0x101
     field public static final int SOURCE_MOUSE = 8194; // 0x2002
+    field public static final int SOURCE_ROTARY_ENCODER = 4194304; // 0x400000
     field public static final int SOURCE_STYLUS = 16386; // 0x4002
     field public static final int SOURCE_TOUCHPAD = 1048584; // 0x100008
     field public static final int SOURCE_TOUCHSCREEN = 4098; // 0x1002
@@ -8064,6 +8065,7 @@ package android.support.v4.view {
     field public static final deprecated int AXIS_RX = 12; // 0xc
     field public static final deprecated int AXIS_RY = 13; // 0xd
     field public static final deprecated int AXIS_RZ = 14; // 0xe
+    field public static final int AXIS_SCROLL = 26; // 0x1a
     field public static final deprecated int AXIS_SIZE = 3; // 0x3
     field public static final deprecated int AXIS_THROTTLE = 19; // 0x13
     field public static final deprecated int AXIS_TILT = 25; // 0x19
@@ -8399,7 +8401,9 @@ package android.support.v4.view {
   }
 
   public final deprecated class ViewConfigurationCompat {
+    method public static float getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method public static deprecated int getScaledPagingTouchSlop(android.view.ViewConfiguration);
+    method public static float getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context);
     method public static deprecated boolean hasPermanentMenuKey(android.view.ViewConfiguration);
   }
 
