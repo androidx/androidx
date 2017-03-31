@@ -16,7 +16,14 @@
 
 package android.support.v4.view;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.os.BuildCompat;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.ViewConfiguration;
+
+import java.lang.reflect.Method;
 
 /**
  * Helper for accessing features in {@link ViewConfiguration} in a backwards compatible fashion.
@@ -25,6 +32,21 @@ import android.view.ViewConfiguration;
  */
 @Deprecated
 public final class ViewConfigurationCompat {
+    private static final String TAG = "ViewConfigCompat";
+
+    private static Method sGetScaledScrollFactorMethod;
+
+    static {
+        if (android.os.Build.VERSION.SDK_INT >= 25 && !BuildCompat.isAtLeastO()) {
+            try {
+                sGetScaledScrollFactorMethod =
+                        ViewConfiguration.class.getDeclaredMethod("getScaledScrollFactor");
+            } catch (Exception e) {
+                Log.i(TAG, "Could not find method getScaledScrollFactor() on ViewConfiguration");
+            }
+        }
+    }
+
     /**
      * Call {@link ViewConfiguration#getScaledPagingTouchSlop()}.
      *
@@ -45,6 +67,57 @@ public final class ViewConfigurationCompat {
     @Deprecated
     public static boolean hasPermanentMenuKey(ViewConfiguration config) {
         return config.hasPermanentMenuKey();
+    }
+
+    /**
+     * @param config Used to get the scaling factor directly from the {@link ViewConfiguration}.
+     * @param context Used to locate a resource value.
+     *
+     * @return Amount to scroll in response to a horizontal {@link MotionEventCompat#ACTION_SCROLL}
+     *         event. Multiply this by the event's axis value to obtain the number of pixels to be
+     *         scrolled.
+     */
+    public static float getScaledHorizontalScrollFactor(@NonNull ViewConfiguration config,
+            @NonNull Context context) {
+        if (BuildCompat.isAtLeastO()) {
+            return config.getScaledHorizontalScrollFactor();
+        } else {
+            return getLegacyScrollFactor(config, context);
+        }
+    }
+
+    /**
+     * @param config Used to get the scaling factor directly from the {@link ViewConfiguration}.
+     * @param context Used to locate a resource value.
+     *
+     * @return Amount to scroll in response to a vertical {@link MotionEventCompat#ACTION_SCROLL}
+     *         event. Multiply this by the event's axis value to obtain the number of pixels to be
+     *         scrolled.
+     */
+    public static float getScaledVerticalScrollFactor(@NonNull ViewConfiguration config,
+            @NonNull Context context) {
+        if (BuildCompat.isAtLeastO()) {
+            return config.getScaledVerticalScrollFactor();
+        } else {
+            return getLegacyScrollFactor(config, context);
+        }
+    }
+
+    private static float getLegacyScrollFactor(ViewConfiguration config, Context context) {
+        if (android.os.Build.VERSION.SDK_INT >= 25 && sGetScaledScrollFactorMethod != null) {
+            try {
+                return (int) sGetScaledScrollFactorMethod.invoke(config);
+            } catch (Exception e) {
+                Log.i(TAG, "Could not find method getScaledScrollFactor() on ViewConfiguration");
+            }
+        }
+        // Fall back to pre-API-25 behavior.
+        TypedValue outValue = new TypedValue();
+        if (context.getTheme().resolveAttribute(
+                android.R.attr.listPreferredItemHeight, outValue, true)) {
+            return outValue.getDimension(context.getResources().getDisplayMetrics());
+        }
+        return 0;
     }
 
     private ViewConfigurationCompat() {}
