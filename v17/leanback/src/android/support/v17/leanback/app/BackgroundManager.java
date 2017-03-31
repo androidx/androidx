@@ -703,14 +703,17 @@ public final class BackgroundManager {
      */
     public void release() {
         if (DEBUG) Log.v(TAG, "release " + this);
+        if (mChangeRunnable != null) {
+            mHandler.removeCallbacks(mChangeRunnable);
+            mChangeRunnable = null;
+        }
+        if (mAnimator.isStarted()) {
+            mAnimator.cancel();
+        }
         if (mLayerDrawable != null) {
             mLayerDrawable.clearDrawable(R.id.background_imagein, mContext);
             mLayerDrawable.clearDrawable(R.id.background_imageout, mContext);
             mLayerDrawable = null;
-        }
-        if (mChangeRunnable != null) {
-            mHandler.removeCallbacks(mChangeRunnable);
-            mChangeRunnable = null;
         }
         mBackgroundDrawable = null;
     }
