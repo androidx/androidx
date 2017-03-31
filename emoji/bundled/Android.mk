@@ -18,7 +18,7 @@ LOCAL_PATH := $(call my-dir)
 # Applications that use this library must specify
 #
 #   LOCAL_STATIC_ANDROID_LIBRARIES := \
-#       android-support-emoji-typeface \
+#       android-support-emoji-bundled \
 #       android-support-emoji \
 #       android-support-compat
 #
@@ -26,7 +26,7 @@ LOCAL_PATH := $(call my-dir)
 #
 include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
-LOCAL_MODULE := android-support-emoji-typeface
+LOCAL_MODULE := android-support-emoji-bundled
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_SHARED_ANDROID_LIBRARIES := \

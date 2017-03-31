@@ -100,8 +100,8 @@ project(':support-instantvideo').projectDir = new File(rootDir, 'instantvideo')
 include ':support-emoji'
 project(':support-emoji').projectDir = new File(rootDir, 'emoji/core')
 
-include ':support-emoji-typeface'
-project(':support-emoji-typeface').projectDir = new File(rootDir, 'emoji/bundled-typeface')
+include ':support-emoji-bundled'
+project(':support-emoji-bundled').projectDir = new File(rootDir, 'emoji/bundled')
 
 include ':support-emoji-appcompat'
 project(':support-emoji-appcompat').projectDir = new File(rootDir, 'emoji/appcompat')
