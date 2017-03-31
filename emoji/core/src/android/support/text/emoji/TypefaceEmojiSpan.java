@@ -19,9 +19,10 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Typeface;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.text.TextPaint;
 
 /**
  * EmojiSpan subclass used to render emojis using Typeface.
@@ -30,6 +31,11 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(LIBRARY_GROUP)
 public final class TypefaceEmojiSpan extends EmojiSpan {
+
+    /**
+     * Paint object used to draw a background in debug mode.
+     */
+    private static Paint sDebugPaint;
 
     /**
      * Default constructor.
@@ -41,13 +47,23 @@ public final class TypefaceEmojiSpan extends EmojiSpan {
     }
 
     @Override
-    public void draw(@NonNull final Canvas canvas, final CharSequence text, final int start,
-            final int end, final float x, final int top, final int y, final int bottom,
-            @NonNull final Paint paint) {
-        final Typeface typeface = EmojiCompat.get().getTypeface();
-        final Typeface oldTypeface = paint.getTypeface();
-        paint.setTypeface(typeface);
+    public void draw(@NonNull final Canvas canvas, final CharSequence text,
+            @IntRange(from = 0) final int start, @IntRange(from = 0) final int end, final float x,
+            final int top, final int y, final int bottom, @NonNull final Paint paint) {
+        if (EmojiCompat.get().isEmojiSpanIndicatorEnabled()) {
+            canvas.drawRect(x, top , x + getWidth(), bottom, getDebugPaint());
+        }
         getMetadata().draw(canvas, x, y, paint);
-        paint.setTypeface(oldTypeface);
     }
+
+    private static Paint getDebugPaint() {
+        if (sDebugPaint == null) {
+            sDebugPaint = new TextPaint();
+            sDebugPaint.setColor(EmojiCompat.get().getEmojiSpanIndicatorColor());
+            sDebugPaint.setStyle(Paint.Style.FILL);
+        }
+        return sDebugPaint;
+    }
+
+
 }

@@ -1746,6 +1746,8 @@ package android.support.text.emoji {
   public static abstract class EmojiCompat.Config {
     ctor protected EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataLoader);
     method public android.support.text.emoji.EmojiCompat.Config registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
+    method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorColor(int);
+    method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorEnabled(boolean);
     method public android.support.text.emoji.EmojiCompat.Config setMaxEmojiPerText(int);
     method public android.support.text.emoji.EmojiCompat.Config setReplaceAll(boolean);
     method public android.support.text.emoji.EmojiCompat.Config unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
