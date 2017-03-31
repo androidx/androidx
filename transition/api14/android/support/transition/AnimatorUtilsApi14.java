@@ -21,6 +21,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 
+import java.util.ArrayList;
+
 @RequiresApi(14)
 class AnimatorUtilsApi14 implements AnimatorUtilsImpl {
 
@@ -28,6 +30,45 @@ class AnimatorUtilsApi14 implements AnimatorUtilsImpl {
     public void addPauseListener(@NonNull Animator animator,
             @NonNull AnimatorListenerAdapter listener) {
         // Do nothing
+    }
+
+    @Override
+    public void pause(@NonNull Animator animator) {
+        final ArrayList<Animator.AnimatorListener> listeners = animator.getListeners();
+        if (listeners != null) {
+            for (int i = 0, size = listeners.size(); i < size; i++) {
+                final Animator.AnimatorListener listener = listeners.get(i);
+                if (listener instanceof AnimatorPauseListenerCompat) {
+                    ((AnimatorPauseListenerCompat) listener).onAnimationPause(animator);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void resume(@NonNull Animator animator) {
+        final ArrayList<Animator.AnimatorListener> listeners = animator.getListeners();
+        if (listeners != null) {
+            for (int i = 0, size = listeners.size(); i < size; i++) {
+                final Animator.AnimatorListener listener = listeners.get(i);
+                if (listener instanceof AnimatorPauseListenerCompat) {
+                    ((AnimatorPauseListenerCompat) listener).onAnimationResume(animator);
+                }
+            }
+        }
+    }
+
+    /**
+     * Listeners can implement this interface in addition to the platform AnimatorPauseListener to
+     * make them compatible with API level 18 and below. Animators will not be paused or resumed,
+     * but the callbacks here are invoked.
+     */
+    interface AnimatorPauseListenerCompat {
+
+        void onAnimationPause(Animator animation);
+
+        void onAnimationResume(Animator animation);
+
     }
 
 }
