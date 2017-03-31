@@ -166,22 +166,27 @@ public class TransitionManager {
     private static void changeScene(Scene scene, Transition transition) {
         final ViewGroup sceneRoot = scene.getSceneRoot();
 
-        Transition transitionClone = null;
-        if (transition != null) {
-            transitionClone = transition.clone();
-            transitionClone.setSceneRoot(sceneRoot);
+        if (!sPendingTransitions.contains(sRunningTransitions)) {
+            if (transition == null) {
+                scene.enter();
+            } else {
+                sPendingTransitions.add(sceneRoot);
+
+                Transition transitionClone = transition.clone();
+                transitionClone.setSceneRoot(sceneRoot);
+
+                Scene oldScene = Scene.getCurrentScene(sceneRoot);
+                if (oldScene != null && oldScene.isCreatedFromLayoutResource()) {
+                    transitionClone.setCanRemoveViews(true);
+                }
+
+                sceneChangeSetup(sceneRoot, transitionClone);
+
+                scene.enter();
+
+                sceneChangeRunTransition(sceneRoot, transitionClone);
+            }
         }
-
-        Scene oldScene = Scene.getCurrentScene(sceneRoot);
-        if (oldScene != null && oldScene.isCreatedFromLayoutResource()) {
-            transitionClone.setCanRemoveViews(true);
-        }
-
-        sceneChangeSetup(sceneRoot, transitionClone);
-
-        scene.enter();
-
-        sceneChangeRunTransition(sceneRoot, transitionClone);
     }
 
     static ArrayMap<ViewGroup, ArrayList<Transition>> getRunningTransitions() {
@@ -250,7 +255,12 @@ public class TransitionManager {
         @Override
         public boolean onPreDraw() {
             removeListeners();
-            sPendingTransitions.remove(mSceneRoot);
+
+            // Don't start the transition if it's no longer pending.
+            if (!sPendingTransitions.remove(mSceneRoot)) {
+                return true;
+            }
+
             // Add to running list, handle end to remove it
             final ArrayMap<ViewGroup, ArrayList<Transition>> runningTransitions =
                     getRunningTransitions();
