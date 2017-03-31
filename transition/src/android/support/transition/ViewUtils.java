@@ -21,11 +21,8 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
-import android.util.Log;
 import android.util.Property;
 import android.view.View;
-
-import java.lang.reflect.Field;
 
 /**
  * Compatibility utilities for platform features of {@link View}.
@@ -33,11 +30,6 @@ import java.lang.reflect.Field;
 class ViewUtils {
 
     private static final ViewUtilsImpl IMPL;
-    private static final String TAG = "ViewUtils";
-
-    private static Field sViewFlagsField;
-    private static boolean sViewFlagsFieldFetched;
-    private static final int VISIBILITY_MASK = 0x0000000C;
 
     static {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -107,31 +99,6 @@ class ViewUtils {
     }
 
     /**
-     * Copy of a hidden platform method, View#setTransitionVisibility.
-     *
-     * <p>Change the visibility of the View without triggering any other changes. This is
-     * important for transitions, where visibility changes should not adjust focus or
-     * trigger a new layout. This is only used when the visibility has already been changed
-     * and we need a transient value during an animation. When the animation completes,
-     * the original visibility value is always restored.</p>
-     *
-     * @param view       The target view.
-     * @param visibility One of {@link View#VISIBLE}, {@link View#INVISIBLE}, or
-     *                   {@link View#GONE}.
-     */
-    static void setTransitionVisibility(@NonNull View view, int visibility) {
-        fetchViewFlagsField();
-        if (sViewFlagsField != null) {
-            try {
-                int viewFlags = sViewFlagsField.getInt(view);
-                sViewFlagsField.setInt(view, (viewFlags & ~VISIBILITY_MASK) | visibility);
-            } catch (IllegalAccessException e) {
-                // Do nothing
-            }
-        }
-    }
-
-    /**
      * Modifies the input matrix such that it maps view-local coordinates to
      * on-screen coordinates.
      *
@@ -171,18 +138,6 @@ class ViewUtils {
      */
     static void setAnimationMatrix(@NonNull View v, @NonNull Matrix m) {
         IMPL.setAnimationMatrix(v, m);
-    }
-
-    private static void fetchViewFlagsField() {
-        if (!sViewFlagsFieldFetched) {
-            try {
-                sViewFlagsField = View.class.getDeclaredField("mViewFlags");
-                sViewFlagsField.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                Log.i(TAG, "fetchViewFlagsField: ");
-            }
-            sViewFlagsFieldFetched = true;
-        }
     }
 
 }

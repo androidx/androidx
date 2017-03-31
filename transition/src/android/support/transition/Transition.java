@@ -1721,7 +1721,7 @@ public abstract class Transition implements Cloneable {
                 AnimationInfo info = runningAnimators.valueAt(i);
                 if (info.mView != null && windowId.equals(info.mWindowId)) {
                     Animator anim = runningAnimators.keyAt(i);
-                    AnimatorUtils.pause(anim);
+                    anim.cancel(); // pause() is API Level 19
                 }
             }
             if (mListeners != null && mListeners.size() > 0) {
@@ -1754,7 +1754,7 @@ public abstract class Transition implements Cloneable {
                     AnimationInfo info = runningAnimators.valueAt(i);
                     if (info.mView != null && windowId.equals(info.mWindowId)) {
                         Animator anim = runningAnimators.keyAt(i);
-                        AnimatorUtils.resume(anim);
+                        anim.end(); // resume() is API Level 19
                     }
                 }
                 if (mListeners != null && mListeners.size() > 0) {
@@ -1787,8 +1787,7 @@ public abstract class Transition implements Cloneable {
             Animator anim = runningAnimators.keyAt(i);
             if (anim != null) {
                 AnimationInfo oldInfo = runningAnimators.get(anim);
-                if (oldInfo != null && oldInfo.mView != null
-                        && windowId.equals(oldInfo.mWindowId)) {
+                if (oldInfo != null && oldInfo.mView != null && oldInfo.mWindowId == windowId) {
                     TransitionValues oldValues = oldInfo.mValues;
                     View oldView = oldInfo.mView;
                     TransitionValues startValues = getTransitionValues(oldView, true);
@@ -2179,8 +2178,6 @@ public abstract class Transition implements Cloneable {
             clone.mAnimators = new ArrayList<>();
             clone.mStartValues = new TransitionValuesMaps();
             clone.mEndValues = new TransitionValuesMaps();
-            clone.mStartValuesList = null;
-            clone.mEndValuesList = null;
             return clone;
         } catch (CloneNotSupportedException e) {
             return null;

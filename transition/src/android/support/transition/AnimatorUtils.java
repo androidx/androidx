@@ -38,12 +38,4 @@ class AnimatorUtils {
         IMPL.addPauseListener(animator, listener);
     }
 
-    static void pause(@NonNull Animator animator) {
-        IMPL.pause(animator);
-    }
-
-    static void resume(@NonNull Animator animator) {
-        IMPL.resume(animator);
-    }
-
 }
