@@ -61,20 +61,20 @@ public abstract class BasePreviewProgram extends BaseProgram {
     private final int mDurationMillis;
     private final Uri mIntentUri;
     private final int mTransient;
-    private final String mType;
-    private final String mPosterArtAspectRatio;
-    private final String mThumbnailAspectRatio;
+    private final int mType;
+    private final int mPosterArtAspectRatio;
+    private final int mThumbnailAspectRatio;
     private final Uri mLogoUri;
-    private final String mAvailability;
+    private final int mAvailability;
     private final String mStartingPrice;
     private final String mOfferPrice;
     private final String mReleaseDate;
     private final int mItemCount;
     private final int mLive;
-    private final String mInteractionType;
+    private final int mInteractionType;
     private final long mInteractionCount;
     private final String mAuthor;
-    private final String mReviewRatingStyle;
+    private final int mReviewRatingStyle;
     private final String mReviewRating;
     private final int mBrowsable;
     private final String mContentId;
@@ -162,7 +162,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
     /**
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_TYPE} for the program.
      */
-    public @Type String getType() {
+    public @Type int getType() {
         return mType;
     }
 
@@ -170,7 +170,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_POSTER_ART_ASPECT_RATIO} for the
      * program.
      */
-    public @AspectRatio String getPosterArtAspectRatio() {
+    public @AspectRatio int getPosterArtAspectRatio() {
         return mPosterArtAspectRatio;
     }
 
@@ -178,7 +178,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_THUMBNAIL_ASPECT_RATIO} for the
      * program.
      */
-    public @AspectRatio String getThumbnailAspectRatio() {
+    public @AspectRatio int getThumbnailAspectRatio() {
         return mThumbnailAspectRatio;
     }
 
@@ -192,7 +192,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
     /**
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_AVAILABILITY} for the program.
      */
-    public @Availability String getAvailability() {
+    public @Availability int getAvailability() {
         return mAvailability;
     }
 
@@ -235,7 +235,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTERACTION_TYPE} for the
      * program.
      */
-    public @InteractionType String getInteractionType() {
+    public @InteractionType int getInteractionType() {
         return mInteractionType;
     }
 
@@ -258,7 +258,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * @return The value of {@link BasePreviewProgramColumns#COLUMN_REVIEW_RATING_STYLE} for the
      * program.
      */
-    public @ReviewRatingStyle String getReviewRatingStyle() {
+    public @ReviewRatingStyle int getReviewRatingStyle() {
         return mReviewRatingStyle;
     }
 
@@ -359,21 +359,21 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if (mTransient != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_TRANSIENT, mTransient);
             }
-            if (!TextUtils.isEmpty(mType)) {
+            if (mType != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_TYPE, mType);
             }
-            if (!TextUtils.isEmpty(mPosterArtAspectRatio)) {
+            if (mPosterArtAspectRatio != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO,
                         mPosterArtAspectRatio);
             }
-            if (!TextUtils.isEmpty(mThumbnailAspectRatio)) {
+            if (mThumbnailAspectRatio != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO,
                         mThumbnailAspectRatio);
             }
             if (mLogoUri != null) {
                 values.put(BasePreviewProgramColumns.COLUMN_LOGO_URI, mLogoUri.toString());
             }
-            if (!TextUtils.isEmpty(mAvailability)) {
+            if (mAvailability != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_AVAILABILITY, mAvailability);
             }
             if (!TextUtils.isEmpty(mStartingPrice)) {
@@ -391,7 +391,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if (mLive != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_LIVE, mLive);
             }
-            if (!TextUtils.isEmpty(mInteractionType)) {
+            if (mInteractionType != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_INTERACTION_TYPE, mInteractionType);
             }
             if (mInteractionCount != INVALID_LONG_VALUE) {
@@ -400,7 +400,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if (!TextUtils.isEmpty(mAuthor)) {
                 values.put(BasePreviewProgramColumns.COLUMN_AUTHOR, mAuthor);
             }
-            if (!TextUtils.isEmpty(mReviewRatingStyle)) {
+            if (mReviewRatingStyle != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE,
                         mReviewRatingStyle);
             }
@@ -463,17 +463,17 @@ public abstract class BasePreviewProgram extends BaseProgram {
             }
             if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_TYPE)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setType(cursor.getString(index));
+                builder.setType(cursor.getInt(index));
             }
             if ((index = cursor.getColumnIndex(
                     BasePreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setPosterArtAspectRatio(cursor.getString(index));
+                builder.setPosterArtAspectRatio(cursor.getInt(index));
             }
             if ((index = cursor.getColumnIndex(
                     BasePreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setThumbnailAspectRatio(cursor.getString(index));
+                builder.setThumbnailAspectRatio(cursor.getInt(index));
             }
             if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_LOGO_URI)) >= 0
                     && !cursor.isNull(index)) {
@@ -481,7 +481,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             }
             if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_AVAILABILITY)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setAvailability(cursor.getString(index));
+                builder.setAvailability(cursor.getInt(index));
             }
             if ((index =
                     cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_STARTING_PRICE)) >= 0
@@ -507,7 +507,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if ((index =
                     cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_INTERACTION_TYPE)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setInteractionType(cursor.getString(index));
+                builder.setInteractionType(cursor.getInt(index));
             }
             if ((index =
                     cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_INTERACTION_COUNT)) >= 0
@@ -521,7 +521,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if ((index = cursor.getColumnIndex(
                     BasePreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setReviewRatingStyle(cursor.getString(index));
+                builder.setReviewRatingStyle(cursor.getInt(index));
             }
             if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_REVIEW_RATING)) >= 0
                     && !cursor.isNull(index)) {
@@ -581,20 +581,20 @@ public abstract class BasePreviewProgram extends BaseProgram {
         private int mDurationMillis = INVALID_INT_VALUE;
         private Uri mIntentUri;
         private int mTransient = INVALID_INT_VALUE;
-        private String mType;
-        private String mPosterArtAspectRatio;
-        private String mThumbnailAspectRatio;
+        private int mType = INVALID_INT_VALUE;
+        private int mPosterArtAspectRatio = INVALID_INT_VALUE;
+        private int mThumbnailAspectRatio = INVALID_INT_VALUE;
         private Uri mLogoUri;
-        private String mAvailability;
+        private int mAvailability = INVALID_INT_VALUE;
         private String mStartingPrice;
         private String mOfferPrice;
         private String mReleaseDate;
         private int mItemCount = INVALID_INT_VALUE;
         private int mLive = INVALID_INT_VALUE;
-        private String mInteractionType;
+        private int mInteractionType = INVALID_INT_VALUE;
         private long mInteractionCount = INVALID_LONG_VALUE;
         private String mAuthor;
-        private String mReviewRatingStyle;
+        private int mReviewRatingStyle = INVALID_INT_VALUE;
         private String mReviewRating;
         private int mBrowsable = INVALID_INT_VALUE;
         private String mContentId;
@@ -741,7 +741,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * @param type The value of {@link BasePreviewProgramColumns#COLUMN_TYPE} for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setType(@Type String type) {
+        public T setType(@Type int type) {
             mType = type;
             return (T) this;
         }
@@ -760,7 +760,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *              program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setPosterArtAspectRatio(@AspectRatio String ratio) {
+        public T setPosterArtAspectRatio(@AspectRatio int ratio) {
             mPosterArtAspectRatio = ratio;
             return (T) this;
         }
@@ -778,7 +778,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *              for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setThumbnailAspectRatio(@AspectRatio String ratio) {
+        public T setThumbnailAspectRatio(@AspectRatio int ratio) {
             mThumbnailAspectRatio = ratio;
             return (T) this;
         }
@@ -807,7 +807,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *                     for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setAvailability(@Availability String availability) {
+        public T setAvailability(@Availability int availability) {
             mAvailability = availability;
             return (T) this;
         }
@@ -901,7 +901,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *                        for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setInteractionType(@InteractionType String interactionType) {
+        public T setInteractionType(@InteractionType int interactionType) {
             mInteractionType = interactionType;
             return (T) this;
         }
@@ -944,7 +944,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *                          the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setReviewRatingStyle(@ReviewRatingStyle String reviewRatingStyle) {
+        public T setReviewRatingStyle(@ReviewRatingStyle int reviewRatingStyle) {
             mReviewRatingStyle = reviewRatingStyle;
             return (T) this;
         }
