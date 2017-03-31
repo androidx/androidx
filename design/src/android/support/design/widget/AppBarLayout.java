@@ -33,6 +33,7 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
+import android.support.v4.math.MathUtils;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -1015,7 +1016,7 @@ public class AppBarLayout extends LinearLayout {
                             ? snapBottom
                             : snapTop;
                     animateOffsetTo(coordinatorLayout, abl,
-                            MathUtils.constrain(newOffset, -abl.getTotalScrollRange(), 0), 0);
+                            MathUtils.clamp(newOffset, -abl.getTotalScrollRange(), 0), 0);
                 }
             }
         }
@@ -1089,7 +1090,7 @@ public class AppBarLayout extends LinearLayout {
             // We may have changed size, so let's constrain the top and bottom offset correctly,
             // just in case we're out of the bounds
             setTopAndBottomOffset(
-                    MathUtils.constrain(getTopAndBottomOffset(), -abl.getTotalScrollRange(), 0));
+                    MathUtils.clamp(getTopAndBottomOffset(), -abl.getTotalScrollRange(), 0));
 
             // Update the AppBarLayout's drawable state for any elevation changes.
             // This is needed so that the elevation is set in the first layout, so that
@@ -1146,7 +1147,7 @@ public class AppBarLayout extends LinearLayout {
             if (minOffset != 0 && curOffset >= minOffset && curOffset <= maxOffset) {
                 // If we have some scrolling range, and we're currently within the min and max
                 // offsets, calculate a new offset
-                newOffset = MathUtils.constrain(newOffset, minOffset, maxOffset);
+                newOffset = MathUtils.clamp(newOffset, minOffset, maxOffset);
                 if (curOffset != newOffset) {
                     final int interpolatedOffset = appBarLayout.hasChildWithInterpolator()
                             ? interpolateOffset(appBarLayout, newOffset)
