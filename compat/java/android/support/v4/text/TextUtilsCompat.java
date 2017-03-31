@@ -30,7 +30,8 @@ import java.util.Locale;
  */
 public final class TextUtilsCompat {
     /**
-     * @deprecated This was never meant to be public.
+     * @deprecated This was never meant to be public. You can create your own empty {@code Locale}
+     * by calling the constructor with empty strings.
      */
     @Deprecated
     public static final Locale ROOT = new Locale("", "");
@@ -40,6 +41,7 @@ public final class TextUtilsCompat {
 
     /**
      * Html-encode the string.
+     *
      * @param s the string to be encoded
      * @return the encoded string
      */
@@ -82,14 +84,12 @@ public final class TextUtilsCompat {
     }
 
     /**
-     * Return the layout direction for a given Locale
+     * Returns the layout direction for a given Locale
      *
-     * @param locale the Locale for which we want the layout direction. Can be null.
-     * @return the layout direction. This may be one of:
-     * {@link ViewCompat#LAYOUT_DIRECTION_LTR} or
-     * {@link ViewCompat#LAYOUT_DIRECTION_RTL}.
-     *
-     * Be careful: this code will need to be updated when vertical scripts will be supported
+     * @param locale the {@link Locale} for which we want the layout direction, maybe be
+     *               {@code null}.
+     * @return the layout direction, either {@link ViewCompat#LAYOUT_DIRECTION_LTR} or
+     *         {@link ViewCompat#LAYOUT_DIRECTION_RTL}.
      */
     public static int getLayoutDirectionFromLocale(@Nullable Locale locale) {
         if (SDK_INT >= 17) {
@@ -115,12 +115,10 @@ public final class TextUtilsCompat {
      * localized locale name. This will not work if the localized locale name is in English
      * (this is the case for ICU 4.4 and "Urdu" script)
      *
-     * @param locale
-     * @return the layout direction. This may be one of:
-     * {@link ViewCompat#LAYOUT_DIRECTION_LTR} or
-     * {@link ViewCompat#LAYOUT_DIRECTION_RTL}.
-     *
-     * Be careful: this code will need to be updated when vertical scripts will be supported
+     * @param locale the {@link Locale} for which we want the layout direction, maybe be
+     *               {@code null}.
+     * @return the layout direction, either {@link ViewCompat#LAYOUT_DIRECTION_LTR} or
+     *         {@link ViewCompat#LAYOUT_DIRECTION_RTL}.
      */
     private static int getLayoutDirectionFromFirstChar(@NonNull Locale locale) {
         switch(Character.getDirectionality(locale.getDisplayName(locale).charAt(0))) {
