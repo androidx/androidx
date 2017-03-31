@@ -69,4 +69,4 @@ FRAMEWORKS_SUPPORT_JAVA_LIBRARIES := \
     android-support-v7-recyclerview \
     android-support-emoji \
     android-support-emoji-appcompat \
-    android-support-emoji-typeface
+    android-support-emoji-bundled
