@@ -40,6 +40,7 @@ import android.support.test.espresso.action.Swipe;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.RecyclerView;
 import android.support.wearable.test.R;
 import android.support.wearable.view.util.WakeLockRule;
 import android.view.View;
@@ -126,6 +127,34 @@ public class WearableRecyclerViewTest {
                 assertNotNull("child", child);
                 assertEquals(0, child.getTop());
 
+            }
+        });
+    }
+
+    @Test
+    public void testEdgeItemsCenteringBeforeChildrenDrawn() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Activity activity = mActivityRule.getActivity();
+                WearableRecyclerView wrv = (WearableRecyclerView) activity.findViewById(R.id.wrv);
+                RecyclerView.Adapter<WearableRecyclerView.ViewHolder> adapter = wrv.getAdapter();
+                wrv.setAdapter(null);
+                wrv.setEdgeItemsCenteringEnabled(true);
+                wrv.setAdapter(adapter);
+            }
+        });
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                WearableRecyclerView wrv =
+                        (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
+                // Verify the first child
+                View child = wrv.getChildAt(0);
+                assertNotNull("child", child);
+                assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
             }
         });
     }
