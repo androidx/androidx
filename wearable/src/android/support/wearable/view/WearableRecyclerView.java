@@ -28,6 +28,7 @@ import android.support.wearable.R;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 /**
  * Wearable specific implementation of the {@link RecyclerView} enabling {@link
@@ -44,9 +45,23 @@ public class WearableRecyclerView extends RecyclerView {
     private final ScrollManager mScrollManager = new ScrollManager();
     private boolean mCircularScrollingEnabled;
     private boolean mEdgeItemsCenteringEnabled;
+    private boolean mCenterEdgeItemsWhenThereAreChildren;
 
     private int mOriginalPaddingTop = NO_VALUE;
     private int mOriginalPaddingBottom = NO_VALUE;
+
+    /** Pre-draw listener which is used to adjust the padding on this view before its first draw. */
+    private final ViewTreeObserver.OnPreDrawListener mPaddingPreDrawListener =
+            new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    if (mCenterEdgeItemsWhenThereAreChildren && getChildCount() > 0) {
+                        setupCenteredPadding();
+                        mCenterEdgeItemsWhenThereAreChildren = false;
+                    }
+                    return true;
+                }
+            };
 
     public WearableRecyclerView(Context context) {
         this(context, null);
@@ -138,12 +153,14 @@ public class WearableRecyclerView extends RecyclerView {
         Point screenSize = new Point();
         getDisplay().getSize(screenSize);
         mScrollManager.setRecyclerView(this, screenSize.x, screenSize.y);
+        getViewTreeObserver().addOnPreDrawListener(mPaddingPreDrawListener);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mScrollManager.clearRecyclerView();
+        getViewTreeObserver().removeOnPreDrawListener(mPaddingPreDrawListener);
     }
 
     /**
@@ -224,9 +241,14 @@ public class WearableRecyclerView extends RecyclerView {
     public void setEdgeItemsCenteringEnabled(boolean isEnabled) {
         mEdgeItemsCenteringEnabled = isEnabled;
         if (mEdgeItemsCenteringEnabled) {
-            setupCenteredPadding();
+            if (getChildCount() > 0) {
+                setupCenteredPadding();
+            } else {
+                mCenterEdgeItemsWhenThereAreChildren = true;
+            }
         } else {
             setupOriginalPadding();
+            mCenterEdgeItemsWhenThereAreChildren = false;
         }
     }
 
