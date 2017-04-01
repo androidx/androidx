@@ -489,17 +489,17 @@ public class AppCompatTextViewAutoSizeTest extends
                 (AppCompatTextView) getActivity().findViewById(
                         R.id.textview_autosize_uniform_predef_sizes);
 
-        // In arrays.xml predefined the step sizes as: 10px, 11dip, 12sp, 13pt, 14mm and 15in.
+        // In arrays.xml predefined the step sizes as: 5px, 11dip, 19sp, 29pt, 43mm and 53in.
         // TypedValue can not use the math library and instead rounds the value by adding
         // 0.5f when obtaining styled attributes. Check TypedValue#complexToDimensionPixelSize(...)
         // These values are valid, sorted and distinct.
         int[] expectedSizesInPx = new int[] {
-                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 10f, m)),
+                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 5f, m)),
                 (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 11f, m)),
-                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, m)),
-                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PT, 13f, m)),
-                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 14f, m)),
-                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_IN, 15f, m))};
+                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 19f, m)),
+                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PT, 29f, m)),
+                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 43f, m)),
+                (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_IN, 53f, m))};
 
         assertArrayEquals(expectedSizesInPx,
                 autoSizeTextViewUniform.getAutoSizeTextAvailableSizes());
