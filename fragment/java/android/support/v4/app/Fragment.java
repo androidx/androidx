@@ -2262,6 +2262,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    void noteStateNotSaved() {
+        if (mChildFragmentManager != null) {
+            mChildFragmentManager.noteStateNotSaved();
+        }
+    }
+
     void performMultiWindowModeChanged(boolean isInMultiWindowMode) {
         onMultiWindowModeChanged(isInMultiWindowMode);
         if (mChildFragmentManager != null) {
