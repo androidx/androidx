@@ -17,12 +17,12 @@
 
 <resources>
     <array name="auto_size_predefined_sizes">
-        <item>10px</item>
+        <item>5px</item>
         <item>11dip</item>
-        <item>12sp</item>
-        <item>13pt</item>
-        <item>14mm</item>
-        <item>15in</item>
+        <item>19sp</item>
+        <item>29pt</item>
+        <item>43mm</item>
+        <item>53in</item>
     </array>
 
     <array name="auto_size_predefined_sizes_redundant_values">
