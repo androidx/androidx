@@ -16,20 +16,31 @@
 
 package com.android.support.lifecycle;
 
+import android.app.Activity;
+import android.app.Application.ActivityLifecycleCallbacks;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.FragmentLifecycleCallbacks;
+import android.util.Log;
 
 import com.android.support.lifecycle.state.SavedStateProvider;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HolderFragment extends Fragment {
+    private static final String LOG_TAG = "ViewModelStores";
+
+    private static final HolderFragmentManager sHolderFragmentManager = new HolderFragmentManager();
+
     /**
      * @hide
      */
@@ -48,6 +59,7 @@ public class HolderFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSavedStateProvider.restoreState(savedInstanceState);
+        sHolderFragmentManager.holderFragmentCreated(this);
     }
 
     @Override
@@ -70,27 +82,12 @@ public class HolderFragment extends Fragment {
         return mViewModelStore;
     }
 
-    private static HolderFragment holderFragmentFor(FragmentManager manager) {
-        Fragment fragmentByTag = manager.findFragmentByTag(HOLDER_TAG);
-        if (fragmentByTag != null && !(fragmentByTag instanceof HolderFragment)) {
-            throw new IllegalStateException("Unexpected "
-                    + "fragment instance was returned by HOLDER_TAG");
-        }
-
-        HolderFragment holder = (HolderFragment) fragmentByTag;
-        if (holder == null) {
-            holder = new HolderFragment();
-            manager.beginTransaction().add(holder, HOLDER_TAG).commitNowAllowingStateLoss();
-        }
-        return holder;
-    }
-
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static HolderFragment holderFragmentFor(FragmentActivity activity) {
-        return holderFragmentFor(activity.getSupportFragmentManager());
+        return sHolderFragmentManager.holderFragmentFor(activity);
     }
 
     /**
@@ -98,6 +95,104 @@ public class HolderFragment extends Fragment {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static HolderFragment holderFragmentFor(Fragment fragment) {
-        return holderFragmentFor(fragment.getChildFragmentManager());
+        return sHolderFragmentManager.holderFragmentFor(fragment);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    static class HolderFragmentManager {
+        private Map<Activity, HolderFragment> mNotCommittedActivityHolders = new HashMap<>();
+        private Map<Fragment, HolderFragment> mNotCommittedFragmentHolders = new HashMap<>();
+
+        private ActivityLifecycleCallbacks mActivityCallbacks =
+                new EmptyActivityLifecycleCallbacks() {
+                    @Override
+                    public void onActivityDestroyed(Activity activity) {
+                        HolderFragment fragment = mNotCommittedActivityHolders.remove(activity);
+                        if (fragment != null) {
+                            Log.e(LOG_TAG, "Failed to save a ViewModel for " + activity);
+                        }
+                    }
+                };
+
+        private boolean mActivityCallbacksIsAdded = false;
+
+        private FragmentLifecycleCallbacks mFragmentsCallbacks = new FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentDestroyed(FragmentManager fm, Fragment f) {
+                super.onFragmentDestroyed(fm, f);
+                HolderFragment fragment = mNotCommittedFragmentHolders.remove(f);
+                if (fragment != null) {
+                    Log.e(LOG_TAG, "Failed to save a ViewModel for " + f);
+                }
+            }
+        };
+
+        void holderFragmentCreated(Fragment fragment) {
+            Fragment parentFragment = fragment.getParentFragment();
+            if (parentFragment != null) {
+                mNotCommittedFragmentHolders.remove(fragment);
+                fragment.getFragmentManager().unregisterFragmentLifecycleCallbacks(
+                        mFragmentsCallbacks);
+            } else {
+                mNotCommittedActivityHolders.remove(fragment.getActivity());
+            }
+        }
+
+        private static HolderFragment findHolderFragment(FragmentManager manager) {
+            if (manager.isDestroyed()) {
+                throw new IllegalStateException("Can't access ViewModels from onDestroy");
+            }
+
+            Fragment fragmentByTag = manager.findFragmentByTag(HOLDER_TAG);
+            if (fragmentByTag != null && !(fragmentByTag instanceof HolderFragment)) {
+                throw new IllegalStateException("Unexpected "
+                        + "fragment instance was returned by HOLDER_TAG");
+            }
+            return (HolderFragment) fragmentByTag;
+        }
+
+        private static HolderFragment createHolderFragment(FragmentManager fragmentManager) {
+            HolderFragment holder = new HolderFragment();
+            fragmentManager.beginTransaction().add(holder, HOLDER_TAG).commitAllowingStateLoss();
+            return holder;
+        }
+
+        HolderFragment holderFragmentFor(FragmentActivity activity) {
+            FragmentManager fm = activity.getSupportFragmentManager();
+            HolderFragment holder = findHolderFragment(fm);
+            if (holder != null) {
+                return holder;
+            }
+            holder = mNotCommittedActivityHolders.get(activity);
+            if (holder != null) {
+                return holder;
+            }
+
+            if (!mActivityCallbacksIsAdded) {
+                mActivityCallbacksIsAdded = true;
+                activity.getApplication().registerActivityLifecycleCallbacks(mActivityCallbacks);
+            }
+            holder = createHolderFragment(fm);
+            mNotCommittedActivityHolders.put(activity, holder);
+            return holder;
+        }
+
+        HolderFragment holderFragmentFor(Fragment fragment) {
+            FragmentManager fm = fragment.getChildFragmentManager();
+            HolderFragment holder = findHolderFragment(fm);
+            if (holder != null) {
+                return holder;
+            }
+            holder = mNotCommittedFragmentHolders.get(fragment);
+            if (holder != null) {
+                return holder;
+            }
+
+            fragment.getFragmentManager().registerFragmentLifecycleCallbacks(mFragmentsCallbacks,
+                    false);
+            holder = createHolderFragment(fm);
+            mNotCommittedFragmentHolders.put(fragment, holder);
+            return holder;
+        }
     }
 }

@@ -61,7 +61,7 @@ class LifecycleDispatcher {
 
     @SuppressWarnings("WeakerAccess")
     @VisibleForTesting
-    static class DispatcherActivityCallback implements Application.ActivityLifecycleCallbacks {
+    static class DispatcherActivityCallback extends EmptyActivityLifecycleCallbacks {
         private final FragmentCallback mFragmentCallback;
 
         DispatcherActivityCallback() {
@@ -85,18 +85,6 @@ class LifecycleDispatcher {
         }
 
         @Override
-        public void onActivityStarted(Activity activity) {
-        }
-
-        @Override
-        public void onActivityResumed(Activity activity) {
-        }
-
-        @Override
-        public void onActivityPaused(Activity activity) {
-        }
-
-        @Override
         public void onActivityStopped(Activity activity) {
             if (activity instanceof FragmentActivity) {
                 markState((FragmentActivity) activity, Lifecycle.STOPPED);
@@ -108,10 +96,6 @@ class LifecycleDispatcher {
             if (activity instanceof FragmentActivity) {
                 markState((FragmentActivity) activity, Lifecycle.STOPPED);
             }
-        }
-
-        @Override
-        public void onActivityDestroyed(Activity activity) {
         }
     }
 

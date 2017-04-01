@@ -154,18 +154,10 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         mHandler = new Handler();
         mRegistry.handleLifecycleEvent(Lifecycle.ON_CREATE);
         Application app = (Application) context.getApplicationContext();
-        app.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+        app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
                 LifecycleDispatcher.get(activity).setProcessListener(mInitializationListener);
-            }
-
-            @Override
-            public void onActivityStarted(Activity activity) {
-            }
-
-            @Override
-            public void onActivityResumed(Activity activity) {
             }
 
             @Override
@@ -176,14 +168,6 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
             @Override
             public void onActivityStopped(Activity activity) {
                 activityStopped();
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-            }
-
-            @Override
-            public void onActivityDestroyed(Activity activity) {
             }
         });
     }

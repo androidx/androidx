@@ -22,6 +22,7 @@
         <activity android:name="com.android.support.lifecycle.viewmodeltest.ViewModelActivity"
                   android:theme="@style/Base.Theme.AppCompat">
         </activity>
+        <activity android:name="com.android.support.lifecycle.EmptyActivity"/>
     </application>
 
 </manifest>
