@@ -4780,7 +4780,6 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public abstract int getBackStackEntryCount();
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
-    method public abstract java.util.Collection<android.support.v4.app.Fragment> getFragments();
     method public abstract boolean isDestroyed();
     method public abstract void popBackStack();
     method public abstract void popBackStack(java.lang.String, int);

@@ -335,8 +335,17 @@ public abstract class FragmentManager {
      * are detached or removed.
      *
      * @return A collection of all fragments that are added to the FragmentManager.
+     * @hide
      */
-    public abstract Collection<Fragment> getFragments();
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract List<Fragment> getFragments();
+
+    /**
+     * This is here temporarily while migrating applications. DO NOT USE.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public abstract Collection<Fragment> getAddedFragments();
 
     /**
      * Save the current instance state of the given Fragment.  This can be
@@ -886,7 +895,22 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public Collection<Fragment> getFragments() {
+    public List<Fragment> getFragments() {
+        if (mActive == null) {
+            return null;
+        }
+        ArrayList<Fragment> fragments = new ArrayList<>(mActive.size());
+        for (int i = 0; i < mActive.size(); i++) {
+            Fragment fragment = mActive.valueAt(i);
+            if (fragment != null) {
+                fragments.add(fragment);
+            }
+        }
+        return fragments;
+    }
+
+    @Override
+    public Collection<Fragment> getAddedFragments() {
         if (mAdded == null) {
             return Collections.EMPTY_LIST;
         }
