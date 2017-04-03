@@ -19,7 +19,6 @@ import static android.support.text.emoji.util.Emoji.EMOJI_SINGLE_CODEPOINT;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmoji;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
 
-import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -57,11 +56,6 @@ public class ConfigTest {
         new TestConfigBuilder.TestConfig(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testMaxEmojiPerText_throwsExceptionIfNegative() {
-        new ValidTestConfig().setMaxEmojiPerText(-1);
-    }
-
     @Test(expected = NullPointerException.class)
     public void testInitCallback_throwsExceptionIfNull() {
         new ValidTestConfig().registerInitCallback(null);
@@ -80,31 +74,6 @@ public class ConfigTest {
 
         final CharSequence processed = emojiCompat.process(new TestString(EMOJI_SINGLE_CODEPOINT)
                 .toString());
-        assertThat(processed, hasEmojiCount(1));
-        assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
-    }
-
-    @Test
-    public void testBuild_withMaxEmojiSetToZero() {
-        final EmojiCompat.Config config = new ValidTestConfig().setReplaceAll(true)
-                .setMaxEmojiPerText(0);
-
-        final EmojiCompat emojiCompat = EmojiCompat.reset(config);
-        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
-        final CharSequence processed = emojiCompat.process(original);
-
-        assertThat(processed, not(hasEmoji()));
-    }
-
-    @Test
-    public void testBuild_withMaxEmojiSetToOne() {
-        final EmojiCompat.Config config = new ValidTestConfig().setReplaceAll(true)
-                .setMaxEmojiPerText(1);
-
-        final EmojiCompat emojiCompat = EmojiCompat.reset(config);
-        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
-        final CharSequence processed = emojiCompat.process(original);
-
         assertThat(processed, hasEmojiCount(1));
         assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
     }
