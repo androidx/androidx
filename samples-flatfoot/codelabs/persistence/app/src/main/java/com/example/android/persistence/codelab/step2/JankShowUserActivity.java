@@ -22,7 +22,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.android.support.lifecycle.LifecycleActivity;
-import com.example.android.toolkitcodelab.R;
+import com.example.android.codelabs.persistence.R;
 import com.example.android.persistence.codelab.orm_db.AppDatabase;
 import com.example.android.persistence.codelab.orm_db.Book;
 import com.example.android.persistence.codelab.orm_db.utils.DatabaseInitializer;

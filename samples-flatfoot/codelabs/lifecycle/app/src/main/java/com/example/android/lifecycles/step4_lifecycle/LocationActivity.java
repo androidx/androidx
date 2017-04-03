@@ -27,7 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.support.lifecycle.LifecycleActivity;
-import com.example.android.toolkitcodelab.R;
+import com.example.android.codelabs.lifecycle.R;
 
 public class LocationActivity extends LifecycleActivity {
 

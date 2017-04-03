@@ -1,18 +1,23 @@
 package com.example.android.persistence.codelab.step5_solution.viewmodel;
 
-import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.ViewModel;
+import android.app.Application;
 
+import com.android.support.lifecycle.AndroidViewModel;
+import com.android.support.lifecycle.LiveData;
 import com.example.android.persistence.codelab.step5_solution.business.MyAppLogic;
 import com.example.android.persistence.codelab.step5_solution.db.MyDatabase;
 import com.example.android.persistence.codelab.step5_solution.entity.MyProduct;
 
 import java.util.List;
 
-public class ProductListViewModel extends ViewModel {
+public class ProductListViewModel extends AndroidViewModel {
+
     private LiveData<List<MyProduct>> mProducts;
-    public ProductListViewModel() {
+
+    public ProductListViewModel(Application application) {
+        super(application);
     }
+
 
     public LiveData<List<MyProduct>> getProducts() {
         if (mProducts == null) {

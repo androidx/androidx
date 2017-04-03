@@ -9,17 +9,15 @@ import android.view.ViewGroup;
 
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelStore;
-
-import com.example.android.toolkitcodelab.R;
-import com.example.android.toolkitcodelab.databinding.ProductFragmentBinding;
+import com.android.support.lifecycle.ViewModelProviders;
+import com.example.android.codelabs.persistence.R;
+import com.example.android.codelabs.persistence.databinding.ProductFragmentBinding;
 import com.example.android.persistence.codelab.step5.Comment;
 import com.example.android.persistence.codelab.step5.ui.CommentAdapter;
 import com.example.android.persistence.codelab.step5.ui.CommentClickCallback;
 import com.example.android.persistence.codelab.step5_solution.entity.MyComment;
 import com.example.android.persistence.codelab.step5_solution.entity.MyProduct;
-import com.example.android.persistence.codelab.step5_solution.viewmodel
-        .ProductViewModel;
+import com.example.android.persistence.codelab.step5_solution.viewmodel.ProductViewModel;
 
 import java.util.List;
 
@@ -47,7 +45,7 @@ public class ProductFragment extends LifecycleFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ProductViewModel model = ViewModelStore.get(this, ProductViewModel.class);
+        ProductViewModel model = ViewModelProviders.of(this).get(ProductViewModel.class);
         model.setProductId(getArguments().getInt(KEY_PRODUCT_ID));
         model.getProduct().observe(this, new Observer<MyProduct>() {
             @Override

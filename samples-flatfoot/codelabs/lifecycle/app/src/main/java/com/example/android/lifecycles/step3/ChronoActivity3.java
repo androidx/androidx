@@ -23,8 +23,8 @@ import android.widget.TextView;
 
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelStore;
-import com.example.android.toolkitcodelab.R;
+import com.android.support.lifecycle.ViewModelProviders;
+import com.example.android.codelabs.lifecycle.R;
 
 
 public class ChronoActivity3 extends LifecycleActivity {
@@ -37,8 +37,7 @@ public class ChronoActivity3 extends LifecycleActivity {
 
         setContentView(R.layout.chrono_activity_3);
 
-        chronometerViewModel
-                = ViewModelStore.get(this, "ChronometerViewModel", LiveDataTimerViewModel.class);
+        chronometerViewModel = ViewModelProviders.of(this).get(LiveDataTimerViewModel.class);
 
         subscribe();
     }

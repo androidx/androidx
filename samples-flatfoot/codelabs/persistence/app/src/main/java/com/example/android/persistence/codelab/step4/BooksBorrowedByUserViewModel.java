@@ -16,8 +16,10 @@
 
 package com.example.android.persistence.codelab.step4;
 
+import android.app.Application;
+
+import com.android.support.lifecycle.AndroidViewModel;
 import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.ViewModel;
 import com.example.android.persistence.codelab.orm_db.AppDatabase;
 import com.example.android.persistence.codelab.orm_db.Book;
 import com.example.android.persistence.codelab.orm_db.utils.DatabaseInitializer;
@@ -25,11 +27,15 @@ import com.example.android.persistence.codelab.orm_db.utils.DatabaseInitializer;
 import java.util.List;
 
 
-public class BooksBorrowedByUserViewModel extends ViewModel {
+public class BooksBorrowedByUserViewModel extends AndroidViewModel {
 
     private LiveData<List<Book>> mBooks;
 
     private AppDatabase mDb;
+
+    public BooksBorrowedByUserViewModel(Application application) {
+        super(application);
+    }
 
     public void createDb() {
         AppDatabase.destroyInstance();

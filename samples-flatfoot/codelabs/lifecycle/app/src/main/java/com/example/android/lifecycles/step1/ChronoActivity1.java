@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Chronometer;
 
-import com.example.android.toolkitcodelab.R;
+import com.example.android.codelabs.lifecycle.R;
 
 
 public class ChronoActivity1 extends AppCompatActivity {

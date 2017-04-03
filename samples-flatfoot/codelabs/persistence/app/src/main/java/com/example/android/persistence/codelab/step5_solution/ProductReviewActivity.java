@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.android.support.lifecycle.LifecycleActivity;
 
-import com.example.android.toolkitcodelab.R;
+import com.example.android.codelabs.persistence.R;
 import com.example.android.persistence.codelab.step5.Product;
 
 public class ProductReviewActivity extends LifecycleActivity {

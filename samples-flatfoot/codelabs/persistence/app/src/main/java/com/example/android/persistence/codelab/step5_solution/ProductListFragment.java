@@ -11,14 +11,12 @@ import android.view.ViewGroup;
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleFragment;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelStore;
-
+import com.android.support.lifecycle.ViewModelProviders;
 import com.example.android.persistence.codelab.step5.Product;
-import com.example.android.persistence.codelab.step5.ui.ProductClickCallback;
 import com.example.android.persistence.codelab.step5.ui.ProductAdapter;
+import com.example.android.persistence.codelab.step5.ui.ProductClickCallback;
 import com.example.android.persistence.codelab.step5_solution.entity.MyProduct;
-import com.example.android.persistence.codelab.step5_solution.viewmodel
-        .ProductListViewModel;
+import com.example.android.persistence.codelab.step5_solution.viewmodel.ProductListViewModel;
 
 import java.util.List;
 
@@ -38,7 +36,8 @@ public class ProductListFragment extends LifecycleFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ProductListViewModel viewModel = ViewModelStore.get(this, ProductListViewModel.class);
+        ProductListViewModel viewModel =
+                ViewModelProviders.of(this).get(ProductListViewModel.class);
         viewModel.getProducts().observe(this, new Observer<List<MyProduct>>() {
             @Override
             public void onChanged(@Nullable List<MyProduct> myProducts) {

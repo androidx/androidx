@@ -24,12 +24,12 @@ import android.util.Log;
 
 import com.android.support.lifecycle.Lifecycle;
 import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleProvider;
+import com.android.support.lifecycle.LifecycleRegistryOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 public class BoundLocationManager {
 
-    public static void bindLocationListenerIn(LifecycleProvider provider,
+    public static void bindLocationListenerIn(LifecycleRegistryOwner provider,
                                               LocationListener listener, Context context) {
         new BoundLocationListener(provider, listener, context);
     }
@@ -40,7 +40,7 @@ public class BoundLocationManager {
         private LocationManager mLocationManager;
         private final LocationListener mListener;
 
-        public BoundLocationListener(LifecycleProvider provider, LocationListener listener,
+        public BoundLocationListener(LifecycleRegistryOwner provider, LocationListener listener,
                                      Context context) {
             mContext = context;
             mListener = listener;

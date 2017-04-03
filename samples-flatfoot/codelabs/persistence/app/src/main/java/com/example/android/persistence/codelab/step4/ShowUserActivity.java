@@ -23,8 +23,8 @@ import android.widget.TextView;
 
 import com.android.support.lifecycle.LifecycleActivity;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelStore;
-import com.example.android.toolkitcodelab.R;
+import com.android.support.lifecycle.ViewModelProviders;
+import com.example.android.codelabs.persistence.R;
 import com.example.android.persistence.codelab.orm_db.Book;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class ShowUserActivity extends LifecycleActivity {
         setContentView(R.layout.db_activity);
         mBooksTextView = (TextView) findViewById(R.id.books_tv);
 
-        mViewModel = ViewModelStore.get(this, BooksBorrowedByUserViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(BooksBorrowedByUserViewModel.class);
 
         populateDb();
 

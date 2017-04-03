@@ -7,8 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.example.android.toolkitcodelab.R;
-import com.example.android.toolkitcodelab.databinding.ProductItemBinding;
+import com.example.android.codelabs.persistence.R;
+import com.example.android.codelabs.persistence.databinding.ProductItemBinding;
 import com.example.android.persistence.codelab.step5.Product;
 
 import java.util.List;

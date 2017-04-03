@@ -16,12 +16,12 @@
 
 package com.example.android.persistence.codelab.step4_solution;
 
+import android.app.Application;
 import android.support.annotation.NonNull;
 
+import com.android.support.lifecycle.AndroidViewModel;
 import com.android.support.lifecycle.LiveData;
 import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModel;
-
 import com.example.android.persistence.codelab.orm_db.AppDatabase;
 import com.example.android.persistence.codelab.orm_db.LoanWithUserAndBook;
 import com.example.android.persistence.codelab.orm_db.utils.DatabaseInitializer;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class ShowUserViewModel extends ViewModel {
+public class ShowUserViewModel extends AndroidViewModel {
 
     private LiveData<List<LoanWithUserAndBook>> mLoans;
 
@@ -59,6 +59,10 @@ public class ShowUserViewModel extends ViewModel {
                     mLoansResult.setValue(sb.toString());
                 }
             };
+
+    public ShowUserViewModel(Application application) {
+        super(application);
+    }
 
     public LiveData<String> getLoansResult() {
         return mLoansResult;
