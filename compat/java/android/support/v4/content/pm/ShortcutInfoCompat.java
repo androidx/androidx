@@ -20,11 +20,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Icon;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.graphics.drawable.IconCompat;
 import android.text.TextUtils;
 
 import java.util.Arrays;
@@ -45,20 +45,17 @@ public class ShortcutInfoCompat {
     private CharSequence mLongLabel;
     private CharSequence mDisabledMessage;
 
-    private Bitmap mIconBitmap;
-    private int mIconId;
+    private IconCompat mIcon;
 
     private ShortcutInfoCompat() { }
 
-    @RequiresApi(25)
+    @RequiresApi(26)
     ShortcutInfo toShortcutInfo() {
         ShortcutInfo.Builder builder = new ShortcutInfo.Builder(mContext, mId)
                 .setShortLabel(mLabel)
                 .setIntents(mIntents);
-        if (mIconId != 0) {
-            builder.setIcon(Icon.createWithResource(mContext, mIconId));
-        } else if (mIconBitmap != null) {
-            builder.setIcon(Icon.createWithBitmap(mIconBitmap));
+        if (mIcon != null) {
+            builder.setIcon(mIcon.toIcon());
         }
         if (!TextUtils.isEmpty(mLongLabel)) {
             builder.setLongLabel(mLongLabel);
@@ -75,12 +72,8 @@ public class ShortcutInfoCompat {
     Intent addToIntent(Intent outIntent) {
         outIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, mIntents[mIntents.length - 1])
                 .putExtra(Intent.EXTRA_SHORTCUT_NAME, mLabel.toString());
-        if (mIconId != 0) {
-            outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-                    Intent.ShortcutIconResource.fromContext(mContext, mIconId));
-        }
-        if (mIconBitmap != null) {
-            outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, mIconBitmap);
+        if (mIcon != null) {
+            mIcon.addToShortcutIntent(outIntent);
         }
         return outIntent;
     }
@@ -245,19 +238,28 @@ public class ShortcutInfoCompat {
 
         /**
          * Sets an icon of a shortcut.
+         * @deprecated use {@link #setIcon(IconCompat)} instead
          */
         @NonNull
         public Builder setIcon(@NonNull Bitmap icon) {
-            mInfo.mIconBitmap = icon;
-            return this;
+            return setIcon(IconCompat.createWithBitmap(icon));
+        }
+
+        /**
+         * Sets an icon of a shortcut.
+         * @deprecated use {@link #setIcon(IconCompat)} instead
+         */
+        @NonNull
+        public Builder setIcon(@DrawableRes int icon) {
+            return setIcon(IconCompat.createWithResource(mInfo.mContext, icon));
         }
 
         /**
          * Sets an icon of a shortcut.
          */
         @NonNull
-        public Builder setIcon(@DrawableRes int icon) {
-            mInfo.mIconId = icon;
+        public Builder setIcon(IconCompat icon) {
+            mInfo.mIcon = icon;
             return this;
         }
 
