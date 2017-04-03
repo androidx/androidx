@@ -25,7 +25,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 /**
- * Helper for the common pattern of implementing a {@link BroadcastReceiver}
+ * This helper is for an old pattern of implementing a {@link BroadcastReceiver}
  * that receives a device wakeup event and then passes the work off
  * to a {@link android.app.Service}, while ensuring that the
  * device does not go back to sleep during the transition.
@@ -57,7 +57,16 @@ import android.util.SparseArray;
  *
  * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulService.java
  *      complete}
+ *
+ * @deprecated As of {@link android.os.Build.VERSION_CODES#O Android O}, background check
+ * restrictions make this class no longer generally useful.  (It is generally not safe to
+ * start a service from the receipt of a broadcast, because you don't have any guarantees
+ * that your app is in the foreground at this point and thus allowed to do so.)  Instead,
+ * developers should use android.app.job.JobScheduler to schedule a job, and this
+ * does not require that the app hold a wake lock while doing so (the system will take
+ * care of holding a wake lock for the job).
  */
+@Deprecated
 public abstract class WakefulBroadcastReceiver extends BroadcastReceiver {
     private static final String EXTRA_WAKE_LOCK_ID = "android.support.content.wakelockid";
 
