@@ -24,4 +24,8 @@ interface AnimatorUtilsImpl {
 
     void addPauseListener(@NonNull Animator animator, @NonNull AnimatorListenerAdapter listener);
 
+    void pause(@NonNull Animator animator);
+
+    void resume(@NonNull Animator animator);
+
 }
