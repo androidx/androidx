@@ -339,6 +339,95 @@ public class EmojiCompatTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testProcess_throwsException_withMaxEmojiSetToNegative() {
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
+
+        final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
+                -1 /**maxEmojiCount**/);
+
+        assertThat(processed, not(hasEmoji()));
+    }
+
+    @Test
+    public void testProcess_withMaxEmojiSetToZero() {
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
+
+        final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
+                0 /**maxEmojiCount**/);
+
+        assertThat(processed, not(hasEmoji()));
+    }
+
+    @Test
+    public void testProcess_withMaxEmojiSetToOne() {
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
+
+        final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
+                1 /**maxEmojiCount**/);
+
+        assertThat(processed, hasEmojiCount(1));
+        assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
+    }
+
+    @Test
+    public void testProcess_withMaxEmojiSetToLessThenExistingSpanCount() {
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT)
+                .append(EMOJI_SINGLE_CODEPOINT)
+                .append(EMOJI_SINGLE_CODEPOINT)
+                .toString();
+
+        // add 2 spans
+        final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(), 2);
+
+        assertThat(processed, hasEmojiCount(2));
+
+        // use the Spannable with 2 spans, but use maxEmojiCount=1, start from the beginning of
+        // last (3rd) emoji
+        EmojiCompat.get().process(processed, original.length() - EMOJI_SINGLE_CODEPOINT.charCount(),
+                original.length(), 1 /**maxEmojiCount**/);
+
+        // expectation: there are still 2 emojis
+        assertThat(processed, hasEmojiCount(2));
+    }
+
+    @Test
+    public void testProcess_withMaxEmojiSet_withExistingEmojis() {
+        // test string with two emoji characters
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT)
+                .append(EMOJI_FLAG).toString();
+
+        // process and add 1 EmojiSpan, maxEmojiCount=1
+        CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
+                1 /**maxEmojiCount**/);
+
+        // assert that there is a single emoji
+        assertThat(processed, hasEmojiCount(1));
+        assertThat(processed,
+                hasEmojiAt(EMOJI_SINGLE_CODEPOINT, 0, EMOJI_SINGLE_CODEPOINT.charCount()));
+
+        // call process again with the charSequence that already has 1 span
+        processed = EmojiCompat.get().process(processed, EMOJI_SINGLE_CODEPOINT.charCount(),
+                processed.length(), 1 /**maxEmojiCount**/);
+
+        // assert that there is still a single emoji
+        assertThat(processed, hasEmojiCount(1));
+        assertThat(processed,
+                hasEmojiAt(EMOJI_SINGLE_CODEPOINT, 0, EMOJI_SINGLE_CODEPOINT.charCount()));
+
+        // make the same call, this time with maxEmojiCount=2
+        processed = EmojiCompat.get().process(processed, EMOJI_SINGLE_CODEPOINT.charCount(),
+                processed.length(), 2 /**maxEmojiCount**/);
+
+        // assert that it contains 2 emojis
+        assertThat(processed, hasEmojiCount(2));
+        assertThat(processed,
+                hasEmojiAt(EMOJI_SINGLE_CODEPOINT, 0, EMOJI_SINGLE_CODEPOINT.charCount()));
+        assertThat(processed,
+                hasEmojiAt(EMOJI_FLAG, EMOJI_SINGLE_CODEPOINT.charCount(),
+                        original.length()));
+    }
+
     @Test
     public void testHasGlyph_returnsMetadata() throws Exception {
         final String sequence = new TestString(EMOJI_FLAG).toString();
