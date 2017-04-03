@@ -21,6 +21,7 @@ import static android.support.test.espresso.action.ViewActions.swipeRight;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.wearable.view.util.AsyncViewActions.waitForMatchingView;
+import static android.support.wearable.view.util.MoreViewAssertions.withPositiveVerticalScrollOffset;
 import static android.support.wearable.view.util.MoreViewAssertions.withTranslationX;
 
 import static org.hamcrest.Matchers.allOf;
@@ -29,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.RectF;
 import android.support.annotation.IdRes;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewAction;
@@ -41,6 +43,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.wearable.test.R;
+import android.support.wearable.view.util.ArcSwipe;
 import android.support.wearable.view.util.WakeLockRule;
 import android.view.View;
 
@@ -66,6 +69,7 @@ public class SwipeDismissFrameLayoutTest {
             );
 
     private int mLayoutWidth;
+    private int mLayoutHeight;
 
     @Test
     @SmallTest
@@ -195,7 +199,7 @@ public class SwipeDismissFrameLayoutTest {
     @SmallTest
     public void testSwipeDoesNotDismissViewIfScrollable() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
-        setUpSwipeDismissWithRecyclerView();
+        setUpSwipeDismissWithHorizontalRecyclerView();
         // WHEN we perform a swipe to dismiss from the center of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromCenter());
         // THEN the layout is not dismissed and not hidden
@@ -206,7 +210,7 @@ public class SwipeDismissFrameLayoutTest {
     @SmallTest
     public void testEdgeSwipeDoesDismissViewIfScrollable() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
-        setUpSwipeDismissWithRecyclerView();
+        setUpSwipeDismissWithHorizontalRecyclerView();
         // WHEN we perform a swipe to dismiss from the left edge of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftEdge());
         // THEN the layout is dismissed and hidden
@@ -250,6 +254,22 @@ public class SwipeDismissFrameLayoutTest {
      assertPeeking(R.id.top_drawer);
      }*/
 
+    @Test
+    @SmallTest
+    public void testArcSwipeDoesNotTriggerDismiss() throws Throwable {
+        // GIVEN a freshly setup SwipeDismissFrameLayout with vertically scrollable content
+        setUpSwipeDismissWithVerticalRecyclerView();
+        int center = mLayoutHeight / 2;
+        int halfBound = mLayoutWidth / 2;
+        RectF bounds = new RectF(0, center - halfBound, mLayoutWidth, center + halfBound);
+        // WHEN the view is scrolled on an arc from top to bottom.
+        onView(withId(R.id.swipe_dismiss_root)).perform(swipeTopFromBottomOnArc(bounds));
+        // THEN the layout is not dismissed and not hidden.
+        assertNotHidden(R.id.swipe_dismiss_root);
+        // AND the content view is scrolled.
+        assertScrolledY(R.id.recycler_container);
+    }
+
     /**
      * Set ups the simplest possible layout for test cases - a {@link SwipeDismissFrameLayout} with
      * a single static child.
@@ -263,17 +283,32 @@ public class SwipeDismissFrameLayoutTest {
         setDismissCallback();
     }
 
+
     /**
      * Sets up a slightly more involved layout for testing swipe-to-dismiss with scrollable
-     * containers. This layout contains a {@link SwipeDismissFrameLayout} with a
-     * {@link android.support.v7.widget.RecyclerView} as a child, ready to accept an adapter.
+     * containers. This layout contains a {@link SwipeDismissFrameLayout} with a horizontal {@link
+     * android.support.v7.widget.RecyclerView} as a child, ready to accept an adapter.
      */
-    private void setUpSwipeDismissWithRecyclerView() {
-        activityRule.launchActivity(
-                new Intent()
-                        .putExtra(
-                                LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
-                                R.layout.swipe_dismiss_layout_testcase_2));
+    private void setUpSwipeDismissWithHorizontalRecyclerView() {
+        Intent launchIntent = new Intent();
+        launchIntent.putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.swipe_dismiss_layout_testcase_2);
+        launchIntent.putExtra(SwipeDismissFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, true);
+        activityRule.launchActivity(launchIntent);
+        setDismissCallback();
+    }
+
+    /**
+     * Sets up a slightly more involved layout for testing swipe-to-dismiss with scrollable
+     * containers. This layout contains a {@link SwipeDismissFrameLayout} with a vertical {@link
+     * WearableRecyclerView} as a child, ready to accept an adapter.
+     */
+    private void setUpSwipeDismissWithVerticalRecyclerView() {
+        Intent launchIntent = new Intent();
+        launchIntent.putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.swipe_dismiss_layout_testcase_2);
+        launchIntent.putExtra(SwipeDismissFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, false);
+        activityRule.launchActivity(launchIntent);
         setDismissCallback();
     }
 
@@ -350,6 +385,7 @@ public class SwipeDismissFrameLayoutTest {
         SwipeDismissFrameLayout testLayout =
                 (SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root);
         mLayoutWidth = testLayout.getWidth();
+        mLayoutHeight = testLayout.getHeight();
         testLayout.addCallback(callback);
     }
 
@@ -388,6 +424,14 @@ public class SwipeDismissFrameLayoutTest {
                                 MAX_WAIT_TIME));
     }
 
+    private static void assertScrolledY(@IdRes int layoutId) {
+        onView(withId(layoutId))
+                .perform(
+                        waitForMatchingView(
+                                allOf(withId(layoutId), withPositiveVerticalScrollOffset()),
+                                MAX_WAIT_TIME));
+    }
+
     private static ViewAction swipeRightFromCenter() {
         return new GeneralSwipeAction(
                 Swipe.SLOW, GeneralLocation.CENTER, GeneralLocation.CENTER_RIGHT, Press.FINGER);
@@ -399,12 +443,13 @@ public class SwipeDismissFrameLayoutTest {
                 Press.FINGER);
     }
 
-    private static ViewAction swipeBottomFromCenter() {
+    private static ViewAction swipeTopFromBottomOnArc(RectF bounds) {
         return new GeneralSwipeAction(
-                Swipe.SLOW, GeneralLocation.TOP_CENTER, GeneralLocation.BOTTOM_CENTER,
+                new ArcSwipe(ArcSwipe.Gesture.SLOW_ANTICLOCKWISE, bounds),
+                GeneralLocation.BOTTOM_CENTER,
+                GeneralLocation.TOP_CENTER,
                 Press.FINGER);
     }
-
 
     /** Helper class hiding the view after a successful swipe-to-dismiss. */
     private static class DismissCallback extends SwipeDismissFrameLayout.Callback {
