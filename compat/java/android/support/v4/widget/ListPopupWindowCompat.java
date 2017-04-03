@@ -16,56 +16,15 @@
 
 package android.support.v4.widget;
 
-import android.support.annotation.RequiresApi;
 import android.os.Build;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.ListPopupWindow;
 
 /**
- * Helper for accessing features in ListPopupWindow introduced after API level 4
- * in a backwards compatible fashion.
+ * Helper for accessing features in {@link ListPopupWindow} in a backwards compatible fashion.
  */
 public final class ListPopupWindowCompat {
-    /**
-     * Interface for the full API.
-     */
-    interface ListPopupWindowImpl {
-        public OnTouchListener createDragToOpenListener(Object listPopupWindow, View src);
-    }
-
-    /**
-     * Interface implementation that doesn't use anything above v4 APIs.
-     */
-    static class BaseListPopupWindowImpl implements ListPopupWindowImpl {
-        @Override
-        public OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {
-            return null;
-        }
-    }
-
-    /**
-     * Interface implementation for devices with at least KitKat APIs.
-     */
-    @RequiresApi(19)
-    static class KitKatListPopupWindowImpl extends BaseListPopupWindowImpl {
-        @Override
-        public OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {
-            return ListPopupWindowCompatKitKat.createDragToOpenListener(listPopupWindow, src);
-        }
-    }
-
-    /**
-     * Select the correct implementation to use for the current platform.
-     */
-    static final ListPopupWindowImpl IMPL;
-    static {
-        if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new KitKatListPopupWindowImpl();
-        } else {
-            IMPL = new BaseListPopupWindowImpl();
-        }
-    }
-
     private ListPopupWindowCompat() {
         // This class is not publicly instantiable.
     }
@@ -81,7 +40,7 @@ public final class ListPopupWindowCompat {
      * currently touched list item.
      * <p>
      * Example usage:
-     * 
+     *
      * <pre>
      * ListPopupWindow myPopup = new ListPopupWindow(context);
      * myPopup.setAnchor(myAnchor);
@@ -92,10 +51,49 @@ public final class ListPopupWindowCompat {
      * @param listPopupWindow the ListPopupWindow against which to invoke the
      *            method
      * @param src the view on which the resulting listener will be set
-     * @return a touch listener that controls drag-to-open behavior, or null on
+     * @return a touch listener that controls drag-to-open behavior, or {@code null} on
+     *         unsupported APIs
+     *
+     * @deprecated Use {@link #createDragToOpenListener(ListPopupWindow, View)} that takes in
+     * {@link ListPopupWindow} instead of {@link Object}.
+     */
+    @Deprecated
+    public static OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {
+        return ListPopupWindowCompat.createDragToOpenListener(
+                (ListPopupWindow) listPopupWindow, src);
+    }
+
+    /**
+     * On API {@link android.os.Build.VERSION_CODES#KITKAT} and higher, returns
+     * an {@link OnTouchListener} that can be added to the source view to
+     * implement drag-to-open behavior. Generally, the source view should be the
+     * same view that was passed to ListPopupWindow.setAnchorView(View).
+     * <p>
+     * When the listener is set on a view, touching that view and dragging
+     * outside of its bounds will open the popup window. Lifting will select the
+     * currently touched list item.
+     * <p>
+     * Example usage:
+     *
+     * <pre>
+     * ListPopupWindow myPopup = new ListPopupWindow(context);
+     * myPopup.setAnchor(myAnchor);
+     * OnTouchListener dragListener = myPopup.createDragToOpenListener(myAnchor);
+     * myAnchor.setOnTouchListener(dragListener);
+     * </pre>
+     *
+     * @param listPopupWindow the ListPopupWindow against which to invoke the
+     *            method
+     * @param src the view on which the resulting listener will be set
+     * @return a touch listener that controls drag-to-open behavior, or {@code null} on
      *         unsupported APIs
      */
-    public static OnTouchListener createDragToOpenListener(Object listPopupWindow, View src) {
-        return IMPL.createDragToOpenListener(listPopupWindow, src);
+    public static OnTouchListener createDragToOpenListener(
+            ListPopupWindow listPopupWindow, View src) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            return listPopupWindow.createDragToOpenListener(src);
+        } else {
+            return null;
+        }
     }
 }

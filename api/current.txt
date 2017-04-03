@@ -7975,8 +7975,10 @@ package android.support.v4.view {
   }
 
   public final class ScaleGestureDetectorCompat {
-    method public static boolean isQuickScaleEnabled(java.lang.Object);
-    method public static void setQuickScaleEnabled(java.lang.Object, boolean);
+    method public static deprecated boolean isQuickScaleEnabled(java.lang.Object);
+    method public static boolean isQuickScaleEnabled(android.view.ScaleGestureDetector);
+    method public static deprecated void setQuickScaleEnabled(java.lang.Object, boolean);
+    method public static void setQuickScaleEnabled(android.view.ScaleGestureDetector, boolean);
   }
 
   public abstract interface ScrollingView {
@@ -8954,7 +8956,8 @@ package android.support.v4.widget {
   }
 
   public final class ListPopupWindowCompat {
-    method public static android.view.View.OnTouchListener createDragToOpenListener(java.lang.Object, android.view.View);
+    method public static deprecated android.view.View.OnTouchListener createDragToOpenListener(java.lang.Object, android.view.View);
+    method public static android.view.View.OnTouchListener createDragToOpenListener(android.widget.ListPopupWindow, android.view.View);
   }
 
   public class ListViewAutoScrollHelper extends android.support.v4.widget.AutoScrollHelper {
