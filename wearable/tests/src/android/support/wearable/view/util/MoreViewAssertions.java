@@ -21,7 +21,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.util.HumanReadables;
-import android.support.wearable.view.WearableRecyclerView;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import org.hamcrest.Description;
@@ -177,29 +177,29 @@ public class MoreViewAssertions {
         };
     }
 
-    public static Matcher<WearableRecyclerView> withPositiveVerticalScrollOffset() {
-        return new TypeSafeMatcher<WearableRecyclerView>() {
+    public static Matcher<RecyclerView> withPositiveVerticalScrollOffset() {
+        return new TypeSafeMatcher<RecyclerView>() {
             @Override
             public void describeTo(Description description) {
                 description.appendText("with positive y scroll offset");
             }
 
             @Override
-            public boolean matchesSafely(WearableRecyclerView view) {
+            public boolean matchesSafely(RecyclerView view) {
                 return view.computeVerticalScrollOffset() > 0;
             }
         };
     }
 
-    public static Matcher<WearableRecyclerView> withNoVerticalScrollOffset() {
-        return new TypeSafeMatcher<WearableRecyclerView>() {
+    public static Matcher<RecyclerView> withNoVerticalScrollOffset() {
+        return new TypeSafeMatcher<RecyclerView>() {
             @Override
             public void describeTo(Description description) {
                 description.appendText("with no y scroll offset");
             }
 
             @Override
-            public boolean matchesSafely(WearableRecyclerView view) {
+            public boolean matchesSafely(RecyclerView view) {
                 return view.computeVerticalScrollOffset() == 0;
             }
         };
