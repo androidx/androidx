@@ -40,6 +40,9 @@
     <declare-styleable name="NavAction">
         <attr name="android:id" />
         <attr name="destination" format="reference" />
+        <attr name="launchSingleTop" format="boolean" />
+        <attr name="launchDocument" format="boolean" />
+        <attr name="clearTask" format="boolean" />
         <attr name="pop" format="boolean" />
     </declare-styleable>
 

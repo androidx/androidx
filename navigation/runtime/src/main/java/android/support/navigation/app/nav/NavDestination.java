@@ -28,8 +28,8 @@ import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
-import android.util.SparseIntArray;
 
 import com.android.support.navigation.R;
 
@@ -42,7 +42,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Each destination is associated with a {@link Navigator} which knows how to navigate to this
  * particular destination.</p>
  *
- * <p>Destinations declare a set of {@link #putActionDestination(int, int) actions} that they
+ * <p>Destinations declare a set of {@link #putAction(int, int) actions} that they
  * support. These actions form a navigation API for the destination; the same actions declared
  * on different destinations that fill similar roles allow application code to navigate based
  * on semantic intent.</p>
@@ -94,7 +94,7 @@ public class NavDestination {
     @NavTypes
     private int mNavType;
     private Bundle mDefaultArgs;
-    private SparseIntArray mActions;
+    private SparseArrayCompat<NavAction> mActions;
 
     /**
      * NavDestinations should be created via {@link Navigator#createDestination}.
@@ -293,12 +293,12 @@ public class NavDestination {
      * @param id action ID to fetch
      * @return destination ID mapped to the given action id, or 0 if none
      */
-    public @IdRes int getActionDestination(@IdRes int id) {
-        @IdRes int destination = mActions == null ? 0 : mActions.get(id);
+    public NavAction getAction(@IdRes int id) {
+        NavAction destination = mActions == null ? null : mActions.get(id);
         // Search the parent for the given action if it is not found in this destination
-        return destination != 0
+        return destination != null
                 ? destination
-                : getParent() != null ? getParent().getActionDestination(id) : 0;
+                : getParent() != null ? getParent().getAction(id) : null;
     }
 
     /**
@@ -307,14 +307,24 @@ public class NavDestination {
      * @param actionId action ID to bind
      * @param destId destination ID for the given action
      */
-    public void putActionDestination(@IdRes int actionId, @IdRes int destId) {
+    public void putAction(@IdRes int actionId, @IdRes int destId) {
+        putAction(actionId, new NavAction(destId));
+    }
+
+    /**
+     * Sets a destination ID for an action ID.
+     *
+     * @param actionId action ID to bind
+     * @param action action to associate with this action ID
+     */
+    public void putAction(@IdRes int actionId, @NonNull NavAction action) {
         if (actionId == 0) {
-            throw new IllegalArgumentException("cannot setActionDestination for actionId 0");
+            throw new IllegalArgumentException("Cannot have an action with actionId 0");
         }
         if (mActions == null) {
-            mActions = new SparseIntArray();
+            mActions = new SparseArrayCompat<>();
         }
-        mActions.put(actionId, destId);
+        mActions.put(actionId, action);
     }
 
     /**
@@ -322,7 +332,7 @@ public class NavDestination {
      *
      * @param actionId action ID to remove
      */
-    public void removeActionDestination(@IdRes int actionId) {
+    public void removeAction(@IdRes int actionId) {
         if (mActions == null) {
             return;
         }

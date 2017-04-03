@@ -221,7 +221,15 @@ public class NavInflater {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavAction);
         final int id = a.getResourceId(R.styleable.NavAction_android_id, 0);
         final int destId = a.getResourceId(R.styleable.NavAction_destination, 0);
-        dest.putActionDestination(id, destId);
+        NavAction action = new NavAction(destId);
+
+        NavOptions.Builder builder = new NavOptions.Builder();
+        builder.setLaunchSingleTop(a.getBoolean(R.styleable.NavAction_launchSingleTop, false));
+        builder.setLaunchDocument(a.getBoolean(R.styleable.NavAction_launchDocument, false));
+        builder.setClearTask(a.getBoolean(R.styleable.NavAction_clearTask, false));
+        action.setNavOptions(builder.build());
+
+        dest.putAction(id, action);
         a.recycle();
     }
 }

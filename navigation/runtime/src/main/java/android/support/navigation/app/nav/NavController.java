@@ -378,7 +378,7 @@ public class NavController implements NavigatorProvider {
     /**
      * Navigate via an action defined on the current destination.
      *
-     * <p>Requests navigation to the given {@link NavDestination#getActionDestination(int) action},
+     * <p>Requests navigation to the given {@link NavDestination#getAction(int) action},
      * appropriate for the current location, e.g. "next" or "home."</p>
      *
      * @param action navigation action to invoke
@@ -390,7 +390,7 @@ public class NavController implements NavigatorProvider {
     /**
      * Navigate via an action defined on the current destination.
      *
-     * <p>Requests navigation to the given {@link NavDestination#getActionDestination(int) action},
+     * <p>Requests navigation to the given {@link NavDestination#getAction(int) action},
      * appropriate for the current location, e.g. "next" or "home."</p>
      *
      * @param action navigation action to invoke
@@ -403,26 +403,28 @@ public class NavController implements NavigatorProvider {
     /**
      * Navigate via an action defined on the current destination.
      *
-     * <p>Requests navigation to the given {@link NavDestination#getActionDestination(int) action},
+     * <p>Requests navigation to the given {@link NavDestination#getAction(int) action},
      * appropriate for the current location, e.g. "next" or "home."</p>
      *
      * @param action navigation action to invoke
      * @param args arguments to pass to the destination
-     * @param navOptions special options for this navigation operation
+     * @param navOptions special options for this navigation operation. This will be used instead
+     *                   of any NavOptions attached to the action.
      */
     public void navigate(@IdRes int action, Bundle args, NavOptions navOptions) {
         NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
         if (currentNode == null) {
             throw new IllegalStateException("no current navigation node");
         }
-        final int dest = currentNode.getActionDestination(action);
-        if (dest == 0) {
+        final NavAction navAction = currentNode.getAction(action);
+        if (navAction == null) {
             final Resources res = mContext.getResources();
             throw new IllegalStateException("no destination defined from "
                     + res.getResourceName(currentNode.getId())
                     + " for action " + res.getResourceName(action));
         }
-        navigateTo(dest, args, navOptions);
+        navigateTo(navAction.getDestinationId(), args,
+                navOptions != null ? navOptions : navAction.getNavOptions());
     }
 
     /**
