@@ -27,23 +27,29 @@ import android.widget.TextView;
 
 public class SwipeDismissFrameLayoutTestActivity extends LayoutTestActivity {
 
+    public static final String EXTRA_LAYOUT_HORIZONTAL = "layout_horizontal";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int layoutId = getIntent().getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, -1);
+        boolean horizontal = getIntent().getBooleanExtra(EXTRA_LAYOUT_HORIZONTAL, false);
 
         if (layoutId == R.layout.swipe_dismiss_layout_testcase_2) {
-            createScrollableContent();
+            createScrollableContent(horizontal);
         }
     }
 
-    private void createScrollableContent() {
+    private void createScrollableContent(boolean horizontal) {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_container);
         if (recyclerView == null) {
             throw new NullPointerException("There has to be a relevant container defined");
         }
         recyclerView.setLayoutManager(
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+                new LinearLayoutManager(
+                        this,
+                        horizontal ? LinearLayoutManager.HORIZONTAL : LinearLayoutManager.VERTICAL,
+                        false));
         recyclerView.setAdapter(new MyRecyclerViewAdapter());
     }
 
