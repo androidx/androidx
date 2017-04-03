@@ -21,8 +21,8 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 
 /**
- * Helper for accessing features in {@link android.app.ActivityManager}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.ActivityManager} in a backwards compatible
+ * fashion.
  */
 public final class ActivityManagerCompat {
 
@@ -35,9 +35,9 @@ public final class ActivityManagerCompat {
      * This is mostly intended to be used by apps to determine whether they should turn
      * off certain features that require more RAM.
      */
-    public static boolean isLowRamDevice(@NonNull ActivityManager am) {
+    public static boolean isLowRamDevice(@NonNull ActivityManager activityManager) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return ActivityManagerCompatKitKat.isLowRamDevice(am);
+            return activityManager.isLowRamDevice();
         }
         return false;
     }

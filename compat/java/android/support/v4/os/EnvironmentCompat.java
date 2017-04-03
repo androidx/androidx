@@ -24,8 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Helper for accessing features in {@link Environment} introduced after API
- * level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link Environment} in a backwards compatible fashion.
  */
 public final class EnvironmentCompat {
     private static final String TAG = "EnvironmentCompat";
@@ -54,7 +53,7 @@ public final class EnvironmentCompat {
      */
     public static String getStorageState(File path) {
         if (Build.VERSION.SDK_INT >= 19) {
-            return EnvironmentCompatKitKat.getStorageState(path);
+            return Environment.getStorageState(path);
         }
 
         try {

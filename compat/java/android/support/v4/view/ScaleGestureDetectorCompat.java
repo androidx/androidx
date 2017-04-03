@@ -17,78 +17,68 @@
 package android.support.v4.view;
 
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import android.view.ScaleGestureDetector;
 
 /**
- * Helper for accessing features in <code>ScaleGestureDetector</code> introduced
- * after API level 19 (KitKat) in a backwards compatible fashion.
+ * Helper for accessing features in {@link ScaleGestureDetector} in a backwards compatible fashion.
  */
 public final class ScaleGestureDetectorCompat {
-    static final ScaleGestureDetectorImpl IMPL;
-
-    interface ScaleGestureDetectorImpl {
-
-        public void setQuickScaleEnabled(Object o, boolean enabled);
-
-        public boolean isQuickScaleEnabled(Object o);
-    }
-
-    private static class BaseScaleGestureDetectorImpl implements ScaleGestureDetectorImpl {
-        BaseScaleGestureDetectorImpl() {
-        }
-
-        @Override
-        public void setQuickScaleEnabled(Object o, boolean enabled) {
-            // Intentionally blank
-        }
-
-        @Override
-        public boolean isQuickScaleEnabled(Object o) {
-            return false;
-        }
-    }
-
-    @RequiresApi(19)
-    private static class ScaleGestureDetectorCompatKitKatImpl implements ScaleGestureDetectorImpl {
-        ScaleGestureDetectorCompatKitKatImpl() {
-        }
-
-        @Override
-        public void setQuickScaleEnabled(Object o, boolean enabled) {
-            ScaleGestureDetectorCompatKitKat.setQuickScaleEnabled(o, enabled);
-        }
-
-        @Override
-        public boolean isQuickScaleEnabled(Object o) {
-            return ScaleGestureDetectorCompatKitKat.isQuickScaleEnabled(o);
-        }
-    }
-
-    static {
-        if (Build.VERSION.SDK_INT >= 19) { // KitKat
-            IMPL = new ScaleGestureDetectorCompatKitKatImpl();
-        } else {
-            IMPL = new BaseScaleGestureDetectorImpl();
-        }
-    }
-
     private ScaleGestureDetectorCompat() {}
 
     /**
-     * Set whether the associated <code>OnScaleGestureListener</code> should receive onScale
-     * callbacks when the user performs a doubleTap followed by a swipe. Note that this is enabled
-     * by default if the app targets API 19 and newer.
+     * Sets whether the associated {@link ScaleGestureDetector.OnScaleGestureListener} should
+     * receive onScale callbacks when the user performs a doubleTap followed by a swipe. Note that
+     * this is enabled by default if the app targets API 19 and newer.
+     *
      * @param enabled true to enable quick scaling, false to disable
+     *
+     * @deprecated Use {@link #setQuickScaleEnabled(ScaleGestureDetector, boolean)} that takes
+     * {@link ScaleGestureDetector} instead of {@link Object}.
      */
+    @Deprecated
     public static void setQuickScaleEnabled(Object scaleGestureDetector, boolean enabled) {
-        IMPL.setQuickScaleEnabled(scaleGestureDetector, enabled);
+        ScaleGestureDetectorCompat.setQuickScaleEnabled(
+                (ScaleGestureDetector) scaleGestureDetector, enabled);
     }
 
     /**
-     * Return whether the quick scale gesture, in which the user performs a double tap followed by a
-     * swipe, should perform scaling. See <code>setQuickScaleEnabled(Object, boolean)<code>.
+     * Sets whether the associated {@link ScaleGestureDetector.OnScaleGestureListener} should
+     * receive onScale callbacks when the user performs a doubleTap followed by a swipe. Note that
+     * this is enabled by default if the app targets API 19 and newer.
+     *
+     * @param enabled true to enable quick scaling, false to disable
      */
+    public static void setQuickScaleEnabled(
+            ScaleGestureDetector scaleGestureDetector, boolean enabled) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            scaleGestureDetector.setQuickScaleEnabled(enabled);
+        }
+    }
+
+    /**
+     * Returns whether the quick scale gesture, in which the user performs a double tap followed by
+     * a swipe, should perform scaling. See
+     * {@link #setQuickScaleEnabled(ScaleGestureDetector, boolean)}.
+     *
+     * @deprecated Use {@link #isQuickScaleEnabled(ScaleGestureDetector)} that takes
+     * {@link ScaleGestureDetector} instead of {@link Object}.
+     */
+    @Deprecated
     public static boolean isQuickScaleEnabled(Object scaleGestureDetector) {
-        return IMPL.isQuickScaleEnabled(scaleGestureDetector); // KitKat
+        return ScaleGestureDetectorCompat.isQuickScaleEnabled(
+                (ScaleGestureDetector) scaleGestureDetector);
+    }
+
+    /**
+     * Returns whether the quick scale gesture, in which the user performs a double tap followed by
+     * a swipe, should perform scaling. See
+     * {@link #setQuickScaleEnabled(ScaleGestureDetector, boolean)}.
+     */
+    public static boolean isQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            return scaleGestureDetector.isQuickScaleEnabled();
+        } else {
+            return false;
+        }
     }
 }
