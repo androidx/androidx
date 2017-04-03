@@ -16,6 +16,7 @@
 
 package com.android.support.room.integration.testapp.migration;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -175,6 +176,37 @@ public class MigrationTest {
         assertThat(info.columns.size(), is(2));
     }
 
+    @Test
+    public void failedForeignKey() throws IOException {
+        final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 6);
+        db.close();
+        Throwable throwable = null;
+        try {
+            helper.runMigrationsAndValidate(TEST_DB,
+                    7, false, new Migration(6, 7) {
+                        @Override
+                        public void migrate(SupportSQLiteDatabase database) {
+                            database.execSQL("CREATE TABLE Entity4 (`id` INTEGER, `name` TEXT,"
+                                    + " PRIMARY KEY(`id`))");
+                        }
+                    });
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertThat(throwable, instanceOf(IllegalStateException.class));
+        //noinspection ConstantConditions
+        assertThat(throwable.getMessage(), containsString("Migration failed"));
+    }
+
+    @Test
+    public void newTableWithForeignKey() throws IOException {
+        helper.createDatabase(TEST_DB, 6);
+        final SupportSQLiteDatabase db = helper.runMigrationsAndValidate(TEST_DB,
+                7, false, MIGRATION_6_7);
+        final TableInfo info = TableInfo.read(db, MigrationDb.Entity4.TABLE_NAME);
+        assertThat(info.foreignKeys.size(), is(1));
+    }
+
     private void testFailure(int startVersion, int endVersion) throws IOException {
         final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, startVersion);
         db.close();
@@ -186,6 +218,7 @@ public class MigrationTest {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
+        assertThat(throwable.getMessage(), containsString("Migration failed"));
     }
 
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -231,8 +264,18 @@ public class MigrationTest {
         }
     };
 
+    static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS " + MigrationDb.Entity4.TABLE_NAME
+                    + " (`id` INTEGER, `name` TEXT, PRIMARY KEY(`id`),"
+                    + " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)"
+                    + " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)");
+        }
+    };
+
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
-            MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6};
+            MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {

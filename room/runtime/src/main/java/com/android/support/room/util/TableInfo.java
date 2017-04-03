@@ -17,13 +17,18 @@
 package com.android.support.room.util;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import com.android.support.db.SupportSQLiteDatabase;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A data class that holds the information about a table.
@@ -33,10 +38,11 @@ import java.util.Map;
  * documentation for more details.
  * <p>
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused", "TryFinallyCanBeTryWithResources"})
 // if you change this class, you must change TableInfoWriter.kt
 public class TableInfo {
     /**
@@ -48,10 +54,13 @@ public class TableInfo {
      */
     public final Map<String, Column> columns;
 
+    public final Set<ForeignKey> foreignKeys;
+
     @SuppressWarnings("unused")
-    public TableInfo(String name, Map<String, Column> columns) {
+    public TableInfo(String name, Map<String, Column> columns, Set<ForeignKey> foreignKeys) {
         this.name = name;
         this.columns = Collections.unmodifiableMap(columns);
+        this.foreignKeys = Collections.unmodifiableSet(foreignKeys);
     }
 
     /**
@@ -63,30 +72,96 @@ public class TableInfo {
      */
     @SuppressWarnings("SameParameterValue")
     public static TableInfo read(SupportSQLiteDatabase database, String tableName) {
-        Cursor cursor = database.rawQuery("PRAGMA table_info(`" + tableName + "`)",
+        Map<String, Column> columns = readColumns(database, tableName);
+        Set<ForeignKey> foreignKeys = readForeignKeys(database, tableName);
+        return new TableInfo(tableName, columns, foreignKeys);
+    }
+
+    private static Set<ForeignKey> readForeignKeys(SupportSQLiteDatabase database,
+            String tableName) {
+        Set<ForeignKey> foreignKeys = new HashSet<>();
+        // this seems to return everything in order but it is not documented so better be safe
+        Cursor cursor = database.rawQuery("PRAGMA foreign_key_list(`" + tableName + "`)",
                 StringUtil.EMPTY_STRING_ARRAY);
-        //noinspection TryFinallyCanBeTryWithResources
         try {
-            Map<String, Column> columns = extractColumns(cursor);
-            return new TableInfo(tableName, columns);
+            final int idColumnIndex = cursor.getColumnIndex("id");
+            final int seqColumnIndex = cursor.getColumnIndex("seq");
+            final int tableColumnIndex = cursor.getColumnIndex("table");
+            final int onDeleteColumnIndex = cursor.getColumnIndex("on_delete");
+            final int onUpdateColumnIndex = cursor.getColumnIndex("on_update");
+
+            final List<ForeignKeyWithSequence> ordered = readForeignKeyFieldMappings(cursor);
+            final int count = cursor.getCount();
+            for (int position = 0; position < count; position++) {
+                cursor.moveToPosition(position);
+                final int seq = cursor.getInt(seqColumnIndex);
+                if (seq != 0) {
+                    continue;
+                }
+                final int id = cursor.getInt(idColumnIndex);
+                List<String> myColumns = new ArrayList<>();
+                List<String> refColumns = new ArrayList<>();
+                for (ForeignKeyWithSequence key : ordered) {
+                    if (key.mId == id) {
+                        myColumns.add(key.mFrom);
+                        refColumns.add(key.mTo);
+                    }
+                }
+                foreignKeys.add(new ForeignKey(
+                        cursor.getString(tableColumnIndex),
+                        cursor.getString(onDeleteColumnIndex),
+                        cursor.getString(onUpdateColumnIndex),
+                        myColumns,
+                        refColumns
+                ));
+            }
         } finally {
             cursor.close();
         }
+        return foreignKeys;
     }
 
-    private static Map<String, Column> extractColumns(Cursor cursor) {
-        Map<String, Column> columns = new HashMap<>();
-        if (cursor.getColumnCount() > 0) {
-            int nameIndex = cursor.getColumnIndex("name");
-            int typeIndex = cursor.getColumnIndex("type");
-            int pkIndex = cursor.getColumnIndex("pk");
+    private static List<ForeignKeyWithSequence> readForeignKeyFieldMappings(Cursor cursor) {
+        final int idColumnIndex = cursor.getColumnIndex("id");
+        final int seqColumnIndex = cursor.getColumnIndex("seq");
+        final int fromColumnIndex = cursor.getColumnIndex("from");
+        final int toColumnIndex = cursor.getColumnIndex("to");
+        final int count = cursor.getCount();
+        List<ForeignKeyWithSequence> result = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            cursor.moveToPosition(i);
+            result.add(new ForeignKeyWithSequence(
+                    cursor.getInt(idColumnIndex),
+                    cursor.getInt(seqColumnIndex),
+                    cursor.getString(fromColumnIndex),
+                    cursor.getString(toColumnIndex)
+            ));
+        }
+        Collections.sort(result);
+        return result;
+    }
 
-            while (cursor.moveToNext()) {
-                final String name = cursor.getString(nameIndex);
-                final String type = cursor.getString(typeIndex);
-                final int primaryKeyPosition = cursor.getInt(pkIndex);
-                columns.put(name, new Column(name, type, primaryKeyPosition));
+    private static Map<String, Column> readColumns(SupportSQLiteDatabase database,
+            String tableName) {
+        Cursor cursor = database.rawQuery("PRAGMA table_info(`" + tableName + "`)",
+                StringUtil.EMPTY_STRING_ARRAY);
+        //noinspection TryFinallyCanBeTryWithResources
+        Map<String, Column> columns = new HashMap<>();
+        try {
+            if (cursor.getColumnCount() > 0) {
+                int nameIndex = cursor.getColumnIndex("name");
+                int typeIndex = cursor.getColumnIndex("type");
+                int pkIndex = cursor.getColumnIndex("pk");
+
+                while (cursor.moveToNext()) {
+                    final String name = cursor.getString(nameIndex);
+                    final String type = cursor.getString(typeIndex);
+                    final int primaryKeyPosition = cursor.getInt(pkIndex);
+                    columns.put(name, new Column(name, type, primaryKeyPosition));
+                }
             }
+        } finally {
+            cursor.close();
         }
         return columns;
     }
@@ -98,21 +173,27 @@ public class TableInfo {
 
         TableInfo tableInfo = (TableInfo) o;
 
+        if (!name.equals(tableInfo.name)) return false;
         //noinspection SimplifiableIfStatement
-        if (name != null ? !name.equals(tableInfo.name) : tableInfo.name != null) return false;
-        return columns != null ? columns.equals(tableInfo.columns) : tableInfo.columns == null;
+        if (!columns.equals(tableInfo.columns)) return false;
+        return foreignKeys.equals(tableInfo.foreignKeys);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (columns != null ? columns.hashCode() : 0);
+        int result = name.hashCode();
+        result = 31 * result + columns.hashCode();
+        result = 31 * result + foreignKeys.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return "TableInfo{name='" + name + '\'' + ", columns=" + columns + '}';
+        return "TableInfo{"
+                + "name='" + name + '\''
+                + ", columns=" + columns
+                + ", foreignKeys=" + foreignKeys
+                + '}';
     }
 
     /**
@@ -169,6 +250,101 @@ public class TableInfo {
                     + ", type='" + type + '\''
                     + ", primaryKeyPosition=" + primaryKeyPosition
                     + '}';
+        }
+    }
+
+    /**
+     * Holds the information about an SQLite foreign key
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class ForeignKey {
+        @NonNull
+        public final String referenceTable;
+        @NonNull
+        public final String onDelete;
+        @NonNull
+        public final String onUpdate;
+        @NonNull
+        public final List<String> columnNames;
+        @NonNull
+        public final List<String> referenceColumnNames;
+
+        public ForeignKey(@NonNull String referenceTable, @NonNull String onDelete,
+                @NonNull String onUpdate,
+                @NonNull List<String> columnNames, @NonNull List<String> referenceColumnNames) {
+            this.referenceTable = referenceTable;
+            this.onDelete = onDelete;
+            this.onUpdate = onUpdate;
+            this.columnNames = Collections.unmodifiableList(columnNames);
+            this.referenceColumnNames = Collections.unmodifiableList(referenceColumnNames);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ForeignKey that = (ForeignKey) o;
+
+            if (!referenceTable.equals(that.referenceTable)) return false;
+            if (!onDelete.equals(that.onDelete)) return false;
+            if (!onUpdate.equals(that.onUpdate)) return false;
+            //noinspection SimplifiableIfStatement
+            if (!columnNames.equals(that.columnNames)) return false;
+            return referenceColumnNames.equals(that.referenceColumnNames);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = referenceTable.hashCode();
+            result = 31 * result + onDelete.hashCode();
+            result = 31 * result + onUpdate.hashCode();
+            result = 31 * result + columnNames.hashCode();
+            result = 31 * result + referenceColumnNames.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "ForeignKey{"
+                    + "referenceTable='" + referenceTable + '\''
+                    + ", onDelete='" + onDelete + '\''
+                    + ", onUpdate='" + onUpdate + '\''
+                    + ", columnNames=" + columnNames
+                    + ", referenceColumnNames=" + referenceColumnNames
+                    + '}';
+        }
+    }
+
+    /**
+     * Temporary data holder for a foreign key row in the pragma result. We need this to ensure
+     * sorting in the generated foreign key object.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    static class ForeignKeyWithSequence implements Comparable<ForeignKeyWithSequence> {
+        final int mId;
+        final int mSequence;
+        final String mFrom;
+        final String mTo;
+
+        ForeignKeyWithSequence(int id, int sequence, String from, String to) {
+            mId = id;
+            mSequence = sequence;
+            mFrom = from;
+            mTo = to;
+        }
+
+        @Override
+        public int compareTo(ForeignKeyWithSequence o) {
+            final int idCmp = mId - o.mId;
+            if (idCmp == 0) {
+                return mSequence - o.mSequence;
+            } else {
+                return idCmp;
+            }
         }
     }
 }

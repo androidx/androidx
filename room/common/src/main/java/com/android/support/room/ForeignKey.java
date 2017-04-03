@@ -17,7 +17,6 @@
 package com.android.support.room;
 
 import android.support.annotation.IntDef;
-import android.support.annotation.RestrictTo;
 
 /**
  * Declares a foreign key on another {@link Entity}.
@@ -43,9 +42,7 @@ import android.support.annotation.RestrictTo;
  * <p>
  * Please refer to the SQLite <a href="https://sqlite.org/foreignkeys.html>foreign keys</a>
  * documentation for details.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public @interface ForeignKey {
     /**
      * The parent Entity to reference. It must be a class annotated with {@link Entity} and

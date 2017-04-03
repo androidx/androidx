@@ -22,7 +22,9 @@ import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.room.Dao;
 import com.android.support.room.Database;
 import com.android.support.room.Entity;
+import com.android.support.room.ForeignKey;
 import com.android.support.room.Ignore;
+import com.android.support.room.Index;
 import com.android.support.room.Insert;
 import com.android.support.room.PrimaryKey;
 import com.android.support.room.Query;
@@ -32,11 +34,12 @@ import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 @Database(version = MigrationDb.LATEST_VERSION,
-        entities = {MigrationDb.Entity1.class, MigrationDb.Entity2.class})
+        entities = {MigrationDb.Entity1.class, MigrationDb.Entity2.class,
+                MigrationDb.Entity4.class})
 public abstract class MigrationDb extends RoomDatabase {
-    static final int LATEST_VERSION = 6;
+    static final int LATEST_VERSION = 7;
     abstract MigrationDao dao();
-    @Entity
+    @Entity(indices = {@Index(value = "name", unique = true)})
     static class Entity1 {
         public static final String TABLE_NAME = "Entity1";
         @PrimaryKey
@@ -60,6 +63,18 @@ public abstract class MigrationDb extends RoomDatabase {
         public int id;
         @Ignore //removed at 5
         public String removedInV5;
+        public String name;
+    }
+
+    @Entity(foreignKeys = {
+            @ForeignKey(entity = Entity1.class,
+            parentColumns = "name",
+            childColumns = "name",
+            deferred = true)})
+    static class Entity4 {
+        public static final String TABLE_NAME = "Entity4";
+        @PrimaryKey
+        public int id;
         public String name;
     }
 

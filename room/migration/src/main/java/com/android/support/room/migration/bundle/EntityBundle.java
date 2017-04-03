@@ -49,6 +49,8 @@ public class EntityBundle {
     private PrimaryKeyBundle mPrimaryKey;
     @SerializedName("indices")
     private List<IndexBundle> mIndices;
+    @SerializedName("foreignKeys")
+    private List<ForeignKeyBundle> mForeignKeys;
 
     private transient String mNewTableName;
     private transient Map<String, FieldBundle> mFieldsByColumnName;
@@ -60,17 +62,20 @@ public class EntityBundle {
      * @param createSql Create query with the table name placeholder.
      * @param fields The list of fields.
      * @param primaryKey The primary key.
-     * @param indices The list of indices.
+     * @param indices The list of indices
+     * @param foreignKeys The list of foreign keys
      */
     public EntityBundle(String tableName, String createSql,
             List<FieldBundle> fields,
             PrimaryKeyBundle primaryKey,
-            List<IndexBundle> indices) {
+            List<IndexBundle> indices,
+            List<ForeignKeyBundle> foreignKeys) {
         mTableName = tableName;
         mCreateSql = createSql;
         mFields = fields;
         mPrimaryKey = primaryKey;
         mIndices = indices;
+        mForeignKeys = foreignKeys;
     }
 
     /**
@@ -129,6 +134,13 @@ public class EntityBundle {
      */
     public List<IndexBundle> getIndices() {
         return mIndices;
+    }
+
+    /**
+     * @return List of foreign keys.
+     */
+    public List<ForeignKeyBundle> getForeignKeys() {
+        return mForeignKeys;
     }
 
     /**

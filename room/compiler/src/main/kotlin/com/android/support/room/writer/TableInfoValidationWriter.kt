@@ -29,7 +29,9 @@ import com.android.support.room.vo.Entity
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import stripNonJava
+import java.util.Arrays
 import java.util.HashMap
+import java.util.HashSet
 
 class TableInfoValidationWriter(val entity : Entity) {
     fun write(dbParam : ParameterSpec, scope : CodeGenScope) {
@@ -39,6 +41,7 @@ class TableInfoValidationWriter(val entity : Entity) {
             val columnListVar = scope.getTmpVar("_columns$suffix")
             val columnListType = ParameterizedTypeName.get(HashMap::class.typeName(),
                     CommonTypeNames.STRING, RoomTypeNames.TABLE_INFO_COLUMN)
+
             addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
                     columnListType, entity.fields.size)
             entity.fields.forEachIndexed { index, field ->
@@ -48,9 +51,32 @@ class TableInfoValidationWriter(val entity : Entity) {
                         /*type*/ field.affinity?.name ?: SQLTypeAffinity.TEXT.name,
                         /*pkeyPos*/ entity.primaryKey.fields.indexOf(field) + 1)
             }
-            addStatement("final $T $L = new $T($S, $L)",
+
+            val foreignKeySetVar = scope.getTmpVar("_foreignKeys$suffix")
+            val foreignKeySetType = ParameterizedTypeName.get(HashSet::class.typeName(),
+                    RoomTypeNames.TABLE_INFO_FOREIGN_KEY)
+            addStatement("final $T $L = new $T($L)", foreignKeySetType, foreignKeySetVar,
+                    foreignKeySetType, entity.foreignKeys.size)
+            entity.foreignKeys.forEach {
+                val myColumnNames = it.childFields
+                        .joinToString(",") { "\"${it.columnName}\"" }
+                val refColumnNames = it.parentColumns
+                        .joinToString(",") { "\"$it\"" }
+                addStatement("$L.add(new $T($S, $S, $S," +
+                        "$T.asList($L), $T.asList($L)))", foreignKeySetVar,
+                        RoomTypeNames.TABLE_INFO_FOREIGN_KEY,
+                        /*parent table*/ it.parentTable,
+                        /*on delete*/ it.onDelete.sqlName,
+                        /*on update*/ it.onUpdate.sqlName,
+                        Arrays::class.typeName(),
+                        /*parent names*/ myColumnNames,
+                        Arrays::class.typeName(),
+                        /*parent column names*/ refColumnNames)
+            }
+
+            addStatement("final $T $L = new $T($S, $L, $L)",
                     RoomTypeNames.TABLE_INFO, expectedInfoVar, RoomTypeNames.TABLE_INFO,
-                    entity.tableName, columnListVar)
+                    entity.tableName, columnListVar, foreignKeySetVar)
 
             val existingVar = scope.getTmpVar("_existing$suffix")
             addStatement("final $T $L = $T.read($N, $S)",

@@ -60,7 +60,8 @@ class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
             createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
             fields.map {it.toBundle()},
             primaryKey.toBundle(),
-            indices.map { it.toBundle() })
+            indices.map { it.toBundle() },
+            foreignKeys.map { it.toBundle() })
 
     fun isUnique(columns: List<String>) : Boolean {
         return if (primaryKey.columnNames.size == columns.size

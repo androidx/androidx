@@ -73,6 +73,8 @@ object RoomTypeNames {
             ClassName.get("com.android.support.room.util", "TableInfo")
     val TABLE_INFO_COLUMN : ClassName =
             ClassName.get("com.android.support.room.util", "TableInfo.Column")
+    val TABLE_INFO_FOREIGN_KEY : ClassName =
+            ClassName.get("com.android.support.room.util", "TableInfo.ForeignKey")
 }
 
 object LifecyclesTypeNames {

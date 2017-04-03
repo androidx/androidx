@@ -30,6 +30,7 @@ import com.android.support.room.migration.Migration;
 import com.android.support.room.migration.bundle.DatabaseBundle;
 import com.android.support.room.migration.bundle.EntityBundle;
 import com.android.support.room.migration.bundle.FieldBundle;
+import com.android.support.room.migration.bundle.ForeignKeyBundle;
 import com.android.support.room.migration.bundle.SchemaBundle;
 import com.android.support.room.util.TableInfo;
 
@@ -41,9 +42,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A class that can be used in your Instrumentation tests that can create the database in an
@@ -220,7 +224,22 @@ public class MigrationTestHelper extends TestWatcher {
     }
 
     private static TableInfo toTableInfo(EntityBundle entityBundle) {
-        return new TableInfo(entityBundle.getTableName(), toColumnMap(entityBundle));
+        return new TableInfo(entityBundle.getTableName(), toColumnMap(entityBundle),
+                toForeignKeys(entityBundle.getForeignKeys()));
+    }
+
+    private static Set<TableInfo.ForeignKey> toForeignKeys(
+            List<ForeignKeyBundle> bundles) {
+        if (bundles == null) {
+            return Collections.emptySet();
+        }
+        Set<TableInfo.ForeignKey> result = new HashSet<>(bundles.size());
+        for (ForeignKeyBundle bundle : bundles) {
+            result.add(new TableInfo.ForeignKey(bundle.getTable(),
+                    bundle.getOnDelete(), bundle.getOnUpdate(),
+                    bundle.getColumns(), bundle.getReferencedColumns()));
+        }
+        return result;
     }
 
     private static Map<String, TableInfo.Column> toColumnMap(EntityBundle entity) {
@@ -283,7 +302,8 @@ public class MigrationTestHelper extends TestWatcher {
                     while (cursor.moveToNext()) {
                         final String tableName = cursor.getString(0);
                         if (!tables.containsKey(tableName)) {
-                            throw new IllegalStateException("unexpected table " + tableName);
+                            throw new IllegalStateException("Migration failed. Unexpected table "
+                                    + tableName);
                         }
                     }
                 } finally {

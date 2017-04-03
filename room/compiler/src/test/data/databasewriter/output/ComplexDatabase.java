@@ -10,10 +10,12 @@ import com.android.support.room.RoomOpenHelper;
 import com.android.support.room.RoomOpenHelper.Delegate;
 import com.android.support.room.util.TableInfo;
 import com.android.support.room.util.TableInfo.Column;
+import com.android.support.room.util.TableInfo.ForeignKey;
 import java.lang.IllegalStateException;
 import java.lang.Override;
 import java.lang.String;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ComplexDatabase_Impl extends ComplexDatabase {
     private volatile ComplexDao _complexDao;
@@ -41,7 +43,8 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 _columnsUser.put("name", new TableInfo.Column("name", "TEXT", 0));
                 _columnsUser.put("lastName", new TableInfo.Column("lastName", "TEXT", 0));
                 _columnsUser.put("ageColumn", new TableInfo.Column("ageColumn", "INTEGER", 0));
-                final TableInfo _infoUser = new TableInfo("User", _columnsUser);
+                final HashSet<TableInfo.ForeignKey> _foreignKeysUser = new HashSet<TableInfo.ForeignKey>(0);
+                final TableInfo _infoUser = new TableInfo("User", _columnsUser, _foreignKeysUser);
                 final TableInfo _existingUser = TableInfo.read(_db, "User");
                 if (! _infoUser.equals(_existingUser)) {
                     throw new IllegalStateException("Migration didn't properly handle User(foo.bar.User).\n"

@@ -17,8 +17,12 @@
 package com.android.support.room.migration;
 
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -34,8 +38,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 @RunWith(AndroidJUnit4.class)
@@ -51,7 +58,8 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
                 toMap(new TableInfo.Column("id", "INTEGER", 1),
-                        new TableInfo.Column("name", "TEXT", 0)))));
+                        new TableInfo.Column("name", "TEXT", 0)),
+                Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
     @Test
@@ -62,8 +70,8 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
                 toMap(new TableInfo.Column("id", "INTEGER", 2),
-                        new TableInfo.Column("name", "TEXT", 1))
-        )));
+                        new TableInfo.Column("name", "TEXT", 1)),
+                Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
     @Test
@@ -76,8 +84,8 @@ public class TableInfoTest {
         assertThat(info, is(new TableInfo("foo",
                 toMap(new TableInfo.Column("id", "INTEGER", 0),
                         new TableInfo.Column("name", "TEXT", 1),
-                        new TableInfo.Column("added", "REAL", 0))
-        )));
+                        new TableInfo.Column("added", "REAL", 0)),
+                Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
     @Test
@@ -86,8 +94,8 @@ public class TableInfoTest {
                 "CREATE TABLE foo (name TEXT NOT NULL)");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("name", "TEXT", 0))
-        )));
+                toMap(new TableInfo.Column("name", "TEXT", 0)),
+                Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
     @Test
@@ -97,8 +105,68 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("name", "TEXT", 0))
-        )));
+                toMap(new TableInfo.Column("name", "TEXT", 0)),
+                Collections.<TableInfo.ForeignKey>emptySet())));
+    }
+
+    @Test
+    public void foreignKey() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT)",
+                "CREATE TABLE bar(barName TEXT, FOREIGN KEY(barName) REFERENCES foo(name))"
+        );
+        TableInfo info = TableInfo.read(mDb, "bar");
+        assertThat(info.foreignKeys.size(), is(1));
+        final TableInfo.ForeignKey foreignKey = info.foreignKeys.iterator().next();
+        assertThat(foreignKey.columnNames, is(singletonList("barName")));
+        assertThat(foreignKey.referenceColumnNames, is(singletonList("name")));
+        assertThat(foreignKey.onDelete, is("NO ACTION"));
+        assertThat(foreignKey.onUpdate, is("NO ACTION"));
+        assertThat(foreignKey.referenceTable, is("foo"));
+    }
+
+    @Test
+    public void multipleForeignKeys() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT, lastName TEXT)",
+                "CREATE TABLE foo2 (name TEXT, lastName TEXT)",
+                "CREATE TABLE bar(barName TEXT, barLastName TEXT, "
+                        + " FOREIGN KEY(barName) REFERENCES foo(name) ON UPDATE SET NULL,"
+                        + " FOREIGN KEY(barLastName) REFERENCES foo2(lastName) ON DELETE CASCADE)");
+        TableInfo info = TableInfo.read(mDb, "bar");
+        assertThat(info.foreignKeys.size(), is(2));
+        Set<TableInfo.ForeignKey> expected = new HashSet<>();
+        expected.add(new TableInfo.ForeignKey("foo2", // table
+                "CASCADE", // on delete
+                "NO ACTION", // on update
+                singletonList("barLastName"), // my
+                singletonList("lastName")) // ref
+        );
+        expected.add(new TableInfo.ForeignKey("foo", // table
+                "NO ACTION", // on delete
+                "SET NULL", // on update
+                singletonList("barName"), // mine
+                singletonList("name")/*ref*/));
+        assertThat(info.foreignKeys, equalTo(expected));
+    }
+
+    @Test
+    public void compositeForeignKey() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT, lastName TEXT)",
+                "CREATE TABLE bar(barName TEXT, barLastName TEXT, "
+                        + " FOREIGN KEY(barName, barLastName) REFERENCES foo(name, lastName)"
+                        + " ON UPDATE cascade ON DELETE RESTRICT)");
+        TableInfo info = TableInfo.read(mDb, "bar");
+        assertThat(info.foreignKeys.size(), is(1));
+        TableInfo.ForeignKey expected = new TableInfo.ForeignKey(
+                "foo", // table
+                "RESTRICT", // on delete
+                "CASCADE", // on update
+                asList("barName", "barLastName"), // my columns
+                asList("name", "lastName") // ref columns
+        );
+        assertThat(info.foreignKeys.iterator().next(), is(expected));
     }
 
     private static Map<String, TableInfo.Column> toMap(TableInfo.Column... columns) {
