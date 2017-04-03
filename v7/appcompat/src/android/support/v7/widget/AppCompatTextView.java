@@ -43,6 +43,14 @@ import android.widget.TextView;
  *     {@link android.support.v4.view.ViewCompat}.</li>
  *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
  *     {@link R.attr#backgroundTintMode}.</li>
+ *     <li>Supports auto-sizing via {@link android.support.v4.widget.TextViewCompat} by allowing
+ *     to instruct a {@link TextView} to let the size of the text expand or contract automatically
+ *     to fill its layout based on the TextView's characteristics and boundaries. The
+ *     style attributes associated with auto-sizing are {@link R.attr#autoSizeTextType},
+ *     {@link R.attr#autoSizeMinTextSize}, {@link R.attr#autoSizeMaxTextSize},
+ *     {@link R.attr#autoSizeStepGranularity} and {@link R.attr#autoSizePresetSizes}, all of
+ *     which work back to
+ *     {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH Ice Cream Sandwich}.</li>
  * </ul>
  *
  * <p>This will automatically be used when you use {@link TextView} in your layouts.
