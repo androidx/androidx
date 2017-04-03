@@ -228,9 +228,9 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
 
     @Nullable
     @Override
-    public View findViewById(@IdRes int id) {
+    public <T extends View> T findViewById(@IdRes int id) {
         ensureSubDecor();
-        return mWindow.findViewById(id);
+        return (T) mWindow.findViewById(id);
     }
 
     @Override
