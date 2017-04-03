@@ -23,7 +23,6 @@ import android.database.Cursor;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.WatchNextPrograms;
 import android.support.media.tv.TvContractCompat.WatchNextPrograms.WatchNextType;
-import android.text.TextUtils;
 
 import java.util.Objects;
 
@@ -70,7 +69,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
     private static final long INVALID_LONG_VALUE = -1;
     private static final int INVALID_INT_VALUE = -1;
 
-    private final String mWatchNextType;
+    private final int mWatchNextType;
     private final long mLastEngagementTimeUtcMillis;
 
     private WatchNextProgram(Builder builder) {
@@ -82,7 +81,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
     /**
      * @return The value of {@link WatchNextPrograms#COLUMN_WATCH_NEXT_TYPE} for the program.
      */
-    public @WatchNextType String getWatchNextType() {
+    public @WatchNextType int getWatchNextType() {
         return mWatchNextType;
     }
 
@@ -135,7 +134,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
     @Override
     public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = super.toContentValues(includeProtectedFields);
-        if (!TextUtils.isEmpty(mWatchNextType)) {
+        if (mWatchNextType != INVALID_INT_VALUE) {
             values.put(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE, mWatchNextType);
         }
         if (mLastEngagementTimeUtcMillis != INVALID_LONG_VALUE) {
@@ -159,7 +158,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
         int index;
         if ((index = cursor.getColumnIndex(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE)) >= 0
                 && !cursor.isNull(index)) {
-            builder.setWatchNextType(cursor.getString(index));
+            builder.setWatchNextType(cursor.getInt(index));
         }
         if ((index = cursor.getColumnIndex(
                 WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS)) >= 0
@@ -181,7 +180,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
      * This Builder class simplifies the creation of a {@link WatchNextProgram} object.
      */
     public static final class Builder extends BasePreviewProgram.Builder<Builder> {
-        private String mWatchNextType;
+        private int mWatchNextType = INVALID_INT_VALUE;
         private long mLastEngagementTimeUtcMillis = INVALID_LONG_VALUE;
 
         /**
@@ -212,7 +211,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
          *                      the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setWatchNextType(@WatchNextType String watchNextType) {
+        public Builder setWatchNextType(@WatchNextType int watchNextType) {
             mWatchNextType = watchNextType;
             return this;
         }
