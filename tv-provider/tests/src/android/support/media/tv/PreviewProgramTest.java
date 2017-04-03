@@ -151,7 +151,7 @@ public class PreviewProgramTest extends TestCase {
                 .setPreviewVideoUri(Uri.parse("http://example.com/preview-video.mpg"))
                 .setLastPlaybackPositionMillis(0)
                 .setDurationMillis(60 * 1000)
-                .setAppLinkIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
+                .setIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
                         Intent.URI_INTENT_SCHEME)))
                 .setTransient(false)
                 .setType(PreviewPrograms.TYPE_TV_EPISODE)
@@ -186,7 +186,7 @@ public class PreviewProgramTest extends TestCase {
                 PreviewPrograms.COLUMN_PREVIEW_VIDEO_URI,
                 PreviewPrograms.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
                 PreviewPrograms.COLUMN_DURATION_MILLIS,
-                PreviewPrograms.COLUMN_APP_LINK_INTENT_URI,
+                PreviewPrograms.COLUMN_INTENT_URI,
                 PreviewPrograms.COLUMN_WEIGHT,
                 PreviewPrograms.COLUMN_TRANSIENT,
                 PreviewPrograms.COLUMN_TYPE,
@@ -225,7 +225,7 @@ public class PreviewProgramTest extends TestCase {
                 .setPreviewVideoUri(Uri.parse("http://example.com/preview-video.mpg"))
                 .setLastPlaybackPositionMillis(0)
                 .setDurationMillis(60 * 1000)
-                .setAppLinkIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
+                .setIntentUri(Uri.parse(new Intent(Intent.ACTION_VIEW).toUri(
                         Intent.URI_INTENT_SCHEME)))
                 .setTransient(false)
                 .setType(PreviewPrograms.TYPE_MOVIE)
@@ -294,7 +294,7 @@ public class PreviewProgramTest extends TestCase {
         assertEquals(programA.getLastPlaybackPositionMillis(),
                 programB.getLastPlaybackPositionMillis());
         assertEquals(programA.getDurationMillis(), programB.getDurationMillis());
-        assertEquals(programA.getAppLinkIntentUri(), programB.getAppLinkIntentUri());
+        assertEquals(programA.getIntentUri(), programB.getIntentUri());
         assertEquals(programA.getWeight(), programB.getWeight());
         assertEquals(programA.isTransient(), programB.isTransient());
         assertEquals(programA.getType(), programB.getType());
