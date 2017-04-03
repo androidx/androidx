@@ -18,11 +18,9 @@ package android.support.v7.app;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.appcompat.R;
 import android.support.v7.view.WindowCallbackWrapper;
 import android.support.v7.view.menu.ListMenuPresenter;
 import android.support.v7.view.menu.MenuBuilder;
@@ -30,8 +28,6 @@ import android.support.v7.view.menu.MenuPresenter;
 import android.support.v7.widget.DecorToolbar;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.ToolbarWidgetWrapper;
-import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -482,12 +478,9 @@ class ToolbarActionBar extends ActionBar {
             final KeyCharacterMap kmap = KeyCharacterMap.load(
                     ev != null ? ev.getDeviceId() : KeyCharacterMap.VIRTUAL_KEYBOARD);
             menu.setQwertyMode(kmap.getKeyboardType() != KeyCharacterMap.NUMERIC);
-            menu.performShortcut(keyCode, ev, 0);
+            return menu.performShortcut(keyCode, ev, 0);
         }
-        // This action bar always returns true for handling keyboard shortcuts.
-        // This will block the window from preparing a temporary panel to handle
-        // keyboard shortcuts.
-        return true;
+        return false;
     }
 
     @Override
@@ -519,52 +512,6 @@ class ToolbarActionBar extends ActionBar {
         }
     }
 
-    View getListMenuView(Menu menu) {
-        ensureListMenuPresenter(menu);
-
-        if (menu == null || mListMenuPresenter == null) {
-            return null;
-        }
-
-        if (mListMenuPresenter.getAdapter().getCount() > 0) {
-            return (View) mListMenuPresenter.getMenuView(mDecorToolbar.getViewGroup());
-        }
-        return null;
-    }
-
-    private void ensureListMenuPresenter(Menu menu) {
-        if (mListMenuPresenter == null && (menu instanceof MenuBuilder)) {
-            MenuBuilder mb = (MenuBuilder) menu;
-
-            Context context = mDecorToolbar.getContext();
-            final TypedValue outValue = new TypedValue();
-            final Resources.Theme widgetTheme = context.getResources().newTheme();
-            widgetTheme.setTo(context.getTheme());
-
-            // First apply the actionBarPopupTheme
-            widgetTheme.resolveAttribute(R.attr.actionBarPopupTheme, outValue, true);
-            if (outValue.resourceId != 0) {
-                widgetTheme.applyStyle(outValue.resourceId, true);
-            }
-
-            // Apply the panelMenuListTheme
-            widgetTheme.resolveAttribute(R.attr.panelMenuListTheme, outValue, true);
-            if (outValue.resourceId != 0) {
-                widgetTheme.applyStyle(outValue.resourceId, true);
-            } else {
-                widgetTheme.applyStyle(R.style.Theme_AppCompat_CompactMenu, true);
-            }
-
-            context = new ContextThemeWrapper(context, 0);
-            context.getTheme().setTo(widgetTheme);
-
-            // Finally create the list menu presenter
-            mListMenuPresenter = new ListMenuPresenter(context, R.layout.abc_list_menu_item_layout);
-            mListMenuPresenter.setCallback(new PanelMenuPresenterCallback());
-            mb.addMenuPresenter(mListMenuPresenter);
-        }
-    }
-
     private class ToolbarCallbackWrapper extends WindowCallbackWrapper {
         public ToolbarCallbackWrapper(Window.Callback wrapped) {
             super(wrapped);
@@ -582,13 +529,11 @@ class ToolbarActionBar extends ActionBar {
 
         @Override
         public View onCreatePanelView(int featureId) {
-            switch (featureId) {
-                case Window.FEATURE_OPTIONS_PANEL:
-                    final Menu menu = mDecorToolbar.getMenu();
-                    if (onPreparePanel(featureId, null, menu) && onMenuOpened(featureId, menu)) {
-                        return getListMenuView(menu);
-                    }
-                    break;
+            if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+                // This gets called by PhoneWindow.preparePanel. Since this already manages
+                // its own panel, we return a dummy view here to prevent PhoneWindow from
+                // preparing a default one.
+                return new View(mDecorToolbar.getContext());
             }
             return super.onCreatePanelView(featureId);
         }
@@ -630,26 +575,6 @@ class ToolbarActionBar extends ActionBar {
                 mWindowCallback.onPanelClosed(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR, menu);
             }
             mClosingActionMenu = false;
-        }
-    }
-
-    private final class PanelMenuPresenterCallback implements MenuPresenter.Callback {
-        PanelMenuPresenterCallback() {
-        }
-
-        @Override
-        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
-            if (mWindowCallback != null) {
-                mWindowCallback.onPanelClosed(Window.FEATURE_OPTIONS_PANEL, menu);
-            }
-        }
-
-        @Override
-        public boolean onOpenSubMenu(MenuBuilder subMenu) {
-            if (subMenu == null && mWindowCallback != null) {
-                mWindowCallback.onMenuOpened(Window.FEATURE_OPTIONS_PANEL, subMenu);
-            }
-            return true;
         }
     }
 
