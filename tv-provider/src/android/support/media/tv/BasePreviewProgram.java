@@ -59,7 +59,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
     private final Uri mPreviewVideoUri;
     private final int mLastPlaybackPositionMillis;
     private final int mDurationMillis;
-    private final Uri mAppLinkIntentUri;
+    private final Uri mIntentUri;
     private final int mTransient;
     private final String mType;
     private final String mPosterArtAspectRatio;
@@ -85,7 +85,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
         mPreviewVideoUri = builder.mPreviewVideoUri;
         mLastPlaybackPositionMillis = builder.mLastPlaybackPositionMillis;
         mDurationMillis = builder.mDurationMillis;
-        mAppLinkIntentUri = builder.mAppLinkIntentUri;
+        mIntentUri = builder.mIntentUri;
         mTransient = builder.mTransient;
         mType = builder.mType;
         mPosterArtAspectRatio = builder.mPosterArtAspectRatio;
@@ -139,19 +139,17 @@ public abstract class BasePreviewProgram extends BaseProgram {
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_APP_LINK_INTENT_URI} for the
-     * program.
+     * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTENT_URI} for the program.
      */
-    public Uri getAppLinkIntentUri() {
-        return mAppLinkIntentUri;
+    public Uri getIntentUri() {
+        return mIntentUri;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_APP_LINK_INTENT_URI} for the
-     * program.
+     * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTENT_URI} for the program.
      */
-    public Intent getAppLinkIntent() throws URISyntaxException {
-        return Intent.parseUri(mAppLinkIntentUri.toString(), Intent.URI_INTENT_SCHEME);
+    public Intent getIntent() throws URISyntaxException {
+        return Intent.parseUri(mIntentUri.toString(), Intent.URI_INTENT_SCHEME);
     }
 
     /**
@@ -299,8 +297,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
                 && Objects.equals(mLastPlaybackPositionMillis,
                 program.mLastPlaybackPositionMillis)
                 && Objects.equals(mDurationMillis, program.mDurationMillis)
-                && Objects.equals(mAppLinkIntentUri,
-                program.mAppLinkIntentUri)
+                && Objects.equals(mIntentUri, program.mIntentUri)
                 && Objects.equals(mTransient, program.mTransient)
                 && Objects.equals(mType, program.mType)
                 && Objects.equals(mPosterArtAspectRatio, program.mPosterArtAspectRatio)
@@ -356,9 +353,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
             if (mDurationMillis != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_DURATION_MILLIS, mDurationMillis);
             }
-            if (mAppLinkIntentUri != null) {
-                values.put(BasePreviewProgramColumns.COLUMN_APP_LINK_INTENT_URI,
-                        mAppLinkIntentUri.toString());
+            if (mIntentUri != null) {
+                values.put(BasePreviewProgramColumns.COLUMN_INTENT_URI, mIntentUri.toString());
             }
             if (mTransient != INVALID_INT_VALUE) {
                 values.put(BasePreviewProgramColumns.COLUMN_TRANSIENT, mTransient);
@@ -456,10 +452,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
                     && !cursor.isNull(index)) {
                 builder.setDurationMillis(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(
-                    BasePreviewProgramColumns.COLUMN_APP_LINK_INTENT_URI)) >= 0
+            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_INTENT_URI)) >= 0
                     && !cursor.isNull(index)) {
-                builder.setAppLinkIntentUri(Uri.parse(cursor.getString(index)));
+                builder.setIntentUri(Uri.parse(cursor.getString(index)));
             }
             if ((index =
                     cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_TRANSIENT)) >= 0
@@ -549,7 +544,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
                 BasePreviewProgramColumns.COLUMN_PREVIEW_VIDEO_URI,
                 BasePreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
                 BasePreviewProgramColumns.COLUMN_DURATION_MILLIS,
-                BasePreviewProgramColumns.COLUMN_APP_LINK_INTENT_URI,
+                BasePreviewProgramColumns.COLUMN_INTENT_URI,
                 BasePreviewProgramColumns.COLUMN_TRANSIENT,
                 BasePreviewProgramColumns.COLUMN_TYPE,
                 BasePreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO,
@@ -584,7 +579,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
         private Uri mPreviewVideoUri;
         private int mLastPlaybackPositionMillis = INVALID_INT_VALUE;
         private int mDurationMillis = INVALID_INT_VALUE;
-        private Uri mAppLinkIntentUri;
+        private Uri mIntentUri;
         private int mTransient = INVALID_INT_VALUE;
         private String mType;
         private String mPosterArtAspectRatio;
@@ -620,7 +615,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             mPreviewVideoUri = other.mPreviewVideoUri;
             mLastPlaybackPositionMillis = other.mLastPlaybackPositionMillis;
             mDurationMillis = other.mDurationMillis;
-            mAppLinkIntentUri = other.mAppLinkIntentUri;
+            mIntentUri = other.mIntentUri;
             mTransient = other.mTransient;
             mType = other.mType;
             mPosterArtAspectRatio = other.mPosterArtAspectRatio;
@@ -693,26 +688,25 @@ public abstract class BasePreviewProgram extends BaseProgram {
         }
 
         /**
-         * Sets the intent URI of the app link for the preview video.
+         * Sets the intent URI of the app link for the preview program.
          *
-         * @param appLinkIntentUri The value of
-         *                         {@link BasePreviewProgramColumns#COLUMN_APP_LINK_INTENT_URI} for
-         *                         the program.
+         * @param intentUri The value of {@link BasePreviewProgramColumns#COLUMN_INTENT_URI} for the
+         *                  program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setAppLinkIntentUri(Uri appLinkIntentUri) {
-            mAppLinkIntentUri = appLinkIntentUri;
+        public T setIntentUri(Uri intentUri) {
+            mIntentUri = intentUri;
             return (T) this;
         }
 
         /**
          * Sets the intent of the app link for the preview video.
          *
-         * @param appLinkIntent The Intent to be executed when the App Linking card is selected
+         * @param intent The Intent to be executed when the preview program is selected
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public T setAppLinkIntent(Intent appLinkIntent) {
-            return setAppLinkIntentUri(Uri.parse(appLinkIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        public T setIntent(Intent intent) {
+            return setIntentUri(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
         }
 
         /**
