@@ -19,10 +19,16 @@ package android.support.v7.app;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
+import android.view.Menu;
 
 public class ToolbarAppCompatActivity extends BaseTestActivity {
 
     private Toolbar mToolbar;
+
+    public int mCreateMenuCount;
+    public int mPrepareMenuCount;
+    public int mKeyShortcutCount;
 
     @Override
     protected int getContentViewLayoutResId() {
@@ -37,5 +43,27 @@ public class ToolbarAppCompatActivity extends BaseTestActivity {
 
     public Toolbar getToolbar() {
         return mToolbar;
+    }
+
+    @Override
+    public boolean onKeyShortcut(int keyCode, KeyEvent event) {
+        ++mKeyShortcutCount;
+        return super.onKeyShortcut(keyCode, event);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        ++mCreateMenuCount;
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        ++mPrepareMenuCount;
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    public void resetCounters() {
+        mCreateMenuCount = mPrepareMenuCount = mKeyShortcutCount = 0;
     }
 }
