@@ -1157,12 +1157,12 @@ package android.support.media {
 package android.support.media.tv {
 
   public abstract class BasePreviewProgram extends android.support.media.tv.BaseProgram {
-    method public android.content.Intent getAppLinkIntent() throws java.net.URISyntaxException;
-    method public android.net.Uri getAppLinkIntentUri();
     method public java.lang.String getAuthor();
     method public java.lang.String getAvailability();
     method public java.lang.String getContentId();
     method public int getDurationMillis();
+    method public android.content.Intent getIntent() throws java.net.URISyntaxException;
+    method public android.net.Uri getIntentUri();
     method public long getInteractionCount();
     method public java.lang.String getInteractionType();
     method public java.lang.String getInternalProviderId();
@@ -1186,12 +1186,12 @@ package android.support.media.tv {
   public static abstract class BasePreviewProgram.Builder<T extends android.support.media.tv.BasePreviewProgram.Builder> extends android.support.media.tv.BaseProgram.Builder {
     ctor public BasePreviewProgram.Builder();
     ctor public BasePreviewProgram.Builder(android.support.media.tv.BasePreviewProgram);
-    method public T setAppLinkIntent(android.content.Intent);
-    method public T setAppLinkIntentUri(android.net.Uri);
     method public T setAuthor(java.lang.String);
     method public T setAvailability(java.lang.String);
     method public T setContentId(java.lang.String);
     method public T setDurationMillis(int);
+    method public T setIntent(android.content.Intent);
+    method public T setIntentUri(android.net.Uri);
     method public T setInteractionCount(long);
     method public T setInteractionType(java.lang.String);
     method public T setInternalProviderId(java.lang.String);
@@ -1411,12 +1411,12 @@ package android.support.media.tv {
     field public static final java.lang.String AVAILABILITY_AVAILABLE = "AVAILABILITY_AVAILABLE";
     field public static final java.lang.String AVAILABILITY_FREE_WITH_SUBSCRIPTION = "AVAILABILITY_FREE_WITH_SUBSCRIPTION";
     field public static final java.lang.String AVAILABILITY_PAID_CONTENT = "AVAILABILITY_PAID_CONTENT";
-    field public static final java.lang.String COLUMN_APP_LINK_INTENT_URI = "app_link_intent_uri";
     field public static final java.lang.String COLUMN_AUTHOR = "author";
     field public static final java.lang.String COLUMN_AVAILABILITY = "availability";
     field public static final java.lang.String COLUMN_BROWSABLE = "browsable";
     field public static final java.lang.String COLUMN_CONTENT_ID = "content_id";
     field public static final java.lang.String COLUMN_DURATION_MILLIS = "duration_millis";
+    field public static final java.lang.String COLUMN_INTENT_URI = "intent_uri";
     field public static final java.lang.String COLUMN_INTERACTION_COUNT = "interaction_count";
     field public static final java.lang.String COLUMN_INTERACTION_TYPE = "interaction_type";
     field public static final java.lang.String COLUMN_INTERNAL_PROVIDER_ID = "internal_provider_id";
