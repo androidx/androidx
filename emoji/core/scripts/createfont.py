@@ -536,10 +536,10 @@ class EmojiFontCreator(object):
         # returned is either default or 1 greater than the largest id in previous data
         self.emoji_id = load_previous_metadata(self.emoji_data_map)
 
-        with contextlib.closing(ttLib.TTFont(self.font_path)) as ttf:
-            # set the font revision to be the METADATA_VERSION
-            ttf['head'].fontRevision = METADATA_VERSION
-
+        # recalcTimestamp parameter will keep the modified field same as the original font. Changing
+        # the modified field in the font causes the font ttf file to change, which makes it harder
+        # to understand if something really changed in the font.
+        with contextlib.closing(ttLib.TTFont(self.font_path, recalcTimestamp=False)) as ttf:
             # read image size data
             self.read_cbdt(ttf)
 
