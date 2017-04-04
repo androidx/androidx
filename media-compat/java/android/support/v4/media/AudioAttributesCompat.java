@@ -256,7 +256,7 @@ public class AudioAttributesCompat {
         if (Build.VERSION.SDK_INT >= 26
                 && !sForceLegacyBehavior
                 && unwrap() != null) {
-            return ((AudioAttributes) unwrap()).getVolumeControlStream();
+            return AudioAttributes.getVolumeControlStream((AudioAttributes) unwrap());
         }
         return toVolumeStreamType(true, this);
     }
