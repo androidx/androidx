@@ -1284,15 +1284,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         return mInitialPrefetchItemCount;
     }
 
-
-    /**
-     * @deprecated Use {@link #getInitialPrefetchItemCount()} instead.
-     */
-    @Deprecated
-    public int getInitialItemPrefetchCount() {
-        return getInitialPrefetchItemCount();
-    }
-
     @Override
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
             LayoutPrefetchRegistry layoutPrefetchRegistry) {
