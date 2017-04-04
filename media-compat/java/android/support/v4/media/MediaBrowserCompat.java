@@ -2002,6 +2002,9 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultData != null) {
+                resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
+            }
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_SEARCH_RESULTS)) {
                 mCallback.onError(mQuery, mExtras);
