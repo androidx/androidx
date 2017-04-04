@@ -132,6 +132,8 @@ public class LoaderTest {
             return; // can't switch orientation for square screens
         }
 
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
         // After orientation change, the text should still be loaded properly
         activity = LoaderActivity.sActivity;
         assertEquals("Loaded!", activity.textView.getText().toString());
