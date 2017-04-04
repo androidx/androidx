@@ -1283,6 +1283,7 @@ package android.support.media.tv {
     method public java.lang.Long getInternalProviderFlag2();
     method public java.lang.Long getInternalProviderFlag3();
     method public java.lang.Long getInternalProviderFlag4();
+    method public java.lang.String getInternalProviderId();
     method public java.lang.String getNetworkAffiliation();
     method public int getOriginalNetworkId();
     method public java.lang.String getPackageName();
@@ -1318,6 +1319,7 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setInternalProviderFlag2(long);
     method public android.support.media.tv.Channel.Builder setInternalProviderFlag3(long);
     method public android.support.media.tv.Channel.Builder setInternalProviderFlag4(long);
+    method public android.support.media.tv.Channel.Builder setInternalProviderId(java.lang.String);
     method public android.support.media.tv.Channel.Builder setNetworkAffiliation(java.lang.String);
     method public android.support.media.tv.Channel.Builder setOriginalNetworkId(int);
     method public android.support.media.tv.Channel.Builder setSearchable(boolean);
