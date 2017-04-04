@@ -1828,7 +1828,7 @@ public class NotificationCompat {
          *
          * No-op on versions prior to {@link android.os.Build.VERSION_CODES#O} .
          */
-        public Builder setChannel(String channelId) {
+        public Builder setChannel(@NonNull String channelId) {
             mChannelId = channelId;
             return this;
         }
