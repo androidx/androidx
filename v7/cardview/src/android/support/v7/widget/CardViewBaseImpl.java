@@ -22,12 +22,10 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 
-@RequiresApi(9)
-class CardViewGingerbread implements CardViewImpl {
+class CardViewBaseImpl implements CardViewImpl {
 
-    final RectF sCornerRect = new RectF();
+    private final RectF mCornerRect = new RectF();
 
     @Override
     public void initStatic() {
@@ -45,21 +43,21 @@ class CardViewGingerbread implements CardViewImpl {
                 if (cornerRadius >= 1f) {
                     // increment corner radius to account for half pixels.
                     float roundedCornerRadius = cornerRadius + .5f;
-                    sCornerRect.set(-roundedCornerRadius, -roundedCornerRadius, roundedCornerRadius,
+                    mCornerRect.set(-roundedCornerRadius, -roundedCornerRadius, roundedCornerRadius,
                             roundedCornerRadius);
                     int saved = canvas.save();
                     canvas.translate(bounds.left + roundedCornerRadius,
                             bounds.top + roundedCornerRadius);
-                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.drawArc(mCornerRect, 180, 90, true, paint);
                     canvas.translate(innerWidth, 0);
                     canvas.rotate(90);
-                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.drawArc(mCornerRect, 180, 90, true, paint);
                     canvas.translate(innerHeight, 0);
                     canvas.rotate(90);
-                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.drawArc(mCornerRect, 180, 90, true, paint);
                     canvas.translate(innerWidth, 0);
                     canvas.rotate(90);
-                    canvas.drawArc(sCornerRect, 180, 90, true, paint);
+                    canvas.drawArc(mCornerRect, 180, 90, true, paint);
                     canvas.restoreToCount(saved);
                     //draw top and bottom pieces
                     canvas.drawRect(bounds.left + roundedCornerRadius - 1f, bounds.top,

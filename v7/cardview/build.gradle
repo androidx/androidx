@@ -12,10 +12,6 @@ android {
 
     sourceSets {
         main.java.srcDirs = [
-                'base',
-                'gingerbread',
-                'jellybean-mr1',
-                'api21',
                 'src'
         ]
         main.res.srcDir 'res'
