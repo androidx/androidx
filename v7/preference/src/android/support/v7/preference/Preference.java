@@ -81,6 +81,7 @@ import java.util.List;
  * @attr name android:persistent
  * @attr name android:defaultValue
  * @attr name android:shouldDisableView
+ * @attr name android:singleLineTitle
  */
 public class Preference implements Comparable<Preference> {
     /**
@@ -141,6 +142,7 @@ public class Preference implements Comparable<Preference> {
 
     private boolean mAllowDividerAbove = true;
     private boolean mAllowDividerBelow = true;
+    private boolean mSingleLineTitle = true;
 
     /**
      * @see #setShouldDisableView(boolean)
@@ -307,6 +309,9 @@ public class Preference implements Comparable<Preference> {
         mShouldDisableView =
                 TypedArrayUtils.getBoolean(a, R.styleable.Preference_shouldDisableView,
                         R.styleable.Preference_android_shouldDisableView, true);
+
+        mSingleLineTitle = TypedArrayUtils.getBoolean(a, R.styleable.Preference_singleLineTitle,
+                R.styleable.Preference_android_singleLineTitle, true);
 
         a.recycle();
     }
@@ -551,6 +556,7 @@ public class Preference implements Comparable<Preference> {
             if (!TextUtils.isEmpty(title)) {
                 titleView.setText(title);
                 titleView.setVisibility(View.VISIBLE);
+                titleView.setSingleLine(mSingleLineTitle);
             } else {
                 titleView.setVisibility(View.GONE);
             }
@@ -962,6 +968,30 @@ public class Preference implements Comparable<Preference> {
      */
     public void setPersistent(boolean persistent) {
         mPersistent = persistent;
+    }
+
+    /**
+     * Sets whether to constrain the title of this Preference to a single line instead of
+     * letting it wrap onto multiple lines.
+     *
+     * @param singleLineTitle set {@code true} if the title should be constrained to one line
+     *
+     * @attr ref R.styleable#Preference_android_singleLineTitle
+     */
+    public void setSingleLineTitle(boolean singleLineTitle) {
+        mSingleLineTitle = singleLineTitle;
+    }
+
+    /**
+     * Gets whether the title of this preference is constrained to a single line.
+     *
+     * @see #setSingleLineTitle(boolean)
+     * @return {@code true} if the title of this preference is constrained to a single line
+     *
+     * @attr ref R.styleable#Preference_android_singleLineTitle
+     */
+    public boolean isSingleLineTitle() {
+        return mSingleLineTitle;
     }
 
     /**
