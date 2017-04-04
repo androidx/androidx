@@ -48,6 +48,11 @@ class MetadataListReader {
     private static final int EMJI_TAG = 'E' << 24 | 'm' << 16 | 'j' << 8 | 'i';
 
     /**
+     * Deprecated meta tag name. Do not use, kept for compatibility reasons, will be removed soon.
+     */
+    private static final int EMJI_TAG_DEPRECATED = 'e' << 24 | 'm' << 16 | 'j' << 8 | 'i';
+
+    /**
      * The name of the meta table in the font. int representation for "meta"
      */
     private static final int META_TABLE_NAME = 'm' << 24 | 'e' << 16 | 't' << 8 | 'a';
@@ -155,7 +160,7 @@ class MetadataListReader {
                 final int tag = reader.readTag();
                 final long dataOffset = reader.readUnsignedInt();
                 final long dataLength = reader.readUnsignedInt();
-                if (EMJI_TAG == tag) {
+                if (EMJI_TAG == tag || EMJI_TAG_DEPRECATED == tag) {
                     return new OffsetInfo(dataOffset + metaOffset, dataLength);
                 }
             }
