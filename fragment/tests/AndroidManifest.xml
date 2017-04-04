@@ -38,6 +38,9 @@
         <activity android:name="android.support.v4.app.test.FragmentResultActivity" />
 
         <activity android:name="android.support.v4.app.test.LoaderActivity" />
+
+        <activity android:name="android.support.v4.app.test.NewIntentActivity"
+                  android:launchMode="singleInstance" />
     </application>
 
 </manifest>
