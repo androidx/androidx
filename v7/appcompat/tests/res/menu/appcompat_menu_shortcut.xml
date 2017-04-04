@@ -34,6 +34,6 @@
     <item android:id="@+id/multiple_modifiers"
           android:onClick="handleMenuItem"
           android:alphabeticShortcut="d"
-          app:alphabeticModifiers="CTRL|SHIFT" />
+          app:alphabeticModifiers="ALT|SHIFT" />
 
 </menu>
