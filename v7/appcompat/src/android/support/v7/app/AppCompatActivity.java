@@ -31,6 +31,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.VectorEnabledTintResources;
@@ -558,12 +559,13 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     /**
-     * KeyEvents with non-default modifiers are not dispatched to menu's performShortcut in API 24
+     * KeyEvents with non-default modifiers are not dispatched to menu's performShortcut in API 25
      * or lower. Here, we check if the keypress corresponds to a menuitem's shortcut combination
      * and perform the corresponding action.
      */
     private boolean performMenuItemShortcut(int keycode, KeyEvent event) {
-        if (!KeyEvent.metaStateHasNoModifiers(event.getMetaState())
+        if (!BuildCompat.isAtLeastO() && !event.isCtrlPressed()
+                && !KeyEvent.metaStateHasNoModifiers(event.getMetaState())
                 && event.getRepeatCount() == 0
                 && !KeyEvent.isModifierKey(event.getKeyCode())) {
             final Window currentWindow = getWindow();
