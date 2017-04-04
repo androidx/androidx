@@ -12935,3 +12935,98 @@ package android.support.wear.widget {
 
 }
 
+package android.support.wear.widget.drawer {
+
+  public class WearableActionDrawerView extends android.support.wear.widget.drawer.WearableDrawerView {
+    ctor public WearableActionDrawerView(android.content.Context);
+    ctor public WearableActionDrawerView(android.content.Context, android.util.AttributeSet);
+    ctor public WearableActionDrawerView(android.content.Context, android.util.AttributeSet, int);
+    ctor public WearableActionDrawerView(android.content.Context, android.util.AttributeSet, int, int);
+    method public android.view.Menu getMenu();
+    method public void setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener);
+    method public void setTitle(java.lang.CharSequence);
+  }
+
+  public class WearableDrawerController {
+    method public void closeDrawer();
+    method public void openDrawer();
+    method public void peekDrawer();
+  }
+
+  public class WearableDrawerLayout extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingParent android.view.View.OnLayoutChangeListener {
+    ctor public WearableDrawerLayout(android.content.Context);
+    ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet);
+    ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet, int);
+    ctor public WearableDrawerLayout(android.content.Context, android.util.AttributeSet, int, int);
+    method public void onFlingComplete(android.view.View);
+    method public void onLayoutChange(android.view.View, int, int, int, int, int, int, int, int);
+    method public void setDrawerStateCallback(android.support.wear.widget.drawer.WearableDrawerLayout.DrawerStateCallback);
+  }
+
+  public static class WearableDrawerLayout.DrawerStateCallback {
+    ctor public WearableDrawerLayout.DrawerStateCallback();
+    method public void onDrawerClosed(android.support.wear.widget.drawer.WearableDrawerLayout, android.support.wear.widget.drawer.WearableDrawerView);
+    method public void onDrawerOpened(android.support.wear.widget.drawer.WearableDrawerLayout, android.support.wear.widget.drawer.WearableDrawerView);
+    method public void onDrawerStateChanged(android.support.wear.widget.drawer.WearableDrawerLayout, int);
+  }
+
+  public class WearableDrawerView extends android.widget.FrameLayout {
+    ctor public WearableDrawerView(android.content.Context);
+    ctor public WearableDrawerView(android.content.Context, android.util.AttributeSet);
+    ctor public WearableDrawerView(android.content.Context, android.util.AttributeSet, int);
+    ctor public WearableDrawerView(android.content.Context, android.util.AttributeSet, int, int);
+    method public android.support.wear.widget.drawer.WearableDrawerController getController();
+    method public android.view.View getDrawerContent();
+    method public int getDrawerState();
+    method public boolean isAutoPeekEnabled();
+    method public boolean isClosed();
+    method public boolean isLocked();
+    method public boolean isLockedWhenClosed();
+    method public boolean isOpenOnlyAtTopEnabled();
+    method public boolean isOpened();
+    method public boolean isPeekOnScrollDownEnabled();
+    method public boolean isPeeking();
+    method public void onDrawerClosed();
+    method public void onDrawerOpened();
+    method public void onDrawerStateChanged(int);
+    method public void onPeekContainerClicked(android.view.View);
+    method public void setDrawerContent(android.view.View);
+    method public void setIsAutoPeekEnabled(boolean);
+    method public void setIsLocked(boolean);
+    method public void setLockedWhenClosed(boolean);
+    method public void setOpenOnlyAtTopEnabled(boolean);
+    method public void setPeekContent(android.view.View);
+    method public void setPeekOnScrollDownEnabled(boolean);
+    field public static final int STATE_DRAGGING = 1; // 0x1
+    field public static final int STATE_IDLE = 0; // 0x0
+    field public static final int STATE_SETTLING = 2; // 0x2
+  }
+
+  public class WearableNavigationDrawerView extends android.support.wear.widget.drawer.WearableDrawerView {
+    ctor public WearableNavigationDrawerView(android.content.Context);
+    ctor public WearableNavigationDrawerView(android.content.Context, android.util.AttributeSet);
+    ctor public WearableNavigationDrawerView(android.content.Context, android.util.AttributeSet, int);
+    ctor public WearableNavigationDrawerView(android.content.Context, android.util.AttributeSet, int, int);
+    method public void addOnItemSelectedListener(android.support.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener);
+    method public int getNavigationStyle();
+    method public void removeOnItemSelectedListener(android.support.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener);
+    method public void setAdapter(android.support.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter);
+    method public void setCurrentItem(int, boolean);
+    field public static final int MULTI_PAGE = 1; // 0x1
+    field public static final int SINGLE_PAGE = 0; // 0x0
+  }
+
+  public static abstract interface WearableNavigationDrawerView.OnItemSelectedListener {
+    method public abstract void onItemSelected(int);
+  }
+
+  public static abstract class WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
+    ctor public WearableNavigationDrawerView.WearableNavigationDrawerAdapter();
+    method public abstract int getCount();
+    method public abstract android.graphics.drawable.Drawable getItemDrawable(int);
+    method public abstract java.lang.CharSequence getItemText(int);
+    method public void notifyDataSetChanged();
+  }
+
+}
+

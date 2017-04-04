@@ -4,6 +4,7 @@ archivesBaseName = 'wear'
 dependencies {
     compile project(':support-annotations')
     compile project(':support-core-ui')
+    compile project(':support-percent')
     compile project(':support-recyclerview-v7')
     androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'

@@ -32,6 +32,7 @@ LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
         android-support-core-ui \
         android-support-annotations \
+        android-support-percent \
         android-support-v7-recyclerview \
         android-support-v4
 LOCAL_JAR_EXCLUDE_FILES := none
