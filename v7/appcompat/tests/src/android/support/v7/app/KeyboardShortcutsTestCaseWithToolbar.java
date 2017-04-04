@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -23,9 +24,12 @@ import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
 import android.support.v4.os.BuildCompat;
 import android.support.v7.testutils.BaseTestActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 
 import org.junit.Test;
 
@@ -82,6 +86,65 @@ public class KeyboardShortcutsTestCaseWithToolbar
                 assertTrue(editText.hasFocus());
             }
         });
+    }
+
+    @Test
+    @SmallTest
+    public void testKeyShortcuts() throws Throwable {
+        final ToolbarAppCompatActivity activity = getActivity();
+
+        final Toolbar toolbar =
+                (Toolbar) activity.findViewById(android.support.v7.appcompat.test.R.id.toolbar);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                toolbar.inflateMenu(android.support.v7.appcompat.test.R.menu.sample_actions);
+            }
+        });
+
+        final Boolean[] shareItemClicked = new Boolean[]{false};
+        toolbar.getMenu().findItem(android.support.v7.appcompat.test.R.id.action_alpha_shortcut)
+                .setOnMenuItemClickListener(
+                new MenuItem.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            return shareItemClicked[0] = true;
+                        }
+                    });
+
+        final Window.Callback cb = activity.getWindow().getCallback();
+
+        // Make sure valid menu shortcuts get handled by toolbar menu
+        long now = SystemClock.uptimeMillis();
+        final KeyEvent handledShortcutKey = new KeyEvent(now, now, KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_A, 0, KeyEvent.META_CTRL_ON);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(cb.dispatchKeyShortcutEvent(handledShortcutKey));
+            }
+        });
+        assertTrue(shareItemClicked[0]);
+
+        final KeyEvent unhandledShortcutKey = new KeyEvent(now, now, KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_D, 0, KeyEvent.META_CTRL_ON);
+
+        // Make sure we aren't eating unused shortcuts.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertFalse(cb.dispatchKeyShortcutEvent(unhandledShortcutKey));
+            }
+        });
+
+        activity.resetCounters();
+
+        // Make sure that unhandled shortcuts don't prepare menus (since toolbar is handling that).
+        getInstrumentation().sendKeySync(unhandledShortcutKey);
+        assertEquals(1, activity.mKeyShortcutCount);
+        assertEquals(0, activity.mPrepareMenuCount);
+        assertEquals(0, activity.mCreateMenuCount);
     }
 
     private void sendControlChar(char key) throws Throwable {
