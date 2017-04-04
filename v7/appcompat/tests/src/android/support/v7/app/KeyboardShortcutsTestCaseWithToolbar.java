@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.testutils.BaseTestActivity;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -48,7 +49,12 @@ public class KeyboardShortcutsTestCaseWithToolbar
         });
 
         getInstrumentation().waitForIdleSync();
-        sendControlChar('<');
+        if (BuildCompat.isAtLeastO()) {
+            // Since O, we rely on keyboard navigation clusters for jumping to actionbar
+            sendMetaKey(KeyEvent.KEYCODE_TAB);
+        } else {
+            sendControlChar('<');
+        }
         getInstrumentation().waitForIdleSync();
 
         // Should jump to the action bar after control-<
@@ -60,7 +66,13 @@ public class KeyboardShortcutsTestCaseWithToolbar
                 assertTrue(toolbar.hasFocus());
             }
         });
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+        if (BuildCompat.isAtLeastO()) {
+            // Since O, we rely on keyboard navigation clusters for jumping out of actionbar since
+            // normal navigation no-longer leaves it.
+            sendMetaKey(KeyEvent.KEYCODE_TAB);
+        } else {
+            getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
+        }
         getInstrumentation().waitForIdleSync();
 
         // Should jump to the first view again.
@@ -70,8 +82,6 @@ public class KeyboardShortcutsTestCaseWithToolbar
                 assertTrue(editText.hasFocus());
             }
         });
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_UP);
-        getInstrumentation().waitForIdleSync();
     }
 
     private void sendControlChar(char key) throws Throwable {
@@ -85,5 +95,16 @@ public class KeyboardShortcutsTestCaseWithToolbar
                     event.getRepeatCount(), event.getMetaState() | KeyEvent.META_CTRL_ON);
             getInstrumentation().sendKeySync(controlKey);
         }
+    }
+
+    private void sendMetaKey(int keyCode) throws Throwable {
+        long time = SystemClock.uptimeMillis();
+        KeyEvent keyDown = new KeyEvent(time, time, KeyEvent.ACTION_DOWN, keyCode,
+                0, KeyEvent.META_META_ON);
+        getInstrumentation().sendKeySync(keyDown);
+        time = SystemClock.uptimeMillis();
+        KeyEvent keyUp = new KeyEvent(time, time, KeyEvent.ACTION_UP, keyCode,
+                0, KeyEvent.META_META_ON);
+        getInstrumentation().sendKeySync(keyUp);
     }
 }

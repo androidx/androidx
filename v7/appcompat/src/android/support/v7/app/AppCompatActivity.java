@@ -64,7 +64,6 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     private AppCompatDelegate mDelegate;
     private int mThemeId = 0;
-    private boolean mEatKeyUpEvent;
     private Resources mResources;
 
     @Override
@@ -524,20 +523,8 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.isCtrlPressed()
-                && event.getUnicodeChar(event.getMetaState() & ~KeyEvent.META_CTRL_MASK) == '<') {
-            // Capture the Control-< and send focus to the ActionBar
-            final int action = event.getAction();
-            if (action == KeyEvent.ACTION_DOWN) {
-                final ActionBar actionBar = getSupportActionBar();
-                if (actionBar != null && actionBar.isShowing() && actionBar.requestFocus()) {
-                    mEatKeyUpEvent = true;
-                    return true;
-                }
-            } else if (action == KeyEvent.ACTION_UP && mEatKeyUpEvent) {
-                mEatKeyUpEvent = false;
-                return true;
-            }
+        if (getDelegate().checkActionBarFocusKey(event)) {
+            return true;
         }
         // Let support action bars open menus in response to the menu key prioritized over
         // the window handling it
