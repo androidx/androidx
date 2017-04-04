@@ -1168,29 +1168,6 @@ public class MediaSessionCompat {
             public void onSetShuffleModeEnabled(boolean enabled) {
                 Callback.this.onSetShuffleModeEnabled(enabled);
             }
-
-            @Override
-            public void onAddQueueItem(Object descriptionObject) {
-                Callback.this.onAddQueueItem(
-                        MediaDescriptionCompat.fromMediaDescription(descriptionObject));
-            }
-
-            @Override
-            public void onAddQueueItem(Object descriptionObject, int index) {
-                Callback.this.onAddQueueItem(
-                        MediaDescriptionCompat.fromMediaDescription(descriptionObject), index);
-            }
-
-            @Override
-            public void onRemoveQueueItem(Object descriptionObject) {
-                Callback.this.onRemoveQueueItem(
-                        MediaDescriptionCompat.fromMediaDescription(descriptionObject));
-            }
-
-            @Override
-            public void onRemoveQueueItemAt(int index) {
-                Callback.this.onRemoveQueueItemAt(index);
-            }
         }
     }
 
