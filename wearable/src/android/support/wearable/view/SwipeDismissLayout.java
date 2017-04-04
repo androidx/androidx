@@ -101,7 +101,7 @@ class SwipeDismissLayout extends FrameLayout {
          *
          * @param layout    the layout associated with this listener
          */
-        void onSwipeCancelled(SwipeDismissLayout layout);
+        void onSwipeCanceled(SwipeDismissLayout layout);
     }
 
     // Cached ViewConfiguration and system-wide constant values
@@ -124,6 +124,7 @@ class SwipeDismissLayout extends FrameLayout {
     private boolean mDiscardIntercept;
     private VelocityTracker mVelocityTracker;
     private float mTranslationX;
+    private boolean mDisallowIntercept;
 
     @Nullable
     private OnPreSwipeListener mOnPreSwipeListener;
@@ -207,6 +208,14 @@ class SwipeDismissLayout extends FrameLayout {
     }
 
     @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        mDisallowIntercept = disallowIntercept;
+        if (getParent() != null) {
+            getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
+        }
+    }
+
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (!mSwipeable) {
             return super.onInterceptTouchEvent(ev);
@@ -267,7 +276,8 @@ class SwipeDismissLayout extends FrameLayout {
                 break;
         }
 
-        if (mOnPreSwipeListener == null || mOnPreSwipeListener.onPreSwipe(this, mDownX, mDownY)) {
+        if ((mOnPreSwipeListener == null && !mDisallowIntercept)
+                || mOnPreSwipeListener.onPreSwipe(this, mDownX, mDownY)) {
             return (!mDiscardIntercept && mSwiping);
         }
         return false;
@@ -345,9 +355,9 @@ class SwipeDismissLayout extends FrameLayout {
         }
     }
 
-    void cancel() {
+    private void cancel() {
         if (mProgressListener != null) {
-            mProgressListener.onSwipeCancelled(this);
+            mProgressListener.onSwipeCanceled(this);
         }
     }
 
@@ -364,6 +374,7 @@ class SwipeDismissLayout extends FrameLayout {
         mDismissed = false;
         mDiscardIntercept = false;
         mCanStartSwipe = true;
+        mDisallowIntercept = false;
     }
 
     private void updateSwiping(MotionEvent ev) {

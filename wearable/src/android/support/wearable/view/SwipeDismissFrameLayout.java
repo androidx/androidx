@@ -16,10 +16,7 @@
 
 package android.support.wearable.view;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -66,11 +63,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
          *              event for this motion.
          * @return true if this gesture should be recognized as a swipe to dismiss gesture, false
          * otherwise.
-         *
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
-        //TODO: Unhide this or rework the functionality to be based on nested scrolling.
         boolean onPreSwipeStart(float xDown, float yDown) {
             return true;
         }
@@ -195,7 +188,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
      * Resets this view to the original state. This method cancels any pending animations on this
      * view and resets the alpha as well as x translation values.
      */
-    public void reset() {
+    private void resetTranslationAndAlpha() {
         animate().cancel();
         setTranslationX(0);
         setAlpha(1);
@@ -261,9 +254,9 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
         }
 
         @Override
-        public void onSwipeCancelled(SwipeDismissLayout layout) {
+        public void onSwipeCanceled(SwipeDismissLayout layout) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onSwipeCancelled() run swipe cancel animation");
+                Log.d(TAG, "onSwipeCanceled() run swipe cancel animation");
             }
             mStarted = false;
             animate()
@@ -279,6 +272,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
                                         Callback callbacks = mCallbacks.get(i);
                                         callbacks.onSwipeCancelled();
                                     }
+                                    resetTranslationAndAlpha();
                                 }
                             });
         }
