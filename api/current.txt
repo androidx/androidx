@@ -12224,7 +12224,6 @@ package android.support.wearable.view {
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int, int);
     method public void addCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
     method public void removeCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
-    method public void reset();
   }
 
   public static abstract class SwipeDismissFrameLayout.Callback {
