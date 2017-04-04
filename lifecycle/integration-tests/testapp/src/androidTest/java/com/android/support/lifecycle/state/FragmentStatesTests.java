@@ -16,7 +16,6 @@
 
 package com.android.support.lifecycle.state;
 
-import static com.android.support.lifecycle.HolderFragment.HOLDER_TAG;
 import static com.android.support.lifecycle.TestUtils.recreateActivity;
 import static com.android.support.lifecycle.state.StateProviders.savedStateProvider;
 
@@ -29,6 +28,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
+import com.android.support.lifecycle.HolderFragment;
 import com.android.support.lifecycle.testapp.MainActivity;
 import com.android.support.lifecycle.testapp.R;
 import com.android.support.lifecycle.testapp.UsualFragment;
@@ -65,8 +65,7 @@ public class FragmentStatesTests {
             fragmentManager.beginTransaction().add(R.id.root, fragment, tag).commitNow();
             init.run(fragment);
             if (forceRecreation) {
-                fragment.getChildFragmentManager()
-                        .findFragmentByTag(HOLDER_TAG).setRetainInstance(false);
+                HolderFragment.holderFragmentFor(fragment).setRetainInstance(false);
             }
 
             Fragment newFragment = new UsualFragment();

@@ -16,13 +16,12 @@
 
 package com.android.support.lifecycle.state;
 
-import static com.android.support.lifecycle.HolderFragment.HOLDER_TAG;
 import static com.android.support.lifecycle.TestUtils.recreateActivity;
 
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 
+import com.android.support.lifecycle.HolderFragment;
 import com.android.support.lifecycle.testapp.MainActivity;
 import com.android.support.lifecycle.testapp.R;
 
@@ -63,15 +62,15 @@ abstract class BaseStateProviderTest<T> {
     protected abstract T getStateProvider(MainActivity activity);
 
     private void stopRetainingInstances(MainActivity activity) {
-        FragmentManager fragmentManager;
+        Fragment holderFragment;
         if (mTestVariant == TestVariant.FRAGMENT) {
             Fragment fragment = activity.getSupportFragmentManager()
                     .findFragmentById(R.id.main_fragment);
-            fragmentManager = fragment.getChildFragmentManager();
+            holderFragment = HolderFragment.holderFragmentFor(fragment);
         } else {
-            fragmentManager = activity.getSupportFragmentManager();
+            holderFragment = HolderFragment.holderFragmentFor(activity);
         }
-        fragmentManager.findFragmentByTag(HOLDER_TAG).setRetainInstance(false);
+        holderFragment.setRetainInstance(false);
     }
 
     @SafeVarargs
