@@ -24,8 +24,6 @@ android {
     sourceSets {
         main.java.srcDirs = [
                 'gingerbread',
-                'honeycomb',
-                'jellybean',
                 'kitkat',
                 'api20',
                 'api21',
