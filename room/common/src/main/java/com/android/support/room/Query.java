@@ -64,6 +64,12 @@ import java.lang.annotation.Target;
  * query may return {@link android.database.Cursor Cursor} or any query result can be wrapped in
  * a {@link com.android.support.lifecycle.LiveData LiveData}.
  * <p>
+ * <b>RxJava2</b> If you are using RxJava2, you can also return {@code Flowable<T>} or
+ * {@code Publisher<T>} from query methods. Since Reactive Streams does not allow {@code null}, if
+ * the query returns a nullable type, it will not dispatch anything if the value is {@code null}
+ * (like fetching an {@link Entity} row that does not exist).
+ * You can return {@code Flowable<T[]>} or {@code Flowable<List<T>>} to workaround this limitation.
+ * <p>
  * UPDATE or DELETE queries can return {@code void} or {@code int}. If it is an {@code int},
  * the value is the number of rows affected by this query.
  * <p>

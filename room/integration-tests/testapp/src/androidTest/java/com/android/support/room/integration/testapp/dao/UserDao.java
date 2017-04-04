@@ -28,8 +28,12 @@ import com.android.support.room.Update;
 import com.android.support.room.integration.testapp.vo.AvgWeightByAge;
 import com.android.support.room.integration.testapp.vo.User;
 
+import org.reactivestreams.Publisher;
+
 import java.util.Date;
 import java.util.List;
+
+import io.reactivex.Flowable;
 
 @SuppressWarnings("SameParameterValue")
 @Dao
@@ -108,4 +112,13 @@ public interface UserDao {
 
     @Query("select mId from user where mId IN (:ids)")
     Cursor findUsersAsCursor(int... ids);
+
+    @Query("select * from user where mId = :id")
+    Flowable<User> flowableUserById(int id);
+
+    @Query("select COUNT(*) from user")
+    Flowable<Integer> flowableCountUsers();
+
+    @Query("select COUNT(*) from user")
+    Publisher<Integer> publisherCountUsers();
 }

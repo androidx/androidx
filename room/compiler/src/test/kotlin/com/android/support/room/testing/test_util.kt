@@ -21,6 +21,9 @@ import com.android.support.room.PrimaryKey
 import com.android.support.room.Query
 import com.android.support.room.Relation
 import com.android.support.room.ext.LifecyclesTypeNames
+import com.android.support.room.ext.ReactiveStreamsTypeNames
+import com.android.support.room.ext.RoomRxJava2TypeNames
+import com.android.support.room.ext.RxJava2TypeNames
 import com.android.support.room.processor.EntityProcessor
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.testing.TestInvocation
@@ -68,6 +71,17 @@ object COMMON {
     val COMPUTABLE_LIVE_DATA by lazy {
         loadJavaCode("common/input/ComputableLiveData.java",
                 LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString())
+    }
+    val PUBLISHER by lazy {
+        loadJavaCode("common/input/reactivestreams/Publisher.java",
+                ReactiveStreamsTypeNames.PUBLISHER.toString())
+    }
+    val FLOWABLE by lazy {
+        loadJavaCode("common/input/rxjava2/Flowable.java", RxJava2TypeNames.FLOWABLE.toString())
+    }
+
+    val RX2_ROOM by lazy {
+        loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())
     }
 }
 fun testCodeGenScope(): CodeGenScope {

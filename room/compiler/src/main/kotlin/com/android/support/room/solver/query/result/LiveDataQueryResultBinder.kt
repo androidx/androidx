@@ -39,7 +39,7 @@ import javax.lang.model.type.TypeMirror
  */
 class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<String>,
                                 adapter: QueryResultAdapter?)
-    : QueryResultBinder(adapter) {
+    : BaseObservableQueryResultBinder(adapter) {
     @Suppress("JoinDeclarationAndAssignment")
     val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) + queryTableNames).toSet()
     override fun convertAndReturn(roomSQLiteQueryVar : String, dbField: FieldSpec,
@@ -66,14 +66,6 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
         }
     }
 
-    private fun createFinalizeMethod(roomSQLiteQueryVar: String): MethodSpec {
-        return MethodSpec.methodBuilder("finalize").apply {
-            addModifiers(Modifier.PROTECTED)
-            addAnnotation(Override::class.java)
-            addStatement("$L.release()", roomSQLiteQueryVar)
-        }.build()
-    }
-
     private fun createComputeMethod(roomSQLiteQueryVar: String, typeName: TypeName,
                                     observerField: FieldSpec, dbField: FieldSpec,
                                     scope: CodeGenScope): MethodSpec {
@@ -81,8 +73,6 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
             addAnnotation(Override::class.java)
             addModifiers(Modifier.PROTECTED)
             returns(typeName)
-            val outVar = scope.getTmpVar("_result")
-            val cursorVar = scope.getTmpVar("_cursor")
 
             beginControlFlow("if ($N == null)", observerField).apply {
                 addStatement("$N = $L", observerField, createAnonymousObserver())
@@ -91,18 +81,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
             }
             endControlFlow()
 
-            addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
-                    DaoWriter.dbField, roomSQLiteQueryVar)
-            beginControlFlow("try").apply {
-                val adapterScope = scope.fork()
-                adapter?.convert(outVar, cursorVar, adapterScope)
-                addCode(adapterScope.builder().build())
-                addStatement("return $L", outVar)
-            }
-            nextControlFlow("finally").apply {
-                addStatement("$L.close()", cursorVar)
-            }
-            endControlFlow()
+            createRunQueryAndReturnStatements(this, roomSQLiteQueryVar, scope)
         }.build()
     }
 

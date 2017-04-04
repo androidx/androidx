@@ -72,6 +72,9 @@ project(':room:db-impl').projectDir = new File(supportRoot, "room/db-impl")
 include ":room:testing"
 project(':room:testing').projectDir = new File(supportRoot, "room/testing")
 
+include ":room:rxjava2"
+project(':room:rxjava2').projectDir = new File(supportRoot, "room/rxjava2")
+
 include ':room:integration-tests:testapp'
 project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "room/integration-tests/testapp")
 

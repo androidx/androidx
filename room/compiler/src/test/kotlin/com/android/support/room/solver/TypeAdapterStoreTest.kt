@@ -16,15 +16,21 @@
 
 package com.android.support.room.solver
 
+import COMMON
 import com.android.support.room.Entity
 import com.android.support.room.ext.L
+import com.android.support.room.ext.LifecyclesTypeNames
+import com.android.support.room.ext.ReactiveStreamsTypeNames
 import com.android.support.room.ext.RoomTypeNames.STRING_UTIL
+import com.android.support.room.ext.RxJava2TypeNames
 import com.android.support.room.ext.T
 import com.android.support.room.processor.Context
+import com.android.support.room.processor.ProcessorErrors
 import com.android.support.room.solver.types.CompositeAdapter
 import com.android.support.room.solver.types.TypeConverter
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
+import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -37,6 +43,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import simpleRun
 import testCodeGenScope
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeKind
@@ -164,6 +171,53 @@ class TypeAdapterStoreTest {
             assertThat(converter, notNullValue())
             assertThat(store.reverse(converter!!), nullValue())
         }
+    }
+
+    @Test
+    fun testMissingRxRoom() {
+        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE)) { invocation ->
+            val publisherElement = invocation.processingEnv.elementUtils
+                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+            assertThat(publisherElement, notNullValue())
+            assertThat(invocation.context.typeAdapterStore.isRxJava2Publisher(
+                    MoreTypes.asDeclared(publisherElement.asType())), `is`(true))
+        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
+    }
+
+    @Test
+    fun testFindPublisher() {
+        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE, COMMON.RX2_ROOM)) {
+            invocation ->
+            val publisher = invocation.processingEnv.elementUtils
+                    .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
+            assertThat(publisher, notNullValue())
+            assertThat(invocation.context.typeAdapterStore.isRxJava2Publisher(
+                    MoreTypes.asDeclared(publisher.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindFlowable() {
+        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.FLOWABLE, COMMON.RX2_ROOM)) {
+            invocation ->
+            val flowable = invocation.processingEnv.elementUtils
+                    .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())
+            assertThat(flowable, notNullValue())
+            assertThat(invocation.context.typeAdapterStore.isRxJava2Publisher(
+                    MoreTypes.asDeclared(flowable.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testFindLiveData() {
+        simpleRun(jfos = *arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
+            invocation ->
+            val liveData = invocation.processingEnv.elementUtils
+                    .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())
+            assertThat(liveData, notNullValue())
+            assertThat(invocation.context.typeAdapterStore.isLiveData(
+                    MoreTypes.asDeclared(liveData.asType())), `is`(true))
+        }.compilesWithoutError()
     }
 
     private fun createIntListToStringBinders(invocation: TestInvocation): List<TypeConverter> {

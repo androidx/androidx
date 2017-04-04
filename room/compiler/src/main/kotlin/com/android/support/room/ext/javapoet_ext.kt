@@ -93,3 +93,15 @@ object CommonTypeNames {
     val SET = ClassName.get("java.util", "Set")
     val STRING = ClassName.get("java.lang", "String")
 }
+
+object RxJava2TypeNames {
+    val FLOWABLE = ClassName.get("io.reactivex", "Flowable")
+}
+
+object ReactiveStreamsTypeNames {
+    val PUBLISHER = ClassName.get("org.reactivestreams", "Publisher")
+}
+
+object RoomRxJava2TypeNames {
+    val RX_ROOM = ClassName.get("com.android.support.room", "RxRoom")
+}

@@ -59,18 +59,20 @@ dependencies {
 
     androidTestCompile(libs.test_runner) {
         exclude module: 'support-annotations'
+        exclude module: 'hamcrest-core'
     }
     androidTestCompile(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
+        exclude module: "hamcrest-core"
     })
     // IJ's gradle integration just cannot figure this out ...
     androidTestCompile project(':lifecycle:extensions')
     androidTestCompile project(':lifecycle:common')
     androidTestCompile project(':lifecycle:runtime')
     androidTestCompile project(':room:testing')
-    testCompile libs.junit
-    testCompile libs.mockito_core
-
+    androidTestCompile project(':room:rxjava2')
+    androidTestCompile libs.rx_java
+    testCompile libs.mockito.all
 }
 
 createAndroidCheckstyle(project)

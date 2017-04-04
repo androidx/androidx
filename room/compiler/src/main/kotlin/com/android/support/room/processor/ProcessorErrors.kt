@@ -422,4 +422,6 @@ object ProcessorErrors {
                 to add $entity to the entities section of the @Database?
                 """.trim()
     }
+    val MISSING_ROOM_RXJAVA2_ARTIFACT = "To use RxJava2 features, you must add `rxjava2`" +
+            " artifact from Room as a dependency. com.android.support.room:rxjava2:<version>"
 }

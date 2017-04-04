@@ -19,6 +19,9 @@ package com.android.support.room.solver
 import com.android.support.room.Entity
 import com.android.support.room.ext.AndroidTypeNames
 import com.android.support.room.ext.LifecyclesTypeNames
+import com.android.support.room.ext.ReactiveStreamsTypeNames
+import com.android.support.room.ext.RoomRxJava2TypeNames
+import com.android.support.room.ext.RxJava2TypeNames
 import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.log.RLog
 import com.android.support.room.parser.ParsedQuery
@@ -27,6 +30,7 @@ import com.android.support.room.processor.Context
 import com.android.support.room.processor.EntityProcessor
 import com.android.support.room.processor.FieldProcessor
 import com.android.support.room.processor.PojoProcessor
+import com.android.support.room.processor.ProcessorErrors
 import com.android.support.room.solver.query.parameter.ArrayQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.BasicQueryParameterAdapter
 import com.android.support.room.solver.query.parameter.CollectionQueryParameterAdapter
@@ -34,6 +38,7 @@ import com.android.support.room.solver.query.parameter.QueryParameterAdapter
 import com.android.support.room.solver.query.result.ArrayQueryResultAdapter
 import com.android.support.room.solver.query.result.CursorQueryResultBinder
 import com.android.support.room.solver.query.result.EntityRowAdapter
+import com.android.support.room.solver.query.result.FlowableQueryResultBinder
 import com.android.support.room.solver.query.result.InstantQueryResultBinder
 import com.android.support.room.solver.query.result.ListQueryResultAdapter
 import com.android.support.room.solver.query.result.LiveDataQueryResultBinder
@@ -126,9 +131,24 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
         typeConverters = converters
     }
 
+    val hasRxJava2Artifact by lazy {
+        context.processingEnv.elementUtils
+                .getTypeElement(RoomRxJava2TypeNames.RX_ROOM.toString()) != null
+    }
+
     // type mirrors that be converted into columns w/o an extra converter
     private val knownColumnTypeMirrors by lazy {
         columnTypeAdapters.map { it.out }
+    }
+
+    private val liveDataTypeMirror: TypeMirror? by lazy {
+        context.processingEnv.elementUtils
+                .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())?.asType()
+    }
+
+    private val flowableTypeMirror: TypeMirror? by lazy {
+        context.processingEnv.elementUtils
+                .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())?.asType()
     }
 
     /**
@@ -235,13 +255,26 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
         return findTypeConverter(listOf(input), listOf(output))
     }
 
-    private fun isLiveData(declared: DeclaredType): Boolean {
-        val typeElement = MoreElements.asType(declared.asElement())
-        val qName = typeElement.qualifiedName.toString()
-        // even though computable live data is internal, we still check for it as we may inherit
-        // it from some internal class.
-        return qName == LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString() ||
-                qName == LifecyclesTypeNames.LIVE_DATA.toString()
+    @VisibleForTesting
+    fun isLiveData(declared: DeclaredType): Boolean {
+        if (liveDataTypeMirror == null) {
+            return false
+        }
+        val erasure = context.processingEnv.typeUtils.erasure(declared)
+        return context.processingEnv.typeUtils.isAssignable(liveDataTypeMirror, erasure)
+    }
+
+    @VisibleForTesting
+    fun isRxJava2Publisher(declared: DeclaredType): Boolean {
+        if (flowableTypeMirror == null) {
+            return false
+        }
+        val erasure = context.processingEnv.typeUtils.erasure(declared)
+        val match = context.processingEnv.typeUtils.isAssignable(flowableTypeMirror, erasure)
+        if (match && !hasRxJava2Artifact) {
+            context.logger.e(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
+        }
+        return match
     }
 
     fun findQueryResultBinder(typeMirror: TypeMirror, query: ParsedQuery): QueryResultBinder {
@@ -257,6 +290,10 @@ class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: A
                     val liveDataTypeArg = declared.typeArguments.first()
                     LiveDataQueryResultBinder(liveDataTypeArg, query.tables.map { it.name },
                             findQueryResultAdapter(liveDataTypeArg, query))
+                } else if (isRxJava2Publisher(declared)) {
+                    val typeArg = declared.typeArguments.first()
+                    FlowableQueryResultBinder(typeArg, query.tables.map { it.name },
+                            findQueryResultAdapter(typeArg, query))
                 } else {
                     InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
                 }

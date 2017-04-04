@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.android.builder.core.BuilderConstants
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -20,11 +21,14 @@ android {
     compileSdkVersion tools.current_sdk
     buildToolsVersion tools.build_tools_version
 
-        defaultConfig {
+    defaultConfig {
         minSdkVersion flatfoot.min_sdk
         targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
@@ -33,6 +37,9 @@ android {
         }
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
@@ -40,23 +47,24 @@ android {
 }
 
 dependencies {
+    compile project(":room:common")
+    compile project(":room:runtime")
     compile project(":apptoolkit:core")
-    compile libs.support.annotations
     compile libs.support.core_utils
-    compile(libs.junit) {
-        exclude module: 'hamcrest-core'
-    }
-    compile libs.mockito_core
+    compile libs.rx_java
+    testCompile libs.junit
+    testCompile libs.mockito.all
+    testCompile project(":apptoolkit:core-testing")
 }
 
-archivesBaseName = "core-testing"
+archivesBaseName = "rxjava2"
 
 createAndroidCheckstyle(project)
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
     def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar) {
+    project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn variant.javaCompile
         from variant.javaCompile.destinationDir
         destinationDir new File(project.buildDir, "libJar")
