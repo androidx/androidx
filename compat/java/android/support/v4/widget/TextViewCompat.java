@@ -337,6 +337,7 @@ public final class TextViewCompat {
             textView.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
         }
 
+        @Override
         public int getAutoSizeTextType(TextView textView) {
             return textView.getAutoSizeTextType();
         }
