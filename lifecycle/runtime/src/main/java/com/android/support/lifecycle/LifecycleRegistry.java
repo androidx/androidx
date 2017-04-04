@@ -173,13 +173,13 @@ public class LifecycleRegistry implements Lifecycle {
     static int upEvent(@State int state) {
         switch (state) {
             case INITIALIZED:
+            case DESTROYED:
                 return ON_CREATE;
             case STOPPED:
                 return ON_START;
             case STARTED:
                 return ON_RESUME;
             case RESUMED:
-            case DESTROYED:
                 throw new IllegalArgumentException();
         }
         throw new IllegalArgumentException("Unexpected state value " + state);
@@ -195,6 +195,9 @@ public class LifecycleRegistry implements Lifecycle {
         }
 
         void sync() {
+            if (mState == DESTROYED && mObserverCurrentState == INITIALIZED) {
+                mObserverCurrentState = DESTROYED;
+            }
             while (mObserverCurrentState != mState) {
                 int event = mObserverCurrentState > mState ? downEvent(mObserverCurrentState)
                         : upEvent(mObserverCurrentState);

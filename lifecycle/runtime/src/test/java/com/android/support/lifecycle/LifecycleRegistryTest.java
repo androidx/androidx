@@ -192,6 +192,23 @@ public class LifecycleRegistryTest {
         verify(observer2, times(1)).onStart();
     }
 
+    @Test
+    public void subscribeToDead() {
+        dispatchEvent(ON_CREATE);
+        final TestObserver observer1 = mock(TestObserver.class);
+        mRegistry.addObserver(observer1);
+        verify(observer1).onCreate();
+        dispatchEvent(ON_DESTROY);
+        verify(observer1).onDestroy();
+        final TestObserver observer2 = mock(TestObserver.class);
+        mRegistry.addObserver(observer2);
+        verify(observer2, never()).onCreate();
+        reset(observer1);
+        dispatchEvent(ON_CREATE);
+        verify(observer1).onCreate();
+        verify(observer2).onCreate();
+    }
+
     private void dispatchEvent(@Lifecycle.Event int event) {
         when(mLifecycle.getCurrentState()).thenReturn(LifecycleRegistry.getStateAfter(event));
         mRegistry.handleLifecycleEvent(event);

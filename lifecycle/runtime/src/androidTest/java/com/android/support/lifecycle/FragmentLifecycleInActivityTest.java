@@ -41,7 +41,7 @@ import java.util.Arrays;
 
 @MediumTest
 @RunWith(Parameterized.class)
-public class FragmentLifecycleTest {
+public class FragmentLifecycleInActivityTest {
     @Rule
     public ActivityTestRule<FragmentLifecycleActivity> mActivityRule =
             new ActivityTestRule<>(FragmentLifecycleActivity.class, false, false);
