@@ -23,6 +23,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import android.support.test.filters.SmallTest;
+import android.support.test.filters.Suppress;
 import android.support.v7.appcompat.test.R;
 
 import org.junit.Test;
@@ -33,6 +34,7 @@ public class FragmentContentIdTest extends BaseInstrumentationTestCase<FragmentC
         super(FragmentContentIdActivity.class);
     }
 
+    @Suppress
     @SmallTest
     @Test
     public void testFragmentAddedToAndroidContentIdCanBeRemoved() throws Throwable {
