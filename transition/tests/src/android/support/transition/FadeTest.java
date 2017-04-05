@@ -183,6 +183,34 @@ public class FadeTest extends BaseTest {
         assertThat(mView.getVisibility(), is(View.INVISIBLE));
     }
 
+    @Test
+    public void testFadeWithAlpha() throws Throwable {
+        // Set the view alpha to 0.5
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mView.setAlpha(0.5f);
+            }
+        });
+        // Fade out
+        final Fade fadeOut = new Fade(Fade.OUT);
+        final Transition.TransitionListener listenerOut = mock(Transition.TransitionListener.class);
+        fadeOut.addListener(listenerOut);
+        changeVisibility(fadeOut, mRoot, mView, View.INVISIBLE);
+        verify(listenerOut, timeout(3000)).onTransitionStart(any(Transition.class));
+        verify(listenerOut, timeout(3000)).onTransitionEnd(any(Transition.class));
+        // Fade in
+        final Fade fadeIn = new Fade(Fade.IN);
+        final Transition.TransitionListener listenerIn = mock(Transition.TransitionListener.class);
+        fadeIn.addListener(listenerIn);
+        changeVisibility(fadeIn, mRoot, mView, View.VISIBLE);
+        verify(listenerIn, timeout(3000)).onTransitionStart(any(Transition.class));
+        verify(listenerIn, timeout(3000)).onTransitionEnd(any(Transition.class));
+        // Confirm that the view still has the original alpha value
+        assertThat(mView.getVisibility(), is(View.VISIBLE));
+        assertEquals(0.5f, mView.getAlpha(), 0.01f);
+    }
+
     private void changeVisibility(final Fade fade, final ViewGroup container, final View target,
             final int visibility) throws Throwable {
         rule.runOnUiThread(new Runnable() {

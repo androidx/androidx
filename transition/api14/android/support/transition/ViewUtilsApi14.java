@@ -39,12 +39,38 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
 
     @Override
     public void setTransitionAlpha(@NonNull View view, float alpha) {
-        view.setAlpha(alpha);
+        Float savedAlpha = (Float) view.getTag(R.id.save_non_transition_alpha);
+        if (savedAlpha != null) {
+            view.setAlpha(savedAlpha * alpha);
+        } else {
+            view.setAlpha(alpha);
+        }
     }
 
     @Override
     public float getTransitionAlpha(@NonNull View view) {
-        return view.getAlpha();
+        Float savedAlpha = (Float) view.getTag(R.id.save_non_transition_alpha);
+        if (savedAlpha != null) {
+            return view.getAlpha() / savedAlpha;
+        } else {
+            return view.getAlpha();
+        }
+    }
+
+    @Override
+    public void saveNonTransitionAlpha(@NonNull View view) {
+        if (view.getTag(R.id.save_non_transition_alpha) == null) {
+            view.setTag(R.id.save_non_transition_alpha, view.getAlpha());
+        }
+    }
+
+    @Override
+    public void clearNonTransitionAlpha(@NonNull View view) {
+        // We don't clear the saved value when the view is hidden; that's the situation we are
+        // saving this value for.
+        if (view.getVisibility() == View.VISIBLE) {
+            view.setTag(R.id.save_non_transition_alpha, null);
+        }
     }
 
     @Override
