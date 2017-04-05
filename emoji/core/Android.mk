@@ -28,6 +28,7 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-emoji
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_STATIC_JAVA_LIBRARIES := \
     noto-emoji-compat-java
 LOCAL_SHARED_ANDROID_LIBRARIES := \

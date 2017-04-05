@@ -1963,6 +1963,8 @@ package android.support.text.emoji.widget {
     ctor public EmojiAppCompatEditText(android.content.Context);
     ctor public EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet);
     ctor public EmojiAppCompatEditText(android.content.Context, android.util.AttributeSet, int);
+    method public int getMaxEmojiCount();
+    method public void setMaxEmojiCount(int);
   }
 
   public class EmojiAppCompatTextView extends android.support.v7.widget.AppCompatTextView {
@@ -1983,12 +1985,16 @@ package android.support.text.emoji.widget {
     ctor public EmojiEditText(android.content.Context, android.util.AttributeSet);
     ctor public EmojiEditText(android.content.Context, android.util.AttributeSet, int);
     ctor public EmojiEditText(android.content.Context, android.util.AttributeSet, int, int);
+    method public int getMaxEmojiCount();
+    method public void setMaxEmojiCount(int);
   }
 
   public final class EmojiEditTextHelper {
     ctor public EmojiEditTextHelper(android.widget.EditText);
     method public android.text.method.KeyListener getKeyListener(android.text.method.KeyListener);
+    method public int getMaxEmojiCount();
     method public android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.InputConnection, android.view.inputmethod.EditorInfo);
+    method public void setMaxEmojiCount(int);
   }
 
   public class EmojiTextView extends android.widget.TextView {

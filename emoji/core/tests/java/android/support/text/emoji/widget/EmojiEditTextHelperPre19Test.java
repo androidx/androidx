@@ -17,12 +17,16 @@
 package android.support.text.emoji.widget;
 
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
@@ -60,6 +64,15 @@ public class EmojiEditTextHelperPre19Test {
                 null);
 
         assertSame(param, inputConnection);
+    }
+
+    @Test
+    public void testDoesNotAttachTextWatcher() {
+        final EditText editText = mock(EditText.class);
+
+        mEmojiEditTextHelper = new EmojiEditTextHelper(editText);
+
+        verify(editText, times(0)).addTextChangedListener(any(TextWatcher.class));
     }
 
 }
