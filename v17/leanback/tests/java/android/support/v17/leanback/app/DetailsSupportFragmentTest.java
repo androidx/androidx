@@ -119,12 +119,13 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void parallaxSetupTest() {
-        launchAndWaitActivity(DetailsSupportFragmentTest.DetailsSupportFragmentParallax.class,
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentTest.DetailsSupportFragmentParallax.class,
                 new SingleSupportFragmentTestBase.Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
         double delta = 0.0002;
-        DetailsParallax dpm = ((DetailsSupportFragment) mActivity.getTestFragment()).getParallax();
+        DetailsParallax dpm = ((DetailsSupportFragment) activity.getTestFragment()).getParallax();
 
         RecyclerViewParallax.ChildPositionProperty frameTop =
                 (RecyclerViewParallax.ChildPositionProperty) dpm.getOverviewRowTop();
@@ -140,12 +141,12 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void parallaxTest() throws Throwable {
-        launchAndWaitActivity(DetailsSupportFragmentParallax.class,
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(DetailsSupportFragmentParallax.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
         final DetailsSupportFragmentParallax detailsFragment =
-                (DetailsSupportFragmentParallax) mActivity.getTestFragment();
+                (DetailsSupportFragmentParallax) activity.getTestFragment();
         DetailsParallaxDrawable drawable =
                 detailsFragment.getParallaxDrawable();
         final FitWidthBitmapDrawable bitmapDrawable = (FitWidthBitmapDrawable)
@@ -165,8 +166,8 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         final int windowWidth = verticalGridView.getWidth();
         // make sure background manager attached to window is same size as VerticalGridView
         // i.e. no status bar.
-        assertEquals(windowHeight, mActivity.getWindow().getDecorView().getHeight());
-        assertEquals(windowWidth, mActivity.getWindow().getDecorView().getWidth());
+        assertEquals(windowHeight, activity.getWindow().getDecorView().getHeight());
+        assertEquals(windowWidth, activity.getWindow().getDecorView().getWidth());
 
         final View detailsFrame = verticalGridView.findViewById(R.id.details_frame);
 
@@ -273,12 +274,12 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     private void navigateBetweenRowsAndVideoUsingRequestFocusInternal(Class cls)
             throws Throwable {
-        launchAndWaitActivity(cls,
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(cls,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
         final DetailsSupportFragmentWithVideo detailsFragment =
-                (DetailsSupportFragmentWithVideo) mActivity.getTestFragment();
+                (DetailsSupportFragmentWithVideo) activity.getTestFragment();
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
@@ -336,12 +337,12 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     private void navigateBetweenRowsAndVideoUsingDPADInternal(Class cls) throws Throwable {
-        launchAndWaitActivity(cls,
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(cls,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
         final DetailsSupportFragmentWithVideo detailsFragment =
-                (DetailsSupportFragmentWithVideo) mActivity.getTestFragment();
+                (DetailsSupportFragmentWithVideo) activity.getTestFragment();
         // wait video playing
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
@@ -407,12 +408,12 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     private void fragmentOnStartWithVideoInternal(Class cls) throws Throwable {
-        launchAndWaitActivity(cls,
+        final SingleSupportFragmentTestActivity activity = launchAndWaitActivity(cls,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
 
         final DetailsSupportFragmentWithVideo detailsFragment =
-                (DetailsSupportFragmentWithVideo) mActivity.getTestFragment();
+                (DetailsSupportFragmentWithVideo) activity.getTestFragment();
         // wait video playing
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
@@ -445,10 +446,10 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        Intent intent = new Intent(mActivity, SingleSupportFragmentTestActivity.class);
+                        Intent intent = new Intent(activity, SingleSupportFragmentTestActivity.class);
                         intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_FRAGMENT_NAME,
                                 EmptyFragmentClass.class.getName());
-                        mActivity.startActivity(intent);
+                        activity.startActivity(intent);
                     }
                 }
         );
@@ -473,10 +474,11 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void navigateBetweenRowsAndTitle() throws Throwable {
-        launchAndWaitActivity(DetailsTestSupportFragment.class, new Options().uiVisibility(
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsTestSupportFragment.class, new Options().uiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsTestSupportFragment detailsFragment =
-                (DetailsTestSupportFragment) mActivity.getTestFragment();
+                (DetailsTestSupportFragment) activity.getTestFragment();
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -554,10 +556,11 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void lateSetupVideo() {
-        launchAndWaitActivity(DetailsSupportFragmentWithNoVideo.class, new Options().uiVisibility(
+        final SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentWithNoVideo.class, new Options().uiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsSupportFragmentWithNoVideo detailsFragment =
-                (DetailsSupportFragmentWithNoVideo) mActivity.getTestFragment();
+                (DetailsSupportFragmentWithNoVideo) activity.getTestFragment();
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -589,7 +592,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        final MediaPlayerGlue glue = new MediaPlayerGlue(mActivity);
+                        final MediaPlayerGlue glue = new MediaPlayerGlue(activity);
                         detailsFragment.mDetailsBackgroundController.setupVideoPlayback(glue);
                         glue.setMode(MediaPlayerGlue.REPEAT_ALL);
                         glue.setArtist("A Googleer");
@@ -630,7 +633,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        final MediaPlayerGlue glue2 = new MediaPlayerGlue(mActivity);
+                        final MediaPlayerGlue glue2 = new MediaPlayerGlue(activity);
                         detailsFragment.mDetailsBackgroundController.setupVideoPlayback(glue2);
                         glue2.setMode(MediaPlayerGlue.REPEAT_ALL);
                         glue2.setArtist("A Googleer");
@@ -666,10 +669,11 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void clearVideo() {
-        launchAndWaitActivity(DetailsSupportFragmentWithNoVideo.class, new Options().uiVisibility(
+        final SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentWithNoVideo.class, new Options().uiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsSupportFragmentWithNoVideo detailsFragment =
-                (DetailsSupportFragmentWithNoVideo) mActivity.getTestFragment();
+                (DetailsSupportFragmentWithNoVideo) activity.getTestFragment();
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
@@ -698,7 +702,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        final MediaPlayerGlue glue = new MediaPlayerGlue(mActivity);
+                        final MediaPlayerGlue glue = new MediaPlayerGlue(activity);
                         detailsFragment.mDetailsBackgroundController.setupVideoPlayback(glue);
                         glue.setMode(MediaPlayerGlue.REPEAT_ALL);
                         glue.setArtist("A Googleer");
@@ -774,10 +778,11 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void noInitialItem() {
-        launchAndWaitActivity(DetailsSupportFragmentWithNoItem.class, new Options().uiVisibility(
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentWithNoItem.class, new Options().uiVisibility(
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsSupportFragmentWithNoItem detailsFragment =
-                (DetailsSupportFragmentWithNoItem) mActivity.getTestFragment();
+                (DetailsSupportFragmentWithNoItem) activity.getTestFragment();
 
         final int recyclerViewHeight = detailsFragment.getRowsSupportFragment().getVerticalGridView()
                 .getHeight();
@@ -825,16 +830,17 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void switchToVideoInOnCreate() {
-        launchAndWaitActivity(DetailsSupportFragmentSwitchToVideoInOnCreate.class,
+        final SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentSwitchToVideoInOnCreate.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsSupportFragmentSwitchToVideoInOnCreate detailsFragment =
-                (DetailsSupportFragmentSwitchToVideoInOnCreate) mActivity.getTestFragment();
+                (DetailsSupportFragmentSwitchToVideoInOnCreate) activity.getTestFragment();
 
         // the pending enter transition flag should be automatically cleared
         assertEquals(StateMachine.STATUS_INVOKED,
                 detailsFragment.STATE_ENTER_TRANSITION_COMPLETE.getStatus());
-        assertNull(TransitionHelper.getEnterTransition(mActivity.getWindow()));
+        assertNull(TransitionHelper.getEnterTransition(activity.getWindow()));
         assertEquals(0, getCoverDrawableAlpha(detailsFragment.mDetailsBackgroundController));
         assertTrue(detailsFragment.getRowsSupportFragment().getView().hasFocus());
         //SystemClock.sleep(5000);
@@ -846,7 +852,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        final MediaPlayerGlue glue = new MediaPlayerGlue(mActivity);
+                        final MediaPlayerGlue glue = new MediaPlayerGlue(activity);
                         detailsFragment.mDetailsBackgroundController.setupVideoPlayback(glue);
                         glue.setMode(MediaPlayerGlue.REPEAT_ALL);
                         glue.setArtist("A Googleer");
@@ -918,16 +924,17 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void switchToVideoBackToQuit() {
-        launchAndWaitActivity(DetailsSupportFragmentSwitchToVideoInOnCreate.class,
+        final SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentSwitchToVideoInOnCreate.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsSupportFragmentSwitchToVideoInOnCreate detailsFragment =
-                (DetailsSupportFragmentSwitchToVideoInOnCreate) mActivity.getTestFragment();
+                (DetailsSupportFragmentSwitchToVideoInOnCreate) activity.getTestFragment();
 
         // the pending enter transition flag should be automatically cleared
         assertEquals(StateMachine.STATUS_INVOKED,
                 detailsFragment.STATE_ENTER_TRANSITION_COMPLETE.getStatus());
-        assertNull(TransitionHelper.getEnterTransition(mActivity.getWindow()));
+        assertNull(TransitionHelper.getEnterTransition(activity.getWindow()));
         assertEquals(0, getCoverDrawableAlpha(detailsFragment.mDetailsBackgroundController));
         assertTrue(detailsFragment.getRowsSupportFragment().getView().hasFocus());
         assertFalse(detailsFragment.isShowingTitle());
@@ -938,7 +945,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        final MediaPlayerGlue glue = new MediaPlayerGlue(mActivity);
+                        final MediaPlayerGlue glue = new MediaPlayerGlue(activity);
                         detailsFragment.mDetailsBackgroundController.setupVideoPlayback(glue);
                         glue.setMode(MediaPlayerGlue.REPEAT_ALL);
                         glue.setArtist("A Googleer");
@@ -967,7 +974,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
         // before any details row is presented, pressing BACK will quit the activity
         sendKeys(KeyEvent.KEYCODE_BACK);
-        PollingCheck.waitFor(4000, new PollingCheck.ActivityDestroy(mActivity));
+        PollingCheck.waitFor(4000, new PollingCheck.ActivityDestroy(activity));
     }
 
     public static class DetailsSupportFragmentSwitchToVideoAndPrepareEntranceTransition
@@ -1010,12 +1017,13 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void switchToVideoInOnCreateAndPrepareEntranceTransition() {
-        launchAndWaitActivity(DetailsSupportFragmentSwitchToVideoAndPrepareEntranceTransition.class,
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
+                DetailsSupportFragmentSwitchToVideoAndPrepareEntranceTransition.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsSupportFragmentSwitchToVideoAndPrepareEntranceTransition detailsFragment =
                 (DetailsSupportFragmentSwitchToVideoAndPrepareEntranceTransition)
-                        mActivity.getTestFragment();
+                        activity.getTestFragment();
 
         assertEquals(StateMachine.STATUS_INVOKED,
                 detailsFragment.STATE_ENTRANCE_COMPLETE.getStatus());
@@ -1055,12 +1063,13 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void entranceTransitionBlocksSwitchToVideo() {
-        launchAndWaitActivity(DetailsSupportFragmentEntranceTransition.class,
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentEntranceTransition.class,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsSupportFragmentEntranceTransition detailsFragment =
                 (DetailsSupportFragmentEntranceTransition)
-                        mActivity.getTestFragment();
+                        activity.getTestFragment();
 
         if (Build.VERSION.SDK_INT < 21) {
             // when enter transition is not supported, mCanUseHost is immmediately true
