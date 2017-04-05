@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
 import android.support.v4.view.ViewCompat;
@@ -347,7 +346,8 @@ public class AccessibilityNodeInfoCompat {
          * @see View#requestRectangleOnScreen(Rect)
          */
         public static final AccessibilityActionCompat ACTION_SHOW_ON_SCREEN =
-                new AccessibilityActionCompat(IMPL.getActionShowOnScreen());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN : null);
 
         /**
          * Action that scrolls the node to make the specified collection
@@ -362,37 +362,44 @@ public class AccessibilityNodeInfoCompat {
          * @see AccessibilityNodeInfoCompat#getCollectionInfo()
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_TO_POSITION =
-                new AccessibilityActionCompat(IMPL.getActionScrollToPosition());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION
+                        : null);
 
         /**
          * Action to scroll the node content up.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_UP =
-                new AccessibilityActionCompat(IMPL.getActionScrollUp());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP : null);
 
         /**
          * Action to scroll the node content left.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_LEFT =
-                new AccessibilityActionCompat(IMPL.getActionScrollLeft());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT : null);
 
         /**
          * Action to scroll the node content down.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_DOWN =
-                new AccessibilityActionCompat(IMPL.getActionScrollDown());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN : null);
 
         /**
          * Action to scroll the node content right.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_RIGHT =
-                new AccessibilityActionCompat(IMPL.getActionScrollRight());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT : null);
 
         /**
          * Action that context clicks the node.
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
-                new AccessibilityActionCompat(IMPL.getActionContextClick());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK : null);
 
         /**
          * Action that sets progress between {@link  RangeInfoCompat#getMin() RangeInfo.getMin()} and
@@ -405,7 +412,8 @@ public class AccessibilityNodeInfoCompat {
          * @see RangeInfoCompat
          */
         public static final AccessibilityActionCompat ACTION_SET_PROGRESS =
-                new AccessibilityActionCompat(IMPL.getActionSetProgress());
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 24
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS : null);
 
         final Object mAction;
 
@@ -416,7 +424,8 @@ public class AccessibilityNodeInfoCompat {
          * @param label The action label.
          */
         public AccessibilityActionCompat(int actionId, CharSequence label) {
-            this(IMPL.newAccessibilityAction(actionId, label));
+            this(Build.VERSION.SDK_INT >= 21
+                    ? new AccessibilityNodeInfo.AccessibilityAction(actionId, label) : null);
         }
 
         AccessibilityActionCompat(Object action) {
@@ -429,7 +438,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The action id.
          */
         public int getId() {
-            return IMPL.getAccessibilityActionId(mAction);
+            if (Build.VERSION.SDK_INT >= 21) {
+                return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getId();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -439,7 +452,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The label.
          */
         public CharSequence getLabel() {
-            return IMPL.getAccessibilityActionLabel(mAction);
+            if (Build.VERSION.SDK_INT >= 21) {
+                return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getLabel();
+            } else {
+                return null;
+            }
         }
     }
 
@@ -483,8 +500,15 @@ public class AccessibilityNodeInfoCompat {
          */
         public static CollectionInfoCompat obtain(int rowCount, int columnCount,
                 boolean hierarchical, int selectionMode) {
-            return new CollectionInfoCompat(IMPL.obtainCollectionInfo(rowCount, columnCount,
-                    hierarchical, selectionMode));
+            if (Build.VERSION.SDK_INT >= 21) {
+                return new CollectionInfoCompat(AccessibilityNodeInfo.CollectionInfo.obtain(
+                        rowCount, columnCount, hierarchical, selectionMode));
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                return new CollectionInfoCompat(AccessibilityNodeInfo.CollectionInfo.obtain(
+                        rowCount, columnCount, hierarchical));
+            } else {
+                return new CollectionInfoCompat(null);
+            }
         }
 
         /**
@@ -498,8 +522,12 @@ public class AccessibilityNodeInfoCompat {
          */
         public static CollectionInfoCompat obtain(int rowCount, int columnCount,
                 boolean hierarchical) {
-            return new CollectionInfoCompat(IMPL.obtainCollectionInfo(rowCount, columnCount,
-                    hierarchical));
+            if (Build.VERSION.SDK_INT >= 19) {
+                return new CollectionInfoCompat(AccessibilityNodeInfo.CollectionInfo.obtain(
+                        rowCount, columnCount, hierarchical));
+            } else {
+                return new CollectionInfoCompat(null);
+            }
         }
 
         CollectionInfoCompat(Object info) {
@@ -512,7 +540,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The column count.
          */
         public int getColumnCount() {
-            return IMPL.getCollectionInfoColumnCount(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getColumnCount();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -521,7 +553,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The row count.
          */
         public int getRowCount() {
-            return IMPL.getCollectionInfoRowCount(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getRowCount();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -530,7 +566,11 @@ public class AccessibilityNodeInfoCompat {
          * @return Whether the collection is hierarchical.
          */
         public boolean isHierarchical() {
-            return IMPL.isCollectionInfoHierarchical(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionInfo) mInfo).isHierarchical();
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -544,7 +584,11 @@ public class AccessibilityNodeInfoCompat {
          *         </ul>
          */
         public int getSelectionMode() {
-            return IMPL.getCollectionInfoSelectionMode(mInfo);
+            if (Build.VERSION.SDK_INT >= 21) {
+                return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getSelectionMode();
+            } else {
+                return 0;
+            }
         }
     }
 
@@ -575,8 +619,15 @@ public class AccessibilityNodeInfoCompat {
          */
         public static CollectionItemInfoCompat obtain(int rowIndex, int rowSpan,
                 int columnIndex, int columnSpan, boolean heading, boolean selected) {
-            return new CollectionItemInfoCompat(IMPL.obtainCollectionItemInfo(rowIndex, rowSpan,
-                    columnIndex, columnSpan, heading, selected));
+            if (Build.VERSION.SDK_INT >= 21) {
+                return new CollectionItemInfoCompat(AccessibilityNodeInfo.CollectionItemInfo.obtain(
+                        rowIndex, rowSpan, columnIndex, columnSpan, heading, selected));
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                return new CollectionItemInfoCompat(AccessibilityNodeInfo.CollectionItemInfo.obtain(
+                        rowIndex, rowSpan, columnIndex, columnSpan, heading));
+            } else {
+                return new CollectionItemInfoCompat(null);
+            }
         }
 
         /**
@@ -591,8 +642,12 @@ public class AccessibilityNodeInfoCompat {
          */
         public static CollectionItemInfoCompat obtain(int rowIndex, int rowSpan,
                 int columnIndex, int columnSpan, boolean heading) {
-            return new CollectionItemInfoCompat(IMPL.obtainCollectionItemInfo(rowIndex, rowSpan,
-                    columnIndex, columnSpan, heading));
+            if (Build.VERSION.SDK_INT >= 19) {
+                return new CollectionItemInfoCompat(AccessibilityNodeInfo.CollectionItemInfo.obtain(
+                        rowIndex, rowSpan, columnIndex, columnSpan, heading));
+            } else {
+                return new CollectionItemInfoCompat(null);
+            }
         }
 
         CollectionItemInfoCompat(Object info) {
@@ -605,7 +660,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The column index.
          */
         public int getColumnIndex() {
-            return IMPL.getCollectionItemColumnIndex(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getColumnIndex();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -614,7 +673,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The column span.
          */
         public int getColumnSpan() {
-            return IMPL.getCollectionItemColumnSpan(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getColumnSpan();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -623,7 +686,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The row index.
          */
         public int getRowIndex() {
-            return IMPL.getCollectionItemRowIndex(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getRowIndex();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -632,7 +699,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The row span.
          */
         public int getRowSpan() {
-            return IMPL.getCollectionItemRowSpan(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getRowSpan();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -642,7 +713,11 @@ public class AccessibilityNodeInfoCompat {
          * @return If the item is a heading.
          */
         public boolean isHeading() {
-            return IMPL.isCollectionItemHeading(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).isHeading();
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -651,7 +726,11 @@ public class AccessibilityNodeInfoCompat {
          * @return If the item is selected.
          */
         public boolean isSelected() {
-            return IMPL.isCollectionItemSelected(mInfo);
+            if (Build.VERSION.SDK_INT >= 21) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).isSelected();
+            } else {
+                return false;
+            }
         }
     }
 
@@ -676,7 +755,12 @@ public class AccessibilityNodeInfoCompat {
          * @return The instance
          */
         public static RangeInfoCompat obtain(int type, float min, float max, float current) {
-            return new RangeInfoCompat(IMPL.obtainRangeInfo(type, min, max, current));
+            if (Build.VERSION.SDK_INT >= 19) {
+                return new RangeInfoCompat(
+                        AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current));
+            } else {
+                return new RangeInfoCompat(null);
+            }
         }
 
         final Object mInfo;
@@ -726,938 +810,8 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
-    static class AccessibilityNodeInfoBaseImpl {
-        public Object newAccessibilityAction(int actionId, CharSequence label) {
-            return null;
-        }
-
-        public AccessibilityNodeInfo obtain(View root, int virtualDescendantId) {
-            return null;
-        }
-
-        public void addAction(AccessibilityNodeInfo info, Object action) {
-        }
-
-        public boolean removeAction(AccessibilityNodeInfo info, Object action) {
-            return false;
-        }
-
-        public int getAccessibilityActionId(Object action) {
-            return 0;
-        }
-
-        public CharSequence getAccessibilityActionLabel(Object action) {
-            return null;
-        }
-
-        public void addChild(AccessibilityNodeInfo info, View child, int virtualDescendantId) {
-        }
-
-        public boolean removeChild(AccessibilityNodeInfo info, View child) {
-            return false;
-        }
-
-        public boolean removeChild(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-            return false;
-        }
-
-        public boolean isVisibleToUser(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public boolean isAccessibilityFocused(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public boolean performAction(AccessibilityNodeInfo info, int action, Bundle arguments) {
-            return false;
-        }
-
-        public void setMovementGranularities(AccessibilityNodeInfo info, int granularities) {
-        }
-
-        public int getMovementGranularities(AccessibilityNodeInfo info) {
-            return 0;
-        }
-
-        public void setVisibleToUser(AccessibilityNodeInfo info, boolean visibleToUser) {
-        }
-
-        public void setAccessibilityFocused(AccessibilityNodeInfo info, boolean focused) {
-        }
-
-        public void setSource(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-        }
-
-        public Object findFocus(AccessibilityNodeInfo info, int focus) {
-            return null;
-        }
-
-        public Object focusSearch(AccessibilityNodeInfo info, int direction) {
-            return null;
-        }
-
-        public void setParent(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-        }
-
-        public String getViewIdResourceName(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setViewIdResourceName(AccessibilityNodeInfo info, String viewId) {
-        }
-
-        public int getLiveRegion(AccessibilityNodeInfo info) {
-            return ViewCompat.ACCESSIBILITY_LIVE_REGION_NONE;
-        }
-
-        public void setLiveRegion(AccessibilityNodeInfo info, int mode) {
-            // No-op
-        }
-
-        public Object getCollectionInfo(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setCollectionInfo(AccessibilityNodeInfo info, Object collectionInfo) {
-        }
-
-        public Object getCollectionItemInfo(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setCollectionItemInfo(AccessibilityNodeInfo info, Object collectionItemInfo) {
-        }
-
-        public Object getRangeInfo(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setRangeInfo(AccessibilityNodeInfo info, Object rangeInfo) {
-        }
-
-        public List<Object> getActionList(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical,
-                int selectionMode) {
-            return null;
-        }
-
-        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical) {
-            return null;
-        }
-
-        public int getCollectionInfoColumnCount(Object info) {
-            return 0;
-        }
-
-        public int getCollectionInfoRowCount(Object info) {
-            return 0;
-        }
-
-        public boolean isCollectionInfoHierarchical(Object info) {
-            return false;
-        }
-
-        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
-                int columnSpan, boolean heading, boolean selected) {
-            return null;
-        }
-
-        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
-                int columnSpan, boolean heading) {
-            return null;
-        }
-
-        public int getCollectionItemColumnIndex(Object info) {
-            return 0;
-        }
-
-        public int getCollectionItemColumnSpan(Object info) {
-            return 0;
-        }
-
-        public int getCollectionItemRowIndex(Object info) {
-            return 0;
-        }
-
-        public int getCollectionItemRowSpan(Object info) {
-            return 0;
-        }
-
-        public boolean isCollectionItemHeading(Object info) {
-            return false;
-        }
-
-        public boolean isCollectionItemSelected(Object info) {
-            return false;
-        }
-
-        public Object obtainRangeInfo(int type, float min, float max, float current) {
-            return null;
-        }
-
-        public Object getTraversalBefore(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setTraversalBefore(AccessibilityNodeInfo info, View view) {
-        }
-
-        public void setTraversalBefore(AccessibilityNodeInfo info, View root,
-                int virtualDescendantId) {
-        }
-
-        public Object getTraversalAfter(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setTraversalAfter(AccessibilityNodeInfo info, View view) {
-        }
-
-        public void setTraversalAfter(AccessibilityNodeInfo info, View root,
-                int virtualDescendantId) {
-        }
-
-        public void setContentInvalid(AccessibilityNodeInfo info, boolean contentInvalid) {
-        }
-
-        public boolean isContentInvalid(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public void setError(AccessibilityNodeInfo info, CharSequence error) {
-        }
-
-        public CharSequence getError(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setLabelFor(AccessibilityNodeInfo info, View labeled) {
-        }
-
-        public void setLabelFor(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-        }
-
-        public Object getLabelFor(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setLabeledBy(AccessibilityNodeInfo info, View labeled) {
-        }
-
-        public void setLabeledBy(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-        }
-
-        public Object getLabeledBy(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public boolean canOpenPopup(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public void setCanOpenPopup(AccessibilityNodeInfo info, boolean opensPopup) {
-        }
-
-        public List<AccessibilityNodeInfo> findAccessibilityNodeInfosByViewId(
-                AccessibilityNodeInfo info, String viewId) {
-            return Collections.emptyList();
-        }
-
-        public Bundle getExtras(AccessibilityNodeInfo info) {
-            return new Bundle();
-        }
-
-        public int getInputType(AccessibilityNodeInfo info) {
-            return InputType.TYPE_NULL;
-        }
-
-        public void setInputType(AccessibilityNodeInfo info, int inputType) {
-        }
-
-        public void setMaxTextLength(AccessibilityNodeInfo info, int max) {
-        }
-
-        public int getMaxTextLength(AccessibilityNodeInfo info) {
-            return -1;
-        }
-
-        public void setTextSelection(AccessibilityNodeInfo info, int start, int end) {
-        }
-
-        public int getTextSelectionStart(AccessibilityNodeInfo info) {
-            return -1;
-        }
-
-        public int getTextSelectionEnd(AccessibilityNodeInfo info) {
-            return -1;
-        }
-
-        public Object getWindow(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public boolean isDismissable(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public void setDismissable(AccessibilityNodeInfo info, boolean dismissable) {
-        }
-
-        public boolean isEditable(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public void setEditable(AccessibilityNodeInfo info, boolean editable) {
-        }
-
-        public boolean isMultiLine(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public void setMultiLine(AccessibilityNodeInfo info, boolean multiLine) {
-        }
-
-        public boolean refresh(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public CharSequence getRoleDescription(AccessibilityNodeInfo info) {
-            return null;
-        }
-
-        public void setRoleDescription(AccessibilityNodeInfo info, CharSequence roleDescription) {
-        }
-
-        public Object getActionScrollToPosition() {
-            return null;
-        }
-
-        public Object getActionSetProgress() {
-            return null;
-        }
-
-        public boolean isContextClickable(AccessibilityNodeInfo info) {
-            return false;
-        }
-
-        public void setContextClickable(AccessibilityNodeInfo info, boolean contextClickable) {
-            // Do nothing.
-        }
-
-        public Object getActionShowOnScreen() {
-            return null;
-        }
-
-        public Object getActionScrollUp() {
-            return null;
-        }
-
-        public Object getActionScrollDown() {
-            return null;
-        }
-
-        public Object getActionScrollLeft() {
-            return null;
-        }
-
-        public Object getActionScrollRight() {
-            return null;
-        }
-
-        public Object getActionContextClick() {
-            return null;
-        }
-
-        public int getCollectionInfoSelectionMode(Object info) {
-            return 0;
-        }
-
-        public int getDrawingOrder(AccessibilityNodeInfo info) {
-            return 0;
-        }
-
-        public void setDrawingOrder(AccessibilityNodeInfo info, int drawingOrderInParent) {
-        }
-
-        public boolean isImportantForAccessibility(AccessibilityNodeInfo info) {
-            return true;
-        }
-
-        public void setImportantForAccessibility(AccessibilityNodeInfo info,
-                boolean importantForAccessibility) {
-        }
-    }
-
-    @RequiresApi(16)
-    static class AccessibilityNodeInfoApi16Impl extends AccessibilityNodeInfoBaseImpl {
-        @Override
-        public AccessibilityNodeInfo obtain(View root, int virtualDescendantId) {
-            return AccessibilityNodeInfo.obtain(root, virtualDescendantId);
-        }
-
-        @Override
-        public Object findFocus(AccessibilityNodeInfo info, int focus) {
-            return info.findFocus(focus);
-        }
-
-        @Override
-        public Object focusSearch(AccessibilityNodeInfo info, int direction) {
-            return info.focusSearch(direction);
-        }
-
-        @Override
-        public void addChild(AccessibilityNodeInfo info, View child, int virtualDescendantId) {
-            info.addChild(child, virtualDescendantId);
-        }
-
-        @Override
-        public void setSource(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-            info.setSource(root, virtualDescendantId);
-        }
-
-        @Override
-        public boolean isVisibleToUser(AccessibilityNodeInfo info) {
-            return info.isVisibleToUser();
-        }
-
-        @Override
-        public void setVisibleToUser(AccessibilityNodeInfo info, boolean visibleToUser) {
-            info.setVisibleToUser(visibleToUser);
-        }
-
-        @Override
-        public boolean isAccessibilityFocused(AccessibilityNodeInfo info) {
-            return info.isAccessibilityFocused();
-        }
-
-        @Override
-        public void setAccessibilityFocused(AccessibilityNodeInfo info, boolean focused) {
-            info.setAccessibilityFocused(focused);
-        }
-
-        @Override
-        public boolean performAction(AccessibilityNodeInfo info, int action, Bundle arguments) {
-            return info.performAction(action, arguments);
-        }
-
-        @Override
-        public void setMovementGranularities(AccessibilityNodeInfo info, int granularities) {
-            info.setMovementGranularities(granularities);
-        }
-
-        @Override
-        public int getMovementGranularities(AccessibilityNodeInfo info) {
-            return info.getMovementGranularities();
-        }
-
-        @Override
-        public void setParent(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-            info.setParent(root, virtualDescendantId);
-        }
-    }
-
-    @RequiresApi(17)
-    static class AccessibilityNodeInfoApi17Impl extends AccessibilityNodeInfoApi16Impl {
-
-        @Override
-        public void setLabelFor(AccessibilityNodeInfo info, View labeled) {
-            info.setLabelFor(labeled);
-        }
-
-        @Override
-        public void setLabelFor(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-            info.setLabelFor(root, virtualDescendantId);
-        }
-
-        @Override
-        public Object getLabelFor(AccessibilityNodeInfo info) {
-            return info.getLabelFor();
-        }
-
-        @Override
-        public void setLabeledBy(AccessibilityNodeInfo info, View labeled) {
-            info.setLabeledBy(labeled);
-        }
-
-        @Override
-        public void setLabeledBy(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-            info.setLabeledBy(root, virtualDescendantId);
-        }
-
-        @Override
-        public Object getLabeledBy(AccessibilityNodeInfo info) {
-            return info.getLabeledBy();
-        }
-    }
-
-    @RequiresApi(18)
-    static class AccessibilityNodeInfoApi18Impl extends AccessibilityNodeInfoApi17Impl {
-
-        @Override
-        public String getViewIdResourceName(AccessibilityNodeInfo info) {
-            return info.getViewIdResourceName();
-        }
-
-        @Override
-        public void setViewIdResourceName(AccessibilityNodeInfo info, String viewId) {
-            info.setViewIdResourceName(viewId);
-        }
-
-        @Override
-        public List<AccessibilityNodeInfo> findAccessibilityNodeInfosByViewId(
-                AccessibilityNodeInfo info, String viewId) {
-            return info.findAccessibilityNodeInfosByViewId(viewId);
-        }
-
-        @Override
-        public void setTextSelection(AccessibilityNodeInfo info, int start, int end) {
-            info.setTextSelection(start, end);
-        }
-
-        @Override
-        public int getTextSelectionStart(AccessibilityNodeInfo info) {
-            return info.getTextSelectionStart();
-        }
-
-        @Override
-        public int getTextSelectionEnd(AccessibilityNodeInfo info) {
-            return info.getTextSelectionEnd();
-        }
-
-        @Override
-        public boolean isEditable(AccessibilityNodeInfo info) {
-            return info.isEditable();
-        }
-
-        @Override
-        public void setEditable(AccessibilityNodeInfo info, boolean editable) {
-            info.setEditable(editable);
-        }
-
-        @Override
-        public boolean refresh(AccessibilityNodeInfo info) {
-            return info.refresh();
-        }
-    }
-
-    @RequiresApi(19)
-    static class AccessibilityNodeInfoApi19Impl extends AccessibilityNodeInfoApi18Impl {
-        private static final String ROLE_DESCRIPTION_KEY =
-                "AccessibilityNodeInfo.roleDescription";
-
-        @Override
-        public int getLiveRegion(AccessibilityNodeInfo info) {
-            return info.getLiveRegion();
-        }
-
-        @Override
-        public void setLiveRegion(AccessibilityNodeInfo info, int mode) {
-            info.setLiveRegion(mode);
-        }
-
-        @Override
-        public Object getCollectionInfo(AccessibilityNodeInfo info) {
-            return info.getCollectionInfo();
-        }
-
-        @Override
-        public void setCollectionInfo(AccessibilityNodeInfo info, Object collectionInfo) {
-            info.setCollectionInfo((AccessibilityNodeInfo.CollectionInfo) collectionInfo);
-        }
-
-        @Override
-        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical,
-                int selectionMode) {
-            return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical);
-        }
-
-        @Override
-        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical) {
-            return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical);
-        }
-
-        @Override
-        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
-                int columnSpan, boolean heading, boolean selected) {
-            return AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
-                    columnSpan, heading);
-        }
-
-        @Override
-        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
-                int columnSpan, boolean heading) {
-            return AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
-                    columnSpan, heading);
-        }
-
-        @Override
-        public int getCollectionInfoColumnCount(Object info) {
-            return ((AccessibilityNodeInfo.CollectionInfo) info).getColumnCount();
-        }
-
-        @Override
-        public int getCollectionInfoRowCount(Object info) {
-            return ((AccessibilityNodeInfo.CollectionInfo) info).getRowCount();
-        }
-
-        @Override
-        public boolean isCollectionInfoHierarchical(Object info) {
-            return ((AccessibilityNodeInfo.CollectionInfo) info).isHierarchical();
-        }
-
-        @Override
-        public Object getCollectionItemInfo(AccessibilityNodeInfo info) {
-            return info.getCollectionItemInfo();
-        }
-
-        @Override
-        public Object getRangeInfo(AccessibilityNodeInfo info) {
-            return info.getRangeInfo();
-        }
-
-        @Override
-        public void setRangeInfo(AccessibilityNodeInfo info, Object rangeInfo) {
-            info.setRangeInfo((AccessibilityNodeInfo.RangeInfo) rangeInfo);
-        }
-
-        @Override
-        public int getCollectionItemColumnIndex(Object info) {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getColumnIndex();
-        }
-
-        @Override
-        public int getCollectionItemColumnSpan(Object info) {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getColumnSpan();
-        }
-
-        @Override
-        public int getCollectionItemRowIndex(Object info) {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getRowIndex();
-        }
-
-        @Override
-        public int getCollectionItemRowSpan(Object info) {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getRowSpan();
-        }
-
-        @Override
-        public boolean isCollectionItemHeading(Object info) {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) info).isHeading();
-        }
-
-        @Override
-        public void setCollectionItemInfo(AccessibilityNodeInfo info, Object collectionItemInfo) {
-            info.setCollectionItemInfo(
-                    (AccessibilityNodeInfo.CollectionItemInfo) collectionItemInfo);
-        }
-
-        @Override
-        public Object obtainRangeInfo(int type, float min, float max, float current) {
-            return AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current);
-        }
-
-        @Override
-        public void setContentInvalid(AccessibilityNodeInfo info, boolean contentInvalid) {
-            info.setContentInvalid(contentInvalid);
-        }
-
-        @Override
-        public boolean isContentInvalid(AccessibilityNodeInfo info) {
-            return info.isContentInvalid();
-        }
-
-        @Override
-        public boolean canOpenPopup(AccessibilityNodeInfo info) {
-            return info.canOpenPopup();
-        }
-
-        @Override
-        public void setCanOpenPopup(AccessibilityNodeInfo info, boolean opensPopup) {
-            info.setCanOpenPopup(opensPopup);
-        }
-
-        @Override
-        public Bundle getExtras(AccessibilityNodeInfo info) {
-            return info.getExtras();
-        }
-
-        @Override
-        public int getInputType(AccessibilityNodeInfo info) {
-            return info.getInputType();
-        }
-
-        @Override
-        public void setInputType(AccessibilityNodeInfo info, int inputType) {
-            info.setInputType(inputType);
-        }
-
-        @Override
-        public boolean isDismissable(AccessibilityNodeInfo info) {
-            return info.isDismissable();
-        }
-
-        @Override
-        public void setDismissable(AccessibilityNodeInfo info, boolean dismissable) {
-            info.setDismissable(dismissable);
-        }
-
-        @Override
-        public boolean isMultiLine(AccessibilityNodeInfo info) {
-            return info.isMultiLine();
-        }
-
-        @Override
-        public void setMultiLine(AccessibilityNodeInfo info, boolean multiLine) {
-            info.setMultiLine(multiLine);
-        }
-
-        @Override
-        public CharSequence getRoleDescription(AccessibilityNodeInfo info) {
-            Bundle extras = getExtras(info);
-            return extras.getCharSequence(ROLE_DESCRIPTION_KEY);
-        }
-
-        @Override
-        public void setRoleDescription(AccessibilityNodeInfo info, CharSequence roleDescription) {
-            Bundle extras = getExtras(info);
-            extras.putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
-        }
-    }
-
-    @RequiresApi(21)
-    static class AccessibilityNodeInfoApi21Impl extends AccessibilityNodeInfoApi19Impl {
-        @Override
-        public Object newAccessibilityAction(int actionId, CharSequence label) {
-            return new AccessibilityNodeInfo.AccessibilityAction(actionId, label);
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public List<Object> getActionList(AccessibilityNodeInfo info) {
-            Object result = info.getActionList();
-            return (List<Object>) result;
-        }
-
-        @Override
-        public Object obtainCollectionInfo(int rowCount, int columnCount, boolean hierarchical,
-                int selectionMode) {
-            return AccessibilityNodeInfo.CollectionInfo.obtain(rowCount, columnCount, hierarchical,
-                    selectionMode);
-        }
-
-        @Override
-        public void addAction(AccessibilityNodeInfo info, Object action) {
-            info.addAction((AccessibilityNodeInfo.AccessibilityAction) action);
-        }
-
-        @Override
-        public boolean removeAction(AccessibilityNodeInfo info, Object action) {
-            return info.removeAction((AccessibilityNodeInfo.AccessibilityAction) action);
-        }
-
-        @Override
-        public int getAccessibilityActionId(Object action) {
-            return ((AccessibilityNodeInfo.AccessibilityAction) action).getId();
-        }
-
-        @Override
-        public CharSequence getAccessibilityActionLabel(Object action) {
-            return ((AccessibilityNodeInfo.AccessibilityAction) action).getLabel();
-        }
-
-        @Override
-        public Object obtainCollectionItemInfo(int rowIndex, int rowSpan, int columnIndex,
-                int columnSpan, boolean heading, boolean selected) {
-            return AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
-                    columnSpan, heading, selected);
-        }
-
-        @Override
-        public boolean isCollectionItemSelected(Object info) {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) info).isSelected();
-        }
-
-        @Override
-        public CharSequence getError(AccessibilityNodeInfo info) {
-            return info.getError();
-        }
-
-        @Override
-        public void setError(AccessibilityNodeInfo info, CharSequence error) {
-            info.setError(error);
-        }
-
-        @Override
-        public void setMaxTextLength(AccessibilityNodeInfo info, int max) {
-            info.setMaxTextLength(max);
-        }
-
-        @Override
-        public int getMaxTextLength(AccessibilityNodeInfo info) {
-            return info.getMaxTextLength();
-        }
-
-        @Override
-        public Object getWindow(AccessibilityNodeInfo info) {
-            return info.getWindow();
-        }
-
-        @Override
-        public boolean removeChild(AccessibilityNodeInfo info, View child) {
-            return info.removeChild(child);
-        }
-
-        @Override
-        public boolean removeChild(AccessibilityNodeInfo info, View root, int virtualDescendantId) {
-            return info.removeChild(root, virtualDescendantId);
-        }
-
-        @Override
-        public int getCollectionInfoSelectionMode(Object info) {
-            return ((AccessibilityNodeInfo.CollectionInfo) info).getSelectionMode();
-        }
-    }
-
-    @RequiresApi(22)
-    static class AccessibilityNodeInfoApi22Impl extends AccessibilityNodeInfoApi21Impl {
-        @Override
-        public Object getTraversalBefore(AccessibilityNodeInfo info) {
-            return info.getTraversalBefore();
-        }
-
-        @Override
-        public void setTraversalBefore(AccessibilityNodeInfo info, View view) {
-            info.setTraversalBefore(view);
-        }
-
-        @Override
-        public void setTraversalBefore(AccessibilityNodeInfo info, View root,
-                int virtualDescendantId) {
-            info.setTraversalBefore(root, virtualDescendantId);
-        }
-
-        @Override
-        public Object getTraversalAfter(AccessibilityNodeInfo info) {
-            return info.getTraversalAfter();
-        }
-
-        @Override
-        public void setTraversalAfter(AccessibilityNodeInfo info, View view) {
-            info.setTraversalAfter(view);
-        }
-
-        @Override
-        public void setTraversalAfter(AccessibilityNodeInfo info, View root,
-                int virtualDescendantId) {
-            info.setTraversalAfter(root, virtualDescendantId);
-        }
-    }
-
-    @RequiresApi(23)
-    static class AccessibilityNodeInfoApi23Impl extends AccessibilityNodeInfoApi22Impl {
-        @Override
-        public Object getActionScrollToPosition() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION;
-        }
-
-        @Override
-        public Object getActionShowOnScreen() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN;
-        }
-
-        @Override
-        public Object getActionScrollUp() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP;
-        }
-
-        @Override
-        public Object getActionScrollDown() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN;
-        }
-
-        @Override
-        public Object getActionScrollLeft() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT;
-        }
-
-        @Override
-        public Object getActionScrollRight() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT;
-        }
-
-        @Override
-        public Object getActionContextClick() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK;
-        }
-
-        @Override
-        public boolean isContextClickable(AccessibilityNodeInfo info) {
-            return info.isContextClickable();
-        }
-
-        @Override
-        public void setContextClickable(AccessibilityNodeInfo info, boolean contextClickable) {
-            info.setContextClickable(contextClickable);
-        }
-    }
-
-    @RequiresApi(24)
-    static class AccessibilityNodeInfoApi24Impl extends AccessibilityNodeInfoApi23Impl {
-        @Override
-        public Object getActionSetProgress() {
-            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS;
-        }
-
-        @Override
-        public int getDrawingOrder(AccessibilityNodeInfo info) {
-            return info.getDrawingOrder();
-        }
-
-        @Override
-        public void setDrawingOrder(AccessibilityNodeInfo info, int drawingOrderInParent) {
-            info.setDrawingOrder(drawingOrderInParent);
-        }
-
-        @Override
-        public boolean isImportantForAccessibility(AccessibilityNodeInfo info) {
-            return info.isImportantForAccessibility();
-        }
-
-        @Override
-        public void setImportantForAccessibility(AccessibilityNodeInfo info,
-                boolean importantForAccessibility) {
-            info.setImportantForAccessibility(importantForAccessibility);
-        }
-
-    }
-
-    static {
-        if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new AccessibilityNodeInfoApi24Impl();
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            IMPL = new AccessibilityNodeInfoApi23Impl();
-        } else if (Build.VERSION.SDK_INT >= 22) {
-            IMPL = new AccessibilityNodeInfoApi22Impl();
-        } else if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new AccessibilityNodeInfoApi21Impl();
-        } else if (Build.VERSION.SDK_INT >= 19) { // KitKat
-            IMPL = new AccessibilityNodeInfoApi19Impl();
-        } else if (Build.VERSION.SDK_INT >= 18) { // JellyBean MR2
-            IMPL = new AccessibilityNodeInfoApi18Impl();
-        } else if (Build.VERSION.SDK_INT >= 17) { // JellyBean MR1
-            IMPL = new AccessibilityNodeInfoApi17Impl();
-        } else if (Build.VERSION.SDK_INT >= 16) { // JellyBean
-            IMPL = new AccessibilityNodeInfoApi16Impl();
-        } else {
-            IMPL = new AccessibilityNodeInfoBaseImpl();
-        }
-    }
-
-    static final AccessibilityNodeInfoBaseImpl IMPL;
+    private static final String ROLE_DESCRIPTION_KEY =
+            "AccessibilityNodeInfo.roleDescription";
 
     private final AccessibilityNodeInfo mInfo;
 
@@ -2121,8 +1275,12 @@ public class AccessibilityNodeInfoCompat {
      * @see #setSource(View, int)
      */
     public static AccessibilityNodeInfoCompat obtain(View root, int virtualDescendantId) {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(
-                IMPL.obtain(root, virtualDescendantId));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(
+                    AccessibilityNodeInfo.obtain(root, virtualDescendantId));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -2174,7 +1332,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setSource(View root, int virtualDescendantId) {
-        IMPL.setSource(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setSource(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -2189,7 +1349,11 @@ public class AccessibilityNodeInfoCompat {
      * @see #FOCUS_ACCESSIBILITY
      */
     public AccessibilityNodeInfoCompat findFocus(int focus) {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.findFocus(mInfo, focus));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.findFocus(focus));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -2207,7 +1371,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The node info for the view that can take accessibility focus.
      */
     public AccessibilityNodeInfoCompat focusSearch(int direction) {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.focusSearch(mInfo, direction));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.focusSearch(direction));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -2275,7 +1443,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual child.
      */
     public void addChild(View root, int virtualDescendantId) {
-        IMPL.addChild(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.addChild(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -2293,7 +1463,11 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public boolean removeChild(View child) {
-        return IMPL.removeChild(mInfo, child);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return mInfo.removeChild(child);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2307,7 +1481,11 @@ public class AccessibilityNodeInfoCompat {
      * @see #addChild(View, int)
      */
     public boolean removeChild(View root, int virtualDescendantId) {
-        return IMPL.removeChild(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return mInfo.removeChild(root, virtualDescendantId);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2350,7 +1528,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void addAction(AccessibilityActionCompat action) {
-        IMPL.addAction(mInfo, action.mAction);
+        if (Build.VERSION.SDK_INT >= 21) {
+            mInfo.addAction((AccessibilityNodeInfo.AccessibilityAction) action.mAction);
+        }
     }
 
     /**
@@ -2368,7 +1548,11 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public boolean removeAction(AccessibilityActionCompat action) {
-        return IMPL.removeAction(mInfo, action.mAction);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return mInfo.removeAction((AccessibilityNodeInfo.AccessibilityAction) action.mAction);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2401,7 +1585,11 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called outside of an AccessibilityService.
      */
     public boolean performAction(int action, Bundle arguments) {
-        return IMPL.performAction(mInfo, action, arguments);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.performAction(action, arguments);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2417,7 +1605,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setMovementGranularities(int granularities) {
-        IMPL.setMovementGranularities(mInfo, granularities);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setMovementGranularities(granularities);
+        }
     }
 
     /**
@@ -2426,7 +1616,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The bit mask with granularities.
      */
     public int getMovementGranularities() {
-        return IMPL.getMovementGranularities(mInfo);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.getMovementGranularities();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -2503,7 +1697,9 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setParent(View root, int virtualDescendantId) {
         mParentVirtualDescendantId = virtualDescendantId;
-        IMPL.setParent(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setParent(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -2656,7 +1852,11 @@ public class AccessibilityNodeInfoCompat {
      * @return Whether the node is visible to the user.
      */
     public boolean isVisibleToUser() {
-        return IMPL.isVisibleToUser(mInfo);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.isVisibleToUser();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2672,7 +1872,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setVisibleToUser(boolean visibleToUser) {
-        IMPL.setVisibleToUser(mInfo, visibleToUser);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setVisibleToUser(visibleToUser);
+        }
     }
 
     /**
@@ -2681,7 +1883,11 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is accessibility focused.
      */
     public boolean isAccessibilityFocused() {
-        return IMPL.isAccessibilityFocused(mInfo);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.isAccessibilityFocused();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2697,7 +1903,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setAccessibilityFocused(boolean focused) {
-        IMPL.setAccessibilityFocused(mInfo, focused);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setAccessibilityFocused(focused);
+        }
     }
 
     /**
@@ -2853,7 +2061,11 @@ public class AccessibilityNodeInfoCompat {
      * @see View#isImportantForAccessibility()
      */
     public boolean isImportantForAccessibility() {
-        return IMPL.isImportantForAccessibility(mInfo);
+        if (Build.VERSION.SDK_INT >= 24) {
+            return mInfo.isImportantForAccessibility();
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -2868,7 +2080,9 @@ public class AccessibilityNodeInfoCompat {
      *                  {@code false} otherwise
      */
     public void setImportantForAccessibility(boolean important) {
-        IMPL.setImportantForAccessibility(mInfo, important);
+        if (Build.VERSION.SDK_INT >= 24) {
+            mInfo.setImportantForAccessibility(important);
+        }
     }
 
     /**
@@ -2990,7 +2204,9 @@ public class AccessibilityNodeInfoCompat {
      * @param viewId The id resource name.
      */
     public void setViewIdResourceName(String viewId) {
-        IMPL.setViewIdResourceName(mInfo, viewId);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mInfo.setViewIdResourceName(viewId);
+        }
     }
 
     /**
@@ -3006,7 +2222,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The id resource name.
      */
     public String getViewIdResourceName() {
-        return IMPL.getViewIdResourceName(mInfo);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.getViewIdResourceName();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3028,7 +2248,11 @@ public class AccessibilityNodeInfoCompat {
      * @see ViewCompat#getAccessibilityLiveRegion(View)
      */
     public int getLiveRegion() {
-        return IMPL.getLiveRegion(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getLiveRegion();
+        } else {
+            return ViewCompat.ACCESSIBILITY_LIVE_REGION_NONE;
+        }
     }
 
     /**
@@ -3044,7 +2268,9 @@ public class AccessibilityNodeInfoCompat {
      * @see ViewCompat#setAccessibilityLiveRegion(View, int)
      */
     public void setLiveRegion(int mode) {
-        IMPL.setLiveRegion(mInfo, mode);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setLiveRegion(mode);
+        }
     }
 
     /**
@@ -3059,7 +2285,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The drawing position of the view corresponding to this node relative to its siblings.
      */
     public int getDrawingOrder() {
-        return IMPL.getDrawingOrder(mInfo);
+        if (Build.VERSION.SDK_INT >= 24) {
+            return mInfo.getDrawingOrder();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -3074,7 +2304,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setDrawingOrder(int drawingOrderInParent) {
-        IMPL.setDrawingOrder(mInfo, drawingOrderInParent);
+        if (Build.VERSION.SDK_INT >= 24) {
+            mInfo.setDrawingOrder(drawingOrderInParent);
+        }
     }
 
     /**
@@ -3084,17 +2316,28 @@ public class AccessibilityNodeInfoCompat {
      * @return The collection info.
      */
     public CollectionInfoCompat getCollectionInfo() {
-        Object info = IMPL.getCollectionInfo(mInfo);
-        if (info == null) return null;
-        return new CollectionInfoCompat(info);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AccessibilityNodeInfo.CollectionInfo info = mInfo.getCollectionInfo();
+            if (info != null) {
+                return new CollectionInfoCompat(info);
+            }
+        }
+        return null;
     }
 
     public void setCollectionInfo(Object collectionInfo) {
-        IMPL.setCollectionInfo(mInfo, ((CollectionInfoCompat) collectionInfo).mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setCollectionInfo((AccessibilityNodeInfo.CollectionInfo)
+                    ((CollectionInfoCompat) collectionInfo).mInfo);
+        }
+
     }
 
     public void setCollectionItemInfo(Object collectionItemInfo) {
-        IMPL.setCollectionItemInfo(mInfo, ((CollectionItemInfoCompat) collectionItemInfo).mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setCollectionItemInfo((AccessibilityNodeInfo.CollectionItemInfo)
+                    ((CollectionItemInfoCompat) collectionItemInfo).mInfo);
+        }
     }
 
     /**
@@ -3104,9 +2347,13 @@ public class AccessibilityNodeInfoCompat {
      * @return The collection item info.
      */
     public CollectionItemInfoCompat getCollectionItemInfo() {
-        Object info = IMPL.getCollectionItemInfo(mInfo);
-        if (info == null) return null;
-        return new CollectionItemInfoCompat(info);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AccessibilityNodeInfo.CollectionItemInfo info = mInfo.getCollectionItemInfo();
+            if (info != null) {
+                return new CollectionItemInfoCompat(info);
+            }
+        }
+        return null;
     }
 
     /**
@@ -3115,9 +2362,13 @@ public class AccessibilityNodeInfoCompat {
      * @return The range.
      */
     public RangeInfoCompat getRangeInfo() {
-        Object info = IMPL.getRangeInfo(mInfo);
-        if (info == null) return null;
-        return new RangeInfoCompat(info);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AccessibilityNodeInfo.RangeInfo info = mInfo.getRangeInfo();
+            if (info != null) {
+                return new RangeInfoCompat(info);
+            }
+        }
+        return null;
     }
 
     /**
@@ -3131,7 +2382,9 @@ public class AccessibilityNodeInfoCompat {
      * @param rangeInfo The range info.
      */
     public void setRangeInfo(RangeInfoCompat rangeInfo) {
-        IMPL.setRangeInfo(mInfo, rangeInfo.mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setRangeInfo((AccessibilityNodeInfo.RangeInfo) rangeInfo.mInfo);
+        }
     }
 
     /**
@@ -3139,8 +2392,12 @@ public class AccessibilityNodeInfoCompat {
      *
      * @return A list of AccessibilityActions.
      */
+    @SuppressWarnings("unchecked")
     public List<AccessibilityActionCompat> getActionList() {
-        List<Object> actions = IMPL.getActionList(mInfo);
+        List<Object> actions = null;
+        if (Build.VERSION.SDK_INT >= 21) {
+            actions = (List<Object>) (List<?>) mInfo.getActionList();
+        }
         if (actions != null) {
             List<AccessibilityActionCompat> result = new ArrayList<AccessibilityActionCompat>();
             final int actionCount = actions.size();
@@ -3166,7 +2423,9 @@ public class AccessibilityNodeInfoCompat {
      * @param contentInvalid If the node content is invalid.
      */
     public void setContentInvalid(boolean contentInvalid) {
-        IMPL.setContentInvalid(mInfo, contentInvalid);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setContentInvalid(contentInvalid);
+        }
     }
 
     /**
@@ -3176,7 +2435,11 @@ public class AccessibilityNodeInfoCompat {
      * @return If the node content is invalid.
      */
     public boolean isContentInvalid() {
-        return IMPL.isContentInvalid(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.isContentInvalid();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3185,7 +2448,11 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is context clickable.
      */
     public boolean isContextClickable() {
-        return IMPL.isContextClickable(mInfo);
+        if (Build.VERSION.SDK_INT >= 23) {
+            return mInfo.isContextClickable();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3200,7 +2467,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setContextClickable(boolean contextClickable) {
-        IMPL.setContextClickable(mInfo, contextClickable);
+        if (Build.VERSION.SDK_INT >= 23) {
+            mInfo.setContextClickable(contextClickable);
+        }
     }
 
     /**
@@ -3216,7 +2485,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setError(CharSequence error) {
-        IMPL.setError(mInfo, error);
+        if (Build.VERSION.SDK_INT >= 21) {
+            mInfo.setError(error);
+        }
     }
 
     /**
@@ -3225,7 +2496,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The error text.
      */
     public CharSequence getError() {
-        return IMPL.getError(mInfo);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return mInfo.getError();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3235,7 +2510,9 @@ public class AccessibilityNodeInfoCompat {
      * @param labeled The view for which this info serves as a label.
      */
     public void setLabelFor(View labeled) {
-        IMPL.setLabelFor(mInfo, labeled);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabelFor(labeled);
+        }
     }
 
     /**
@@ -3253,7 +2530,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setLabelFor(View root, int virtualDescendantId) {
-        IMPL.setLabelFor(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabelFor(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -3268,7 +2547,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The labeled info.
      */
     public AccessibilityNodeInfoCompat getLabelFor() {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getLabelFor(mInfo));
+        if (Build.VERSION.SDK_INT >= 17) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabelFor());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3278,7 +2561,9 @@ public class AccessibilityNodeInfoCompat {
      * @param label The view that labels this node's source.
      */
     public void setLabeledBy(View label) {
-        IMPL.setLabeledBy(mInfo, label);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabeledBy(label);
+        }
     }
 
     /**
@@ -3301,7 +2586,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setLabeledBy(View root, int virtualDescendantId) {
-        IMPL.setLabeledBy(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabeledBy(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -3316,7 +2603,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The label.
      */
     public AccessibilityNodeInfoCompat getLabeledBy() {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getLabeledBy(mInfo));
+        if (Build.VERSION.SDK_INT >= 17) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabeledBy());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3325,7 +2616,11 @@ public class AccessibilityNodeInfoCompat {
      * @return If the the node opens a popup.
      */
     public boolean canOpenPopup() {
-        return IMPL.canOpenPopup(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.canOpenPopup();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3339,7 +2634,9 @@ public class AccessibilityNodeInfoCompat {
      * @param opensPopup If the the node opens a popup.
      */
     public void setCanOpenPopup(boolean opensPopup) {
-        IMPL.setCanOpenPopup(mInfo, opensPopup);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setCanOpenPopup(opensPopup);
+        }
     }
 
     /**
@@ -3365,9 +2662,9 @@ public class AccessibilityNodeInfoCompat {
      * @return A list of node info.
      */
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {
-        List<AccessibilityNodeInfo> nodes = IMPL.findAccessibilityNodeInfosByViewId(mInfo, viewId);
-        if (nodes != null) {
-            List<AccessibilityNodeInfoCompat> result = new ArrayList<AccessibilityNodeInfoCompat>();
+        if (Build.VERSION.SDK_INT >= 18) {
+            List<AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);
+            List<AccessibilityNodeInfoCompat> result = new ArrayList<>();
             for (AccessibilityNodeInfo node : nodes) {
                 result.add(AccessibilityNodeInfoCompat.wrap(node));
             }
@@ -3391,7 +2688,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The bundle.
      */
     public Bundle getExtras() {
-        return IMPL.getExtras(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras();
+        } else {
+            return new Bundle();
+        }
     }
 
     /**
@@ -3400,7 +2701,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The input type.
      */
     public int getInputType() {
-        return IMPL.getInputType(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getInputType();
+        } else {
+            return InputType.TYPE_NULL;
+        }
     }
 
     /**
@@ -3417,7 +2722,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setInputType(int inputType) {
-        IMPL.setInputType(mInfo, inputType);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setInputType(inputType);
+        }
     }
 
     /**
@@ -3436,7 +2743,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setMaxTextLength(int max) {
-        IMPL.setMaxTextLength(mInfo, max);
+        if (Build.VERSION.SDK_INT >= 21) {
+            mInfo.setMaxTextLength(max);
+        }
     }
 
     /**
@@ -3446,7 +2755,11 @@ public class AccessibilityNodeInfoCompat {
      * @see #setMaxTextLength(int)
      */
     public int getMaxTextLength() {
-        return IMPL.getMaxTextLength(mInfo);
+        if (Build.VERSION.SDK_INT >= 21) {
+            return mInfo.getMaxTextLength();
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -3463,7 +2776,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setTextSelection(int start, int end) {
-        IMPL.setTextSelection(mInfo, start, end);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mInfo.setTextSelection(start, end);
+        }
     }
 
     /**
@@ -3472,7 +2787,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The text selection start if there is selection or -1.
      */
     public int getTextSelectionStart() {
-        return IMPL.getTextSelectionStart(mInfo);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.getTextSelectionStart();
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -3481,7 +2800,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The text selection end if there is selection or -1.
      */
     public int getTextSelectionEnd() {
-        return IMPL.getTextSelectionEnd(mInfo);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.getTextSelectionEnd();
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -3494,7 +2817,11 @@ public class AccessibilityNodeInfoCompat {
      * @see #setTraversalBefore(android.view.View, int)
      */
     public AccessibilityNodeInfoCompat getTraversalBefore() {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getTraversalBefore(mInfo));
+        if (Build.VERSION.SDK_INT >= 22) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getTraversalBefore());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3512,7 +2839,9 @@ public class AccessibilityNodeInfoCompat {
      * @see #getTraversalBefore()
      */
     public void setTraversalBefore(View view) {
-        IMPL.setTraversalBefore(mInfo, view);
+        if (Build.VERSION.SDK_INT >= 22) {
+            mInfo.setTraversalBefore(view);
+        }
     }
 
     /**
@@ -3537,7 +2866,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setTraversalBefore(View root, int virtualDescendantId) {
-        IMPL.setTraversalBefore(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 22) {
+            mInfo.setTraversalBefore(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -3551,7 +2882,11 @@ public class AccessibilityNodeInfoCompat {
      * @see #setTraversalAfter(android.view.View, int)
      */
     public AccessibilityNodeInfoCompat getTraversalAfter() {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(IMPL.getTraversalAfter(mInfo));
+        if (Build.VERSION.SDK_INT >= 22) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getTraversalAfter());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3569,7 +2904,9 @@ public class AccessibilityNodeInfoCompat {
      * @see #getTraversalAfter()
      */
     public void setTraversalAfter(View view) {
-        IMPL.setTraversalAfter(mInfo, view);
+        if (Build.VERSION.SDK_INT >= 22) {
+            mInfo.setTraversalAfter(view);
+        }
     }
 
     /**
@@ -3593,7 +2930,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setTraversalAfter(View root, int virtualDescendantId) {
-        IMPL.setTraversalAfter(mInfo, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 22) {
+            mInfo.setTraversalAfter(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -3604,7 +2943,11 @@ public class AccessibilityNodeInfoCompat {
      * @see android.accessibilityservice.AccessibilityService#getWindows()
      */
     public AccessibilityWindowInfoCompat getWindow() {
-        return AccessibilityWindowInfoCompat.wrapNonNullInstance(IMPL.getWindow(mInfo));
+        if (Build.VERSION.SDK_INT >= 21) {
+            return AccessibilityWindowInfoCompat.wrapNonNullInstance(mInfo.getWindow());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3613,7 +2956,11 @@ public class AccessibilityNodeInfoCompat {
      * @return If the node can be dismissed.
      */
     public boolean isDismissable() {
-        return IMPL.isDismissable(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.isDismissable();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3627,7 +2974,9 @@ public class AccessibilityNodeInfoCompat {
      * @param dismissable If the node can be dismissed.
      */
     public void setDismissable(boolean dismissable) {
-        IMPL.setDismissable(mInfo, dismissable);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setDismissable(dismissable);
+        }
     }
 
     /**
@@ -3636,7 +2985,11 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is editable, false otherwise.
      */
     public boolean isEditable() {
-        return IMPL.isEditable(mInfo);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.isEditable();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3652,7 +3005,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setEditable(boolean editable) {
-        IMPL.setEditable(mInfo, editable);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mInfo.setEditable(editable);
+        }
     }
 
     /**
@@ -3661,7 +3016,11 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is multi line.
      */
     public boolean isMultiLine() {
-        return IMPL.isMultiLine(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.isMultiLine();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3675,7 +3034,9 @@ public class AccessibilityNodeInfoCompat {
      * @param multiLine True if the node is multi line.
      */
     public void setMultiLine(boolean multiLine) {
-        IMPL.setMultiLine(mInfo, multiLine);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setMultiLine(multiLine);
+        }
     }
 
     /**
@@ -3688,7 +3049,11 @@ public class AccessibilityNodeInfoCompat {
      * @return Whether the refresh succeeded.
      */
     public boolean refresh() {
-        return IMPL.refresh(mInfo);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.refresh();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3696,7 +3061,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The role description.
      */
     public @Nullable CharSequence getRoleDescription() {
-        return IMPL.getRoleDescription(mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3724,7 +3093,9 @@ public class AccessibilityNodeInfoCompat {
      * @param roleDescription The role description.
      */
     public void setRoleDescription(@Nullable CharSequence roleDescription) {
-        IMPL.setRoleDescription(mInfo, roleDescription);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+        }
     }
 
     @Override
