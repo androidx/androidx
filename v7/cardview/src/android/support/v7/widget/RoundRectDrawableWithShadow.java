@@ -30,20 +30,18 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v7.cardview.R;
 
 /**
  * A rounded rectangle drawable which also includes a shadow around.
  */
-@RequiresApi(9)
 class RoundRectDrawableWithShadow extends Drawable {
     // used to calculate content padding
-    final static double COS_45 = Math.cos(Math.toRadians(45));
+    private static final double COS_45 = Math.cos(Math.toRadians(45));
 
-    final static float SHADOW_MULTIPLIER = 1.5f;
+    private static final float SHADOW_MULTIPLIER = 1.5f;
 
-    final int mInsetShadow; // extra shadow to avoid gaps between card and shadow
+    private final int mInsetShadow; // extra shadow to avoid gaps between card and shadow
 
     /*
     * This helper is set by CardView implementations.
@@ -53,29 +51,26 @@ class RoundRectDrawableWithShadow extends Drawable {
     * */
     static RoundRectHelper sRoundRectHelper;
 
-    Paint mPaint;
+    private Paint mPaint;
 
-    Paint mCornerShadowPaint;
+    private Paint mCornerShadowPaint;
 
-    Paint mEdgeShadowPaint;
+    private Paint mEdgeShadowPaint;
 
-    final RectF mCardBounds;
+    private final RectF mCardBounds;
 
-    float mCornerRadius;
+    private float mCornerRadius;
 
-    Path mCornerShadowPath;
-
-    // updated value with inset
-    float mMaxShadowSize;
+    private Path mCornerShadowPath;
 
     // actual value set by developer
-    float mRawMaxShadowSize;
+    private float mRawMaxShadowSize;
 
     // multiplied value to account for shadow offset
-    float mShadowSize;
+    private float mShadowSize;
 
     // actual value set by developer
-    float mRawShadowSize;
+    private float mRawShadowSize;
 
     private ColorStateList mBackground;
 
@@ -124,7 +119,7 @@ class RoundRectDrawableWithShadow extends Drawable {
         return i;
     }
 
-    public void setAddPaddingForCorners(boolean addPaddingForCorners) {
+    void setAddPaddingForCorners(boolean addPaddingForCorners) {
         mAddPaddingForCorners = addPaddingForCorners;
         invalidateSelf();
     }
@@ -142,14 +137,14 @@ class RoundRectDrawableWithShadow extends Drawable {
         mDirty = true;
     }
 
-    void setShadowSize(float shadowSize, float maxShadowSize) {
+    private void setShadowSize(float shadowSize, float maxShadowSize) {
         if (shadowSize < 0f) {
-            throw new IllegalArgumentException("Invalid shadow size " + shadowSize +
-                    ". Must be >= 0");
+            throw new IllegalArgumentException("Invalid shadow size " + shadowSize
+                    + ". Must be >= 0");
         }
         if (maxShadowSize < 0f) {
-            throw new IllegalArgumentException("Invalid max shadow size " + maxShadowSize +
-                    ". Must be >= 0");
+            throw new IllegalArgumentException("Invalid max shadow size " + maxShadowSize
+                    + ". Must be >= 0");
         }
         shadowSize = toEven(shadowSize);
         maxShadowSize = toEven(maxShadowSize);
@@ -164,8 +159,7 @@ class RoundRectDrawableWithShadow extends Drawable {
         }
         mRawShadowSize = shadowSize;
         mRawMaxShadowSize = maxShadowSize;
-        mShadowSize = (int)(shadowSize * SHADOW_MULTIPLIER + mInsetShadow + .5f);
-        mMaxShadowSize = maxShadowSize + mInsetShadow;
+        mShadowSize = (int) (shadowSize * SHADOW_MULTIPLIER + mInsetShadow + .5f);
         mDirty = true;
         invalidateSelf();
     }
@@ -227,8 +221,7 @@ class RoundRectDrawableWithShadow extends Drawable {
 
     void setCornerRadius(float radius) {
         if (radius < 0f) {
-            throw new IllegalArgumentException("Invalid radius " + radius +
-                ". Must be >= 0");
+            throw new IllegalArgumentException("Invalid radius " + radius + ". Must be >= 0");
         }
         radius = (int) (radius + .5f);
         if (mCornerRadius == radius) {
@@ -320,8 +313,8 @@ class RoundRectDrawableWithShadow extends Drawable {
         float startRatio = mCornerRadius / (mCornerRadius + mShadowSize);
         mCornerShadowPaint.setShader(new RadialGradient(0, 0, mCornerRadius + mShadowSize,
                 new int[]{mShadowStartColor, mShadowStartColor, mShadowEndColor},
-                new float[]{0f, startRatio, 1f}
-                , Shader.TileMode.CLAMP));
+                new float[]{0f, startRatio, 1f},
+                Shader.TileMode.CLAMP));
 
         // we offset the content shadowSize/2 pixels up to make it more realistic.
         // this is why edge shadow shader has some extra space
@@ -368,8 +361,8 @@ class RoundRectDrawableWithShadow extends Drawable {
     }
 
     float getMinWidth() {
-        final float content = 2 *
-                Math.max(mRawMaxShadowSize, mCornerRadius + mInsetShadow + mRawMaxShadowSize / 2);
+        final float content = 2
+                * Math.max(mRawMaxShadowSize, mCornerRadius + mInsetShadow + mRawMaxShadowSize / 2);
         return content + (mRawMaxShadowSize + mInsetShadow) * 2;
     }
 
@@ -388,7 +381,7 @@ class RoundRectDrawableWithShadow extends Drawable {
         return mBackground;
     }
 
-    static interface RoundRectHelper {
+    interface RoundRectHelper {
         void drawRoundRect(Canvas canvas, RectF bounds, float cornerRadius, Paint paint);
     }
 }
