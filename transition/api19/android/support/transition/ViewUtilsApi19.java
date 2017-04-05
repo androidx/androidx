@@ -65,6 +65,16 @@ class ViewUtilsApi19 extends ViewUtilsApi18 {
         return super.getTransitionAlpha(view);
     }
 
+    @Override
+    public void saveNonTransitionAlpha(@NonNull View view) {
+        // Do nothing
+    }
+
+    @Override
+    public void clearNonTransitionAlpha(@NonNull View view) {
+        // Do nothing
+    }
+
     private void fetchSetTransitionAlphaMethod() {
         if (!sSetTransitionAlphaMethodFetched) {
             try {

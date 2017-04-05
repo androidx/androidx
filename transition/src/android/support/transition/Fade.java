@@ -132,6 +132,7 @@ public class Fade extends Visibility {
             @Override
             public void onTransitionEnd(@NonNull Transition transition) {
                 ViewUtils.setTransitionAlpha(view, 1);
+                ViewUtils.clearNonTransitionAlpha(view);
                 transition.removeListener(this);
             }
         });
@@ -157,6 +158,7 @@ public class Fade extends Visibility {
     @Override
     public Animator onDisappear(ViewGroup sceneRoot, final View view, TransitionValues startValues,
             TransitionValues endValues) {
+        ViewUtils.saveNonTransitionAlpha(view);
         float startAlpha = getStartAlpha(startValues, 1);
         return createAnimation(view, startAlpha, 0);
     }
