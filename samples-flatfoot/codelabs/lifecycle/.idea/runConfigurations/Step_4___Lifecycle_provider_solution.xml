@@ -45,7 +45,7 @@
       <option name="INSTRUMENTATION_ENABLED" value="true" />
     </Profilers>
     <option name="DEEP_LINK" value="" />
-    <option name="ACTIVITY_CLASS" value="com.example.android.lifecycles.step4_lifecycle_solution.LocationActivity" />
+    <option name="ACTIVITY_CLASS" value="com.example.android.lifecycles.step4_solution.LocationActivity" />
     <method />
   </configuration>
 </component>

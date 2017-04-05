@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.lifecycles.step4_lifecycle_solution;
+package com.example.android.lifecycles.step4_solution;
 
 import android.content.Context;
 import android.location.Location;
@@ -28,10 +28,9 @@ import com.android.support.lifecycle.LifecycleRegistryOwner;
 import com.android.support.lifecycle.OnLifecycleEvent;
 
 public class BoundLocationManager {
-
-    public static void bindLocationListenerIn(LifecycleRegistryOwner provider,
+    public static void bindLocationListenerIn(LifecycleRegistryOwner lifecycleOwner,
                                               LocationListener listener, Context context) {
-        new BoundLocationListener(provider, listener, context);
+        new BoundLocationListener(lifecycleOwner, listener, context);
     }
 
     @SuppressWarnings("MissingPermission")
@@ -40,11 +39,11 @@ public class BoundLocationManager {
         private LocationManager mLocationManager;
         private final LocationListener mListener;
 
-        public BoundLocationListener(LifecycleRegistryOwner provider, LocationListener listener,
-                                     Context context) {
+        public BoundLocationListener(LifecycleRegistryOwner lifecycleOwner,
+                                     LocationListener listener, Context context) {
             mContext = context;
             mListener = listener;
-            provider.getLifecycle().addObserver(this);
+            lifecycleOwner.getLifecycle().addObserver(this);
         }
 
         @OnLifecycleEvent(Lifecycle.ON_RESUME)
@@ -76,5 +75,4 @@ public class BoundLocationManager {
             Log.d("BoundLocationMgr", "Listener removed");
         }
     }
-
 }

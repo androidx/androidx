@@ -61,6 +61,7 @@ public class LiveDataTimerViewModel extends ViewModel {
 
     }
 
+    @SuppressWarnings("unused")  // Will be used when step is completed
     public LiveData<Long> getElapsedTime() {
         return elapsedTime;
     }

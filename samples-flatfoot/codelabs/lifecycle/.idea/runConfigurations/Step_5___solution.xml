@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Step 4 - Lifecycle provider" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+  <configuration default="false" name="Step 5 - solution" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
     <module name="app" />
     <option name="DEPLOY" value="true" />
     <option name="ARTIFACT_NAME" value="" />
@@ -45,7 +45,7 @@
       <option name="INSTRUMENTATION_ENABLED" value="true" />
     </Profilers>
     <option name="DEEP_LINK" value="" />
-    <option name="ACTIVITY_CLASS" value="com.example.android.lifecycles.step4.LocationActivity" />
+    <option name="ACTIVITY_CLASS" value="com.example.android.lifecycles.step5_solution.Activity_step5" />
     <method />
   </configuration>
 </component>

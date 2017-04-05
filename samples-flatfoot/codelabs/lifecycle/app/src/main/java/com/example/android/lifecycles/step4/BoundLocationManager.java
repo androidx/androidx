@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.example.android.lifecycles.step4_lifecycle;
+package com.example.android.lifecycles.step4;
 
 import android.content.Context;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.util.Log;
@@ -26,9 +27,9 @@ import com.android.support.lifecycle.LifecycleRegistryOwner;
 
 
 public class BoundLocationManager {
-    public static void bindLocationListenerIn(LifecycleRegistryOwner provider,
+    public static void bindLocationListenerIn(LifecycleRegistryOwner lifecycleOwner,
                                               LocationListener listener, Context context) {
-        new BoundLocationListener(provider, listener, context);
+        new BoundLocationListener(lifecycleOwner, listener, context);
     }
 
     @SuppressWarnings("MissingPermission")
@@ -37,8 +38,8 @@ public class BoundLocationManager {
         private LocationManager mLocationManager;
         private final LocationListener mListener;
 
-        public BoundLocationListener(LifecycleRegistryOwner provider, LocationListener listener,
-                                     Context context) {
+        public BoundLocationListener(LifecycleRegistryOwner lifecycleOwner,
+                                     LocationListener listener, Context context) {
             mContext = context;
             mListener = listener;
             //TODO: Add lifecycle observer
@@ -49,9 +50,17 @@ public class BoundLocationManager {
             // Note: Use the Fused Location Provider from Google Play Services instead.
             // https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderApi
 
-            mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+            mLocationManager =
+                    (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mListener);
             Log.d("BoundLocationMgr", "Listener added");
+
+            // Force an update with the last location, if available.
+            Location lastLocation = mLocationManager.getLastKnownLocation(
+                    LocationManager.GPS_PROVIDER);
+            if (lastLocation != null) {
+                mListener.onLocationChanged(lastLocation);
+            }
         }
 
         //TODO: Call this on pause
