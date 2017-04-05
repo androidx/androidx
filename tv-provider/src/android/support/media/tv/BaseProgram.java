@@ -23,7 +23,8 @@ import android.media.tv.TvContentRating;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RestrictTo;
-import android.support.media.tv.TvContractCompat.BaseProgramColumns;
+import android.support.media.tv.TvContractCompat.BaseTvColumns;
+import android.support.media.tv.TvContractCompat.ProgramColumns;
 import android.support.media.tv.TvContractCompat.Programs;
 import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
 import android.text.TextUtils;
@@ -32,7 +33,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Base class for derived classes that want to have fields defined in  {@link BaseProgramColumns}.
+ * Base class for derived classes that want to have common fields for programs defined in
+ * {@link TvContractCompat}.
  */
 public abstract class BaseProgram {
     /**
@@ -93,153 +95,168 @@ public abstract class BaseProgram {
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#_ID} for the program.
+     * @return The ID for the program.
+     * @see Programs#_ID
      */
     public long getId() {
         return mId;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_TITLE} for the program.
+     * @return The title for the program.
+     * @see Programs#COLUMN_TITLE
      */
     public String getTitle() {
         return mTitle;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_EPISODE_TITLE} for the program.
+     * @return The episode title for the program.
+     * @see Programs#COLUMN_EPISODE_TITLE
      */
     public String getEpisodeTitle() {
         return mEpisodeTitle;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_SEASON_DISPLAY_NUMBER} for the program.
+     * @return The season display number for the program.
+     * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
      */
     public String getSeasonNumber() {
         return mSeasonNumber;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_EPISODE_DISPLAY_NUMBER} for the
-     * program.
+     * @return The episode display number for the program.
+     * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
      */
     public String getEpisodeNumber() {
         return mEpisodeNumber;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_SHORT_DESCRIPTION} for the program.
+     * @return The short description for the program.
+     * @see Programs#COLUMN_SHORT_DESCRIPTION
      */
     public String getDescription() {
         return mDescription;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_LONG_DESCRIPTION} for the program.
+     * @return The long description for the program.
+     * @see Programs#COLUMN_LONG_DESCRIPTION
      */
     public String getLongDescription() {
         return mLongDescription;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_VIDEO_WIDTH} for the program.
+     * @return The video width for the program.
+     * @see Programs#COLUMN_VIDEO_WIDTH
      */
     public int getVideoWidth() {
         return mVideoWidth;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_VIDEO_HEIGHT} for the program.
+     * @return The video height for the program.
+     * @see Programs#COLUMN_VIDEO_HEIGHT
      */
     public int getVideoHeight() {
         return mVideoHeight;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_CANONICAL_GENRE} for the program.
+     * @return The canonical genre for the program.
+     * @see Programs#COLUMN_CANONICAL_GENRE
      */
     public @Genre String[] getCanonicalGenres() {
         return mCanonicalGenres;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_CONTENT_RATING} for the program.
+     * @return The content rating for the program.
+     * @see Programs#COLUMN_CONTENT_RATING
      */
     public TvContentRating[] getContentRatings() {
         return mContentRatings;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_POSTER_ART_URI} for the program.
+     * @return The poster art URI for the program.
+     * @see Programs#COLUMN_POSTER_ART_URI
      */
     public Uri getPosterArtUri() {
         return mPosterArtUri;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_THUMBNAIL_URI} for the program.
+     * @return The thumbnail URI for the program.
+     * @see Programs#COLUMN_THUMBNAIL_URI
      */
     public Uri getThumbnailUri() {
         return mThumbnailUri;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_DATA} for the
-     * program.
+     * @return The internal provider data for the program.
+     * @see Programs#COLUMN_INTERNAL_PROVIDER_DATA
      */
     public byte[] getInternalProviderDataByteArray() {
         return mInternalProviderData;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_AUDIO_LANGUAGE} for the program.
+     * @return The audio languages for the program.
+     * @see Programs#COLUMN_AUDIO_LANGUAGE
      */
     public String[] getAudioLanguages() {
         return mAudioLanguages;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_SEARCHABLE} for the program.
+     * @return Whether the program is searchable or not.
+     * @see Programs#COLUMN_SEARCHABLE
      */
     public boolean isSearchable() {
         return mSearchable == IS_SEARCHABLE || mSearchable == INVALID_INT_VALUE;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG1} for the
-     * program.
+     * @return The first internal provider flag for the program.
+     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
      */
     public Long getInternalProviderFlag1() {
         return mInternalProviderFlag1;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG2} for the
-     * program.
+     * @return The second internal provider flag for the program.
+     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
      */
     public Long getInternalProviderFlag2() {
         return mInternalProviderFlag2;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG3} for the
-     * program.
+     * @return The third internal provider flag for the program.
+     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
      */
     public Long getInternalProviderFlag3() {
         return mInternalProviderFlag3;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG4} for the
-     * program.
+     * @return The forth internal provider flag for the program.
+     * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
      */
     public Long getInternalProviderFlag4() {
         return mInternalProviderFlag4;
     }
 
     /**
-     * @return The value of {@link BaseProgramColumns#COLUMN_SEASON_TITLE} for the program.
+     * @return The season title for the program.
+     * @see Programs#COLUMN_SEASON_TITLE
      */
     public String getSeasonTitle() {
         return mSeasonTitle;
@@ -302,26 +319,26 @@ public abstract class BaseProgram {
     }
 
     /**
-     * @return The fields of the Program in the ContentValues format to be easily inserted into the
-     * TV Input Framework database.
+     * @return The fields of the BaseProgram in {@link ContentValues} format to be easily inserted
+     * into the TV Input Framework database.
      */
     public ContentValues toContentValues() {
         ContentValues values = new ContentValues();
         if (mId != INVALID_LONG_VALUE) {
-            values.put(BaseProgramColumns._ID, mId);
+            values.put(BaseTvColumns._ID, mId);
         }
         if (!TextUtils.isEmpty(mTitle)) {
-            values.put(BaseProgramColumns.COLUMN_TITLE, mTitle);
+            values.put(ProgramColumns.COLUMN_TITLE, mTitle);
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_TITLE);
+            values.putNull(ProgramColumns.COLUMN_TITLE);
         }
         if (!TextUtils.isEmpty(mEpisodeTitle)) {
-            values.put(BaseProgramColumns.COLUMN_EPISODE_TITLE, mEpisodeTitle);
+            values.put(ProgramColumns.COLUMN_EPISODE_TITLE, mEpisodeTitle);
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_EPISODE_TITLE);
+            values.putNull(ProgramColumns.COLUMN_EPISODE_TITLE);
         }
         if (!TextUtils.isEmpty(mSeasonNumber) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            values.put(BaseProgramColumns.COLUMN_SEASON_DISPLAY_NUMBER, mSeasonNumber);
+            values.put(ProgramColumns.COLUMN_SEASON_DISPLAY_NUMBER, mSeasonNumber);
         } else if (!TextUtils.isEmpty(mSeasonNumber)
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             values.put(Programs.COLUMN_SEASON_NUMBER,
@@ -330,7 +347,7 @@ public abstract class BaseProgram {
             values.putNull(TvContractCompat.Programs.COLUMN_SEASON_NUMBER);
         }
         if (!TextUtils.isEmpty(mEpisodeNumber) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            values.put(BaseProgramColumns.COLUMN_EPISODE_DISPLAY_NUMBER, mEpisodeNumber);
+            values.put(ProgramColumns.COLUMN_EPISODE_DISPLAY_NUMBER, mEpisodeNumber);
         } else if (!TextUtils.isEmpty(mEpisodeNumber)
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             values.put(Programs.COLUMN_EPISODE_NUMBER,
@@ -339,83 +356,83 @@ public abstract class BaseProgram {
             values.putNull(Programs.COLUMN_EPISODE_NUMBER);
         }
         if (!TextUtils.isEmpty(mDescription)) {
-            values.put(BaseProgramColumns.COLUMN_SHORT_DESCRIPTION, mDescription);
+            values.put(ProgramColumns.COLUMN_SHORT_DESCRIPTION, mDescription);
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_SHORT_DESCRIPTION);
+            values.putNull(ProgramColumns.COLUMN_SHORT_DESCRIPTION);
         }
         if (!TextUtils.isEmpty(mLongDescription)) {
-            values.put(BaseProgramColumns.COLUMN_LONG_DESCRIPTION, mLongDescription);
+            values.put(ProgramColumns.COLUMN_LONG_DESCRIPTION, mLongDescription);
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_LONG_DESCRIPTION);
+            values.putNull(ProgramColumns.COLUMN_LONG_DESCRIPTION);
         }
         if (mPosterArtUri != null) {
-            values.put(BaseProgramColumns.COLUMN_POSTER_ART_URI, mPosterArtUri.toString());
+            values.put(ProgramColumns.COLUMN_POSTER_ART_URI, mPosterArtUri.toString());
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_POSTER_ART_URI);
+            values.putNull(ProgramColumns.COLUMN_POSTER_ART_URI);
         }
         if (mThumbnailUri != null) {
-            values.put(BaseProgramColumns.COLUMN_THUMBNAIL_URI, mThumbnailUri.toString());
+            values.put(ProgramColumns.COLUMN_THUMBNAIL_URI, mThumbnailUri.toString());
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_THUMBNAIL_URI);
+            values.putNull(ProgramColumns.COLUMN_THUMBNAIL_URI);
         }
         if (mAudioLanguages != null && mAudioLanguages.length > 0) {
-            values.put(BaseProgramColumns.COLUMN_AUDIO_LANGUAGE,
+            values.put(ProgramColumns.COLUMN_AUDIO_LANGUAGE,
                     TvContractUtils.audioLanguagesToString(mAudioLanguages));
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_AUDIO_LANGUAGE);
+            values.putNull(ProgramColumns.COLUMN_AUDIO_LANGUAGE);
         }
         if (mCanonicalGenres != null && mCanonicalGenres.length > 0) {
-            values.put(BaseProgramColumns.COLUMN_CANONICAL_GENRE,
+            values.put(ProgramColumns.COLUMN_CANONICAL_GENRE,
                     Programs.Genres.encode(mCanonicalGenres));
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_CANONICAL_GENRE);
+            values.putNull(ProgramColumns.COLUMN_CANONICAL_GENRE);
         }
         if (mContentRatings != null && mContentRatings.length > 0) {
-            values.put(BaseProgramColumns.COLUMN_CONTENT_RATING,
+            values.put(ProgramColumns.COLUMN_CONTENT_RATING,
                     TvContractUtils.contentRatingsToString(mContentRatings));
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_CONTENT_RATING);
+            values.putNull(ProgramColumns.COLUMN_CONTENT_RATING);
         }
         if (mVideoWidth != INVALID_INT_VALUE) {
-            values.put(BaseProgramColumns.COLUMN_VIDEO_WIDTH, mVideoWidth);
+            values.put(ProgramColumns.COLUMN_VIDEO_WIDTH, mVideoWidth);
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_VIDEO_WIDTH);
+            values.putNull(ProgramColumns.COLUMN_VIDEO_WIDTH);
         }
         if (mVideoHeight != INVALID_INT_VALUE) {
-            values.put(BaseProgramColumns.COLUMN_VIDEO_HEIGHT, mVideoHeight);
+            values.put(ProgramColumns.COLUMN_VIDEO_HEIGHT, mVideoHeight);
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_VIDEO_HEIGHT);
+            values.putNull(ProgramColumns.COLUMN_VIDEO_HEIGHT);
         }
         if (mInternalProviderData != null && mInternalProviderData.length > 0) {
-            values.put(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA,
+            values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA,
                     mInternalProviderData);
         } else {
-            values.putNull(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA);
+            values.putNull(ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (mSearchable != INVALID_INT_VALUE) {
-                values.put(BaseProgramColumns.COLUMN_SEARCHABLE, mSearchable);
+                values.put(ProgramColumns.COLUMN_SEARCHABLE, mSearchable);
             }
             if (mInternalProviderFlag1 != null) {
-                values.put(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1,
+                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1,
                         mInternalProviderFlag1);
             }
             if (mInternalProviderFlag2 != null) {
-                values.put(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2,
+                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2,
                         mInternalProviderFlag2);
             }
             if (mInternalProviderFlag3 != null) {
-                values.put(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3,
+                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3,
                         mInternalProviderFlag3);
             }
             if (mInternalProviderFlag4 != null) {
-                values.put(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4,
+                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4,
                         mInternalProviderFlag4);
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (!TextUtils.isEmpty(mSeasonTitle)) {
-                values.put(BaseProgramColumns.COLUMN_SEASON_TITLE, mSeasonTitle);
+                values.put(ProgramColumns.COLUMN_SEASON_TITLE, mSeasonTitle);
             }
         }
         return values;
@@ -430,20 +447,20 @@ public abstract class BaseProgram {
     static void setFieldsFromCursor(Cursor cursor, Builder builder) {
         // TODO: Add additional API which does not use costly getColumnIndex().
         int index;
-        if ((index = cursor.getColumnIndex(BaseProgramColumns._ID)) >= 0 && !cursor.isNull(index)) {
+        if ((index = cursor.getColumnIndex(BaseTvColumns._ID)) >= 0 && !cursor.isNull(index)) {
             builder.setId(cursor.getLong(index));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_TITLE)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_TITLE)) >= 0
                 && !cursor.isNull(index)) {
             builder.setTitle(cursor.getString(index));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_EPISODE_TITLE)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_EPISODE_TITLE)) >= 0
                 && !cursor.isNull(index)) {
             builder.setEpisodeTitle(cursor.getString(index));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if ((index =
-                    cursor.getColumnIndex(BaseProgramColumns.COLUMN_SEASON_DISPLAY_NUMBER)) >= 0
+                    cursor.getColumnIndex(ProgramColumns.COLUMN_SEASON_DISPLAY_NUMBER)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setSeasonNumber(cursor.getString(index), INVALID_INT_VALUE);
             }
@@ -455,7 +472,7 @@ public abstract class BaseProgram {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if ((index =
-                    cursor.getColumnIndex(BaseProgramColumns.COLUMN_EPISODE_DISPLAY_NUMBER)) >= 0
+                    cursor.getColumnIndex(ProgramColumns.COLUMN_EPISODE_DISPLAY_NUMBER)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setEpisodeNumber(cursor.getString(index), INVALID_INT_VALUE);
             }
@@ -465,77 +482,77 @@ public abstract class BaseProgram {
                 builder.setEpisodeNumber(cursor.getInt(index));
             }
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_SHORT_DESCRIPTION)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_SHORT_DESCRIPTION)) >= 0
                 && !cursor.isNull(index)) {
             builder.setDescription(cursor.getString(index));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_LONG_DESCRIPTION)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_LONG_DESCRIPTION)) >= 0
                 && !cursor.isNull(index)) {
             builder.setLongDescription(cursor.getString(index));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_POSTER_ART_URI)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_POSTER_ART_URI)) >= 0
                 && !cursor.isNull(index)) {
             builder.setPosterArtUri(Uri.parse(cursor.getString(index)));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_THUMBNAIL_URI)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_THUMBNAIL_URI)) >= 0
                 && !cursor.isNull(index)) {
             builder.setThumbnailUri(Uri.parse(cursor.getString(index)));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_AUDIO_LANGUAGE)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_AUDIO_LANGUAGE)) >= 0
                 && !cursor.isNull(index)) {
             builder.setAudioLanguages(
                     TvContractUtils.stringToAudioLanguages(cursor.getString(index)));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_CANONICAL_GENRE)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_CANONICAL_GENRE)) >= 0
                 && !cursor.isNull(index)) {
             builder.setCanonicalGenres(Programs.Genres.decode(
                     cursor.getString(index)));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_CONTENT_RATING)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_CONTENT_RATING)) >= 0
                 && !cursor.isNull(index)) {
             builder.setContentRatings(
                     TvContractUtils.stringToContentRatings(cursor.getString(index)));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_VIDEO_WIDTH)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_VIDEO_WIDTH)) >= 0
                 && !cursor.isNull(index)) {
             builder.setVideoWidth((int) cursor.getLong(index));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_VIDEO_HEIGHT)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_VIDEO_HEIGHT)) >= 0
                 && !cursor.isNull(index)) {
             builder.setVideoHeight((int) cursor.getLong(index));
         }
-        if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA)) >= 0
+        if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA)) >= 0
                 && !cursor.isNull(index)) {
             builder.setInternalProviderData(cursor.getBlob(index));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_SEARCHABLE)) >= 0
+            if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_SEARCHABLE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setSearchable(cursor.getInt(index) == IS_SEARCHABLE);
             }
             if ((index =
-                    cursor.getColumnIndex(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1)) >= 0
+                    cursor.getColumnIndex(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInternalProviderFlag1(cursor.getLong(index));
             }
             if ((index =
-                    cursor.getColumnIndex(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2)) >= 0
+                    cursor.getColumnIndex(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInternalProviderFlag2(cursor.getLong(index));
             }
             if ((index =
-                    cursor.getColumnIndex(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3)) >= 0
+                    cursor.getColumnIndex(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInternalProviderFlag3(cursor.getLong(index));
             }
             if ((index =
-                    cursor.getColumnIndex(BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4)) >= 0
+                    cursor.getColumnIndex(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInternalProviderFlag4(cursor.getLong(index));
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if ((index = cursor.getColumnIndex(BaseProgramColumns.COLUMN_SEASON_TITLE)) >= 0
+            if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_SEASON_TITLE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setSeasonTitle(cursor.getString(index));
             }
@@ -544,35 +561,35 @@ public abstract class BaseProgram {
 
     private static String[] getProjection() {
         String[] baseColumns = new String[] {
-                BaseProgramColumns._ID,
-                BaseProgramColumns.COLUMN_TITLE,
-                BaseProgramColumns.COLUMN_EPISODE_TITLE,
+                BaseTvColumns._ID,
+                ProgramColumns.COLUMN_TITLE,
+                ProgramColumns.COLUMN_EPISODE_TITLE,
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                        ? BaseProgramColumns.COLUMN_SEASON_DISPLAY_NUMBER
+                        ? ProgramColumns.COLUMN_SEASON_DISPLAY_NUMBER
                         : Programs.COLUMN_SEASON_NUMBER,
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                        ? BaseProgramColumns.COLUMN_EPISODE_DISPLAY_NUMBER
+                        ? ProgramColumns.COLUMN_EPISODE_DISPLAY_NUMBER
                         : Programs.COLUMN_EPISODE_NUMBER,
-                BaseProgramColumns.COLUMN_SHORT_DESCRIPTION,
-                BaseProgramColumns.COLUMN_LONG_DESCRIPTION,
-                BaseProgramColumns.COLUMN_POSTER_ART_URI,
-                BaseProgramColumns.COLUMN_THUMBNAIL_URI,
-                BaseProgramColumns.COLUMN_AUDIO_LANGUAGE,
-                BaseProgramColumns.COLUMN_CANONICAL_GENRE,
-                BaseProgramColumns.COLUMN_CONTENT_RATING,
-                BaseProgramColumns.COLUMN_VIDEO_WIDTH,
-                BaseProgramColumns.COLUMN_VIDEO_HEIGHT,
-                BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA
+                ProgramColumns.COLUMN_SHORT_DESCRIPTION,
+                ProgramColumns.COLUMN_LONG_DESCRIPTION,
+                ProgramColumns.COLUMN_POSTER_ART_URI,
+                ProgramColumns.COLUMN_THUMBNAIL_URI,
+                ProgramColumns.COLUMN_AUDIO_LANGUAGE,
+                ProgramColumns.COLUMN_CANONICAL_GENRE,
+                ProgramColumns.COLUMN_CONTENT_RATING,
+                ProgramColumns.COLUMN_VIDEO_WIDTH,
+                ProgramColumns.COLUMN_VIDEO_HEIGHT,
+                ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA
         };
         String[] marshmallowColumns = new String[] {
-                BaseProgramColumns.COLUMN_SEARCHABLE,
-                BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1,
-                BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2,
-                BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3,
-                BaseProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4,
+                ProgramColumns.COLUMN_SEARCHABLE,
+                ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1,
+                ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2,
+                ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3,
+                ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4,
         };
         String[] nougatColumns = new String[] {
-                BaseProgramColumns.COLUMN_SEASON_TITLE,
+                ProgramColumns.COLUMN_SEASON_TITLE,
         };
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, nougatColumns);
@@ -648,8 +665,9 @@ public abstract class BaseProgram {
         /**
          * Sets a unique id for this program.
          *
-         * @param programId The value of {@link BaseProgramColumns#_ID} for the program.
+         * @param programId The ID for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see BaseTvColumns#_ID
          */
         public T setId(long programId) {
             mId = programId;
@@ -659,8 +677,9 @@ public abstract class BaseProgram {
         /**
          * Sets the title of this program. For a series, this is the series title.
          *
-         * @param title The value of {@link BaseProgramColumns#COLUMN_TITLE} for the program.
+         * @param title The title for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_TITLE
          */
         public T setTitle(String title) {
             mTitle = title;
@@ -670,9 +689,9 @@ public abstract class BaseProgram {
         /**
          * Sets the title of this particular episode for a series.
          *
-         * @param episodeTitle The value of {@link BaseProgramColumns#COLUMN_EPISODE_TITLE} for the
-         *                     program.
+         * @param episodeTitle The episode title for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_EPISODE_TITLE
          */
         public T setEpisodeTitle(String episodeTitle) {
             mEpisodeTitle = episodeTitle;
@@ -682,9 +701,9 @@ public abstract class BaseProgram {
         /**
          * Sets the season number for this episode for a series.
          *
-         * @param seasonNumber The value of
-         * {@link BaseProgramColumns#COLUMN_SEASON_DISPLAY_NUMBER} for the program.
+         * @param seasonNumber The season display number for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
          */
         public T setSeasonNumber(int seasonNumber) {
             mSeasonNumber = String.valueOf(seasonNumber);
@@ -694,11 +713,12 @@ public abstract class BaseProgram {
         /**
          * Sets the season number for this episode for a series.
          *
-         * @param seasonNumber The value of {@link BaseProgramColumns#COLUMN_SEASON_DISPLAY_NUMBER}
-         *                     for the program.
+         * @param seasonNumber The season display number for the program.
          * @param numericalSeasonNumber An integer value for {@link Programs#COLUMN_SEASON_NUMBER}
          *                              which will be used for API Level 23 and below.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
+         * @see Programs#COLUMN_SEASON_NUMBER
          */
         public T setSeasonNumber(String seasonNumber, int numericalSeasonNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -712,9 +732,9 @@ public abstract class BaseProgram {
         /**
          * Sets the episode number in a season for this episode for a series.
          *
-         * @param episodeNumber The value of
-         * {@link BaseProgramColumns#COLUMN_EPISODE_DISPLAY_NUMBER} for the program.
+         * @param episodeNumber The value of episode display number for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
          */
         public T setEpisodeNumber(int episodeNumber) {
             mEpisodeNumber = String.valueOf(episodeNumber);
@@ -724,12 +744,12 @@ public abstract class BaseProgram {
         /**
          * Sets the episode number in a season for this episode for a series.
          *
-         * @param episodeNumber The value of
-         *                      {@link BaseProgramColumns#COLUMN_EPISODE_DISPLAY_NUMBER} for the
-         *                      program.
+         * @param episodeNumber The value of episode display number for the program.
          * @param numericalEpisodeNumber An integer value for {@link Programs#COLUMN_EPISODE_NUMBER}
          *                               which will be used for API Level 23 and below.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
+         * @see Programs#COLUMN_EPISODE_NUMBER
          */
         public T setEpisodeNumber(String episodeNumber, int numericalEpisodeNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -744,9 +764,9 @@ public abstract class BaseProgram {
          * Sets a brief description of the program. For a series, this would be a brief description
          * of the episode.
          *
-         * @param description The value of {@link BaseProgramColumns#COLUMN_SHORT_DESCRIPTION} for
-         *                    the program.
+         * @param description The short description for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_SHORT_DESCRIPTION
          */
         public T setDescription(String description) {
             mDescription = description;
@@ -756,9 +776,9 @@ public abstract class BaseProgram {
         /**
          * Sets a longer description of a program if one exists.
          *
-         * @param longDescription The value of {@link BaseProgramColumns#COLUMN_LONG_DESCRIPTION}
-         *                        for the program.
+         * @param longDescription The long description for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_LONG_DESCRIPTION
          */
         public T setLongDescription(String longDescription) {
             mLongDescription = longDescription;
@@ -768,8 +788,9 @@ public abstract class BaseProgram {
         /**
          * Sets the video width of the program.
          *
-         * @param width The value of {@link BaseProgramColumns#COLUMN_VIDEO_WIDTH} for the program.
+         * @param width The video width for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_VIDEO_WIDTH
          */
         public T setVideoWidth(int width) {
             mVideoWidth = width;
@@ -779,9 +800,9 @@ public abstract class BaseProgram {
         /**
          * Sets the video height of the program.
          *
-         * @param height The value of {@link BaseProgramColumns#COLUMN_VIDEO_HEIGHT} for the
-         *               program.
+         * @param height The video height for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_VIDEO_HEIGHT
          */
         public T setVideoHeight(int height) {
             mVideoHeight = height;
@@ -794,7 +815,7 @@ public abstract class BaseProgram {
          * @param contentRatings An array of {@link TvContentRating} that apply to this program
          *                       which will be flattened to a String to store in a database.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see BaseProgramColumns#COLUMN_CONTENT_RATING
+         * @see Programs#COLUMN_CONTENT_RATING
          */
         public T setContentRatings(TvContentRating[] contentRatings) {
             mContentRatings = contentRatings;
@@ -804,9 +825,9 @@ public abstract class BaseProgram {
         /**
          * Sets the large poster art of the program.
          *
-         * @param posterArtUri The value of {@link BaseProgramColumns#COLUMN_POSTER_ART_URI} for the
-         *                     program.
+         * @param posterArtUri The poster art URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_POSTER_ART_URI
          */
         public T setPosterArtUri(Uri posterArtUri) {
             mPosterArtUri = posterArtUri;
@@ -816,9 +837,9 @@ public abstract class BaseProgram {
         /**
          * Sets a small thumbnail of the program.
          *
-         * @param thumbnailUri The value of {@link BaseProgramColumns#COLUMN_THUMBNAIL_URI} for the
-         *                     program.
+         * @param thumbnailUri The thumbnail URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_THUMBNAIL_URI
          */
         public T setThumbnailUri(Uri thumbnailUri) {
             mThumbnailUri = thumbnailUri;
@@ -831,7 +852,7 @@ public abstract class BaseProgram {
          * @param genres An array of {@link Programs.Genres} that apply to the program which will be
          *               flattened to a String to store in a database.
          * @return This Builder object to allow for chaining of calls to builder methods.
-         * @see BaseProgramColumns#COLUMN_CANONICAL_GENRE
+         * @see Programs#COLUMN_CANONICAL_GENRE
          */
         public T setCanonicalGenres(@Genre String[] genres) {
             mCanonicalGenres = genres;
@@ -841,9 +862,9 @@ public abstract class BaseProgram {
         /**
          * Sets the internal provider data for the program as raw bytes.
          *
-         * @param data The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_DATA} for the
-         *             program.
+         * @param data The internal provider data for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_INTERNAL_PROVIDER_DATA
          */
         public T setInternalProviderData(byte[] data) {
             mInternalProviderData = data;
@@ -865,9 +886,9 @@ public abstract class BaseProgram {
         /**
          * Sets whether this channel can be searched for in other applications.
          *
-         * @param searchable The value of {@link BaseProgramColumns#COLUMN_SEARCHABLE} for the
-         *                   program.
+         * @param searchable Whether the program is searchable or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_SEARCHABLE
          */
         public T setSearchable(boolean searchable) {
             mSearchable = searchable ? IS_SEARCHABLE : 0;
@@ -877,9 +898,9 @@ public abstract class BaseProgram {
         /**
          * Sets the internal provider flag1 for the program.
          *
-         * @param flag The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG1} for
-         *             the program.
+         * @param flag The first internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
          */
         public T setInternalProviderFlag1(long flag) {
             mInternalProviderFlag1 = flag;
@@ -889,9 +910,9 @@ public abstract class BaseProgram {
         /**
          * Sets the internal provider flag2 for the program.
          *
-         * @param flag The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG2} for
-         *             the program.
+         * @param flag The second internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
          */
         public T setInternalProviderFlag2(long flag) {
             mInternalProviderFlag2 = flag;
@@ -901,9 +922,9 @@ public abstract class BaseProgram {
         /**
          * Sets the internal provider flag3 for the program.
          *
-         * @param flag The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG3} for
-         *             the program.
+         * @param flag The third internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
          */
         public T setInternalProviderFlag3(long flag) {
             mInternalProviderFlag3 = flag;
@@ -913,9 +934,9 @@ public abstract class BaseProgram {
         /**
          * Sets the internal provider flag4 for the program.
          *
-         * @param flag The value of {@link BaseProgramColumns#COLUMN_INTERNAL_PROVIDER_FLAG4} for
-         *             the program.
+         * @param flag The forth internal provider flag for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
          */
         public T setInternalProviderFlag4(long flag) {
             mInternalProviderFlag4 = flag;
@@ -925,9 +946,9 @@ public abstract class BaseProgram {
         /**
          * Sets a custom name for the season, if applicable.
          *
-         * @param seasonTitle The value of {@link BaseProgramColumns#COLUMN_SEASON_TITLE} for the
-         *                    program.
+         * @param seasonTitle The season title for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see Programs#COLUMN_SEASON_TITLE
          */
         public T setSeasonTitle(String seasonTitle) {
             mSeasonTitle = seasonTitle;
