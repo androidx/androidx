@@ -107,6 +107,23 @@ class ViewUtils {
     }
 
     /**
+     * This method needs to be called before an animation using {@link #setTransitionAlpha(View,
+     * float)} in order to make its behavior backward-compatible.
+     */
+    static void saveNonTransitionAlpha(@NonNull View view) {
+        IMPL.saveNonTransitionAlpha(view);
+    }
+
+    /**
+     * This method needs to be called after an animation using
+     * {@link #setTransitionAlpha(View, float)} if {@link #saveNonTransitionAlpha(View)} has been
+     * called.
+     */
+    static void clearNonTransitionAlpha(@NonNull View view) {
+        IMPL.clearNonTransitionAlpha(view);
+    }
+
+    /**
      * Copy of a hidden platform method, View#setTransitionVisibility.
      *
      * <p>Change the visibility of the View without triggering any other changes. This is

@@ -24,4 +24,5 @@
     <item name="ghost_view" type="id"/>
     <item name="save_scale_type" type="id"/>
     <item name="save_image_matrix" type="id"/>
+    <item name="save_non_transition_alpha" type="id"/>
 </resources>
