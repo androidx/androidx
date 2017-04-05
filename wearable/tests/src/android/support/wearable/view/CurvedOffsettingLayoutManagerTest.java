@@ -20,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.wearable.test.R;
@@ -56,6 +57,7 @@ public class CurvedOffsettingLayoutManagerTest {
                 new CurvedOffsettingLayoutManager(mActivityRule.getActivity());
     }
 
+    @Suppress
     @Test
     public void testOffsetting() throws Throwable {
         ViewFetchingRunnable customRunnable = new ViewFetchingRunnable(){
