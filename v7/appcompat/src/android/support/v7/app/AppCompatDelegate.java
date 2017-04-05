@@ -294,7 +294,7 @@ public abstract class AppCompatDelegate {
      * @return The view if found or null otherwise.
      */
     @Nullable
-    public abstract View findViewById(@IdRes int id);
+    public abstract <T extends View> T findViewById(@IdRes int id);
 
     /**
      * Should be called instead of {@link Activity#setContentView(android.view.View)}}

@@ -185,10 +185,12 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         getDelegate().onStop();
     }
 
+    /* TEMPORARY REMOVAL
     @Override
-    public View findViewById(@IdRes int id) {
+    public <T extends View> T findViewById(@IdRes int id) {
         return getDelegate().findViewById(id);
     }
+    */
 
     @Override
     public final boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
