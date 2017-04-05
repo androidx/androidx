@@ -120,7 +120,7 @@ class MediaBrowserServiceCompatApi21 {
         public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                 Bundle rootHints) {
             MediaBrowserServiceCompatApi21.BrowserRoot browserRoot = mServiceProxy.onGetRoot(
-                    clientPackageName, clientUid, rootHints);
+                    clientPackageName, clientUid, new Bundle(rootHints));
             return browserRoot == null ? null : new MediaBrowserService.BrowserRoot(
                     browserRoot.mRootId, browserRoot.mExtras);
         }
