@@ -80,11 +80,11 @@ public class CardView extends FrameLayout {
 
     static {
         if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new CardViewApi21();
+            IMPL = new CardViewApi21Impl();
         } else if (Build.VERSION.SDK_INT >= 17) {
-            IMPL = new CardViewJellybeanMr1();
+            IMPL = new CardViewApi17Impl();
         } else {
-            IMPL = new CardViewGingerbread();
+            IMPL = new CardViewBaseImpl();
         }
         IMPL.initStatic();
     }
@@ -187,7 +187,7 @@ public class CardView extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (!(IMPL instanceof CardViewApi21)) {
+        if (!(IMPL instanceof CardViewApi21Impl)) {
             final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
             switch (widthMode) {
                 case MeasureSpec.EXACTLY:

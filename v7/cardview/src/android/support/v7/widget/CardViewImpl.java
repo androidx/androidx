@@ -18,12 +18,10 @@ package android.support.v7.widget;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 
 /**
  * Interface for platform specific CardView implementations.
  */
-@RequiresApi(9)
 interface CardViewImpl {
     void initialize(CardViewDelegate cardView, Context context, ColorStateList backgroundColor,
             float radius, float elevation, float maxElevation);
