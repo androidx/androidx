@@ -41,6 +41,8 @@
 
         <activity android:name="android.support.v4.app.test.NewIntentActivity"
                   android:launchMode="singleInstance" />
+
+        <activity android:name="android.support.v4.app.test.NonConfigOnStopActivity" />
     </application>
 
 </manifest>

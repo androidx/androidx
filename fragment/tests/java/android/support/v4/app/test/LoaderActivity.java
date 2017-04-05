@@ -20,34 +20,19 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.concurrent.CountDownLatch;
-
-public class LoaderActivity extends FragmentActivity {
-    // These must be cleared after each test using clearState()
-    public static LoaderActivity sActivity;
-    public static CountDownLatch sResumed;
-    public static CountDownLatch sDestroyed;
-
+public class LoaderActivity extends OrientationChangeActivity {
     public TextView textView;
     public TextView textViewB;
-
-    public static void clearState() {
-        sActivity = null;
-        sResumed = null;
-        sDestroyed = null;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sActivity = this;
 
         setContentView(R.layout.fragment_a);
         textView = (TextView) findViewById(R.id.textA);
@@ -61,17 +46,6 @@ public class LoaderActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         getSupportLoaderManager().initLoader(0, null, new TextLoaderCallback());
-        if (sResumed != null) {
-            sResumed.countDown();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (sDestroyed != null) {
-            sDestroyed.countDown();
-        }
     }
 
     class TextLoaderCallback implements LoaderManager.LoaderCallbacks<String> {
