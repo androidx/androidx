@@ -87,11 +87,11 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void defaultAlignment() throws InterruptedException {
-        launchAndWaitActivity(F_defaultAlignment.class, 1000);
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(F_defaultAlignment.class, 1000);
 
         final Rect rect = new Rect();
 
-        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsSupportFragment) activity.getTestFragment())
                 .getVerticalGridView();
         View row0 = gridView.findViewHolderForAdapterPosition(0).itemView;
         rect.set(0, 0, row0.getWidth(), row0.getHeight());
@@ -132,9 +132,10 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void selectBeforeSetAdapter() throws InterruptedException {
-        launchAndWaitActivity(F_selectBeforeSetAdapter.class, 2000);
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(F_selectBeforeSetAdapter.class, 2000);
 
-        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsSupportFragment) activity.getTestFragment())
                 .getVerticalGridView();
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
@@ -165,9 +166,10 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void selectBeforeAddData() throws InterruptedException {
-        launchAndWaitActivity(F_selectBeforeAddData.class, 2000);
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(F_selectBeforeAddData.class, 2000);
 
-        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsSupportFragment) activity.getTestFragment())
                 .getVerticalGridView();
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
@@ -192,9 +194,10 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void selectAfterAddData() throws InterruptedException {
-        launchAndWaitActivity(F_selectAfterAddData.class, 2000);
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(F_selectAfterAddData.class, 2000);
 
-        final VerticalGridView gridView = ((RowsSupportFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsSupportFragment) activity.getTestFragment())
                 .getVerticalGridView();
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
@@ -222,13 +225,14 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void restoreSelection() {
-        launchAndWaitActivity(F_restoreSelection.class, 1000);
+        final SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(F_restoreSelection.class, 1000);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {
                     @Override
                     public void run() {
-                        mActivity.recreate();
+                        activity.recreate();
                     }
                 }
         );
@@ -264,9 +268,10 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void prefetchChildItemsBeforeAttach() throws Throwable {
-        launchAndWaitActivity(F_ListRowWithOnClick.class, 1000);
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(F_ListRowWithOnClick.class, 1000);
 
-        F_ListRowWithOnClick fragment = (F_ListRowWithOnClick) mActivity.getTestFragment();
+        F_ListRowWithOnClick fragment = (F_ListRowWithOnClick) activity.getTestFragment();
         final VerticalGridView gridView = fragment.getVerticalGridView();
         View lastRow = gridView.getChildAt(gridView.getChildCount() - 1);
         final int lastRowPos = gridView.getChildAdapterPosition(lastRow);

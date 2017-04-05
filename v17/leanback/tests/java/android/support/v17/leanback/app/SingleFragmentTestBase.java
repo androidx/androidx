@@ -19,18 +19,14 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
 public class SingleFragmentTestBase {
 
     private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
-    private static final String TAG = "SingleFragmentTestBase";
 
     @Rule
     public TestName mUnitTestName = new TestName();
@@ -38,24 +34,6 @@ public class SingleFragmentTestBase {
     @Rule
     public ActivityTestRule<SingleFragmentTestActivity> activityTestRule =
             new ActivityTestRule<>(SingleFragmentTestActivity.class, false, false);
-
-    protected SingleFragmentTestActivity mActivity;
-
-    @After
-    public void afterTest() throws Throwable {
-        final SingleFragmentTestActivity activity = mActivity;
-        if (activity != null) {
-            Log.d(TAG, "wait finish " + activity + " for " + this);
-            mActivity = null;
-            activityTestRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    activity.finish();
-                }
-            });
-            PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
-        }
-    }
 
     public void sendKeys(int ...keys) {
         for (int i = 0; i < keys.length; i++) {
@@ -94,23 +72,25 @@ public class SingleFragmentTestBase {
         }
     }
 
-    public void launchAndWaitActivity(Class fragmentClass, long waitTimeMs) {
-        launchAndWaitActivity(fragmentClass.getName(), null, waitTimeMs);
+    public SingleFragmentTestActivity launchAndWaitActivity(Class fragmentClass, long waitTimeMs) {
+        return launchAndWaitActivity(fragmentClass.getName(), null, waitTimeMs);
     }
 
-    public void launchAndWaitActivity(Class fragmentClass, Options options, long waitTimeMs) {
-        launchAndWaitActivity(fragmentClass.getName(), options, waitTimeMs);
+    public SingleFragmentTestActivity launchAndWaitActivity(Class fragmentClass, Options options,
+            long waitTimeMs) {
+        return launchAndWaitActivity(fragmentClass.getName(), options, waitTimeMs);
     }
 
-    public void launchAndWaitActivity(String firstFragmentName, Options options, long waitTimeMs) {
+    public SingleFragmentTestActivity launchAndWaitActivity(String firstFragmentName,
+            Options options, long waitTimeMs) {
         Intent intent = new Intent();
         intent.putExtra(SingleFragmentTestActivity.EXTRA_FRAGMENT_NAME, firstFragmentName);
         if (options != null) {
             options.collect(intent);
         }
-        mActivity = activityTestRule.launchActivity(intent);
-        Log.d(TAG, "launched " + mActivity + " for " + this, new Exception());
+        SingleFragmentTestActivity activity = activityTestRule.launchActivity(intent);
         SystemClock.sleep(waitTimeMs);
+        return activity;
     }
 
     protected void waitForScrollIdle(RecyclerView recyclerView) throws Throwable {

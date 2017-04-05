@@ -60,13 +60,14 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void testDetachCalledWhenDestroyFragment() throws Throwable {
-        launchAndWaitActivity(PlaybackTestFragment.class, 1000);
-        final PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
+        final SingleFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+        final PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
         PlaybackGlue glue = fragment.getGlue();
         activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mActivity.finish();
+                activity.finish();
             }
         });
         PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
@@ -80,8 +81,9 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void testSelectedListener() throws Throwable {
-        launchAndWaitActivity(PlaybackTestFragment.class, 1000);
-        PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+        PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
 
         assertTrue(fragment.getView().hasFocus());
 
@@ -147,8 +149,9 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void testClickedListener() throws Throwable {
-        launchAndWaitActivity(PlaybackTestFragment.class, 1000);
-        PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+        PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
 
         assertTrue(fragment.getView().hasFocus());
 
@@ -229,8 +232,9 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
     @Suppress
     @Test
     public void alignmentRowToBottom() throws Throwable {
-        launchAndWaitActivity(PlaybackTestFragment.class, 1000);
-        final PlaybackTestFragment fragment = (PlaybackTestFragment) mActivity.getTestFragment();
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestFragment.class, 1000);
+        final PlaybackTestFragment fragment = (PlaybackTestFragment) activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() > 2);
 
@@ -279,9 +283,10 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void setupRowAndPresenterWithoutGlue() {
-        launchAndWaitActivity(PurePlaybackFragment.class, 1000);
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(PurePlaybackFragment.class, 1000);
         final PurePlaybackFragment fragment = (PurePlaybackFragment)
-                mActivity.getTestFragment();
+                activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() == 1);
         View playRow = fragment.getVerticalGridView().getChildAt(0);
@@ -350,9 +355,10 @@ public class PlaybackFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void setupWithControlGlue() throws Throwable {
-        launchAndWaitActivity(ControlGlueFragment.class, 1000);
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(ControlGlueFragment.class, 1000);
         final ControlGlueFragment fragment = (ControlGlueFragment)
-                mActivity.getTestFragment();
+                activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() == 1);
 

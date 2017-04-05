@@ -63,13 +63,14 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void testDetachCalledWhenDestroyFragment() throws Throwable {
-        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
-        final PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+        final SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        final PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) activity.getTestFragment();
         PlaybackGlue glue = fragment.getGlue();
         activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mActivity.finish();
+                activity.finish();
             }
         });
         PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
@@ -83,8 +84,9 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void testSelectedListener() throws Throwable {
-        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
-        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) activity.getTestFragment();
 
         assertTrue(fragment.getView().hasFocus());
 
@@ -150,8 +152,9 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void testClickedListener() throws Throwable {
-        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
-        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) activity.getTestFragment();
 
         assertTrue(fragment.getView().hasFocus());
 
@@ -232,8 +235,9 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
     @Suppress
     @Test
     public void alignmentRowToBottom() throws Throwable {
-        launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
-        final PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) mActivity.getTestFragment();
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackTestSupportFragment.class, 1000);
+        final PlaybackTestSupportFragment fragment = (PlaybackTestSupportFragment) activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() > 2);
 
@@ -282,9 +286,10 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void setupRowAndPresenterWithoutGlue() {
-        launchAndWaitActivity(PurePlaybackSupportFragment.class, 1000);
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(PurePlaybackSupportFragment.class, 1000);
         final PurePlaybackSupportFragment fragment = (PurePlaybackSupportFragment)
-                mActivity.getTestFragment();
+                activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() == 1);
         View playRow = fragment.getVerticalGridView().getChildAt(0);
@@ -353,9 +358,10 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void setupWithControlGlue() throws Throwable {
-        launchAndWaitActivity(ControlGlueFragment.class, 1000);
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(ControlGlueFragment.class, 1000);
         final ControlGlueFragment fragment = (ControlGlueFragment)
-                mActivity.getTestFragment();
+                activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() == 1);
 

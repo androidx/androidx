@@ -47,22 +47,22 @@ public class VerticalGridFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void immediateRemoveFragment() throws Throwable {
-        launchAndWaitActivity(GridFragment.class, 500);
+        final SingleFragmentTestActivity activity = launchAndWaitActivity(GridFragment.class, 500);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 GridFragment f = new GridFragment();
-                mActivity.getFragmentManager().beginTransaction()
+                activity.getFragmentManager().beginTransaction()
                         .replace(android.R.id.content, f, null).commit();
                 f.startEntranceTransition();
-                mActivity.getFragmentManager().beginTransaction()
+                activity.getFragmentManager().beginTransaction()
                         .replace(android.R.id.content, new Fragment(), null).commit();
             }
         });
 
         Thread.sleep(1000);
-        mActivity.finish();
+        activity.finish();
     }
 
 }
