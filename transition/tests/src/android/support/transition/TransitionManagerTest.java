@@ -38,8 +38,8 @@ public class TransitionManagerTest extends BaseTest {
     public void prepareScenes() {
         TransitionActivity activity = rule.getActivity();
         ViewGroup root = activity.getRoot();
-        mScenes[0] = Scene.getSceneForLayout(root, R.layout.scene0, activity);
-        mScenes[1] = Scene.getSceneForLayout(root, R.layout.scene1, activity);
+        mScenes[0] = Scene.getSceneForLayout(root, R.layout.support_scene0, activity);
+        mScenes[1] = Scene.getSceneForLayout(root, R.layout.support_scene1, activity);
     }
 
     @Test
@@ -116,6 +116,20 @@ public class TransitionManagerTest extends BaseTest {
         });
         assertThat("Timed out waiting for the TransitionListener",
                 listener.await(), is(true));
+    }
+
+    @Test
+    public void testGo_nullParameter() throws Throwable {
+        final ViewGroup root = rule.getActivity().getRoot();
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.go(mScenes[0], null);
+                assertThat(Scene.getCurrentScene(root), is(mScenes[0]));
+                TransitionManager.go(mScenes[1], null);
+                assertThat(Scene.getCurrentScene(root), is(mScenes[1]));
+            }
+        });
     }
 
 }
