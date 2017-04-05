@@ -37,6 +37,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -198,6 +199,118 @@ public class FragmentTransactionTest {
             // There really should only be one fragment in newIntentActivity.
             assertEquals(1, fragment.getChildFragmentManager().getFragments().size());
         }
+    }
+
+    // Ensure that getFragments() works during transactions, even if it is run off thread
+    @Test
+    public void getFragmentsOffThread() throws Throwable {
+        final FragmentManager fm = mActivity.getSupportFragmentManager();
+
+        // Make sure that adding a fragment works
+        Fragment fragment = new CorrectFragment();
+        fm.beginTransaction()
+                .add(R.id.content, fragment)
+                .addToBackStack(null)
+                .commit();
+
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        Collection<Fragment> fragments = fm.getFragments();
+        assertEquals(1, fragments.size());
+        assertTrue(fragments.contains(fragment));
+
+        // Removed fragments shouldn't show
+        fm.beginTransaction()
+                .remove(fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertTrue(fm.getFragments().isEmpty());
+
+        // Now try detached fragments
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fm.beginTransaction()
+                .detach(fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertTrue(fm.getFragments().isEmpty());
+
+        // Now try hidden fragments
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fm.beginTransaction()
+                .hide(fragment)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        fragments = fm.getFragments();
+        assertEquals(1, fragments.size());
+        assertTrue(fragments.contains(fragment));
+
+        // And showing it again shouldn't change anything:
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        fragments = fm.getFragments();
+        assertEquals(1, fragments.size());
+        assertTrue(fragments.contains(fragment));
+
+        // Now pop back to the start state
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+
+        // We can't force concurrency, but we can do it lots of times and hope that
+        // we hit it.
+        for (int i = 0; i < 100; i++) {
+            Fragment fragment2 = new CorrectFragment();
+            fm.beginTransaction()
+                    .add(R.id.content, fragment2)
+                    .addToBackStack(null)
+                    .commit();
+            getFragmentsUntilSize(1);
+
+            fm.popBackStack();
+            getFragmentsUntilSize(0);
+        }
+    }
+
+    /**
+     * When a FragmentManager is detached, it should allow commitAllowingStateLoss()
+     * and commitNowAllowingStateLoss() by just dropping the transaction.
+     */
+    @Test
+    public void commitAllowStateLossDetached() throws Throwable {
+        Fragment fragment1 = new CorrectFragment();
+        mActivity.getSupportFragmentManager()
+                .beginTransaction()
+                .add(fragment1, "1")
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        final FragmentManager fm = fragment1.getChildFragmentManager();
+        mActivity.getSupportFragmentManager()
+                .beginTransaction()
+                .remove(fragment1)
+                .commit();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertEquals(0, mActivity.getSupportFragmentManager().getFragments().size());
+        assertEquals(0, fm.getFragments().size());
+
+        // Now the fragment1's fragment manager should allow commitAllowingStateLoss
+        // by doing nothing since it has been detached.
+        Fragment fragment2 = new CorrectFragment();
+        fm.beginTransaction()
+                .add(fragment2, "2")
+                .commitAllowingStateLoss();
+        FragmentTestUtil.executePendingTransactions(mActivityRule);
+        assertEquals(0, fm.getFragments().size());
+
+        // It should also allow commitNowAllowingStateLoss by doing nothing
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Fragment fragment3 = new CorrectFragment();
+                fm.beginTransaction()
+                        .add(fragment3, "3")
+                        .commitNowAllowingStateLoss();
+                assertEquals(0, fm.getFragments().size());
+            }
+        });
     }
 
     private void getFragmentsUntilSize(int expectedSize) {
