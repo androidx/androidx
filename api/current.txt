@@ -5558,7 +5558,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public abstract int getBackStackEntryCount();
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
-    method public abstract java.util.Collection<android.support.v4.app.Fragment> getFragments();
+    method public abstract java.util.List<android.support.v4.app.Fragment> getFragments();
     method public abstract android.support.v4.app.Fragment getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
     method public abstract boolean isStateSaved();
@@ -9557,7 +9557,7 @@ package android.support.v7.app {
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Activity, android.support.v7.app.AppCompatCallback);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Dialog, android.support.v7.app.AppCompatCallback);
     method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
-    method public abstract android.view.View findViewById(int);
+    method public abstract <T extends android.view.View> T findViewById(int);
     method public static int getDefaultNightMode();
     method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
     method public abstract android.view.MenuInflater getMenuInflater();

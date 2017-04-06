@@ -5558,7 +5558,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public abstract int getBackStackEntryCount();
     method public abstract android.support.v4.app.Fragment getFragment(android.os.Bundle, java.lang.String);
-    method public abstract java.util.Collection<android.support.v4.app.Fragment> getFragments();
+    method public abstract java.util.List<android.support.v4.app.Fragment> getFragments();
     method public abstract android.support.v4.app.Fragment getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
     method public abstract boolean isStateSaved();
@@ -6422,8 +6422,9 @@ package android.support.v4.content.pm {
     method public android.support.v4.content.pm.ShortcutInfoCompat build();
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(java.lang.CharSequence);
-    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.graphics.Bitmap);
-    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(int);
+    method public deprecated android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.graphics.Bitmap);
+    method public deprecated android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(int);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.support.v4.graphics.drawable.IconCompat);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent[]);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setLongLabel(java.lang.CharSequence);
@@ -6523,6 +6524,15 @@ package android.support.v4.graphics.drawable {
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
     method public static <T extends android.graphics.drawable.Drawable> T unwrap(android.graphics.drawable.Drawable);
     method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
+  }
+
+  public class IconCompat {
+    method public static android.support.v4.graphics.drawable.IconCompat createWithAdaptiveBitmap(android.graphics.Bitmap);
+    method public static android.support.v4.graphics.drawable.IconCompat createWithBitmap(android.graphics.Bitmap);
+    method public static android.support.v4.graphics.drawable.IconCompat createWithContentUri(java.lang.String);
+    method public static android.support.v4.graphics.drawable.IconCompat createWithContentUri(android.net.Uri);
+    method public static android.support.v4.graphics.drawable.IconCompat createWithData(byte[], int, int);
+    method public static android.support.v4.graphics.drawable.IconCompat createWithResource(android.content.Context, int);
   }
 
   public abstract class RoundedBitmapDrawable extends android.graphics.drawable.Drawable {
@@ -8004,6 +8014,7 @@ package android.support.v4.view {
 
   public class ViewCompat {
     ctor protected ViewCompat();
+    method public static void addKeyboardNavigationClusters(android.view.View, java.util.Collection<android.view.View>, int);
     method public static android.support.v4.view.ViewPropertyAnimatorCompat animate(android.view.View);
     method public static deprecated boolean canScrollHorizontally(android.view.View, int);
     method public static deprecated boolean canScrollVertically(android.view.View, int);
@@ -8035,6 +8046,7 @@ package android.support.v4.view {
     method public static deprecated int getMeasuredWidthAndState(android.view.View);
     method public static int getMinimumHeight(android.view.View);
     method public static int getMinimumWidth(android.view.View);
+    method public static int getNextClusterForwardId(android.view.View);
     method public static deprecated int getOverScrollMode(android.view.View);
     method public static int getPaddingEnd(android.view.View);
     method public static int getPaddingStart(android.view.View);
@@ -8061,14 +8073,17 @@ package android.support.v4.view {
     method public static boolean hasOverlappingRendering(android.view.View);
     method public static boolean hasTransientState(android.view.View);
     method public static boolean isAttachedToWindow(android.view.View);
+    method public static boolean isFocusedByDefault(android.view.View);
     method public static boolean isImportantForAccessibility(android.view.View);
     method public static boolean isInLayout(android.view.View);
+    method public static boolean isKeyboardNavigationCluster(android.view.View);
     method public static boolean isLaidOut(android.view.View);
     method public static boolean isLayoutDirectionResolved(android.view.View);
     method public static boolean isNestedScrollingEnabled(android.view.View);
     method public static deprecated boolean isOpaque(android.view.View);
     method public static boolean isPaddingRelative(android.view.View);
     method public static deprecated void jumpDrawablesToCurrentState(android.view.View);
+    method public static android.view.View keyboardNavigationClusterSearch(android.view.View, android.view.View, int);
     method public static void offsetLeftAndRight(android.view.View, int);
     method public static void offsetTopAndBottom(android.view.View, int);
     method public static android.support.v4.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, android.support.v4.view.WindowInsetsCompat);
@@ -8082,6 +8097,7 @@ package android.support.v4.view {
     method public static void postOnAnimationDelayed(android.view.View, java.lang.Runnable, long);
     method public static void requestApplyInsets(android.view.View);
     method public static deprecated int resolveSizeAndState(int, int, int);
+    method public static boolean restoreDefaultFocus(android.view.View);
     method public static void setAccessibilityDelegate(android.view.View, android.support.v4.view.AccessibilityDelegateCompat);
     method public static void setAccessibilityLiveRegion(android.view.View, int);
     method public static deprecated void setActivated(android.view.View, boolean);
@@ -8093,13 +8109,16 @@ package android.support.v4.view {
     method public static void setClipBounds(android.view.View, android.graphics.Rect);
     method public static void setElevation(android.view.View, float);
     method public static deprecated void setFitsSystemWindows(android.view.View, boolean);
+    method public static void setFocusedByDefault(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
     method public static void setImportantForAccessibility(android.view.View, int);
+    method public static void setKeyboardNavigationCluster(android.view.View, boolean);
     method public static void setLabelFor(android.view.View, int);
     method public static void setLayerPaint(android.view.View, android.graphics.Paint);
     method public static deprecated void setLayerType(android.view.View, int, android.graphics.Paint);
     method public static void setLayoutDirection(android.view.View, int);
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
+    method public static void setNextClusterForwardId(android.view.View, int);
     method public static void setOnApplyWindowInsetsListener(android.view.View, android.support.v4.view.OnApplyWindowInsetsListener);
     method public static deprecated void setOverScrollMode(android.view.View, int);
     method public static void setPaddingRelative(android.view.View, int, int, int, int);
@@ -9534,10 +9553,11 @@ package android.support.v7.app {
   public abstract class AppCompatDelegate {
     method public abstract void addContentView(android.view.View, android.view.ViewGroup.LayoutParams);
     method public abstract boolean applyDayNight();
+    method public abstract boolean checkActionBarFocusKey(android.view.KeyEvent);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Activity, android.support.v7.app.AppCompatCallback);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Dialog, android.support.v7.app.AppCompatCallback);
     method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
-    method public abstract android.view.View findViewById(int);
+    method public abstract <T extends android.view.View> T findViewById(int);
     method public static int getDefaultNightMode();
     method public abstract android.support.v7.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
     method public abstract android.view.MenuInflater getMenuInflater();
@@ -11100,7 +11120,6 @@ package android.support.v7.widget {
     method public int findLastVisibleItemPosition();
     method public android.support.v7.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
     method protected int getExtraLayoutSpace(android.support.v7.widget.RecyclerView.State);
-    method public deprecated int getInitialItemPrefetchCount();
     method public int getInitialPrefetchItemCount();
     method public int getOrientation();
     method public boolean getRecycleChildrenOnDetach();
