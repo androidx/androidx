@@ -21,9 +21,9 @@ import android.widget.TextView;
 
 import com.android.support.lifecycle.LifecycleActivity;
 import com.example.android.codelabs.persistence.R;
-import com.example.android.persistence.codelab.orm_db.AppDatabase;
-import com.example.android.persistence.codelab.orm_db.User;
-import com.example.android.persistence.codelab.orm_db.utils.DatabaseInitializer;
+import com.example.android.persistence.codelab.db.AppDatabase;
+import com.example.android.persistence.codelab.db.User;
+import com.example.android.persistence.codelab.db.utils.DatabaseInitializer;
 
 import java.util.List;
 import java.util.Locale;

@@ -38,6 +38,11 @@ android {
     }
     productFlavors {
     }
+    // To avoid lint errors on generated sources, we temporarily disable abortOnError
+    // until the fix is released.
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.persistence.codelab.step2;
+package com.example.android.persistence.codelab.step3;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,17 +22,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.android.support.lifecycle.LifecycleActivity;
+import com.android.support.lifecycle.ViewModelProviders;
 import com.example.android.codelabs.persistence.R;
-import com.example.android.persistence.codelab.db.AppDatabase;
 import com.example.android.persistence.codelab.db.Book;
-import com.example.android.persistence.codelab.db.utils.DatabaseInitializer;
 
 import java.util.List;
 
-public class JankShowUserActivity extends LifecycleActivity {
+public class BooksBorrowedByUserActivity extends LifecycleActivity {
 
-    private AppDatabase mDb;
+    private BooksBorrowedByUserViewModel mViewModel;
 
+    @SuppressWarnings("unused")
     private TextView mBooksTextView;
 
     @Override
@@ -40,45 +40,34 @@ public class JankShowUserActivity extends LifecycleActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.db_activity);
-
         mBooksTextView = (TextView) findViewById(R.id.books_tv);
 
-        // Note: Db references should not be in an activity.
-        mDb = AppDatabase.getInMemoryDatabase(getApplicationContext());
+        // Get a reference to the ViewModel for this screen.
+        mViewModel = ViewModelProviders.of(this).get(BooksBorrowedByUserViewModel.class);
 
-        populateDb();
-
-        fetchData();
-    }
-
-    @Override
-    protected void onDestroy() {
-        AppDatabase.destroyInstance();
-        super.onDestroy();
-    }
-
-    private void populateDb() {
-        DatabaseInitializer.populateSync(mDb);
-    }
-
-    private void fetchData() {
-        // This activity is executing a query on the main thread, making the UI perform badly.
-        List<Book> books = mDb.bookModel().findBooksBorrowedByNameSync("Mike");
-        showListInUI(books, mBooksTextView);
-    }
-
-    private static void showListInUI(final @NonNull List<Book> books,
-                                     final TextView booksTextView) {
-        StringBuilder sb = new StringBuilder();
-        for (Book book : books) {
-            sb.append(book.title);
-            sb.append("\n");
-        }
-        booksTextView.setText(sb.toString());
+        // Update the UI whenever there's a change in the ViewModel's data.
+        subscribeUiBooks();
     }
 
     public void onRefreshBtClicked(View view) {
-        mBooksTextView.setText("");
-        fetchData();
+        mViewModel.createDb();
+    }
+
+    private void subscribeUiBooks() {
+        // TODO: refresh the list of books when there's new data
+        // mViewModel.getBooks().observe(...
+    }
+
+    @SuppressWarnings("unused")
+    private static void showBooksInUi(final @NonNull List<Book> books,
+                                      final TextView booksTextView) {
+        StringBuilder sb = new StringBuilder();
+
+        for (Book book : books) {
+            sb.append(book.title);
+            sb.append("\n");
+
+        }
+        booksTextView.setText(sb.toString());
     }
 }

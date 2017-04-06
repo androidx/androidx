@@ -29,54 +29,51 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.android.persistence.codelab.step4_solution.ShowUserActivity">
+        <activity android:name="com.example.android.persistence.codelab.step1_solution.UsersActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.android.persistence.codelab.step1.UsersActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
         <activity android:name="com.example.android.persistence.codelab.step2.JankShowUserActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.example.android.persistence.codelab.step1_solution.UsersActivity">
+        <activity android:name="com.example.android.persistence.codelab.step3.BooksBorrowedByUserActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <activity android:name="com.example.android.persistence.codelab.step1.UsersActivity">
+        <activity android:name="com.example.android.persistence.codelab.step3_solution.BooksBorrowedByUserActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <activity android:name="com.example.android.persistence.codelab.step4.ShowUserActivity">
+        <activity android:name="com.example.android.persistence.codelab.step4.TypeConvertersActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <activity android:name="com.example.android.persistence.codelab.step5_solution.ProductReviewActivity">
+        <activity android:name="com.example.android.persistence.codelab.step4_solution.TypeConvertersActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <provider
-            android:authorities="${applicationId}.backend_product_service_trojan"
-            android:name="com.example.android.persistence.codelab.step5.internal.ProductBackendTrojanProvider"/>
+        <activity android:name="com.example.android.persistence.codelab.step5_solution.CustomResultUserActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.android.persistence.codelab.step5.CustomResultActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
