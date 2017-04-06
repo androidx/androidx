@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view.util;
+package android.support.wearable.widget.util;
 
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;

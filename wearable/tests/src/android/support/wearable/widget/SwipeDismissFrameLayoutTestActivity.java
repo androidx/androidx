@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
