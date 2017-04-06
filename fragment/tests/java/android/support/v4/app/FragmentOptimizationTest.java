@@ -190,7 +190,7 @@ public class FragmentOptimizationTest {
         assertEquals(1, fragment1.onHideCount);
         assertEquals(0, fragment1.onShowCount);
         assertEquals(0, fragment1.onDetachCount);
-        assertEquals(0, fragment1.onAttachCount);
+        assertEquals(1, fragment1.onAttachCount);
 
         FragmentTestUtil.popBackStackImmediate(mActivityRule, id[0],
                 FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -198,8 +198,8 @@ public class FragmentOptimizationTest {
         assertEquals(0, fragment1.onCreateViewCount);
         assertEquals(1, fragment1.onHideCount);
         assertEquals(1, fragment1.onShowCount);
-        assertEquals(0, fragment1.onDetachCount);
-        assertEquals(0, fragment1.onAttachCount);
+        assertEquals(1, fragment1.onDetachCount);
+        assertEquals(1, fragment1.onAttachCount);
     }
 
     // Ensure that removing and adding the same view results in no operation
