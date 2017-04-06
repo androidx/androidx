@@ -18,7 +18,7 @@ package android.support.v4.app.test;
 
 import android.support.v4.app.Fragment;
 
-public class NonConfigOnStopActivity extends OrientationChangeActivity {
+public class NonConfigOnStopActivity extends RecreatedActivity {
     @Override
     protected void onStop() {
         super.onStop();
