@@ -59,6 +59,17 @@ import java.util.List;
  * <p>
  * This is a helper for accessing features in {@link android.media.session.MediaSession}
  * introduced after API level 4 in a backwards compatible fashion.
+ * <p class="note">
+ * If MediaControllerCompat is created with a {@link MediaSessionCompat.Token session token}
+ * from another process, following methods will not work directly after the creation if the
+ * {@link MediaSessionCompat.Token session token} is not passed through a
+ * {@link android.support.v4.media.MediaBrowserCompat}:
+ * <ul>
+ * <li>{@link #getPlaybackState()}.{@link PlaybackStateCompat#getExtras() getExtras()}</li>
+ * <li>{@link #isCaptioningEnabled()}</li>
+ * <li>{@link #getRepeatMode()}</li>
+ * <li>{@link #isShuffleModeEnabled()}</li>
+ * </ul></p>
  */
 public final class MediaControllerCompat {
     static final String TAG = "MediaControllerCompat";
