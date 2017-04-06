@@ -131,12 +131,8 @@ import java.util.List;
  * <li>Path Morphing (PathType evaluator). This is used for morphing one path into another.</li>
  * <li>Path Interpolation. This is used to defined a flexible interpolator (represented as a path)
  * instead of the system defined ones like LinearInterpolator.</li>
- * </ul>
- * <p/>
- * But not support this one feature yet:
- * <ul>
  * <li>Animating 2 values in one ObjectAnimator according to one path's X value and Y value. One
- * usage is moving one object in both X and Y dimensions along an path.</li> *
+ * usage is moving one object in both X and Y dimensions along an path.</li>
  * </ul>
  */
 
