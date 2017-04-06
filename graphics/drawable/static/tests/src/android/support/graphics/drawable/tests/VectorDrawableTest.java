@@ -121,7 +121,7 @@ public class VectorDrawableTest {
     // exactly with the golden image.
     // We can increase the threshold if the Skia is drawing with some variance
     // on different devices. So far, the tests show they are matching correctly.
-    private static final float PIXEL_ERROR_THRESHOLD = 0.3f;
+    private static final float PIXEL_ERROR_THRESHOLD = 0.33f;
     private static final float PIXEL_DIFF_COUNT_THRESHOLD = 0.1f;
     private static final float PIXEL_DIFF_THRESHOLD = 0.025f;
 
