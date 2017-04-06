@@ -18,6 +18,8 @@ package android.support.graphics.drawable;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import static java.lang.Math.min;
+
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
@@ -32,6 +34,8 @@ import android.content.res.Resources.NotFoundException;
 import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.os.Build;
 import android.support.annotation.AnimatorRes;
 import android.support.annotation.RestrictTo;
@@ -67,8 +71,7 @@ public class AnimatorInflaterCompat {
      * These flags are used when parsing AnimatorSet objects
      */
     private static final int TOGETHER = 0;
-    private static final int SEQUENTIALLY = 1;
-
+    private static final int MAX_NUM_POINTS = 100;
     /**
      * Enum values used in XML attributes to indicate the value for mValueType
      */
@@ -79,9 +82,6 @@ public class AnimatorInflaterCompat {
     private static final int VALUE_TYPE_UNDEFINED = 4;
 
     private static final boolean DBG_ANIMATOR_INFLATER = false;
-
-    // used to calculate changing configs for resource references
-    private static final TypedValue sTmpTypedValue = new TypedValue();
 
     /**
      * Loads an {@link Animator} object from a context
@@ -362,8 +362,6 @@ public class AnimatorInflaterCompat {
             if (pvh != null) {
                 anim.setValues(pvh);
             }
-        } else {
-            throw new IllegalArgumentException("no valueFrom or no valueTo");
         }
         anim.setDuration(duration);
         anim.setStartDelay(startDelay);
@@ -382,7 +380,6 @@ public class AnimatorInflaterCompat {
     /**
      * Setup ObjectAnimator's property or values from pathData.
      *
-     * @param getFloats           True if the value type is float.
      * @param anim                The target Animator which will be updated.
      * @param arrayObjectAnimator TypedArray for the ObjectAnimator.
      * @param pixelSize           The relative pixel size, used to calculate the
@@ -402,7 +399,24 @@ public class AnimatorInflaterCompat {
         // 3) PathInterpolator can also define a path (in pathData) for its interpolation curve.
         // Here we are dealing with case 2:
         if (pathData != null) {
-            Log.e(TAG, "We don't support moving along path yet");
+            String propertyXName = TypedArrayUtils.getNamedString(arrayObjectAnimator, parser,
+                    "propertyXName", AndroidResources.STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_X_NAME);
+            String propertyYName = TypedArrayUtils.getNamedString(arrayObjectAnimator, parser,
+                    "propertyYName", AndroidResources.STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_Y_NAME);
+
+
+            if (valueType == VALUE_TYPE_PATH || valueType == VALUE_TYPE_UNDEFINED) {
+                // When pathData is defined, we are in case #2 mentioned above. ValueType can only
+                // be float type, or int type. Otherwise we fallback to default type.
+                valueType = VALUE_TYPE_FLOAT;
+            }
+            if (propertyXName == null && propertyYName == null) {
+                throw new InflateException(arrayObjectAnimator.getPositionDescription()
+                        + " propertyXName or propertyYName is needed for PathData");
+            } else {
+                Path path = PathParser.createPathFromPathData(pathData);
+                setupPathMotion(path, oa,  0.5f * pixelSize, propertyXName, propertyYName);
+            }
         } else {
             String propertyName =
                     TypedArrayUtils.getNamedString(arrayObjectAnimator, parser, "propertyName",
@@ -413,6 +427,71 @@ public class AnimatorInflaterCompat {
 
         return;
 
+    }
+
+    private static void setupPathMotion(Path path, ObjectAnimator oa, float precision,
+            String propertyXName, String propertyYName) {
+        // Measure the total length the whole path.
+        final PathMeasure measureForTotalLength = new PathMeasure(path, false);
+        float totalLength = 0;
+        // The sum of the previous contour plus the current one. Using the sum here b/c we want to
+        // directly substract from it later.
+        ArrayList<Float> contourLengths = new ArrayList<>();
+        contourLengths.add(0f);
+        do {
+            final float pathLength = measureForTotalLength.getLength();
+            totalLength += pathLength;
+            contourLengths.add(totalLength);
+
+        } while (measureForTotalLength.nextContour());
+
+        // Now determine how many sample points we need, and the step for next sample.
+        final PathMeasure pathMeasure = new PathMeasure(path, false);
+
+        final int numPoints = min(MAX_NUM_POINTS, (int) (totalLength / precision) + 1);
+
+        float[] mX = new float[numPoints];
+        float[] mY = new float[numPoints];
+        final float[] position = new float[2];
+
+        int contourIndex = 0;
+        float step = totalLength / (numPoints - 1);
+        float currentDistance = 0;
+
+        // For each sample point, determine whether we need to move on to next contour.
+        // After we find the right contour, then sample it using the current distance value minus
+        // the previously sampled contours' total length.
+        for (int i = 0; i < numPoints; ++i) {
+            pathMeasure.getPosTan(currentDistance, position, null);
+            pathMeasure.getPosTan(currentDistance, position, null);
+
+            mX[i] = position[0];
+            mY[i] = position[1];
+            currentDistance += step;
+            if ((contourIndex + 1) < contourLengths.size()
+                    && currentDistance > contourLengths.get(contourIndex + 1)) {
+                currentDistance -= contourLengths.get(contourIndex + 1);
+                contourIndex++;
+                pathMeasure.nextContour();
+            }
+        }
+
+        // Given the x and y value of the sample points, setup the ObjectAnimator properly.
+        PropertyValuesHolder x = null;
+        PropertyValuesHolder y = null;
+        if (propertyXName != null) {
+            x = PropertyValuesHolder.ofFloat(propertyXName, mX);
+        }
+        if (propertyYName != null) {
+            y = PropertyValuesHolder.ofFloat(propertyYName, mY);
+        }
+        if (x == null) {
+            oa.setValues(y);
+        } else if (y == null) {
+            oa.setValues(x);
+        } else {
+            oa.setValues(x, y);
+        }
     }
 
     private static Animator createAnimatorFromXml(Context context, Resources res, Theme theme,

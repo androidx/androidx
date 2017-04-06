@@ -19,16 +19,11 @@
         android:viewportHeight="24.0"
         android:viewportWidth="24.0">
     <group
-            android:name="rectGroup"
-            android:pivotX="12"
-            android:pivotY="12"
-            android:rotation="0">
+        android:name="rectGroup">
         <path
-                android:name="rectBody"
-                android:fillColor="#ff0000"
-                android:pathData="M0,0L24,0L24,24L0,24z" />
+            android:name="rectBody"
+            android:fillColor="#ff0000"
+            android:pathData="M0,0L24,0L24,24L0,24z"/>
 
     </group>
-
-
 </vector>
