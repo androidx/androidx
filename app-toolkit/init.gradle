@@ -74,6 +74,8 @@ def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompi
     description: "Anchor task for everything we want to run in build server.")
 
 if (ext.inAppToolkitProject) {
+    // always build offline docs for flatfoot specific builds.
+    ext.buildOfflineDocs = true
     init.addMavenRepositories(repositories)
     init.setupRepoOutAndBuildNumber()
     init.configureSubProjects()
