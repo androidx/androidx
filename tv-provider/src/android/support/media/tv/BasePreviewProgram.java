@@ -23,12 +23,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.RestrictTo;
-import android.support.media.tv.TvContractCompat.BasePreviewProgramColumns;
-import android.support.media.tv.TvContractCompat.BasePreviewProgramColumns.AspectRatio;
-import android.support.media.tv.TvContractCompat.BasePreviewProgramColumns.Availability;
-import android.support.media.tv.TvContractCompat.BasePreviewProgramColumns.InteractionType;
-import android.support.media.tv.TvContractCompat.BasePreviewProgramColumns.ReviewRatingStyle;
-import android.support.media.tv.TvContractCompat.BasePreviewProgramColumns.Type;
+import android.support.media.tv.TvContractCompat.PreviewProgramColumns;
+import android.support.media.tv.TvContractCompat.PreviewProgramColumns.AspectRatio;
+import android.support.media.tv.TvContractCompat.PreviewProgramColumns.Availability;
+import android.support.media.tv.TvContractCompat.PreviewProgramColumns.InteractionType;
+import android.support.media.tv.TvContractCompat.PreviewProgramColumns.ReviewRatingStyle;
+import android.support.media.tv.TvContractCompat.PreviewProgramColumns.Type;
+import android.support.media.tv.TvContractCompat.PreviewPrograms;
 import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
@@ -38,8 +39,7 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * Base class for derived classes that want to have fields defined in
- * {@link BasePreviewProgramColumns}.
+ * Base class for derived classes that want to have common fields for preview programs.
  */
 @TargetApi(26)
 public abstract class BasePreviewProgram extends BaseProgram {
@@ -107,177 +107,194 @@ public abstract class BasePreviewProgram extends BaseProgram {
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTERNAL_PROVIDER_ID} for the
-     * program.
+     * @return The internal provider ID for the program.
+     * @see PreviewPrograms#COLUMN_INTERNAL_PROVIDER_ID
      */
     public String getInternalProviderId() {
         return mInternalProviderId;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_PREVIEW_VIDEO_URI} for the
-     * program.
+     * @return The preview video URI for the program.
+     * @see PreviewPrograms#COLUMN_PREVIEW_VIDEO_URI
      */
     public Uri getPreviewVideoUri() {
         return mPreviewVideoUri;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_LAST_PLAYBACK_POSITION_MILLIS}
-     * for the program.
+     * @return The last playback position of the program in millis.
+     * @see PreviewPrograms#COLUMN_LAST_PLAYBACK_POSITION_MILLIS
      */
     public int getLastPlaybackPositionMillis() {
         return mLastPlaybackPositionMillis;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_DURATION_MILLIS} for the
-     * program.
+     * @return The duration of the program in millis.
+     * @see PreviewPrograms#COLUMN_DURATION_MILLIS
      */
     public int getDurationMillis() {
         return mDurationMillis;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTENT_URI} for the program.
+     * @return The intent URI which is launched when the program is selected.
+     * @see PreviewPrograms#COLUMN_INTENT_URI
      */
     public Uri getIntentUri() {
         return mIntentUri;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTENT_URI} for the program.
+     * @return The intent which is launched when the program is selected.
+     * @see PreviewPrograms#COLUMN_INTENT_URI
      */
     public Intent getIntent() throws URISyntaxException {
         return Intent.parseUri(mIntentUri.toString(), Intent.URI_INTENT_SCHEME);
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_TRANSIENT} for the program.
+     * @return Whether the program is transient or not.
+     * @see PreviewPrograms#COLUMN_TRANSIENT
      */
     public boolean isTransient() {
         return mTransient == IS_TRANSIENT;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_TYPE} for the program.
+     * @return The type of the program.
+     * @see PreviewPrograms#COLUMN_TYPE
      */
     public @Type int getType() {
         return mType;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_POSTER_ART_ASPECT_RATIO} for the
-     * program.
+     * @return The poster art aspect ratio for the program.
+     * @see PreviewPrograms#COLUMN_POSTER_ART_ASPECT_RATIO
+     * @see PreviewPrograms#COLUMN_POSTER_ART_URI
      */
     public @AspectRatio int getPosterArtAspectRatio() {
         return mPosterArtAspectRatio;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_THUMBNAIL_ASPECT_RATIO} for the
-     * program.
+     * @return The thumbnail aspect ratio for the program.
+     * @see PreviewPrograms#COLUMN_THUMBNAIL_ASPECT_RATIO
+     * @see PreviewPrograms#COLUMN_THUMBNAIL_URI
      */
     public @AspectRatio int getThumbnailAspectRatio() {
         return mThumbnailAspectRatio;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_LOGO_URI} for the program.
+     * @return The logo URI for the program.
+     * @see PreviewPrograms#COLUMN_LOGO_URI
      */
     public Uri getLogoUri() {
         return mLogoUri;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_AVAILABILITY} for the program.
+     * @return The availability of the program.
+     * @see PreviewPrograms#COLUMN_AVAILABILITY
      */
     public @Availability int getAvailability() {
         return mAvailability;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_STARTING_PRICE} for the program.
+     * @return The starting price of the program.
+     * @see PreviewPrograms#COLUMN_STARTING_PRICE
      */
     public String getStartingPrice() {
         return mStartingPrice;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_OFFER_PRICE} for the program.
+     * @return The offer price of the program.
+     * @see PreviewPrograms#COLUMN_OFFER_PRICE
      */
     public String getOfferPrice() {
         return mOfferPrice;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_RELEASE_DATE} for the program.
+     * @return The release date of the program.
+     * @see PreviewPrograms#COLUMN_RELEASE_DATE
      */
     public String getReleaseDate() {
         return mReleaseDate;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_ITEM_COUNT} for the program.
+     * @return The item count for the program.
+     * @see PreviewPrograms#COLUMN_ITEM_COUNT
      */
     public int getItemCount() {
         return mItemCount;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_LIVE} for the program.
+     * @return Whether the program is live or not.
+     * @see PreviewPrograms#COLUMN_LIVE
      */
     public boolean isLive() {
         return mLive == IS_LIVE;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTERACTION_TYPE} for the
-     * program.
+     * @return The interaction type for the program.
+     * @see PreviewPrograms#COLUMN_INTERACTION_TYPE
      */
     public @InteractionType int getInteractionType() {
         return mInteractionType;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_INTERACTION_COUNT} for the
-     * program.
+     * @return The interaction count for the program.
+     * @see PreviewPrograms#COLUMN_INTERACTION_COUNT
      */
     public long getInteractionCount() {
         return mInteractionCount;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_AUTHOR} for the program.
+     * @return The author for the program.
+     * @see PreviewPrograms#COLUMN_AUTHOR
      */
     public String getAuthor() {
         return mAuthor;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_REVIEW_RATING_STYLE} for the
-     * program.
+     * @return The review rating style for the program.
+     * @see PreviewPrograms#COLUMN_REVIEW_RATING_STYLE
      */
     public @ReviewRatingStyle int getReviewRatingStyle() {
         return mReviewRatingStyle;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_REVIEW_RATING} for the program.
+     * @return The review rating for the program.
+     * @see PreviewPrograms#COLUMN_REVIEW_RATING
      */
     public String getReviewRating() {
         return mReviewRating;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_BROWSABLE} for the program.
+     * @return Whether the program is browsable or not.
+     * @see PreviewPrograms#COLUMN_BROWSABLE;
      */
     public boolean isBrowsable() {
         return mBrowsable == IS_BROWSABLE;
     }
 
     /**
-     * @return The value of {@link BasePreviewProgramColumns#COLUMN_CONTENT_ID} for the program.
+     * @return The content ID for the program.
+     * @see PreviewPrograms#COLUMN_CONTENT_ID
      */
     public String getContentId() {
         return mContentId;
@@ -319,8 +336,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
     }
 
     /**
-     * @return The fields of the Program in the ContentValues format to be easily inserted into the
-     * TV Input Framework database.
+     * @return The fields of the BasePreviewProgram in {@link ContentValues} format to be easily
+     * inserted into the TV Input Framework database.
      */
     @Override
     public ContentValues toContentValues() {
@@ -339,81 +356,79 @@ public abstract class BasePreviewProgram extends BaseProgram {
         ContentValues values = super.toContentValues();
         if (BuildCompat.isAtLeastO()) {
             if (!TextUtils.isEmpty(mInternalProviderId)) {
-                values.put(BasePreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID,
-                        mInternalProviderId);
+                values.put(PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID, mInternalProviderId);
             }
             if (mPreviewVideoUri != null) {
-                values.put(BasePreviewProgramColumns.COLUMN_PREVIEW_VIDEO_URI,
+                values.put(PreviewProgramColumns.COLUMN_PREVIEW_VIDEO_URI,
                         mPreviewVideoUri.toString());
             }
             if (mLastPlaybackPositionMillis != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
+                values.put(PreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
                         mLastPlaybackPositionMillis);
             }
             if (mDurationMillis != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_DURATION_MILLIS, mDurationMillis);
+                values.put(PreviewProgramColumns.COLUMN_DURATION_MILLIS, mDurationMillis);
             }
             if (mIntentUri != null) {
-                values.put(BasePreviewProgramColumns.COLUMN_INTENT_URI, mIntentUri.toString());
+                values.put(PreviewProgramColumns.COLUMN_INTENT_URI, mIntentUri.toString());
             }
             if (mTransient != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_TRANSIENT, mTransient);
+                values.put(PreviewProgramColumns.COLUMN_TRANSIENT, mTransient);
             }
             if (mType != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_TYPE, mType);
+                values.put(PreviewProgramColumns.COLUMN_TYPE, mType);
             }
             if (mPosterArtAspectRatio != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO,
+                values.put(PreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO,
                         mPosterArtAspectRatio);
             }
             if (mThumbnailAspectRatio != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO,
+                values.put(PreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO,
                         mThumbnailAspectRatio);
             }
             if (mLogoUri != null) {
-                values.put(BasePreviewProgramColumns.COLUMN_LOGO_URI, mLogoUri.toString());
+                values.put(PreviewProgramColumns.COLUMN_LOGO_URI, mLogoUri.toString());
             }
             if (mAvailability != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_AVAILABILITY, mAvailability);
+                values.put(PreviewProgramColumns.COLUMN_AVAILABILITY, mAvailability);
             }
             if (!TextUtils.isEmpty(mStartingPrice)) {
-                values.put(BasePreviewProgramColumns.COLUMN_STARTING_PRICE, mStartingPrice);
+                values.put(PreviewProgramColumns.COLUMN_STARTING_PRICE, mStartingPrice);
             }
             if (!TextUtils.isEmpty(mOfferPrice)) {
-                values.put(BasePreviewProgramColumns.COLUMN_OFFER_PRICE, mOfferPrice);
+                values.put(PreviewProgramColumns.COLUMN_OFFER_PRICE, mOfferPrice);
             }
             if (!TextUtils.isEmpty(mReleaseDate)) {
-                values.put(BasePreviewProgramColumns.COLUMN_RELEASE_DATE, mReleaseDate);
+                values.put(PreviewProgramColumns.COLUMN_RELEASE_DATE, mReleaseDate);
             }
             if (mItemCount != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_ITEM_COUNT, mItemCount);
+                values.put(PreviewProgramColumns.COLUMN_ITEM_COUNT, mItemCount);
             }
             if (mLive != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_LIVE, mLive);
+                values.put(PreviewProgramColumns.COLUMN_LIVE, mLive);
             }
             if (mInteractionType != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_INTERACTION_TYPE, mInteractionType);
+                values.put(PreviewProgramColumns.COLUMN_INTERACTION_TYPE, mInteractionType);
             }
             if (mInteractionCount != INVALID_LONG_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_INTERACTION_COUNT, mInteractionCount);
+                values.put(PreviewProgramColumns.COLUMN_INTERACTION_COUNT, mInteractionCount);
             }
             if (!TextUtils.isEmpty(mAuthor)) {
-                values.put(BasePreviewProgramColumns.COLUMN_AUTHOR, mAuthor);
+                values.put(PreviewProgramColumns.COLUMN_AUTHOR, mAuthor);
             }
             if (mReviewRatingStyle != INVALID_INT_VALUE) {
-                values.put(BasePreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE,
-                        mReviewRatingStyle);
+                values.put(PreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE, mReviewRatingStyle);
             }
             if (!TextUtils.isEmpty(mReviewRating)) {
-                values.put(BasePreviewProgramColumns.COLUMN_REVIEW_RATING, mReviewRating);
+                values.put(PreviewProgramColumns.COLUMN_REVIEW_RATING, mReviewRating);
             }
             if (!TextUtils.isEmpty(mContentId)) {
-                values.put(BasePreviewProgramColumns.COLUMN_CONTENT_ID, mContentId);
+                values.put(PreviewProgramColumns.COLUMN_CONTENT_ID, mContentId);
             }
             if (includeProtectedFields) {
                 if (BuildCompat.isAtLeastO()) {
                     if (mBrowsable != INVALID_INT_VALUE) {
-                        values.put(BasePreviewProgramColumns.COLUMN_BROWSABLE, mBrowsable);
+                        values.put(PreviewProgramColumns.COLUMN_BROWSABLE, mBrowsable);
                     }
                 }
             }
@@ -432,106 +447,102 @@ public abstract class BasePreviewProgram extends BaseProgram {
         BaseProgram.setFieldsFromCursor(cursor, builder);
         int index;
         if (BuildCompat.isAtLeastO()) {
-            if ((index = cursor.getColumnIndex(
-                    BasePreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID)) >= 0
+            if ((index =
+                    cursor.getColumnIndex(PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInternalProviderId(cursor.getString(index));
             }
             if ((index =
-                    cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_PREVIEW_VIDEO_URI)) >= 0
+                    cursor.getColumnIndex(PreviewProgramColumns.COLUMN_PREVIEW_VIDEO_URI)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setPreviewVideoUri(Uri.parse(cursor.getString(index)));
             }
             if ((index = cursor.getColumnIndex(
-                    BasePreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS)) >= 0
+                    PreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setLastPlaybackPositionMillis(cursor.getInt(index));
             }
             if ((index =
-                    cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_DURATION_MILLIS)) >= 0
+                    cursor.getColumnIndex(PreviewProgramColumns.COLUMN_DURATION_MILLIS)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setDurationMillis(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_INTENT_URI)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_INTENT_URI)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setIntentUri(Uri.parse(cursor.getString(index)));
             }
-            if ((index =
-                    cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_TRANSIENT)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_TRANSIENT)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setTransient(cursor.getInt(index) == IS_TRANSIENT);
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_TYPE)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_TYPE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setType(cursor.getInt(index));
             }
             if ((index = cursor.getColumnIndex(
-                    BasePreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO)) >= 0
+                    PreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setPosterArtAspectRatio(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(
-                    BasePreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO)) >= 0
+            if ((index =
+                    cursor.getColumnIndex(PreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setThumbnailAspectRatio(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_LOGO_URI)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_LOGO_URI)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setLogoUri(Uri.parse(cursor.getString(index)));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_AVAILABILITY)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_AVAILABILITY)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setAvailability(cursor.getInt(index));
             }
-            if ((index =
-                    cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_STARTING_PRICE)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_STARTING_PRICE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setStartingPrice(cursor.getString(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_OFFER_PRICE)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_OFFER_PRICE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setOfferPrice(cursor.getString(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_RELEASE_DATE)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_RELEASE_DATE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setReleaseDate(cursor.getString(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_ITEM_COUNT)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_ITEM_COUNT)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setItemCount(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_LIVE)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_LIVE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setLive(cursor.getInt(index) == IS_LIVE);
             }
-            if ((index =
-                    cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_INTERACTION_TYPE)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_INTERACTION_TYPE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInteractionType(cursor.getInt(index));
             }
-            if ((index =
-                    cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_INTERACTION_COUNT)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_INTERACTION_COUNT)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInteractionCount(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_AUTHOR)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_AUTHOR)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setAuthor(cursor.getString(index));
             }
-            if ((index = cursor.getColumnIndex(
-                    BasePreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE)) >= 0
+            if ((index =
+                    cursor.getColumnIndex(PreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setReviewRatingStyle(cursor.getInt(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_REVIEW_RATING)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_REVIEW_RATING)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setReviewRating(cursor.getString(index));
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_BROWSABLE)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_BROWSABLE)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setBrowsable(cursor.getInt(index) == IS_BROWSABLE);
             }
-            if ((index = cursor.getColumnIndex(BasePreviewProgramColumns.COLUMN_CONTENT_ID)) >= 0
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_CONTENT_ID)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setContentId(cursor.getString(index));
             }
@@ -540,29 +551,29 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
     private static String[] getProjection() {
         String[] oColumns = new String[] {
-                BasePreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID,
-                BasePreviewProgramColumns.COLUMN_PREVIEW_VIDEO_URI,
-                BasePreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
-                BasePreviewProgramColumns.COLUMN_DURATION_MILLIS,
-                BasePreviewProgramColumns.COLUMN_INTENT_URI,
-                BasePreviewProgramColumns.COLUMN_TRANSIENT,
-                BasePreviewProgramColumns.COLUMN_TYPE,
-                BasePreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO,
-                BasePreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO,
-                BasePreviewProgramColumns.COLUMN_LOGO_URI,
-                BasePreviewProgramColumns.COLUMN_AVAILABILITY,
-                BasePreviewProgramColumns.COLUMN_STARTING_PRICE,
-                BasePreviewProgramColumns.COLUMN_OFFER_PRICE,
-                BasePreviewProgramColumns.COLUMN_RELEASE_DATE,
-                BasePreviewProgramColumns.COLUMN_ITEM_COUNT,
-                BasePreviewProgramColumns.COLUMN_LIVE,
-                BasePreviewProgramColumns.COLUMN_INTERACTION_TYPE,
-                BasePreviewProgramColumns.COLUMN_INTERACTION_COUNT,
-                BasePreviewProgramColumns.COLUMN_AUTHOR,
-                BasePreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE,
-                BasePreviewProgramColumns.COLUMN_REVIEW_RATING,
-                BasePreviewProgramColumns.COLUMN_BROWSABLE,
-                BasePreviewProgramColumns.COLUMN_CONTENT_ID,
+                PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID,
+                PreviewProgramColumns.COLUMN_PREVIEW_VIDEO_URI,
+                PreviewProgramColumns.COLUMN_LAST_PLAYBACK_POSITION_MILLIS,
+                PreviewProgramColumns.COLUMN_DURATION_MILLIS,
+                PreviewProgramColumns.COLUMN_INTENT_URI,
+                PreviewProgramColumns.COLUMN_TRANSIENT,
+                PreviewProgramColumns.COLUMN_TYPE,
+                PreviewProgramColumns.COLUMN_POSTER_ART_ASPECT_RATIO,
+                PreviewProgramColumns.COLUMN_THUMBNAIL_ASPECT_RATIO,
+                PreviewProgramColumns.COLUMN_LOGO_URI,
+                PreviewProgramColumns.COLUMN_AVAILABILITY,
+                PreviewProgramColumns.COLUMN_STARTING_PRICE,
+                PreviewProgramColumns.COLUMN_OFFER_PRICE,
+                PreviewProgramColumns.COLUMN_RELEASE_DATE,
+                PreviewProgramColumns.COLUMN_ITEM_COUNT,
+                PreviewProgramColumns.COLUMN_LIVE,
+                PreviewProgramColumns.COLUMN_INTERACTION_TYPE,
+                PreviewProgramColumns.COLUMN_INTERACTION_COUNT,
+                PreviewProgramColumns.COLUMN_AUTHOR,
+                PreviewProgramColumns.COLUMN_REVIEW_RATING_STYLE,
+                PreviewProgramColumns.COLUMN_REVIEW_RATING,
+                PreviewProgramColumns.COLUMN_BROWSABLE,
+                PreviewProgramColumns.COLUMN_CONTENT_ID,
         };
         return CollectionUtils.concatAll(BaseProgram.PROJECTION, oColumns);
     }
@@ -639,10 +650,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets external ID for the program.
          *
-         * @param externalId The value of
-         *                   {@link BasePreviewProgramColumns#COLUMN_INTERNAL_PROVIDER_ID} for the
-         *                   program.
+         * @param externalId The internal provider ID for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_INTERNAL_PROVIDER_ID
          */
         public T setInternalProviderId(String externalId) {
             mExternalId = externalId;
@@ -652,10 +662,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets a URI for the preview video.
          *
-         * @param previewVideoUri The value of
-         *                        {@link BasePreviewProgramColumns#COLUMN_PREVIEW_VIDEO_URI} for the
-         *                        program.
+         * @param previewVideoUri The preview video URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_PREVIEW_VIDEO_URI
          */
         public T setPreviewVideoUri(Uri previewVideoUri) {
             mPreviewVideoUri = previewVideoUri;
@@ -665,10 +674,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the last playback position (in milliseconds) of the preview video.
          *
-         * @param position The value of
-         *                 {@link BasePreviewProgramColumns#COLUMN_LAST_PLAYBACK_POSITION_MILLIS}
-         *                 for the program.
+         * @param position The last playback posirion for the program in millis.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_LAST_PLAYBACK_POSITION_MILLIS
          */
         public T setLastPlaybackPositionMillis(int position) {
             mLastPlaybackPositionMillis = position;
@@ -678,9 +686,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the last playback duration (in milliseconds) of the preview video.
          *
-         * @param duration The value of {@link BasePreviewProgramColumns#COLUMN_DURATION_MILLIS} for
-         *                 the program.
+         * @param duration The duration the program in millis.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_DURATION_MILLIS
          */
         public T setDurationMillis(int duration) {
             mDurationMillis = duration;
@@ -688,11 +696,11 @@ public abstract class BasePreviewProgram extends BaseProgram {
         }
 
         /**
-         * Sets the intent URI of the app link for the preview program.
+         * Sets the intent URI which is launched when the program is selected.
          *
-         * @param intentUri The value of {@link BasePreviewProgramColumns#COLUMN_INTENT_URI} for the
-         *                  program.
+         * @param intentUri The intent URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_INTENT_URI
          */
         public T setIntentUri(Uri intentUri) {
             mIntentUri = intentUri;
@@ -700,7 +708,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
         }
 
         /**
-         * Sets the intent of the app link for the preview video.
+         * Sets the intent which is launched when the program is selected.
          *
          * @param intent The Intent to be executed when the preview program is selected
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -712,9 +720,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets whether this program is transient or not.
          *
-         * @param transientValue The value of {@link BasePreviewProgramColumns#COLUMN_TRANSIENT} for
-         *                       the program.
+         * @param transientValue Whether the program is transient or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_TRANSIENT
          */
         public T setTransient(boolean transientValue) {
             mTransient = transientValue ? IS_TRANSIENT : 0;
@@ -725,21 +733,22 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the type of this program content.
          *
          * <p>The value should match one of the followings:
-         * {@link BasePreviewProgramColumns#TYPE_MOVIE},
-         * {@link BasePreviewProgramColumns#TYPE_TV_SERIES},
-         * {@link BasePreviewProgramColumns#TYPE_TV_SEASON},
-         * {@link BasePreviewProgramColumns#TYPE_TV_EPISODE},
-         * {@link BasePreviewProgramColumns#TYPE_CLIP},
-         * {@link BasePreviewProgramColumns#TYPE_EVENT},
-         * {@link BasePreviewProgramColumns#TYPE_CHANNEL},
-         * {@link BasePreviewProgramColumns#TYPE_TRACK},
-         * {@link BasePreviewProgramColumns#TYPE_ALBUM},
-         * {@link BasePreviewProgramColumns#TYPE_ARTIST},
-         * {@link BasePreviewProgramColumns#TYPE_PLAYLIST}, and
-         * {@link BasePreviewProgramColumns#TYPE_STATION}.
+         * {@link PreviewPrograms#TYPE_MOVIE},
+         * {@link PreviewPrograms#TYPE_TV_SERIES},
+         * {@link PreviewPrograms#TYPE_TV_SEASON},
+         * {@link PreviewPrograms#TYPE_TV_EPISODE},
+         * {@link PreviewPrograms#TYPE_CLIP},
+         * {@link PreviewPrograms#TYPE_EVENT},
+         * {@link PreviewPrograms#TYPE_CHANNEL},
+         * {@link PreviewPrograms#TYPE_TRACK},
+         * {@link PreviewPrograms#TYPE_ALBUM},
+         * {@link PreviewPrograms#TYPE_ARTIST},
+         * {@link PreviewPrograms#TYPE_PLAYLIST}, and
+         * {@link PreviewPrograms#TYPE_STATION}.
          *
-         * @param type The value of {@link BasePreviewProgramColumns#COLUMN_TYPE} for the program.
+         * @param type The type of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_TYPE
          */
         public T setType(@Type int type) {
             mType = type;
@@ -750,15 +759,15 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the aspect ratio of the poster art for this TV program.
          *
          * <p>The value should match one of the followings:
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_16_9},
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_3_2},
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_1_1}, and
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_2_3}.
+         * {@link PreviewPrograms#ASPECT_RATIO_16_9},
+         * {@link PreviewPrograms#ASPECT_RATIO_3_2},
+         * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
+         * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
          *
-         * @param ratio The value of
-         *              {@link BasePreviewProgramColumns#COLUMN_POSTER_ART_ASPECT_RATIO} for the
-         *              program.
+         * @param ratio The poster art aspect ratio for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see PreviewPrograms#COLUMN_POSTER_ART_URI
          */
         public T setPosterArtAspectRatio(@AspectRatio int ratio) {
             mPosterArtAspectRatio = ratio;
@@ -769,14 +778,14 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the aspect ratio of the thumbnail for this TV program.
          *
          * <p>The value should match one of the followings:
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_16_9},
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_3_2},
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_1_1}, and
-         * {@link BasePreviewProgramColumns#ASPECT_RATIO_2_3}.
+         * {@link PreviewPrograms#ASPECT_RATIO_16_9},
+         * {@link PreviewPrograms#ASPECT_RATIO_3_2},
+         * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
+         * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
          *
-         * @param ratio The value of {@link BasePreviewProgramColumns#COLUMN_THUMBNAIL_ASPECT_RATIO}
-         *              for the program.
+         * @param ratio The thumbnail aspect ratio of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_THUMBNAIL_ASPECT_RATIO
          */
         public T setThumbnailAspectRatio(@AspectRatio int ratio) {
             mThumbnailAspectRatio = ratio;
@@ -786,9 +795,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the URI for the logo of this TV program.
          *
-         * @param logoUri The value of {@link BasePreviewProgramColumns#COLUMN_LOGO_URI} for the
-         *                program.
+         * @param logoUri The logo URI for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_LOGO_URI
          */
         public T setLogoUri(Uri logoUri) {
             mLogoUri = logoUri;
@@ -799,13 +808,13 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the availability of this TV program.
          *
          * <p>The value should match one of the followings:
-         * {@link BasePreviewProgramColumns#AVAILABILITY_AVAILABLE},
-         * {@link BasePreviewProgramColumns#AVAILABILITY_FREE_WITH_SUBSCRIPTION}, and
-         * {@link BasePreviewProgramColumns#AVAILABILITY_PAID_CONTENT}.
+         * {@link PreviewPrograms#AVAILABILITY_AVAILABLE},
+         * {@link PreviewPrograms#AVAILABILITY_FREE_WITH_SUBSCRIPTION}, and
+         * {@link PreviewPrograms#AVAILABILITY_PAID_CONTENT}.
          *
-         * @param availability The value of {@link BasePreviewProgramColumns#COLUMN_AVAILABILITY}
-         *                     for the program.
+         * @param availability The availability of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_AVAILABILITY
          */
         public T setAvailability(@Availability int availability) {
             mAvailability = availability;
@@ -815,9 +824,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the starting price of this TV program.
          *
-         * @param price The value of {@link BasePreviewProgramColumns#COLUMN_STARTING_PRICE} for the
-         *              program.
+         * @param price The starting price of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_STARTING_PRICE
          */
         public T setStartingPrice(String price) {
             mStartingPrice = price;
@@ -827,9 +836,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the offer price of this TV program.
          *
-         * @param price The value of {@link BasePreviewProgramColumns#COLUMN_OFFER_PRICE} for the
-         *              program.
+         * @param price The offer price of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_OFFER_PRICE
          */
         public T setOfferPrice(String price) {
             mOfferPrice = price;
@@ -841,9 +850,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * <p>The value should be in the form of either "yyyy-MM-dd" or "yyyy".
          *
-         * @param releaseDate The value of {@link BasePreviewProgramColumns#COLUMN_RELEASE_DATE} for
-         *                    the program.
+         * @param releaseDate The release date of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_RELEASE_DATE
          */
         public T setReleaseDate(String releaseDate) {
             mReleaseDate = releaseDate;
@@ -853,9 +862,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the release date of this TV program.
          *
-         * @param releaseDate The value of {@link BasePreviewProgramColumns#COLUMN_RELEASE_DATE} for
-         *                    the program.
+         * @param releaseDate The release date of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_RELEASE_DATE
          */
         public T setReleaseDate(Date releaseDate) {
             mReleaseDate = sFormat.format(releaseDate);
@@ -865,9 +874,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the count of the items included in this TV program.
          *
-         * @param itemCount value of {@link BasePreviewProgramColumns#COLUMN_ITEM_COUNT} for the
-         *                  program.
+         * @param itemCount The item count for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_ITEM_COUNT
          */
         public T setItemCount(int itemCount) {
             mItemCount = itemCount;
@@ -877,8 +886,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets whether this TV program is live or not.
          *
-         * @param live The value of {@link BasePreviewProgramColumns#COLUMN_LIVE} for the program.
+         * @param live Whether the program is live or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_LIVE
          */
         public T setLive(boolean live) {
             mLive = live ? IS_LIVE : 0;
@@ -889,17 +899,17 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the type of interaction for this TV program.
          *
          * <p> The value should match one of the followings:
-         * {@link BasePreviewProgramColumns#INTERACTION_TYPE_LISTENS},
-         * {@link BasePreviewProgramColumns#INTERACTION_TYPE_FOLLOWERS},
-         * {@link BasePreviewProgramColumns#INTERACTION_TYPE_FANS},
-         * {@link BasePreviewProgramColumns#INTERACTION_TYPE_LIKES},
-         * {@link BasePreviewProgramColumns#INTERACTION_TYPE_THUMBS},
-         * {@link BasePreviewProgramColumns#INTERACTION_TYPE_VIEWS}, and
-         * {@link BasePreviewProgramColumns#INTERACTION_TYPE_VIEWERS}.
+         * {@link PreviewPrograms#INTERACTION_TYPE_LISTENS},
+         * {@link PreviewPrograms#INTERACTION_TYPE_FOLLOWERS},
+         * {@link PreviewPrograms#INTERACTION_TYPE_FANS},
+         * {@link PreviewPrograms#INTERACTION_TYPE_LIKES},
+         * {@link PreviewPrograms#INTERACTION_TYPE_THUMBS},
+         * {@link PreviewPrograms#INTERACTION_TYPE_VIEWS}, and
+         * {@link PreviewPrograms#INTERACTION_TYPE_VIEWERS}.
          *
-         * @param interactionType The value of {@link BasePreviewProgramColumns#COLUMN_AVAILABILITY}
-         *                        for the program.
+         * @param interactionType The interaction type of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_INTERACTION_TYPE
          */
         public T setInteractionType(@InteractionType int interactionType) {
             mInteractionType = interactionType;
@@ -909,10 +919,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the interaction count for this program.
          *
-         * @param interactionCount value of
-         *                         {@link BasePreviewProgramColumns#COLUMN_INTERACTION_COUNT} for
-         *                         the program.
+         * @param interactionCount The interaction count for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_INTERACTION_COUNT
          */
         public T setInteractionCount(long interactionCount) {
             mInteractionCount = interactionCount;
@@ -922,9 +931,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the author or artist of this content.
          *
-         * @param author The value of {@link BasePreviewProgramColumns#COLUMN_AUTHOR} for the
-         *               program.
+         * @param author The author of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_AUTHOR
          */
         public T setAuthor(String author) {
             mAuthor = author;
@@ -935,14 +944,13 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * The review rating score style used for {@link #setReviewRating}.
          *
          * <p> The value should match one of the followings:
-         * {@link BasePreviewProgramColumns#REVIEW_RATING_STYLE_STARS},
-         * {@link BasePreviewProgramColumns#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, and
-         * {@link BasePreviewProgramColumns#REVIEW_RATING_STYLE_PERCENTAGE}.
+         * {@link PreviewPrograms#REVIEW_RATING_STYLE_STARS},
+         * {@link PreviewPrograms#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, and
+         * {@link PreviewPrograms#REVIEW_RATING_STYLE_PERCENTAGE}.
          *
-         * @param reviewRatingStyle The value of
-         *                          {@link BasePreviewProgramColumns#COLUMN_REVIEW_RATING_STYLE} for
-         *                          the program.
+         * @param reviewRatingStyle The review rating style for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_REVIEW_RATING_STYLE
          */
         public T setReviewRatingStyle(@ReviewRatingStyle int reviewRatingStyle) {
             mReviewRatingStyle = reviewRatingStyle;
@@ -953,18 +961,18 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * Sets the review rating score for this program.
          *
          * <p>The format of the value is dependent on
-         * {@link BasePreviewProgramColumns#COLUMN_REVIEW_RATING_STYLE}. If the style is
-         * {@link BasePreviewProgramColumns#REVIEW_RATING_STYLE_STARS}, the value should be a real
+         * {@link PreviewPrograms#COLUMN_REVIEW_RATING_STYLE}. If the style is
+         * {@link PreviewPrograms#REVIEW_RATING_STYLE_STARS}, the value should be a real
          * number between 0.0 and 5.0. (e.g. "4.5") If the style is
-         * {@link BasePreviewProgramColumns#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, the value should be
+         * {@link PreviewPrograms#REVIEW_RATING_STYLE_THUMBS_UP_DOWN}, the value should be
          * two integers, one for thumbs-up count and the other for thumbs-down count, with a comma
          * between them. (e.g. "200,40") If the style is
-         * {@link BasePreviewProgramColumns#REVIEW_RATING_STYLE_PERCENTAGE}, the value shoule be a
+         * {@link PreviewPrograms#REVIEW_RATING_STYLE_PERCENTAGE}, the value shoule be a
          * real number between 0 and 100. (e.g. "99.9")
          *
-         * @param reviewRating The value of {@link BasePreviewProgramColumns#COLUMN_AVAILABILITY}
-         *                     for the program.
+         * @param reviewRating The review rating score of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_REVIEW_RATING
          */
         public T setReviewRating(String reviewRating) {
             mReviewRating = reviewRating;
@@ -974,9 +982,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets whether this TV program is browsable or not.
          *
-         * @param browsable The value of {@link BasePreviewProgramColumns#COLUMN_BROWSABLE} for the
-         *                  program.
+         * @param browsable Whether the program is browsable or not.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_BROWSABLE
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
@@ -988,9 +996,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
         /**
          * Sets the content ID for this program.
          *
-         * @param contentId The value of {@link BasePreviewProgramColumns#COLUMN_CONTENT_ID} for the
-         *                  program.
+         * @param contentId The content ID for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_CONTENT_ID
          */
         public T setContentId(String contentId) {
             mContentId = contentId;
