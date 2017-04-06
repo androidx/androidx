@@ -35,6 +35,7 @@ import com.android.support.db.SupportSQLiteDatabase;
 import com.android.support.db.SupportSQLiteOpenHelper;
 import com.android.support.db.SupportSQLiteStatement;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -69,8 +71,18 @@ public class InvalidationTrackerTest {
         //noinspection ResultOfMethodCallIgnored
         doReturn(openHelper).when(mRoomDatabase).getOpenHelper();
 
-        mTracker = new InvalidationTracker(mRoomDatabase, "a", "B");
+        mTracker = new InvalidationTracker(mRoomDatabase, "a", "B", "i");
         mTracker.internalInit(sqliteDb);
+    }
+
+    @Before
+    public void setLocale() {
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+    }
+
+    @After
+    public void unsetLocale() {
+        Locale.setDefault(Locale.US);
     }
 
     @Test
@@ -107,18 +119,18 @@ public class InvalidationTrackerTest {
     public void refreshReadValues() throws Exception {
         setVersions(1, 0, 2, 1);
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{1, 2}));
+        assertThat(mTracker.mTableVersions, is(new long[]{1, 2, 0}));
 
         setVersions(3, 1);
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{1, 3}));
+        assertThat(mTracker.mTableVersions, is(new long[]{1, 3, 0}));
 
         setVersions(7, 0);
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{7, 3}));
+        assertThat(mTracker.mTableVersions, is(new long[]{7, 3, 0}));
 
         refreshSync();
-        assertThat(mTracker.mTableVersions, is(new long[]{7, 3}));
+        assertThat(mTracker.mTableVersions, is(new long[]{7, 3, 0}));
     }
 
     private void refreshSync() throws InterruptedException {
@@ -179,6 +191,12 @@ public class InvalidationTrackerTest {
         observer.reset(1);
         refreshSync();
         assertThat(observer.await(), is(false));
+    }
+
+    @Test
+    public void locale() {
+        LatchObserver observer = new LatchObserver(1, "I");
+        mTracker.addObserver(observer);
     }
 
     /**

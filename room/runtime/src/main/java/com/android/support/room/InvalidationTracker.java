@@ -31,6 +31,7 @@ import com.android.support.executors.AppToolkitTaskExecutor;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -123,7 +124,7 @@ public class InvalidationTracker {
         final int size = tableNames.length;
         mTableNames = new String[size];
         for (int id = 0; id < size; id++) {
-            final String tableName = tableNames[id].toLowerCase();
+            final String tableName = tableNames[id].toLowerCase(Locale.US);
             mTableIdLookup.put(tableName, id);
             mTableNames[id] = tableName;
         }
@@ -217,7 +218,7 @@ public class InvalidationTracker {
 
         // TODO sync versions ?
         for (int i = 0; i < size; i++) {
-            Integer tableId = mTableIdLookup.get(tableNames[i].toLowerCase());
+            Integer tableId = mTableIdLookup.get(tableNames[i].toLowerCase(Locale.US));
             if (tableId == null) {
                 throw new IllegalArgumentException("There is no table with name " + tableNames[i]);
             }
