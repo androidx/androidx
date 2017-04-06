@@ -37,7 +37,8 @@ import android.view.View;
  * // Create an animation to animate view's X property, set the rest position of the
  * // default spring to 0, and start the animation with a starting velocity of 5000 (pixel/s).
  * final SpringAnimation anim = new SpringAnimation(view, DynamicAnimation.X, 0)
- *         .setSpring(spring).setStartVelocity(5000).start();
+ *         .setStartVelocity(5000);
+ * anim.start();
  * </pre>
  *
  * <p>Alternatively, a {@link SpringAnimation} can take a pre-configured {@link SpringForce}, and
@@ -51,7 +52,8 @@ import android.view.View;
  * // the spring above and a starting value of 0.5. Additionally, constrain the range of value for
  * // the animation to be non-negative, effectively preventing any spring overshoot.
  * final SpringAnimation anim = new SpringAnimation(view, DynamicAnimation.SCALE_Y)
- *         .setMinValue(0).setSpring(spring).setStartValue(1).start();
+ *         .setMinValue(0).setSpring(spring).setStartValue(1);
+ * anim.start();
  * </pre>
  */
 public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
