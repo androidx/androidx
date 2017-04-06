@@ -62,7 +62,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -329,23 +328,17 @@ public abstract class FragmentManager {
     public abstract Fragment getFragment(Bundle bundle, String key);
 
     /**
-     * Get a collection of all fragments that are currently added to the FragmentManager.
+     * Get a list of all fragments that are currently added to the FragmentManager.
      * This may include those that are hidden as well as those that are shown.
      * This will not include any fragments only in the back stack, or fragments that
      * are detached or removed.
+     * <p>
+     * The order of the fragments in the list is the order in which they were
+     * added or attached.
      *
-     * @return A collection of all fragments that are added to the FragmentManager.
-     * @hide
+     * @return A list of all fragments that are added to the FragmentManager.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public abstract List<Fragment> getFragments();
-
-    /**
-     * This is here temporarily while migrating applications. DO NOT USE.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public abstract Collection<Fragment> getAddedFragments();
 
     /**
      * Save the current instance state of the given Fragment.  This can be
@@ -896,26 +889,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     @Override
     public List<Fragment> getFragments() {
-        if (mActive == null) {
-            return null;
-        }
-        ArrayList<Fragment> fragments = new ArrayList<>(mActive.size());
-        for (int i = 0; i < mActive.size(); i++) {
-            Fragment fragment = mActive.valueAt(i);
-            if (fragment != null) {
-                fragments.add(fragment);
-            }
-        }
-        return fragments;
-    }
-
-    @Override
-    public Collection<Fragment> getAddedFragments() {
         if (mAdded == null) {
             return Collections.EMPTY_LIST;
         }
         synchronized (mAdded) {
-            return (Collection<Fragment>) mAdded.clone();
+            return (List<Fragment>) mAdded.clone();
         }
     }
 
