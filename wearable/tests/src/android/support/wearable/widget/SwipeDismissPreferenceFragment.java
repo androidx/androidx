@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.support.wearable.view.SwipeDismissFrameLayout.Callback;
+import android.support.wearable.widget.SwipeDismissFrameLayout.Callback;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
