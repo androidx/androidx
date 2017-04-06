@@ -136,6 +136,7 @@ public class ChannelTest extends TestCase {
                 .setInternalProviderFlag2(0x3)
                 .setInternalProviderFlag3(0x2)
                 .setInternalProviderFlag4(0x1)
+                .setInternalProviderId("Internal Provider")
                 .setTransient(true)
                 .setBrowsable(true)
                 .setLocked(true)
@@ -166,6 +167,7 @@ public class ChannelTest extends TestCase {
             assertEquals(channelA.getAppLinkText(), channelB.getAppLinkText());
         }
         if (BuildCompat.isAtLeastO()) {
+            assertEquals(channelA.getInternalProviderId(), channelB.getInternalProviderId());
             assertEquals(channelA.isTransient(), channelB.isTransient());
         }
         if (includeIdAndProtectedFields) {

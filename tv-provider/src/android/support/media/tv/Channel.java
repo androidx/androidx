@@ -103,6 +103,7 @@ public final class Channel {
     private final Long mInternalProviderFlag2;
     private final Long mInternalProviderFlag3;
     private final Long mInternalProviderFlag4;
+    private final String mInternalProviderId;
     private final int mTransient;
     private final int mBrowsable;
     private final int mSystemApproved;
@@ -133,6 +134,7 @@ public final class Channel {
         mInternalProviderFlag2 = builder.mInternalProviderFlag2;
         mInternalProviderFlag3 = builder.mInternalProviderFlag3;
         mInternalProviderFlag4 = builder.mInternalProviderFlag4;
+        mInternalProviderId = builder.mInternalProviderId;
         mTransient = builder.mTransient;
         mBrowsable = builder.mBrowsable;
         mSystemApproved = builder.mSystemApproved;
@@ -318,6 +320,13 @@ public final class Channel {
     }
 
     /**
+     * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_ID} for the channel.
+     */
+    public String getInternalProviderId() {
+        return mInternalProviderId;
+    }
+
+    /**
      * @return The value of {@link Channels#COLUMN_TRANSIENT} for the channel.
      */
     public boolean isTransient() {
@@ -467,6 +476,7 @@ public final class Channel {
             }
         }
         if (BuildCompat.isAtLeastO()) {
+            values.put(Channels.COLUMN_INTERNAL_PROVIDER_ID, mInternalProviderId);
             values.put(Channels.COLUMN_TRANSIENT, mTransient);
         }
 
@@ -595,6 +605,10 @@ public final class Channel {
             }
         }
         if (BuildCompat.isAtLeastO()) {
+            if ((index = cursor.getColumnIndex(Channels.COLUMN_INTERNAL_PROVIDER_ID)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setInternalProviderId(cursor.getString(index));
+            }
             if ((index = cursor.getColumnIndex(Channels.COLUMN_TRANSIENT)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setTransient(cursor.getInt(index) == IS_TRANSIENT);
@@ -639,6 +653,7 @@ public final class Channel {
                 Channels.COLUMN_INTERNAL_PROVIDER_FLAG4,
         };
         String[] oReleaseColumns = new String[] {
+                Channels.COLUMN_INTERNAL_PROVIDER_ID,
                 Channels.COLUMN_TRANSIENT,
                 Channels.COLUMN_SYSTEM_APPROVED,
         };
@@ -679,6 +694,7 @@ public final class Channel {
         private Long mInternalProviderFlag2;
         private Long mInternalProviderFlag3;
         private Long mInternalProviderFlag4;
+        private String mInternalProviderId;
         private int mTransient;
         private int mBrowsable;
         private int mSystemApproved;
@@ -712,6 +728,7 @@ public final class Channel {
             mInternalProviderFlag2 = other.mInternalProviderFlag2;
             mInternalProviderFlag3 = other.mInternalProviderFlag3;
             mInternalProviderFlag4 = other.mInternalProviderFlag4;
+            mInternalProviderId = other.mInternalProviderId;
             mTransient = other.mTransient;
             mBrowsable = other.mBrowsable;
             mSystemApproved = other.mSystemApproved;
@@ -1014,6 +1031,18 @@ public final class Channel {
          */
         public Builder setInternalProviderFlag4(long flag) {
             mInternalProviderFlag4 = flag;
+            return this;
+        }
+
+        /**
+         * Sets the internal provider ID for the channel.
+         *
+         * @param internalProviderId The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_ID}
+         *                           for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         */
+        public Builder setInternalProviderId(String internalProviderId) {
+            mInternalProviderId = internalProviderId;
             return this;
         }
 
