@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.wearable.view.util.MoreViewAssertions.approximateBottom;
-import static android.support.wearable.view.util.MoreViewAssertions.approximateTop;
-import static android.support.wearable.view.util.MoreViewAssertions.bottom;
-import static android.support.wearable.view.util.MoreViewAssertions.left;
-import static android.support.wearable.view.util.MoreViewAssertions.right;
-import static android.support.wearable.view.util.MoreViewAssertions.screenBottom;
-import static android.support.wearable.view.util.MoreViewAssertions.screenLeft;
-import static android.support.wearable.view.util.MoreViewAssertions.screenRight;
-import static android.support.wearable.view.util.MoreViewAssertions.screenTop;
-import static android.support.wearable.view.util.MoreViewAssertions.top;
+import static android.support.wearable.widget.util.MoreViewAssertions.approximateBottom;
+import static android.support.wearable.widget.util.MoreViewAssertions.approximateTop;
+import static android.support.wearable.widget.util.MoreViewAssertions.bottom;
+import static android.support.wearable.widget.util.MoreViewAssertions.left;
+import static android.support.wearable.widget.util.MoreViewAssertions.right;
+import static android.support.wearable.widget.util.MoreViewAssertions.screenBottom;
+import static android.support.wearable.widget.util.MoreViewAssertions.screenLeft;
+import static android.support.wearable.widget.util.MoreViewAssertions.screenRight;
+import static android.support.wearable.widget.util.MoreViewAssertions.screenTop;
+import static android.support.wearable.widget.util.MoreViewAssertions.top;
 
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
@@ -39,7 +39,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.wearable.test.R;
-import android.support.wearable.view.util.WakeLockRule;
+import android.support.wearable.widget.util.WakeLockRule;
 import android.util.DisplayMetrics;
 import android.view.View;
 

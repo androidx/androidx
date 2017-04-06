@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.wearable.view.util.AsyncViewActions.waitForMatchingView;
-import static android.support.wearable.view.util.MoreViewAssertions.withNoVerticalScrollOffset;
-import static android.support.wearable.view.util.MoreViewAssertions.withPositiveVerticalScrollOffset;
+import static android.support.wearable.widget.util.AsyncViewActions.waitForMatchingView;
+import static android.support.wearable.widget.util.MoreViewAssertions.withNoVerticalScrollOffset;
+import static android.support.wearable.widget.util.MoreViewAssertions.withPositiveVerticalScrollOffset;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -42,7 +42,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
 import android.support.wearable.test.R;
-import android.support.wearable.view.util.WakeLockRule;
+import android.support.wearable.widget.util.WakeLockRule;
 import android.view.View;
 
 import org.junit.Before;

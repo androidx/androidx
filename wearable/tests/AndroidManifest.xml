@@ -25,20 +25,20 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application android:supportsRtl="true">
-        <activity android:name="android.support.wearable.view.LayoutTestActivity">
+        <activity android:name="android.support.wearable.widget.LayoutTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="android.support.wearable.view.SwipeDismissFrameLayoutTestActivity">
+        <activity android:name="android.support.wearable.widget.SwipeDismissFrameLayoutTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="android.support.wearable.view.WearableRecyclerViewTestActivity">
+        <activity android:name="android.support.wearable.widget.WearableRecyclerViewTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
