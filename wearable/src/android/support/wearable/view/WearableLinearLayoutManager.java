@@ -55,8 +55,9 @@ public class WearableLinearLayoutManager extends LinearLayoutManager {
      * Creates a {@link WearableLinearLayoutManager} for a vertical list.
      *
      * @param context Current context, will be used to access resources.
+     * @param layoutCallback Callback to be associated with this {@link WearableLinearLayoutManager}
      */
-    public WearableLinearLayoutManager(Context context, @Nullable LayoutCallback layoutCallback) {
+    public WearableLinearLayoutManager(Context context, LayoutCallback layoutCallback) {
         super(context, VERTICAL, false);
         mLayoutCallback = layoutCallback;
     }
@@ -72,11 +73,11 @@ public class WearableLinearLayoutManager extends LinearLayoutManager {
 
     /**
      * Set a particular instance of the layout callback for this
-     * {@link WearableLinearLayoutManager}.
+     * {@link WearableLinearLayoutManager}. The callback will be called on the Ui thread.
      *
      * @param layoutCallback
      */
-    public void setLayoutCallback(LayoutCallback layoutCallback) {
+    public void setLayoutCallback(@Nullable LayoutCallback layoutCallback) {
         mLayoutCallback = layoutCallback;
     }
 
