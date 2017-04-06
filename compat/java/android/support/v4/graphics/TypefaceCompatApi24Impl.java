@@ -94,7 +94,7 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
     }
 
     @Override
-    Typeface createTypeface(List<FontResult> resultList) {
+    public Typeface createTypeface(List<FontResult> resultList) {
         if (sFamilyClass == null) {
             // If the reflection methods were not available, fall back to loading from file path.
             return super.createTypeface(resultList);

@@ -101,18 +101,8 @@ class MetadataListReader {
      */
     static MetadataList read(AssetManager assetManager, String assetPath)
             throws IOException {
-        InputStream inputStream = null;
-        try {
-            inputStream = assetManager.open(assetPath);
+        try (InputStream inputStream = assetManager.open(assetPath)) {
             return read(inputStream);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
         }
     }
 

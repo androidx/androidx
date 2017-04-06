@@ -19,10 +19,16 @@ package android.support.v4.graphics;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Typeface;
+import android.graphics.fonts.FontVariationAxis;
+import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.graphics.fonts.FontRequest;
+import android.support.v4.graphics.fonts.FontResult;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Implementation of the Typeface compat methods for API 26 and above.
@@ -31,7 +37,7 @@ import android.support.v4.graphics.fonts.FontRequest;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(26)
 class TypefaceCompatApi26Impl implements TypefaceCompat.TypefaceCompatImpl {
-
+    @Override
     public void create(@NonNull final FontRequest request,
             @NonNull final TypefaceCompat.FontRequestCallback callback) {
         Typeface.create(new android.graphics.fonts.FontRequest(request.getProviderAuthority(),
@@ -47,5 +53,24 @@ class TypefaceCompatApi26Impl implements TypefaceCompat.TypefaceCompatImpl {
                         callback.onTypefaceRequestFailed(reason);
                     }
                 });
+    }
+
+    @Override
+    public Typeface createTypeface(@NonNull List<FontResult> resultList) {
+        if (resultList.isEmpty()) {
+            return null;
+        }
+
+        try (ParcelFileDescriptor pfd = resultList.get(0).getFileDescriptor()) {
+            FontResult result = resultList.get(0);
+            return new Typeface.Builder(pfd.getFileDescriptor())
+                    .setFontVariationSettings(result.getFontVariationSettings())
+                    .setTtcIndex(result.getTtcIndex())
+                    .setWeight(result.getWeight())
+                    .setItalic(result.getItalic())
+                    .build();
+        } catch (FontVariationAxis.InvalidFormatException | IOException e) {
+            return null;
+        }
     }
 }
