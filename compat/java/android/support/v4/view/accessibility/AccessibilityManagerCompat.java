@@ -18,185 +18,16 @@ package android.support.v4.view.accessibility;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.v4.view.accessibility.AccessibilityManagerCompatIcs.AccessibilityStateChangeListenerBridge;
-import android.support.v4.view.accessibility.AccessibilityManagerCompatIcs.AccessibilityStateChangeListenerWrapper;
-import android.support.v4.view.accessibility.AccessibilityManagerCompatKitKat.TouchExplorationStateChangeListenerBridge;
-import android.support.v4.view.accessibility.AccessibilityManagerCompatKitKat.TouchExplorationStateChangeListenerWrapper;
 import android.view.accessibility.AccessibilityManager;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Helper for accessing features in {@link AccessibilityManager}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link AccessibilityManager} in a backwards compatible fashion.
  */
 public final class AccessibilityManagerCompat {
-
-    interface AccessibilityManagerVersionImpl {
-        AccessibilityStateChangeListenerWrapper newAccessibilityStateChangeListener(
-                AccessibilityStateChangeListener listener);
-        boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListener listener);
-        boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListener listener);
-        List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
-                AccessibilityManager manager,int feedbackTypeFlags);
-        List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
-                AccessibilityManager manager);
-        boolean isTouchExplorationEnabled(AccessibilityManager manager);
-        TouchExplorationStateChangeListenerWrapper newTouchExplorationStateChangeListener(
-                TouchExplorationStateChangeListener listener);
-        boolean addTouchExplorationStateChangeListener(AccessibilityManager manager,
-                TouchExplorationStateChangeListener listener);
-        boolean removeTouchExplorationStateChangeListener(AccessibilityManager manager,
-                TouchExplorationStateChangeListener listener);
-    }
-
-    static class AccessibilityManagerStubImpl implements AccessibilityManagerVersionImpl {
-        @Override
-        public AccessibilityStateChangeListenerWrapper newAccessibilityStateChangeListener(
-                AccessibilityStateChangeListener listener) {
-            return null;
-        }
-
-        @Override
-        public boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListener listener) {
-            return false;
-        }
-
-        @Override
-        public boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListener listener) {
-            return false;
-        }
-
-        @Override
-        public List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
-                AccessibilityManager manager, int feedbackTypeFlags) {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
-                AccessibilityManager manager) {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public boolean isTouchExplorationEnabled(AccessibilityManager manager) {
-            return false;
-        }
-
-        @Override
-        public TouchExplorationStateChangeListenerWrapper newTouchExplorationStateChangeListener(
-                TouchExplorationStateChangeListener listener) {
-            return null;
-        }
-
-        @Override
-        public boolean addTouchExplorationStateChangeListener(AccessibilityManager manager,
-                TouchExplorationStateChangeListener listener) {
-            return false;
-        }
-
-        @Override
-        public boolean removeTouchExplorationStateChangeListener(AccessibilityManager manager,
-                TouchExplorationStateChangeListener listener) {
-            return false;
-        }
-    }
-
-    @RequiresApi(14)
-    static class AccessibilityManagerIcsImpl extends AccessibilityManagerStubImpl {
-        @Override
-        public AccessibilityStateChangeListenerWrapper newAccessibilityStateChangeListener(
-                final AccessibilityStateChangeListener listener) {
-            return new AccessibilityStateChangeListenerWrapper(listener,
-                    new AccessibilityStateChangeListenerBridge() {
-                        @Override
-                        public void onAccessibilityStateChanged(boolean enabled) {
-                            listener.onAccessibilityStateChanged(enabled);
-                        }
-                    });
-        }
-
-        @Override
-        public boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListener listener) {
-            return AccessibilityManagerCompatIcs.addAccessibilityStateChangeListener(manager,
-                    newAccessibilityStateChangeListener(listener));
-        }
-
-        @Override
-        public boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
-                AccessibilityStateChangeListener listener) {
-            return AccessibilityManagerCompatIcs.removeAccessibilityStateChangeListener(manager,
-                    newAccessibilityStateChangeListener(listener));
-        }
-
-        @Override
-        public List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
-                AccessibilityManager manager, int feedbackTypeFlags) {
-            return AccessibilityManagerCompatIcs.getEnabledAccessibilityServiceList(manager,
-                    feedbackTypeFlags);
-        }
-
-        @Override
-        public List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
-                AccessibilityManager manager) {
-            return AccessibilityManagerCompatIcs.getInstalledAccessibilityServiceList(manager);
-        }
-
-        @Override
-        public boolean isTouchExplorationEnabled(AccessibilityManager manager) {
-            return AccessibilityManagerCompatIcs.isTouchExplorationEnabled(manager);
-        }
-    }
-
-    @RequiresApi(19)
-    static class AccessibilityManagerKitKatImpl extends AccessibilityManagerIcsImpl {
-        @Override
-        public TouchExplorationStateChangeListenerWrapper newTouchExplorationStateChangeListener(
-                final TouchExplorationStateChangeListener listener) {
-            return new TouchExplorationStateChangeListenerWrapper(listener,
-                    new TouchExplorationStateChangeListenerBridge() {
-                        @Override
-                        public void onTouchExplorationStateChanged(boolean enabled) {
-                            listener.onTouchExplorationStateChanged(enabled);
-                        }
-                    });
-        }
-
-        @Override
-        public boolean addTouchExplorationStateChangeListener(AccessibilityManager manager,
-                TouchExplorationStateChangeListener listener) {
-            return AccessibilityManagerCompatKitKat.addTouchExplorationStateChangeListener(
-                    manager, newTouchExplorationStateChangeListener(listener));
-        }
-
-        @Override
-        public boolean removeTouchExplorationStateChangeListener(AccessibilityManager manager,
-                TouchExplorationStateChangeListener listener) {
-            return AccessibilityManagerCompatKitKat.removeTouchExplorationStateChangeListener(
-                    manager, newTouchExplorationStateChangeListener(listener));
-        }
-    }
-
-    static {
-        if (Build.VERSION.SDK_INT >= 19) { // KitKat
-            IMPL = new AccessibilityManagerKitKatImpl();
-        } else if (Build.VERSION.SDK_INT >= 14) { // ICS
-            IMPL = new AccessibilityManagerIcsImpl();
-        } else {
-            IMPL = new AccessibilityManagerStubImpl();
-        }
-    }
-
-    private static final AccessibilityManagerVersionImpl IMPL;
-
     /**
      * Registers an {@link AccessibilityManager.AccessibilityStateChangeListener} for changes in
      * the global accessibility state of the system.
@@ -204,10 +35,18 @@ public final class AccessibilityManagerCompat {
      * @param manager The accessibility manager.
      * @param listener The listener.
      * @return True if successfully registered.
+     *
+     * @deprecated Use {@link AccessibilityManager#addAccessibilityStateChangeListener(
+     *             AccessibilityManager.AccessibilityStateChangeListener)} directly.
      */
+    @Deprecated
     public static boolean addAccessibilityStateChangeListener(AccessibilityManager manager,
             AccessibilityStateChangeListener listener) {
-        return IMPL.addAccessibilityStateChangeListener(manager, listener);
+        if (listener == null) {
+            return false;
+        }
+        return manager.addAccessibilityStateChangeListener(
+                new AccessibilityStateChangeListenerWrapper(listener));
     }
 
     /**
@@ -216,10 +55,51 @@ public final class AccessibilityManagerCompat {
      * @param manager The accessibility manager.
      * @param listener The listener.
      * @return True if successfully unregistered.
+     *
+     * @deprecated Use {@link AccessibilityManager#removeAccessibilityStateChangeListener(
+     *             AccessibilityManager.AccessibilityStateChangeListener)} directly.
      */
+    @Deprecated
     public static boolean removeAccessibilityStateChangeListener(AccessibilityManager manager,
             AccessibilityStateChangeListener listener) {
-        return IMPL.removeAccessibilityStateChangeListener(manager, listener);
+        if (listener == null) {
+            return false;
+        }
+        return manager.removeAccessibilityStateChangeListener(
+                new AccessibilityStateChangeListenerWrapper(listener));
+    }
+
+    private static class AccessibilityStateChangeListenerWrapper
+            implements AccessibilityManager.AccessibilityStateChangeListener {
+        AccessibilityStateChangeListener mListener;
+
+        AccessibilityStateChangeListenerWrapper(
+                @NonNull AccessibilityStateChangeListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public int hashCode() {
+            return mListener.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            AccessibilityStateChangeListenerWrapper other =
+                    (AccessibilityStateChangeListenerWrapper) o;
+            return mListener.equals(other.mListener);
+        }
+
+        @Override
+        public void onAccessibilityStateChanged(boolean enabled) {
+            mListener.onAccessibilityStateChanged(enabled);
+        }
     }
 
     /**
@@ -227,10 +107,13 @@ public final class AccessibilityManagerCompat {
      *
      * @param manager The accessibility manager.
      * @return An unmodifiable list with {@link AccessibilityServiceInfo}s.
+     *
+     * @deprecated Use {@link AccessibilityManager#getInstalledAccessibilityServiceList()} directly.
      */
+    @Deprecated
     public static List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
             AccessibilityManager manager) {
-        return IMPL.getInstalledAccessibilityServiceList(manager);
+        return manager.getInstalledAccessibilityServiceList();
     }
 
     /**
@@ -246,10 +129,14 @@ public final class AccessibilityManagerCompat {
      * @see AccessibilityServiceInfo#FEEDBACK_HAPTIC
      * @see AccessibilityServiceInfo#FEEDBACK_SPOKEN
      * @see AccessibilityServiceInfo#FEEDBACK_VISUAL
+     *
+     * @deprecated Use {@link AccessibilityManager#getEnabledAccessibilityServiceList(int)}
+     * directly.
      */
+    @Deprecated
     public static List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
             AccessibilityManager manager, int feedbackTypeFlags) {
-        return IMPL.getEnabledAccessibilityServiceList(manager, feedbackTypeFlags);
+        return manager.getEnabledAccessibilityServiceList(feedbackTypeFlags);
     }
 
     /**
@@ -257,9 +144,12 @@ public final class AccessibilityManagerCompat {
      *
      * @param manager The accessibility manager.
      * @return True if touch exploration is enabled, false otherwise.
+     *
+     * @deprecated Use {@link AccessibilityManager#isTouchExplorationEnabled()} directly.
      */
+    @Deprecated
     public static boolean isTouchExplorationEnabled(AccessibilityManager manager) {
-        return IMPL.isTouchExplorationEnabled(manager);
+        return manager.isTouchExplorationEnabled();
     }
 
     /**
@@ -271,7 +161,15 @@ public final class AccessibilityManagerCompat {
      */
     public static boolean addTouchExplorationStateChangeListener(AccessibilityManager manager,
             TouchExplorationStateChangeListener listener) {
-        return IMPL.addTouchExplorationStateChangeListener(manager, listener);
+        if (Build.VERSION.SDK_INT >= 19) {
+            if (listener == null) {
+                return false;
+            }
+            return manager.addTouchExplorationStateChangeListener(
+                    new TouchExplorationStateChangeListenerWrapper(listener));
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -282,12 +180,56 @@ public final class AccessibilityManagerCompat {
      */
     public static boolean removeTouchExplorationStateChangeListener(AccessibilityManager manager,
             TouchExplorationStateChangeListener listener) {
-        return IMPL.removeTouchExplorationStateChangeListener(manager, listener);
+        if (Build.VERSION.SDK_INT >= 19) {
+            if (listener == null) {
+                return false;
+            }
+            return manager.removeTouchExplorationStateChangeListener(
+                    new TouchExplorationStateChangeListenerWrapper(listener));
+        } else {
+            return false;
+        }
+    }
+
+    @RequiresApi(19)
+    private static class TouchExplorationStateChangeListenerWrapper
+            implements AccessibilityManager.TouchExplorationStateChangeListener {
+        final TouchExplorationStateChangeListener mListener;
+
+        TouchExplorationStateChangeListenerWrapper(
+                @NonNull TouchExplorationStateChangeListener listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public int hashCode() {
+            return mListener.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            TouchExplorationStateChangeListenerWrapper other =
+                    (TouchExplorationStateChangeListenerWrapper) o;
+            return mListener.equals(other.mListener);
+        }
+
+        @Override
+        public void onTouchExplorationStateChanged(boolean enabled) {
+            mListener.onTouchExplorationStateChanged(enabled);
+        }
     }
 
     /**
      * Listener for the accessibility state.
-     * @deprecated Use {@link AccessibilityStateChangeListener} instead.
+     *
+     * @deprecated Use {@link AccessibilityManager.AccessibilityStateChangeListener} directly
+     * instead of this listener.
      */
     @Deprecated
     public static abstract class AccessibilityStateChangeListenerCompat
@@ -296,13 +238,20 @@ public final class AccessibilityManagerCompat {
 
     /**
      * Listener for the accessibility state.
+     *
+     * @deprecated Use {@link AccessibilityManager.AccessibilityStateChangeListener} directly
+     * instead of this listener.
      */
+    @Deprecated
     public interface AccessibilityStateChangeListener {
         /**
          * Called back on change in the accessibility state.
          *
          * @param enabled Whether accessibility is enabled.
+         *
+         * @deprecated Use {@link AccessibilityManager.AccessibilityStateChangeListener} directly.
          */
+        @Deprecated
         void onAccessibilityStateChanged(boolean enabled);
     }
 
