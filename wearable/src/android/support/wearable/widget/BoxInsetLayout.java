@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -24,6 +24,7 @@ import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleRes;
 import android.support.annotation.UiThread;
 import android.support.wearable.R;
@@ -412,6 +413,7 @@ public class BoxInsetLayout extends ViewGroup {
     public static class LayoutParams extends FrameLayout.LayoutParams {
 
         /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @IntDef({BOX_NONE, BOX_LEFT, BOX_TOP, BOX_RIGHT, BOX_BOTTOM, BOX_ALL})
         @Retention(RetentionPolicy.SOURCE)
         public @interface BoxedEdges {}

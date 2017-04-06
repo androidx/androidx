@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.wearable.view.BoxInsetLayout
+    <android.support.wearable.widget.BoxInsetLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -27,6 +27,6 @@
             app:boxedEdges="left|right" />
 
 
-    </android.support.wearable.view.BoxInsetLayout>
+    </android.support.wearable.widget.BoxInsetLayout>
 
 </ScrollView>

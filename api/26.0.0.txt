@@ -1283,6 +1283,7 @@ package android.support.media.tv {
     method public java.lang.Long getInternalProviderFlag2();
     method public java.lang.Long getInternalProviderFlag3();
     method public java.lang.Long getInternalProviderFlag4();
+    method public java.lang.String getInternalProviderId();
     method public java.lang.String getNetworkAffiliation();
     method public int getOriginalNetworkId();
     method public java.lang.String getPackageName();
@@ -1318,6 +1319,7 @@ package android.support.media.tv {
     method public android.support.media.tv.Channel.Builder setInternalProviderFlag2(long);
     method public android.support.media.tv.Channel.Builder setInternalProviderFlag3(long);
     method public android.support.media.tv.Channel.Builder setInternalProviderFlag4(long);
+    method public android.support.media.tv.Channel.Builder setInternalProviderId(java.lang.String);
     method public android.support.media.tv.Channel.Builder setNetworkAffiliation(java.lang.String);
     method public android.support.media.tv.Channel.Builder setOriginalNetworkId(int);
     method public android.support.media.tv.Channel.Builder setSearchable(boolean);
@@ -12183,7 +12185,7 @@ package android.support.v7.widget.util {
 
 }
 
-package android.support.wearable.view {
+package android.support.wearable.widget {
 
   public class BoxInsetLayout extends android.view.ViewGroup {
     ctor public BoxInsetLayout(android.content.Context);
@@ -12200,7 +12202,7 @@ package android.support.wearable.view {
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
-    ctor public BoxInsetLayout.LayoutParams(android.support.wearable.view.BoxInsetLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.support.wearable.widget.BoxInsetLayout.LayoutParams);
     field public static final int BOX_ALL = 15; // 0xf
     field public static final int BOX_BOTTOM = 8; // 0x8
     field public static final int BOX_LEFT = 1; // 0x1
@@ -12210,7 +12212,7 @@ package android.support.wearable.view {
     field public int boxedEdges;
   }
 
-  public class CurvingLayoutCallback extends android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback {
+  public class CurvingLayoutCallback extends android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback {
     ctor public CurvingLayoutCallback(android.content.Context);
     method public void adjustAnchorOffsetXY(android.view.View, float[]);
     method public void onLayoutFinished(android.view.View, android.support.v7.widget.RecyclerView);
@@ -12221,22 +12223,22 @@ package android.support.wearable.view {
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int, int);
-    method public void addCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
-    method public void removeCallback(android.support.wearable.view.SwipeDismissFrameLayout.Callback);
+    method public void addCallback(android.support.wearable.widget.SwipeDismissFrameLayout.Callback);
+    method public void removeCallback(android.support.wearable.widget.SwipeDismissFrameLayout.Callback);
   }
 
   public static abstract class SwipeDismissFrameLayout.Callback {
     ctor public SwipeDismissFrameLayout.Callback();
-    method public void onDismissed(android.support.wearable.view.SwipeDismissFrameLayout);
+    method public void onDismissed(android.support.wearable.widget.SwipeDismissFrameLayout);
     method public void onSwipeCancelled();
     method public void onSwipeStarted();
   }
 
   public class WearableLinearLayoutManager extends android.support.v7.widget.LinearLayoutManager {
-    ctor public WearableLinearLayoutManager(android.content.Context, android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback);
+    ctor public WearableLinearLayoutManager(android.content.Context, android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback);
     ctor public WearableLinearLayoutManager(android.content.Context);
-    method public android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback getLayoutCallback();
-    method public void setLayoutCallback(android.support.wearable.view.WearableLinearLayoutManager.LayoutCallback);
+    method public android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback getLayoutCallback();
+    method public void setLayoutCallback(android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback);
   }
 
   public static abstract class WearableLinearLayoutManager.LayoutCallback {

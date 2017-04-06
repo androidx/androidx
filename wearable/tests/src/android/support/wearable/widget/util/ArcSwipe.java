@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view.util;
+package android.support.wearable.widget.util;
 
 import android.graphics.Path;
 import android.graphics.PathMeasure;

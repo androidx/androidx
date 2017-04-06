@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -24,7 +24,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.wearable.test.R;
-import android.support.wearable.view.util.WakeLockRule;
+import android.support.wearable.widget.util.WakeLockRule;
 import android.view.View;
 import android.widget.FrameLayout;
 

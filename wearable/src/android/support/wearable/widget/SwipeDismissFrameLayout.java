@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import android.content.Context;
 import android.support.annotation.UiThread;

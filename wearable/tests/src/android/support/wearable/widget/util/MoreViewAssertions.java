@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view.util;
+package android.support.wearable.widget.util;
 
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 

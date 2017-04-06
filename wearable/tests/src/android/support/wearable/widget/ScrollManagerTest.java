@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.wearable.view;
+package android.support.wearable.widget;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,7 +26,7 @@ import android.os.SystemClock;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.wearable.view.util.WakeLockRule;
+import android.support.wearable.widget.util.WakeLockRule;
 import android.view.MotionEvent;
 
 import org.junit.Before;
