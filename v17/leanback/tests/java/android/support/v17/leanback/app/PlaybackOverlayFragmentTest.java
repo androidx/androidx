@@ -36,12 +36,13 @@ public class PlaybackOverlayFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void workaroundVideoViewStealFocus() {
-        launchAndWaitActivity(PlaybackOverlayTestFragment.class,
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackOverlayTestFragment.class,
                 new Options().activityLayoutId(R.layout.playback_controls_with_video), 0);
         PlaybackOverlayTestFragment fragment = (PlaybackOverlayTestFragment)
-                mActivity.getTestFragment();
+                activity.getTestFragment();
 
-        assertFalse(mActivity.findViewById(R.id.videoView).hasFocus());
+        assertFalse(activity.findViewById(R.id.videoView).hasFocus());
         assertTrue(fragment.getView().hasFocus());
     }
 
@@ -49,10 +50,11 @@ public class PlaybackOverlayFragmentTest extends SingleFragmentTestBase {
     @Suppress
     @Test
     public void alignmentRowToBottom() throws Throwable {
-        launchAndWaitActivity(PlaybackOverlayTestFragment.class,
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(PlaybackOverlayTestFragment.class,
                 new Options().activityLayoutId(R.layout.playback_controls_with_video), 0);
         final PlaybackOverlayTestFragment fragment = (PlaybackOverlayTestFragment)
-                mActivity.getTestFragment();
+                activity.getTestFragment();
 
         assertTrue(fragment.getAdapter().size() > 2);
 

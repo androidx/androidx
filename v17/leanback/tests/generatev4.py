@@ -100,7 +100,7 @@ for w in testcls:
         line = line.replace('android.app.Activity', 'android.support.v4.app.FragmentActivity')
 	line = line.replace('extends Activity', 'extends FragmentActivity')
 	line = line.replace('Activity.this.getFragmentManager', 'Activity.this.getSupportFragmentManager')
-	line = line.replace('mActivity.getFragmentManager', 'mActivity.getSupportFragmentManager')
+	line = line.replace('tivity.getFragmentManager', 'tivity.getSupportFragmentManager')
         outfile.write(line)
     file.close()
     outfile.close()
