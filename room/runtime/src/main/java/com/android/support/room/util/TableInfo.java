@@ -17,6 +17,7 @@
 package com.android.support.room.util;
 
 import android.database.Cursor;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
@@ -212,6 +213,15 @@ public class TableInfo {
         /**
          * The position of the column in the list of primary keys, 0 if the column is not part
          * of the primary key.
+         * <p>
+         * This information is only available in API 20+.
+         * <a href="https://www.sqlite.org/releaselog/3_7_16_2.html">(SQLite version 3.7.16.2)</a>
+         * On older platforms, it will be 1 if the column is part of the primary key and 0
+         * otherwise.
+         * <p>
+         * The {@link #equals(Object)} implementation handles this inconsistency based on
+         * API levels os if you are using a custom SQLite deployment, it may return false
+         * positives.
          */
         public final int primaryKeyPosition;
 
@@ -228,11 +238,23 @@ public class TableInfo {
             if (o == null || getClass() != o.getClass()) return false;
 
             Column column = (Column) o;
+            if (Build.VERSION.SDK_INT >= 20) {
+                if (primaryKeyPosition != column.primaryKeyPosition) return false;
+            } else {
+                if (isPrimaryKey() != column.isPrimaryKey()) return false;
+            }
 
-            if (primaryKeyPosition != column.primaryKeyPosition) return false;
             //noinspection SimplifiableIfStatement
             if (!name.equals(column.name)) return false;
             return type != null ? type.equals(column.type) : column.type == null;
+        }
+
+        /**
+         * Returns whether this column is part of the primary key or not.
+         * @return True if this column is part of the primary key, false otherwise.
+         */
+        public boolean isPrimaryKey() {
+            return primaryKeyPosition > 0;
         }
 
         @Override

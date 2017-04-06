@@ -19,7 +19,6 @@ package com.android.support.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,6 +43,8 @@ import com.android.support.room.RoomDatabase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Locale;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -223,7 +224,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage().contains("FOREIGN KEY"), is(true));
+        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
     }
 
     @Test
@@ -235,7 +236,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage(), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
     }
 
     @Test
@@ -282,7 +283,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage(), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
     }
 
     @Test
@@ -298,7 +299,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage(), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
     }
 
     @Test
@@ -313,7 +314,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage(), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
     }
 
     @Test
@@ -358,7 +359,7 @@ public class ForeignKeyTest {
                 mDao.insert(new E("a1", "dsa"));
             }
         });
-        assertThat(t.getMessage(), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
     }
 
     @Test
