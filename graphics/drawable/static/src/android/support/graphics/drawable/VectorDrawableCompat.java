@@ -1252,6 +1252,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
                     final Paint fillPaint = mFillPaint;
                     fillPaint.setColor(applyAlpha(fullPath.mFillColor, fullPath.mFillAlpha));
                     fillPaint.setColorFilter(filter);
+                    mRenderPath.setFillType(fullPath.mFillRule == 0 ? Path.FillType.WINDING
+                            : Path.FillType.EVEN_ODD);
                     canvas.drawPath(mRenderPath, fillPaint);
                 }
 
@@ -1675,7 +1677,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
         int mFillColor = Color.TRANSPARENT;
         float mStrokeAlpha = 1.0f;
-        int mFillRule;
+        int mFillRule = 0; // 0 is default value as "non-zero" fill type.
         float mFillAlpha = 1.0f;
         float mTrimPathStart = 0;
         float mTrimPathEnd = 1;
@@ -1803,6 +1805,9 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             mTrimPathStart = TypedArrayUtils.getNamedFloat(a, parser, "trimPathStart",
                     AndroidResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_START,
                     mTrimPathStart);
+            mFillRule = TypedArrayUtils.getNamedInt(a, parser, "fillType",
+                    AndroidResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_FILLTYPE,
+                    mFillRule);
         }
 
         @Override
