@@ -32,9 +32,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
     private boolean mDividerAllowedAbove;
     private boolean mDividerAllowedBelow;
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    public PreferenceViewHolder(View itemView) {
+    /* package */ PreferenceViewHolder(View itemView) {
         super(itemView);
 
         // Pre-cache the views that we know in advance we'll want to find
@@ -44,6 +42,12 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
         mCachedViews.put(R.id.icon_frame, itemView.findViewById(R.id.icon_frame));
         mCachedViews.put(AndroidResources.ANDROID_R_ICON_FRAME,
                 itemView.findViewById(AndroidResources.ANDROID_R_ICON_FRAME));
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public static PreferenceViewHolder createInstanceForTests(View itemView) {
+        return new PreferenceViewHolder(itemView);
     }
 
     /**
