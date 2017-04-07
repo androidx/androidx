@@ -158,6 +158,46 @@ public class MediaBrowserCompatTest {
 
     @Test
     @SmallTest
+    public void testSecondConnection() {
+        resetCallbacks();
+        createMediaBrowser(TEST_BROWSER_SERVICE);
+        connectMediaBrowserService();
+
+        mMediaBrowser.disconnect();
+        // We need to sleep some time here, because the browser may not be ready to connect yet.
+        try {
+            Thread.sleep(SLEEP_MS);
+        } catch (InterruptedException e) {
+            fail("Unexpected InterruptedException occurred.");
+        }
+
+        // Connect to the service again.
+        resetCallbacks();
+        connectMediaBrowserService();
+
+        // Test subscribe.
+        resetCallbacks();
+        mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, mSubscriptionCallback);
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return mSubscriptionCallback.mChildrenLoadedCount > 0;
+            }
+        }.run();
+
+        // Test getItem.
+        resetCallbacks();
+        mMediaBrowser.getItem(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0], mItemCallback);
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return mItemCallback.mLastMediaItem != null;
+            }
+        }.run();
+    }
+
+    @Test
+    @SmallTest
     public void testGetServiceComponentBeforeConnection() {
         resetCallbacks();
         createMediaBrowser(TEST_BROWSER_SERVICE);
