@@ -8516,17 +8516,17 @@ package android.support.v4.view.accessibility {
   }
 
   public final class AccessibilityManagerCompat {
-    method public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener);
+    method public static deprecated boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener);
     method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
-    method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager, int);
-    method public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager);
-    method public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager);
-    method public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener);
+    method public static deprecated java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager, int);
+    method public static deprecated java.util.List<android.accessibilityservice.AccessibilityServiceInfo> getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager);
+    method public static deprecated boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager);
+    method public static deprecated boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener);
     method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, android.support.v4.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
   }
 
-  public static abstract interface AccessibilityManagerCompat.AccessibilityStateChangeListener {
-    method public abstract void onAccessibilityStateChanged(boolean);
+  public static abstract deprecated interface AccessibilityManagerCompat.AccessibilityStateChangeListener {
+    method public abstract deprecated void onAccessibilityStateChanged(boolean);
   }
 
   public static abstract deprecated class AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat implements android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener {
@@ -12360,11 +12360,11 @@ package android.support.wearable.widget {
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet);
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet, int);
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet, int, int);
-    method public float getBezelWidthFraction();
-    method public boolean getEdgeItemsCenteringEnabled();
+    method public float getBezelFraction();
     method public float getScrollDegreesPerScreen();
     method public boolean isCircularScrollingGestureEnabled();
-    method public void setBezelWidthFraction(float);
+    method public boolean isEdgeItemsCenteringEnabled();
+    method public void setBezelFraction(float);
     method public void setCircularScrollingGestureEnabled(boolean);
     method public void setEdgeItemsCenteringEnabled(boolean);
     method public void setScrollDegreesPerScreen(float);
