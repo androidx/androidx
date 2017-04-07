@@ -32,6 +32,7 @@ import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Base64;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Tests for {@link FontResourcesParserCompat}.
@@ -97,5 +99,38 @@ public class FontResourcesParserCompatTest {
         assertEquals("com.example.test.fontprovider.authority", providerEntry.getAuthority());
         assertEquals("com.example.test.fontprovider.package", providerEntry.getPackage());
         assertEquals("MyRequestedFont", providerEntry.getQuery());
+    }
+
+    @Test
+    public void testReadCertsSingleArray() {
+        List<List<byte[]>> result = FontResourcesParserCompat.readCerts(mResources, R.array.certs1);
+
+        assertEquals(1, result.size());
+        List<byte[]> firstSet = result.get(0);
+        assertEquals(2, firstSet.size());
+        String firstValue = Base64.encodeToString(firstSet.get(0), Base64.DEFAULT).trim();
+        assertEquals("MIIEqDCCA5CgAwIBAgIJANWFuGx9", firstValue);
+        String secondValue = Base64.encodeToString(firstSet.get(1), Base64.DEFAULT).trim();
+        assertEquals("UEChMHQW5kcm9pZDEQMA4GA=", secondValue);
+    }
+
+    @Test
+    public void testReadCertsMultiArray() {
+        List<List<byte[]>> result =
+                FontResourcesParserCompat.readCerts(mResources, R.array.certarray);
+
+        assertEquals(2, result.size());
+        List<byte[]> firstSet = result.get(0);
+        assertEquals(2, firstSet.size());
+        String firstValue = Base64.encodeToString(firstSet.get(0), Base64.DEFAULT).trim();
+        assertEquals("MIIEqDCCA5CgAwIBAgIJANWFuGx9", firstValue);
+        String secondValue = Base64.encodeToString(firstSet.get(1), Base64.DEFAULT).trim();
+        assertEquals("UEChMHQW5kcm9pZDEQMA4GA=", secondValue);
+        List<byte[]> secondSet = result.get(1);
+        assertEquals(2, secondSet.size());
+        String thirdValue = Base64.encodeToString(secondSet.get(0), Base64.DEFAULT).trim();
+        assertEquals("MDEyMzM2NTZaMIGUMQswCQYD", thirdValue);
+        String fourthValue = Base64.encodeToString(secondSet.get(1), Base64.DEFAULT).trim();
+        assertEquals("DHThvbbR24kT9ixcOd9W+EY=", fourthValue);
     }
 }

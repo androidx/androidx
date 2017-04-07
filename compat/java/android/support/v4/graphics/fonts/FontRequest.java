@@ -16,23 +16,23 @@
 
 package android.support.v4.graphics.fonts;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.Preconditions;
 import android.util.Base64;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Information about a font request that may be sent to a Font Provider.
  */
-public final class FontRequest implements Parcelable {
+public final class FontRequest {
     private final String mProviderAuthority;
     private final String mProviderPackage;
     private final String mQuery;
     private final List<List<byte[]>> mCertificates;
+    private final int mCertificatesArray;
 
     /**
      * @param providerAuthority The authority of the Font Provider to be used for the request.
@@ -51,6 +51,28 @@ public final class FontRequest implements Parcelable {
         mProviderPackage = Preconditions.checkNotNull(providerPackage);
         mQuery = Preconditions.checkNotNull(query);
         mCertificates = Preconditions.checkNotNull(certificates);
+        mCertificatesArray = 0;
+    }
+
+    /**
+     * @param providerAuthority The authority of the Font Provider to be used for the request.
+     * @param query The query to be sent over to the provider. Refer to your font provider's
+     *         documentation on the format of this string.
+     * @param providerPackage The package for the Font Provider to be used for the request. This is
+     *         used to verify the identity of the provider.
+     * @param certificates A resource array with the list of sets of hashes for the certificates the
+     *         provider should be signed with. This is used to verify the identity of the provider.
+     *         Each set in the list represents one collection of signature hashes. Refer to your
+     *         font provider's documentation for these values.
+     */
+    public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
+            @NonNull String query, @ArrayRes int certificates) {
+        mProviderAuthority = Preconditions.checkNotNull(providerAuthority);
+        mProviderPackage = Preconditions.checkNotNull(providerPackage);
+        mQuery = Preconditions.checkNotNull(query);
+        mCertificates = null;
+        Preconditions.checkArgument(certificates != 0);
+        mCertificatesArray = certificates;
     }
 
     /**
@@ -79,45 +101,27 @@ public final class FontRequest implements Parcelable {
 
     /**
      * Returns the list of certificate sets given for this provider. This helps the system verify
-     * that the provider identified by the given authority is the one requested.
+     * that the provider identified by the given authority is the one requested. Note this might
+     * be null if the certificates were provided via a resource id.
+     *
+     * @see #getCertificatesArrayResId()
      */
+    @Nullable
     public List<List<byte[]>> getCertificates() {
         return mCertificates;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    /**
+     * Returns the array resource id pointing to the certificate sets given for this provider. This
+     * helps the system verify that the provider identified by the given authority is the one
+     * requested. Note that this may be 0 if the certificates were provided as a list.
+     *
+     * @see #getCertificates()
+     */
+    @ArrayRes
+    public int getCertificatesArrayResId() {
+        return mCertificatesArray;
     }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mProviderAuthority);
-        dest.writeString(mProviderPackage);
-        dest.writeString(mQuery);
-        dest.writeList(mCertificates);
-    }
-
-    private FontRequest(Parcel in) {
-        mProviderAuthority = in.readString();
-        mProviderPackage = in.readString();
-        mQuery = in.readString();
-        mCertificates = new ArrayList<>();
-        in.readList(mCertificates, null);
-    }
-
-    public static final Parcelable.Creator<FontRequest> CREATOR =
-            new Parcelable.Creator<FontRequest>() {
-                @Override
-                public FontRequest createFromParcel(Parcel in) {
-                    return new FontRequest(in);
-                }
-
-                @Override
-                public FontRequest[] newArray(int size) {
-                    return new FontRequest[size];
-                }
-            };
 
     @Override
     public String toString() {
@@ -139,6 +143,7 @@ public final class FontRequest implements Parcelable {
             builder.append(" ]");
         }
         builder.append("}");
+        builder.append("mCertificatesArray: " + mCertificatesArray);
         return builder.toString();
     }
 }
