@@ -725,6 +725,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 final View child = RecyclerView.this.getChildAt(index);
                 if (child != null) {
                     dispatchChildDetached(child);
+
+                    // Clear any android.view.animation.Animation that may prevent the item from
+                    // detaching when being removed. If a child is re-added before the
+                    // lazy detach occurs, it will receive invalid attach/detach sequencing.
+                    child.clearAnimation();
                 }
                 if (VERBOSE_TRACING) {
                     TraceCompat.beginSection("RV removeViewAt");
@@ -744,7 +749,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             public void removeAllViews() {
                 final int count = getChildCount();
                 for (int i = 0; i < count; i ++) {
-                    dispatchChildDetached(getChildAt(i));
+                    View child = getChildAt(i);
+                    dispatchChildDetached(child);
+
+                    // Clear any android.view.animation.Animation that may prevent the item from
+                    // detaching when being removed. If a child is re-added before the
+                    // lazy detach occurs, it will receive invalid attach/detach sequencing.
+                    child.clearAnimation();
                 }
                 RecyclerView.this.removeAllViews();
             }
@@ -3786,6 +3797,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         + " is not flagged as tmp detached." + vh);
             }
         }
+
+        // Clear any android.view.animation.Animation that may prevent the item from
+        // detaching when being removed. If a child is re-added before the
+        // lazy detach occurs, it will receive invalid attach/detach sequencing.
+        child.clearAnimation();
+
         dispatchChildDetached(child);
         super.removeDetachedView(child, animate);
     }
