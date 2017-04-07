@@ -492,7 +492,6 @@ public class AppCompatTextViewAutoSizeTest extends
         // In arrays.xml predefined the step sizes as: 5px, 11dip, 19sp, 29pt, 43mm and 53in.
         // TypedValue can not use the math library and instead rounds the value by adding
         // 0.5f when obtaining styled attributes. Check TypedValue#complexToDimensionPixelSize(...)
-        // These values are valid, sorted and distinct.
         int[] expectedSizesInPx = new int[] {
                 (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 5f, m)),
                 (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 11f, m)),
@@ -501,11 +500,8 @@ public class AppCompatTextViewAutoSizeTest extends
                 (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 43f, m)),
                 (int) (0.5f + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_IN, 53f, m))};
 
-        assertArrayEquals(expectedSizesInPx,
-                autoSizeTextViewUniform.getAutoSizeTextAvailableSizes());
-
         boolean containsValueFromExpectedSizes = false;
-        int textSize = (int) autoSizeTextViewUniform.getTextSize();
+        final int textSize = (int) autoSizeTextViewUniform.getTextSize();
         for (int i = 0; i < expectedSizesInPx.length; i++) {
             if (expectedSizesInPx[i] == textSize) {
                 containsValueFromExpectedSizes = true;
