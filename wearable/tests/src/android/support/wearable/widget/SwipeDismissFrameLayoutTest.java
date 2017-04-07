@@ -21,7 +21,8 @@ import static android.support.test.espresso.action.ViewActions.swipeRight;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.wearable.widget.util.AsyncViewActions.waitForMatchingView;
-import static android.support.wearable.widget.util.MoreViewAssertions.withPositiveVerticalScrollOffset;
+import static android.support.wearable.widget.util.MoreViewAssertions
+        .withPositiveVerticalScrollOffset;
 import static android.support.wearable.widget.util.MoreViewAssertions.withTranslationX;
 
 import static org.hamcrest.Matchers.allOf;
@@ -42,6 +43,7 @@ import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.widget.RecyclerView;
 import android.support.wearable.test.R;
 import android.support.wearable.widget.util.ArcSwipe;
 import android.support.wearable.widget.util.WakeLockRule;
@@ -177,6 +179,7 @@ public class SwipeDismissFrameLayoutTest {
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRight());
         // THEN the layout is not dismissed and not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
+        assertNotDismissed(R.id.swipe_dismiss_root);
     }
 
     @Test
@@ -197,14 +200,27 @@ public class SwipeDismissFrameLayoutTest {
 
     @Test
     @SmallTest
-    public void testSwipeDoesNotDismissViewIfScrollable() {
+    public void testSwipeDoesNotDismissViewIfScrollable() throws Throwable {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         setUpSwipeDismissWithHorizontalRecyclerView();
+        activityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Activity activity = activityRule.getActivity();
+                RecyclerView testLayout = activity.findViewById(R.id.recycler_container);
+                // Scroll to a position from which the child is scrollable.
+                testLayout.scrollToPosition(50);
+            }
+        });
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // WHEN we perform a swipe to dismiss from the center of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromCenter());
         // THEN the layout is not dismissed and not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
+        assertNotDismissed(R.id.swipe_dismiss_root);
     }
+
 
     @Test
     @SmallTest
@@ -228,6 +244,7 @@ public class SwipeDismissFrameLayoutTest {
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftEdge());
         // THEN the layout is not dismissed and not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
+        assertNotDismissed(R.id.swipe_dismiss_root);
     }
 
     @Test
@@ -397,8 +414,16 @@ public class SwipeDismissFrameLayoutTest {
                                 MAX_WAIT_TIME));
     }
 
+    private static void assertNotDismissed(@IdRes int layoutId) {
+        onView(withId(layoutId))
+                .perform(
+                        waitForMatchingView(
+                                allOf(withId(layoutId), withTranslationX(0)),
+                                MAX_WAIT_TIME));
+    }
+
     /**
-     * private void assertPeeking(@IdRes int layoutId) {
+     * private static void assertPeeking(@IdRes int layoutId) {
      * onView(withId(layoutId))
      * .perform(
      * waitForMatchingView(
@@ -406,7 +431,7 @@ public class SwipeDismissFrameLayoutTest {
      * }
      */
 
-    private void assertHidden(@IdRes int layoutId) {
+    private static void assertHidden(@IdRes int layoutId) {
         onView(withId(layoutId))
                 .perform(
                         waitForMatchingView(
@@ -415,7 +440,7 @@ public class SwipeDismissFrameLayoutTest {
                                 MAX_WAIT_TIME));
     }
 
-    private void assertNotHidden(@IdRes int layoutId) {
+    private static void assertNotHidden(@IdRes int layoutId) {
         onView(withId(layoutId))
                 .perform(
                         waitForMatchingView(
