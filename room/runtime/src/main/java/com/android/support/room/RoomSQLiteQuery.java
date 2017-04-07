@@ -23,6 +23,8 @@ import android.support.annotation.VisibleForTesting;
 import com.android.support.db.SupportSQLiteProgram;
 import com.android.support.db.SupportSQLiteQuery;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -217,6 +219,7 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
     private static final int STRING = 4;
     private static final int BLOB = 5;
 
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({NULL, LONG, DOUBLE, STRING, BLOB})
     @interface Binding {
     }

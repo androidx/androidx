@@ -1,0 +1,1 @@
+-keep public class * extends com.android.support.room.RoomDatabase
