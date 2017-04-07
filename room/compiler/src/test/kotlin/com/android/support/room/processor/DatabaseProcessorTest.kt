@@ -80,6 +80,8 @@ class DatabaseProcessorTest {
                 public interface BookDao {
                     @Query("SELECT * FROM book")
                     public java.util.List<Book> loadAllBooks();
+                    @Insert
+                    public void insert(Book book);
                 }
                 """)
     }
@@ -479,6 +481,23 @@ class DatabaseProcessorTest {
                 }
                 """, entity1, entity2){ db, invocation ->
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun insertNotAReferencedEntity() {
+        singleDb("""
+                @Database(entities = {User.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                    abstract BookDao bookDao();
+                }
+                """, USER, USER_DAO, BOOK, BOOK_DAO){ db, invocation ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.shortcutEntityIsNotInDatabase(
+                        database = "foo.bar.MyDb",
+                        dao = "foo.bar.BookDao",
+                        entity = "foo.bar.Book"
+                )
+        )
     }
 
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,

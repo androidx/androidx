@@ -24,6 +24,7 @@ import com.android.support.room.ext.hasAnnotation
 import com.android.support.room.ext.hasAnyOf
 import com.android.support.room.ext.toListOfClassTypes
 import com.android.support.room.verifier.DatabaseVerifier
+import com.android.support.room.vo.Dao
 import com.android.support.room.vo.DaoMethod
 import com.android.support.room.vo.Database
 import com.android.support.room.vo.Entity
@@ -32,6 +33,7 @@ import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.AnnotationMirror
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -83,7 +85,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                     dbVerifier).process()
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
-        validateUniqueDaoClasses(element, daoMethods)
+        validateUniqueDaoClasses(element, daoMethods, entities)
         validateUniqueIndices(element, entities)
         val version = AnnotationMirrors.getAnnotationValue(dbAnnotation, "version")
                 .getAsInt(1)!!.toInt()
@@ -163,7 +165,9 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                 }
     }
 
-    private fun validateUniqueDaoClasses(dbElement: TypeElement, daoMethods: List<DaoMethod>) {
+    private fun validateUniqueDaoClasses(dbElement: TypeElement, daoMethods: List<DaoMethod>,
+                                         entities : List<Entity>) {
+        val entityTypeNames = entities.map { it.typeName }.toSet()
         daoMethods.groupBy { it.dao.typeName }
                 .forEach {
                     if (it.value.size > 1) {
@@ -176,6 +180,31 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                         context.logger.e(dbElement, error)
                     }
                 }
+        val check = fun(element : Element, dao : Dao,
+                        typeName : TypeName?) {
+            typeName?.let {
+                if (!entityTypeNames.contains(typeName)) {
+                    context.logger.e(element,
+                            ProcessorErrors.shortcutEntityIsNotInDatabase(
+                                    database = dbElement.qualifiedName.toString(),
+                                    dao = dao.typeName.toString(),
+                                    entity = typeName.toString()
+                            ))
+                }
+            }
+        }
+        daoMethods.forEach { daoMethod ->
+            daoMethod.dao.shortcutMethods.forEach { method ->
+                method.entity?.let {
+                    check(method.element, daoMethod.dao, it.typeName)
+                }
+            }
+            daoMethod.dao.insertionMethods.forEach { method ->
+                method.entity?.let {
+                    check(method.element, daoMethod.dao, it.typeName)
+                }
+            }
+        }
     }
 
     private fun validateUniqueTableNames(dbElement: TypeElement, entities: List<Entity>) {

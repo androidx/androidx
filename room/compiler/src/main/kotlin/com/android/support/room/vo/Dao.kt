@@ -36,6 +36,10 @@ data class Dao(val element : TypeElement, val type : DeclaredType,
 
     val typeName : ClassName by lazy { ClassName.get(element) }
 
+    val shortcutMethods : List<ShortcutMethod> by lazy {
+        deletionMethods + updateMethods
+    }
+
     private val implClassName by lazy {
         if (suffix == null) {
             suffix = ""

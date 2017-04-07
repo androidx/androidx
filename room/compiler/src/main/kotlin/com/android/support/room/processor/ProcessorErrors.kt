@@ -415,4 +415,11 @@ object ProcessorErrors {
                 advised to create an index that covers this column.
                """.trim()
     }
+
+    fun shortcutEntityIsNotInDatabase(database : String, dao : String, entity : String) : String {
+        return """
+                $dao is part of $database but this entity is not in the database. Maybe you forgot
+                to add $entity to the entities section of the @Database?
+                """.trim()
+    }
 }
