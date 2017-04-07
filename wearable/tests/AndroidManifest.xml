@@ -31,7 +31,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="android.support.wearable.widget.SwipeDismissFrameLayoutTestActivity">
+        <activity android:name="android.support.wearable.widget.SwipeDismissFrameLayoutTestActivity"
+                  android:theme="@style/AppThemeNoSwipe" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
