@@ -20,11 +20,13 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.compat.R;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -55,12 +57,14 @@ public class FontResourcesParserCompat {
         private final @NonNull String mProviderAuthority;
         private final @NonNull String mProviderPackage;
         private final @NonNull String mQuery;
+        private final @Nullable List<List<byte[]>> mCerts;
 
         public ProviderResourceEntry(@NonNull String authority, @NonNull String pkg,
-                @NonNull String query) {
+                @NonNull String query, @Nullable List<List<byte[]>> certs) {
             mProviderAuthority = authority;
             mProviderPackage = pkg;
             mQuery = query;
+            mCerts = certs;
         }
 
         public @NonNull String getAuthority() {
@@ -73,6 +77,10 @@ public class FontResourcesParserCompat {
 
         public @NonNull String getQuery() {
             return mQuery;
+        }
+
+        public @Nullable List<List<byte[]>> getCerts() {
+            return mCerts;
         }
     }
 
@@ -161,12 +169,14 @@ public class FontResourcesParserCompat {
         String authority = array.getString(R.styleable.FontFamily_fontProviderAuthority);
         String providerPackage = array.getString(R.styleable.FontFamily_fontProviderPackage);
         String query = array.getString(R.styleable.FontFamily_fontProviderQuery);
+        int certsId = array.getResourceId(R.styleable.FontFamily_fontProviderCerts, 0);
         array.recycle();
         if (authority != null && providerPackage != null && query != null) {
             while (parser.next() != XmlPullParser.END_TAG) {
                 skip(parser);
             }
-            return new ProviderResourceEntry(authority, providerPackage, query);
+            List<List<byte[]>> certs = readCerts(resources, certsId);
+            return new ProviderResourceEntry(authority, providerPackage, query, certs);
         }
         List<FontFileResourceEntry> fonts = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -183,6 +193,42 @@ public class FontResourcesParserCompat {
         }
         return new FontFamilyFilesResourceEntry(fonts.toArray(
                 new FontFileResourceEntry[fonts.size()]));
+    }
+
+    /**
+     * Creates the necessary cert structure given a resources array. This method is capable of
+     * loading one string array as well as an array of string arrays.
+     */
+    public static List<List<byte[]>> readCerts(Resources resources, @ArrayRes int certsId) {
+        List<List<byte[]>> certs = null;
+        if (certsId != 0) {
+            TypedArray typedArray = resources.obtainTypedArray(certsId);
+            if (typedArray.length() > 0) {
+                certs = new ArrayList<>();
+                boolean isArrayOfArrays = typedArray.getResourceId(0, 0) != 0;
+                if (isArrayOfArrays) {
+                    for (int i = 0; i < typedArray.length(); i++) {
+                        int certId = typedArray.getResourceId(i, 0);
+                        String[] certsArray = resources.getStringArray(certId);
+                        List<byte[]> certsList = toByteArrayList(certsArray);
+                        certs.add(certsList);
+                    }
+                } else {
+                    String[] certsArray = resources.getStringArray(certsId);
+                    List<byte[]> certsList = toByteArrayList(certsArray);
+                    certs.add(certsList);
+                }
+            }
+        }
+        return certs;
+    }
+
+    private static List<byte[]> toByteArrayList(String[] stringArray) {
+        List<byte[]> result = new ArrayList<>();
+        for (String item : stringArray) {
+            result.add(Base64.decode(item, Base64.DEFAULT));
+        }
+        return result;
     }
 
     private static FontFileResourceEntry readFont(XmlPullParser parser, Resources resources)
