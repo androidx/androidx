@@ -12360,11 +12360,11 @@ package android.support.wearable.widget {
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet);
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet, int);
     ctor public WearableRecyclerView(android.content.Context, android.util.AttributeSet, int, int);
-    method public float getBezelWidthFraction();
-    method public boolean getEdgeItemsCenteringEnabled();
+    method public float getBezelFraction();
     method public float getScrollDegreesPerScreen();
     method public boolean isCircularScrollingGestureEnabled();
-    method public void setBezelWidthFraction(float);
+    method public boolean isEdgeItemsCenteringEnabled();
+    method public void setBezelFraction(float);
     method public void setCircularScrollingGestureEnabled(boolean);
     method public void setEdgeItemsCenteringEnabled(boolean);
     method public void setScrollDegreesPerScreen(float);

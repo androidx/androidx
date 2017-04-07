@@ -77,9 +77,9 @@ public class WearableRecyclerViewTest {
         WearableRecyclerView wrv = new WearableRecyclerView(mActivityRule.getActivity());
         wrv.setLayoutManager(new WearableLinearLayoutManager(wrv.getContext()));
 
-        assertFalse(wrv.getEdgeItemsCenteringEnabled());
+        assertFalse(wrv.isEdgeItemsCenteringEnabled());
         assertFalse(wrv.isCircularScrollingGestureEnabled());
-        assertEquals(1.0f, wrv.getBezelWidthFraction());
+        assertEquals(1.0f, wrv.getBezelFraction());
         assertEquals(180.0f, wrv.getScrollDegreesPerScreen());
     }
 

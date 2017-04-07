@@ -91,7 +91,7 @@ public class WearableRecyclerView extends RecyclerView {
                     a.getBoolean(
                             R.styleable.WearableRecyclerView_circularScrollingGestureEnabled,
                             mCircularScrollingEnabled));
-            setBezelWidthFraction(
+            setBezelFraction(
                     a.getFloat(R.styleable.WearableRecyclerView_bezelWidth,
                             mScrollManager.getBezelWidth()));
             setScrollDegreesPerScreen(
@@ -169,7 +169,7 @@ public class WearableRecyclerView extends RecyclerView {
      * or the are considered for the start of this scrolling gesture.
      *
      * @see #setScrollDegreesPerScreen(float)
-     * @see #setBezelWidthFraction(float)
+     * @see #setBezelFraction(float)
      */
     public void setCircularScrollingGestureEnabled(boolean circularScrollingGestureEnabled) {
         mCircularScrollingEnabled = circularScrollingGestureEnabled;
@@ -214,7 +214,7 @@ public class WearableRecyclerView extends RecyclerView {
      * bezel to be candidates for circular scrolling. Expressed as a fraction of the screen's
      * radius. The default is the whole screen i.e 1.0f.
      */
-    public void setBezelWidthFraction(float fraction) {
+    public void setBezelFraction(float fraction) {
         mScrollManager.setBezelWidth(fraction);
     }
 
@@ -222,9 +222,9 @@ public class WearableRecyclerView extends RecyclerView {
      * Returns the current bezel width for circular scrolling as a fraction of the screen's
      * radius.
      *
-     * @see #setBezelWidthFraction(float)
+     * @see #setBezelFraction(float)
      */
-    public float getBezelWidthFraction() {
+    public float getBezelFraction() {
         return mScrollManager.getBezelWidth();
     }
 
@@ -255,7 +255,7 @@ public class WearableRecyclerView extends RecyclerView {
      * Returns whether the view is currently configured to center the edge children. See {@link
      * #setEdgeItemsCenteringEnabled} for details.
      */
-    public boolean getEdgeItemsCenteringEnabled() {
+    public boolean isEdgeItemsCenteringEnabled() {
         return mEdgeItemsCenteringEnabled;
     }
 }
