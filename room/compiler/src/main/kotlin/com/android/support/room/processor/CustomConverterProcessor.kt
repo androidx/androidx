@@ -33,12 +33,14 @@ import com.android.support.room.vo.CustomTypeConverter
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import java.util.LinkedHashSet
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
+import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.ElementFilter
 
 /**
@@ -47,24 +49,25 @@ import javax.lang.model.util.ElementFilter
 class CustomConverterProcessor(val context: Context, val element: TypeElement) {
     companion object {
         private val INVALID_RETURN_TYPES = setOf(TypeKind.ERROR, TypeKind.VOID, TypeKind.NONE)
-        fun findConverters(context: Context, element: Element): List<CustomTypeConverterWrapper> {
+        fun findConverters(context: Context, element: Element): ProcessResult {
             val annotation = MoreElements.getAnnotationMirror(element,
                     TypeConverters::class.java).orNull()
             return annotation?.let {
-                val converters = AnnotationMirrors.getAnnotationValue(annotation, "value")
+                val classes = AnnotationMirrors.getAnnotationValue(annotation, "value")
                         ?.toListOfClassTypes()
                         ?.filter {
                             MoreTypes.isType(it)
-                        }
-                        ?.flatMap {
+                        }?.mapTo(LinkedHashSet(), {it}) ?: LinkedHashSet<TypeMirror>()
+                val converters = classes
+                        .flatMap {
                             CustomConverterProcessor(context, MoreTypes.asTypeElement(it))
                                     .process()
                         }
-                converters?.let {
+                converters.let {
                     reportDuplicates(context, converters)
                 }
-                converters?.map(::CustomTypeConverterWrapper)
-            } ?: emptyList<CustomTypeConverterWrapper>()
+                ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
+            } ?: ProcessResult.EMPTY
         }
 
         fun reportDuplicates(context: Context, converters : List<CustomTypeConverter>) {
@@ -127,5 +130,19 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
         }.first()
         context.checker.notUnbound(param.typeName(), params[0], TYPE_CONVERTER_UNBOUND_GENERIC)
         return CustomTypeConverter(container, methodElement, param, returnType)
+    }
+
+    /**
+     * Order of classes is important hence they are a LinkedHashSet not a set.
+     */
+    open class ProcessResult(val classes: LinkedHashSet<TypeMirror>,
+                             val converters: List<CustomTypeConverterWrapper>) {
+        object EMPTY : ProcessResult(LinkedHashSet(), emptyList())
+        operator fun plus(other : ProcessResult) : ProcessResult {
+            val newClasses = LinkedHashSet<TypeMirror>()
+            newClasses.addAll(classes)
+            newClasses.addAll(other.classes)
+            return ProcessResult(newClasses, converters + other.converters)
+        }
     }
 }

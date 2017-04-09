@@ -17,6 +17,8 @@
 package com.android.support.room.processor
 
 import com.android.support.room.RoomProcessor
+import com.android.support.room.solver.query.result.EntityRowAdapter
+import com.android.support.room.solver.query.result.PojoRowAdapter
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.testing.TestProcessor
 import com.android.support.room.vo.Database
@@ -28,6 +30,10 @@ import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.not
+import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.sameInstance
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,6 +66,35 @@ class DatabaseProcessorTest {
                 public interface UserDao {
                     @Query("SELECT * FROM user")
                     public java.util.List<User> loadAll();
+
+                    @Insert
+                    public void insert(User... users);
+
+                    @Query("SELECT * FROM user where uid = ?")
+                    public User loadOne(int uid);
+
+                    @TypeConverters(Converter.class)
+                    @Query("SELECT * FROM user where uid = ?")
+                    public User loadWithConverter(int uid);
+
+                    @Query("SELECT * FROM user where uid = ?")
+                    public Pojo loadOnePojo(int uid);
+
+                    @Query("SELECT * FROM user")
+                    public java.util.List<Pojo> loadAllPojos();
+
+                    @TypeConverters(Converter.class)
+                    @Query("SELECT * FROM user where uid = ?")
+                    public Pojo loadPojoWithConverter(int uid);
+
+                    public static class Converter {
+                        @TypeConverter
+                        public static java.util.Date foo(Long input) {return null;}
+                    }
+
+                    public static class Pojo {
+                        public int uid;
+                    }
                 }
                 """)
         val BOOK: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.Book",
@@ -498,6 +533,69 @@ class DatabaseProcessorTest {
                         entity = "foo.bar.Book"
                 )
         )
+    }
+
+    @Test
+    fun cache_entity() {
+        singleDb("""
+                @Database(entities = {User.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                    public abstract UserDao userDao();
+                }
+                """, USER, USER_DAO){ db, invocation ->
+            val userDao = db.daoMethods.first().dao
+            val insertionMethod = userDao.insertionMethods.find { it.name == "insert" }
+            assertThat(insertionMethod, notNullValue())
+            val loadOne = userDao.queryMethods.find { it.name == "loadOne" }
+            assertThat(loadOne, notNullValue())
+            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
+            assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
+            val adapterEntity = (adapter as EntityRowAdapter).entity
+            assertThat(insertionMethod?.entity, sameInstance(adapterEntity))
+
+            val withConverter = userDao.queryMethods.find { it.name == "loadWithConverter" }
+            assertThat(withConverter, notNullValue())
+            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
+            assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
+            val convAdapterEntity = (convAdapter as EntityRowAdapter).entity
+            assertThat(insertionMethod?.entity, not(sameInstance(convAdapterEntity)))
+
+            assertThat(convAdapterEntity, notNullValue())
+            assertThat(adapterEntity, notNullValue())
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun cache_pojo() {
+        singleDb("""
+                @Database(entities = {User.class}, version = 42)
+                public abstract class MyDb extends RoomDatabase {
+                    public abstract UserDao userDao();
+                }
+                """, USER, USER_DAO){ db, invocation ->
+            val userDao = db.daoMethods.first().dao
+            val loadOne = userDao.queryMethods.find { it.name == "loadOnePojo" }
+            assertThat(loadOne, notNullValue())
+            val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
+            assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
+            val adapterPojo = (adapter as PojoRowAdapter).pojo
+
+            val loadAll = userDao.queryMethods.find { it.name == "loadAllPojos" }
+            assertThat(loadAll, notNullValue())
+            val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapter
+            assertThat("test sanity", loadAllAdapter, instanceOf(PojoRowAdapter::class.java))
+            val loadAllPojo = (loadAllAdapter as PojoRowAdapter).pojo
+            assertThat(adapter, not(sameInstance(loadAllAdapter)))
+            assertThat(adapterPojo, sameInstance(loadAllPojo))
+
+            val withConverter = userDao.queryMethods.find { it.name == "loadPojoWithConverter" }
+            assertThat(withConverter, notNullValue())
+            val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
+            assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
+            val convAdapterPojo = (convAdapter as PojoRowAdapter).pojo
+            assertThat(convAdapterPojo, notNullValue())
+            assertThat(convAdapterPojo, not(sameInstance(adapterPojo)))
+        }.compilesWithoutError()
     }
 
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,

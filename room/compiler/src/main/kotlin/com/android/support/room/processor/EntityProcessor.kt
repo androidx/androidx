@@ -24,6 +24,7 @@ import com.android.support.room.ext.toType
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
 import com.android.support.room.processor.ProcessorErrors.RELATION_IN_ENTITY
+import com.android.support.room.processor.cache.Cache
 import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.Entity
 import com.android.support.room.vo.Field
@@ -48,6 +49,11 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
     val context = baseContext.fork(element)
 
     fun process(): Entity {
+        return context.cache.entities.get(Cache.EntityKey(element), {
+            doProcess()
+        })
+    }
+    private fun doProcess() : Entity {
         context.checker.hasAnnotation(element, com.android.support.room.Entity::class,
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
         val pojo = PojoProcessor(

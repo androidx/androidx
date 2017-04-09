@@ -261,7 +261,7 @@ class CustomConverterProcessorTest {
         return simpleRun(*((jfo.toList() + CONTAINER).toTypedArray())) { invocation ->
             val processed = CustomConverterProcessor.findConverters(invocation.context,
                     invocation.processingEnv.elementUtils.getTypeElement("foo.bar.Container"))
-            handler(processed.firstOrNull()?.custom, invocation)
+            handler(processed.converters.firstOrNull()?.custom, invocation)
         }
     }
 }

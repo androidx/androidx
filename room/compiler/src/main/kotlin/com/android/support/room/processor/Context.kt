@@ -18,23 +18,26 @@ package com.android.support.room.processor
 
 import com.android.support.room.log.RLog
 import com.android.support.room.preconditions.Checks
+import com.android.support.room.processor.cache.Cache
 import com.android.support.room.solver.TypeAdapterStore
-import com.android.support.room.solver.types.TypeConverter
 import com.android.support.room.verifier.DatabaseVerifier
 import java.io.File
+import java.util.LinkedHashSet
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 class Context private constructor(val processingEnv: ProcessingEnvironment,
-                                       val logger: RLog, val typeConverters: List<TypeConverter>) {
+                                  val logger: RLog,
+                                  val typeConverters: CustomConverterProcessor.ProcessResult,
+                                  val cache : Cache) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
 
-    val typeAdapterStore by lazy { TypeAdapterStore(this, typeConverters) }
+    val typeAdapterStore by lazy { TypeAdapterStore(this, typeConverters.converters) }
 
     // set when database and its entities are processed.
-    var databaseVerifier : DatabaseVerifier? = null
+    var databaseVerifier: DatabaseVerifier? = null
 
     companion object {
         val ARG_OPTIONS by lazy {
@@ -43,7 +46,9 @@ class Context private constructor(val processingEnv: ProcessingEnvironment,
     }
 
     constructor(processingEnv: ProcessingEnvironment) : this(processingEnv,
-            RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null), emptyList()) {
+            RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null),
+            CustomConverterProcessor.ProcessResult.EMPTY,
+            Cache(null, LinkedHashSet(), emptySet())) {
     }
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
@@ -65,7 +70,7 @@ class Context private constructor(val processingEnv: ProcessingEnvironment,
         val collector = RLog.CollectingMessager()
         val subContext = Context(processingEnv,
                 RLog(collector, logger.suppressedWarnings, logger.defaultElement),
-                this.typeConverters)
+                this.typeConverters, cache)
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
@@ -73,15 +78,18 @@ class Context private constructor(val processingEnv: ProcessingEnvironment,
 
     fun fork(element: Element): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
-        val converters = CustomConverterProcessor.findConverters(this, element)
+        val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
+        // order here is important since the sub context should give priority to new converters.
+        val subTypeConverters = processConvertersResult + this.typeConverters
+        val subSuppressedWarnings = suppressedWarnings + logger.suppressedWarnings
+        val subCache = Cache(cache, subTypeConverters.classes, subSuppressedWarnings)
         val subContext = Context(processingEnv,
-                RLog(logger.messager, logger.suppressedWarnings + suppressedWarnings, element),
-                converters + this.typeConverters)
+                RLog(logger.messager, subSuppressedWarnings, element), subTypeConverters, subCache)
         subContext.databaseVerifier = databaseVerifier
         return subContext
     }
 
-    enum class ProcessorOptions(val argName : String) {
+    enum class ProcessorOptions(val argName: String) {
         OPTION_SCHEMA_FOLDER("room.schemaLocation")
     }
 }

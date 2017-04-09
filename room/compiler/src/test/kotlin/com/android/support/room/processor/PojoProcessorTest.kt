@@ -25,6 +25,8 @@ import com.android.support.room.processor.ProcessorErrors.RELATION_NOT_COLLECTIO
 import com.android.support.room.processor.ProcessorErrors.relationCannotFindEntityField
 import com.android.support.room.processor.ProcessorErrors.relationCannotFindParentEntityField
 import com.android.support.room.testing.TestInvocation
+import com.android.support.room.vo.DecomposedField
+import com.android.support.room.vo.Field
 import com.android.support.room.vo.Pojo
 import com.android.support.room.vo.RelationCollector
 import com.google.testing.compile.CompileTester
@@ -32,13 +34,17 @@ import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.CoreMatchers.sameInstance
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
 import simpleRun
+import javax.lang.model.element.Element
 import javax.tools.JavaFileObject
 
 /**
@@ -389,6 +395,61 @@ class PojoProcessorTest {
                 ProcessorErrors.relationBadProject("foo.bar.User", listOf("i_dont_exist"),
                         listOf("uid", "name", "lastName", "ageColumn"))
         )
+    }
+
+    @Test
+    fun cache() {
+        val pojo = """
+            $HEADER
+            int id;
+            $FOOTER
+            """.toJFO(MY_POJO.toString())
+        simpleRun(pojo) { invocation ->
+            val element = invocation.typeElement(MY_POJO.toString())
+            val pojo1 = PojoProcessor(invocation.context, element,
+                    FieldProcessor.BindingScope.BIND_TO_STMT, null).process()
+            assertThat(pojo1, notNullValue())
+            val pojo2 = PojoProcessor(invocation.context, element,
+                    FieldProcessor.BindingScope.BIND_TO_STMT, null).process()
+            assertThat(pojo2, sameInstance(pojo1))
+
+            val pojo3 = PojoProcessor(invocation.context, element,
+                    FieldProcessor.BindingScope.READ_FROM_CURSOR, null).process()
+            assertThat(pojo3, notNullValue())
+            assertThat(pojo3, not(sameInstance(pojo1)))
+
+            val pojo4 = PojoProcessor(invocation.context, element,
+                    FieldProcessor.BindingScope.TWO_WAY, null).process()
+            assertThat(pojo4, notNullValue())
+            assertThat(pojo4, not(sameInstance(pojo1)))
+            assertThat(pojo4, not(sameInstance(pojo3)))
+
+            val pojo5 = PojoProcessor(invocation.context, element,
+                    FieldProcessor.BindingScope.TWO_WAY, null).process()
+            assertThat(pojo5, sameInstance(pojo4))
+
+            val fakeField = Field(
+                    element = mock(Element::class.java),
+                    name = "foo",
+                    type = invocation.context.COMMON_TYPES.STRING,
+                    affinity = SQLTypeAffinity.TEXT,
+                    columnName = "foo",
+                    parent = null,
+                    indexed =  false
+            )
+            val fakeDecomposed = DecomposedField(fakeField, "", null)
+
+            val pojo6 = PojoProcessor(invocation.context, element,
+                    FieldProcessor.BindingScope.TWO_WAY, fakeDecomposed).process()
+            assertThat(pojo6, notNullValue())
+            assertThat(pojo6, not(sameInstance(pojo1)))
+            assertThat(pojo6, not(sameInstance(pojo3)))
+            assertThat(pojo6, not(sameInstance(pojo4)))
+
+            val pojo7 = PojoProcessor(invocation.context, element,
+                    FieldProcessor.BindingScope.TWO_WAY, fakeDecomposed).process()
+            assertThat(pojo7, sameInstance(pojo6))
+        }.compilesWithoutError()
     }
 
     fun singleRun(code: String, vararg jfos:JavaFileObject, handler: (Pojo) -> Unit)

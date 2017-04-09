@@ -22,7 +22,8 @@ import com.android.support.room.ext.hasAnnotation
 /**
  * Used when a field is decomposed inside an Entity or Pojo.
  */
-class DecomposedField(val field : Field, val prefix : String = "",
+// used in cache matching, must stay as a data class or implement equals
+data class DecomposedField(val field : Field, val prefix : String = "",
                       val parent : DecomposedField?) {
     val getter by lazy { field.getter }
     val setter by lazy { field.setter }

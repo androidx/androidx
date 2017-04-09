@@ -32,6 +32,7 @@ import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
 import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import com.android.support.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
+import com.android.support.room.processor.cache.Cache
 import com.android.support.room.vo.CallType
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
@@ -67,7 +68,13 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Decompose::class,
                     Relation::class)
     }
-    fun process(): Pojo {
+    fun process() : Pojo {
+        return context.cache.pojos.get(Cache.PojoKey(element, bindingScope, parent), {
+            doProcess()
+        })
+    }
+
+    private fun doProcess(): Pojo {
         // TODO handle recursion: b/35980205
         val declaredType = MoreTypes.asDeclared(element.asType())
         // TODO handle conflicts with super: b/35568142

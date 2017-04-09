@@ -24,7 +24,7 @@ import com.android.support.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
-
+// used in cache matching, must stay as a data class or implement equals
 data class Field(val element: Element, val name: String, val type: TypeMirror,
                  var affinity: SQLTypeAffinity?,
                  val columnName: String = name,
