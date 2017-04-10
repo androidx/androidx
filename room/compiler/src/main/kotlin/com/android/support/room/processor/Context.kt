@@ -29,12 +29,20 @@ import javax.lang.model.type.TypeMirror
 
 class Context private constructor(val processingEnv: ProcessingEnvironment,
                                   val logger: RLog,
-                                  val typeConverters: CustomConverterProcessor.ProcessResult,
-                                  val cache : Cache) {
+                                  private val typeConverters
+                                        : CustomConverterProcessor.ProcessResult,
+                                  private val inheritedAdapterStore: TypeAdapterStore?,
+                                  val cache: Cache) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
 
-    val typeAdapterStore by lazy { TypeAdapterStore(this, typeConverters.converters) }
+    val typeAdapterStore by lazy {
+        if (inheritedAdapterStore != null) {
+            TypeAdapterStore.copy(this, inheritedAdapterStore)
+        } else {
+            TypeAdapterStore.create(this, typeConverters.converters)
+        }
+    }
 
     // set when database and its entities are processed.
     var databaseVerifier: DatabaseVerifier? = null
@@ -45,10 +53,12 @@ class Context private constructor(val processingEnv: ProcessingEnvironment,
         }
     }
 
-    constructor(processingEnv: ProcessingEnvironment) : this(processingEnv,
-            RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null),
-            CustomConverterProcessor.ProcessResult.EMPTY,
-            Cache(null, LinkedHashSet(), emptySet())) {
+    constructor(processingEnv: ProcessingEnvironment) : this(
+            processingEnv = processingEnv,
+            logger = RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null),
+            typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
+            inheritedAdapterStore = null,
+            cache = Cache(null, LinkedHashSet(), emptySet())) {
     }
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
@@ -68,9 +78,11 @@ class Context private constructor(val processingEnv: ProcessingEnvironment,
 
     fun <T> collectLogs(handler: (Context) -> T): Pair<T, RLog.CollectingMessager> {
         val collector = RLog.CollectingMessager()
-        val subContext = Context(processingEnv,
-                RLog(collector, logger.suppressedWarnings, logger.defaultElement),
-                this.typeConverters, cache)
+        val subContext = Context(processingEnv = processingEnv,
+                logger = RLog(collector, logger.suppressedWarnings, logger.defaultElement),
+                typeConverters = this.typeConverters,
+                inheritedAdapterStore = typeAdapterStore,
+                cache = cache)
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
@@ -79,12 +91,21 @@ class Context private constructor(val processingEnv: ProcessingEnvironment,
     fun fork(element: Element): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
+        val canReUseAdapterStore = processConvertersResult.classes.isEmpty()
         // order here is important since the sub context should give priority to new converters.
-        val subTypeConverters = processConvertersResult + this.typeConverters
+        val subTypeConverters = if (canReUseAdapterStore) {
+            this.typeConverters
+        } else {
+            processConvertersResult + this.typeConverters
+        }
         val subSuppressedWarnings = suppressedWarnings + logger.suppressedWarnings
         val subCache = Cache(cache, subTypeConverters.classes, subSuppressedWarnings)
-        val subContext = Context(processingEnv,
-                RLog(logger.messager, subSuppressedWarnings, element), subTypeConverters, subCache)
+        val subContext = Context(
+                processingEnv = processingEnv,
+                logger = RLog(logger.messager, subSuppressedWarnings, element),
+                typeConverters = subTypeConverters,
+                inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
+                cache = subCache)
         subContext.databaseVerifier = databaseVerifier
         return subContext
     }

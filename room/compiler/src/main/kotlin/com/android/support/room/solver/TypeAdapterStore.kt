@@ -19,11 +19,9 @@ package com.android.support.room.solver
 import com.android.support.room.Entity
 import com.android.support.room.ext.AndroidTypeNames
 import com.android.support.room.ext.LifecyclesTypeNames
-import com.android.support.room.ext.ReactiveStreamsTypeNames
 import com.android.support.room.ext.RoomRxJava2TypeNames
 import com.android.support.room.ext.RxJava2TypeNames
 import com.android.support.room.ext.hasAnnotation
-import com.android.support.room.log.RLog
 import com.android.support.room.parser.ParsedQuery
 import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.Context
@@ -79,56 +77,66 @@ import javax.lang.model.util.Types
  * Holds all type adapters and can create on demand composite type adapters to convert a type into a
  * database column.
  */
-class TypeAdapterStore(val context: Context, @VisibleForTesting vararg extras: Any) {
-    /**
-     * first type adapter has the highest priority
-     */
-    private val columnTypeAdapters: List<ColumnTypeAdapter>
-    /**
-     * first converter has the highest priority
-     */
-    private val typeConverters: List<TypeConverter>
+class TypeAdapterStore private constructor(val context: Context,
+                                           /**
+                                            * first type adapter has the highest priority
+                                            */
+                                           private val columnTypeAdapters: List<ColumnTypeAdapter>,
+                                           /**
+                                            * first converter has the highest priority
+                                            */
+                                           private val typeConverters: List<TypeConverter>) {
 
-    init {
-        val adapters = arrayListOf<ColumnTypeAdapter>()
-        val converters = arrayListOf<TypeConverter>()
 
-        fun addAny(extra : Any?) {
-            when (extra) {
-                is TypeConverter -> converters.add(extra)
-                is ColumnTypeAdapter -> adapters.add(extra)
-                is List<*> -> extra.forEach(::addAny)
-                else -> throw IllegalArgumentException("unknown extra")
+    companion object {
+        fun copy(context : Context, store : TypeAdapterStore) : TypeAdapterStore {
+            return TypeAdapterStore(context = context,
+                    columnTypeAdapters = store.columnTypeAdapters,
+                    typeConverters = store.typeConverters)
+        }
+
+        fun create(context: Context, @VisibleForTesting vararg extras: Any) : TypeAdapterStore {
+            val adapters = arrayListOf<ColumnTypeAdapter>()
+            val converters = arrayListOf<TypeConverter>()
+
+            fun addAny(extra: Any?) {
+                when (extra) {
+                    is TypeConverter -> converters.add(extra)
+                    is ColumnTypeAdapter -> adapters.add(extra)
+                    is List<*> -> extra.forEach(::addAny)
+                    else -> throw IllegalArgumentException("unknown extra $extra")
+                }
             }
-        }
 
-        extras.forEach(::addAny)
-        fun addTypeConverter(converter: TypeConverter) {
-            converters.add(converter)
-        }
+            extras.forEach(::addAny)
+            fun addTypeConverter(converter: TypeConverter) {
+                converters.add(converter)
+            }
 
-        fun addColumnAdapter(adapter: ColumnTypeAdapter) {
-            adapters.add(adapter)
-        }
+            fun addColumnAdapter(adapter: ColumnTypeAdapter) {
+                adapters.add(adapter)
+            }
 
-        val primitives = PrimitiveColumnTypeAdapter
-                .createPrimitiveAdapters(context.processingEnv)
-        primitives.forEach(::addColumnAdapter)
-        BoxedPrimitiveColumnTypeAdapter
-                .createBoxedPrimitiveAdapters(context.processingEnv, primitives)
-                .forEach(::addColumnAdapter)
-        addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
-        addColumnAdapter(ByteArrayColumnTypeAdapter(context.processingEnv))
-        PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
-        PrimitiveToStringConverter
-                .createPrimitives(context)
-                .forEach(::addTypeConverter)
-        BoxedPrimitiveToStringConverter
-                .createBoxedPrimitives(context)
-                .forEach(::addTypeConverter)
-        BoxedBooleanToBoxedIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
-        columnTypeAdapters = adapters
-        typeConverters = converters
+            val primitives = PrimitiveColumnTypeAdapter
+                    .createPrimitiveAdapters(context.processingEnv)
+            primitives.forEach(::addColumnAdapter)
+            BoxedPrimitiveColumnTypeAdapter
+                    .createBoxedPrimitiveAdapters(context.processingEnv, primitives)
+                    .forEach(::addColumnAdapter)
+            addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
+            addColumnAdapter(ByteArrayColumnTypeAdapter(context.processingEnv))
+            PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
+            PrimitiveToStringConverter
+                    .createPrimitives(context)
+                    .forEach(::addTypeConverter)
+            BoxedPrimitiveToStringConverter
+                    .createBoxedPrimitives(context)
+                    .forEach(::addTypeConverter)
+            BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
+                    .forEach(::addTypeConverter)
+            return TypeAdapterStore(context = context, columnTypeAdapters = adapters,
+                    typeConverters = converters)
+        }
     }
 
     val hasRxJava2Artifact by lazy {

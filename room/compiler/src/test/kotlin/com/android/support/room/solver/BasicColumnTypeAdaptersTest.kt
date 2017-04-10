@@ -86,7 +86,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     @Test
     fun bind() {
         simpleRun { invocation ->
-            val adapter = TypeAdapterStore(Context(invocation.processingEnv))
+            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(scope.generate().trim(), `is`(bindCode))
@@ -100,7 +100,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
             return // no-op for those
         }
         simpleRun { invocation ->
-            val adapter = TypeAdapterStore(Context(invocation.processingEnv))
+            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findColumnTypeAdapter(
                             input.getBoxedTypeMirror(invocation.processingEnv), null)!!
             adapter.bindToStmt("st", "6", "inp", scope)
@@ -137,7 +137,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
     @Test
     fun read() {
         simpleRun { invocation ->
-            val adapter = TypeAdapterStore(Context(invocation.processingEnv))
+            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(scope.generate().trim(), `is`(cursorCode))
@@ -151,7 +151,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
             return // no-op for those
         }
         simpleRun { invocation ->
-            val adapter = TypeAdapterStore(Context(invocation.processingEnv))
+            val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findColumnTypeAdapter(
                             input.getBoxedTypeMirror(invocation.processingEnv), null)!!
             adapter.readFromCursor("out", "crs", "9", scope)

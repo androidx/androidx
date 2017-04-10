@@ -116,7 +116,7 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
     fun forward() {
         simpleRun { invocation ->
             val stringTypeMirror = invocation.context.COMMON_TYPES.STRING
-            val converter = TypeAdapterStore(Context(invocation.processingEnv))
+            val converter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findTypeConverter(input.getTypeMirror(invocation.processingEnv),
                             stringTypeMirror)!!
             converter.convert("inp", "out", scope)
@@ -130,7 +130,7 @@ class BasicTypeConvertersTest(val input: Input, val forwardCode: String,
     fun backward() {
         simpleRun { invocation ->
             val stringTypeMirror = invocation.context.COMMON_TYPES.STRING
-            val converter = TypeAdapterStore(Context(invocation.processingEnv))
+            val converter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findTypeConverter(stringTypeMirror,
                             input.getTypeMirror(invocation.processingEnv))!!
             converter.convert("inp", "out", scope)
