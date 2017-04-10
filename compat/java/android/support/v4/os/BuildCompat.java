@@ -59,6 +59,7 @@ public class BuildCompat {
      */
     public static boolean isAtLeastO() {
         return !"REL".equals(VERSION.CODENAME)
-                && ("O".equals(VERSION.CODENAME) || VERSION.CODENAME.startsWith("OMR"));
+                && ("O".equals(VERSION.CODENAME) || VERSION.CODENAME.startsWith("OMR")
+                || VERSION.CODENAME.startsWith("ODR"));
     }
 }
