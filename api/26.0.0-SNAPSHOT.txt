@@ -7383,9 +7383,11 @@ package android.support.v4.os {
   }
 
   public class BuildCompat {
-    method public static boolean isAtLeastN();
-    method public static boolean isAtLeastNMR1();
+    method public static deprecated boolean isAtLeastN();
+    method public static deprecated boolean isAtLeastNMR1();
     method public static boolean isAtLeastO();
+    method public static boolean isAtLeastOMR1();
+    method public static boolean isAtLeastP();
   }
 
   public final class CancellationSignal {
