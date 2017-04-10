@@ -157,6 +157,14 @@
         <attr name="singleLineTitle" format="boolean" />
         <attr name="android:singleLineTitle" />
 
+        <!-- Whether the space for the preference icon view will be reserved. If set to true, the
+             preference will be offset as if it would have the icon and thus aligned with other
+             preferences having icons. By default, preference icon view visibility will be set to
+             GONE when there is no icon provided, so the default value of this attribute is false.
+             -->
+        <attr name="iconSpaceReserved" format="boolean" />
+        <attr name="android:iconSpaceReserved" />
+
     </declare-styleable>
 
     <!-- Base attributes available to CheckBoxPreference. -->

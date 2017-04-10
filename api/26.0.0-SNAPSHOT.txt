@@ -10544,6 +10544,7 @@ package android.support.v7.preference {
     method public final int getWidgetLayoutResource();
     method public boolean hasKey();
     method public boolean isEnabled();
+    method public boolean isIconSpaceReserved();
     method public boolean isPersistent();
     method public boolean isSelectable();
     method public boolean isSingleLineTitle();
@@ -10578,6 +10579,7 @@ package android.support.v7.preference {
     method public void setFragment(java.lang.String);
     method public void setIcon(android.graphics.drawable.Drawable);
     method public void setIcon(int);
+    method public void setIconSpaceReserved(boolean);
     method public void setIntent(android.content.Intent);
     method public void setKey(java.lang.String);
     method public void setLayoutResource(int);
