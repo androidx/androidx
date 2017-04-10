@@ -97,10 +97,11 @@ abstract class StaggeredGrid extends Grid {
 
     @Override
     public final Location getLocation(int index) {
-        if (mLocations.size() == 0) {
+        final int indexInArray = index - mFirstIndex;
+        if (indexInArray < 0 || indexInArray >= mLocations.size()) {
             return null;
         }
-        return mLocations.get(index - mFirstIndex);
+        return mLocations.get(indexInArray);
     }
 
     @Override
