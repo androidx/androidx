@@ -21,8 +21,10 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.graphics.PorterDuff;
 import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.view.ActionProvider;
@@ -30,6 +32,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.view.menu.MenuItemWrapperICS;
+import android.support.v7.widget.DrawableUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
@@ -328,6 +331,9 @@ public class SupportMenuInflater extends MenuInflater {
         private CharSequence itemContentDescription;
         private CharSequence itemTooltipText;
 
+        private ColorStateList itemIconTintList = null;
+        private PorterDuff.Mode itemIconTintMode = null;
+
         private static final int defaultGroupId = NO_ID;
         private static final int defaultItemId = NO_ID;
         private static final int defaultItemCategory = 0;
@@ -425,6 +431,20 @@ public class SupportMenuInflater extends MenuInflater {
 
             itemContentDescription = a.getText(R.styleable.MenuItem_contentDescription);
             itemTooltipText = a.getText(R.styleable.MenuItem_tooltipText);
+            if (a.hasValue(R.styleable.MenuItem_iconTintMode)) {
+                itemIconTintMode = DrawableUtils.parseTintMode(a.getInt(
+                        R.styleable.MenuItem_iconTintMode, -1),
+                        itemIconTintMode);
+            } else {
+                // Reset to null so that it's not carried over to the next item
+                itemIconTintMode = null;
+            }
+            if (a.hasValue(R.styleable.MenuItem_iconTint)) {
+                itemIconTintList = a.getColorStateList(R.styleable.MenuItem_iconTint);
+            } else {
+                // Reset to null so that it's not carried over to the next item
+                itemIconTintList = null;
+            }
 
             a.recycle();
 
@@ -494,6 +514,13 @@ public class SupportMenuInflater extends MenuInflater {
             MenuItemCompat.setAlphabeticShortcut(item, itemAlphabeticShortcut,
                     itemAlphabeticModifiers);
             MenuItemCompat.setNumericShortcut(item, itemNumericShortcut, itemNumericModifiers);
+
+            if (itemIconTintMode != null) {
+                MenuItemCompat.setIconTintMode(item, itemIconTintMode);
+            }
+            if (itemIconTintList != null) {
+                MenuItemCompat.setIconTintList(item, itemIconTintList);
+            }
         }
 
         public void addItem() {

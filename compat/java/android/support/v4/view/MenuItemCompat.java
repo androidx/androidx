@@ -16,6 +16,9 @@
 
 package android.support.v4.view;
 
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.os.BuildCompat;
@@ -27,7 +30,7 @@ import android.view.View;
 
 /**
  * Helper for accessing features in {@link android.view.MenuItem}
- * introduced after API level 4 in a backwards compatible fashion.
+ * introduced after API level 14 in a backwards compatible fashion.
  * <p class="note"><strong>Note:</strong> You cannot get an instance of this class. Instead,
  * it provides <em>static</em> methods that correspond to the methods in {@link
  * android.view.MenuItem}, but take a {@link android.view.MenuItem} object as an additional
@@ -98,6 +101,10 @@ public final class MenuItemCompat {
         int getAlphabeticModifiers(MenuItem item);
         void setNumericShortcut(MenuItem item, char numericChar, int numericModifiers);
         int getNumericModifiers(MenuItem item);
+        void setIconTintList(MenuItem item, ColorStateList tint);
+        ColorStateList getIconTintList(MenuItem item);
+        void setIconTintMode(MenuItem item, PorterDuff.Mode tintMode);
+        PorterDuff.Mode getIconTintMode(MenuItem item);
     }
 
     /**
@@ -173,6 +180,24 @@ public final class MenuItemCompat {
         public int getNumericModifiers(MenuItem item) {
             return 0;
         }
+
+        @Override
+        public void setIconTintList(MenuItem item, ColorStateList tint) {
+        }
+
+        @Override
+        public ColorStateList getIconTintList(MenuItem item) {
+            return null;
+        }
+
+        @Override
+        public void setIconTintMode(MenuItem item, PorterDuff.Mode tintMode) {
+        }
+
+        @Override
+        public PorterDuff.Mode getIconTintMode(MenuItem item) {
+            return null;
+        }
     }
 
     @RequiresApi(26)
@@ -221,6 +246,26 @@ public final class MenuItemCompat {
         @Override
         public int getNumericModifiers(MenuItem item) {
             return item.getNumericModifiers();
+        }
+
+        @Override
+        public void setIconTintList(MenuItem item, ColorStateList tint) {
+            item.setIconTintList(tint);
+        }
+
+        @Override
+        public ColorStateList getIconTintList(MenuItem item) {
+            return item.getIconTintList();
+        }
+
+        @Override
+        public void setIconTintMode(MenuItem item, PorterDuff.Mode tintMode) {
+            item.setIconTintMode(tintMode);
+        }
+
+        @Override
+        public PorterDuff.Mode getIconTintMode(MenuItem item) {
+            return item.getIconTintMode();
         }
     }
 
@@ -545,7 +590,7 @@ public final class MenuItemCompat {
      *
      * @return Modifier associated with the numeric shortcut.
      */
-    public int getNumericModifiers(MenuItem item) {
+    public static int getNumericModifiers(MenuItem item) {
         if (item instanceof SupportMenuItem) {
             return ((SupportMenuItem) item).getNumericModifiers();
         }
@@ -587,11 +632,72 @@ public final class MenuItemCompat {
      *
      * @return Modifier associated with the keyboard shortcut.
      */
-    public int getAlphabeticModifiers(MenuItem item) {
+    public static int getAlphabeticModifiers(MenuItem item) {
         if (item instanceof SupportMenuItem) {
             return ((SupportMenuItem) item).getAlphabeticModifiers();
         }
         return IMPL.getAlphabeticModifiers(item);
+    }
+
+    /**
+     * Applies a tint to the item's icon. Does not modify the
+     * current tint mode of that item, which is {@link PorterDuff.Mode#SRC_IN} by default.
+     * <p>
+     * Subsequent calls to {@link MenuItem#setIcon(Drawable)} or {@link MenuItem#setIcon(int)} will
+     * automatically mutate the icon and apply the specified tint and
+     * tint mode.
+     *
+     * @param tint the tint to apply, may be {@code null} to clear tint
+     *
+     * @see #getIconTintList(MenuItem)
+     */
+    public static void setIconTintList(MenuItem item, ColorStateList tint) {
+        if (item instanceof SupportMenuItem) {
+            ((SupportMenuItem) item).setIconTintList(tint);
+        } else {
+            IMPL.setIconTintList(item, tint);
+        }
+    }
+
+    /**
+     * @return the tint applied to the item's icon
+     * @see #setIconTintList(MenuItem, ColorStateList)
+     */
+    public static ColorStateList getIconTintList(MenuItem item) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).getIconTintList();
+        }
+        return IMPL.getIconTintList(item);
+    }
+
+    /**
+     * Specifies the blending mode used to apply the tint specified by
+     * {@link #setIconTintList(MenuItem, ColorStateList)} to the item's icon. The default mode is
+     * {@link PorterDuff.Mode#SRC_IN}.
+     *
+     * @param tintMode the blending mode used to apply the tint, may be
+     *                 {@code null} to clear tint
+     * @see #setIconTintList(MenuItem, ColorStateList)
+     */
+    public static void setIconTintMode(MenuItem item, PorterDuff.Mode tintMode) {
+        if (item instanceof SupportMenuItem) {
+            ((SupportMenuItem) item).setIconTintMode(tintMode);
+        } else {
+            IMPL.setIconTintMode(item, tintMode);
+        }
+    }
+
+    /**
+     * Returns the blending mode used to apply the tint to the item's icon, if specified.
+     *
+     * @return the blending mode used to apply the tint to the item's icon
+     * @see #setIconTintMode(MenuItem, PorterDuff.Mode)
+     */
+    public static PorterDuff.Mode getIconTintMode(MenuItem item) {
+        if (item instanceof SupportMenuItem) {
+            return ((SupportMenuItem) item).getIconTintMode();
+        }
+        return IMPL.getIconTintMode(item);
     }
 
     private MenuItemCompat() {}

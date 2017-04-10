@@ -86,4 +86,11 @@
 
     <string name="text_link_enabled">With <a href="http://www.google.com">link</a> enabled</string>
     <string name="text_link_disabled">With <a href="http://www.google.com">link</a> disabled</string>
+
+    <string name="menu1">menu one</string>
+    <string name="menu2">menu two</string>
+    <string name="menu3">menu three</string>
+    <string name="menu4">menu four</string>
+    <string name="menu5">menu five</string>
+    <string name="menu6">menu six</string>
 </resources>
