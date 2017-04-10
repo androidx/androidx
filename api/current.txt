@@ -10492,6 +10492,7 @@ package android.support.v7.preference {
     method public boolean isEnabled();
     method public boolean isPersistent();
     method public boolean isSelectable();
+    method public boolean isSingleLineTitle();
     method public final boolean isVisible();
     method protected void notifyChanged();
     method public void notifyDependencyChange(boolean);
@@ -10533,6 +10534,7 @@ package android.support.v7.preference {
     method public void setPreferenceDataStore(android.support.v7.preference.PreferenceDataStore);
     method public void setSelectable(boolean);
     method public void setShouldDisableView(boolean);
+    method public void setSingleLineTitle(boolean);
     method public void setSummary(java.lang.CharSequence);
     method public void setSummary(int);
     method public void setTitle(java.lang.CharSequence);

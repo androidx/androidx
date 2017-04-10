@@ -152,6 +152,11 @@
         <!-- Whether the preference allows displaying divider below it -->
         <attr name="allowDividerBelow" format="boolean" />
 
+        <!-- Whether to use single line for the preference title text. By default, preference title
+             will be constrained to one line, so the default value of this attribute is true. -->
+        <attr name="singleLineTitle" format="boolean" />
+        <attr name="android:singleLineTitle" />
+
     </declare-styleable>
 
     <!-- Base attributes available to CheckBoxPreference. -->
