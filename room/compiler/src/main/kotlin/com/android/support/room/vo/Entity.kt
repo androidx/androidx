@@ -25,8 +25,9 @@ import javax.lang.model.type.DeclaredType
 class Entity(element: TypeElement, val tableName: String, type: DeclaredType,
              fields: List<Field>, decomposedFields: List<DecomposedField>,
              val primaryKey: PrimaryKey, val indices: List<Index>,
-             val foreignKeys: List<ForeignKey>)
-    : Pojo(element, type, fields, decomposedFields, emptyList()) {
+             val foreignKeys: List<ForeignKey>,
+             constructor: Constructor?)
+    : Pojo(element, type, fields, decomposedFields, emptyList(), constructor) {
 
     val createTableQuery by lazy {
         createTableQuery(tableName)

@@ -354,14 +354,6 @@ class TypeAdapterStore private constructor(val context: Context,
                 // TODO one day support this
                 return null
             }
-            val asElement = MoreTypes.asElement(typeMirror)
-            if (asElement.hasAnnotation(Entity::class)) {
-                // TODO we might parse this too much, would be nice to scope these parsers
-                // at least for entities.
-                return EntityRowAdapter(EntityProcessor(context,
-                        MoreElements.asType(asElement)).process())
-            }
-
             val resultInfo = query.resultInfo
 
             val (rowAdapter, rowAdapterLogs) = if (resultInfo != null && query.errors.isEmpty()
@@ -382,6 +374,15 @@ class TypeAdapterStore private constructor(val context: Context,
                 }
             } else {
                 Pair(null, null)
+            }
+
+            if (rowAdapter == null && query.resultInfo == null) {
+                // we don't know what query returns. Check for entity.
+                val asElement = MoreTypes.asElement(typeMirror)
+                if (asElement.hasAnnotation(Entity::class)) {
+                    return EntityRowAdapter(EntityProcessor(context,
+                            MoreElements.asType(asElement)).process())
+                }
             }
 
             if (rowAdapter != null && !(rowAdapterLogs?.hasErrors() ?: false)) {

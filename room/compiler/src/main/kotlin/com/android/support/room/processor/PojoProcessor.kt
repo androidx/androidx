@@ -34,6 +34,7 @@ import com.android.support.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import com.android.support.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
 import com.android.support.room.processor.cache.Cache
 import com.android.support.room.vo.CallType
+import com.android.support.room.vo.Constructor
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.FieldGetter
 import com.android.support.room.vo.DecomposedField
@@ -56,6 +57,7 @@ import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.util.ElementFilter
 
 /**
  * Processes any class as if it is a Pojo.
@@ -148,26 +150,122 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         val setterCandidates = methods.filter {
             it.parameters.size == 1 && it.returnType.kind == TypeKind.VOID
         }
+        // don't try to find a constructor for binding to statement.
+        val constructor = if (bindingScope == FieldProcessor.BindingScope.BIND_TO_STMT) {
+            // we don't need to construct this POJO.
+            null
+        } else {
+            chooseConstructor(myFields, decomposedFields)
+        }
 
         assignGetters(myFields, getterCandidates)
-        assignSetters(myFields, setterCandidates)
+        assignSetters(myFields, setterCandidates, constructor)
 
         decomposedFields.forEach {
             assignGetter(it.field, getterCandidates)
-            assignSetter(it.field, setterCandidates)
+            assignSetter(it.field, setterCandidates, constructor)
         }
 
         myRelationsList.forEach {
             assignGetter(it.field, getterCandidates)
-            assignSetter(it.field, setterCandidates)
+            assignSetter(it.field, setterCandidates, constructor)
         }
 
         val pojo = Pojo(element = element,
                 type = declaredType,
                 fields = fields,
                 decomposedFields = decomposedFields,
-                relations = relations)
+                relations = relations,
+                constructor = constructor)
         return pojo
+    }
+
+    private fun chooseConstructor(myFields: List<Field>, decomposed : List<DecomposedField>)
+            : Constructor? {
+        val constructors = ElementFilter.constructorsIn(element.enclosedElements)
+                .filterNot { it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE) }
+        val fieldMap = myFields.associateBy { it.name }
+        val decomposedMap = decomposed.associateBy { it.field.name }
+        val typeUtils = context.processingEnv.typeUtils
+        val failedConstructors = mutableMapOf<ExecutableElement, List<Constructor.Param?>>()
+        val goodConstructors = constructors.map { constructor ->
+            val params = constructor.parameters.map param@ { param ->
+                val paramName = param.simpleName.toString()
+                val paramType = param.asType()
+
+                val matches = fun(field: Field?): Boolean {
+                    return if (field == null) {
+                        false
+                    } else if (!field.nameWithVariations.contains(paramName)) {
+                        false
+                    } else {
+                        typeUtils.isAssignable(paramType, field.type)
+                    }
+                }
+
+                val exactFieldMatch = fieldMap[paramName]
+
+                if (matches(exactFieldMatch)) {
+                    return@param Constructor.FieldParam(exactFieldMatch!!)
+                }
+                val exactDecomposedMatch = decomposedMap[paramName]
+                if (matches(exactDecomposedMatch?.field)) {
+                    return@param Constructor.DecomposedParam(exactDecomposedMatch!!)
+                }
+
+                val matchingFields = myFields.filter {
+                    matches(it)
+                }
+                val decomposedMatches = decomposed.filter {
+                    matches(it.field)
+                }
+                if (matchingFields.isEmpty() && decomposedMatches.isEmpty()) {
+                    null
+                } else if (matchingFields.size + decomposedMatches.size == 1) {
+                    if (matchingFields.isNotEmpty()) {
+                        Constructor.FieldParam(matchingFields.first())
+                    } else {
+                        Constructor.DecomposedParam(decomposedMatches.first())
+                    }
+                } else {
+                    context.logger.e(param, ProcessorErrors.ambigiousConstructor(
+                            pojo = element.qualifiedName.toString(),
+                            paramName = param.simpleName.toString(),
+                            matchingFields = matchingFields.map { it.getPath() }
+                                    + decomposed.map { it.field.getPath() }
+                    ))
+                    null
+                }
+            }
+            if (params.any { it == null }) {
+                failedConstructors.put(constructor, params)
+                null
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                Constructor(constructor, params as List<Constructor.Param>)
+            }
+        }.filterNotNull()
+        if (goodConstructors.isEmpty()) {
+            if (failedConstructors.isNotEmpty()) {
+                val failureMsg = failedConstructors.entries.joinToString("\n") { entry ->
+                    val paramsMatching = entry.key.parameters.withIndex().joinToString(", ") {
+                        "${it.value.simpleName} : ${entry.value[it.index]?.log()}"
+                    }
+                    "${entry.key} : [$paramsMatching]"
+                }
+                context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR +
+                        "\nTried the following constructors but they failed to match:\n$failureMsg")
+            }
+            context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
+            return null
+        }
+        if (goodConstructors.size > 1) {
+            goodConstructors.forEach {
+                context.logger.e(it.element, ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS)
+            }
+            return null
+        }
+        return goodConstructors.first()
     }
 
     private fun processDecomposedField(declaredType: DeclaredType?, it: Element): DecomposedField {
@@ -323,13 +421,19 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         context.checker.check(success, field.element, CANNOT_FIND_GETTER_FOR_FIELD)
     }
 
-    private fun assignSetters(fields: List<Field>, setterCandidates: List<ExecutableElement>) {
+    private fun assignSetters(fields: List<Field>, setterCandidates: List<ExecutableElement>,
+                              constructor : Constructor?) {
         fields.forEach { field ->
-            assignSetter(field, setterCandidates)
+            assignSetter(field, setterCandidates, constructor)
         }
     }
 
-    private fun assignSetter(field: Field, setterCandidates: List<ExecutableElement>) {
+    private fun assignSetter(field: Field, setterCandidates: List<ExecutableElement>,
+                             constructor: Constructor?) {
+        if (constructor != null && constructor.hasField(field)) {
+            field.setter = FieldSetter(field.name, field.type, CallType.CONSTRUCTOR)
+            return
+        }
         val success = chooseAssignment(field = field,
                 candidates = setterCandidates,
                 nameVariations = field.setterNameWithVariations,

@@ -539,8 +539,25 @@ class DatabaseProcessorTest {
     fun cache_entity() {
         singleDb("""
                 @Database(entities = {User.class}, version = 42)
+                @SkipQueryVerification
                 public abstract class MyDb extends RoomDatabase {
-                    public abstract UserDao userDao();
+                    public abstract MyUserDao userDao();
+                    @Dao
+                    interface MyUserDao {
+                        @Insert
+                        public void insert(User... users);
+
+                        @Query("SELECT * FROM user where uid = ?")
+                        public User loadOne(int uid);
+
+                        @TypeConverters(Converter.class)
+                        @Query("SELECT * FROM user where uid = ?")
+                        public User loadWithConverter(int uid);
+                    }
+                    public static class Converter {
+                        @TypeConverter
+                        public static java.util.Date foo(Long input) {return null;}
+                    }
                 }
                 """, USER, USER_DAO){ db, invocation ->
             val userDao = db.daoMethods.first().dao

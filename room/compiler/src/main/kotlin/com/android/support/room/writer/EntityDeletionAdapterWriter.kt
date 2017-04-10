@@ -58,9 +58,7 @@ class EntityDeletionAdapterWriter(val entity: Entity) {
                 addParameter(ParameterSpec.builder(entity.typeName, valueParam).build())
                 returns(TypeName.VOID)
                 addModifiers(PUBLIC)
-                val mapped = entity.primaryKey.fields.mapIndexed { index, field ->
-                    FieldWithIndex(field, "${index + 1}")
-                }
+                val mapped = FieldWithIndex.byOrder(entity.primaryKey.fields)
                 FieldReadWriteWriter.bindToStatement(ownerVar = valueParam,
                         stmtParamVar = stmtParam,
                         fieldsWithIndices = mapped,

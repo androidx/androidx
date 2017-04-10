@@ -54,9 +54,19 @@ public class ComplexDao_Impl extends ComplexDao {
         _statement.bindLong(_argIndex, id);
         final Cursor _cursor = __db.query(_statement);
         try {
+            final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
+            final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
+            final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
+            final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
             final User _result;
             if(_cursor.moveToFirst()) {
-                _result = __entityCursorConverter_fooBarUser(_cursor);
+                _result = new User();
+                _result.uid = _cursor.getInt(_cursorIndexOfUid);
+                _result.name = _cursor.getString(_cursorIndexOfName);
+                final String _tmpLastName;
+                _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+                _result.setLastName(_tmpLastName);
+                _result.age = _cursor.getInt(_cursorIndexOfAge);
             } else {
                 _result = null;
             }
@@ -85,9 +95,19 @@ public class ComplexDao_Impl extends ComplexDao {
         }
         final Cursor _cursor = __db.query(_statement);
         try {
+            final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
+            final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
+            final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
+            final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
             final User _result;
             if(_cursor.moveToFirst()) {
-                _result = __entityCursorConverter_fooBarUser(_cursor);
+                _result = new User();
+                _result.uid = _cursor.getInt(_cursorIndexOfUid);
+                _result.name = _cursor.getString(_cursorIndexOfName);
+                final String _tmpLastName;
+                _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+                _result.setLastName(_tmpLastName);
+                _result.age = _cursor.getInt(_cursorIndexOfAge);
             } else {
                 _result = null;
             }
@@ -115,10 +135,20 @@ public class ComplexDao_Impl extends ComplexDao {
         }
         final Cursor _cursor = __db.query(_statement);
         try {
+            final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
+            final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
+            final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
+            final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
             final List<User> _result = new ArrayList<User>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final User _item_1;
-                _item_1 = __entityCursorConverter_fooBarUser(_cursor);
+                _item_1 = new User();
+                _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
+                _item_1.name = _cursor.getString(_cursorIndexOfName);
+                final String _tmpLastName;
+                _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+                _item_1.setLastName(_tmpLastName);
+                _item_1.age = _cursor.getInt(_cursorIndexOfAge);
                 _result.add(_item_1);
             }
             return _result;
@@ -241,9 +271,19 @@ public class ComplexDao_Impl extends ComplexDao {
                 }
                 final Cursor _cursor = __db.query(_statement);
                 try {
+                    final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
+                    final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
+                    final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
+                    final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
                     final User _result;
                     if(_cursor.moveToFirst()) {
-                        _result = __entityCursorConverter_fooBarUser(_cursor);
+                        _result = new User();
+                        _result.uid = _cursor.getInt(_cursorIndexOfUid);
+                        _result.name = _cursor.getString(_cursorIndexOfName);
+                        final String _tmpLastName;
+                        _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+                        _result.setLastName(_tmpLastName);
+                        _result.age = _cursor.getInt(_cursorIndexOfAge);
                     } else {
                         _result = null;
                     }
@@ -291,10 +331,20 @@ public class ComplexDao_Impl extends ComplexDao {
                 }
                 final Cursor _cursor = __db.query(_statement);
                 try {
+                    final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
+                    final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
+                    final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
+                    final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
                     final List<User> _result = new ArrayList<User>(_cursor.getCount());
                     while(_cursor.moveToNext()) {
                         final User _item_1;
-                        _item_1 = __entityCursorConverter_fooBarUser(_cursor);
+                        _item_1 = new User();
+                        _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
+                        _item_1.name = _cursor.getString(_cursorIndexOfName);
+                        final String _tmpLastName;
+                        _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+                        _item_1.setLastName(_tmpLastName);
+                        _item_1.age = _cursor.getInt(_cursorIndexOfAge);
                         _result.add(_item_1);
                     }
                     return _result;
@@ -308,38 +358,5 @@ public class ComplexDao_Impl extends ComplexDao {
                 _statement.release();
             }
         }.getLiveData();
-    }
-
-    private User __entityCursorConverter_fooBarUser(Cursor cursor) {
-        User _entity = new User();
-        int _columnIndex = 0;
-        for (String _columnName : cursor.getColumnNames()) {
-            switch(_columnName.hashCode()) {
-                case 115792: {
-                    if ("uid".equals(_columnName)) {
-                        _entity.uid = cursor.getInt(_columnIndex);
-                    }
-                }
-                case 3373707: {
-                    if ("name".equals(_columnName)) {
-                        _entity.name = cursor.getString(_columnIndex);
-                    }
-                }
-                case -1459599807: {
-                    if ("lastName".equals(_columnName)) {
-                        final String _tmpLastName;
-                        _tmpLastName = cursor.getString(_columnIndex);
-                        _entity.setLastName(_tmpLastName);
-                    }
-                }
-                case 1358970165: {
-                    if ("ageColumn".equals(_columnName)) {
-                        _entity.age = cursor.getInt(_columnIndex);
-                    }
-                }
-            }
-            _columnIndex ++;
-        }
-        return _entity;
     }
 }

@@ -33,6 +33,7 @@ import com.android.support.room.Database;
 import com.android.support.room.Delete;
 import com.android.support.room.Entity;
 import com.android.support.room.ForeignKey;
+import com.android.support.room.Ignore;
 import com.android.support.room.Index;
 import com.android.support.room.Insert;
 import com.android.support.room.PrimaryKey;
@@ -111,13 +112,11 @@ public class ForeignKeyTest {
         public String name;
         public String lastName;
 
-        A() {
-        }
-
         A(String name) {
             this.name = name;
         }
 
+        @Ignore
         A(String name, String lastName) {
             this.name = name;
             this.lastName = lastName;
@@ -135,9 +134,6 @@ public class ForeignKeyTest {
         public int id;
         public String aName;
 
-        B() {
-        }
-
         B(String aName) {
             this.aName = aName;
         }
@@ -153,9 +149,6 @@ public class ForeignKeyTest {
         @PrimaryKey(autoGenerate = true)
         public int id;
         public String aName;
-
-        C() {
-        }
 
         C(String aName) {
             this.aName = aName;
@@ -173,9 +166,6 @@ public class ForeignKeyTest {
         @PrimaryKey(autoGenerate = true)
         public int id;
         public String aName;
-
-        D() {
-        }
 
         D(String aName) {
             this.aName = aName;
@@ -198,6 +188,7 @@ public class ForeignKeyTest {
         E() {
         }
 
+        @Ignore
         E(String aName, String aLastName) {
             this.aName = aName;
             this.aLastName = aLastName;

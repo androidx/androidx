@@ -27,7 +27,10 @@ data class FieldGetter(val name : String, val type : TypeMirror, val callType: C
         val stmt = when (callType) {
             CallType.FIELD -> "final $T $L = $L.$L"
             CallType.METHOD -> "final $T $L = $L.$L()"
+            CallType.CONSTRUCTOR -> null
         }
-        builder.addStatement(stmt, TypeName.get(type), outVar, ownerVar, name)
+        stmt?.let {
+            builder.addStatement(stmt, TypeName.get(type), outVar, ownerVar, name)
+        }
     }
 }

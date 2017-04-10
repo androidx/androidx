@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * This annotation can be used in multiple places where Room processor runs. For instance, you can
  * add it to a field of an {@link Entity} and Room will not persist that field.
  */
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.CLASS)
 public @interface Ignore {
 }

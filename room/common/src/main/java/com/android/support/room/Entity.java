@@ -24,9 +24,14 @@ import java.lang.annotation.Target;
 /**
  * Marks a class as an entity. This class will have a mapping SQLite table in the database.
  * <p>
- * Each entity must have at least 1 field annotated with {@link PrimaryKey} and it must have a
- * no-arg constructor. You can also use {@link #primaryKeys()} attribute to define the primary
- * key.
+ * Each entity must have at least 1 field annotated with {@link PrimaryKey}.
+ * You can also use {@link #primaryKeys()} attribute to define the primary key.
+ * <p>
+ * Each entity must either have a no-arg constructor or a constructor whose parameters match
+ * fields (based on type and name). Constructor does not have to receive all fields as parameters
+ * but if a field is not passed into the constructor, it should either be public or have a public
+ * setter. If a matching constructor is available, Room will always use it. If you don't want it
+ * to use a constructor, you can annotate it with {@link Ignore}.
  * <p>
  * When a class is marked as an Entity, all of its fields are persisted. If you would like to
  * exclude some of its fields, you can mark them with {@link Ignore}.
@@ -36,12 +41,20 @@ import java.lang.annotation.Target;
  * {@literal @}Entity
  * public class User {
  *   {@literal @}PrimaryKey
- *   private int uid;
+ *   private final int uid;
  *   private String name;
  *   {@literal @}ColumnInfo(name = "last_name")
  *   private String lastName;
- *   // getters and setters are ignored for brevity but they are required for Room to work or the
- *   // fields should be public.
+ *
+ *   public User(int uid) {
+ *       this.uid = uid;
+ *   }
+ *   public String getLastName() {
+ *       return lastName;
+ *   }
+ *   public void setLastName(String lastName) {
+ *       this.lastName = lastName;
+ *   }
  * }
  * </pre>
  *

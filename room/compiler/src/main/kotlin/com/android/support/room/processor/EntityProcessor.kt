@@ -130,7 +130,8 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 decomposedFields = pojo.decomposedFields,
                 indices = indices,
                 primaryKey = primaryKey,
-                foreignKeys = entityForeignKeys)
+                foreignKeys = entityForeignKeys,
+                constructor = pojo.constructor)
 
         return entity
     }

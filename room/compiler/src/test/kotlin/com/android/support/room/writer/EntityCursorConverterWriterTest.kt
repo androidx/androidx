@@ -32,7 +32,6 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         val OUT_PREFIX = """
             package foo.bar;
             import android.database.Cursor;
-            import java.lang.String;
             public class MyContainerClass {
             """.trimIndent()
         const val OUT_SUFFIX = "}"
@@ -52,34 +51,25 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 """,
                 """
                 private MyEntity __entityCursorConverter_fooBarMyEntity(Cursor cursor) {
-                  MyEntity _entity = new MyEntity();
-                  int _columnIndex = 0;
-                  for (String _columnName : cursor.getColumnNames()) {
-                    switch(_columnName.hashCode()) {
-                     case ${"id".hashCode()}: {
-                        if ("id".equals(_columnName)) {
-                          final int _tmpId;
-                          _tmpId = cursor.getInt(_columnIndex);
-                          _entity.setId(_tmpId);
-                        }
-                      }
-                      case ${"name".hashCode()}: {
-                        if ("name".equals(_columnName)) {
-                          _entity.name = cursor.getString(_columnIndex);
-                        }
-                      }
-                      case ${"lastName".hashCode()}: {
-                        if ("lastName".equals(_columnName)) {
-                          _entity.lastName = cursor.getString(_columnIndex);
-                        }
-                      }
-                      case ${"age".hashCode()}: {
-                        if ("age".equals(_columnName)) {
-                          _entity.age = cursor.getInt(_columnIndex);
-                        }
-                      }
-                    }
-                    _columnIndex ++;
+                  final MyEntity _entity;
+                  final int _cursorIndexOfId = cursor.getColumnIndex("id");
+                  final int _cursorIndexOfName = cursor.getColumnIndex("name");
+                  final int _cursorIndexOfLastName = cursor.getColumnIndex("lastName");
+                  final int _cursorIndexOfAge = cursor.getColumnIndex("age");
+                  _entity = new MyEntity();
+                  if (_cursorIndexOfId != -1) {
+                    final int _tmpId;
+                    _tmpId = cursor.getInt(_cursorIndexOfId);
+                    _entity.setId(_tmpId);
+                  }
+                  if (_cursorIndexOfName != -1) {
+                    _entity.name = cursor.getString(_cursorIndexOfName);
+                  }
+                  if (_cursorIndexOfLastName != -1) {
+                    _entity.lastName = cursor.getString(_cursorIndexOfLastName);
+                  }
+                  if (_cursorIndexOfAge != -1) {
+                    _entity.age = cursor.getInt(_cursorIndexOfAge);
                   }
                   return _entity;
                 }

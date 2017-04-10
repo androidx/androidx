@@ -18,5 +18,6 @@ package com.android.support.room.vo
 
 enum class CallType {
     FIELD,
-    METHOD
+    METHOD,
+    CONSTRUCTOR
 }

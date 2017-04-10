@@ -101,15 +101,18 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
             val indexVar = scope.getTmpVar("_cursorIndexOf${it.name.stripNonJava().capitalize()}")
             scope.builder().addStatement("final $T $L = $L.getColumnIndexOrThrow($S)",
                     TypeName.INT, indexVar, cursorVarName, it.columnName)
-            FieldWithIndex(it, indexVar)
+            FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = true)
         }
     }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            addStatement("$L = new $T()", outVarName, out.typeName())
-            FieldReadWriteWriter.readFromCursor(outVarName, cursorVarName,
-                    mapping.fieldsWithIndices, scope)
+            FieldReadWriteWriter.readFromCursor(
+                    outVar = outVarName,
+                    outPojo = pojo,
+                    cursorVar = cursorVarName,
+                    fieldsWithIndices = mapping.fieldsWithIndices,
+                    scope = scope)
             relationCollectors.forEach {
                 it.writeReadParentKeyCode(
                         cursorVarName = cursorVarName,

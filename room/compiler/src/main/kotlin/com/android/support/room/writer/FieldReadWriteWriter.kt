@@ -18,12 +18,16 @@ package com.android.support.room.writer
 
 import com.android.support.room.ext.L
 import com.android.support.room.ext.T
+import com.android.support.room.ext.defaultValue
 import com.android.support.room.ext.typeName
 import com.android.support.room.solver.CodeGenScope
 import com.android.support.room.vo.CallType
+import com.android.support.room.vo.Constructor
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.FieldWithIndex
+import com.android.support.room.vo.Pojo
+import com.squareup.javapoet.TypeName
 
 /**
  * Handles writing a field into statement or reading it form statement.
@@ -31,6 +35,7 @@ import com.android.support.room.vo.FieldWithIndex
 class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
     val field = fieldWithIndex.field
     val indexVar = fieldWithIndex.indexVar
+    val alwaysExists = fieldWithIndex.alwaysExists
 
     companion object {
         /*
@@ -122,50 +127,132 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             visitNode(createNodeTree(ownerVar, fieldsWithIndices, scope))
         }
 
-        fun readFromCursor(ownerVar: String, cursorVar: String,
+        /**
+         * Just constructs the given item, does NOT DECLARE. Declaration happens outside the
+         * reading statement since we may never read if the cursor does not have necessary
+         * columns.
+         */
+        private fun construct(outVar : String, constructor : Constructor?, typeName : TypeName,
+                              localVariableNames : Map<String, FieldWithIndex>,
+                              localDecomposeds : List<Node>, scope: CodeGenScope) {
+            if (constructor == null) {
+                // best hope code generation
+                scope.builder().apply {
+                    addStatement("$L = new $T()", outVar, typeName)
+                }
+                return
+            }
+            val variableNames = constructor.params.map { param ->
+                when(param) {
+                    is Constructor.FieldParam -> localVariableNames.entries.firstOrNull {
+                        it.value.field === param.field
+                    }?.key
+                    is Constructor.DecomposedParam -> localDecomposeds.firstOrNull {
+                        it.fieldParent === param.decomposed
+                    }?.varName
+                    else -> null
+                }
+            }
+            val args = variableNames.joinToString(",") { it ?: "null"}
+            scope.builder().apply {
+                addStatement("$L = new $T($L)", outVar, typeName, args)
+            }
+        }
+
+        /**
+         * Reads the row into the given variable. It does not declare it but constructs it.
+         */
+        fun readFromCursor(outVar: String,
+                           outPojo : Pojo,
+                           cursorVar: String,
                            fieldsWithIndices: List<FieldWithIndex>,
                            scope: CodeGenScope) {
             fun visitNode(node: Node) {
                 val fieldParent = node.fieldParent
                 fun readNode() {
-                    if (fieldParent != null) {
-                        scope.builder()
-                                .addStatement("final $T $L = new $T()", fieldParent.pojo.typeName,
-                                        node.varName, fieldParent.pojo.typeName)
+                    // read constructor parameters into local fields
+                    val constructorFields = node.directFields.filter {
+                        it.field.setter.callType == CallType.CONSTRUCTOR
+                    }.associateBy { fwi ->
+                        FieldReadWriteWriter(fwi).readIntoTmpVar(cursorVar, scope)
                     }
-                    node.directFields.forEach {
-                        FieldReadWriteWriter(it).readFromCursor(node.varName, cursorVar, scope)
-                    }
+                    // read decomposed fields
                     node.subNodes.forEach(::visitNode)
+                    // construct the object
                     if (fieldParent != null) {
-                        fieldParent.setter.writeSet(
-                                ownerVar = node.parentNode!!.varName,
-                                inVar = node.varName,
-                                builder = scope.builder()
-                        )
+                        construct(outVar = node.varName,
+                                constructor = fieldParent.pojo.constructor,
+                                typeName = fieldParent.field.typeName,
+                                localDecomposeds = node.subNodes,
+                                localVariableNames = constructorFields,
+                                scope = scope)
+                    } else {
+                        construct(outVar = node.varName,
+                                constructor = outPojo.constructor,
+                                typeName = outPojo.typeName,
+                                localDecomposeds = node.subNodes,
+                                localVariableNames = constructorFields,
+                                scope = scope)
+                    }
+                    // ready any field that was not part of the constructor
+                    node.directFields.filterNot {
+                        it.field.setter.callType == CallType.CONSTRUCTOR
+                    }.forEach { fwi ->
+                        FieldReadWriteWriter(fwi).readFromCursor(
+                                ownerVar = node.varName,
+                                cursorVar = cursorVar,
+                                scope = scope)
+                    }
+                    // assign sub modes to fields if they were not part of the constructor.
+                    node.subNodes.map {
+                        val setter = it.fieldParent?.setter
+                        if (setter != null && setter.callType != CallType.CONSTRUCTOR) {
+                            Pair(it.varName, setter)
+                        } else {
+                            null
+                        }
+                    }.filterNotNull().forEach { pair ->
+                        val varName = pair.first
+                        val setter = pair.second
+                        setter.writeSet(
+                                ownerVar = node.varName,
+                                inVar = varName,
+                                builder = scope.builder())
                     }
                 }
                 if (fieldParent == null) {
                     // root element
+                    // always declared by the caller so we don't declare this
                     readNode()
                 } else {
+                    // always declare, we'll set below
+                    scope.builder().addStatement("final $T $L", fieldParent.pojo.typeName,
+                                        node.varName)
                     if (fieldParent.nonNull) {
                         readNode()
                     } else {
                         val myDescendants = node.allFields()
                         val allNullCheck = myDescendants.joinToString(" && ") {
-                            "$cursorVar.isNull(${it.indexVar})"
+                            if (it.alwaysExists) {
+                                "$cursorVar.isNull(${it.indexVar})"
+                            } else {
+                                "( ${it.indexVar} == -1 || $cursorVar.isNull(${it.indexVar}))"
+                            }
+
                         }
                         scope.builder().apply {
                             beginControlFlow("if (! ($L))", allNullCheck).apply {
                                 readNode()
+                            }
+                            nextControlFlow(" else ").apply {
+                                addStatement("$L = null", node.varName)
                             }
                             endControlFlow()
                         }
                     }
                 }
             }
-            visitNode(createNodeTree(ownerVar, fieldsWithIndices, scope))
+            visitNode(createNodeTree(outVar, fieldsWithIndices, scope))
         }
     }
 
@@ -192,23 +279,61 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
      * @param cursorVar The cursor variable
      * @param scope The code generation scope
      */
-    fun readFromCursor(ownerVar: String, cursorVar: String, scope: CodeGenScope) {
-        field.cursorValueReader?.let { reader ->
-            scope.builder().apply {
-                when (field.setter.callType) {
-                    CallType.FIELD -> {
-                        reader.readFromCursor("$ownerVar.${field.getter.name}", cursorVar,
-                                indexVar, scope)
-                    }
-                    CallType.METHOD -> {
-                        val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
-                        addStatement("final $T $L", field.getter.type.typeName(), tmpField)
-                        reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
-                        addStatement("$L.$L($L)", ownerVar, field.setter.name, tmpField)
+    private fun readFromCursor(ownerVar: String, cursorVar: String, scope: CodeGenScope) {
+        fun toRead() {
+            field.cursorValueReader?.let { reader ->
+                scope.builder().apply {
+                    when (field.setter.callType) {
+                        CallType.FIELD -> {
+                            reader.readFromCursor("$ownerVar.${field.getter.name}", cursorVar,
+                                    indexVar, scope)
+                        }
+                        CallType.METHOD -> {
+                            val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
+                            addStatement("final $T $L", field.getter.type.typeName(), tmpField)
+                            reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
+                            addStatement("$L.$L($L)", ownerVar, field.setter.name, tmpField)
+                        }
+                        CallType.CONSTRUCTOR -> {
+                            // no-op
+                        }
                     }
                 }
             }
         }
+        if (alwaysExists) {
+            toRead()
+        } else {
+            scope.builder().apply {
+                beginControlFlow("if ($L != -1)", indexVar).apply {
+                    toRead()
+                }
+                endControlFlow()
+            }
+        }
+    }
+
+    /**
+     * Reads the value into a temporary local variable.
+     */
+    fun readIntoTmpVar(cursorVar: String, scope: CodeGenScope) : String {
+        val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
+        val typeName = field.getter.type.typeName()
+        scope.builder().apply {
+            addStatement("final $T $L", typeName, tmpField)
+            if (alwaysExists) {
+                field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)
+            } else {
+                beginControlFlow("if ($L == -1)", indexVar).apply {
+                    addStatement("$L = $L", tmpField, typeName.defaultValue())
+                }
+                nextControlFlow("else").apply {
+                    field.cursorValueReader?.readFromCursor(tmpField, cursorVar, indexVar, scope)
+                }
+                endControlFlow()
+            }
+        }
+        return tmpField
     }
 
     /**

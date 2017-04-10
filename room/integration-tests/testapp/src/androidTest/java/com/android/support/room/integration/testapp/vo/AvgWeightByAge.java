@@ -17,6 +17,7 @@
 package com.android.support.room.integration.testapp.vo;
 
 import com.android.support.room.ColumnInfo;
+import com.android.support.room.Ignore;
 
 @SuppressWarnings("unused")
 public class AvgWeightByAge {
@@ -29,6 +30,7 @@ public class AvgWeightByAge {
     public AvgWeightByAge() {
     }
 
+    @Ignore
     public AvgWeightByAge(int age, float weight) {
         mAge = age;
         mWeight = weight;

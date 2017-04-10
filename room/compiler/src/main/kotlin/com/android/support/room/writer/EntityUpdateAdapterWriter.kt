@@ -60,9 +60,7 @@ class EntityUpdateAdapterWriter(val entity: Entity, val onConflict : String) {
                 addParameter(ParameterSpec.builder(entity.typeName, valueParam).build())
                 returns(TypeName.VOID)
                 addModifiers(PUBLIC)
-                val mappedField = entity.fields.mapIndexed { index, field ->
-                    FieldWithIndex(field, "${index + 1}")
-                }
+                val mappedField = FieldWithIndex.byOrder(entity.fields)
                 FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,
                         stmtParamVar = stmtParam,
@@ -71,7 +69,9 @@ class EntityUpdateAdapterWriter(val entity: Entity, val onConflict : String) {
                 )
                 val pkeyStart = entity.fields.size
                 val mappedPrimaryKeys = entity.primaryKey.fields.mapIndexed { index, field ->
-                    FieldWithIndex(field, "${pkeyStart + index + 1}")
+                    FieldWithIndex(field = field,
+                            indexVar = "${pkeyStart + index + 1}",
+                            alwaysExists = true)
                 }
                 FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,

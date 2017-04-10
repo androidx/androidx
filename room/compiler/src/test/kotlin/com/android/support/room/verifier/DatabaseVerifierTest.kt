@@ -22,6 +22,7 @@ import com.android.support.room.parser.SQLTypeAffinity
 import com.android.support.room.processor.Context
 import com.android.support.room.testing.TestInvocation
 import com.android.support.room.vo.CallType
+import com.android.support.room.vo.Constructor
 import com.android.support.room.vo.Database
 import com.android.support.room.vo.Entity
 import com.android.support.room.vo.Field
@@ -39,6 +40,7 @@ import org.mockito.Mockito.mock
 import simpleRun
 import java.sql.Connection
 import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.PrimitiveType
@@ -195,7 +197,8 @@ class DatabaseVerifierTest {
                 decomposedFields = emptyList(),
                 indices = emptyList(),
                 primaryKey = PrimaryKey(null, fields.take(1), false),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
+                constructor = Constructor(mock(ExecutableElement::class.java), emptyList())
         )
     }
 

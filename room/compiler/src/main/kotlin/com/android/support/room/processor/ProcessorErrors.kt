@@ -424,4 +424,24 @@ object ProcessorErrors {
     }
     val MISSING_ROOM_RXJAVA2_ARTIFACT = "To use RxJava2 features, you must add `rxjava2`" +
             " artifact from Room as a dependency. com.android.support.room:rxjava2:<version>"
+
+    fun ambigiousConstructor(pojo : String, paramName:String, matchingFields : List<String>)
+            : String {
+        return """
+            Ambiguous constructor. The parameter ($paramName) in $pojo matches multiple fields:
+            [${matchingFields.joinToString(",")}]. If you don't want to use this constructor,
+            you can annotate it with @Ignore. If you want Room to use this constructor, you can
+            rename the parameters to exactly match the field name to fix the ambiguity.
+            """.trim()
+    }
+
+    val MISSING_POJO_CONSTRUCTOR = """
+            Entities and Pojos must have a usable public constructor. You can have an empty
+            constructor or a constructor whose parameters match the fields (by name and type).
+            """.trim()
+
+    val TOO_MANY_POJO_CONSTRUCTORS = """
+            Room cannot pick a constructor since multiple constructors are suitable. Try to annotate
+            unwanted constructors with @Ignore.
+            """.trim()
 }

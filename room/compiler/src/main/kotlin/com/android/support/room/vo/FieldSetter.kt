@@ -25,7 +25,10 @@ data class FieldSetter(val name: String, val type: TypeMirror, val callType: Cal
         val stmt = when (callType) {
             CallType.FIELD -> "$L.$L = $L"
             CallType.METHOD -> "$L.$L($L)"
+            CallType.CONSTRUCTOR -> null
         }
-        builder.addStatement(stmt, ownerVar, name, inVar)
+        stmt?.let {
+            builder.addStatement(stmt, ownerVar, name, inVar)
+        }
     }
 }

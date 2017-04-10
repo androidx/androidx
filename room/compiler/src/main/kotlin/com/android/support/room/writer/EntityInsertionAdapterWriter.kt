@@ -82,9 +82,7 @@ class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
                 addParameter(ParameterSpec.builder(entity.typeName, valueParam).build())
                 returns(TypeName.VOID)
                 addModifiers(PUBLIC)
-                val mapped = entity.fields.mapIndexed { index, field ->
-                    FieldWithIndex(field, "${index + 1}")
-                }
+                val mapped = FieldWithIndex.byOrder(entity.fields)
                 FieldReadWriteWriter.bindToStatement(
                         ownerVar = valueParam,
                         stmtParamVar = stmtParam,

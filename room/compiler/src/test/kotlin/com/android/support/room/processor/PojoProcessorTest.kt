@@ -25,6 +25,8 @@ import com.android.support.room.processor.ProcessorErrors.RELATION_NOT_COLLECTIO
 import com.android.support.room.processor.ProcessorErrors.relationCannotFindEntityField
 import com.android.support.room.processor.ProcessorErrors.relationCannotFindParentEntityField
 import com.android.support.room.testing.TestInvocation
+import com.android.support.room.vo.CallType
+import com.android.support.room.vo.Constructor
 import com.android.support.room.vo.DecomposedField
 import com.android.support.room.vo.Field
 import com.android.support.room.vo.Pojo
@@ -34,6 +36,7 @@ import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
@@ -449,6 +452,159 @@ class PojoProcessorTest {
             val pojo7 = PojoProcessor(invocation.context, element,
                     FieldProcessor.BindingScope.TWO_WAY, fakeDecomposed).process()
             assertThat(pojo7, sameInstance(pojo6))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun constructor_empty() {
+        val pojo = """
+            public String mName;
+            """
+        singleRun(pojo) { pojo ->
+            assertThat(pojo.constructor, notNullValue())
+            assertThat(pojo.constructor?.params, `is`(emptyList<Constructor.Param>()))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun constructor_ambiguous_twoFieldsExcatMatch() {
+        val pojo = """
+            public String mName;
+            public String _name;
+            public MyPojo(String mName) {
+            }
+            """
+        singleRun(pojo) { pojo ->
+            val param = pojo.constructor?.params?.first()
+            assertThat(param, instanceOf(Constructor.FieldParam::class.java))
+            assertThat((param as Constructor.FieldParam).field.name,  `is`("mName"))
+            assertThat(pojo.fields.find { it.name == "mName" }?.setter?.callType,
+                    `is`(CallType.CONSTRUCTOR))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun constructor_ambiguous_oneTypeMatches() {
+        val pojo = """
+            public String mName;
+            public int _name;
+            public MyPojo(String name) {
+            }
+            """
+        singleRun(pojo) { pojo ->
+            val param = pojo.constructor?.params?.first()
+            assertThat(param, instanceOf(Constructor.FieldParam::class.java))
+            assertThat((param as Constructor.FieldParam).field.name,  `is`("mName"))
+            assertThat(pojo.fields.find { it.name == "mName" }?.setter?.callType,
+                    `is`(CallType.CONSTRUCTOR))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun constructor_ambiguous_twoFields() {
+        val pojo = """
+            String mName;
+            String _name;
+            public MyPojo(String name) {
+            }
+            """
+        singleRun(pojo) { pojo ->
+        }.failsToCompile().withErrorContaining(
+                ProcessorErrors.ambigiousConstructor(MY_POJO.toString(),
+                        "name", listOf("mName", "_name"))
+        )
+    }
+
+    @Test
+    fun constructor_noMatchBadType() {
+        singleRun("""
+            int foo;
+            public MyPojo(String foo) {
+            }
+        """) { pojo ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
+    }
+
+    @Test
+    fun constructor_noMatch() {
+        singleRun("""
+            String mName;
+            String _name;
+            public MyPojo(String foo) {
+            }
+        """) { pojo ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
+    }
+
+    @Test
+    fun constructor_noMatchMultiArg() {
+        singleRun("""
+            String mName;
+            int bar;
+            public MyPojo(String foo, String name) {
+            }
+        """) { pojo ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
+    }
+
+    @Test
+    fun constructor_multipleMatching() {
+        singleRun("""
+            String mName;
+            String mLastName;
+            public MyPojo(String name) {
+            }
+            public MyPojo(String name, String lastName) {
+            }
+        """) { pojo ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS)
+    }
+
+    @Test
+    fun constructor_multipleMatchingWithIgnored() {
+        singleRun("""
+            String mName;
+            String mLastName;
+            @Ignore
+            public MyPojo(String name) {
+            }
+            public MyPojo(String name, String lastName) {
+            }
+        """) { pojo ->
+            assertThat(pojo.constructor, notNullValue())
+            assertThat(pojo.constructor?.params?.size, `is`(2))
+            assertThat(pojo.fields.find { it.name == "mName" }?.setter?.callType,
+                    `is`(CallType.CONSTRUCTOR))
+            assertThat(pojo.fields.find { it.name == "mLastName" }?.setter?.callType,
+                    `is`(CallType.CONSTRUCTOR))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun constructor_dontTryForBindToScope() {
+        singleRun("""
+            String mName;
+            String mLastName;
+        """) { pojo, invocation ->
+            val process2 = PojoProcessor(baseContext = invocation.context,
+                    element = invocation.typeElement(MY_POJO.toString()),
+                    bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                    parent = null).process()
+            assertThat(process2.constructor, nullValue())
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun constructor_bindForTwoWay() {
+        singleRun("""
+            String mName;
+            String mLastName;
+        """) { pojo, invocation ->
+            val process2 = PojoProcessor(baseContext = invocation.context,
+                    element = invocation.typeElement(MY_POJO.toString()),
+                    bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                    parent = null).process()
+            assertThat(process2.constructor, notNullValue())
         }.compilesWithoutError()
     }
 

@@ -105,3 +105,13 @@ object ReactiveStreamsTypeNames {
 object RoomRxJava2TypeNames {
     val RX_ROOM = ClassName.get("com.android.support.room", "RxRoom")
 }
+
+fun TypeName.defaultValue() : String {
+    return if (!isPrimitive) {
+        "null"
+    } else if (this == TypeName.BOOLEAN) {
+        "false"
+    } else {
+        "0"
+    }
+}
