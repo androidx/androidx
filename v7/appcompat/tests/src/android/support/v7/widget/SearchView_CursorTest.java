@@ -33,7 +33,9 @@ import android.database.MatrixCursor;
 import android.provider.BaseColumns;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
@@ -154,6 +156,8 @@ public class SearchView_CursorTest {
         verify(mockQueryTextListener, times(1)).onQueryTextChange("Di");
     }
 
+    @Suppress
+    @FlakyTest(bugId = 36702458)
     @Test
     public void testSuggestionSelection() throws Throwable {
         final SearchView.OnSuggestionListener mockSuggestionListener =
