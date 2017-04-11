@@ -6612,6 +6612,22 @@ package android.support.v4.graphics {
     method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
   }
 
+  public class TypefaceCompat {
+    method public static void create(android.content.Context, android.support.v4.graphics.fonts.FontRequest, android.support.v4.graphics.TypefaceCompat.FontRequestCallback);
+  }
+
+  public static abstract class TypefaceCompat.FontRequestCallback {
+    ctor public TypefaceCompat.FontRequestCallback();
+    method public abstract void onTypefaceRequestFailed(int);
+    method public abstract void onTypefaceRetrieved(android.graphics.Typeface);
+    field public static final int FAIL_REASON_FONT_LOAD_ERROR = -3; // 0xfffffffd
+    field public static final int FAIL_REASON_FONT_NOT_FOUND = 1; // 0x1
+    field public static final int FAIL_REASON_FONT_UNAVAILABLE = 2; // 0x2
+    field public static final int FAIL_REASON_MALFORMED_QUERY = 3; // 0x3
+    field public static final int FAIL_REASON_PROVIDER_NOT_FOUND = -1; // 0xffffffff
+    field public static final int FAIL_REASON_WRONG_CERTIFICATES = -2; // 0xfffffffe
+  }
+
 }
 
 package android.support.v4.graphics.drawable {
@@ -6672,6 +6688,21 @@ package android.support.v4.graphics.drawable {
     method public static android.support.v4.graphics.drawable.RoundedBitmapDrawable create(android.content.res.Resources, android.graphics.Bitmap);
     method public static android.support.v4.graphics.drawable.RoundedBitmapDrawable create(android.content.res.Resources, java.lang.String);
     method public static android.support.v4.graphics.drawable.RoundedBitmapDrawable create(android.content.res.Resources, java.io.InputStream);
+  }
+
+}
+
+package android.support.v4.graphics.fonts {
+
+  public final class FontRequest implements android.os.Parcelable {
+    ctor public FontRequest(java.lang.String, java.lang.String, java.lang.String, java.util.List<java.util.List<byte[]>>);
+    method public int describeContents();
+    method public java.util.List<java.util.List<byte[]>> getCertificates();
+    method public java.lang.String getProviderAuthority();
+    method public java.lang.String getProviderPackage();
+    method public java.lang.String getQuery();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.support.v4.graphics.fonts.FontRequest> CREATOR;
   }
 
 }
@@ -7454,6 +7485,22 @@ package android.support.v4.provider {
     method public abstract long length();
     method public abstract android.support.v4.provider.DocumentFile[] listFiles();
     method public abstract boolean renameTo(java.lang.String);
+  }
+
+  public class FontsContract {
+  }
+
+  public static final class FontsContract.Columns {
+    ctor public FontsContract.Columns();
+    field public static final java.lang.String ITALIC = "font_italic";
+    field public static final java.lang.String RESULT_CODE = "result_code";
+    field public static final int RESULT_CODE_FONT_NOT_FOUND = 1; // 0x1
+    field public static final int RESULT_CODE_FONT_UNAVAILABLE = 2; // 0x2
+    field public static final int RESULT_CODE_MALFORMED_QUERY = 3; // 0x3
+    field public static final int RESULT_CODE_OK = 0; // 0x0
+    field public static final java.lang.String TTC_INDEX = "font_ttc_index";
+    field public static final java.lang.String VARIATION_SETTINGS = "font_variation_settings";
+    field public static final java.lang.String WEIGHT = "font_weight";
   }
 
 }
