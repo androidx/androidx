@@ -2469,6 +2469,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 Animation animation = animatingAway.getAnimation();
                 if (animation != null) {
                     animation.cancel();
+                    // force-clear the animation, as Animation#cancel() doesn't work prior to N,
+                    // and will instead cause the animation to infinitely loop
+                    animatingAway.clearAnimation();
                 }
                 moveToState(fragment, stateAfterAnimating, 0, 0, false);
             }
