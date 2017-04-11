@@ -3125,6 +3125,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     void onExitLayoutOrScroll() {
+        onExitLayoutOrScroll(true);
+    }
+
+    void onExitLayoutOrScroll(boolean enableChangeEvents) {
         mLayoutOrScrollCounter --;
         if (mLayoutOrScrollCounter < 1) {
             if (DEBUG && mLayoutOrScrollCounter < 0) {
@@ -3132,8 +3136,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         + "Some calls are not matching");
             }
             mLayoutOrScrollCounter = 0;
-            dispatchContentChangedIfNecessary();
-            dispatchPendingImportantForAccessibilityChanges();
+            if (enableChangeEvents) {
+                dispatchContentChangedIfNecessary();
+                dispatchPendingImportantForAccessibilityChanges();
+            }
         }
     }
 

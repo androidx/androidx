@@ -267,6 +267,38 @@ public class RecyclerViewCacheTest {
     }
 
     @Test
+    public void prefetchIsComputingLayout() {
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // 100x100 pixel views
+        RecyclerView.Adapter mockAdapter = mock(RecyclerView.Adapter.class);
+        when(mockAdapter.onCreateViewHolder(any(ViewGroup.class), anyInt()))
+                .thenAnswer(new Answer<RecyclerView.ViewHolder>() {
+                    @Override
+                    public RecyclerView.ViewHolder answer(InvocationOnMock invocation)
+                            throws Throwable {
+                        View view = new View(getContext());
+                        view.setMinimumWidth(100);
+                        view.setMinimumHeight(100);
+                        assertTrue(mRecyclerView.isComputingLayout());
+                        return new RecyclerView.ViewHolder(view) {};
+                    }
+                });
+        when(mockAdapter.getItemCount()).thenReturn(100);
+        mRecyclerView.setAdapter(mockAdapter);
+
+        layout(100, 100);
+
+        verify(mockAdapter, times(1)).onCreateViewHolder(mRecyclerView, 0);
+
+        // prefetch an item, should still observe isComputingLayout in that create
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(0, 1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+
+        verify(mockAdapter, times(2)).onCreateViewHolder(mRecyclerView, 0);
+    }
+
+    @Test
     public void prefetchDrag() {
         // event dispatch requires a parent
         ViewGroup parent = new FrameLayout(getContext());
