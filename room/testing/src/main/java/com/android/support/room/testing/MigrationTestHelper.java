@@ -77,6 +77,7 @@ public class MigrationTestHelper extends TestWatcher {
     private final String mAssetsFolder;
     private final SupportSQLiteOpenHelper.Factory mOpenFactory;
     private List<WeakReference<SupportSQLiteDatabase>> mManagedDatabases = new ArrayList<>();
+    private List<WeakReference<RoomDatabase>> mManagedRoomDatabases = new ArrayList<>();
     private boolean mTestStarted;
 
     /**
@@ -199,6 +200,12 @@ public class MigrationTestHelper extends TestWatcher {
                 }
             }
         }
+        for (WeakReference<RoomDatabase> dbRef : mManagedRoomDatabases) {
+            final RoomDatabase roomDatabase = dbRef.get();
+            if (roomDatabase != null) {
+                roomDatabase.close();
+            }
+        }
     }
 
     /**
@@ -216,6 +223,23 @@ public class MigrationTestHelper extends TestWatcher {
                     + " test rule? (@Rule)");
         }
         mManagedDatabases.add(new WeakReference<>(db));
+    }
+
+    /**
+     * Registers a database connection to be automatically closed when the test finishes.
+     * <p>
+     * This only works if {@code MigrationTestHelper} is registered as a Junit test rule via
+     * {@link org.junit.Rule Rule} annotation.
+     *
+     * @param db The RoomDatabase instance which holds the database.
+     */
+    public void closeWhenFinished(RoomDatabase db) {
+        if (!mTestStarted) {
+            throw new IllegalStateException("You cannot register a database to be closed before"
+                    + " the test starts. Maybe you forgot to annotate MigrationTestHelper as a"
+                    + " test rule? (@Rule)");
+        }
+        mManagedRoomDatabases.add(new WeakReference<>(db));
     }
 
     private SchemaBundle loadSchema(int version) throws IOException {

@@ -17,6 +17,7 @@
 package com.android.support.room;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -99,7 +100,7 @@ public class InvalidationTracker {
 
     private final RoomDatabase mDatabase;
 
-    private AtomicBoolean mPendingRefresh = new AtomicBoolean(false);
+    AtomicBoolean mPendingRefresh = new AtomicBoolean(false);
 
     private volatile boolean mInitialized = false;
 
@@ -307,16 +308,16 @@ public class InvalidationTracker {
                     }
                     mObservedTableTracker.onSyncCompleted();
                 }
-            } catch (IllegalStateException exception) {
+            } catch (IllegalStateException | SQLiteException exception) {
                 // may happen if db is closed. just log.
-                Log.e(Room.LOG_TAG, "Cannot run invalidation tracker.", exception);
+                Log.e(Room.LOG_TAG, "Cannot run invalidation tracker. Is the db closed?",
+                        exception);
             }
         }
     };
 
     private boolean ensureInitialization() {
-        SupportSQLiteDatabase connection = mDatabase.getDatabase();
-        if (connection == null || !connection.isOpen()) {
+        if (!mDatabase.isOpen()) {
             return false;
         }
         if (!mInitialized) {
@@ -361,9 +362,10 @@ public class InvalidationTracker {
                 } finally {
                     cursor.close();
                 }
-            } catch (IllegalStateException exception) {
+            } catch (IllegalStateException | SQLiteException exception) {
                 // may happen if db is closed. just log.
-                Log.e(Room.LOG_TAG, "Cannot run invalidation tracker.", exception);
+                Log.e(Room.LOG_TAG, "Cannot run invalidation tracker. Is the db closed?",
+                        exception);
             }
             if (hasUpdatedTable) {
                 synchronized (mObserverMap) {
@@ -451,7 +453,7 @@ public class InvalidationTracker {
          * @param rest       More table names
          */
         @SuppressWarnings("unused")
-        public Observer(@NonNull String firstTable, String... rest) {
+        protected Observer(@NonNull String firstTable, String... rest) {
             mTables = Arrays.copyOf(rest, rest.length + 1);
             mTables[rest.length] = firstTable;
         }

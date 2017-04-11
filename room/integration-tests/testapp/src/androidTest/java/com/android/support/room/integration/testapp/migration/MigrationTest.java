@@ -64,7 +64,7 @@ public class MigrationTest {
         db.close();
         MigrationDb migrationDb = getLatestDb();
         List<MigrationDb.Entity1> items = migrationDb.dao().loadAllEntity1s();
-        helper.closeWhenFinished(migrationDb.getDatabase());
+        helper.closeWhenFinished(migrationDb);
         assertThat(items.size(), is(1));
     }
 
@@ -97,7 +97,7 @@ public class MigrationTest {
         // trigger open
         db.beginTransaction();
         db.endTransaction();
-        helper.closeWhenFinished(db.getDatabase());
+        helper.closeWhenFinished(db);
         return db;
     }
 

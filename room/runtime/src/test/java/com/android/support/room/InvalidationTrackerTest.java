@@ -23,12 +23,14 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 
 import com.android.support.apptoolkit.testing.JunitTaskExecutorRule;
 import com.android.support.db.SupportSQLiteDatabase;
@@ -54,6 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class InvalidationTrackerTest {
     private InvalidationTracker mTracker;
     private RoomDatabase mRoomDatabase;
+    private SupportSQLiteOpenHelper mOpenHelper;
     @Rule
     public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, true);
 
@@ -62,14 +65,13 @@ public class InvalidationTrackerTest {
         mRoomDatabase = mock(RoomDatabase.class);
         SupportSQLiteDatabase sqliteDb = mock(SupportSQLiteDatabase.class);
         final SupportSQLiteStatement statement = mock(SupportSQLiteStatement.class);
-        SupportSQLiteOpenHelper openHelper = mock(SupportSQLiteOpenHelper.class);
+        mOpenHelper = mock(SupportSQLiteOpenHelper.class);
 
         doReturn(statement).when(sqliteDb).compileStatement(eq(InvalidationTracker.CLEANUP_SQL));
-        doReturn(sqliteDb).when(openHelper).getWritableDatabase();
-        doReturn(sqliteDb).when(mRoomDatabase).getDatabase();
-        doReturn(true).when(sqliteDb).isOpen();
+        doReturn(sqliteDb).when(mOpenHelper).getWritableDatabase();
+        doReturn(true).when(mRoomDatabase).isOpen();
         //noinspection ResultOfMethodCallIgnored
-        doReturn(openHelper).when(mRoomDatabase).getOpenHelper();
+        doReturn(mOpenHelper).when(mRoomDatabase).getOpenHelper();
 
         mTracker = new InvalidationTracker(mRoomDatabase, "a", "B", "i");
         mTracker.internalInit(sqliteDb);
@@ -197,6 +199,27 @@ public class InvalidationTrackerTest {
     public void locale() {
         LatchObserver observer = new LatchObserver(1, "I");
         mTracker.addObserver(observer);
+    }
+
+    @Test
+    public void closedDb() {
+        doThrow(new IllegalStateException("foo")).when(mOpenHelper).getWritableDatabase();
+        mTracker.addObserver(new LatchObserver(1, "a", "b"));
+        mTracker.syncTriggers();
+        mTracker.mRefreshRunnable.run();
+    }
+
+    @Test
+    public void closedDbAfterOpen() throws InterruptedException {
+        setVersions(3, 1);
+        mTracker.addObserver(new LatchObserver(1, "a", "b"));
+        mTracker.syncTriggers();
+        mTracker.mRefreshRunnable.run();
+        doThrow(new SQLiteException("foo")).when(mRoomDatabase).query(
+                Mockito.eq(InvalidationTracker.SELECT_UPDATED_TABLES_SQL),
+                any(String[].class));
+        mTracker.mPendingRefresh.set(true);
+        mTracker.mRefreshRunnable.run();
     }
 
     /**

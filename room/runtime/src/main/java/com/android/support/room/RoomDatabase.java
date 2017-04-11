@@ -102,15 +102,22 @@ public abstract class RoomDatabase {
     protected abstract InvalidationTracker createInvalidationTracker();
 
     /**
-     * Returns the database connection. Note that, if the database is not opened yet, this method
-     * will return {code null}. You can use the {@link #getOpenHelper()} method to open the
-     * database.
+     * Returns true if database connection is open and initialized.
      *
-     * @return The database connection or {@code null} if it is not opened yet.
+     * @return true if the database connection is open, false otherwise.
      */
-    @Nullable
-    public SupportSQLiteDatabase getDatabase() {
-        return mDatabase;
+    public boolean isOpen() {
+        final SupportSQLiteDatabase db = mDatabase;
+        return db != null && db.isOpen();
+    }
+
+    /**
+     * Closes the database if it is already open.
+     */
+    public void close() {
+        if (isOpen()) {
+            mOpenHelper.close();
+        }
     }
 
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
