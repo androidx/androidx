@@ -2021,7 +2021,6 @@ public abstract class Transition implements Cloneable {
     }
 
     /**
-     * <<<<<<< HEAD
      * Sets the algorithm used to calculate two-dimensional interpolation.
      * <p>
      * Transitions such as {@link android.transition.ChangeBounds} move Views, typically
