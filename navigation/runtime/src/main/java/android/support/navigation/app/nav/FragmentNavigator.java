@@ -19,6 +19,7 @@ package android.support.navigation.app.nav;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -96,30 +97,18 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return clazz;
     }
 
+    private String getBackStackName(@IdRes int destinationId) {
+        String name = mContext.getResources().getResourceName(destinationId);
+        if (TextUtils.isEmpty(name)) {
+            // Fallback to the id if there isn't a resource name
+            return Integer.toString(destinationId);
+        }
+        return name;
+    }
+
     @Override
     public boolean navigate(Destination destination, Bundle args,
                             NavOptions navOptions) {
-        String flowName = navOptions != null ? navOptions.getFlowName() : null;
-        if (flowName == null) {
-            flowName = destination.getFlow();
-        }
-
-        // If the first non-null back stack entry name we find matches our flow name, we're still
-        // part of the same flow and we should pass null as the name of this transaction.
-        // This way we can finish a whole flow back to its root by the flow name.
-        if (flowName != null) {
-            final int stackCount = mFragmentManager.getBackStackEntryCount();
-            for (int i = stackCount - 1; i >= 0; i--) {
-                final FragmentManager.BackStackEntry bse = mFragmentManager.getBackStackEntryAt(i);
-                final String bseName = bse.getName();
-                if (bseName != null) {
-                    if (TextUtils.equals(bseName, flowName)) {
-                        flowName = null;
-                    }
-                    break;
-                }
-            }
-        }
         final Fragment frag = destination.createFragment(args);
         final FragmentTransaction ft = mFragmentManager.beginTransaction()
                 .replace(mContainerId, frag);
@@ -129,15 +118,19 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             ft.remove(oldState);
         }
 
-        final int destId = destination.getId();
+        final @IdRes int destId = destination.getId();
         final StateFragment newState = new StateFragment();
         newState.mCurrentDestId = destId;
         ft.add(newState, StateFragment.FRAGMENT_TAG);
 
         final boolean initialNavigation = mFragmentManager.getFragments().isEmpty();
-        if (!initialNavigation) {
-            ft.addToBackStack(flowName);
-        } else {
+        // TODO Build first class singleTop behavior for fragments
+        final boolean isSingleTopReplacement = navOptions != null && oldState != null
+                && navOptions.shouldLaunchSingleTop()
+                && oldState.mCurrentDestId == destId;
+        if (!initialNavigation && !isSingleTopReplacement) {
+            ft.addToBackStack(getBackStackName(destId));
+        } else if (!isSingleTopReplacement) {
             ft.postOnCommit(new Runnable() {
                 @Override
                 public void run() {
@@ -159,7 +152,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
      */
     public static class Destination extends NavDestination {
         private Class<? extends Fragment> mFragmentClass;
-        private String mFlow;
 
         /**
          * Construct a new fragment destination to navigate to the given Fragment.
@@ -186,7 +178,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             setFragmentClass(((FragmentNavigator) getNavigator())
                     .getFragmentClassByName(a.getString(
                             R.styleable.FragmentDestination_android_name)));
-            setFlow(a.getString(R.styleable.FragmentDestination_flow));
             a.recycle();
         }
 
@@ -205,14 +196,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          */
         public Class<? extends Fragment> getFragmentClass() {
             return mFragmentClass;
-        }
-
-        public String getFlow() {
-            return mFlow;
-        }
-
-        public void setFlow(String flowName) {
-            mFlow = flowName;
         }
 
         Fragment createFragment(Bundle args) {

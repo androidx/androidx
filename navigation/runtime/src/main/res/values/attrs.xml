@@ -36,7 +36,6 @@
 
     <declare-styleable name="FragmentDestination">
         <attr name="android:name" />
-        <attr name="flow" format="string" />
     </declare-styleable>
 
     <declare-styleable name="NavArgument">
@@ -50,7 +49,8 @@
         <attr name="launchSingleTop" format="boolean" />
         <attr name="launchDocument" format="boolean" />
         <attr name="clearTask" format="boolean" />
-        <attr name="pop" format="boolean" />
+        <attr name="popUpTo" format="reference" />
+        <attr name="popUpToInclusive" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="NavInclude">

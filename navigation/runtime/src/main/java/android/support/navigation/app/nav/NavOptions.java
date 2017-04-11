@@ -17,6 +17,7 @@
 package android.support.navigation.app.nav;
 
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 
 /**
  * NavOptions stores special options for navigate actions
@@ -27,14 +28,18 @@ public class NavOptions {
     static final int LAUNCH_CLEAR_TASK = 0x4;
 
     private static final String KEY_LAUNCH_MODE = "launchMode";
-    private static final String KEY_FLOW_NAME = "flowName";
+    private static final String KEY_POP_UP_TO = "popUpTo";
+    private static final String KEY_POP_UP_TO_INCLUSIVE = "popUpToInclusive";
 
     private int mLaunchMode;
-    private String mFlowName;
+    @IdRes
+    private int mPopUpTo;
+    private boolean mPopUpToInclusive;
 
-    NavOptions(int launchMode, String flowName) {
+    NavOptions(int launchMode, @IdRes int popUpTo, boolean popUpToInclusive) {
         mLaunchMode = launchMode;
-        mFlowName = flowName;
+        mPopUpTo = popUpTo;
+        mPopUpToInclusive = popUpToInclusive;
     }
 
     boolean shouldLaunchSingleTop() {
@@ -49,17 +54,38 @@ public class NavOptions {
         return (mLaunchMode & LAUNCH_CLEAR_TASK) != 0;
     }
 
-    public String getFlowName() {
-        return mFlowName;
+    /**
+     * The destination to pop up to before navigating. When set, all non-matching destinations
+     * should be popped from the back stack.
+     * @return the destinationId to pop up to, clearing all intervening destinations
+     * @see Builder#setPopUpTo
+     * @see #isPopUpToInclusive
+     */
+    @IdRes
+    public int getPopUpTo() {
+        return mPopUpTo;
+    }
+
+    /**
+     * Whether the destination set in {@link #getPopUpTo} should be popped from the back stack.
+     * @see Builder#setPopUpTo
+     * @see #getPopUpTo
+     */
+    public boolean isPopUpToInclusive() {
+        return mPopUpToInclusive;
     }
 
     Bundle toBundle() {
-        return new Bundle();
+        Bundle b = new Bundle();
+        b.putInt(KEY_LAUNCH_MODE, mLaunchMode);
+        b.putInt(KEY_POP_UP_TO, mPopUpTo);
+        b.putBoolean(KEY_POP_UP_TO_INCLUSIVE, mPopUpToInclusive);
+        return b;
     }
 
     static NavOptions fromBundle(Bundle b) {
         return new NavOptions(b.getInt(KEY_LAUNCH_MODE, 0),
-                b.getString(KEY_FLOW_NAME));
+                b.getInt(KEY_POP_UP_TO, 0), b.getBoolean(KEY_POP_UP_TO_INCLUSIVE, false));
     }
 
     /**
@@ -67,8 +93,9 @@ public class NavOptions {
      */
     public static class Builder {
         int mLaunchMode;
-        String mFlowName;
-        String mEndFlow;
+        @IdRes
+        int mPopUpTo;
+        boolean mPopUpToInclusive;
 
         public Builder() {
         }
@@ -127,12 +154,18 @@ public class NavOptions {
         }
 
         /**
-         * Sets the flow name for this target.
-         * @param flowName
-         * @return
+         * Pop up to a given destination before navigating. This pops all non-matching destinations
+         * from the back stack until this destination is found.
+         *
+         * @param destinationId The destination to pop up to, clearing all intervening destinations.
+         * @param inclusive true to also pop the given destination from the back stack.
+         * @return this Builder
+         * @see NavOptions#getPopUpTo
+         * @see NavOptions#isPopUpToInclusive
          */
-        public Builder setFlowName(String flowName) {
-            mFlowName = flowName;
+        public Builder setPopUpTo(@IdRes int destinationId, boolean inclusive) {
+            mPopUpTo = destinationId;
+            mPopUpToInclusive = inclusive;
             return this;
         }
 
@@ -140,7 +173,7 @@ public class NavOptions {
          * @return a constructed NavOptions
          */
         public NavOptions build() {
-            return new NavOptions(mLaunchMode, mFlowName);
+            return new NavOptions(mLaunchMode, mPopUpTo, mPopUpToInclusive);
         }
     }
 }

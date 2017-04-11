@@ -24,9 +24,11 @@ import android.support.annotation.IdRes;
 import android.support.annotation.XmlRes;
 import android.text.TextUtils;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -55,7 +57,7 @@ public class NavController implements NavigatorProvider {
     private int mGraphId;
 
     private final HashMap<String, Navigator> mNavigators = new HashMap<>();
-    private final Deque<NavDestination> mBackStack = new LinkedList<>();
+    private final Deque<NavDestination> mBackStack = new ArrayDeque<>();
 
     private final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
             new Navigator.OnNavigatorNavigatedListener() {
@@ -188,6 +190,50 @@ public class NavController implements NavigatorProvider {
             popped = mBackStack.removeLast().getNavigator().popBackStack();
             if (popped) {
                 break;
+            }
+        }
+        return popped;
+    }
+
+
+    /**
+     * Attempts to pop the controller's back stack back to a specific destination.
+     *
+     * @param destinationId The topmost destination to retain
+     * @param inclusive Whether the given destination should also be popped.
+     *
+     * @return true if the stack was popped at least once, false otherwise
+     */
+    public boolean popBackStack(@IdRes int destinationId, boolean inclusive) {
+        if (mBackStack.isEmpty()) {
+            throw new IllegalArgumentException("NavController back stack is empty");
+        }
+        ArrayList<NavDestination> destinationsToRemove = new ArrayList<>();
+        Iterator<NavDestination> iterator = mBackStack.descendingIterator();
+        while (iterator.hasNext()) {
+            NavDestination destination = iterator.next();
+            if (inclusive || destination.getId() != destinationId) {
+                destinationsToRemove.add(destination);
+            }
+            if (destination.getId() == destinationId) {
+                break;
+            }
+        }
+        boolean popped = false;
+        iterator = destinationsToRemove.iterator();
+        while (iterator.hasNext()) {
+            NavDestination destination = iterator.next();
+            // Skip destinations already removed by a previous popBackStack operation
+            while (!mBackStack.isEmpty() && mBackStack.peekLast().getId() != destination.getId()) {
+                if (iterator.hasNext()) {
+                    destination = iterator.next();
+                } else {
+                    destination = null;
+                    break;
+                }
+            }
+            if (destination != null) {
+                popped = destination.getNavigator().popBackStack() || popped;
             }
         }
         return popped;
@@ -378,6 +424,9 @@ public class NavController implements NavigatorProvider {
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is unknown to this NavController");
         }
+        if (navOptions != null && navOptions.getPopUpTo() != 0) {
+            popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
+        }
         node.navigate(args, navOptions);
     }
 
@@ -429,8 +478,13 @@ public class NavController implements NavigatorProvider {
                     + res.getResourceName(currentNode.getId())
                     + " for action " + res.getResourceName(action));
         }
-        navigateTo(navAction.getDestinationId(), args,
-                navOptions != null ? navOptions : navAction.getNavOptions());
+        NavOptions options = navOptions != null ? navOptions : navAction.getNavOptions();
+        if (navAction.getDestinationId() == 0 && options != null && options.getPopUpTo() != 0) {
+            // Allow actions to leave out a destinationId only if they have a non-zero popUpTo
+            popBackStack(options.getPopUpTo(), options.isPopUpToInclusive());
+        } else {
+            navigateTo(navAction.getDestinationId(), args, options);
+        }
     }
 
     /**

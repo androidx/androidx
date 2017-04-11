@@ -227,6 +227,8 @@ public class NavInflater {
         builder.setLaunchSingleTop(a.getBoolean(R.styleable.NavAction_launchSingleTop, false));
         builder.setLaunchDocument(a.getBoolean(R.styleable.NavAction_launchDocument, false));
         builder.setClearTask(a.getBoolean(R.styleable.NavAction_clearTask, false));
+        builder.setPopUpTo(a.getResourceId(R.styleable.NavAction_popUpTo, 0),
+                a.getBoolean(R.styleable.NavAction_popUpToInclusive, false));
         action.setNavOptions(builder.build());
 
         dest.putAction(id, action);

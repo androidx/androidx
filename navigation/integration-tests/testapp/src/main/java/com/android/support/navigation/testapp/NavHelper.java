@@ -29,6 +29,7 @@ import android.support.design.widget.NavigationView;
 import android.support.navigation.app.nav.NavController;
 import android.support.navigation.app.nav.NavDestination;
 import android.support.navigation.app.nav.NavGraph;
+import android.support.navigation.app.nav.NavOptions;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -164,7 +165,11 @@ public class NavHelper {
             return true;
         }
         try {
-            navController.navigateTo(item.getItemId());
+            navController.navigateTo(item.getItemId(), null,
+                    new NavOptions.Builder()
+                            .setPopUpTo(navController.getGraph().getStartDestination(), false)
+                            .setLaunchSingleTop(true)
+                            .build());
             return true;
         } catch (IllegalArgumentException e) {
             return false;
