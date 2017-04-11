@@ -64,8 +64,8 @@ public class TransitionTest extends BaseTest {
     public void prepareScenes() {
         TransitionActivity activity = rule.getActivity();
         ViewGroup root = activity.getRoot();
-        mScenes[0] = Scene.getSceneForLayout(root, R.layout.scene0, activity);
-        mScenes[1] = Scene.getSceneForLayout(root, R.layout.scene1, activity);
+        mScenes[0] = Scene.getSceneForLayout(root, R.layout.support_scene0, activity);
+        mScenes[1] = Scene.getSceneForLayout(root, R.layout.support_scene1, activity);
     }
 
     @Test
@@ -121,7 +121,8 @@ public class TransitionTest extends BaseTest {
         // Set up views
         TransitionActivity activity = rule.getActivity();
         ViewGroup root = activity.getRoot();
-        View container = LayoutInflater.from(activity).inflate(R.layout.scene0, root, false);
+        View container = LayoutInflater.from(activity)
+                .inflate(R.layout.support_scene0, root, false);
         root.addView(container);
         View view0 = container.findViewById(R.id.view0);
         View view1 = container.findViewById(R.id.view1);

@@ -118,9 +118,10 @@ public class SceneTest extends BaseTest {
     public void testGetSceneForLayout_cache() {
         TransitionActivity activity = rule.getActivity();
         ViewGroup root = activity.getRoot();
-        Scene scene = Scene.getSceneForLayout(root, R.layout.scene0, activity);
+        Scene scene = Scene.getSceneForLayout(root, R.layout.support_scene0, activity);
         assertThat("getSceneForLayout should return the same instance for subsequent calls",
-                Scene.getSceneForLayout(root, R.layout.scene0, activity), is(sameInstance(scene)));
+                Scene.getSceneForLayout(root, R.layout.support_scene0, activity),
+                is(sameInstance(scene)));
     }
 
 }
