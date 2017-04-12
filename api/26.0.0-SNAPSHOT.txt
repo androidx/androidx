@@ -7064,7 +7064,7 @@ package android.support.v4.media.session {
     ctor public MediaButtonReceiver();
     method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, long);
     method public static android.app.PendingIntent buildMediaButtonPendingIntent(android.content.Context, android.content.ComponentName, long);
-    method public static deprecated android.view.KeyEvent handleIntent(android.support.v4.media.session.MediaSessionCompat, android.content.Intent);
+    method public static android.view.KeyEvent handleIntent(android.support.v4.media.session.MediaSessionCompat, android.content.Intent);
     method public void onReceive(android.content.Context, android.content.Intent);
   }
 
