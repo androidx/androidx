@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
@@ -210,6 +211,7 @@ public class TintTypedArray {
         mWrapped.recycle();
     }
 
+    @RequiresApi(21)
     public int getChangingConfigurations() {
         return mWrapped.getChangingConfigurations();
     }

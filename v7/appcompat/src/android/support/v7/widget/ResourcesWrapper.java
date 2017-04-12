@@ -16,8 +16,6 @@
 
 package android.support.v7.widget;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.content.res.AssetFileDescriptor;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -27,9 +25,12 @@ import android.content.res.XmlResourceParser;
 import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,16 +129,19 @@ class ResourcesWrapper extends Resources {
         return mResources.getDrawable(id);
     }
 
+    @RequiresApi(21)
     @Override
     public Drawable getDrawable(int id, Theme theme) throws NotFoundException {
         return mResources.getDrawable(id, theme);
     }
 
+    @RequiresApi(15)
     @Override
     public Drawable getDrawableForDensity(int id, int density) throws NotFoundException {
         return mResources.getDrawableForDensity(id, density);
     }
 
+    @RequiresApi(21)
     @Override
     public Drawable getDrawableForDensity(int id, int density, Theme theme) {
         return mResources.getDrawableForDensity(id, density, theme);
@@ -204,6 +208,7 @@ class ResourcesWrapper extends Resources {
         mResources.getValue(id, outValue, resolveRefs);
     }
 
+    @RequiresApi(15)
     @Override
     public void getValueForDensity(int id, int density, TypedValue outValue, boolean resolveRefs)
             throws NotFoundException {
