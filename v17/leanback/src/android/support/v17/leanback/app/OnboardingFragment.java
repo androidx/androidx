@@ -167,6 +167,10 @@ abstract public class OnboardingFragment extends Fragment {
 
     // Keys used to save and restore the states.
     private static final String KEY_CURRENT_PAGE_INDEX = "leanback.onboarding.current_page_index";
+    private static final String KEY_LOGO_ANIMATION_FINISHED =
+            "leanback.onboarding.logo_animation_finished";
+    private static final String KEY_ENTER_ANIMATION_FINISHED =
+            "leanback.onboarding.enter_animation_finished";
 
     private ContextThemeWrapper mThemeWrapper;
 
@@ -186,6 +190,7 @@ abstract public class OnboardingFragment extends Fragment {
     // the fragment is restored.
     private int mLogoResourceId;
     boolean mLogoAnimationFinished;
+    boolean mEnterAnimationFinished;
     int mCurrentPageIndex;
 
     private AnimatorSet mAnimator;
@@ -294,33 +299,52 @@ abstract public class OnboardingFragment extends Fragment {
             sSlideDistance = (int) (SLIDE_DISTANCE * context.getResources()
                     .getDisplayMetrics().scaledDensity);
         }
+        view.requestFocus();
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         if (savedInstanceState == null) {
             mCurrentPageIndex = 0;
             mLogoAnimationFinished = false;
+            mEnterAnimationFinished = false;
             mPageIndicator.onPageSelected(0, false);
             view.getViewTreeObserver().addOnPreDrawListener(new OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    view.getViewTreeObserver().removeOnPreDrawListener(this);
+                    getView().getViewTreeObserver().removeOnPreDrawListener(this);
                     if (!startLogoAnimation()) {
-                        startEnterAnimation();
+                        mLogoAnimationFinished = true;
+                        onLogoAnimationFinished();
                     }
                     return true;
                 }
             });
         } else {
-            mLogoAnimationFinished = true;
             mCurrentPageIndex = savedInstanceState.getInt(KEY_CURRENT_PAGE_INDEX);
-            initializeViews(view);
+            mLogoAnimationFinished = savedInstanceState.getBoolean(KEY_LOGO_ANIMATION_FINISHED);
+            mEnterAnimationFinished = savedInstanceState.getBoolean(KEY_ENTER_ANIMATION_FINISHED);
+            if (!mLogoAnimationFinished) {
+                // logo animation wasn't started or was interrupted when the activity was destroyed;
+                // restart it againl
+                if (!startLogoAnimation()) {
+                    mLogoAnimationFinished = true;
+                    onLogoAnimationFinished();
+                }
+            } else {
+                onLogoAnimationFinished();
+            }
         }
-        view.requestFocus();
-        return view;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_PAGE_INDEX, mCurrentPageIndex);
+        outState.putBoolean(KEY_LOGO_ANIMATION_FINISHED, mLogoAnimationFinished);
+        outState.putBoolean(KEY_ENTER_ANIMATION_FINISHED, mEnterAnimationFinished);
     }
 
     /**
@@ -411,7 +435,8 @@ abstract public class OnboardingFragment extends Fragment {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     if (context != null) {
-                        startEnterAnimation();
+                        mLogoAnimationFinished = true;
+                        onLogoAnimationFinished();
                     }
                 }
             });
@@ -432,7 +457,12 @@ abstract public class OnboardingFragment extends Fragment {
         return null;
     }
 
-    private void initializeViews(View container) {
+
+    /**
+     * Hides the logo view and makes other fragment views visible. Also initializes the texts for
+     * Title and Description views.
+     */
+    void hideLogoView() {
         mLogoView.setVisibility(View.GONE);
 
         if (mIconResourceId != 0) {
@@ -440,6 +470,7 @@ abstract public class OnboardingFragment extends Fragment {
             mMainIconView.setVisibility(View.VISIBLE);
         }
 
+        View container = getView();
         // Create custom views.
         LayoutInflater inflater = getThemeInflater(LayoutInflater.from(
                 FragmentUtil.getContext(this)));
@@ -478,20 +509,35 @@ abstract public class OnboardingFragment extends Fragment {
         // Header views.
         mTitleView.setText(getPageTitle(mCurrentPageIndex));
         mDescriptionView.setText(getPageDescription(mCurrentPageIndex));
-        onLogoAnimationFinished();
     }
 
     /**
-     * Called immediately after fragment views become visible. This method gives subclasses a chance
-     * to initialize themselves. If a logo animation is specified, calling this method is delayed
-     * until after the logo animation is complete.
+     * Called immediately after the logo animation is complete or no logo animation is specified.
+     * This method can also be called when the activity is recreated, i.e. when no logo animation
+     * are performed.
+     * By default, this method will hide the logo view and start the entrance animation for this
+     * fragment.
+     * Overriding subclasses can provide their own data loading logic as to when the entrance
+     * animation should be executed.
      */
     protected void onLogoAnimationFinished() {
+        startEnterAnimation(false);
     }
 
-    void startEnterAnimation() {
-        mLogoAnimationFinished = true;
-        initializeViews(getView());
+    /**
+     * Called to start entrance transition. This can be called by subclasses when the logo animation
+     * and data loading is complete. If force flag is set to false, it will only start the animation
+     * if it's not already done yet. Otherwise, it will always start the enter animation. In both
+     * cases, the logo view will hide and the rest of fragment views become visible after this call.
+     *
+     * @param force {@code true} if enter animation has to be performed regardless of whether it's
+     *                          been done in the past, {@code false} otherwise
+     */
+    protected final void startEnterAnimation(boolean force) {
+        hideLogoView();
+        if (mEnterAnimationFinished && !force) {
+            return;
+        }
         List<Animator> animators = new ArrayList<>();
         final Context context = FragmentUtil.getContext(this);
         Animator animator = AnimatorInflater.loadAnimator(context,
@@ -526,6 +572,12 @@ abstract public class OnboardingFragment extends Fragment {
         mAnimator = new AnimatorSet();
         mAnimator.playTogether(animators);
         mAnimator.start();
+        mAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mEnterAnimationFinished = true;
+            }
+        });
         // Search focus and give the focus to the appropriate child which has become visible.
         getView().requestFocus();
     }
@@ -549,7 +601,7 @@ abstract public class OnboardingFragment extends Fragment {
     }
 
     /**
-     * Returns whether the logo enter transition is finished.
+     * Returns whether the logo enter animation is finished.
      *
      * @return {@code true} if the logo enter transition is finished, {@code false} otherwise
      */
