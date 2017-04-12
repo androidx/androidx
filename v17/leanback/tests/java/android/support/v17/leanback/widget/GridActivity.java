@@ -34,6 +34,10 @@ public class GridActivity extends Activity {
 
     private static final String TAG = "GridActivity";
 
+    interface ImportantForAccessibilityListener {
+        void onImportantForAccessibilityChanged(View view, int newValue);
+    }
+
     interface AdapterListener {
         void onBind(RecyclerView.ViewHolder vh, int position);
     }
@@ -100,6 +104,7 @@ public class GridActivity extends Activity {
     int mNinePatchShadow;
 
     private int mBoundCount;
+    ImportantForAccessibilityListener mImportantForAccessibilityListener;
 
     private View createView() {
 
@@ -378,6 +383,15 @@ public class GridActivity extends Activity {
                                 clearFocus();
                                 requestFocus();
                             }
+                        }
+                    }
+
+                    @Override
+                    public void setImportantForAccessibility(int mode) {
+                        super.setImportantForAccessibility(mode);
+                        if (mImportantForAccessibilityListener != null) {
+                            mImportantForAccessibilityListener.onImportantForAccessibilityChanged(
+                                    this, mode);
                         }
                     }
                 };

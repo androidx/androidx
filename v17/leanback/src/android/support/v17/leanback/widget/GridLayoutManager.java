@@ -3464,12 +3464,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {
         ViewGroup.LayoutParams lp = host.getLayoutParams();
         if (mGrid == null || !(lp instanceof LayoutParams)) {
-            super.onInitializeAccessibilityNodeInfoForItem(recycler, state, host, info);
             return;
         }
         LayoutParams glp = (LayoutParams) lp;
-        int position = glp.getViewLayoutPosition();
-        int rowIndex = mGrid.getRowIndex(position);
+        int position = glp.getViewAdapterPosition();
+        int rowIndex = position >= 0 ? mGrid.getRowIndex(position) : -1;
+        if (rowIndex < 0) {
+            return;
+        }
         int guessSpanIndex = position / mGrid.getNumRows();
         if (mOrientation == HORIZONTAL) {
             info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
