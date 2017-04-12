@@ -95,8 +95,9 @@ buildServerAnchorTask.dependsOn zipFlatfootDocsTask
 zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
 
 // Disable API checks for now.
-checkApiStable.enabled = false
+checkApiRelease.enabled = false
 checkApi.enabled = false
+generateApi.enabled = false
 
 buildServerAnchorTask.dependsOn createArchive
 
