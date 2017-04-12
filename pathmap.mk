@@ -27,7 +27,6 @@ FRAMEWORKS_SUPPORT_SUBDIRS := \
     dynamic-animation \
     exifinterface \
     fragment \
-    instantvideo \
     media-compat \
     percent \
     recommendation \
