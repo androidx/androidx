@@ -23,12 +23,7 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs = [
-                'api14',
-                'jellybean',
-                'api21',
-                'java'
-        ]
+        main.java.srcDirs = ['java']
     }
 }
 

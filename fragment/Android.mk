@@ -30,9 +30,6 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-fragment
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under, api14) \
-    $(call all-java-files-under, jellybean) \
-    $(call all-java-files-under, api21) \
     $(call all-java-files-under, java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \

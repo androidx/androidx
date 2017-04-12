@@ -61,19 +61,9 @@ import java.io.PrintWriter;
  * <li> <p>When using the <code>&lt;fragment></code> tag, this implementation can not
  * use the parent view's ID as the new fragment's ID.  You must explicitly
  * specify an ID (or tag) in the <code>&lt;fragment></code>.</p>
- * <li> <p>Prior to Honeycomb (3.0), an activity's state was saved before pausing.
- * Fragments are a significant amount of new state, and dynamic enough that one
- * often wants them to change between pausing and stopping.  These classes
- * throw an exception if you try to change the fragment state after it has been
- * saved, to avoid accidental loss of UI state.  However this is too restrictive
- * prior to Honeycomb, where the state is saved before pausing.  To address this,
- * when running on platforms prior to Honeycomb an exception will not be thrown
- * if you change fragments between the state save and the activity being stopped.
- * This means that in some cases if the activity is restored from its last saved
- * state, this may be a snapshot slightly before what the user last saw.</p>
  * </ul>
  */
-public class FragmentActivity extends BaseFragmentActivityJB implements
+public class FragmentActivity extends BaseFragmentActivityApi16 implements
         ActivityCompat.OnRequestPermissionsResultCallback,
         ActivityCompat.RequestPermissionsRequestCodeValidator {
     private static final String TAG = "FragmentActivity";
