@@ -40,6 +40,7 @@ import android.support.test.filters.LargeTest;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.media.MediaPlayerGlue;
+import android.support.v17.leanback.media.PlaybackGlueHost;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.util.StateMachine;
@@ -665,6 +666,87 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         );
         assertTrue(detailsFragment.mVideoSupportFragment.getView().hasFocus());
         PollingCheck.waitFor(new PollingCheck.ViewStableOnScreen(firstRow));
+    }
+
+    @Test
+    public void sharedGlueHost() {
+        final SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(DetailsSupportFragmentWithNoVideo.class, new Options().uiVisibility(
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
+        final DetailsSupportFragmentWithNoVideo detailsFragment =
+                (DetailsSupportFragmentWithNoVideo) activity.getTestFragment();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                detailsFragment.setItem(new PhotoItem("Hello world", "Fake content goes here",
+                        android.support.v17.leanback.test.R.drawable.spiderman));
+            }
+        });
+
+        SystemClock.sleep(1000);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        final MediaPlayerGlue glue1 = new MediaPlayerGlue(activity);
+                        detailsFragment.mDetailsBackgroundController.setupVideoPlayback(glue1);
+                        glue1.setArtist("A Googleer");
+                        glue1.setTitle("Diving with Sharks");
+                        glue1.setMediaSource(Uri.parse(
+                                "android.resource://android.support.v17.leanback.test/raw/video"));
+                    }
+                }
+        );
+
+        // after setup Video Playback the DPAD up will navigate to Video Fragment.
+        PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return detailsFragment.mVideoSupportFragment != null
+                        && detailsFragment.mVideoSupportFragment.getView() != null;
+            }
+        });
+
+        final MediaPlayerGlue glue1 = (MediaPlayerGlue) detailsFragment
+                .mDetailsBackgroundController
+                .getPlaybackGlue();
+        PlaybackGlueHost playbackGlueHost = glue1.getHost();
+
+        // wait a little bit to replace with new Glue
+        SystemClock.sleep(1000);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        final MediaPlayerGlue glue2 = new MediaPlayerGlue(activity);
+                        detailsFragment.mDetailsBackgroundController.setupVideoPlayback(glue2);
+                        glue2.setArtist("A Googleer");
+                        glue2.setTitle("Diving with Sharks");
+                        glue2.setMediaSource(Uri.parse(
+                                "android.resource://android.support.v17.leanback.test/raw/video"));
+                    }
+                }
+        );
+
+        // wait for new glue to get its glue host
+        PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                MediaPlayerGlue mediaPlayerGlue = (MediaPlayerGlue) detailsFragment
+                        .mDetailsBackgroundController
+                        .getPlaybackGlue();
+                return mediaPlayerGlue != null && mediaPlayerGlue != glue1
+                        && mediaPlayerGlue.getHost() != null;
+            }
+        });
+
+        final MediaPlayerGlue glue2 = (MediaPlayerGlue) detailsFragment
+                .mDetailsBackgroundController
+                .getPlaybackGlue();
+
+        assertTrue(glue1.getHost() == null);
+        assertTrue(glue2.getHost() == playbackGlueHost);
     }
 
     @Test
