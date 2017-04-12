@@ -117,8 +117,9 @@ class MediaBrowserServiceCompatApi21 {
         @Override
         public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                 Bundle rootHints) {
+            Bundle copiedRootHints = rootHints == null ? null : new Bundle(rootHints);
             MediaBrowserServiceCompatApi21.BrowserRoot browserRoot = mServiceProxy.onGetRoot(
-                    clientPackageName, clientUid, new Bundle(rootHints));
+                    clientPackageName, clientUid, copiedRootHints);
             return browserRoot == null ? null : new MediaBrowserService.BrowserRoot(
                     browserRoot.mRootId, browserRoot.mExtras);
         }
