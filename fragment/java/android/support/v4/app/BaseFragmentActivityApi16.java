@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License
+ * limitations under the License.
  */
 
 package android.support.v4.app;
@@ -31,7 +31,7 @@ import android.support.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-abstract class BaseFragmentActivityJB extends BaseFragmentActivityApi14 {
+abstract class BaseFragmentActivityApi16 extends BaseFragmentActivityApi14 {
 
     // We need to keep track of whether startActivityForResult originated from a Fragment, so we
     // can conditionally check whether the requestCode collides with our reserved ID space for the
