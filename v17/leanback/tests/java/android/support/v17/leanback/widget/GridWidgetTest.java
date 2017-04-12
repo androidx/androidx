@@ -41,6 +41,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
 import android.text.Selection;
@@ -62,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -416,12 +418,29 @@ public class GridWidgetTest {
      * To wait the ItemAnimator start, you can use waitForLayout() to make sure layout pass has
      * processed adapter change.
      */
-    protected void waitForItemAnimation() {
+    protected void waitForItemAnimation(int timeoutMs) {
         RecyclerView.ItemAnimator.ItemAnimatorFinishedListener listener = mock(
                 RecyclerView.ItemAnimator.ItemAnimatorFinishedListener.class);
         if (mGridView.getItemAnimator().isRunning(listener)) {
-            verify(listener, timeout(WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS).atLeastOnce())
+            verify(listener, timeout(timeoutMs).atLeastOnce())
                     .onAnimationsFinished();
+        }
+    }
+
+    protected void waitForItemAnimation() {
+        waitForItemAnimation(WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS);
+    }
+
+    /**
+     * wait animation start
+     */
+    protected void waitForItemAnimationStart() throws Throwable {
+        long totalWait = 0;
+        while (!mGridView.getItemAnimator().isRunning()) {
+            Thread.sleep(10);
+            if ((totalWait += 10) > WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS) {
+                throw new RuntimeException("waitForItemAnimationStart Timeout");
+            }
         }
     }
 
@@ -3599,6 +3618,169 @@ public class GridWidgetTest {
         });
         Thread.sleep(500);
         assertEquals(-1, mGridView.getSelectedPosition());
+    }
+
+    static void assertNoCollectionItemInfo(AccessibilityNodeInfoCompat info) {
+        AccessibilityNodeInfoCompat.CollectionItemInfoCompat nodeInfoCompat =
+                info.getCollectionItemInfo();
+        if (nodeInfoCompat == null) {
+            return;
+        }
+        assertTrue(nodeInfoCompat.getRowIndex() < 0);
+        assertTrue(nodeInfoCompat.getColumnIndex() < 0);
+    }
+
+    /**
+     * This test would need talkback on.
+     */
+    @Test
+    public void testAccessibilityOfItemsBeingPushedOut() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        final int lastPos = mGridView.getChildAdapterPosition(
+                mGridView.getChildAt(mGridView.getChildCount() - 1));
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getLayoutManager().setItemPrefetchEnabled(false);
+            }
+        });
+        final int numItemsToPushOut = mNumRows;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // set longer enough so that accessibility service will initialize node
+                // within setImportantForAccessibility().
+                mGridView.getItemAnimator().setRemoveDuration(2000);
+                mGridView.getItemAnimator().setAddDuration(2000);
+                final int[] newItems = new int[numItemsToPushOut];
+                final int newItemValue = mActivity.mItemLengths[0];
+                for (int i = 0; i < newItems.length; i++) {
+                    newItems[i] = newItemValue;
+                }
+                mActivity.addItems(lastPos - numItemsToPushOut + 1, newItems);
+            }
+        });
+        waitForItemAnimation(6000);
+    }
+
+    /**
+     * This test simulates talkback by calling setImportanceForAccessibility at end of animation
+     */
+    @Test
+    public void simulatesAccessibilityOfItemsBeingPushedOut() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        final HashSet<View> removeAnimationFinishedViews = new HashSet();
+        mActivity.mImportantForAccessibilityListener =
+                new GridActivity.ImportantForAccessibilityListener() {
+            RecyclerView.LayoutManager mLM = mGridView.getLayoutManager();
+            @Override
+            public void onImportantForAccessibilityChanged(View view, int newValue) {
+                // simulates talkack, having setImportantForAccessibility to call
+                // onInitializeAccessibilityNodeInfoForItem() for the DISAPPEARING items.
+                if (removeAnimationFinishedViews.contains(view)) {
+                    AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+                    mLM.onInitializeAccessibilityNodeInfoForItem(
+                            null, null, view, info);
+                }
+            }
+        };
+        final int lastPos = mGridView.getChildAdapterPosition(
+                mGridView.getChildAt(mGridView.getChildCount() - 1));
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setItemAnimator(new DefaultItemAnimator() {
+                    @Override
+                    public void onRemoveFinished(RecyclerView.ViewHolder item) {
+                        removeAnimationFinishedViews.add(item.itemView);
+                    }
+                });
+                mGridView.getLayoutManager().setItemPrefetchEnabled(false);
+            }
+        });
+        final int numItemsToPushOut = mNumRows;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final int[] newItems = new int[numItemsToPushOut];
+                final int newItemValue = mActivity.mItemLengths[0] + 1;
+                for (int i = 0; i < newItems.length; i++) {
+                    newItems[i] = newItemValue;
+                }
+                mActivity.addItems(lastPos - numItemsToPushOut + 1, newItems);
+            }
+        });
+        while (removeAnimationFinishedViews.size() != numItemsToPushOut) {
+            Thread.sleep(100);
+        }
+    }
+
+    @Test
+    public void testAccessibilityNodeInfoOnRemovedFirstItem() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 6);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        final View lastView = mGridView.findViewHolderForAdapterPosition(0).itemView;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setRemoveDuration(20000);
+                mActivity.removeItems(0, 1);
+            }
+        });
+        waitForItemAnimationStart();
+        AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain(lastView);
+        mGridView.getLayoutManager().onInitializeAccessibilityNodeInfoForItem(null, null,
+                lastView, info);
+        assertNoCollectionItemInfo(info);
+    }
+
+    @Test
+    public void testAccessibilityNodeInfoOnRemovedLastItem() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 6);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        initActivity(intent);
+
+        final View lastView = mGridView.findViewHolderForAdapterPosition(5).itemView;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setRemoveDuration(20000);
+                mActivity.removeItems(5, 1);
+            }
+        });
+        waitForItemAnimationStart();
+        AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain(lastView);
+        mGridView.getLayoutManager().onInitializeAccessibilityNodeInfoForItem(null, null,
+                lastView, info);
+        assertNoCollectionItemInfo(info);
     }
 }
 

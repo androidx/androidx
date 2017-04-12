@@ -250,7 +250,11 @@ abstract class Grid {
      * Gets the row index of item at given index.
      */
     public final int getRowIndex(int index) {
-        return getLocation(index).row;
+        Location location = getLocation(index);
+        if (location == null) {
+            return -1;
+        }
+        return location.row;
     }
 
     /**
