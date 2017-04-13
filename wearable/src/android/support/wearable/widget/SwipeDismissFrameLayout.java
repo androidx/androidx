@@ -57,6 +57,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
          * If any one instance of this Callback returns false for a given set of coordinates,
          * swipe-to-dismiss will not be allowed to start in that point.
          *
+         * @param layout The layout associated with this callback.
          * @param xDown The x coordinate of the initial {@link android.view.MotionEvent#ACTION_DOWN}
          *              event for this motion.
          * @param yDown The y coordinate of the initial {@link android.view.MotionEvent#ACTION_DOWN}
@@ -64,19 +65,31 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
          * @return true if this gesture should be recognized as a swipe to dismiss gesture, false
          * otherwise.
          */
-        boolean onPreSwipeStart(float xDown, float yDown) {
+        boolean onPreSwipeStart(SwipeDismissFrameLayout layout, float xDown, float yDown) {
             return true;
         }
 
-        /** Notifies listeners that the view is now being dragged as part of a dismiss gesture. */
-        public void onSwipeStarted() {
+        /**
+         * Notifies listeners that the view is now being dragged as part of a dismiss gesture.
+         *
+         * @param layout The layout associated with this callback.
+        */
+        public void onSwipeStarted(SwipeDismissFrameLayout layout) {
         }
 
-        /** Notifies listeners that the swipe gesture has ended without a dismissal. */
-        public void onSwipeCancelled() {
+        /**
+         * Notifies listeners that the swipe gesture has ended without a dismissal.
+         *
+         * @param layout The layout associated with this callback.
+         */
+        public void onSwipeCanceled(SwipeDismissFrameLayout layout) {
         }
 
-        /** Notifies listeners the dismissal is complete and the view now off screen. */
+        /**
+         * Notifies listeners the dismissal is complete and the view now off screen.
+         *
+         * @param layout The layout associated with this callback.
+         */
         public void onDismissed(SwipeDismissFrameLayout layout) {
         }
     }
@@ -200,7 +213,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
         @Override
         public boolean onPreSwipe(SwipeDismissLayout layout, float xDown, float yDown) {
             for (Callback callback : mCallbacks) {
-                if (!callback.onPreSwipeStart(xDown, yDown)) {
+                if (!callback.onPreSwipeStart(SwipeDismissFrameLayout.this, xDown, yDown)) {
                     return false;
                 }
             }
@@ -247,7 +260,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
             if (!mStarted) {
                 for (int i = mCallbacks.size() - 1; i >= 0; i--) {
                     Callback callbacks = mCallbacks.get(i);
-                    callbacks.onSwipeStarted();
+                    callbacks.onSwipeStarted(SwipeDismissFrameLayout.this);
                 }
                 mStarted = true;
             }
@@ -270,7 +283,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
                                 public void run() {
                                     for (int i = mCallbacks.size() - 1; i >= 0; i--) {
                                         Callback callbacks = mCallbacks.get(i);
-                                        callbacks.onSwipeCancelled();
+                                        callbacks.onSwipeCanceled(SwipeDismissFrameLayout.this);
                                     }
                                     resetTranslationAndAlpha();
                                 }
