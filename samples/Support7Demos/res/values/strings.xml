@@ -243,5 +243,7 @@
     <string name="text_plain_disabled">Plain disabled</string>
     <string name="text_link_enabled">With <a href="http://www.google.com">link</a> enabled</string>
     <string name="text_link_disabled">With <a href="http://www.google.com">link</a> disabled</string>
+
+    <string name="menu_item_icon_tinting">AppCompat/Menu Item Icons</string>
 </resources>
 

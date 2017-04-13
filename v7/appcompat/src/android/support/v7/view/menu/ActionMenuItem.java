@@ -20,9 +20,13 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -59,6 +63,11 @@ public class ActionMenuItem implements SupportMenuItem {
 
     private CharSequence mContentDescription;
     private CharSequence mTooltipText;
+
+    private ColorStateList mIconTintList = null;
+    private PorterDuff.Mode mIconTintMode = null;
+    private boolean mHasIconTint = false;
+    private boolean mHasIconTintMode = false;
 
     private static final int NO_ICON = 0;
 
@@ -209,6 +218,8 @@ public class ActionMenuItem implements SupportMenuItem {
     public MenuItem setIcon(Drawable icon) {
         mIconDrawable = icon;
         mIconResId = NO_ICON;
+
+        applyIconTint();
         return this;
     }
 
@@ -216,6 +227,8 @@ public class ActionMenuItem implements SupportMenuItem {
     public MenuItem setIcon(int iconRes) {
         mIconResId = iconRes;
         mIconDrawable = ContextCompat.getDrawable(mContext, iconRes);
+
+        applyIconTint();
         return this;
     }
 
@@ -384,5 +397,50 @@ public class ActionMenuItem implements SupportMenuItem {
     @Override
     public CharSequence getTooltipText() {
         return mTooltipText;
+    }
+
+    @Override
+    public MenuItem setIconTintList(@Nullable ColorStateList iconTintList) {
+        mIconTintList = iconTintList;
+        mHasIconTint = true;
+
+        applyIconTint();
+
+        return this;
+    }
+
+    @Override
+    public ColorStateList getIconTintList() {
+        return mIconTintList;
+    }
+
+    @Override
+    public MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {
+        mIconTintMode = iconTintMode;
+        mHasIconTintMode = true;
+
+        applyIconTint();
+
+        return this;
+    }
+
+    @Override
+    public PorterDuff.Mode getIconTintMode() {
+        return mIconTintMode;
+    }
+
+    private void applyIconTint() {
+        if (mIconDrawable != null && (mHasIconTint || mHasIconTintMode)) {
+            mIconDrawable = DrawableCompat.wrap(mIconDrawable);
+            mIconDrawable = mIconDrawable.mutate();
+
+            if (mHasIconTint) {
+                DrawableCompat.setTintList(mIconDrawable, mIconTintList);
+            }
+
+            if (mHasIconTintMode) {
+                DrawableCompat.setTintMode(mIconDrawable, mIconTintMode);
+            }
+        }
     }
 }
