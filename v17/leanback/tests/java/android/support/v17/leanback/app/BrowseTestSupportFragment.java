@@ -54,6 +54,8 @@ public class BrowseTestSupportFragment extends BrowseSupportFragment {
 
     int NUM_ROWS;
     int REPEAT_PER_ROW;
+    boolean mEntranceTransitionStarted;
+    boolean mEntranceTransitionEnded;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,6 +127,18 @@ public class BrowseTestSupportFragment extends BrowseSupportFragment {
         mRowsAdapter = new ArrayObjectAdapter(lrp);
 
         setAdapter(mRowsAdapter);
+    }
+
+    @Override
+    protected void onEntranceTransitionStart() {
+        super.onEntranceTransitionStart();
+        mEntranceTransitionStarted = true;
+    }
+
+    @Override
+    protected void onEntranceTransitionEnd() {
+        super.onEntranceTransitionEnd();
+        mEntranceTransitionEnded = true;
     }
 
     private void loadData() {
