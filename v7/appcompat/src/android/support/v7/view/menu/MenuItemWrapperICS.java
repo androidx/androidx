@@ -20,6 +20,8 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -344,6 +346,28 @@ public class MenuItemWrapperICS extends BaseMenuWrapper<SupportMenuItem> impleme
     @Override
     public CharSequence getTooltipText() {
         return mWrappedObject.getTooltipText();
+    }
+
+    @Override
+    public MenuItem setIconTintList(ColorStateList tint) {
+        mWrappedObject.setIconTintList(tint);
+        return this;
+    }
+
+    @Override
+    public ColorStateList getIconTintList() {
+        return mWrappedObject.getIconTintList();
+    }
+
+    @Override
+    public MenuItem setIconTintMode(PorterDuff.Mode tintMode) {
+        mWrappedObject.setIconTintMode(tintMode);
+        return this;
+    }
+
+    @Override
+    public PorterDuff.Mode getIconTintMode() {
+        return mWrappedObject.getIconTintMode();
     }
 
     public void setExclusiveCheckable(boolean checkable) {

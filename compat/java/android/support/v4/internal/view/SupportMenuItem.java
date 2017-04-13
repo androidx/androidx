@@ -18,6 +18,9 @@ package android.support.v4.internal.view;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ActionProvider;
 import android.view.MenuItem;
@@ -329,4 +332,47 @@ public interface SupportMenuItem extends android.view.MenuItem {
      */
     @Override
     int getAlphabeticModifiers();
+
+    /**
+     * Applies a tint to this item's icon. Does not modify the
+     * current tint mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
+     * <p>
+     * Subsequent calls to {@link MenuItem#setIcon(Drawable)} or {@link MenuItem#setIcon(int)} will
+     * automatically mutate the icon and apply the specified tint and
+     * tint mode.
+     *
+     * @param tint the tint to apply, may be {@code null} to clear tint
+     *
+     * @see #getIconTintList()
+     */
+    @Override
+    MenuItem setIconTintList(ColorStateList tint);
+
+    /**
+     * @return the tint applied to this item's icon
+     * @see #setIconTintList(ColorStateList)
+     */
+    @Override
+    ColorStateList getIconTintList();
+
+    /**
+     * Specifies the blending mode used to apply the tint specified by
+     * {@link #setIconTintList(ColorStateList)} to this item's icon. The default mode is
+     * {@link PorterDuff.Mode#SRC_IN}.
+     *
+     * @param tintMode the blending mode used to apply the tint, may be
+     *                 {@code null} to clear tint
+     * @see #setIconTintList(ColorStateList)
+     */
+    @Override
+    MenuItem setIconTintMode(PorterDuff.Mode tintMode);
+
+    /**
+     * Returns the blending mode used to apply the tint to this item's icon, if specified.
+     *
+     * @return the blending mode used to apply the tint to this item's icon
+     * @see #setIconTintMode(PorterDuff.Mode)
+     */
+    @Override
+    PorterDuff.Mode getIconTintMode();
 }

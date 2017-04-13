@@ -121,6 +121,8 @@
      <public type="attr" name="homeLayout"/>
      <public type="attr" name="icon"/>
      <public type="attr" name="iconifiedByDefault"/>
+     <public type="attr" name="iconTint"/>
+     <public type="attr" name="iconTintMode"/>
      <public type="attr" name="imageButtonStyle"/>
      <public type="attr" name="indeterminateProgressStyle"/>
      <public type="attr" name="isLightTheme"/>

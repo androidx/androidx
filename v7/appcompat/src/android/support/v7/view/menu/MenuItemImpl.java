@@ -21,9 +21,13 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.ActionProvider;
 import android.support.v7.content.res.AppCompatResources;
@@ -81,6 +85,12 @@ public final class MenuItemImpl implements SupportMenuItem {
 
     private CharSequence mContentDescription;
     private CharSequence mTooltipText;
+
+    private ColorStateList mIconTintList = null;
+    private PorterDuff.Mode mIconTintMode = null;
+    private boolean mHasIconTint = false;
+    private boolean mHasIconTintMode = false;
+    private boolean mNeedToApplyIconTint = false;
 
     private int mFlags = ENABLED;
     private static final int CHECKABLE = 0x00000001;
@@ -474,14 +484,14 @@ public final class MenuItemImpl implements SupportMenuItem {
     @Override
     public Drawable getIcon() {
         if (mIconDrawable != null) {
-            return mIconDrawable;
+            return applyIconTintIfNecessary(mIconDrawable);
         }
 
         if (mIconResId != NO_ICON) {
             Drawable icon = AppCompatResources.getDrawable(mMenu.getContext(), mIconResId);
             mIconResId = NO_ICON;
             mIconDrawable = icon;
-            return icon;
+            return applyIconTintIfNecessary(icon);
         }
 
         return null;
@@ -491,6 +501,7 @@ public final class MenuItemImpl implements SupportMenuItem {
     public MenuItem setIcon(Drawable icon) {
         mIconResId = NO_ICON;
         mIconDrawable = icon;
+        mNeedToApplyIconTint = true;
         mMenu.onItemsChanged(false);
 
         return this;
@@ -500,11 +511,64 @@ public final class MenuItemImpl implements SupportMenuItem {
     public MenuItem setIcon(int iconResId) {
         mIconDrawable = null;
         mIconResId = iconResId;
+        mNeedToApplyIconTint = true;
 
         // If we have a view, we need to push the Drawable to them
         mMenu.onItemsChanged(false);
 
         return this;
+    }
+
+
+    @Override
+    public MenuItem setIconTintList(@Nullable ColorStateList iconTintList) {
+        mIconTintList = iconTintList;
+        mHasIconTint = true;
+        mNeedToApplyIconTint = true;
+
+        mMenu.onItemsChanged(false);
+
+        return this;
+    }
+
+    @Override
+    public ColorStateList getIconTintList() {
+        return mIconTintList;
+    }
+
+    @Override
+    public MenuItem setIconTintMode(PorterDuff.Mode iconTintMode) {
+        mIconTintMode = iconTintMode;
+        mHasIconTintMode = true;
+        mNeedToApplyIconTint = true;
+
+        mMenu.onItemsChanged(false);
+
+        return this;
+    }
+
+    @Override
+    public PorterDuff.Mode getIconTintMode() {
+        return mIconTintMode;
+    }
+
+    private Drawable applyIconTintIfNecessary(Drawable icon) {
+        if (icon != null && mNeedToApplyIconTint && (mHasIconTint || mHasIconTintMode)) {
+            icon = DrawableCompat.wrap(icon);
+            icon = icon.mutate();
+
+            if (mHasIconTint) {
+                DrawableCompat.setTintList(icon, mIconTintList);
+            }
+
+            if (mHasIconTintMode) {
+                DrawableCompat.setTintMode(icon, mIconTintMode);
+            }
+
+            mNeedToApplyIconTint = false;
+        }
+
+        return icon;
     }
 
     @Override
