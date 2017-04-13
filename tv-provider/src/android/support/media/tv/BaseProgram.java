@@ -25,6 +25,7 @@ import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.BaseTvColumns;
 import android.support.media.tv.TvContractCompat.ProgramColumns;
+import android.support.media.tv.TvContractCompat.ProgramColumns.ReviewRatingStyle;
 import android.support.media.tv.TvContractCompat.Programs;
 import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
 import android.text.TextUtils;
@@ -67,6 +68,8 @@ public abstract class BaseProgram {
     private final Long mInternalProviderFlag2;
     private final Long mInternalProviderFlag3;
     private final Long mInternalProviderFlag4;
+    private final int mReviewRatingStyle;
+    private final String mReviewRating;
     private final String mSeasonTitle;
 
     /* package-private */
@@ -91,6 +94,8 @@ public abstract class BaseProgram {
         mInternalProviderFlag2 = builder.mInternalProviderFlag2;
         mInternalProviderFlag3 = builder.mInternalProviderFlag3;
         mInternalProviderFlag4 = builder.mInternalProviderFlag4;
+        mReviewRatingStyle = builder.mReviewRatingStyle;
+        mReviewRating = builder.mReviewRating;
         mSeasonTitle = builder.mSeasonTitle;
     }
 
@@ -262,6 +267,22 @@ public abstract class BaseProgram {
         return mSeasonTitle;
     }
 
+    /**
+     * @return The review rating style for the program.
+     * @see Programs#COLUMN_REVIEW_RATING_STYLE
+     */
+    public @ReviewRatingStyle int getReviewRatingStyle() {
+        return mReviewRatingStyle;
+    }
+
+    /**
+     * @return The review rating for the program.
+     * @see Programs#COLUMN_REVIEW_RATING
+     */
+    public String getReviewRating() {
+        return mReviewRating;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(
@@ -297,7 +318,10 @@ public abstract class BaseProgram {
                         && Objects.equals(mInternalProviderFlag3, program.mInternalProviderFlag3)
                         && Objects.equals(mInternalProviderFlag4, program.mInternalProviderFlag4)))
                 && (Build.VERSION.SDK_INT < Build.VERSION_CODES.N
-                        || Objects.equals(mSeasonTitle, program.mSeasonTitle));
+                        || Objects.equals(mSeasonTitle, program.mSeasonTitle))
+                && (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+                        || (Objects.equals(mReviewRatingStyle, program.mReviewRatingStyle)
+                        && Objects.equals(mReviewRating, program.mReviewRating)));
     }
 
     @Override
@@ -435,6 +459,15 @@ public abstract class BaseProgram {
                 values.put(ProgramColumns.COLUMN_SEASON_TITLE, mSeasonTitle);
             }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (mReviewRatingStyle != INVALID_INT_VALUE) {
+                values.put(ProgramColumns.COLUMN_REVIEW_RATING_STYLE,
+                        mReviewRatingStyle);
+            }
+            if (!TextUtils.isEmpty(mReviewRating)) {
+                values.put(ProgramColumns.COLUMN_REVIEW_RATING, mReviewRating);
+            }
+        }
         return values;
     }
 
@@ -557,6 +590,17 @@ public abstract class BaseProgram {
                 builder.setSeasonTitle(cursor.getString(index));
             }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if ((index = cursor.getColumnIndex(
+                    ProgramColumns.COLUMN_REVIEW_RATING_STYLE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setReviewRatingStyle(cursor.getInt(index));
+            }
+            if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_REVIEW_RATING)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setReviewRating(cursor.getString(index));
+            }
+        }
     }
 
     private static String[] getProjection() {
@@ -591,7 +635,14 @@ public abstract class BaseProgram {
         String[] nougatColumns = new String[] {
                 ProgramColumns.COLUMN_SEASON_TITLE,
         };
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        String[] oatmealColumns = new String[] {
+                ProgramColumns.COLUMN_REVIEW_RATING,
+                ProgramColumns.COLUMN_REVIEW_RATING_STYLE,
+        };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return CollectionUtils.concatAll(baseColumns, marshmallowColumns, nougatColumns,
+                    oatmealColumns);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, nougatColumns);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns);
@@ -626,6 +677,8 @@ public abstract class BaseProgram {
         private Long mInternalProviderFlag2;
         private Long mInternalProviderFlag3;
         private Long mInternalProviderFlag4;
+        private int mReviewRatingStyle = INVALID_INT_VALUE;
+        private String mReviewRating;
         private String mSeasonTitle;
 
         /**
@@ -659,6 +712,8 @@ public abstract class BaseProgram {
             mInternalProviderFlag2 = other.mInternalProviderFlag2;
             mInternalProviderFlag3 = other.mInternalProviderFlag3;
             mInternalProviderFlag4 = other.mInternalProviderFlag4;
+            mReviewRatingStyle = other.mReviewRatingStyle;
+            mReviewRating = other.mReviewRating;
             mSeasonTitle = other.mSeasonTitle;
         }
 
@@ -940,6 +995,46 @@ public abstract class BaseProgram {
          */
         public T setInternalProviderFlag4(long flag) {
             mInternalProviderFlag4 = flag;
+            return (T) this;
+        }
+
+        /**
+         * Sets the review rating score style used for {@link #setReviewRating}.
+         *
+         * @param reviewRatingStyle The reviewing rating style for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         *
+         * @see Programs#COLUMN_REVIEW_RATING_STYLE
+         * @see Programs#REVIEW_RATING_STYLE_STARS
+         * @see Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN
+         * @see Programs#REVIEW_RATING_STYLE_PERCENTAGE
+         */
+        public T setReviewRatingStyle(@ReviewRatingStyle int reviewRatingStyle) {
+            mReviewRatingStyle = reviewRatingStyle;
+            return (T) this;
+        }
+
+        /**
+         * Sets the review rating score for this program.
+         *
+         * <p>The format of the value is dependent on the review rating style. If the style is
+         * based on "stars", the value should be a real number between 0.0 and 5.0. (e.g. "4.5")
+         * If the style is based on "thumbs up/down", the value should be two integers, one for
+         * thumbs-up count and the other for thumbs-down count, with a comma between them.
+         * (e.g. "200,40") If the style is base on "percentage", the value should be a
+         * real number between 0 and 100. (e.g. "99.9")
+         *
+         * @param reviewRating The value of the review rating for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         *
+         * @see Programs#COLUMN_REVIEW_RATING
+         * @see Programs#COLUMN_REVIEW_RATING_STYLE
+         * @see Programs#REVIEW_RATING_STYLE_STARS
+         * @see Programs#REVIEW_RATING_STYLE_THUMBS_UP_DOWN
+         * @see Programs#REVIEW_RATING_STYLE_PERCENTAGE
+         */
+        public T setReviewRating(String reviewRating) {
+            mReviewRating = reviewRating;
             return (T) this;
         }
 
