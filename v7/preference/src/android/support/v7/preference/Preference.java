@@ -82,6 +82,7 @@ import java.util.List;
  * @attr name android:defaultValue
  * @attr name android:shouldDisableView
  * @attr name android:singleLineTitle
+ * @attr name android:iconSpaceReserved
  */
 public class Preference implements Comparable<Preference> {
     /**
@@ -143,6 +144,7 @@ public class Preference implements Comparable<Preference> {
     private boolean mAllowDividerAbove = true;
     private boolean mAllowDividerBelow = true;
     private boolean mSingleLineTitle = true;
+    private boolean mIconSpaceReserved;
 
     /**
      * @see #setShouldDisableView(boolean)
@@ -312,6 +314,9 @@ public class Preference implements Comparable<Preference> {
 
         mSingleLineTitle = TypedArrayUtils.getBoolean(a, R.styleable.Preference_singleLineTitle,
                 R.styleable.Preference_android_singleLineTitle, true);
+
+        mIconSpaceReserved = TypedArrayUtils.getBoolean(a, R.styleable.Preference_iconSpaceReserved,
+                R.styleable.Preference_android_iconSpaceReserved, false);
 
         a.recycle();
     }
@@ -583,7 +588,11 @@ public class Preference implements Comparable<Preference> {
                     imageView.setImageDrawable(mIcon);
                 }
             }
-            imageView.setVisibility(mIcon != null ? View.VISIBLE : View.GONE);
+            if (mIcon != null) {
+                imageView.setVisibility(View.VISIBLE);
+            } else {
+                imageView.setVisibility(mIconSpaceReserved ? View.INVISIBLE : View.GONE);
+            }
         }
 
         View imageFrame = holder.findViewById(R.id.icon_frame);
@@ -992,6 +1001,32 @@ public class Preference implements Comparable<Preference> {
      */
     public boolean isSingleLineTitle() {
         return mSingleLineTitle;
+    }
+
+    /**
+     * Sets whether to reserve the space of this Preference icon view when no icon is provided. If
+     * set to true, the preference will be offset as if it would have the icon and thus aligned with
+     * other preferences having icons.
+     *
+     * @param iconSpaceReserved set {@code true} if the space for the icon view should be reserved
+     *
+     * @attr ref R.styleable#Preference_android_iconSpaceReserved
+     */
+    public void setIconSpaceReserved(boolean iconSpaceReserved) {
+        mIconSpaceReserved = iconSpaceReserved;
+        notifyChanged();
+    }
+
+    /**
+     * Returns whether the space of this preference icon view is reserved.
+     *
+     * @see #setIconSpaceReserved(boolean)
+     * @return {@code true} if the space of this preference icon view is reserved
+     *
+     * @attr ref R.styleable#Preference_android_iconSpaceReserved
+     */
+    public boolean isIconSpaceReserved() {
+        return mIconSpaceReserved;
     }
 
     /**
