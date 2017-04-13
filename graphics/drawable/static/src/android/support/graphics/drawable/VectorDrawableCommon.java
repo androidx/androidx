@@ -28,7 +28,7 @@ import android.support.v4.graphics.drawable.TintAwareDrawable;
  */
 abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawable {
 
-    // Drawable delegation for Lollipop and above.
+    // Drawable delegation for supported API levels.
     Drawable mDelegateDrawable;
 
     @Override
@@ -67,7 +67,6 @@ abstract class VectorDrawableCommon extends Drawable implements TintAwareDrawabl
 
     @Override
     public void setHotspot(float x, float y) {
-        // API >= 21 only.
         if (mDelegateDrawable != null) {
             DrawableCompat.setHotspot(mDelegateDrawable, x, y);
         }

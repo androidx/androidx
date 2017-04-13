@@ -16,7 +16,6 @@
 
 package android.support.v4.media.session;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -38,6 +37,7 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat.CustomAction;
+import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -170,14 +170,13 @@ public final class MediaControllerCompat {
      *
      * @param session The session to be controlled.
      */
-    @SuppressLint("NewApi")
     public MediaControllerCompat(Context context, MediaSessionCompat session) {
         if (session == null) {
             throw new IllegalArgumentException("session must not be null");
         }
         mToken = session.getSessionToken();
 
-        if (MediaSessionCompat.isAtLeastO()) {
+        if (BuildCompat.isAtLeastO()) {
             mImpl = new MediaControllerImplApi26(context, session);
         } else if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, session);
@@ -197,7 +196,6 @@ public final class MediaControllerCompat {
      * @param sessionToken The token of the session to be controlled.
      * @throws RemoteException if the session is not accessible.
      */
-    @SuppressLint("NewApi")
     public MediaControllerCompat(Context context, MediaSessionCompat.Token sessionToken)
             throws RemoteException {
         if (sessionToken == null) {
@@ -205,7 +203,7 @@ public final class MediaControllerCompat {
         }
         mToken = sessionToken;
 
-        if (MediaSessionCompat.isAtLeastO()) {
+        if (BuildCompat.isAtLeastO()) {
             mImpl = new MediaControllerImplApi26(context, sessionToken);
         } else if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, sessionToken);
@@ -558,9 +556,8 @@ public final class MediaControllerCompat {
 
         boolean mRegistered = false;
 
-        @SuppressLint("NewApi")
         public Callback() {
-            if (MediaSessionCompat.isAtLeastO()) {
+            if (BuildCompat.isAtLeastO()) {
                 mCallbackObj = MediaControllerCompatApi26.createCallback(new StubApi26());
             } else if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaControllerCompatApi21.createCallback(new StubApi21());

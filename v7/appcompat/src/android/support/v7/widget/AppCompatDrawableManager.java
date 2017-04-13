@@ -23,7 +23,6 @@ import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -770,7 +769,6 @@ public final class AppCompatDrawableManager {
         VdcInflateDelegate() {
         }
 
-        @SuppressLint("NewApi")
         @Override
         public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
@@ -789,7 +787,6 @@ public final class AppCompatDrawableManager {
         AvdcInflateDelegate() {
         }
 
-        @SuppressLint("NewApi")
         @Override
         public Drawable createFromXmlInner(@NonNull Context context, @NonNull XmlPullParser parser,
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme) {
