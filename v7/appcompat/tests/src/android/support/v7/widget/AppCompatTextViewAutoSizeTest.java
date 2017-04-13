@@ -409,6 +409,31 @@ public class AppCompatTextViewAutoSizeTest extends
     }
 
     @Test
+    public void testAutoSizeCallers_setHorizontallyScrolling() throws Throwable {
+        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+                R.id.textview_autosize_uniform, false);
+        // Horizontal scrolling is expected to be deactivated for this test.
+        final float initialTextSize = autoSizeTextView.getTextSize();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeTextView.setHorizontallyScrolling(true);
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+        assertTrue(autoSizeTextView.getTextSize() > initialTextSize);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeTextView.setHorizontallyScrolling(false);
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+        Assert.assertEquals(initialTextSize, autoSizeTextView.getTextSize(), 0f);
+    }
+
+    @Test
     public void testAutoSize_setEllipsize() throws Throwable {
         final AppCompatTextView textView = (AppCompatTextView) getActivity().findViewById(
                 R.id.textview_autosize_uniform_predef_sizes);
