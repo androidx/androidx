@@ -3050,36 +3050,26 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     public void dispatchCreate() {
         mStateSaved = false;
-        mExecutingActions = true;
-        moveToState(Fragment.CREATED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.CREATED);
     }
 
     public void dispatchActivityCreated() {
         mStateSaved = false;
-        mExecutingActions = true;
-        moveToState(Fragment.ACTIVITY_CREATED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
     public void dispatchStart() {
         mStateSaved = false;
-        mExecutingActions = true;
-        moveToState(Fragment.STARTED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.STARTED);
     }
 
     public void dispatchResume() {
         mStateSaved = false;
-        mExecutingActions = true;
-        moveToState(Fragment.RESUMED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.RESUMED);
     }
 
     public void dispatchPause() {
-        mExecutingActions = true;
-        moveToState(Fragment.STARTED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.STARTED);
     }
 
     public void dispatchStop() {
@@ -3088,32 +3078,34 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // them.
         mStateSaved = true;
 
-        mExecutingActions = true;
-        moveToState(Fragment.STOPPED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.STOPPED);
     }
 
     public void dispatchReallyStop() {
-        mExecutingActions = true;
-        moveToState(Fragment.ACTIVITY_CREATED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
     public void dispatchDestroyView() {
-        mExecutingActions = true;
-        moveToState(Fragment.CREATED, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.CREATED);
     }
 
     public void dispatchDestroy() {
         mDestroyed = true;
         execPendingActions();
-        mExecutingActions = true;
-        moveToState(Fragment.INITIALIZING, false);
-        mExecutingActions = false;
+        dispatchStateChange(Fragment.INITIALIZING);
         mHost = null;
         mContainer = null;
         mParent = null;
+    }
+
+    private void dispatchStateChange(int nextState) {
+        try {
+            mExecutingActions = true;
+            moveToState(nextState, false);
+        } finally {
+            mExecutingActions = false;
+        }
+        execPendingActions();
     }
 
     public void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
