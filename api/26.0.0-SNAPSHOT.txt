@@ -6507,7 +6507,7 @@ package android.support.v4.content {
     method public static android.support.v4.content.SharedPreferencesCompat.EditorCompat getInstance();
   }
 
-  public abstract class WakefulBroadcastReceiver extends android.content.BroadcastReceiver {
+  public abstract deprecated class WakefulBroadcastReceiver extends android.content.BroadcastReceiver {
     ctor public WakefulBroadcastReceiver();
     method public static boolean completeWakefulIntent(android.content.Intent);
     method public static android.content.ComponentName startWakefulService(android.content.Context, android.content.Intent);
