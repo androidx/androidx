@@ -930,6 +930,7 @@ public final class TvContractCompat {
         @IntDef({
                 ASPECT_RATIO_16_9,
                 ASPECT_RATIO_3_2,
+                ASPECT_RATIO_4_3,
                 ASPECT_RATIO_1_1,
                 ASPECT_RATIO_2_3,
         })
@@ -954,12 +955,20 @@ public final class TvContractCompat {
         int ASPECT_RATIO_3_2 = 1;
 
         /**
+         * The aspect ratio for 4:3.
+         *
+         * @see #COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
+         */
+        int ASPECT_RATIO_4_3 = 2;
+
+        /**
          * The aspect ratio for 1:1.
          *
          * @see #COLUMN_POSTER_ART_ASPECT_RATIO
          * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
          */
-        int ASPECT_RATIO_1_1 = 2;
+        int ASPECT_RATIO_1_1 = 3;
 
         /**
          * The aspect ratio for 2:3.
@@ -967,7 +976,7 @@ public final class TvContractCompat {
          * @see #COLUMN_POSTER_ART_ASPECT_RATIO
          * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
          */
-        int ASPECT_RATIO_2_3 = 3;
+        int ASPECT_RATIO_2_3 = 4;
 
         /** @hide */
         @IntDef({
@@ -1125,6 +1134,7 @@ public final class TvContractCompat {
          * <p>The value should match one of the followings:
          * {@link #ASPECT_RATIO_16_9},
          * {@link #ASPECT_RATIO_3_2},
+         * {@link #ASPECT_RATIO_4_3},
          * {@link #ASPECT_RATIO_1_1}, and
          * {@link #ASPECT_RATIO_2_3}.
          *
@@ -1138,6 +1148,7 @@ public final class TvContractCompat {
          * <p>The value should match one of the followings:
          * {@link #ASPECT_RATIO_16_9},
          * {@link #ASPECT_RATIO_3_2},
+         * {@link #ASPECT_RATIO_4_3},
          * {@link #ASPECT_RATIO_1_1}, and
          * {@link #ASPECT_RATIO_2_3}.
          *
