@@ -7584,11 +7584,18 @@ package android.support.v4.media.session {
     method public void setSessionActivity(android.app.PendingIntent);
     method public void setShuffleMode(int);
     method public deprecated void setShuffleModeEnabled(boolean);
+    field public static final java.lang.String ACTION_ARGUMENT_MEDIA_ATTRIBUTE = "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE";
+    field public static final java.lang.String ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE = "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
     field public static final java.lang.String ACTION_FLAG_AS_INAPPROPRIATE = "android.support.v4.media.session.action.FLAG_AS_INAPPROPRIATE";
+    field public static final java.lang.String ACTION_FOLLOW = "android.support.v4.media.session.action.FOLLOW";
     field public static final java.lang.String ACTION_SKIP_AD = "android.support.v4.media.session.action.SKIP_AD";
+    field public static final java.lang.String ACTION_UNFOLLOW = "android.support.v4.media.session.action.UNFOLLOW";
     field public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
     field public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
     field public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
+    field public static final int MEDIA_ATTRIBUTE_ALBUM = 1; // 0x1
+    field public static final int MEDIA_ATTRIBUTE_ARTIST = 0; // 0x0
+    field public static final int MEDIA_ATTRIBUTE_PLAYLIST = 2; // 0x2
   }
 
   public static abstract class MediaSessionCompat.Callback {

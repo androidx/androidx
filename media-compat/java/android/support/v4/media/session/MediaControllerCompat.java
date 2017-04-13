@@ -173,6 +173,23 @@ public final class MediaControllerCompat {
         return null;
     }
 
+    private static void validateCustomAction(String action, Bundle args) {
+        if (action == null) {
+            return;
+        }
+        switch(action) {
+            case MediaSessionCompat.ACTION_FOLLOW:
+            case MediaSessionCompat.ACTION_UNFOLLOW:
+                if (args == null
+                        || !args.containsKey(MediaSessionCompat.ACTION_ARGUMENT_MEDIA_ATTRIBUTE)) {
+                    throw new IllegalArgumentException("An extra field "
+                            + MediaSessionCompat.ACTION_ARGUMENT_MEDIA_ATTRIBUTE + " is required "
+                            + "for this action " + action + ".");
+                }
+                break;
+        }
+    }
+
     private final MediaControllerImpl mImpl;
     private final MediaSessionCompat.Token mToken;
 
@@ -1124,6 +1141,8 @@ public final class MediaControllerCompat {
          *      Bundle args)
          * @see MediaSessionCompat#ACTION_FLAG_AS_INAPPROPRIATE
          * @see MediaSessionCompat#ACTION_SKIP_AD
+         * @see MediaSessionCompat#ACTION_FOLLOW
+         * @see MediaSessionCompat#ACTION_UNFOLLOW
          * @param action The action identifier of the
          *            {@link PlaybackStateCompat.CustomAction} as specified by
          *            the {@link MediaSessionCompat}.
@@ -1735,6 +1754,7 @@ public final class MediaControllerCompat {
 
         @Override
         public void sendCustomAction(String action, Bundle args) {
+            validateCustomAction(action, args);
             try {
                 mBinder.sendCustomAction(action, args);
             } catch (RemoteException e) {
@@ -2298,12 +2318,14 @@ public final class MediaControllerCompat {
 
         @Override
         public void sendCustomAction(CustomAction customAction, Bundle args) {
+            validateCustomAction(customAction.getAction(), args);
             MediaControllerCompatApi21.TransportControls.sendCustomAction(mControlsObj,
                     customAction.getAction(), args);
         }
 
         @Override
         public void sendCustomAction(String action, Bundle args) {
+            validateCustomAction(action, args);
             MediaControllerCompatApi21.TransportControls.sendCustomAction(mControlsObj, action,
                     args);
         }
