@@ -62,6 +62,9 @@ class AppCompatTextViewAutoSizeHelper {
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final int UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1;
+    // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when
+    // horizontal scrolling is activated.
+    private static final int VERY_WIDE = 1024 * 1024;
     // Auto-size text type.
     private int mAutoSizeTextType = TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
     // Specify if auto-size text is needed.
@@ -638,8 +641,12 @@ class AppCompatTextViewAutoSizeHelper {
     private boolean suggestedSizeFitsInSpace(int suggestedSizeInPx, RectF availableSpace) {
         final CharSequence text = mTextView.getText();
         final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;
-        final int availableWidth = mTextView.getMeasuredWidth() - mTextView.getTotalPaddingLeft()
-                - mTextView.getTotalPaddingRight();
+        final boolean horizontallyScrolling = invokeAndReturnWithDefault(
+                mTextView, "getHorizontallyScrolling", false);
+        final int availableWidth = horizontallyScrolling
+                ? VERY_WIDE
+                : mTextView.getMeasuredWidth() - mTextView.getTotalPaddingLeft()
+                        - mTextView.getTotalPaddingRight();
         if (mTempTextPaint == null) {
             mTempTextPaint = new TextPaint();
         } else {
