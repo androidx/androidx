@@ -143,6 +143,8 @@ public class ProgramTest extends TestCase {
                 .setInternalProviderFlag2(0x3)
                 .setInternalProviderFlag3(0x2)
                 .setInternalProviderFlag4(0x1)
+                .setReviewRatingStyle(Programs.REVIEW_RATING_STYLE_PERCENTAGE)
+                .setReviewRating("83.9")
                 .setChannelId(channelId)
                 .setStartTimeUtcMillis(0)
                 .setEndTimeUtcMillis(1000)
@@ -181,6 +183,10 @@ public class ProgramTest extends TestCase {
             assertTrue(Objects.equals(programA.getSeasonTitle(), programB.getSeasonTitle()));
             assertTrue(Objects.equals(programA.isRecordingProhibited(),
                     programB.isRecordingProhibited()));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            assertEquals(programA.getReviewRatingStyle(), programB.getReviewRatingStyle());
+            assertEquals(programA.getReviewRating(), programB.getReviewRating());
         }
         assertEquals(programA.toString(), programB.toString());
         if (includeIdAndProtectedFields) {
