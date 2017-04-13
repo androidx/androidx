@@ -24,11 +24,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.media.AudioManager;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
+import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -56,6 +61,9 @@ public class MediaControllerCompatTest {
     private static final float DELTA = 1e-4f;
     private static final boolean ENABLED = true;
     private static final boolean DISABLED = false;
+    private static final long TEST_POSITION = 1000000L;
+    private static final float TEST_PLAYBACK_SPEED = 3.0f;
+
 
     private final Object mWaitLock = new Object();
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -396,6 +404,40 @@ public class MediaControllerCompatTest {
         assertEquals(volumeControl, info.getVolumeControl());
         assertEquals(maxVolume, info.getMaxVolume());
         assertEquals(currentVolume, info.getCurrentVolume());
+    }
+
+    @Test
+    @SmallTest
+    public void testGetPlaybackStateWithPositionUpdate() throws InterruptedException {
+        final long stateSetTime = SystemClock.elapsedRealtime();
+        PlaybackStateCompat stateIn = new PlaybackStateCompat.Builder()
+                .setState(PlaybackStateCompat.STATE_PLAYING, TEST_POSITION, TEST_PLAYBACK_SPEED,
+                        stateSetTime)
+                .build();
+        mSession.setPlaybackState(stateIn);
+
+        final long waitDuration = 100L;
+        Thread.sleep(waitDuration);
+
+        final long expectedUpdateTime = waitDuration + stateSetTime;
+        final long expectedPosition = (long) (TEST_PLAYBACK_SPEED * waitDuration) + TEST_POSITION;
+
+        final double updateTimeTolerance = 30L;
+        final double positionTolerance = updateTimeTolerance * TEST_PLAYBACK_SPEED;
+
+        PlaybackStateCompat stateOut = mSession.getController().getPlaybackState();
+        assertEquals(expectedUpdateTime, stateOut.getLastPositionUpdateTime(), updateTimeTolerance);
+        assertEquals(expectedPosition, stateOut.getPosition(), positionTolerance);
+
+        // Compare the result with MediaController.getPlaybackState().
+        if (Build.VERSION.SDK_INT >= 21) {
+            MediaController controller = new MediaController(
+                    getContext(), (MediaSession.Token) mSession.getSessionToken().getToken());
+            PlaybackState state = controller.getPlaybackState();
+            assertEquals(state.getLastPositionUpdateTime(), stateOut.getLastPositionUpdateTime(),
+                    updateTimeTolerance);
+            assertEquals(state.getPosition(), stateOut.getPosition(), positionTolerance);
+        }
     }
 
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
