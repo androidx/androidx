@@ -1550,7 +1550,6 @@ public class ViewCompat {
     static final ViewCompatBaseImpl IMPL;
     static {
         if (BuildCompat.isAtLeastO()) {
-            //noinspection AndroidLintNewApi
             IMPL = new ViewCompatApi26Impl();
         } else if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new ViewCompatApi24Impl();

@@ -777,11 +777,10 @@ public final class PlaybackStateCompat implements Parcelable {
                         mBufferedPosition,
                         mSpeed, mActions, mErrorMessage, mUpdateTime,
                         customActions, mActiveItemId, mExtras);
-            } else if (Build.VERSION.SDK_INT >= 21) {
-                // The extra conditional is necessary to pass the NewApi Lint inspection.
+            } else {
+                //noinspection AndroidLintNewApi - NewApi lint fails to handle nested checks.
                 mStateObj = PlaybackStateCompatApi21.newInstance(mState, mPosition,
-                        mBufferedPosition,
-                        mSpeed, mActions, mErrorMessage, mUpdateTime,
+                        mBufferedPosition, mSpeed, mActions, mErrorMessage, mUpdateTime,
                         customActions, mActiveItemId);
             }
         }

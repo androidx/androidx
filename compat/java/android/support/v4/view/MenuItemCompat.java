@@ -230,7 +230,6 @@ public final class MenuItemCompat {
     static final MenuVersionImpl IMPL;
     static {
         if (BuildCompat.isAtLeastO()) {
-            //noinspection AndroidLintNewApi
             IMPL = new MenuItemCompatApi26Impl();
         } else {
             IMPL = new MenuItemCompatBaseImpl();

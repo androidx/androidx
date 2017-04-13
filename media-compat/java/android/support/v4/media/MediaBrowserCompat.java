@@ -43,7 +43,6 @@ import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNE
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -126,13 +125,11 @@ public final class MediaBrowserCompat {
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE
      * @see MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTED
      */
-    @SuppressLint("NewApi")
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
         // To workaround an issue of {@link #unsubscribe(String, SubscriptionCallback)} on API 24
         // and 25 devices, use the support library version of implementation on those devices.
         if (BuildCompat.isAtLeastO()) {
-            //noinspection AndroidLintNewApi
             mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
@@ -607,10 +604,8 @@ public final class MediaBrowserCompat {
         private final IBinder mToken;
         WeakReference<Subscription> mSubscriptionRef;
 
-        @SuppressLint("NewApi")
         public SubscriptionCallback() {
             if (BuildCompat.isAtLeastO()) {
-                //noinspection AndroidLintNewApi
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
                 mToken = null;
@@ -811,10 +806,8 @@ public final class MediaBrowserCompat {
     public abstract static class SearchCallback {
         final Object mSearchCallbackObj;
 
-        @SuppressLint("NewApi")
         public SearchCallback() {
             if (BuildCompat.isAtLeastO()) {
-                //noinspection AndroidLintNewApi
                 mSearchCallbackObj = MediaBrowserCompatApi26.createSearchCallback(new StubApi26());
             } else {
                 mSearchCallbackObj = null;

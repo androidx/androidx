@@ -24,7 +24,8 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
-import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol
+        .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLING_UID;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
@@ -45,7 +46,6 @@ import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNE
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_VERSION_CURRENT;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -861,11 +861,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     @Override
-    @SuppressLint("NewApi")
     public void onCreate() {
         super.onCreate();
         if (BuildCompat.isAtLeastO()) {
-            //noinspection AndroidLintNewApi
             mImpl = new MediaBrowserServiceImplApi24();
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
