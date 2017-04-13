@@ -16,7 +16,6 @@
 
 package android.support.v4.widget;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.ColorInt;
@@ -472,12 +471,10 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         mCircleView.startAnimation(mScaleDownAnimation);
     }
 
-    @SuppressLint("NewApi")
     private void startProgressAlphaStartAnimation() {
         mAlphaStartAnimation = startAlphaAnimation(mProgress.getAlpha(), STARTING_PROGRESS_ALPHA);
     }
 
-    @SuppressLint("NewApi")
     private void startProgressAlphaMaxAnimation() {
         mAlphaMaxAnimation = startAlphaAnimation(mProgress.getAlpha(), MAX_ALPHA);
     }
@@ -897,7 +894,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         return animation != null && animation.hasStarted() && !animation.hasEnded();
     }
 
-    @SuppressLint("NewApi")
     private void moveSpinner(float overscrollTop) {
         mProgress.showArrow(true);
         float originalDragPercent = overscrollTop / mTotalDragDistance;

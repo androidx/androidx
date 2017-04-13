@@ -14,6 +14,8 @@
 
 package android.support.graphics.drawable;
 
+import android.support.annotation.StyleableRes;
+
 class AndroidResources {
 
     // Resources ID generated in the latest R.java for framework.
@@ -78,7 +80,9 @@ class AndroidResources {
     static final int[] STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET = {
             android.R.attr.name, android.R.attr.animation
     };
+    @StyleableRes
     static final int STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_ANIMATION = 1;
+    @StyleableRes
     static final int STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_NAME = 0;
 
     /////////////////////////////////////////////////////////////////////

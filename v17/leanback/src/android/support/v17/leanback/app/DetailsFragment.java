@@ -617,6 +617,7 @@ public class DetailsFragment extends BaseFragment {
                 // wait next cycle for Fragment view created so we can focus on it.
                 // This is a bit hack eventually we will do commitNow() which get view immediately.
                 getView().post(new Runnable() {
+                    @Override
                     public void run() {
                         if (getView() != null) {
                             switchToVideo();

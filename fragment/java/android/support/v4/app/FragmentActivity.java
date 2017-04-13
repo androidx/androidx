@@ -18,7 +18,6 @@ package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -863,7 +862,6 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
             super(FragmentActivity.this /*fragmentActivity*/);
         }
 
-        @SuppressLint("NewApi")
         @Override
         public void onDump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
             FragmentActivity.this.dump(prefix, fd, writer, args);
