@@ -33,6 +33,10 @@
         <activity android:name="android.support.v7.app.AppCompatMenuItemShortcutsTestActivity"/>
 
         <activity
+            android:name="android.support.v7.app.AppCompatMenuItemIconTintingTestActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <activity
                 android:name="android.support.v7.app.WindowDecorAppCompatActivity"/>
         <activity
                 android:name="android.support.v7.app.ToolbarAppCompatActivity"

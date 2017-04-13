@@ -263,6 +263,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.MenuItemIconTinting"
+                  android:label="@string/menu_item_icon_tinting"
+                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.ToolbarUsage"
                   android:label="@string/toolbar_usage"
                   android:theme="@style/Theme.Custom.NoActionBar">

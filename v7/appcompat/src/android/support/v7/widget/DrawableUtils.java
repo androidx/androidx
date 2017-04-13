@@ -178,7 +178,10 @@ public class DrawableUtils {
         drawable.setState(originalState);
     }
 
-    static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {
+    /**
+     * Parses tint mode.
+     */
+    public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {
         switch (value) {
             case 3: return PorterDuff.Mode.SRC_OVER;
             case 5: return PorterDuff.Mode.SRC_IN;
