@@ -17,7 +17,6 @@
 
 package android.support.v7.widget;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -105,11 +104,11 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         }
     }
 
-    @SuppressLint("NewApi")
     private void drawVertical(Canvas canvas, RecyclerView parent) {
         canvas.save();
         final int left;
         final int right;
+        //noinspection AndroidLintNewApi - NewApi lint fails to handle overrides.
         if (parent.getClipToPadding()) {
             left = parent.getPaddingLeft();
             right = parent.getWidth() - parent.getPaddingRight();
@@ -132,11 +131,11 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         canvas.restore();
     }
 
-    @SuppressLint("NewApi")
     private void drawHorizontal(Canvas canvas, RecyclerView parent) {
         canvas.save();
         final int top;
         final int bottom;
+        //noinspection AndroidLintNewApi - NewApi lint fails to handle overrides.
         if (parent.getClipToPadding()) {
             top = parent.getPaddingTop();
             bottom = parent.getHeight() - parent.getPaddingBottom();

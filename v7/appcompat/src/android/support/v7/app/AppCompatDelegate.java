@@ -197,7 +197,6 @@ public abstract class AppCompatDelegate {
     private static AppCompatDelegate create(Context context, Window window,
             AppCompatCallback callback) {
         if (BuildCompat.isAtLeastO()) {
-            //noinspection AndroidLintNewApi
             return new AppCompatDelegateImplO(context, window, callback);
         } else if (Build.VERSION.SDK_INT >= 24) {
             return new AppCompatDelegateImplN(context, window, callback);

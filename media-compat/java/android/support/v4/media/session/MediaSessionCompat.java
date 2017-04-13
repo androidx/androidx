@@ -19,7 +19,6 @@ package android.support.v4.media.session;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -308,7 +307,7 @@ public class MediaSessionCompat {
         }
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionImplApi21(context, tag);
-            if (!isAtLeastO()) {
+            if (!BuildCompat.isAtLeastO()) {
                 // Set default callback to respond to controllers' extra binder requests.
                 setCallback(new Callback() {});
             }
@@ -330,7 +329,7 @@ public class MediaSessionCompat {
 
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
-        if (android.os.Build.VERSION.SDK_INT >= 21 && !isAtLeastO()) {
+        if (android.os.Build.VERSION.SDK_INT >= 21 && !BuildCompat.isAtLeastO()) {
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
         }
@@ -711,10 +710,6 @@ public class MediaSessionCompat {
         return null;
     }
 
-    static boolean isAtLeastO() {
-        return BuildCompat.isAtLeastO() || android.os.Build.VERSION.SDK_INT >= 26;
-    }
-
     /**
      * Receives transport controls, media buttons, and commands from controllers
      * and the system. The callback may be set using {@link #setCallback}.
@@ -723,9 +718,8 @@ public class MediaSessionCompat {
         final Object mCallbackObj;
         WeakReference<MediaSessionImpl> mSessionImpl;
 
-        @SuppressLint("NewApi")
         public Callback() {
-            if (isAtLeastO()) {
+            if (BuildCompat.isAtLeastO()) {
                 mCallbackObj = MediaSessionCompatApi26.createCallback(new StubApi26());
             } else if (android.os.Build.VERSION.SDK_INT >= 24) {
                 mCallbackObj = MediaSessionCompatApi24.createCallback(new StubApi24());
@@ -2946,7 +2940,7 @@ public class MediaSessionCompat {
         public void setCallback(Callback callback, Handler handler) {
             MediaSessionCompatApi21.setCallback(mSessionObj,
                     callback == null ? null : callback.mCallbackObj, handler);
-            if (!isAtLeastO() && callback != null) {
+            if (!BuildCompat.isAtLeastO() && callback != null) {
                 callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
             }
         }
@@ -3078,10 +3072,9 @@ public class MediaSessionCompat {
             }
         }
 
-        @SuppressLint("NewApi")
         @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
-            if (!isAtLeastO()) {
+            if (!BuildCompat.isAtLeastO()) {
                 if (mRepeatMode != repeatMode) {
                     mRepeatMode = repeatMode;
                     int size = mExtraControllerCallbacks.beginBroadcast();
@@ -3099,10 +3092,9 @@ public class MediaSessionCompat {
             }
         }
 
-        @SuppressLint("NewApi")
         @Override
         public void setShuffleModeEnabled(boolean enabled) {
-            if (!isAtLeastO()) {
+            if (!BuildCompat.isAtLeastO()) {
                 if (mShuffleModeEnabled != enabled) {
                     mShuffleModeEnabled = enabled;
                     int size = mExtraControllerCallbacks.beginBroadcast();
