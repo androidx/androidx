@@ -60,7 +60,7 @@ import java.util.Map;
 // thread.
 public class LiveData<T> {
     private final Object mDataLock = new Object();
-    private static final int START_VERSION = -1;
+    static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
 
     private static final LifecycleOwner ALWAYS_ON = new LifecycleOwner() {
@@ -264,7 +264,7 @@ public class LiveData<T> {
      *
      * @param value The new value
      */
-    public void postValue(T value) {
+    protected void postValue(T value) {
         boolean postTask;
         synchronized (mDataLock) {
             postTask = mPendingData == NOT_SET;
@@ -285,7 +285,7 @@ public class LiveData<T> {
      * @param value The new value
      */
     @MainThread
-    public void setValue(T value) {
+    protected void setValue(T value) {
         assertMainThread("setValue");
         mVersion++;
         mData = value;
@@ -309,6 +309,10 @@ public class LiveData<T> {
             return (T) mData;
         }
         return null;
+    }
+
+    int getVersion() {
+        return mVersion;
     }
 
     /**
