@@ -22,9 +22,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.NonConfigOnStopActivity;
-import android.support.v4.app.test.OrientationChangeActivity;
 
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,24 +35,16 @@ public class FragmentManagerNonConfigTest {
     public ActivityTestRule<NonConfigOnStopActivity> mActivityRule =
             new ActivityTestRule<>(NonConfigOnStopActivity.class);
 
-    @After
-    public void resetActivity() {
-        FragmentTestUtil.resetOrientation();
-    }
-
     /**
      * When a fragment is added during onStop(), it shouldn't show up in non-config
      * state when restored.
      */
     @Test
     public void nonConfigStop() throws Throwable {
-        if (!FragmentTestUtil.switchOrientation()) {
-            return; // nothing to do -- we can't change the orientation
-        }
+        FragmentActivity activity = FragmentTestUtil.recreateActivity(mActivityRule,
+                mActivityRule.getActivity());
 
         // A fragment was added in onStop(), but we shouldn't see it here...
-        FragmentActivity activity = OrientationChangeActivity.sActivity;
         assertTrue(activity.getSupportFragmentManager().getFragments().isEmpty());
     }
-
 }

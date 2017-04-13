@@ -26,7 +26,7 @@ import android.support.v4.content.Loader;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class LoaderActivity extends OrientationChangeActivity {
+public class LoaderActivity extends RecreatedActivity {
     public TextView textView;
     public TextView textViewB;
 
