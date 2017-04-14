@@ -12425,8 +12425,8 @@ package android.support.wearable.widget {
   public static abstract class SwipeDismissFrameLayout.Callback {
     ctor public SwipeDismissFrameLayout.Callback();
     method public void onDismissed(android.support.wearable.widget.SwipeDismissFrameLayout);
-    method public void onSwipeCancelled();
-    method public void onSwipeStarted();
+    method public void onSwipeCanceled(android.support.wearable.widget.SwipeDismissFrameLayout);
+    method public void onSwipeStarted(android.support.wearable.widget.SwipeDismissFrameLayout);
   }
 
   public class WearableLinearLayoutManager extends android.support.v7.widget.LinearLayoutManager {

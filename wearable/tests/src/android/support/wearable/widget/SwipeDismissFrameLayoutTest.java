@@ -342,7 +342,8 @@ public class SwipeDismissFrameLayoutTest {
         setCallback(
                 new DismissCallback() {
                     @Override
-                    public boolean onPreSwipeStart(float x, float y) {
+                    public boolean onPreSwipeStart(SwipeDismissFrameLayout layout, float x,
+                            float y) {
                         float normalizedX = x - mLayoutWidth / 2;
                         float normalizedY = y - mLayoutWidth / 2;
                         float squareX = normalizedX * normalizedX;
