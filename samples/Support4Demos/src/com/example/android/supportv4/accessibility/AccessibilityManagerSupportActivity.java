@@ -61,7 +61,7 @@ public class AccessibilityManagerSupportActivity extends Activity {
         setContentView(R.layout.accessibility_manager);
         mAccessibilityManager = (AccessibilityManager) getSystemService(
                 Service.ACCESSIBILITY_SERVICE);
-        mAccessibilityStateView = (TextView) findViewById(R.id.accessibility_state);
+        mAccessibilityStateView = findViewById(R.id.accessibility_state);
         registerAccessibilityStateChangeListener();
     }
 

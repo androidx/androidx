@@ -61,7 +61,7 @@ public class AnimatedRecyclerView extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.animated_recycler_view);
 
-        ViewGroup container = (ViewGroup) findViewById(R.id.container);
+        ViewGroup container = findViewById(R.id.container);
         mRecyclerView = new RecyclerView(this);
         mCachedAnimator = createAnimator();
         mCachedAnimator.setChangeDuration(2000);
@@ -77,7 +77,7 @@ public class AnimatedRecyclerView extends Activity {
         mRecyclerView.setAdapter(mAdapter);
         container.addView(mRecyclerView);
 
-        CheckBox enableAnimations = (CheckBox) findViewById(R.id.enableAnimations);
+        CheckBox enableAnimations = findViewById(R.id.enableAnimations);
         enableAnimations.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -91,7 +91,7 @@ public class AnimatedRecyclerView extends Activity {
         });
 
         CheckBox enablePredictiveAnimations =
-                (CheckBox) findViewById(R.id.enablePredictiveAnimations);
+                findViewById(R.id.enablePredictiveAnimations);
         enablePredictiveAnimations.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -99,7 +99,7 @@ public class AnimatedRecyclerView extends Activity {
             }
         });
 
-        CheckBox enableInPlaceChange = (CheckBox) findViewById(R.id.enableInPlaceChange);
+        CheckBox enableInPlaceChange = findViewById(R.id.enableInPlaceChange);
         enableInPlaceChange.setChecked(mEnableInPlaceChange);
         enableInPlaceChange.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {

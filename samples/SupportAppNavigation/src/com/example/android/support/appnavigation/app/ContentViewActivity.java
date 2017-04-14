@@ -40,10 +40,10 @@ public class ContentViewActivity extends Activity {
 
         Intent intent = getIntent();
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-            TextView tv = (TextView) findViewById(R.id.status_text);
+            TextView tv = findViewById(R.id.status_text);
             tv.setText("Viewing content from ACTION_VIEW");
         } else if (intent.hasExtra(EXTRA_TEXT)) {
-            TextView tv = (TextView) findViewById(R.id.status_text);
+            TextView tv = findViewById(R.id.status_text);
             tv.setText(intent.getStringExtra(EXTRA_TEXT));
         }
     }

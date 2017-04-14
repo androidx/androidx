@@ -41,7 +41,7 @@ public class RowsSupportActivity extends FragmentActivity
     }
 
     private void setupTitleFragment() {
-        TitleView titleView = (TitleView) findViewById(R.id.title);
+        TitleView titleView = findViewById(R.id.title);
         titleView.setTitle("RowsSupportFragment");
         titleView.setOnSearchClickedListener(new View.OnClickListener() {
             @Override
@@ -51,7 +51,7 @@ public class RowsSupportActivity extends FragmentActivity
             }
         });
 
-        BrowseFrameLayout frameLayout = (BrowseFrameLayout) findViewById(R.id.rows_frame);
+        BrowseFrameLayout frameLayout = findViewById(R.id.rows_frame);
         TitleHelper titleHelper = new TitleHelper(frameLayout, titleView);
         frameLayout.setOnFocusSearchListener(titleHelper.getOnFocusSearchListener());
         mRowsSupportFragment.setTitleHelper(titleHelper);

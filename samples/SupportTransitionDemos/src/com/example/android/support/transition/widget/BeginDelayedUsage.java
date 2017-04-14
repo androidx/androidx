@@ -37,8 +37,8 @@ public class BeginDelayedUsage extends TransitionUsageBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRoot = (LinearLayout) findViewById(R.id.root);
-        mMessage = (TextView) findViewById(R.id.message);
+        mRoot = findViewById(R.id.root);
+        mMessage = findViewById(R.id.message);
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

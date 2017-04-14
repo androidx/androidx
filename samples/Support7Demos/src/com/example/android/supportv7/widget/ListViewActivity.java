@@ -36,7 +36,7 @@ public class ListViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.list_view_activity);
-        ListView listView = (ListView) findViewById(R.id.list_view);
+        ListView listView = findViewById(R.id.list_view);
         listView.setAdapter(new BaseAdapter() {
             @Override
             public int getCount() {

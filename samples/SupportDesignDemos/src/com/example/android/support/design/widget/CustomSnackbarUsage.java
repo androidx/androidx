@@ -37,7 +37,7 @@ public class CustomSnackbarUsage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.custom_snackbar_with_fab);
 
-        mContentView = (CoordinatorLayout) findViewById(R.id.content_view);
+        mContentView = findViewById(R.id.content_view);
     }
 
     /** Shows a custom snackbar with no action. */

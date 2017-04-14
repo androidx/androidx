@@ -42,29 +42,29 @@ public class AccessibilityRoleDescriptionSupportActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.accessibility_roledescription);
 
-        TextView firstTextView = (TextView) findViewById(R.id.text_view_1);
+        TextView firstTextView = findViewById(R.id.text_view_1);
         String roleDescriptionTextView = getString(R.string.accessibility_roledescription_role);
         ViewCompat.setAccessibilityDelegate(firstTextView,
             new RoleDescriptionAccessibilityDelegate(roleDescriptionTextView));
 
-        TextView heading1 = (TextView) findViewById(R.id.text_heading_1);
+        TextView heading1 = findViewById(R.id.text_heading_1);
         String roleDescriptionHeading1 = getString(R.string.accessibility_roledescription_h1_role);
         ViewCompat.setAccessibilityDelegate(heading1,
             new RoleDescriptionAccessibilityDelegate(roleDescriptionHeading1));
 
-        TextView heading2 = (TextView) findViewById(R.id.text_heading_2);
+        TextView heading2 = findViewById(R.id.text_heading_2);
         String roleDescriptionHeading2 = getString(R.string.accessibility_roledescription_h2_role);
         ViewCompat.setAccessibilityDelegate(heading2,
             new RoleDescriptionAccessibilityDelegate(roleDescriptionHeading2));
 
-        TextView heading3 = (TextView) findViewById(R.id.text_heading_3);
+        TextView heading3 = findViewById(R.id.text_heading_3);
         String roleDescriptionHeading3 = getString(R.string.accessibility_roledescription_h3_role);
         ViewCompat.setAccessibilityDelegate(heading3,
             new RoleDescriptionAccessibilityDelegate(roleDescriptionHeading3));
 
         // This is an example of an <strong>incorrect</strong> use of the role description.
         // You should not set the role description for standard widgets in your own code.
-        Button button = (Button) findViewById(R.id.button);
+        Button button = findViewById(R.id.button);
         String roleDescriptionButton =
             getString(R.string.accessibility_roledescription_button_role);
         ViewCompat.setAccessibilityDelegate(button,

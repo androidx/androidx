@@ -38,16 +38,16 @@ public class AVDCListenerDemo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.avdc_listener);
-        final AppCompatImageView imageView1 = (AppCompatImageView) findViewById(R.id.imageView);
-        final AppCompatImageView imageView2 = (AppCompatImageView) findViewById(R.id.imageView2);
+        final AppCompatImageView imageView1 = findViewById(R.id.imageView);
+        final AppCompatImageView imageView2 = findViewById(R.id.imageView2);
 
-        final TextView textView1 = (TextView) findViewById(R.id.textView);
+        final TextView textView1 = findViewById(R.id.textView);
         textView1.setText("Should show start / end for first AVD");
-        final TextView textView2 = (TextView) findViewById(R.id.textView2);
+        final TextView textView2 = findViewById(R.id.textView2);
         textView2.setText("Not affected by AVD, b/c removed after register");
-        final TextView textView3 = (TextView) findViewById(R.id.textView3);
+        final TextView textView3 = findViewById(R.id.textView3);
         textView3.setText("Should show start / end for second AVD");
-        final TextView textView4 = (TextView) findViewById(R.id.textView4);
+        final TextView textView4 = findViewById(R.id.textView4);
         textView4.setText("Not affected by AVD, b/c unregistered after register");
 
         final Drawable drawable1 = imageView1.getDrawable();

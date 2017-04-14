@@ -42,7 +42,7 @@ public class ToolbarDisplayOptions extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.toolbar_display_options);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         findViewById(R.id.toggle_home_as_up).setOnClickListener(this);

@@ -51,13 +51,13 @@ public class SharingReceiverSupport extends Activity {
         ShareCompat.IntentReader intentReader = ShareCompat.IntentReader.from(this);
 
         // The following provides attribution for the app that shared the data with us.
-        TextView info = (TextView) findViewById(R.id.app_info);
+        TextView info = findViewById(R.id.app_info);
         Drawable d = intentReader.getCallingActivityIcon();
         d.setBounds(0, 0, iconSize, iconSize);
         info.setCompoundDrawables(d, null, null, null);
         info.setText(intentReader.getCallingApplicationLabel());
 
-        TextView tv = (TextView) findViewById(R.id.text);
+        TextView tv = findViewById(R.id.text);
         StringBuilder txt = new StringBuilder("Received share!\nText was: ");
 
         txt.append(intentReader.getText());

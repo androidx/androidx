@@ -73,7 +73,7 @@ public class ExploreByTouchHelperActivity extends Activity {
 
         setContentView(R.layout.explore_by_touch_helper);
 
-        final CustomView customView = (CustomView) findViewById(R.id.custom_view);
+        final CustomView customView = findViewById(R.id.custom_view);
 
         // Adds an item at the top-left quarter of the custom view.
         customView.addItem(getString(R.string.sample_item_a), 0, 0, 0.5f, 0.5f);

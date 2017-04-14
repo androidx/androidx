@@ -45,7 +45,7 @@ public class ArcMotionUsage extends TransitionUsageBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRoot = (FrameLayout) findViewById(R.id.root);
+        mRoot = findViewById(R.id.root);
         mTarget = findViewById(R.id.target);
         mTransition = new ChangeBounds();
         mTransition.setPathMotion(new ArcMotion());

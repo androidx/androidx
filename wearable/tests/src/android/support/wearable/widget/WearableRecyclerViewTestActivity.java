@@ -29,7 +29,7 @@ public class WearableRecyclerViewTestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wearable_recycler_view_basic);
         WearableRecyclerView wrv =
-                (WearableRecyclerView) findViewById(android.support.wearable.test.R.id.wrv);
+                findViewById(android.support.wearable.test.R.id.wrv);
         wrv.setLayoutManager(new WearableLinearLayoutManager(this));
         wrv.setAdapter(new TestAdapter());
     }

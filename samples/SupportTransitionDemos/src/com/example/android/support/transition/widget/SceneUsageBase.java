@@ -39,7 +39,7 @@ abstract class SceneUsageBase extends TransitionUsageBase {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FrameLayout root = (FrameLayout) findViewById(R.id.root);
+        FrameLayout root = findViewById(R.id.root);
         mScenes = setUpScenes(root);
         TransitionManager.go(mScenes[0]);
     }

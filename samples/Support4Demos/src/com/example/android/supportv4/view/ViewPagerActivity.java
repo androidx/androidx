@@ -46,10 +46,10 @@ public class ViewPagerActivity extends Activity {
         mAdapter.add("Green", Color.GREEN);
         mAdapter.add("Blue", Color.BLUE);
 
-        mPager = (ViewPager) findViewById(R.id.pager);
+        mPager = findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);
 
-        mTitles = (PagerTitleStrip) findViewById(R.id.titles);
+        mTitles = findViewById(R.id.titles);
     }
 
     private static class ColorPagerAdapter extends PagerAdapter {

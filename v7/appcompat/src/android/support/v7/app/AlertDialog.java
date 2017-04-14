@@ -50,7 +50,7 @@ import android.widget.ListView;
  * and add your view to it:
  *
  * <pre>
- * FrameLayout fl = (FrameLayout) findViewById(android.R.id.custom);
+ * FrameLayout fl = findViewById(android.R.id.custom);
  * fl.addView(myView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
  * </pre>
  *

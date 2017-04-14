@@ -37,13 +37,13 @@ public class AppCompatWidgetsTextInput extends AppCompatActivity {
         setContentView(R.layout.appcompat_widgets_text_input);
 
         // Fetch the AutoCompleteTextView and set an adapter
-        AutoCompleteTextView actv = (AutoCompleteTextView) findViewById(
+        AutoCompleteTextView actv = findViewById(
                 R.id.widgets_autocompletetextview);
         actv.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, Cheeses.sCheeseStrings));
 
         // Fetch the MultiAutoCompleteTextView and set an adapter and Tokenizer
-        MultiAutoCompleteTextView mactv = (MultiAutoCompleteTextView) findViewById(
+        MultiAutoCompleteTextView mactv = findViewById(
                 R.id.widgets_multiautocompletetextview);
         mactv.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         mactv.setAdapter(new ArrayAdapter<>(this,

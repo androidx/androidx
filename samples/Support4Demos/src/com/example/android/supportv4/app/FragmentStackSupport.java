@@ -41,14 +41,14 @@ public class FragmentStackSupport extends FragmentActivity {
         setContentView(R.layout.fragment_stack);
 
         // Watch for button clicks.
-        Button button = (Button) findViewById(R.id.new_fragment);
+        Button button = findViewById(R.id.new_fragment);
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 addFragmentToStack();
             }
         });
-        button = (Button) findViewById(R.id.home);
+        button = findViewById(R.id.home);
         button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

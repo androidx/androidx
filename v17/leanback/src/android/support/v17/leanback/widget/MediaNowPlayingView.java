@@ -47,9 +47,9 @@ public class MediaNowPlayingView extends LinearLayout{
         super(context, attrs);
 
         LayoutInflater.from(context).inflate(R.layout.lb_playback_now_playing_bars, this, true);
-        mImage1 = (ImageView) findViewById(R.id.bar1);
-        mImage2 = (ImageView) findViewById(R.id.bar2);
-        mImage3 = (ImageView) findViewById(R.id.bar3);
+        mImage1 = findViewById(R.id.bar1);
+        mImage2 = findViewById(R.id.bar2);
+        mImage3 = findViewById(R.id.bar3);
 
         mImage1.setPivotY(mImage1.getDrawable().getIntrinsicHeight());
         mImage2.setPivotY(mImage2.getDrawable().getIntrinsicHeight());

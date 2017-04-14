@@ -298,7 +298,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
         });
 
-        mLibraryView = (ListView) findViewById(R.id.media);
+        mLibraryView = findViewById(R.id.media);
         mLibraryView.setAdapter(mLibraryItems);
         mLibraryView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mLibraryView.setOnItemClickListener(new OnItemClickListener() {
@@ -308,7 +308,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
         });
 
-        mPlayListView = (ListView) findViewById(R.id.playlist);
+        mPlayListView = findViewById(R.id.playlist);
         mPlayListView.setAdapter(mPlayListItems);
         mPlayListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mPlayListView.setOnItemClickListener(new OnItemClickListener() {
@@ -318,9 +318,9 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
         });
 
-        mInfoTextView = (TextView) findViewById(R.id.info);
+        mInfoTextView = findViewById(R.id.info);
 
-        mUseDefaultControlCheckBox = (CheckBox) findViewById(R.id.custom_control_view_checkbox);
+        mUseDefaultControlCheckBox = findViewById(R.id.custom_control_view_checkbox);
         if (ENABLE_DEFAULT_CONTROL_CHECK_BOX) {
             mUseDefaultControlCheckBox.setVisibility(View.VISIBLE);
         }
@@ -344,7 +344,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             }
         });
 
-        mSeekBar = (SeekBar) findViewById(R.id.seekbar);
+        mSeekBar = findViewById(R.id.seekbar);
         mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
