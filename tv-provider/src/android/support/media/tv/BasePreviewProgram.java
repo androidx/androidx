@@ -717,6 +717,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * <p>The value should match one of the followings:
          * {@link PreviewPrograms#ASPECT_RATIO_16_9},
          * {@link PreviewPrograms#ASPECT_RATIO_3_2},
+         * {@link PreviewPrograms#ASPECT_RATIO_4_3},
          * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
          * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
          *
@@ -736,6 +737,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * <p>The value should match one of the followings:
          * {@link PreviewPrograms#ASPECT_RATIO_16_9},
          * {@link PreviewPrograms#ASPECT_RATIO_3_2},
+         * {@link PreviewPrograms#ASPECT_RATIO_4_3},
          * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
          * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
          *
