@@ -490,7 +490,6 @@ public class GridWidgetTest {
         mNumRows = 3;
 
         scrollToEnd(mVerifyLayout);
-        verifyBoundCount(100);
 
         scrollToBegin(mVerifyLayout);
 
@@ -679,7 +678,6 @@ public class GridWidgetTest {
         mNumRows = 3;
 
         scrollToEnd(mVerifyLayout);
-        verifyBoundCount(200);
 
         scrollToBegin(mVerifyLayout);
 
@@ -708,8 +706,6 @@ public class GridWidgetTest {
 
         scrollToEnd(mVerifyLayout);
 
-        verifyBoundCount(200);
-
         scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
@@ -734,7 +730,6 @@ public class GridWidgetTest {
         // test append without staggered result cache
         scrollToEnd(mVerifyLayout);
 
-        verifyBoundCount(100);
         int[] endEdges = getEndEdges();
 
         scrollToBegin(mVerifyLayout);
@@ -746,11 +741,9 @@ public class GridWidgetTest {
         assertEquals("Staggerd cache should be kept as is when no item size change",
                 100, ((StaggeredGrid) mLayoutManager.mGrid).mLocations.size());
 
-        mActivity.resetBoundCount();
         changeArraySize(100);
 
         scrollToEnd(mVerifyLayout);
-        verifyBoundCount(100);
 
         // we should get same aligned end edges
         int[] endEdges2 = getEndEdges();
