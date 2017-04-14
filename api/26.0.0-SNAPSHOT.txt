@@ -3010,12 +3010,16 @@ package android.support.v17.leanback.app {
 
   public abstract class OnboardingFragment extends android.app.Fragment {
     ctor public OnboardingFragment();
+    method public final int getArrowBackgroundColor();
     method protected final int getCurrentPageIndex();
+    method public final int getDescriptionViewTextColor();
+    method public final int getDotBackgroundColor();
     method public final int getIconResourceId();
     method public final int getLogoResourceId();
     method protected abstract int getPageCount();
     method protected abstract java.lang.CharSequence getPageDescription(int);
     method protected abstract java.lang.CharSequence getPageTitle(int);
+    method public final int getTitleViewTextColor();
     method protected final boolean isLogoAnimationFinished();
     method protected void moveToNextPage();
     method protected void moveToPreviousPage();
@@ -3030,19 +3034,27 @@ package android.support.v17.leanback.app {
     method protected void onLogoAnimationFinished();
     method protected void onPageChanged(int, int);
     method public int onProvideTheme();
+    method public void setArrowBackgroundColor(int);
+    method public void setDescriptionViewTextColor(int);
+    method public void setDotBackgroundColor(int);
     method public final void setIconResouceId(int);
     method public final void setLogoResourceId(int);
+    method public void setTitleViewTextColor(int);
     method protected final void startEnterAnimation(boolean);
   }
 
   public abstract class OnboardingSupportFragment extends android.support.v4.app.Fragment {
     ctor public OnboardingSupportFragment();
+    method public final int getArrowBackgroundColor();
     method protected final int getCurrentPageIndex();
+    method public final int getDescriptionViewTextColor();
+    method public final int getDotBackgroundColor();
     method public final int getIconResourceId();
     method public final int getLogoResourceId();
     method protected abstract int getPageCount();
     method protected abstract java.lang.CharSequence getPageDescription(int);
     method protected abstract java.lang.CharSequence getPageTitle(int);
+    method public final int getTitleViewTextColor();
     method protected final boolean isLogoAnimationFinished();
     method protected void moveToNextPage();
     method protected void moveToPreviousPage();
@@ -3057,8 +3069,12 @@ package android.support.v17.leanback.app {
     method protected void onLogoAnimationFinished();
     method protected void onPageChanged(int, int);
     method public int onProvideTheme();
+    method public void setArrowBackgroundColor(int);
+    method public void setDescriptionViewTextColor(int);
+    method public void setDotBackgroundColor(int);
     method public final void setIconResouceId(int);
     method public final void setLogoResourceId(int);
+    method public void setTitleViewTextColor(int);
     method protected final void startEnterAnimation(boolean);
   }
 
