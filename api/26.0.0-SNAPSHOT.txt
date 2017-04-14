@@ -5859,13 +5859,19 @@ package android.support.v4.app {
     ctor public NotificationCompat();
     method public static android.support.v4.app.NotificationCompat.Action getAction(android.app.Notification, int);
     method public static int getActionCount(android.app.Notification);
+    method public static int getBadgeIconType(android.app.Notification);
     method public static java.lang.String getCategory(android.app.Notification);
     method public static java.lang.String getChannel(android.app.Notification);
     method public static android.os.Bundle getExtras(android.app.Notification);
     method public static java.lang.String getGroup(android.app.Notification);
     method public static boolean getLocalOnly(android.app.Notification);
+    method public static java.lang.String getShortcutId(android.app.Notification);
     method public static java.lang.String getSortKey(android.app.Notification);
+    method public static long getTimeout(android.app.Notification);
     method public static boolean isGroupSummary(android.app.Notification);
+    field public static final int BADGE_ICON_LARGE = 2; // 0x2
+    field public static final int BADGE_ICON_NONE = 0; // 0x0
+    field public static final int BADGE_ICON_SMALL = 1; // 0x1
     field public static final java.lang.String CATEGORY_ALARM = "alarm";
     field public static final java.lang.String CATEGORY_CALL = "call";
     field public static final java.lang.String CATEGORY_EMAIL = "email";
@@ -6012,6 +6018,7 @@ package android.support.v4.app {
     method public deprecated android.app.Notification getNotification();
     method protected static java.lang.CharSequence limitCharSequenceLength(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setAutoCancel(boolean);
+    method public android.support.v4.app.NotificationCompat.Builder setBadgeIconType(int);
     method public android.support.v4.app.NotificationCompat.Builder setCategory(java.lang.String);
     method public android.support.v4.app.NotificationCompat.Builder setChannel(java.lang.String);
     method public android.support.v4.app.NotificationCompat.Builder setColor(int);
@@ -6039,6 +6046,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setProgress(int, int, boolean);
     method public android.support.v4.app.NotificationCompat.Builder setPublicVersion(android.app.Notification);
     method public android.support.v4.app.NotificationCompat.Builder setRemoteInputHistory(java.lang.CharSequence[]);
+    method public android.support.v4.app.NotificationCompat.Builder setShortcutId(java.lang.String);
     method public android.support.v4.app.NotificationCompat.Builder setShowWhen(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setSmallIcon(int);
     method public android.support.v4.app.NotificationCompat.Builder setSmallIcon(int, int);
@@ -6049,6 +6057,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setSubText(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setTicker(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setTicker(java.lang.CharSequence, android.widget.RemoteViews);
+    method public android.support.v4.app.NotificationCompat.Builder setTimeout(long);
     method public android.support.v4.app.NotificationCompat.Builder setUsesChronometer(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setVibrate(long[]);
     method public android.support.v4.app.NotificationCompat.Builder setVisibility(int);

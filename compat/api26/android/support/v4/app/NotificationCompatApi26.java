@@ -30,6 +30,7 @@ import java.util.ArrayList;
 class NotificationCompatApi26 {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
+
         private Notification.Builder mB;
 
         Builder(Context context, Notification n,
@@ -42,7 +43,7 @@ class NotificationCompatApi26 {
                 int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
                 String sortKey, CharSequence[] remoteInputHistory, RemoteViews contentView,
                 RemoteViews bigContentView, RemoteViews headsUpContentView,
-                String channelId) {
+                String channelId, int badgeIcon, String shortcutId, long timeoutMs) {
             mB = new Notification.Builder(context, channelId)
                     .setWhen(n.when)
                     .setShowWhen(showWhen)
@@ -78,7 +79,11 @@ class NotificationCompatApi26 {
                     .setColor(color)
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion)
-                    .setRemoteInputHistory(remoteInputHistory);
+                    .setRemoteInputHistory(remoteInputHistory)
+                    .setChannel(channelId)
+                    .setBadgeIconType(badgeIcon)
+                    .setShortcutId(shortcutId)
+                    .setTimeout(timeoutMs);
             if (contentView != null) {
                 mB.setCustomContentView(contentView);
             }
@@ -111,5 +116,17 @@ class NotificationCompatApi26 {
 
     public static String getChannel(Notification n) {
         return n.getChannel();
+    }
+
+    public static int getBadgeIcon(Notification n) {
+        return n.getBadgeIconType();
+    }
+
+    public static String getShortcutId(Notification n) {
+        return n.getShortcutId();
+    }
+
+    public static long getTimeout(Notification n) {
+        return n.getTimeout();
     }
 }
