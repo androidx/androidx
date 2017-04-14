@@ -528,8 +528,8 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     void pullChildren() {
         if (mContent == null) {
-            mContent = (ContentFrameLayout) findViewById(R.id.action_bar_activity_content);
-            mActionBarTop = (ActionBarContainer) findViewById(R.id.action_bar_container);
+            mContent = findViewById(R.id.action_bar_activity_content);
+            mActionBarTop = findViewById(R.id.action_bar_container);
             mDecorToolbar = getDecorToolbar(findViewById(R.id.action_bar));
         }
     }

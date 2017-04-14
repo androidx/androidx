@@ -41,7 +41,7 @@ public class PeerActivity extends Activity {
         ActionBarCompat.setDisplayHomeAsUpEnabled(this, true);
 
         mPeerCount = getIntent().getIntExtra(EXTRA_PEER_COUNT, 0) + 1;
-        TextView tv = (TextView) findViewById(R.id.peer_counter);
+        TextView tv = findViewById(R.id.peer_counter);
         tv.setText(getResources().getText(R.string.peer_count).toString() + mPeerCount);
     }
 

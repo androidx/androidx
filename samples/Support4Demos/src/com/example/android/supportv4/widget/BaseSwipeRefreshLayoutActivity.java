@@ -89,7 +89,7 @@ abstract class BaseSwipeRefreshLayoutActivity extends Activity implements OnRefr
         super.onCreate(bundle);
         setContentView(getLayoutId());
 
-        mSwipeRefreshWidget = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_widget);
+        mSwipeRefreshWidget = findViewById(R.id.swipe_refresh_widget);
         mSwipeRefreshWidget.setColorSchemeResources(R.color.color1, R.color.color2, R.color.color3,
                 R.color.color4);
         mSwipeRefreshWidget.setOnRefreshListener(this);

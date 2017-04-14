@@ -39,10 +39,10 @@ public class BidiFormatterSupport extends Activity {
 
         String formattedText = String.format(text, phone);
 
-        TextView tv_sample = (TextView) findViewById(R.id.textview_without_bidiformatter);
+        TextView tv_sample = findViewById(R.id.textview_without_bidiformatter);
         tv_sample.setText(formattedText);
 
-        TextView tv_bidiformatter = (TextView) findViewById(R.id.textview_with_bidiformatter);
+        TextView tv_bidiformatter = findViewById(R.id.textview_with_bidiformatter);
         String wrappedPhone = BidiFormatter.getInstance(true /* rtlContext */).unicodeWrap(phone);
         formattedText = String.format(text, wrappedPhone);
         tv_bidiformatter.setText(formattedText);

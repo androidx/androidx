@@ -57,7 +57,7 @@ abstract public class ItemTouchHelperActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_touch);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mAdapter = createAdapter();
         mRecyclerView.setAdapter(mAdapter);
@@ -69,7 +69,7 @@ abstract public class ItemTouchHelperActivity extends Activity {
 
     private void initToggles() {
         mConfigToggles = createConfigToggles();
-        RecyclerView configView = (RecyclerView) findViewById(R.id.config_recycler_view);
+        RecyclerView configView = findViewById(R.id.config_recycler_view);
         configView.setAdapter(new RecyclerView.Adapter<ConfigViewHolder>() {
             @Override
             public ConfigViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

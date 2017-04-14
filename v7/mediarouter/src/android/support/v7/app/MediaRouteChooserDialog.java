@@ -187,7 +187,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
-        mTitleView = (TextView) findViewById(R.id.mr_chooser_title);
+        mTitleView = findViewById(R.id.mr_chooser_title);
 
         updateLayout();
     }

@@ -231,15 +231,15 @@ public class ActivityChooserView extends ViewGroup implements
 
         mCallbacks = new Callbacks();
 
-        mActivityChooserContent = (LinearLayoutCompat) findViewById(R.id.activity_chooser_view_content);
+        mActivityChooserContent = findViewById(R.id.activity_chooser_view_content);
         mActivityChooserContentBackground = mActivityChooserContent.getBackground();
 
-        mDefaultActivityButton = (FrameLayout) findViewById(R.id.default_activity_button);
+        mDefaultActivityButton = findViewById(R.id.default_activity_button);
         mDefaultActivityButton.setOnClickListener(mCallbacks);
         mDefaultActivityButton.setOnLongClickListener(mCallbacks);
         mDefaultActivityButtonImage = (ImageView) mDefaultActivityButton.findViewById(R.id.image);
 
-        final FrameLayout expandButton = (FrameLayout) findViewById(R.id.expand_activities_button);
+        final FrameLayout expandButton = findViewById(R.id.expand_activities_button);
         expandButton.setOnClickListener(mCallbacks);
         expandButton.setOnTouchListener(new ForwardingListener(expandButton) {
             @Override

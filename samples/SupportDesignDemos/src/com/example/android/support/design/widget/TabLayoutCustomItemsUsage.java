@@ -33,12 +33,12 @@ public class TabLayoutCustomItemsUsage extends AppCompatActivity {
         setContentView(R.layout.design_tabs_custom);
 
         // Retrieve the Toolbar from our content view, and set it as the action bar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Create three tabs with custom views
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         for (int i = 0; i < 3; i++) {
             TabLayout.Tab tab = tabLayout.newTab();
 

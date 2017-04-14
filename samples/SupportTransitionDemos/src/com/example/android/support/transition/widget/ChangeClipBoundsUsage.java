@@ -47,8 +47,8 @@ public class ChangeClipBoundsUsage extends TransitionUsageBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRoot = (ViewGroup) findViewById(R.id.root);
-        mPhoto = (ImageView) findViewById(R.id.photo);
+        mRoot = findViewById(R.id.root);
+        mPhoto = findViewById(R.id.photo);
         findViewById(R.id.toggle).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -45,9 +45,9 @@ public class ChangeTransformUsage extends TransitionUsageBase {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mChangeTransform = new ChangeTransform();
-        mRoot = (LinearLayout) findViewById(R.id.root);
-        mContainer1 = (FrameLayout) findViewById(R.id.container_1);
-        mContainer2 = (FrameLayout) findViewById(R.id.container_2);
+        mRoot = findViewById(R.id.root);
+        mContainer1 = findViewById(R.id.container_1);
+        mContainer2 = findViewById(R.id.container_2);
         findViewById(R.id.toggle).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

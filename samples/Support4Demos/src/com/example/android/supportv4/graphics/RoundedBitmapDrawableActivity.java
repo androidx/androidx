@@ -46,8 +46,8 @@ public class RoundedBitmapDrawableActivity extends Activity {
         mRoundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
 
         // Get references to the inflated views.
-        ToggleButton toggle = (ToggleButton) findViewById(R.id.toggle_round);
-        ImageView image = (ImageView) findViewById(R.id.image);
+        ToggleButton toggle = findViewById(R.id.toggle_round);
+        ImageView image = findViewById(R.id.image);
 
         // Set up initial view state and on checked change listener.
         image.setImageDrawable(mRoundedBitmapDrawable);

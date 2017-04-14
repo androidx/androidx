@@ -44,7 +44,7 @@ public class SortedListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sorted_list_activity);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -53,7 +53,7 @@ public class SortedListActivity extends AppCompatActivity {
                 new Item("wash the dishes"));
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
-        final EditText newItemTextView = (EditText) findViewById(R.id.new_item_text_view);
+        final EditText newItemTextView = findViewById(R.id.new_item_text_view);
         newItemTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {

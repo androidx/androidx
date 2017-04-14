@@ -35,7 +35,7 @@ public class CharacterCardView extends BaseCardView {
         setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                ImageView mainImage = (ImageView) findViewById(R.id.main_image);
+                ImageView mainImage = findViewById(R.id.main_image);
                 View container = findViewById(R.id.container);
                 if (hasFocus) {
                     container.setBackgroundResource(R.drawable.character_focused);
@@ -50,8 +50,8 @@ public class CharacterCardView extends BaseCardView {
     }
 
     public void updateUi(Card card) {
-        TextView primaryText = (TextView) findViewById(R.id.primary_text);
-        final ImageView imageView = (ImageView) findViewById(R.id.main_image);
+        TextView primaryText = findViewById(R.id.primary_text);
+        final ImageView imageView = findViewById(R.id.main_image);
 
         primaryText.setText(card.getTitle());
         if (card.getLocalImageResourceName() != null) {

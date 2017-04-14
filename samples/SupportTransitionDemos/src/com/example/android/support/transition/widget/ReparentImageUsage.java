@@ -45,8 +45,8 @@ public class ReparentImageUsage extends TransitionUsageBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mOuterFrame = (FrameLayout) findViewById(R.id.outer_frame);
-        mInnerFrame = (FrameLayout) findViewById(R.id.inner_frame);
+        mOuterFrame = findViewById(R.id.outer_frame);
+        mInnerFrame = findViewById(R.id.inner_frame);
         mPhotoSize = getResources().getDimensionPixelSize(R.dimen.photo_size);
 
         mTransition = new TransitionSet();

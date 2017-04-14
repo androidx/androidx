@@ -282,17 +282,17 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
                 R.styleable.SearchView_layout, R.layout.abc_search_view);
         inflater.inflate(layoutResId, this, true);
 
-        mSearchSrcTextView = (SearchAutoComplete) findViewById(R.id.search_src_text);
+        mSearchSrcTextView = findViewById(R.id.search_src_text);
         mSearchSrcTextView.setSearchView(this);
 
         mSearchEditFrame = findViewById(R.id.search_edit_frame);
         mSearchPlate = findViewById(R.id.search_plate);
         mSubmitArea = findViewById(R.id.submit_area);
-        mSearchButton = (ImageView) findViewById(R.id.search_button);
-        mGoButton = (ImageView) findViewById(R.id.search_go_btn);
-        mCloseButton = (ImageView) findViewById(R.id.search_close_btn);
-        mVoiceButton = (ImageView) findViewById(R.id.search_voice_btn);
-        mCollapsedIcon = (ImageView) findViewById(R.id.search_mag_icon);
+        mSearchButton = findViewById(R.id.search_button);
+        mGoButton = findViewById(R.id.search_go_btn);
+        mCloseButton = findViewById(R.id.search_close_btn);
+        mVoiceButton = findViewById(R.id.search_voice_btn);
+        mCollapsedIcon = findViewById(R.id.search_mag_icon);
 
         // Set up icons and backgrounds.
         ViewCompat.setBackground(mSearchPlate,

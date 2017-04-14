@@ -37,7 +37,7 @@ public class ToolbarAppCompatActivity extends BaseTestActivity {
 
     @Override
     protected void onContentViewSet() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
     }
 

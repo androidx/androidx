@@ -48,7 +48,7 @@ final class RowContainerView extends LinearLayout {
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.lb_row_container, this);
 
-        mHeaderDock = (ViewGroup) findViewById(R.id.lb_row_container_header_dock);
+        mHeaderDock = findViewById(R.id.lb_row_container_header_dock);
         setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
     }
 
