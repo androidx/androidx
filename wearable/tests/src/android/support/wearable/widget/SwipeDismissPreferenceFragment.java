@@ -38,12 +38,12 @@ public class SwipeDismissPreferenceFragment extends PreferenceFragment {
     private final Callback mCallback =
             new Callback() {
                 @Override
-                public void onSwipeStarted() {
+                public void onSwipeStarted(SwipeDismissFrameLayout layout) {
                     SwipeDismissPreferenceFragment.this.onSwipeStart();
                 }
 
                 @Override
-                public void onSwipeCancelled() {
+                public void onSwipeCanceled(SwipeDismissFrameLayout layout) {
                     SwipeDismissPreferenceFragment.this.onSwipeCancelled();
                 }
 
