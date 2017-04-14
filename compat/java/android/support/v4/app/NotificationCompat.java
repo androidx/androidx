@@ -42,6 +42,7 @@ import android.view.Gravity;
 import android.widget.RemoteViews;
 
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -525,6 +526,29 @@ public class NotificationCompat {
      */
     public static final String CATEGORY_STATUS = NotificationCompatApi21.CATEGORY_STATUS;
 
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({BADGE_ICON_NONE, BADGE_ICON_SMALL, BADGE_ICON_LARGE})
+    public @interface BadgeIconType {}
+    /**
+     * If this notification is being shown as a badge, always show as a number.
+     */
+    public static final int BADGE_ICON_NONE = Notification.BADGE_ICON_NONE;
+
+    /**
+     * If this notification is being shown as a badge, use the icon provided to
+     * {@link Builder#setSmallIcon(int)} to represent this notification.
+     */
+    public static final int BADGE_ICON_SMALL = Notification.BADGE_ICON_SMALL;
+
+    /**
+     * If this notification is being shown as a badge, use the icon provided to
+     * {@link Builder#setLargeIcon(Bitmap) to represent this notification.
+     */
+    public static final int BADGE_ICON_LARGE = Notification.BADGE_ICON_LARGE;
+
+
     static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
@@ -544,6 +568,9 @@ public class NotificationCompat {
                 Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
                 RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
         String getChannel(Notification n);
+        String getShortcutId(Notification n);
+        int getBadgeIconType(Notification n);
+        long getTimeout(Notification n);
     }
 
     /**
@@ -683,6 +710,21 @@ public class NotificationCompat {
         @Override
         public String getChannel(Notification n) {
             return null;
+        }
+
+        @Override
+        public int getBadgeIconType(Notification n) {
+            return BADGE_ICON_NONE;
+        }
+
+        @Override
+        public String getShortcutId(Notification n) {
+            return null;
+        }
+
+        @Override
+        public long getTimeout(Notification n) {
+            return 0;
         }
     }
 
@@ -945,7 +987,8 @@ public class NotificationCompat {
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
-                    b.mBigContentView, b.mHeadsUpContentView, b.mChannelId);
+                    b.mBigContentView, b.mHeadsUpContentView, b.mChannelId, b.mBadgeIcon,
+                    b.mShortcutId, b.mTimeout);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderApi24(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -958,6 +1001,21 @@ public class NotificationCompat {
         @Override
         public String getChannel(Notification n) {
             return NotificationCompatApi26.getChannel(n);
+        }
+
+        @Override
+        public int getBadgeIconType(Notification n) {
+            return NotificationCompatApi26.getBadgeIcon(n);
+        }
+
+        @Override
+        public String getShortcutId(Notification n) {
+            return NotificationCompatApi26.getShortcutId(n);
+        }
+
+        @Override
+        public long getTimeout(Notification n) {
+            return NotificationCompatApi26.getTimeout(n);
         }
     }
 
@@ -1132,6 +1190,9 @@ public class NotificationCompat {
         RemoteViews mBigContentView;
         RemoteViews mHeadsUpContentView;
         String mChannelId;
+        int mBadgeIcon = BADGE_ICON_NONE;
+        String mShortcutId;
+        long mTimeout;
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
@@ -1829,6 +1890,45 @@ public class NotificationCompat {
          */
         public Builder setChannel(@NonNull String channelId) {
             mChannelId = channelId;
+            return this;
+        }
+
+        /**
+         * Specifies the time at which this notification should be canceled, if it is not already
+         * canceled.
+         */
+        public Builder setTimeout(long durationMs) {
+            mTimeout = durationMs;
+            return this;
+        }
+
+        /**
+         * If this notification is duplicative of a Launcher shortcut, sets the
+         * {@link android.support.v4.content.pm.ShortcutInfoCompat#getId() id} of the shortcut, in
+         * case the Launcher wants to hide the shortcut.
+         *
+         * <p><strong>Note:</strong>This field will be ignored by Launchers that don't support
+         * badging or {@link android.support.v4.content.pm.ShortcutManagerCompat shortcuts}.
+         *
+         * @param shortcutId the {@link android.support.v4.content.pm.ShortcutInfoCompat#getId() id}
+         *                   of the shortcut this notification supersedes
+         */
+        public Builder setShortcutId(String shortcutId) {
+            mShortcutId = shortcutId;
+            return this;
+        }
+
+        /**
+         * Sets which icon to display as a badge for this notification.
+         *
+         * <p>Must be one of {@link #BADGE_ICON_NONE}, {@link #BADGE_ICON_SMALL},
+         * {@link #BADGE_ICON_LARGE}.
+         *
+         * <p><strong>Note:</strong> This value might be ignored, for launchers that don't support
+         * badge icons.
+         */
+        public Builder setBadgeIconType(@BadgeIconType int icon) {
+            mBadgeIcon = icon;
             return this;
         }
 
@@ -4347,5 +4447,30 @@ public class NotificationCompat {
      */
     public static String getChannel(Notification notification) {
         return IMPL.getChannel(notification);
+    }
+
+    /**
+     * Returns the time at which this notification should be canceled by the system, if it's not
+     * canceled already.
+     */
+    public static long getTimeout(Notification n) {
+        return IMPL.getTimeout(n);
+    }
+
+    /**
+     * Returns what icon should be shown for this notification if it is being displayed in a
+     * Launcher that supports badging. Will be one of {@link #BADGE_ICON_NONE},
+     * {@link #BADGE_ICON_SMALL}, or {@link #BADGE_ICON_LARGE}.
+     */
+    public static int getBadgeIconType(Notification n) {
+        return IMPL.getBadgeIconType(n);
+    }
+
+    /**
+     * Returns the {@link android.support.v4.content.pm.ShortcutInfoCompat#getId() id} that this
+     * notification supersedes, if any.
+     */
+    public static String getShortcutId(Notification n) {
+        return IMPL.getShortcutId(n);
     }
 }
