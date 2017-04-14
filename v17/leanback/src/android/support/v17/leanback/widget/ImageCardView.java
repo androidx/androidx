@@ -175,12 +175,12 @@ public class ImageCardView extends BaseCardView {
         boolean hasIconLeft =
                 !hasIconRight && (cardType & CARD_TYPE_FLAG_ICON_LEFT) == CARD_TYPE_FLAG_ICON_LEFT;
 
-        mImageView = (ImageView) findViewById(R.id.main_image);
+        mImageView = findViewById(R.id.main_image);
         if (mImageView.getDrawable() == null) {
             mImageView.setVisibility(View.INVISIBLE);
         }
 
-        mInfoArea = (ViewGroup) findViewById(R.id.info_field);
+        mInfoArea = findViewById(R.id.info_field);
         if (hasImageOnly) {
             removeView(mInfoArea);
             cardAttrs.recycle();

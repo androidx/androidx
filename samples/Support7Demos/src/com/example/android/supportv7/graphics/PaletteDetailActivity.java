@@ -62,8 +62,8 @@ public class PaletteDetailActivity extends AppCompatActivity {
 
         mImageUri = getIntent().getData();
 
-        mImageView = (ImageView) findViewById(R.id.image);
-        mGridView = (GridView) findViewById(R.id.palette);
+        mImageView = findViewById(R.id.image);
+        mGridView = findViewById(R.id.palette);
         mSwatchesPalette = new SwatchesPalette();
         mGridView.setAdapter(mSwatchesPalette);
 

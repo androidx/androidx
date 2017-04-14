@@ -50,12 +50,12 @@ public class TabLayoutPreselectedUsage extends AppCompatActivity {
         setContentView(R.layout.design_tabs_viewpager);
 
         // Retrieve the Toolbar from our content view, and set it as the action bar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mTabLayout = (TabLayout) findViewById(R.id.tabs);
-        mViewPager = (ViewPager) findViewById(R.id.tabs_viewpager);
+        mTabLayout = findViewById(R.id.tabs);
+        mViewPager = findViewById(R.id.tabs_viewpager);
 
         findViewById(R.id.buttons).setVisibility(View.GONE);
 
@@ -82,7 +82,7 @@ public class TabLayoutPreselectedUsage extends AppCompatActivity {
                 break;
         }
 
-        RadioGroup rg = (RadioGroup) findViewById(R.id.radiogroup_tab_mode);
+        RadioGroup rg = findViewById(R.id.radiogroup_tab_mode);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {
@@ -107,7 +107,7 @@ public class TabLayoutPreselectedUsage extends AppCompatActivity {
                 break;
         }
 
-        rg = (RadioGroup) findViewById(R.id.radiogroup_tab_gravity);
+        rg = findViewById(R.id.radiogroup_tab_gravity);
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {

@@ -35,7 +35,7 @@ public class LoaderActivity extends RecreatedActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.fragment_a);
-        textView = (TextView) findViewById(R.id.textA);
+        textView = findViewById(R.id.textA);
         ViewGroup container = (ViewGroup) textView.getParent();
         textViewB = new TextView(this);
         textViewB.setId(R.id.textB);

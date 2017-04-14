@@ -44,8 +44,8 @@ public class BottomSheetHideable extends BottomSheetUsageBase {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTextSlideOffset = (TextView) findViewById(R.id.slide_offset);
-        mToggle = (Button) findViewById(R.id.toggle);
+        mTextSlideOffset = findViewById(R.id.slide_offset);
+        mToggle = findViewById(R.id.toggle);
         mToggle.setOnClickListener(mOnClickListener);
         mBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override

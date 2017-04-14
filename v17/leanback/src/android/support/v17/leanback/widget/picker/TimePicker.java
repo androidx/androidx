@@ -106,7 +106,7 @@ public class TimePicker extends Picker {
                 context.getResources());
 
         setSeparator(mConstant.timeSeparator);
-        mPickerView = (ViewGroup) findViewById(R.id.picker);
+        mPickerView = findViewById(R.id.picker);
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbTimePicker);
         mIs24hFormat = attributesArray.getBoolean(R.styleable.lbTimePicker_is24HourFormat,

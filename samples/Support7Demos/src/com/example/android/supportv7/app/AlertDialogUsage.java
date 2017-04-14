@@ -37,7 +37,7 @@ public class AlertDialogUsage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alert_dialog_usage);
 
-        mSpinner = (Spinner) findViewById(R.id.spinner_dialogs);
+        mSpinner = findViewById(R.id.spinner_dialogs);
 
         // Add an OnClickListener to show our selected dialog
         findViewById(R.id.btn_show_dialog).setOnClickListener(new View.OnClickListener() {

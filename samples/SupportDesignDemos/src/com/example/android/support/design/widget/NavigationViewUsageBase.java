@@ -35,10 +35,10 @@ public abstract class NavigationViewUsageBase extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayout());
 
-        mTextMessage = (TextView) findViewById(R.id.message);
+        mTextMessage = findViewById(R.id.message);
 
         // Menu
-        NavigationView navigation = (NavigationView) findViewById(R.id.navigation);
+        NavigationView navigation = findViewById(R.id.navigation);
         navigation.setNavigationItemSelectedListener(getNavigationItemSelectedListener());
         navigation.inflateHeaderView(R.layout.design_navigation_header);
     }

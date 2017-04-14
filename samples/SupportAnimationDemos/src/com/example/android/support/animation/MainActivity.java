@@ -115,9 +115,9 @@ public class MainActivity extends Activity {
 
     // Setup seek bars so damping ratio and stiffness for the spring can be modified through the UI.
     void setupSeekBars() {
-        SeekBar dr = (SeekBar) findViewById(R.id.damping_ratio);
+        SeekBar dr = findViewById(R.id.damping_ratio);
         dr.setMax(130);
-        final TextView drTxt = (TextView) findViewById(R.id.damping_ratio_txt);
+        final TextView drTxt = findViewById(R.id.damping_ratio_txt);
         dr.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -142,9 +142,9 @@ public class MainActivity extends Activity {
             }
         });
 
-        SeekBar stiff = (SeekBar) findViewById(R.id.stiffness);
+        SeekBar stiff = findViewById(R.id.stiffness);
         stiff.setMax(110);
-        final TextView nfTxt = (TextView) findViewById(R.id.stiffness_txt);
+        final TextView nfTxt = findViewById(R.id.stiffness_txt);
         stiff.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {

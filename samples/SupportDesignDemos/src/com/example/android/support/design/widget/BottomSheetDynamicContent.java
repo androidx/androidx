@@ -81,7 +81,7 @@ public class BottomSheetDynamicContent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.design_bottom_sheet_dynamic);
 
-        RecyclerView list = (RecyclerView) findViewById(R.id.list);
+        RecyclerView list = findViewById(R.id.list);
         list.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new DynamicAdapter();
         for (int i = 0; i < 5; i++) {
@@ -90,19 +90,19 @@ public class BottomSheetDynamicContent extends AppCompatActivity {
         list.setAdapter(mAdapter);
         mBehavior = BottomSheetBehavior.from(list);
 
-        Button add = (Button) findViewById(R.id.add);
+        Button add = findViewById(R.id.add);
         if (add != null) {
             add.setOnClickListener(mOnClickListener);
         }
-        Button remove = (Button) findViewById(R.id.remove);
+        Button remove = findViewById(R.id.remove);
         if (remove != null) {
             remove.setOnClickListener(mOnClickListener);
         }
-        Button expand = (Button) findViewById(R.id.expand);
+        Button expand = findViewById(R.id.expand);
         if (expand != null) {
             expand.setOnClickListener(mOnClickListener);
         }
-        Button collapse = (Button) findViewById(R.id.collapse);
+        Button collapse = findViewById(R.id.collapse);
         if (collapse != null) {
             collapse.setOnClickListener(mOnClickListener);
         }

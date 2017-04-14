@@ -53,7 +53,7 @@ public class ExplodeUsage extends TransitionUsageBase {
                 return mRect;
             }
         });
-        mRoot = (FrameLayout) findViewById(R.id.root);
+        mRoot = findViewById(R.id.root);
         if (mViews.isEmpty()) {
             mViews.add(findViewById(R.id.view_1));
             mViews.add(findViewById(R.id.view_2));

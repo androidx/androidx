@@ -30,7 +30,7 @@ public class CoordinatorLayoutInset extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.design_coordinatorlayout_inset);
-        TextView message = (TextView) findViewById(R.id.message);
+        TextView message = findViewById(R.id.message);
         message.setText(Shakespeare.DIALOGUE[0]);
     }
 

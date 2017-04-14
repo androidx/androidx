@@ -56,7 +56,7 @@ public class ListPopupWindowActivity extends AppCompatActivity {
 
         mDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
-        mContainer = (ViewGroup) findViewById(R.id.container);
+        mContainer = findViewById(R.id.container);
         mIsModal = (CheckBox) mContainer.findViewById(R.id.is_modal);
         mLog = (TextView) mContainer.findViewById(R.id.log);
         mButton = (Button) mContainer.findViewById(R.id.test_button);

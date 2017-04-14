@@ -35,9 +35,9 @@ public class TextCardView extends BaseCardView {
     }
 
     public void updateUi(Card card) {
-        TextView extraText = (TextView) findViewById(R.id.extra_text);
-        TextView primaryText = (TextView) findViewById(R.id.primary_text);
-        final ImageView imageView = (ImageView) findViewById(R.id.main_image);
+        TextView extraText = findViewById(R.id.extra_text);
+        TextView primaryText = findViewById(R.id.primary_text);
+        final ImageView imageView = findViewById(R.id.main_image);
 
         extraText.setText(card.getExtraText());
         primaryText.setText(card.getTitle());

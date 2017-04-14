@@ -56,7 +56,7 @@ public class BottomSheetWithFab extends BottomSheetUsageBase {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToggle = (Button) findViewById(R.id.toggle);
+        mToggle = findViewById(R.id.toggle);
         mToggle.setOnClickListener(mOnClickListener);
         mBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override

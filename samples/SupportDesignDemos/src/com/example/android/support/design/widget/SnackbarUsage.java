@@ -37,7 +37,7 @@ public class SnackbarUsage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
 
-        mContentView = (ViewGroup) findViewById(R.id.content_view);
+        mContentView = findViewById(R.id.content_view);
     }
 
     protected int getLayoutId() {

@@ -49,10 +49,10 @@ public class ToolbarFragmentPagerMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.toolbar_fragment_pager);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ViewPager vp = (ViewPager) findViewById(R.id.viewpager);
+        ViewPager vp = findViewById(R.id.viewpager);
         PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(),
                 new MenuFragment(), new Menu2Fragment());
         vp.setAdapter(adapter);

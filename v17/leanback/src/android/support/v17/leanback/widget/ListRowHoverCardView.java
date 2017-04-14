@@ -42,8 +42,8 @@ public final class ListRowHoverCardView extends LinearLayout {
         super(context, attrs, defStyle);
         LayoutInflater inflater = LayoutInflater.from(context);
         inflater.inflate(R.layout.lb_list_row_hovercard, this);
-        mTitleView = (TextView) findViewById(R.id.title);
-        mDescriptionView = (TextView) findViewById(R.id.description);
+        mTitleView = findViewById(R.id.title);
+        mDescriptionView = findViewById(R.id.description);
     }
 
     /**

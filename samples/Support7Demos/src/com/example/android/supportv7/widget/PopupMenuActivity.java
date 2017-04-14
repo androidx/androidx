@@ -47,7 +47,7 @@ public class PopupMenuActivity extends AppCompatActivity {
 
         mDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
-        final ViewGroup container = (ViewGroup) findViewById(R.id.container);
+        final ViewGroup container = findViewById(R.id.container);
         mLog = (TextView) container.findViewById(R.id.log);
 
         final SwitchCompat elevationToggle = (SwitchCompat) container.findViewById(

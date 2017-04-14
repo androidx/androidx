@@ -38,7 +38,7 @@ public class NavigationViewUsage extends NavigationViewUsageBase {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
         // Set the color of status bar
         TypedValue value = new TypedValue();
@@ -46,7 +46,7 @@ public class NavigationViewUsage extends NavigationViewUsageBase {
         mDrawerLayout.setStatusBarBackgroundColor(value.data);
 
         // Retrieve the Toolbar from our content view, and set it as the action bar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // Toggle icon
