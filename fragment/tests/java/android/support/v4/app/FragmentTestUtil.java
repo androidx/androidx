@@ -20,8 +20,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,13 +28,10 @@ import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.test.FragmentTestActivity;
-import android.support.v4.app.test.LoaderActivity;
-import android.support.v4.app.test.OrientationChangeActivity;
+import android.support.v4.app.test.RecreatedActivity;
 import android.util.Pair;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-
-import junit.framework.Assert;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -254,58 +249,30 @@ public class FragmentTestUtil {
     }
 
     /**
-     * Switches the orientation of the OrientationChangeActivity.
+     * Restarts the RecreatedActivity and waits for the new activity to be resumed.
      *
-     * @return {@code true} if the orientation changed or {@code false} if the screen is square
-     * or some other error happens
+     * @return The newly-restarted Activity
      */
-    public static boolean switchOrientation() throws InterruptedException {
-        OrientationChangeActivity activity = OrientationChangeActivity.sActivity;
-
-        int currentOrientation = activity.getResources().getConfiguration().orientation;
-
-        int nextOrientation;
-        int expectedOrientation;
-        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            nextOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            expectedOrientation = Configuration.ORIENTATION_PORTRAIT;
-        } else if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            nextOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            expectedOrientation = Configuration.ORIENTATION_LANDSCAPE;
-        } else {
-            return false; // Don't know what to do with square or unknown orientations
-        }
-
+    public static <T extends RecreatedActivity> T recreateActivity(
+            ActivityTestRule<? extends RecreatedActivity> rule, final T activity)
+            throws InterruptedException {
         // Now switch the orientation
-        LoaderActivity.sResumed = new CountDownLatch(1);
-        LoaderActivity.sDestroyed = new CountDownLatch(1);
+        RecreatedActivity.sResumed = new CountDownLatch(1);
+        RecreatedActivity.sDestroyed = new CountDownLatch(1);
 
-        activity.setRequestedOrientation(nextOrientation);
-        assertTrue(LoaderActivity.sResumed.await(1, TimeUnit.SECONDS));
-        assertTrue(LoaderActivity.sDestroyed.await(1, TimeUnit.SECONDS));
-
-        int switchedOrientation =
-                LoaderActivity.sActivity.getResources().getConfiguration().orientation;
-        Assert.assertEquals(expectedOrientation, switchedOrientation);
-        return true;
-    }
-
-    /**
-     * After calling {@link #switchOrientation()}, this must be called in an After.
-     */
-    public static void resetOrientation() {
-        final OrientationChangeActivity activity = OrientationChangeActivity.sActivity;
-        final int unspecifiedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-        if (activity != null && activity.getRequestedOrientation() != unspecifiedOrientation) {
-            OrientationChangeActivity.sResumed = new CountDownLatch(1);
-            activity.setRequestedOrientation(unspecifiedOrientation);
-            // Wait for the orientation change to settle, if there was a change
-            try {
-                OrientationChangeActivity.sResumed.await(1, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                // I guess there wasn't a change in orientation after all
+        runOnUiThreadRethrow(rule, new Runnable() {
+            @Override
+            public void run() {
+                activity.recreate();
             }
-        }
-        OrientationChangeActivity.clearState();
+        });
+        assertTrue(RecreatedActivity.sResumed.await(1, TimeUnit.SECONDS));
+        assertTrue(RecreatedActivity.sDestroyed.await(1, TimeUnit.SECONDS));
+        T newActivity = (T) RecreatedActivity.sActivity;
+
+        waitForExecution(rule);
+
+        RecreatedActivity.clearState();
+        return newActivity;
     }
 }

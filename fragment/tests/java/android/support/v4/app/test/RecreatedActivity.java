@@ -22,9 +22,9 @@ import android.support.v4.app.FragmentActivity;
 
 import java.util.concurrent.CountDownLatch;
 
-public class OrientationChangeActivity extends FragmentActivity {
+public class RecreatedActivity extends FragmentActivity {
     // These must be cleared after each test using clearState()
-    public static OrientationChangeActivity sActivity;
+    public static RecreatedActivity sActivity;
     public static CountDownLatch sResumed;
     public static CountDownLatch sDestroyed;
 
