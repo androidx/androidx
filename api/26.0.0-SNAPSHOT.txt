@@ -1494,9 +1494,10 @@ package android.support.media.tv {
 
   public static final class TvContractCompat.PreviewPrograms implements android.support.media.tv.TvContractCompat.BaseTvColumns {
     field public static final int ASPECT_RATIO_16_9 = 0; // 0x0
-    field public static final int ASPECT_RATIO_1_1 = 2; // 0x2
-    field public static final int ASPECT_RATIO_2_3 = 3; // 0x3
+    field public static final int ASPECT_RATIO_1_1 = 3; // 0x3
+    field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
+    field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
     field public static final int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1; // 0x1
     field public static final int AVAILABILITY_PAID_CONTENT = 2; // 0x2
@@ -1679,9 +1680,10 @@ package android.support.media.tv {
   public static final class TvContractCompat.WatchNextPrograms implements android.support.media.tv.TvContractCompat.BaseTvColumns {
     ctor public TvContractCompat.WatchNextPrograms();
     field public static final int ASPECT_RATIO_16_9 = 0; // 0x0
-    field public static final int ASPECT_RATIO_1_1 = 2; // 0x2
-    field public static final int ASPECT_RATIO_2_3 = 3; // 0x3
+    field public static final int ASPECT_RATIO_1_1 = 3; // 0x3
+    field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
+    field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
     field public static final int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1; // 0x1
     field public static final int AVAILABILITY_PAID_CONTENT = 2; // 0x2
