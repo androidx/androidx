@@ -27,7 +27,9 @@ import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.support.v4.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.PagingIndicator;
@@ -196,6 +198,22 @@ abstract public class OnboardingSupportFragment extends Fragment {
     boolean mEnterAnimationFinished;
     int mCurrentPageIndex;
 
+    @ColorInt
+    int mTitleViewTextColor = Color.TRANSPARENT;
+    boolean mTitleViewTextColorSet;
+
+    @ColorInt
+    int mDescriptionViewTextColor = Color.TRANSPARENT;
+    boolean mDescriptionViewTextColorSet;
+
+    @ColorInt
+    int mDotBackgroundColor = Color.TRANSPARENT;
+    boolean mDotBackgroundColorSet;
+
+    @ColorInt
+    int mArrowBackgroundColor = Color.TRANSPARENT;
+    boolean mArrowBackgroundColorSet;
+
     private AnimatorSet mAnimator;
 
     private final OnClickListener mOnClickListener = new OnClickListener() {
@@ -297,6 +315,19 @@ abstract public class OnboardingSupportFragment extends Fragment {
         mLogoView = (ImageView) view.findViewById(R.id.logo);
         mTitleView = (TextView) view.findViewById(R.id.title);
         mDescriptionView = (TextView) view.findViewById(R.id.description);
+
+        if (mTitleViewTextColorSet) {
+            mTitleView.setTextColor(mTitleViewTextColor);
+        }
+        if (mDescriptionViewTextColorSet) {
+            mDescriptionView.setTextColor(mDescriptionViewTextColor);
+        }
+        if (mDotBackgroundColorSet) {
+            mPageIndicator.setDotBackgroundColor(mDotBackgroundColor);
+        }
+        if (mArrowBackgroundColorSet) {
+            mPageIndicator.setDotBackgroundColor(mArrowBackgroundColor);
+        }
         final Context context = getContext();
         if (sSlideDistance == 0) {
             sSlideDistance = (int) (SLIDE_DISTANCE * context.getResources()
@@ -348,6 +379,89 @@ abstract public class OnboardingSupportFragment extends Fragment {
         outState.putInt(KEY_CURRENT_PAGE_INDEX, mCurrentPageIndex);
         outState.putBoolean(KEY_LOGO_ANIMATION_FINISHED, mLogoAnimationFinished);
         outState.putBoolean(KEY_ENTER_ANIMATION_FINISHED, mEnterAnimationFinished);
+    }
+
+    /**
+     * Sets the text color for TitleView. If not set, the default textColor set in style
+     * referenced by attr {@link R.attr#onboardingTitleStyle} will be used.
+     * @param color the color to use as the text color for TitleView
+     */
+    public void setTitleViewTextColor(@ColorInt int color) {
+        mTitleViewTextColor = color;
+        mTitleViewTextColorSet = true;
+        if (mTitleView != null) {
+            mTitleView.setTextColor(color);
+        }
+    }
+
+    /**
+     * Returns the text color of TitleView if it's set through
+     * {@link #setTitleViewTextColor(int)}. If no color was set, transparent is returned.
+     */
+    public final int getTitleViewTextColor() {
+        return mTitleViewTextColor;
+    }
+
+    /**
+     * Sets the text color for DescriptionView. If not set, the default textColor set in style
+     * referenced by attr {@link R.attr#onboardingDescriptionStyle} will be used.
+     * @param color the color to use as the text color for DescriptionView
+     */
+    public void setDescriptionViewTextColor(@ColorInt int color) {
+        mDescriptionViewTextColor = color;
+        mDescriptionViewTextColorSet = true;
+        if (mDescriptionView != null) {
+            mDescriptionView.setTextColor(color);
+        }
+    }
+
+    /**
+     * Returns the text color of DescriptionView if it's set through
+     * {@link #setDescriptionViewTextColor(int)}. If no color was set, transparent is returned.
+     */
+    public final int getDescriptionViewTextColor() {
+        return mDescriptionViewTextColor;
+    }
+    /**
+     * Sets the background color of the dots. If not set, the default color from attr
+     * {@link R.styleable#PagingIndicator_dotBgColor} in the theme will be used.
+     * @param color the color to use for dot backgrounds
+     */
+    public void setDotBackgroundColor(@ColorInt int color) {
+        mDotBackgroundColor = color;
+        mDotBackgroundColorSet = true;
+        if (mPageIndicator != null) {
+            mPageIndicator.setDotBackgroundColor(color);
+        }
+    }
+
+    /**
+     * Returns the background color of the dot if it's set through
+     * {@link #setDotBackgroundColor(int)}. If no color was set, transparent is returned.
+     */
+    public final int getDotBackgroundColor() {
+        return mDotBackgroundColor;
+    }
+
+    /**
+     * Sets the background color of the arrow. If not set, the default color from attr
+     * {@link R.styleable#PagingIndicator_arrowBgColor} in the theme will be used.
+     * @param color the color to use for arrow background
+     */
+    public void setArrowBackgroundColor(@ColorInt int color) {
+        mArrowBackgroundColor = color;
+        mArrowBackgroundColorSet = true;
+        if (mPageIndicator != null) {
+            mPageIndicator.setArrowBackgroundColor(color);
+        }
+    }
+
+    /**
+     * Returns the background color of the arrow if it's set through
+     * {@link #setArrowBackgroundColor(int)}. If no color was set, transparent is returned.
+     */
+    public final int getArrowBackgroundColor() {
+        return mArrowBackgroundColor;
     }
 
     /**

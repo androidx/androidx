@@ -116,7 +116,7 @@ public class PagingIndicator extends View {
 
     // drawing
     @ColorInt
-    final int mDotFgSelectColor;
+    int mDotFgSelectColor;
     final Paint mBgPaint;
     final Paint mFgPaint;
     private final AnimatorSet mShowAnimator;
@@ -199,6 +199,26 @@ public class PagingIndicator extends View {
             return Bitmap.createBitmap(arrow, 0, 0, arrow.getWidth(), arrow.getHeight(), matrix,
                     false);
         }
+    }
+
+    /**
+     * Set the background color of the dot. This color will take over the value set through the
+     * theme attribute.
+     *
+     * @param color the background color of the dot
+     */
+    public void setDotBackgroundColor(@ColorInt int color) {
+        mBgPaint.setColor(color);
+    }
+
+    /**
+     * Sets the background color of the arrow. This color will take over the value set through the
+     * theme attribute.
+     *
+     * @param color the background color of the arrow
+     */
+    public void setArrowBackgroundColor(@ColorInt int color) {
+        mDotFgSelectColor = color;
     }
 
     private Animator createDotAlphaAnimator(float from, float to) {
