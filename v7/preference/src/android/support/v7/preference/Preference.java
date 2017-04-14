@@ -143,6 +143,7 @@ public class Preference implements Comparable<Preference> {
 
     private boolean mAllowDividerAbove = true;
     private boolean mAllowDividerBelow = true;
+    private boolean mHasSingleLineTitleAttr;
     private boolean mSingleLineTitle = true;
     private boolean mIconSpaceReserved;
 
@@ -312,8 +313,11 @@ public class Preference implements Comparable<Preference> {
                 TypedArrayUtils.getBoolean(a, R.styleable.Preference_shouldDisableView,
                         R.styleable.Preference_android_shouldDisableView, true);
 
-        mSingleLineTitle = TypedArrayUtils.getBoolean(a, R.styleable.Preference_singleLineTitle,
+        mHasSingleLineTitleAttr = a.hasValue(R.styleable.Preference_singleLineTitle);
+        if (mHasSingleLineTitleAttr) {
+            mSingleLineTitle = TypedArrayUtils.getBoolean(a, R.styleable.Preference_singleLineTitle,
                 R.styleable.Preference_android_singleLineTitle, true);
+        }
 
         mIconSpaceReserved = TypedArrayUtils.getBoolean(a, R.styleable.Preference_iconSpaceReserved,
                 R.styleable.Preference_android_iconSpaceReserved, false);
@@ -561,7 +565,9 @@ public class Preference implements Comparable<Preference> {
             if (!TextUtils.isEmpty(title)) {
                 titleView.setText(title);
                 titleView.setVisibility(View.VISIBLE);
-                titleView.setSingleLine(mSingleLineTitle);
+                if (mHasSingleLineTitleAttr) {
+                    titleView.setSingleLine(mSingleLineTitle);
+                }
             } else {
                 titleView.setVisibility(View.GONE);
             }
