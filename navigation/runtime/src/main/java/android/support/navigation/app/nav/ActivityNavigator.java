@@ -36,9 +36,8 @@ import java.util.regex.Pattern;
 /**
  * ActivityNavigator implements cross-activity navigation.
  */
+@Navigator.Name("activity")
 public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> {
-    public static final String NAME = "activity";
-
     private static final String EXTRA_NAV_SOURCE =
             "android-support-navigation:ActivityNavigator:source";
     private static final String EXTRA_NAV_CURRENT =
@@ -147,7 +146,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @param intent Intent this destination should trigger when navigated to
          */
         public Destination(@NonNull NavigatorProvider navigatorProvider, Intent intent) {
-            super(navigatorProvider.getNavigator(NAME));
+            super(navigatorProvider.getNavigator(ActivityNavigator.class));
             setIntent(intent);
         }
 

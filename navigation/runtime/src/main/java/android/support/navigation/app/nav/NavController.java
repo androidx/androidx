@@ -124,10 +124,8 @@ public class NavController implements NavigatorProvider {
      */
     public NavController(Context context) {
         mContext = context;
-        final NavGraphNavigator navGraphNavigator = new NavGraphNavigator(mContext);
-        mNavigators.put(NavGraphNavigator.NAME, navGraphNavigator);
-        final ActivityNavigator activityNavigator = new ActivityNavigator(mContext);
-        mNavigators.put(ActivityNavigator.NAME, activityNavigator);
+        addNavigator(new NavGraphNavigator(mContext));
+        addNavigator(new ActivityNavigator(mContext));
     }
 
     /**
@@ -142,10 +140,8 @@ public class NavController implements NavigatorProvider {
      */
     public NavController(Activity activity) {
         mContext = activity;
-        final NavGraphNavigator navGraphNavigator = new NavGraphNavigator(mContext);
-        mNavigators.put(NavGraphNavigator.NAME, navGraphNavigator);
-        final ActivityNavigator activityNavigator = new ActivityNavigator(activity);
-        mNavigators.put(ActivityNavigator.NAME, activityNavigator);
+        addNavigator(new NavGraphNavigator(mContext));
+        addNavigator(new ActivityNavigator(activity));
     }
 
     /**
@@ -265,6 +261,18 @@ public class NavController implements NavigatorProvider {
     }
 
     @Override
+    public Navigator getNavigator(Class<? extends Navigator> navigatorClass) {
+        Navigator.Name annotation = navigatorClass.getAnnotation(Navigator.Name.class);
+        String name = annotation != null ? annotation.value() : null;
+        if (TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("No @Navigator.Name annotation found for "
+                    + navigatorClass.getSimpleName());
+        }
+
+        return getNavigator(name);
+    }
+
+    @Override
     public Navigator getNavigator(String name) {
         if (TextUtils.isEmpty(name)) {
             throw new IllegalArgumentException("navigator name cannot be null");
@@ -274,7 +282,23 @@ public class NavController implements NavigatorProvider {
     }
 
     @Override
+    public void addNavigator(Navigator navigator) {
+        Navigator.Name annotation = navigator.getClass().getAnnotation(Navigator.Name.class);
+        String name = annotation != null ? annotation.value() : null;
+        if (TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("No @Navigator.Name annotation found for "
+                    + navigator.getClass().getSimpleName());
+        }
+
+        addNavigator(name, navigator);
+    }
+
+    @Override
     public void addNavigator(String name, Navigator navigator) {
+        if (TextUtils.isEmpty(name)) {
+            throw new IllegalArgumentException("navigator name cannot be null");
+        }
+
         navigator.addOnNavigatorNavigatedListener(mOnNavigatedListener);
         mNavigators.put(name, navigator);
     }

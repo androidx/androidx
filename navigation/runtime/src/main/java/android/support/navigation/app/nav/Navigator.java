@@ -16,11 +16,16 @@
 
 package android.support.navigation.app.nav;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -35,12 +40,30 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * destinations that belong to that navigator. The {@link NavController} manages a back stack of
  * navigators representing the current navigation stack across all navigators.</p>
  *
+ * <p>Each Navigator should add the {@link Name Navigator.Name annotation} to their class. Any
+ * custom attributes used by the associated {@link NavDestination destination} subclass should
+ * have a name corresponding with the name of the Navigator, e.g., {@link FragmentNavigator} uses
+ * <code>&lt;declare-styleable name="FragmentNavigator"&gt;</code></p>
+ *
  * @param <D> the subclass of {@link NavDestination} used with this Navigator which can be used
  *           to hold any special data that will be needed to navigate to that destination.
  *           Examples include information about an intent to navigate to other activities,
  *           or a fragment class name to instantiate and swap to a new fragment.
  */
 public abstract class Navigator<D extends NavDestination> {
+    /**
+     * This annotation should be added to each Navigator subclass to denote the default name used
+     * to register the Navigator with a {@link NavigatorProvider}.
+     *
+     * @see NavigatorProvider#addNavigator(Navigator)
+     * @see NavigatorProvider#getNavigator(Class)
+     */
+    @Retention(RUNTIME)
+    @Target({TYPE})
+    public @interface Name {
+        String value();
+    }
+
     private final CopyOnWriteArrayList<OnNavigatorNavigatedListener> mOnNavigatedListeners =
             new CopyOnWriteArrayList<>();
 

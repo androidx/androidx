@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 <resources>
-    <declare-styleable name="NavDestination">
+    <declare-styleable name="Navigator">
         <attr name="android:id"/>
         <attr name="android:icon" />
         <attr name="android:label" />
@@ -23,7 +23,7 @@
         </attr>
     </declare-styleable>
 
-    <declare-styleable name="NavGraph">
+    <declare-styleable name="NavGraphNavigator">
         <attr name="startDestination" format="reference" />
     </declare-styleable>
 
@@ -34,7 +34,7 @@
         <attr name="dataPattern" format="string" />
     </declare-styleable>
 
-    <declare-styleable name="FragmentDestination">
+    <declare-styleable name="FragmentNavigator">
         <attr name="android:name" />
     </declare-styleable>
 

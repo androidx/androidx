@@ -112,12 +112,12 @@ public class NavDestination {
     @CallSuper
     public void onInflate(Context context, AttributeSet attrs) {
         final TypedArray a = context.getResources().obtainAttributes(attrs,
-                R.styleable.NavDestination);
-        setId(a.getResourceId(R.styleable.NavDestination_android_id, 0));
-        setIcon(a.getDrawable(R.styleable.NavDestination_android_icon));
-        setLabel(a.getText(R.styleable.NavDestination_android_label));
+                R.styleable.Navigator);
+        setId(a.getResourceId(R.styleable.Navigator_android_id, 0));
+        setIcon(a.getDrawable(R.styleable.Navigator_android_icon));
+        setLabel(a.getText(R.styleable.Navigator_android_label));
         @NavTypes
-        int navType = a.getInt(R.styleable.NavDestination_navType, NAV_TYPE_NONE);
+        int navType = a.getInt(R.styleable.Navigator_navType, NAV_TYPE_NONE);
         setNavType(navType);
         a.recycle();
     }

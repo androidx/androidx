@@ -38,9 +38,8 @@ import java.util.HashMap;
  * destination using this Navigator must set a valid Fragment class name with
  * <code>android:name</code> or {@link Destination#setFragmentClass}.
  */
+@Navigator.Name("fragment")
 public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> {
-    public static final String NAME = "fragment";
-
     private Context mContext;
     private FragmentManager mFragmentManager;
     private int mContainerId;
@@ -162,7 +161,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          */
         public Destination(@NonNull NavigatorProvider navigatorProvider,
                 Class<? extends Fragment> clazz) {
-            super(navigatorProvider.getNavigator(NAME));
+            super(navigatorProvider.getNavigator(FragmentNavigator.class));
             setFragmentClass(clazz);
         }
 
@@ -174,10 +173,10 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         public void onInflate(Context context, AttributeSet attrs) {
             super.onInflate(context, attrs);
             TypedArray a = context.getResources().obtainAttributes(attrs,
-                    R.styleable.FragmentDestination);
+                    R.styleable.FragmentNavigator);
             setFragmentClass(((FragmentNavigator) getNavigator())
                     .getFragmentClassByName(a.getString(
-                            R.styleable.FragmentDestination_android_name)));
+                            R.styleable.FragmentNavigator_android_name)));
             a.recycle();
         }
 

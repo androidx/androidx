@@ -47,7 +47,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      *                          will be associated with.
      */
     public NavGraph(@NonNull NavigatorProvider navigatorProvider) {
-        super(navigatorProvider.getNavigator(NavGraphNavigator.NAME));
+        super(navigatorProvider.getNavigator(NavGraphNavigator.class));
     }
 
     NavGraph(@NonNull Navigator navigator) {
@@ -58,9 +58,9 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
     public void onInflate(Context context, AttributeSet attrs) {
         super.onInflate(context, attrs);
         TypedArray a = context.getResources().obtainAttributes(attrs,
-                R.styleable.NavGraph);
+                R.styleable.NavGraphNavigator);
         setStartDestination(
-                a.getResourceId(R.styleable.NavGraph_startDestination, 0));
+                a.getResourceId(R.styleable.NavGraphNavigator_startDestination, 0));
         a.recycle();
     }
 

@@ -153,7 +153,7 @@ public class NavHostFragment extends Fragment {
         } else {
             mNavController = new NavController(context);
         }
-        mNavController.addNavigator(FragmentNavigator.NAME,
+        mNavController.addNavigator(
                 new FragmentNavigator(context, getChildFragmentManager(), getId()));
 
         Bundle navState = null;

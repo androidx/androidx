@@ -24,9 +24,8 @@ import android.os.Bundle;
  * A Navigator built specifically for {@link NavGraph} elements. Handles navigating to the
  * correct destination when the NavGraph is the target of navigation actions.
  */
+@Navigator.Name("navigation")
 public class NavGraphNavigator extends Navigator<NavGraph> {
-    public static final String NAME = "navigation";
-
     private Context mContext;
 
     /**
