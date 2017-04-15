@@ -24,9 +24,12 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLING_UID;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION_EXTRAS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_LIST;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_SESSION_TOKEN;
@@ -135,6 +138,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
     static final int RESULT_ERROR = -1;
     static final int RESULT_OK = 0;
+    static final int RESULT_PROGRESS_UPDATE = 1;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -319,7 +323,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             final Result<List<MediaBrowserCompat.MediaItem>> result
                     = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                 @Override
-                void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flags) {
+                void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
                     List<Parcel> parcelList = null;
                     if (list != null) {
                         parcelList = new ArrayList<>();
@@ -356,7 +360,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             final Result<MediaBrowserCompat.MediaItem> result
                     = new Result<MediaBrowserCompat.MediaItem>(itemId) {
                 @Override
-                void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flags) {
+                void onResultSent(MediaBrowserCompat.MediaItem item) {
                     if (item == null) {
                         resultWrapper.sendResult(null);
                     } else {
@@ -401,7 +405,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             final Result<List<MediaBrowserCompat.MediaItem>> result
                     = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                 @Override
-                void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flags) {
+                void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
                     List<Parcel> parcelList = null;
                     if (list != null) {
                         parcelList = new ArrayList<>();
@@ -411,7 +415,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                             parcelList.add(parcel);
                         }
                     }
-                    resultWrapper.sendResult(parcelList, flags);
+                    resultWrapper.sendResult(parcelList, getFlags());
                 }
 
                 @Override
@@ -480,6 +484,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
                             (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
                             new ServiceCallbacksCompat(msg.replyTo));
                     break;
+                case CLIENT_MSG_SEND_CUSTOM_ACTION:
+                    mServiceBinderImpl.sendCustomAction(data.getString(DATA_CUSTOM_ACTION),
+                            data.getBundle(DATA_CUSTOM_ACTION_EXTRAS),
+                            (ResultReceiver) data.getParcelable(DATA_RESULT_RECEIVER),
+                            new ServiceCallbacksCompat(msg.replyTo));
+                    break;
                 default:
                     Log.w(TAG, "Unhandled message: " + msg
                             + "\n  Service version: " + SERVICE_VERSION_CURRENT
@@ -523,21 +533,29 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /**
      * Completion handler for asynchronous callback methods in {@link MediaBrowserServiceCompat}.
      * <p>
-     * Each of the methods that takes one of these to send the result must call
-     * {@link #sendResult} to respond to the caller with the given results. If those
-     * functions return without calling {@link #sendResult}, they must instead call
-     * {@link #detach} before returning, and then may call {@link #sendResult} when
-     * they are done. If more than one of those methods is called, an exception will
-     * be thrown.
+     * Each of the methods that takes one of these to send the result must call either
+     * {@link #sendResult} or {@link #sendError} to respond to the caller with the given results or
+     * errors. If those functions return without calling {@link #sendResult} or {@link #sendError},
+     * they must instead call {@link #detach} before returning, and then may call
+     * {@link #sendResult} or {@link #sendError} when they are done. If {@link #sendResult},
+     * {@link #sendError}, or {@link #detach} is called twice, an exception will be thrown.
+     * </p><p>
+     * Those functions might also want to call {@link #sendProgressUpdate} to send interim updates
+     * to the caller. If it is called after calling {@link #sendResult} or {@link #sendError}, an
+     * exception will be thrown.
+     * </p>
      *
      * @see MediaBrowserServiceCompat#onLoadChildren
      * @see MediaBrowserServiceCompat#onLoadItem
      * @see MediaBrowserServiceCompat#onSearch
+     * @see MediaBrowserServiceCompat#onCustomAction
      */
     public static class Result<T> {
-        private Object mDebug;
+        private final Object mDebug;
         private boolean mDetachCalled;
         private boolean mSendResultCalled;
+        private boolean mSendProgressUpdateCalled;
+        private boolean mSendErrorCalled;
         private int mFlags;
 
         Result(Object debug) {
@@ -548,11 +566,42 @@ public abstract class MediaBrowserServiceCompat extends Service {
          * Send the result back to the caller.
          */
         public void sendResult(T result) {
-            if (mSendResultCalled) {
-                throw new IllegalStateException("sendResult() called twice for: " + mDebug);
+            if (mSendResultCalled || mSendErrorCalled) {
+                throw new IllegalStateException("sendResult() called when either sendResult() or "
+                        + "sendError() had already been called for: " + mDebug);
             }
             mSendResultCalled = true;
-            onResultSent(result, mFlags);
+            onResultSent(result);
+        }
+
+        /**
+         * Send an interim update to the caller. This method is supported only when it is used in
+         * {@link #onCustomAction}.
+         *
+         * @param extras A bundle that contains extra data.
+         */
+        public void sendProgressUpdate(Bundle extras) {
+            if (mSendResultCalled || mSendErrorCalled) {
+                throw new IllegalStateException("sendProgressUpdate() called when either "
+                        + "sendResult() or sendError() had already been called for: " + mDebug);
+            }
+            mSendProgressUpdateCalled = true;
+            onProgressUpdateSent(extras);
+        }
+
+        /**
+         * Notify the caller of a failure. This is supported only when it is used in
+         * {@link #onCustomAction}.
+         *
+         * @param extras A bundle that contains extra data.
+         */
+        public void sendError(Bundle extras) {
+            if (mSendResultCalled || mSendErrorCalled) {
+                throw new IllegalStateException("sendError() called when either sendResult() or "
+                        + "sendError() had already been called for: " + mDebug);
+            }
+            mSendErrorCalled = true;
+            onErrorSent(extras);
         }
 
         /**
@@ -568,22 +617,47 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 throw new IllegalStateException("detach() called when sendResult() had already"
                         + " been called for: " + mDebug);
             }
+            if (mSendErrorCalled) {
+                throw new IllegalStateException("detach() called when sendError() had already"
+                        + " been called for: " + mDebug);
+            }
             mDetachCalled = true;
         }
 
         boolean isDone() {
-            return mDetachCalled || mSendResultCalled;
+            return mDetachCalled || mSendResultCalled || mSendErrorCalled;
         }
 
         void setFlags(@ResultFlags int flags) {
             mFlags = flags;
         }
 
+        int getFlags() {
+            return mFlags;
+        }
+
         /**
-         * Called when the result is sent, after assertions about not being called twice
-         * have happened.
+         * Called when the result is sent, after assertions about not being called twice have
+         * happened.
          */
-        void onResultSent(T result, @ResultFlags int flags) {
+        void onResultSent(T result) {
+        }
+
+        /**
+         * Called when an interim update is sent.
+         */
+        void onProgressUpdateSent(Bundle extras) {
+            throw new UnsupportedOperationException("It is not supported to send an interim update "
+                    + "for " + mDebug);
+        }
+
+        /**
+         * Called when an error is sent, after assertions about not being called twice have
+         * happened.
+         */
+        void onErrorSent(Bundle extras) {
+            throw new UnsupportedOperationException("It is not supported to send an error for "
+                    + mDebug);
         }
     }
 
@@ -765,6 +839,28 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         return;
                     }
                     performSearch(query, extras, connection, receiver);
+                }
+            });
+        }
+
+        public void sendCustomAction(final String action, final Bundle extras,
+                final ResultReceiver receiver, final ServiceCallbacks callbacks) {
+            if (TextUtils.isEmpty(action) || receiver == null) {
+                return;
+            }
+
+            mHandler.postOrRun(new Runnable() {
+                @Override
+                public void run() {
+                    final IBinder b = callbacks.asBinder();
+
+                    ConnectionRecord connection = mConnections.get(b);
+                    if (connection == null) {
+                        Log.w(TAG, "sendCustomAction for callback that isn't registered action="
+                                + action + ", extras=" + extras);
+                        return;
+                    }
+                    performCustomAction(action, extras, connection, receiver);
                 }
             });
         }
@@ -987,6 +1083,28 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     /**
+     * Called to request a custom action to this service.
+     * <p>
+     * Implementations must call either {@link Result#sendResult} or {@link Result#sendError}. If
+     * the requested custom action will be an expensive operation {@link Result#detach} may be
+     * called before returning from this function, and then the service can send the result later
+     * when the custom action is completed. Implementation can also call
+     * {@link Result#sendProgressUpdate} to send an interim update to the requester.
+     * </p><p>
+     * If the requested custom action is not supported by this service, call
+     * {@link Result#sendError}. The default implementation will invoke {@link Result#sendError}.
+     * </p>
+     *
+     * @param action The custom action sent from the media browser.
+     * @param extras The bundle of service-specific arguments sent from the media browser.
+     * @param result The {@link Result} to send the result of the requested custom action.
+     */
+    public void onCustomAction(@NonNull String action, Bundle extras,
+            @NonNull Result<Bundle> result) {
+        result.sendError(null);
+    }
+
+    /**
      * Call to set the media session.
      * <p>
      * This should be called as soon as possible during the service's startup.
@@ -1142,7 +1260,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<List<MediaBrowserCompat.MediaItem>> result
                 = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
             @Override
-            void onResultSent(List<MediaBrowserCompat.MediaItem> list, @ResultFlags int flags) {
+            void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
                 if (mConnections.get(connection.callbacks.asBinder()) != connection) {
                     if (DEBUG) {
                         Log.d(TAG, "Not sending onLoadChildren result for connection that has"
@@ -1152,7 +1270,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 }
 
                 List<MediaBrowserCompat.MediaItem> filteredList =
-                        (flags & RESULT_FLAG_OPTION_NOT_HANDLED) != 0
+                        (getFlags() & RESULT_FLAG_OPTION_NOT_HANDLED) != 0
                                 ? applyOptions(list, options) : list;
                 try {
                     connection.callbacks.onLoadChildren(parentId, filteredList, options);
@@ -1204,8 +1322,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<MediaBrowserCompat.MediaItem> result =
                 new Result<MediaBrowserCompat.MediaItem>(itemId) {
                     @Override
-                    void onResultSent(MediaBrowserCompat.MediaItem item, @ResultFlags int flags) {
-                        if ((flags & RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED) != 0) {
+                    void onResultSent(MediaBrowserCompat.MediaItem item) {
+                        if ((getFlags() & RESULT_FLAG_ON_LOAD_ITEM_NOT_IMPLEMENTED) != 0) {
                             receiver.send(RESULT_ERROR, null);
                             return;
                         }
@@ -1230,8 +1348,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
         final Result<List<MediaBrowserCompat.MediaItem>> result =
                 new Result<List<MediaBrowserCompat.MediaItem>>(query) {
             @Override
-            void onResultSent(List<MediaBrowserCompat.MediaItem> items, @ResultFlags int flag) {
-                if ((flag & RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED) != 0
+            void onResultSent(List<MediaBrowserCompat.MediaItem> items) {
+                if ((getFlags() & RESULT_FLAG_ON_SEARCH_NOT_IMPLEMENTED) != 0
                         || items == null) {
                     receiver.send(RESULT_ERROR, null);
                     return;
@@ -1250,6 +1368,36 @@ public abstract class MediaBrowserServiceCompat extends Service {
         if (!result.isDone()) {
             throw new IllegalStateException("onSearch must call detach() or sendResult()"
                     + " before returning for query=" + query);
+        }
+    }
+
+    void performCustomAction(final String action, Bundle extras, ConnectionRecord connection,
+            final ResultReceiver receiver) {
+        final Result<Bundle> result = new Result<Bundle>(action) {
+                @Override
+                void onResultSent(Bundle result) {
+                    receiver.send(RESULT_OK, result);
+                }
+
+                @Override
+                void onProgressUpdateSent(Bundle data) {
+                    receiver.send(RESULT_PROGRESS_UPDATE, data);
+                }
+
+                @Override
+                void onErrorSent(Bundle data) {
+                    receiver.send(RESULT_ERROR, data);
+                }
+            };
+
+        mCurConnection = connection;
+        onCustomAction(action, extras, result);
+        mCurConnection = null;
+
+        if (!result.isDone()) {
+            throw new IllegalStateException("onCustomAction must call detach() or sendResult() or "
+                    + "sendError() before returning for action=" + action + " extras="
+                    + extras);
         }
     }
 
