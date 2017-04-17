@@ -1,4 +1,4 @@
 //LiveData interface for tests
-package com.android.support.lifecycle;
+package android.arch.lifecycle;
 public class LiveData<T> {
 }

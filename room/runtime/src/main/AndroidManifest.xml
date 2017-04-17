@@ -15,5 +15,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.room">
+          package="android.arch.persistence.room">
 </manifest>

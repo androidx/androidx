@@ -15,7 +15,7 @@
  */
 
 package foo.bar;
-import com.android.support.room.*;
+import android.arch.persistence.room.*;
 @Entity
 public class Book {
     @PrimaryKey

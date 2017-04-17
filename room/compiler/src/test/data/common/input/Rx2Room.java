@@ -1,5 +1,5 @@
 // mock rx2 helper
-package com.android.support.room;
+package android.arch.persistence.room;
 
 class RxRoom {
 }

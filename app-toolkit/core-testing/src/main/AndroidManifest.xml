@@ -14,5 +14,5 @@
   ~ limitations under the License.
   -->
 
-<manifest package="com.android.support.apptoolkit.core.testing">
+<manifest package="android.arch.core.testing">
 </manifest>

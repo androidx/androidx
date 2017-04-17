@@ -16,10 +16,10 @@
 
 package foo;
 
-import static com.android.support.lifecycle.Lifecycle.ON_START;
-import static com.android.support.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.ON_START;
+import static android.arch.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.OnLifecycleEvent;
 
 class Base {
     @OnLifecycleEvent(ON_STOP)

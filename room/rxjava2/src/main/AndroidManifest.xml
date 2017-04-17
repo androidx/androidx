@@ -15,5 +15,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.room.rxjava2">
+          package="android.arch.persistence.room.rxjava2">
 </manifest>

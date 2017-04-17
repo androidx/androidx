@@ -16,13 +16,13 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.lifecycle.extensions.test">
+          package="android.arch.lifecycle.extensions.test">
 
     <application>
-        <activity android:name="com.android.support.lifecycle.viewmodeltest.ViewModelActivity"
+        <activity android:name="android.arch.lifecycle.viewmodeltest.ViewModelActivity"
                   android:theme="@style/Base.Theme.AppCompat">
         </activity>
-        <activity android:name="com.android.support.lifecycle.EmptyActivity"/>
+        <activity android:name="android.arch.lifecycle.EmptyActivity"/>
     </application>
 
 </manifest>

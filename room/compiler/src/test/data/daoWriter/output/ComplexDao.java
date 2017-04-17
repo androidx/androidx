@@ -1,12 +1,12 @@
 package foo.bar;
 
+import android.arch.lifecycle.ComputableLiveData;
+import android.arch.lifecycle.LiveData;
+import android.arch.persistence.room.InvalidationTracker.Observer;
+import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.RoomSQLiteQuery;
+import android.arch.persistence.room.util.StringUtil;
 import android.database.Cursor;
-import com.android.support.lifecycle.ComputableLiveData;
-import com.android.support.lifecycle.LiveData;
-import com.android.support.room.InvalidationTracker.Observer;
-import com.android.support.room.RoomDatabase;
-import com.android.support.room.RoomSQLiteQuery;
-import com.android.support.room.util.StringUtil;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;

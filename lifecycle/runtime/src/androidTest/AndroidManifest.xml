@@ -16,13 +16,13 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.lifecycle.test">
+          package="android.arch.lifecycle.test">
 
     <application>
-        <activity android:name="com.android.support.lifecycle.activity.FragmentLifecycleActivity"
+        <activity android:name="android.arch.lifecycle.activity.FragmentLifecycleActivity"
             android:theme="@style/Base.Theme.AppCompat"/>
-        <activity android:name="com.android.support.lifecycle.activity.EmptyActivity"/>
-        <service android:name="com.android.support.lifecycle.service.TestService"/>
+        <activity android:name="android.arch.lifecycle.activity.EmptyActivity"/>
+        <service android:name="android.arch.lifecycle.service.TestService"/>
     </application>
 
 </manifest>

@@ -1,9 +1,9 @@
 package foo;
 
-import static com.android.support.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.ON_STOP;
 
-import com.android.support.lifecycle.LifecycleOwner;
-import com.android.support.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.OnLifecycleEvent;
 
 public class TooManyArgs {
     @OnLifecycleEvent(ON_STOP)

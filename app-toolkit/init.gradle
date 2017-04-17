@@ -101,6 +101,12 @@ generateApi.enabled = false
 
 buildServerAnchorTask.dependsOn createArchive
 
+rootProject.ext.flatfootProjectGroups = [
+        "room" : "android.arch.persistence.room",
+        "lifecycle" : "android.arch.lifecycle",
+        "arch" : "android.arch.core",
+        "navigation" : "android.arch.navigation"]
+
 subprojects {
     configurations.all {
         resolutionStrategy {
@@ -118,9 +124,13 @@ subprojects {
     }
 
     def mavenGroup = project.getPath().split(":")[1]
-    if (mavenGroup != "room" && mavenGroup != "lifecycle" && mavenGroup != "apptoolkit-core") {
+    def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
+    if (finalGroup == null) {
         return
     }
+    project.group = finalGroup
+    project.version = flatfoot.release_version
+
     if (project.getPath().contains("integration-tests")) {
         // disable upload tasks
         project.tasks.whenTaskAdded { task ->
@@ -169,8 +179,6 @@ subprojects {
             buildServerAnchorTask.dependsOn task
         }
     }
-    project.group = "com.android.support.$mavenGroup"
-    project.version = flatfoot.release_version
 
     if (enablePublicRepos) {
         project.afterEvaluate {
@@ -200,7 +208,8 @@ def createKotlinCheckstyle(Project project) {
                   fileTree(dir : sourceDir, include : "**/*.kt").each{ file ->
                       file.readLines().eachWithIndex { line, index ->
                           if (line.size() > 100) {
-                              throw new Exception("line too long: file: $file line:$index line: $line")
+                              project.logger.error("line too long: file: $file" +
+                                      " index:$index line: $line")
                           }
                       }
                   }

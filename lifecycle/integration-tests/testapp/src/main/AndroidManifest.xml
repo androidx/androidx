@@ -11,49 +11,49 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" package="com.android.support.lifecycle.testapp">
+    xmlns:tools="http://schemas.android.com/tools" package="android.arch.lifecycle.testapp">
 
     <application android:allowBackup="true" android:label="Test App" android:supportsRtl="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon">
-        <activity android:name="com.android.support.lifecycle.testapp.MainActivity">
+        <activity android:name="android.arch.lifecycle.testapp.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="com.android.support.lifecycle.testapp.LifecycleTestActivity">
+        <activity android:name="android.arch.lifecycle.testapp.LifecycleTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.android.support.lifecycle.testapp.FullLifecycleTestActivity">
+        <activity android:name="android.arch.lifecycle.testapp.FullLifecycleTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.android.support.lifecycle.testapp.SupportLifecycleRegistryActivity">
+        <activity android:name="android.arch.lifecycle.testapp.SupportLifecycleRegistryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.android.support.lifecycle.testapp.FrameworkLifecycleRegistryActivity">
+        <activity android:name="android.arch.lifecycle.testapp.FrameworkLifecycleRegistryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.support.lifecycle.testapp.SimpleAppLifecycleTestActivity">
+            android:name="android.arch.lifecycle.testapp.SimpleAppLifecycleTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.android.support.lifecycle.testapp.NavigationTestActivityFirst"
+        <activity android:name="android.arch.lifecycle.testapp.NavigationTestActivityFirst"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

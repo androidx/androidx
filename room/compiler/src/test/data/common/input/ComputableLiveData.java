@@ -1,6 +1,6 @@
 //ComputableLiveData interface for tests
-package com.android.support.lifecycle;
-import com.android.support.lifecycle.LiveData;
+package android.arch.lifecycle;
+import android.arch.lifecycle.LiveData;
 public abstract class ComputableLiveData<T> {
     public ComputableLiveData(){}
     abstract protected T compute();

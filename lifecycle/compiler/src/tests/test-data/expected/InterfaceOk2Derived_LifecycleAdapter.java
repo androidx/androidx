@@ -16,8 +16,8 @@
 
 package foo;
 
-import com.android.support.lifecycle.GenericLifecycleObserver;
-import com.android.support.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 
 import java.lang.Object;
 import java.lang.Override;

@@ -15,5 +15,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.support.apptoolkit.core">
+          package="android.arch.core">
 </manifest>

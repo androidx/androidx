@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    compile project(":apptoolkit:core")
+    compile project(":arch:core")
     compile libs.support.annotations
     compile libs.support.core_utils
     compile(libs.junit) {

@@ -28,7 +28,7 @@ android {
 
 dependencies {
     compile project(":lifecycle:common")
-    compile project(":apptoolkit:core")
+    compile project(":arch:core")
     compile libs.support.core_utils
     // using classes like Pair from support core allows Lifecycle to be compatible w/ junit tests
     compile libs.support.fragments

@@ -28,9 +28,9 @@ android {
 dependencies {
     compile project(":lifecycle:common")
     compile project(":lifecycle:runtime")
-    compile project(":apptoolkit:core")
+    compile project(":arch:core")
     compile libs.support.fragments
-    testCompile project(":apptoolkit:core-testing")
+    testCompile project(":arch:core-testing")
     testCompile libs.junit
     testCompile libs.mockito.all
 

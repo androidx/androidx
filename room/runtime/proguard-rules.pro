@@ -1,1 +1,1 @@
--keep public class * extends com.android.support.room.RoomDatabase
+-keep public class * extends android.arch.persistence.room.RoomDatabase

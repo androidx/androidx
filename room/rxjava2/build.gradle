@@ -49,12 +49,12 @@ android {
 dependencies {
     compile project(":room:common")
     compile project(":room:runtime")
-    compile project(":apptoolkit:core")
+    compile project(":arch:core")
     compile libs.support.core_utils
     compile libs.rx_java
     testCompile libs.junit
     testCompile libs.mockito.all
-    testCompile project(":apptoolkit:core-testing")
+    testCompile project(":arch:core-testing")
 }
 
 archivesBaseName = "rxjava2"

@@ -25,8 +25,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="fragment_tag"
-            android:name="com.android.support.lifecycle.testapp.UsualFragment"
-            tools:context="com.android.support.lifecycle.testapp.MainActivity">
+            android:name="android.arch.lifecycle.testapp.UsualFragment"
+            tools:context="android.arch.lifecycle.testapp.MainActivity">
         </fragment>
     </FrameLayout>
 </FrameLayout>

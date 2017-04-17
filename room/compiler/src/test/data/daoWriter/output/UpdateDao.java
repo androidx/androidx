@@ -1,8 +1,8 @@
 package foo.bar;
 
-import com.android.support.db.SupportSQLiteStatement;
-import com.android.support.room.EntityDeletionOrUpdateAdapter;
-import com.android.support.room.RoomDatabase;
+import android.arch.persistence.db.SupportSQLiteStatement;
+import android.arch.persistence.room.EntityDeletionOrUpdateAdapter;
+import android.arch.persistence.room.RoomDatabase;
 import java.lang.Override;
 import java.lang.String;
 import java.util.List;

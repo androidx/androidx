@@ -1,10 +1,10 @@
 package foo.bar;
 
-import com.android.support.db.SupportSQLiteStatement;
-import com.android.support.room.EntityDeletionOrUpdateAdapter;
-import com.android.support.room.RoomDatabase;
-import com.android.support.room.SharedSQLiteStatement;
-import com.android.support.room.util.StringUtil;
+import android.arch.persistence.db.SupportSQLiteStatement;
+import android.arch.persistence.room.EntityDeletionOrUpdateAdapter;
+import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.SharedSQLiteStatement;
+import android.arch.persistence.room.util.StringUtil;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;

@@ -27,11 +27,11 @@ if (inAppToolkitProject) {
 
 println "support root:${supportRoot}"
 
-include ':apptoolkit:core'
-project(':apptoolkit:core').projectDir = new File(supportRoot, "app-toolkit/core")
+include ':arch:core'
+project(':arch:core').projectDir = new File(supportRoot, "app-toolkit/core")
 
-include ':apptoolkit:core-testing'
-project(':apptoolkit:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
+include ':arch:core-testing'
+project(':arch:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
 
 include ':lifecycle:extensions'
 project(':lifecycle:extensions').projectDir = new File(supportRoot, "lifecycle/extensions")

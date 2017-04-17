@@ -23,17 +23,13 @@ android {
     buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        applicationId "com.android.support.lifecycle.testapp"
+        applicationId "android.arch.lifecycle.testapp"
         minSdkVersion flatfoot.min_sdk
         targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        jackOptions {
-            enabled true
-        }
     }
 
     testOptions {
