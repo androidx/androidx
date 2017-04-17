@@ -326,6 +326,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // removal animations.
     float mPostponedAlpha;
 
+    // The cached value from onGetLayoutInflater(Bundle) that will be returned from
+    // getLayoutInflater()
+    LayoutInflater mLayoutInflater;
+
     /**
      * State information that has been retrieved from a fragment instance
      * through {@link FragmentManager#saveFragmentInstanceState(Fragment)
@@ -1133,9 +1137,45 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Use {@link #onGetLayoutInflater(Bundle)} instead
+     * Returns the cached LayoutInflater used to inflate Views of this Fragment. If
+     * {@link #onGetLayoutInflater(Bundle)} has not been called {@link #onGetLayoutInflater(Bundle)}
+     * will be called with a {@code null} argument and that value will be cached.
+     * <p>
+     * The cached LayoutInflater will be replaced immediately prior to
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} and cleared immediately after
+     * {@link #onDetach()}.
+     *
+     * @return The LayoutInflater used to inflate Views of this Fragment.
+     */
+    public final LayoutInflater getLayoutInflater() {
+        if (mLayoutInflater == null) {
+            return performGetLayoutInflater(null);
+        }
+        return mLayoutInflater;
+    }
+
+    /**
+     * Calls {@link #onGetLayoutInflater(Bundle)} and caches the result for use by
+     * {@link #getLayoutInflater()}.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     * @return The LayoutInflater used to inflate Views of this Fragment.
+     */
+    LayoutInflater performGetLayoutInflater(Bundle savedInstanceState) {
+        LayoutInflater layoutInflater = onGetLayoutInflater(savedInstanceState);
+        mLayoutInflater = layoutInflater;
+        return mLayoutInflater;
+    }
+
+    /**
+     * Override {@link #onGetLayoutInflater(Bundle)} when you need to change the
+     * LayoutInflater or call {@link #getLayoutInflater()} when you want to
+     * retrieve the current LayoutInflater.
+     *
      * @hide
-     * @deprecated Use {@link #onGetLayoutInflater(Bundle)} instead.
+     * @deprecated Override {@link #onGetLayoutInflater(Bundle)} or call
+     * {@link #getLayoutInflater()} instead of this method.
      */
     @Deprecated
     @RestrictTo(LIBRARY_GROUP)
@@ -2464,6 +2504,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void performDetach() {
         mCalled = false;
         onDetach();
+        mLayoutInflater = null;
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onDetach()");
