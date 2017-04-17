@@ -119,6 +119,8 @@ public class DetailsSupportFragmentBackgroundController {
     int mSolidColor;
     boolean mCanUseHost = false;
 
+    private Fragment mLastVideoSupportFragmentForGlueHost;
+
     /**
      * Creates a DetailsSupportFragmentBackgroundController for a DetailsSupportFragment. Note that
      * each DetailsSupportFragment can only associate with one DetailsSupportFragmentBackgroundController.
@@ -230,13 +232,23 @@ public class DetailsSupportFragmentBackgroundController {
         if (mPlaybackGlue == playbackGlue) {
             return;
         }
+
+        PlaybackGlueHost playbackGlueHost = null;
         if (mPlaybackGlue != null) {
+            playbackGlueHost = mPlaybackGlue.getHost();
             mPlaybackGlue.setHost(null);
         }
+
         mPlaybackGlue = playbackGlue;
         mVideoHelper.setPlaybackGlue(mPlaybackGlue);
         if (mCanUseHost && mPlaybackGlue != null) {
-            mPlaybackGlue.setHost(onCreateGlueHost());
+            if (playbackGlueHost == null
+                    || mLastVideoSupportFragmentForGlueHost != findOrCreateVideoSupportFragment()) {
+                mPlaybackGlue.setHost(onCreateGlueHost());
+                mLastVideoSupportFragmentForGlueHost = findOrCreateVideoSupportFragment();
+            } else {
+                mPlaybackGlue.setHost(playbackGlueHost);
+            }
         }
     }
 
@@ -302,6 +314,7 @@ public class DetailsSupportFragmentBackgroundController {
             mCanUseHost = true;
             if (mPlaybackGlue != null) {
                 mPlaybackGlue.setHost(onCreateGlueHost());
+                mLastVideoSupportFragmentForGlueHost = findOrCreateVideoSupportFragment();
             }
         }
         if (mPlaybackGlue != null && mPlaybackGlue.isReadyForPlayback()) {
