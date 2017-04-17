@@ -30,6 +30,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -542,6 +543,25 @@ public class ContextCompat {
             return context.isDeviceProtectedStorage();
         } else {
             return false;
+        }
+    }
+
+    /**
+     * startForegroundService() was introduced in O, just call startService
+     * for before O.
+     *
+     * @param context Context to start Service from.
+     * @param intent The description of the Service to start.
+     *
+     * @see Context#startForegeroundService()
+     * @see Context#startService()
+     */
+    public static void startForegroundService(Context context, Intent intent) {
+        if (BuildCompat.isAtLeastO()) {
+            context.startForegroundService(intent);
+        } else {
+            // Pre-O behavior.
+            context.startService(intent);
         }
     }
 }

@@ -6413,6 +6413,7 @@ package android.support.v4.content {
     method public static boolean startActivities(android.content.Context, android.content.Intent[]);
     method public static boolean startActivities(android.content.Context, android.content.Intent[], android.os.Bundle);
     method public static void startActivity(android.content.Context, android.content.Intent, android.os.Bundle);
+    method public static void startForegroundService(android.content.Context, android.content.Intent);
   }
 
   public class CursorLoader extends android.support.v4.content.AsyncTaskLoader {
