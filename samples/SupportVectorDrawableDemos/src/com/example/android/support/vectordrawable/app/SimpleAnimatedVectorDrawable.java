@@ -39,6 +39,8 @@ public class SimpleAnimatedVectorDrawable extends Activity implements View.OnCli
     private static final String LOGCAT = "VectorDrawable1";
     protected int[] mIcons = {
             R.drawable.animation_vector_drawable_grouping_1,
+            R.drawable.animation_vector_drawable_grouping_decelerate,
+            R.drawable.animation_vector_drawable_grouping_accelerate,
             R.drawable.ic_hourglass_animation,
             R.drawable.ic_signal_airplane_v2_animation,
             R.drawable.animation_vector_progress_bar,

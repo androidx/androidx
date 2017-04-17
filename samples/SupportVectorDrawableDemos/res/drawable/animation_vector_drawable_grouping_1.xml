@@ -18,9 +18,9 @@
 
     <target
         android:name="sun"
-        android:animation="@anim/animation_grouping_1_01" />
+        android:animation="@anim/animation_grouping_1_path_interpolator" />
     <target
         android:name="earth"
-        android:animation="@anim/animation_grouping_1_01" />
+        android:animation="@anim/animation_grouping_1_path_interpolator" />
 
 </animated-vector>

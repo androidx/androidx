@@ -31,12 +31,12 @@ import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.os.Build;
+import android.support.annotation.AnimatorRes;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.util.Xml;
 import android.view.InflateException;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -85,7 +85,7 @@ public class AnimatorInflaterCompat {
      * @return The animator object reference by the specified id
      * @throws NotFoundException when the animation cannot be loaded
      */
-    public static Animator loadAnimator(Context context, int id)
+    public static Animator loadAnimator(Context context, @AnimatorRes int id)
             throws NotFoundException {
         Animator objectAnimator;
         // Since AVDC will fall back onto AVD when API is >= 24, therefore, PathParser will need
@@ -108,14 +108,16 @@ public class AnimatorInflaterCompat {
      * @throws NotFoundException when the animation cannot be loaded
      * @hide
      */
-    public static Animator loadAnimator(Context context, Resources resources, Theme theme, int id)
-            throws NotFoundException {
+    public static Animator loadAnimator(Context context, Resources resources, Theme theme,
+            @AnimatorRes int id) throws NotFoundException {
         return loadAnimator(context, resources, theme, id, 1);
     }
 
-    /** @hide */
-    public static Animator loadAnimator(Context context, Resources resources, Theme theme, int id,
-            float pathErrorScale) throws NotFoundException {
+    /**
+     * Loads an {@link Animator} object from a resource, context is for loading interpolator.
+     */
+    public static Animator loadAnimator(Context context, Resources resources, Theme theme,
+            @AnimatorRes int id, float pathErrorScale) throws NotFoundException {
         Animator animator;
 
         XmlResourceParser parser = null;
@@ -772,7 +774,7 @@ public class AnimatorInflaterCompat {
         final int resID = TypedArrayUtils.getNamedResId(a, parser, "interpolator",
                 AndroidResources.STYLEABLE_KEYFRAME_INTERPOLATOR, 0);
         if (resID > 0) {
-            final Interpolator interpolator = AnimationUtils.loadInterpolator(context, resID);
+            final Interpolator interpolator = AnimationUtilsCompat.loadInterpolator(context, resID);
             keyframe.setInterpolator(interpolator);
         }
         a.recycle();
@@ -816,7 +818,7 @@ public class AnimatorInflaterCompat {
         final int resID = TypedArrayUtils.getNamedResId(arrayAnimator, parser, "interpolator",
                 AndroidResources.STYLEABLE_ANIMATOR_INTERPOLATOR, 0);
         if (resID > 0) {
-            final Interpolator interpolator = AnimationUtils.loadInterpolator(context, resID);
+            final Interpolator interpolator = AnimationUtilsCompat.loadInterpolator(context, resID);
             anim.setInterpolator(interpolator);
         }
 
