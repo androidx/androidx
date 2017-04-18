@@ -16,7 +16,6 @@
 
 package android.support.v4.media.session;
 
-import android.media.MediaDescription;
 import android.media.session.MediaController;
 import android.support.annotation.RequiresApi;
 
@@ -32,22 +31,6 @@ class MediaControllerCompatApi26 {
 
     public static boolean isShuffleModeEnabled(Object controllerObj) {
         return ((MediaController) controllerObj).isShuffleModeEnabled();
-    }
-
-    public static void addQueueItem(Object controllerObj, Object descriptionObj) {
-        ((MediaController) controllerObj).addQueueItem((MediaDescription) descriptionObj);
-    }
-
-    public static void addQueueItem(Object controllerObj, Object descriptionObj, int index) {
-        ((MediaController) controllerObj).addQueueItem((MediaDescription) descriptionObj, index);
-    }
-
-    public static void removeQueueItem(Object controllerObj, Object descriptionObj) {
-        ((MediaController) controllerObj).removeQueueItem((MediaDescription) descriptionObj);
-    }
-
-    public static void removeQueueItemAt(Object controllerObj, int index) {
-        ((MediaController) controllerObj).removeQueueItemAt(index);
     }
 
     public static class TransportControls extends MediaControllerCompatApi23.TransportControls {
