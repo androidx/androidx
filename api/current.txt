@@ -36,12 +36,31 @@ package android.support.animation {
     method public abstract void onAnimationUpdate(android.support.animation.DynamicAnimation, float, float);
   }
 
-  public static abstract class DynamicAnimation.ViewProperty {
+  public static abstract class DynamicAnimation.ViewProperty extends android.support.animation.FloatPropertyCompat {
+  }
+
+  public final class FlingAnimation extends android.support.animation.DynamicAnimation {
+    ctor public FlingAnimation(android.support.animation.FloatPropertyCompat<K>);
+    ctor public FlingAnimation(K, android.support.animation.FloatPropertyCompat<K>);
+    method public float getFriction();
+    method public float getVelocityThreshold();
+    method public android.support.animation.FlingAnimation setFriction(float);
+    method public android.support.animation.FlingAnimation setVelocityThreshold(float);
+  }
+
+  public abstract class FloatPropertyCompat<T> {
+    ctor public FloatPropertyCompat(java.lang.String);
+    method public static <T> android.support.animation.FloatPropertyCompat<T> createFloatPropertyCompat(android.util.FloatProperty<T>);
+    method public abstract float getValue(T);
+    method public abstract void setValue(T, float);
   }
 
   public final class SpringAnimation extends android.support.animation.DynamicAnimation {
-    ctor public SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty);
-    ctor public SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty, float);
+    ctor public SpringAnimation(android.support.animation.FloatPropertyCompat<K>);
+    ctor public SpringAnimation(K, android.support.animation.FloatPropertyCompat<K>);
+    ctor public SpringAnimation(K, android.support.animation.FloatPropertyCompat<K>, float);
+    ctor public deprecated SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty);
+    ctor public deprecated SpringAnimation(android.view.View, android.support.animation.DynamicAnimation.ViewProperty, float);
     method public void animateToFinalPosition(float);
     method public boolean canSkipToEnd();
     method public android.support.animation.SpringForce getSpring();
