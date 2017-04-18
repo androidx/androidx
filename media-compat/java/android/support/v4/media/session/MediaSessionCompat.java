@@ -719,9 +719,7 @@ public class MediaSessionCompat {
         WeakReference<MediaSessionImpl> mSessionImpl;
 
         public Callback() {
-            if (BuildCompat.isAtLeastO()) {
-                mCallbackObj = MediaSessionCompatApi26.createCallback(new StubApi26());
-            } else if (android.os.Build.VERSION.SDK_INT >= 24) {
+            if (android.os.Build.VERSION.SDK_INT >= 24) {
                 mCallbackObj = MediaSessionCompatApi24.createCallback(new StubApi24());
             } else if (android.os.Build.VERSION.SDK_INT >= 23) {
                 mCallbackObj = MediaSessionCompatApi23.createCallback(new StubApi23());
@@ -1154,19 +1152,6 @@ public class MediaSessionCompat {
             @Override
             public void onPrepareFromUri(Uri uri, Bundle extras) {
                 Callback.this.onPrepareFromUri(uri, extras);
-            }
-        }
-
-        @RequiresApi(26)
-        private class StubApi26 extends StubApi24 implements MediaSessionCompatApi26.Callback {
-            @Override
-            public void onSetRepeatMode(int repeatMode) {
-                Callback.this.onSetRepeatMode(repeatMode);
-            }
-
-            @Override
-            public void onSetShuffleModeEnabled(boolean enabled) {
-                Callback.this.onSetShuffleModeEnabled(enabled);
             }
         }
     }
@@ -3051,41 +3036,33 @@ public class MediaSessionCompat {
 
         @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
-            if (!BuildCompat.isAtLeastO()) {
-                if (mRepeatMode != repeatMode) {
-                    mRepeatMode = repeatMode;
-                    int size = mExtraControllerCallbacks.beginBroadcast();
-                    for (int i = size - 1; i >= 0; i--) {
-                        IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                        try {
-                            cb.onRepeatModeChanged(repeatMode);
-                        } catch (RemoteException e) {
-                        }
+            if (mRepeatMode != repeatMode) {
+                mRepeatMode = repeatMode;
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onRepeatModeChanged(repeatMode);
+                    } catch (RemoteException e) {
                     }
-                    mExtraControllerCallbacks.finishBroadcast();
                 }
-            } else {
-                MediaSessionCompatApi26.setRepeatMode(mSessionObj, repeatMode);
+                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
         @Override
         public void setShuffleModeEnabled(boolean enabled) {
-            if (!BuildCompat.isAtLeastO()) {
-                if (mShuffleModeEnabled != enabled) {
-                    mShuffleModeEnabled = enabled;
-                    int size = mExtraControllerCallbacks.beginBroadcast();
-                    for (int i = size - 1; i >= 0; i--) {
-                        IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
-                        try {
-                            cb.onShuffleModeChanged(enabled);
-                        } catch (RemoteException e) {
-                        }
+            if (mShuffleModeEnabled != enabled) {
+                mShuffleModeEnabled = enabled;
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onShuffleModeChanged(enabled);
+                    } catch (RemoteException e) {
                     }
-                    mExtraControllerCallbacks.finishBroadcast();
                 }
-            } else {
-                MediaSessionCompatApi26.setShuffleModeEnabled(mSessionObj, enabled);
+                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
