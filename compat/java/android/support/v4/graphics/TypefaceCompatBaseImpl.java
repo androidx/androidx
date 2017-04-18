@@ -169,7 +169,8 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      * To be overriden by other implementations according to available APIs.
      * @param resultList a list of results, guaranteed to be non-null and non empty.
      */
-    Typeface createTypeface(List<FontResult> resultList) {
+    @Override
+    public Typeface createTypeface(List<FontResult> resultList) {
         // When we load from file, we can only load one font so just take the first one.
         Typeface typeface = null;
         File tmpFile = copyToCacheFile(resultList.get(0).getFileDescriptor().getFileDescriptor());
