@@ -57,7 +57,6 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
             thread.setDaemon(false);
             thread.start();
         }
-
     }
 
     private static class InitRunnable implements Runnable {
