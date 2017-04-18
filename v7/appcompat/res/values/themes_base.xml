@@ -281,6 +281,8 @@
         <!-- Tooltip attributes -->
         <item name="tooltipFrameBackground">@drawable/tooltip_frame_light</item>
         <item name="tooltipForegroundColor">@color/foreground_material_light</item>
+
+        <item name="textColorError">@color/error_text_material_dark</item>
     </style>
 
     <!-- Base platform-dependent theme providing an action bar in a light-themed activity. -->
@@ -447,6 +449,8 @@
         <!-- Tooltip attributes -->
         <item name="tooltipFrameBackground">@drawable/tooltip_frame_dark</item>
         <item name="tooltipForegroundColor">@color/foreground_material_dark</item>
+
+        <item name="textColorError">@color/error_text_material_light</item>
     </style>
 
     <style name="Base.Theme.AppCompat" parent="Base.V7.Theme.AppCompat">
