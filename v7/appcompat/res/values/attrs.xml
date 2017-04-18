@@ -403,6 +403,9 @@
         <attr name="tooltipFrameBackground" format="reference" />
         <!-- Foreground color to use for tooltips -->
         <attr name="tooltipForegroundColor" format="reference|color" />
+
+        <!-- Text color for errors. -->
+        <attr name="textColorError" format="reference|color" />
     </declare-styleable>
 
 
