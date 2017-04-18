@@ -752,6 +752,15 @@ public class EmojiCompat {
             mEmojiSpanIndicatorColor = color;
             return this;
         }
+
+        /**
+         * Returns the {@link MetadataLoader}.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public final MetadataLoader getMetadataLoader() {
+            return mMetadataLoader;
+        }
     }
 
     /**

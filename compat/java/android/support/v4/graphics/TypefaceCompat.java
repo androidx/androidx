@@ -22,20 +22,23 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.annotation.GuardedBy;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.v4.graphics.fonts.FontRequest;
+import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.provider.FontsContract;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * Helper for accessing features in {@link Typeface} in a backwards compatible fashion.
  */
 public class TypefaceCompat {
-
+    @GuardedBy("sLock")
     private static TypefaceCompatImpl sTypefaceCompatImpl;
     private static final Object sLock = new Object();
 
@@ -51,18 +54,37 @@ public class TypefaceCompat {
     @TargetApi(26)
     public static void create(Context context, @NonNull final FontRequest request,
             @NonNull final FontRequestCallback callback) {
-        synchronized (sLock) {
-            if (sTypefaceCompatImpl == null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    sTypefaceCompatImpl = new TypefaceCompatApi26Impl();
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    sTypefaceCompatImpl = new TypefaceCompatApi24Impl(context);
-                } else {
-                    sTypefaceCompatImpl = new TypefaceCompatBaseImpl(context);
+        getInstance(context).create(request, callback);
+    }
+
+    /**
+     * Create a Typeface from a given FontResult list.
+     *
+     * @param resultList a list of results, guaranteed to be non-null and non empty.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static Typeface createTypeface(Context context, @NonNull List<FontResult> resultList) {
+        return getInstance(context).createTypeface(resultList);
+    }
+
+    @TargetApi(26)
+    private static TypefaceCompatImpl getInstance(Context context) {
+        if (sTypefaceCompatImpl == null) {
+            synchronized (sLock) {
+                if (sTypefaceCompatImpl == null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        sTypefaceCompatImpl = new TypefaceCompatApi26Impl();
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        sTypefaceCompatImpl = new TypefaceCompatApi24Impl(context);
+                    } else {
+                        sTypefaceCompatImpl = new TypefaceCompatBaseImpl(context);
+                    }
                 }
             }
         }
-        sTypefaceCompatImpl.create(request, callback);
+        return sTypefaceCompatImpl;
     }
 
     /**
@@ -82,6 +104,14 @@ public class TypefaceCompat {
          */
         void create(@NonNull FontRequest request,
                 @NonNull TypefaceCompat.FontRequestCallback callback);
+
+
+        /**
+         * Create a Typeface from a given FontResult list.
+         *
+         * @param resultList a list of results, guaranteed to be non-null and non empty.
+         */
+        Typeface createTypeface(@NonNull List<FontResult> resultList);
     }
 
     /**
