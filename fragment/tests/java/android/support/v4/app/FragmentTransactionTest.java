@@ -19,11 +19,16 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.fragment.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
@@ -32,6 +37,9 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
 import android.support.v4.app.test.NewIntentActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -146,6 +154,54 @@ public class FragmentTransactionTest {
             }
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+    }
+
+    @Test
+    public void testGetLayoutInflater() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final OnGetLayoutInflaterFragment fragment1 = new OnGetLayoutInflaterFragment();
+                assertEquals(0, fragment1.onGetLayoutInflaterCalls);
+                mActivity.getSupportFragmentManager().beginTransaction()
+                        .add(R.id.content, fragment1)
+                        .addToBackStack(null)
+                        .commit();
+                mActivity.getSupportFragmentManager().executePendingTransactions();
+                assertEquals(1, fragment1.onGetLayoutInflaterCalls);
+                assertEquals(fragment1.layoutInflater, fragment1.getLayoutInflater());
+                // getLayoutInflater() didn't force onGetLayoutInflater()
+                assertEquals(1, fragment1.onGetLayoutInflaterCalls);
+
+                LayoutInflater layoutInflater = fragment1.layoutInflater;
+                // Replacing fragment1 won't detach it, so the value won't be cleared
+                final OnGetLayoutInflaterFragment fragment2 = new OnGetLayoutInflaterFragment();
+                mActivity.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.content, fragment2)
+                        .addToBackStack(null)
+                        .commit();
+                mActivity.getSupportFragmentManager().executePendingTransactions();
+
+                assertSame(layoutInflater, fragment1.getLayoutInflater());
+                assertEquals(1, fragment1.onGetLayoutInflaterCalls);
+
+                // Popping it should cause onCreateView again, so a new LayoutInflater...
+                mActivity.getSupportFragmentManager().popBackStackImmediate();
+                assertNotSame(layoutInflater, fragment1.getLayoutInflater());
+                assertEquals(2, fragment1.onGetLayoutInflaterCalls);
+                layoutInflater = fragment1.layoutInflater;
+                assertSame(layoutInflater, fragment1.getLayoutInflater());
+
+                // Popping it should detach it, clearing the cached value again
+                mActivity.getSupportFragmentManager().popBackStackImmediate();
+
+                // once it is detached, the getLayoutInflater() will default to throw
+                // an exception, but we've made it return null instead.
+                assertEquals(2, fragment1.onGetLayoutInflaterCalls);
+                assertNull(fragment1.getLayoutInflater());
+                assertEquals(3, fragment1.onGetLayoutInflaterCalls);
+            }
+        });
     }
 
     @Test
@@ -382,4 +438,27 @@ public class FragmentTransactionTest {
     static class PackagePrivateFragment extends Fragment {}
 
     private class NonStaticFragment extends Fragment {}
+
+    public static class OnGetLayoutInflaterFragment extends Fragment {
+        public int onGetLayoutInflaterCalls = 0;
+        public LayoutInflater layoutInflater;
+
+        @Override
+        public LayoutInflater onGetLayoutInflater(Bundle savedInstanceState) {
+            onGetLayoutInflaterCalls++;
+            try {
+                layoutInflater = super.onGetLayoutInflater(savedInstanceState);
+            } catch (Exception e) {
+                return null;
+            }
+            return layoutInflater;
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                @Nullable Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.fragment_a, container, false);
+        }
+    }
 }
