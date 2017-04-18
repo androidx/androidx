@@ -6029,6 +6029,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setCategory(java.lang.String);
     method public android.support.v4.app.NotificationCompat.Builder setChannel(java.lang.String);
     method public android.support.v4.app.NotificationCompat.Builder setColor(int);
+    method public android.support.v4.app.NotificationCompat.Builder setColorized(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setContent(android.widget.RemoteViews);
     method public android.support.v4.app.NotificationCompat.Builder setContentInfo(java.lang.CharSequence);
     method public android.support.v4.app.NotificationCompat.Builder setContentIntent(android.app.PendingIntent);
