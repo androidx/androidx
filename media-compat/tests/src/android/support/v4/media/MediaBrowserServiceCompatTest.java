@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.PollingCheck;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 
 import org.junit.Before;
@@ -47,6 +48,14 @@ public class MediaBrowserServiceCompatTest {
     private static final ComponentName TEST_BROWSER_SERVICE = new ComponentName(
             "android.support.mediacompat.test",
             "android.support.v4.media.StubMediaBrowserServiceCompat");
+    private static final String TEST_KEY_1 = "key_1";
+    private static final String TEST_VALUE_1 = "value_1";
+    private static final String TEST_KEY_2 = "key_2";
+    private static final String TEST_VALUE_2 = "value_2";
+    private static final String TEST_KEY_3 = "key_3";
+    private static final String TEST_VALUE_3 = "value_3";
+    private static final String TEST_KEY_4 = "key_4";
+    private static final String TEST_VALUE_4 = "value_4";
     private final Object mWaitLock = new Object();
 
     private final ConnectionCallback mConnectionCallback = new ConnectionCallback();
@@ -76,6 +85,8 @@ public class MediaBrowserServiceCompatTest {
             mWaitLock.wait(TIME_OUT_MS);
         }
         assertNotNull(mMediaBrowserService);
+        mMediaBrowserService.mCustomActionExtras = null;
+        mMediaBrowserService.mCustomActionResult = null;
     }
 
     @Test
@@ -211,6 +222,142 @@ public class MediaBrowserServiceCompatTest {
 
     @Test
     @SmallTest
+    public void testSendCustomAction() throws Exception {
+        synchronized (mWaitLock) {
+            CustomActionCallback callback = new CustomActionCallback();
+            Bundle extras = new Bundle();
+            extras.putString(TEST_KEY_1, TEST_VALUE_1);
+            mMediaBrowser.sendCustomAction(StubMediaBrowserServiceCompat.CUSTOM_ACTION, extras,
+                    callback);
+            new PollingCheck(TIME_OUT_MS) {
+                @Override
+                protected boolean check() {
+                    return mMediaBrowserService.mCustomActionResult != null;
+                }
+            }.run();
+            assertNotNull(mMediaBrowserService.mCustomActionResult);
+            assertNotNull(mMediaBrowserService.mCustomActionExtras);
+            assertEquals(TEST_VALUE_1,
+                    mMediaBrowserService.mCustomActionExtras.getString(TEST_KEY_1));
+
+            callback.reset();
+            Bundle bundle1 = new Bundle();
+            bundle1.putString(TEST_KEY_2, TEST_VALUE_2);
+            mMediaBrowserService.mCustomActionResult.sendProgressUpdate(bundle1);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(callback.mOnProgressUpdateCalled);
+            assertNotNull(callback.mExtras);
+            assertEquals(TEST_VALUE_1, callback.mExtras.getString(TEST_KEY_1));
+            assertNotNull(callback.mData);
+            assertEquals(TEST_VALUE_2, callback.mData.getString(TEST_KEY_2));
+
+            callback.reset();
+            Bundle bundle2 = new Bundle();
+            bundle2.putString(TEST_KEY_3, TEST_VALUE_3);
+            mMediaBrowserService.mCustomActionResult.sendProgressUpdate(bundle2);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(callback.mOnProgressUpdateCalled);
+            assertNotNull(callback.mExtras);
+            assertEquals(TEST_VALUE_1, callback.mExtras.getString(TEST_KEY_1));
+            assertNotNull(callback.mData);
+            assertEquals(TEST_VALUE_3, callback.mData.getString(TEST_KEY_3));
+
+            Bundle bundle3 = new Bundle();
+            bundle3.putString(TEST_KEY_4, TEST_VALUE_4);
+            callback.reset();
+            mMediaBrowserService.mCustomActionResult.sendResult(bundle3);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(callback.mOnResultCalled);
+            assertNotNull(callback.mExtras);
+            assertEquals(TEST_VALUE_1, callback.mExtras.getString(TEST_KEY_1));
+            assertNotNull(callback.mData);
+            assertEquals(TEST_VALUE_4, callback.mData.getString(TEST_KEY_4));
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testSendCustomActionWithDetachedError() throws Exception {
+        synchronized (mWaitLock) {
+            CustomActionCallback callback = new CustomActionCallback();
+            Bundle extras = new Bundle();
+            extras.putString(TEST_KEY_1, TEST_VALUE_1);
+            mMediaBrowser.sendCustomAction(StubMediaBrowserServiceCompat.CUSTOM_ACTION, extras,
+                    callback);
+            new PollingCheck(TIME_OUT_MS) {
+                @Override
+                protected boolean check() {
+                    return mMediaBrowserService.mCustomActionResult != null;
+                }
+            }.run();
+            assertNotNull(mMediaBrowserService.mCustomActionResult);
+            assertNotNull(mMediaBrowserService.mCustomActionExtras);
+            assertEquals(TEST_VALUE_1,
+                    mMediaBrowserService.mCustomActionExtras.getString(TEST_KEY_1));
+
+            callback.reset();
+            Bundle bundle1 = new Bundle();
+            bundle1.putString(TEST_KEY_2, TEST_VALUE_2);
+            mMediaBrowserService.mCustomActionResult.sendProgressUpdate(bundle1);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(callback.mOnProgressUpdateCalled);
+            assertNotNull(callback.mExtras);
+            assertEquals(TEST_VALUE_1, callback.mExtras.getString(TEST_KEY_1));
+            assertNotNull(callback.mData);
+            assertEquals(TEST_VALUE_2, callback.mData.getString(TEST_KEY_2));
+
+            callback.reset();
+            Bundle bundle2 = new Bundle();
+            bundle2.putString(TEST_KEY_3, TEST_VALUE_3);
+            mMediaBrowserService.mCustomActionResult.sendError(bundle2);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(callback.mOnErrorCalled);
+            assertNotNull(callback.mExtras);
+            assertEquals(TEST_VALUE_1, callback.mExtras.getString(TEST_KEY_1));
+            assertNotNull(callback.mData);
+            assertEquals(TEST_VALUE_3, callback.mData.getString(TEST_KEY_3));
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testSendCustomActionWithNullCallback() throws Exception {
+        Bundle extras = new Bundle();
+        extras.putString(TEST_KEY_1, TEST_VALUE_1);
+        mMediaBrowser.sendCustomAction(StubMediaBrowserServiceCompat.CUSTOM_ACTION, extras, null);
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return mMediaBrowserService.mCustomActionResult != null;
+            }
+        }.run();
+        assertNotNull(mMediaBrowserService.mCustomActionResult);
+        assertNotNull(mMediaBrowserService.mCustomActionExtras);
+        assertEquals(TEST_VALUE_1, mMediaBrowserService.mCustomActionExtras.getString(TEST_KEY_1));
+    }
+
+    @Test
+    @SmallTest
+    public void testSendCustomActionWithError() throws Exception {
+        synchronized (mWaitLock) {
+            CustomActionCallback callback = new CustomActionCallback();
+            mMediaBrowser.sendCustomAction(StubMediaBrowserServiceCompat.CUSTOM_ACTION_FOR_ERROR,
+                    null, callback);
+            new PollingCheck(TIME_OUT_MS) {
+                @Override
+                protected boolean check() {
+                    return mMediaBrowserService.mCustomActionResult != null;
+                }
+            }.run();
+            assertNotNull(mMediaBrowserService.mCustomActionResult);
+            assertNull(mMediaBrowserService.mCustomActionExtras);
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertTrue(callback.mOnErrorCalled);
+        }
+    }
+
+    @Test
+    @SmallTest
     public void testBrowserRoot() {
         final String id = "test-id";
         final String key = "test-key";
@@ -327,6 +474,57 @@ public class MediaBrowserServiceCompatTest {
             mOnSearchResult = false;
             mSearchExtras = null;
             mSearchResults = null;
+        }
+    }
+
+    private class CustomActionCallback extends MediaBrowserCompat.CustomActionCallback {
+        String mAction;
+        Bundle mExtras;
+        Bundle mData;
+        boolean mOnProgressUpdateCalled;
+        boolean mOnResultCalled;
+        boolean mOnErrorCalled;
+
+        @Override
+        public void onProgressUpdate(String action, Bundle extras, Bundle data) {
+            synchronized (mWaitLock) {
+                mOnProgressUpdateCalled = true;
+                mAction = action;
+                mExtras = extras;
+                mData = data;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onResult(String action, Bundle extras, Bundle resultData) {
+            synchronized (mWaitLock) {
+                mOnResultCalled = true;
+                mAction = action;
+                mExtras = extras;
+                mData = resultData;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onError(String action, Bundle extras, Bundle data) {
+            synchronized (mWaitLock) {
+                mOnErrorCalled = true;
+                mAction = action;
+                mExtras = extras;
+                mData = data;
+                mWaitLock.notify();
+            }
+        }
+
+        public void reset() {
+            mOnResultCalled = false;
+            mOnProgressUpdateCalled = false;
+            mOnErrorCalled = false;
+            mAction = null;
+            mExtras = null;
+            mData = null;
         }
     }
 }

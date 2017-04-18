@@ -6859,6 +6859,7 @@ package android.support.v4.media {
     method public android.support.v4.media.session.MediaSessionCompat.Token getSessionToken();
     method public boolean isConnected();
     method public void search(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SearchCallback);
+    method public void sendCustomAction(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.CustomActionCallback);
     method public void subscribe(java.lang.String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void subscribe(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void unsubscribe(java.lang.String);
@@ -6872,6 +6873,13 @@ package android.support.v4.media {
     method public void onConnected();
     method public void onConnectionFailed();
     method public void onConnectionSuspended();
+  }
+
+  public static abstract class MediaBrowserCompat.CustomActionCallback {
+    ctor public MediaBrowserCompat.CustomActionCallback();
+    method public void onError(java.lang.String, android.os.Bundle, android.os.Bundle);
+    method public void onProgressUpdate(java.lang.String, android.os.Bundle, android.os.Bundle);
+    method public void onResult(java.lang.String, android.os.Bundle, android.os.Bundle);
   }
 
   public static abstract class MediaBrowserCompat.ItemCallback {
@@ -6918,6 +6926,7 @@ package android.support.v4.media {
     method public void notifyChildrenChanged(java.lang.String);
     method public void notifyChildrenChanged(java.lang.String, android.os.Bundle);
     method public android.os.IBinder onBind(android.content.Intent);
+    method public void onCustomAction(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserServiceCompat.Result<android.os.Bundle>);
     method public abstract android.support.v4.media.MediaBrowserServiceCompat.BrowserRoot onGetRoot(java.lang.String, int, android.os.Bundle);
     method public abstract void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>);
     method public void onLoadChildren(java.lang.String, android.support.v4.media.MediaBrowserServiceCompat.Result<java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem>>, android.os.Bundle);
@@ -6939,6 +6948,8 @@ package android.support.v4.media {
 
   public static class MediaBrowserServiceCompat.Result<T> {
     method public void detach();
+    method public void sendError(android.os.Bundle);
+    method public void sendProgressUpdate(android.os.Bundle);
     method public void sendResult(T);
   }
 
