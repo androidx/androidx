@@ -1799,8 +1799,7 @@ public class MediaSessionCompat {
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
             if (metadata != null) {
-                // Clones the given {@link MediaMetadataCompat}, deep-copying bitmaps in the
-                // metadata if necessary. Bitmaps can be scaled down if they are large.
+                // Clones {@link MediaMetadataCompat} and scales down bitmaps if they are large.
                 metadata = new MediaMetadataCompat.Builder(metadata, sMaxBitmapSize).build();
             }
 
@@ -1824,10 +1823,18 @@ public class MediaSessionCompat {
             }
             if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ART)) {
                 Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ART);
+                if (art != null) {
+                    // Clone the bitmap to prevent it from being recycled by RCC.
+                    art = art.copy(art.getConfig(), false);
+                }
                 editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
             } else if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)) {
                 // Fall back to album art if the track art wasn't available
                 Bitmap art = metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_ALBUM_ART);
+                if (art != null) {
+                    // Clone the bitmap to prevent it from being recycled by RCC.
+                    art = art.copy(art.getConfig(), false);
+                }
                 editor.putBitmap(RemoteControlClient.MetadataEditor.BITMAP_KEY_ARTWORK, art);
             }
             if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_ALBUM)) {

@@ -657,11 +657,6 @@ public final class MediaMetadataCompat implements Parcelable {
          * Create a Builder using a {@link MediaMetadataCompat} instance to set
          * initial values, but replace bitmaps with a scaled down copy if they
          * are larger than maxBitmapSize.
-         * <p>
-         * This also deep-copies the bitmaps for {@link #METADATA_KEY_ART} and
-         * {@link #METADATA_KEY_ALBUM_ART} on
-         * {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH} and later
-         * to prevent bitmaps from being recycled by RCC.
          *
          * @param source The original metadata to copy.
          * @param maxBitmapSize The maximum height/width for bitmaps contained
@@ -673,13 +668,10 @@ public final class MediaMetadataCompat implements Parcelable {
             this(source);
             for (String key : mBundle.keySet()) {
                 Object value = mBundle.get(key);
-                if (value != null && value instanceof Bitmap) {
+                if (value instanceof Bitmap) {
                     Bitmap bmp = (Bitmap) value;
                     if (bmp.getHeight() > maxBitmapSize || bmp.getWidth() > maxBitmapSize) {
                         putBitmap(key, scaleBitmap(bmp, maxBitmapSize));
-                    } else if (Build.VERSION.SDK_INT >= 14 &&
-                            (key.equals(METADATA_KEY_ART) || key.equals(METADATA_KEY_ALBUM_ART))) {
-                        putBitmap(key, bmp.copy(bmp.getConfig(), false));
                     }
                 }
             }

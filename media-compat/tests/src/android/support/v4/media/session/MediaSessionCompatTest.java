@@ -30,6 +30,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -202,6 +203,64 @@ public class MediaSessionCompatTest {
             assertNotNull(metadataOut);
             assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
         }
+    }
+
+    /**
+     * Tests {@link MediaSessionCompat#setMetadata} with artwork bitmaps.
+     */
+    @Test
+    @SmallTest
+    public void testSetMetadataWithArtworks() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        final Bitmap bitmapSmall = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        final Bitmap bitmapLarge = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ALPHA_8);
+
+        controller.registerCallback(mCallback, mHandler);
+        mSession.setActive(true);
+        synchronized (mWaitLock) {
+            mCallback.resetLocked();
+            MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                    .putString(TEST_KEY, TEST_VALUE)
+                    .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, bitmapSmall)
+                    .build();
+            mSession.setMetadata(metadata);
+            mWaitLock.wait(TIME_OUT_MS);
+
+            assertTrue(mCallback.mOnMetadataChangedCalled);
+            MediaMetadataCompat metadataOut = mCallback.mMediaMetadata;
+            assertNotNull(metadataOut);
+            assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
+            Bitmap bitmapSmallOut = metadataOut.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
+            assertNotNull(bitmapSmallOut);
+            assertEquals(bitmapSmall.getHeight(), bitmapSmallOut.getHeight());
+            assertEquals(bitmapSmall.getWidth(), bitmapSmallOut.getWidth());
+            assertEquals(bitmapSmall.getConfig(), bitmapSmallOut.getConfig());
+
+            metadata = new MediaMetadataCompat.Builder()
+                    .putString(TEST_KEY, TEST_VALUE)
+                    .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, bitmapLarge)
+                    .build();
+            mSession.setMetadata(metadata);
+            mWaitLock.wait(TIME_OUT_MS);
+
+            assertTrue(mCallback.mOnMetadataChangedCalled);
+            metadataOut = mCallback.mMediaMetadata;
+            assertNotNull(metadataOut);
+            assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
+            Bitmap bitmapLargeOut = metadataOut.getBitmap(MediaMetadataCompat.METADATA_KEY_ART);
+            assertNotNull(bitmapLargeOut);
+            // Don't check size here because large bitmaps can be scaled down.
+            assertEquals(bitmapLarge.getConfig(), bitmapLargeOut.getConfig());
+
+            assertFalse(bitmapSmall.isRecycled());
+            assertFalse(bitmapLarge.isRecycled());
+            assertFalse(bitmapSmallOut.isRecycled());
+            assertFalse(bitmapLargeOut.isRecycled());
+            bitmapSmallOut.recycle();
+            bitmapLargeOut.recycle();
+        }
+        bitmapSmall.recycle();
+        bitmapLarge.recycle();
     }
 
     /**
