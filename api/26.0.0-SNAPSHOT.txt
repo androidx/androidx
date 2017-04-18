@@ -5497,6 +5497,7 @@ package android.support.v4.app {
     method public final android.support.v4.app.FragmentManager getFragmentManager();
     method public final java.lang.Object getHost();
     method public final int getId();
+    method public final android.view.LayoutInflater getLayoutInflater();
     method public android.support.v4.app.LoaderManager getLoaderManager();
     method public final android.support.v4.app.Fragment getParentFragment();
     method public java.lang.Object getReenterTransition();
