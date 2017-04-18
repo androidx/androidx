@@ -12,6 +12,7 @@ dependencies {
     androidTestCompile (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
+    androidTestCompile libs.junit
     androidTestCompile libs.mockito_core
     androidTestCompile libs.dexmaker
     androidTestCompile libs.dexmaker_mockito
