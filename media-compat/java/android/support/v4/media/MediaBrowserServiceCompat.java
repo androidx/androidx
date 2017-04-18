@@ -382,10 +382,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
     // TODO: Rename to MediaBrowserServiceImplApi26 once O is released
     @RequiresApi(26)
     class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi23 implements
-            MediaBrowserServiceCompatApi26.ServiceCompatProxy {
+            MediaBrowserServiceCompatApi24.ServiceCompatProxy {
         @Override
         public void onCreate() {
-            mServiceObj = MediaBrowserServiceCompatApi26.createService(
+            mServiceObj = MediaBrowserServiceCompatApi24.createService(
                     MediaBrowserServiceCompat.this, this);
             MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
         }
@@ -435,29 +435,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         : new Bundle(mCurConnection.rootHints);
             }
             return MediaBrowserServiceCompatApi24.getBrowserRootHints(mServiceObj);
-        }
-
-        @Override
-        public void onSearch(@NonNull String query, Bundle extras,
-                final MediaBrowserServiceCompatApi24.ResultWrapper resultWrapper) {
-            final Result<List<MediaBrowserCompat.MediaItem>> result =
-                    new Result<List<MediaBrowserCompat.MediaItem>>(query) {
-                        @Override
-                        void onResultSent(List<MediaBrowserCompat.MediaItem> list,
-                                @ResultFlags int flags) {
-                            List<Parcel> parcelList = null;
-                            if (list != null) {
-                                parcelList = new ArrayList<>();
-                                for (MediaBrowserCompat.MediaItem item : list) {
-                                    Parcel parcel = Parcel.obtain();
-                                    item.writeToParcel(parcel, 0);
-                                    parcelList.add(parcel);
-                                }
-                            }
-                            resultWrapper.sendResult(parcelList, flags);
-                        }
-            };
-            MediaBrowserServiceCompat.this.onSearch(query, extras, result);
         }
     }
 
