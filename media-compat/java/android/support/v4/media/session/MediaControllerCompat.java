@@ -2346,33 +2346,6 @@ public final class MediaControllerCompat {
         public boolean isShuffleModeEnabled() {
             return MediaControllerCompatApi26.isShuffleModeEnabled(mControllerObj);
         }
-
-        @Override
-        public void addQueueItem(MediaDescriptionCompat description) {
-            MediaControllerCompatApi26.addQueueItem(
-                    mControllerObj,
-                    description == null ? null : description.getMediaDescription());
-        }
-
-        @Override
-        public void addQueueItem(MediaDescriptionCompat description, int index) {
-            MediaControllerCompatApi26.addQueueItem(
-                    mControllerObj,
-                    description == null ? null : description.getMediaDescription(),
-                    index);
-        }
-
-        @Override
-        public void removeQueueItem(MediaDescriptionCompat description) {
-            MediaControllerCompatApi26.removeQueueItem(
-                    mControllerObj,
-                    description == null ? null : description.getMediaDescription());
-        }
-
-        @Override
-        public void removeQueueItemAt(int index) {
-            MediaControllerCompatApi26.removeQueueItemAt(mControllerObj, index);
-        }
     }
 
     @RequiresApi(26)
