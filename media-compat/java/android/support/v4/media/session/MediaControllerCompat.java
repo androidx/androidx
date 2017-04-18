@@ -37,7 +37,6 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat.CustomAction;
-import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -176,9 +175,7 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        if (BuildCompat.isAtLeastO()) {
-            mImpl = new MediaControllerImplApi26(context, session);
-        } else if (android.os.Build.VERSION.SDK_INT >= 24) {
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, session);
         } else if (android.os.Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaControllerImplApi23(context, session);
@@ -203,9 +200,7 @@ public final class MediaControllerCompat {
         }
         mToken = sessionToken;
 
-        if (BuildCompat.isAtLeastO()) {
-            mImpl = new MediaControllerImplApi26(context, sessionToken);
-        } else if (android.os.Build.VERSION.SDK_INT >= 24) {
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
             mImpl = new MediaControllerImplApi24(context, sessionToken);
         } else if (android.os.Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaControllerImplApi23(context, sessionToken);
@@ -557,9 +552,7 @@ public final class MediaControllerCompat {
         boolean mRegistered = false;
 
         public Callback() {
-            if (BuildCompat.isAtLeastO()) {
-                mCallbackObj = MediaControllerCompatApi26.createCallback(new StubApi26());
-            } else if (android.os.Build.VERSION.SDK_INT >= 21) {
+            if (android.os.Build.VERSION.SDK_INT >= 21) {
                 mCallbackObj = MediaControllerCompatApi21.createCallback(new StubApi21());
             } else {
                 mCallbackObj = new StubCompat();
@@ -731,18 +724,6 @@ public final class MediaControllerCompat {
                     int type, int stream, int control, int max, int current) {
                 Callback.this.onAudioInfoChanged(
                         new PlaybackInfo(type, stream, control, max, current));
-            }
-        }
-
-        private class StubApi26 extends StubApi21 implements MediaControllerCompatApi26.Callback {
-            @Override
-            public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int repeatMode) {
-                Callback.this.onRepeatModeChanged(repeatMode);
-            }
-
-            @Override
-            public void onShuffleModeChanged(boolean enabled) {
-                Callback.this.onShuffleModeChanged(enabled);
             }
         }
 
@@ -2318,53 +2299,4 @@ public final class MediaControllerCompat {
             MediaControllerCompatApi24.TransportControls.prepareFromUri(mControlsObj, uri, extras);
         }
     }
-
-    @RequiresApi(26)
-    static class MediaControllerImplApi26 extends MediaControllerImplApi24 {
-
-        MediaControllerImplApi26(Context context, MediaSessionCompat session) {
-            super(context, session);
-        }
-
-        MediaControllerImplApi26(Context context, MediaSessionCompat.Token sessionToken)
-                throws RemoteException {
-            super(context, sessionToken);
-        }
-
-        @Override
-        public TransportControls getTransportControls() {
-            Object controlsObj = MediaControllerCompatApi21.getTransportControls(mControllerObj);
-            return controlsObj != null ? new TransportControlsApi26(controlsObj) : null;
-        }
-
-        @Override
-        public int getRepeatMode() {
-            return MediaControllerCompatApi26.getRepeatMode(mControllerObj);
-        }
-
-        @Override
-        public boolean isShuffleModeEnabled() {
-            return MediaControllerCompatApi26.isShuffleModeEnabled(mControllerObj);
-        }
-    }
-
-    @RequiresApi(26)
-    static class TransportControlsApi26 extends TransportControlsApi24 {
-
-        TransportControlsApi26(Object controlsObj) {
-            super(controlsObj);
-        }
-
-        @Override
-        public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
-            MediaControllerCompatApi26.TransportControls.setRepeatMode(mControlsObj, repeatMode);
-        }
-
-        @Override
-        public void setShuffleModeEnabled(boolean enabled) {
-            MediaControllerCompatApi26.TransportControls.setShuffleModeEnabled(mControlsObj,
-                    enabled);
-        }
-    }
-
 }
