@@ -194,6 +194,7 @@
      <public type="attr" name="textAppearanceSearchResultTitle"/>
      <public type="attr" name="textAppearanceSmallPopupMenu"/>
      <public type="attr" name="textColorAlertDialogListItem"/>
+     <public type="attr" name="textColorError"/>
      <public type="attr" name="theme"/>
      <public type="attr" name="thickness"/>
      <public type="attr" name="thumbTextPadding"/>
