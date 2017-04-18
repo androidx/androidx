@@ -16,7 +16,6 @@
 
 package android.support.animation;
 
-import android.os.Build;
 import android.os.Looper;
 import android.support.v4.view.ViewCompat;
 import android.util.AndroidRuntimeException;
@@ -43,15 +42,10 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * created with a {@link ViewProperty} instance, the corresponding property value of the view
      * will be updated through this ViewProperty instance.
      */
-    public abstract static class ViewProperty {
-        private final String mPropertyName;
-
+    public abstract static class ViewProperty extends FloatPropertyCompat<View> {
         private ViewProperty(String name) {
-            mPropertyName = name;
+            super(name);
         }
-
-        abstract void setValue(View view, float value);
-        abstract float getValue(View view);
     }
 
     /**
@@ -59,12 +53,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty TRANSLATION_X = new ViewProperty("translationX") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setTranslationX(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getTranslationX();
         }
     };
@@ -74,12 +68,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty TRANSLATION_Y = new ViewProperty("translationY") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setTranslationY(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getTranslationY();
         }
     };
@@ -89,12 +83,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty TRANSLATION_Z = new ViewProperty("translationZ") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             ViewCompat.setTranslationZ(view, value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return ViewCompat.getTranslationZ(view);
         }
     };
@@ -104,12 +98,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty SCALE_X = new ViewProperty("scaleX") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setScaleX(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getScaleX();
         }
     };
@@ -119,12 +113,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty SCALE_Y = new ViewProperty("scaleY") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setScaleY(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getScaleY();
         }
     };
@@ -134,12 +128,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty ROTATION = new ViewProperty("rotation") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setRotation(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getRotation();
         }
     };
@@ -149,12 +143,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty ROTATION_X = new ViewProperty("rotationX") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setRotationX(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getRotationX();
         }
     };
@@ -164,12 +158,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty ROTATION_Y = new ViewProperty("rotationY") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setRotationY(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getRotationY();
         }
     };
@@ -179,12 +173,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty X = new ViewProperty("x") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setX(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getX();
         }
     };
@@ -194,12 +188,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty Y = new ViewProperty("y") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setY(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getY();
         }
     };
@@ -209,12 +203,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty Z = new ViewProperty("z") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             ViewCompat.setZ(view, value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return ViewCompat.getZ(view);
         }
     };
@@ -224,12 +218,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty ALPHA = new ViewProperty("alpha") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setAlpha(value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getAlpha();
         }
     };
@@ -240,12 +234,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty SCROLL_X = new ViewProperty("scrollX") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setScrollX((int) value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getScrollX();
         }
     };
@@ -255,12 +249,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      */
     public static final ViewProperty SCROLL_Y = new ViewProperty("scrollY") {
         @Override
-        void setValue(View view, float value) {
+        public void setValue(View view, float value) {
             view.setScrollY((int) value);
         }
 
         @Override
-        float getValue(View view) {
+        public float getValue(View view) {
             return view.getScrollY();
         }
     };
@@ -278,11 +272,11 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     // of starting through the getter and use that as the starting value of the animation.
     boolean mStartValueIsSet = false;
 
-    // View target to be animated.
-    final View mTarget;
+    // Target to be animated.
+    final Object mTarget;
 
     // View property id.
-    final ViewProperty mViewProperty;
+    final FloatPropertyCompat mProperty;
 
     // Package private tracking of animation lifecycle state. Visible to subclass animations.
     boolean mRunning = false;
@@ -290,6 +284,12 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     // Min and max values that defines the range of the animation values.
     float mMaxValue = Float.MAX_VALUE;
     float mMinValue = -mMaxValue;
+
+    // Default threshold for different properties.
+    static final float VALUE_THRESHOLD_IN_PIXEL = 0.75f;
+    static final float VALUE_THRESHOLD_ROTATION = VALUE_THRESHOLD_IN_PIXEL / 360.0f;
+    static final float VALUE_THRESHOLD_ALPHA = VALUE_THRESHOLD_IN_PIXEL / 255.0f;
+    static final float VALUE_THRESHOLD_SCALE = VALUE_THRESHOLD_IN_PIXEL / 500.0f;
 
     // Last frame time. Always gets reset to -1  at the end of the animation.
     private long mLastFrameTime = 0;
@@ -300,15 +300,22 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     // List of update listeners
     private final ArrayList<OnAnimationUpdateListener> mUpdateListeners = new ArrayList<>();
 
+    // Internal state for value/velocity pair.
+    static class MassState {
+        float mValue;
+        float mVelocity;
+    }
+
     /**
      * Creates a dynamic animation to animate the given property for the given {@link View}
      *
-     * @param view the View whose property is to be animated
+     * @param object the Object whose property is to be animated
      * @param property the property to be animated
      */
-    DynamicAnimation(View view, ViewProperty property) {
-        mTarget = view;
-        mViewProperty = property;
+
+    <K> DynamicAnimation(K object, FloatPropertyCompat<K> property) {
+        mTarget = object;
+        mProperty = property;
     }
 
     /**
@@ -502,11 +509,26 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
 
     /************************** Private APIs below ********************************/
 
+    private void updateDefaultThreshold() {
+        if (mProperty == ROTATION || mProperty == ROTATION_X
+                || mProperty == ROTATION_Y) {
+            setDefaultThreshold(VALUE_THRESHOLD_ROTATION);
+        } else if (mProperty == ALPHA) {
+            setDefaultThreshold(VALUE_THRESHOLD_ALPHA);
+        } else if (mProperty == SCALE_X || mProperty == SCALE_Y) {
+            setDefaultThreshold(VALUE_THRESHOLD_SCALE);
+        } else {
+            setDefaultThreshold(VALUE_THRESHOLD_IN_PIXEL);
+        }
+    }
+
+
     // This gets called when the animation is started, to finish the setup of the animation
     // before the animation pulsing starts.
     private void startAnimationInternal() {
         if (!mRunning) {
             mRunning = true;
+            updateDefaultThreshold();
             if (!mStartValueIsSet) {
                 mValue = getPropertyValue();
             }
@@ -581,7 +603,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * Updates the property value through the corresponding setter.
      */
     void setPropertyValue(float value) {
-        mViewProperty.setValue(mTarget, value);
+        mProperty.setValue(mTarget, value);
         for (int i = 0; i < mUpdateListeners.size(); i++) {
             if (mUpdateListeners.get(i) != null) {
                 mUpdateListeners.get(i).onAnimationUpdate(this, mValue, mVelocity);
@@ -594,7 +616,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * Obtain the property value through the corresponding getter.
      */
     private float getPropertyValue() {
-        return mViewProperty.getValue(mTarget);
+        return mProperty.getValue(mTarget);
     }
 
     /****************Sub class animations**************/
@@ -607,6 +629,11 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * Returns whether the animation has reached equilibrium.
      */
     abstract boolean isAtEquilibrium(float value, float velocity);
+
+    /**
+     * Updates the default value threshold for the animation based on the property to be animated.
+     */
+    abstract void setDefaultThreshold(float threshold);
 
     /**
      * An animation listener that receives end notifications from an animation.
@@ -642,5 +669,4 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
          */
         void onAnimationUpdate(DynamicAnimation animation, float value, float velocity);
     }
-
 }
