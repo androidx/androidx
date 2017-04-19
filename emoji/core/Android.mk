@@ -24,10 +24,12 @@ LOCAL_PATH := $(call my-dir)
 # in their makefiles to include the resources and their dependencies in their package.
 #
 include $(CLEAR_VARS)
+EXTERNAL_FONT_DIR := ../../../../external/noto-fonts/emoji-compat
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-emoji
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_SRC_FILES := $(call all-java-files-under, src) \
+    $(call all-java-files-under, $(EXTERNAL_FONT_DIR)/src/java)
 LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-emoji-flatbuffers-jarjar
 LOCAL_SHARED_ANDROID_LIBRARIES := \
@@ -44,7 +46,7 @@ include $(BUILD_STATIC_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
-    android-support-emoji-flatbuffers:third_party/flatbuffers/flatbuffers-java-1.6.0.jar
+    android-support-emoji-flatbuffers:$(EXTERNAL_FONT_DIR)/libs/flatbuffers-java-1.6.0.jar
 include $(BUILD_MULTI_PREBUILT)
 
 include $(CLEAR_VARS)
