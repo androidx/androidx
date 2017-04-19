@@ -25,7 +25,6 @@ import static org.junit.Assert.assertThat;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import android.support.text.emoji.test.R;
 import android.support.text.emoji.util.TestString;
 
 import org.junit.BeforeClass;
@@ -66,7 +65,7 @@ public class AllEmojisTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() throws IOException {
         final Context context = InstrumentationRegistry.getTargetContext();
-        final InputStream inputStream = context.getResources().openRawResource(R.raw.emojis);
+        final InputStream inputStream = context.getAssets().open("emojis.txt");
         try {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             final Collection<Object[]> data = new ArrayList<>();
