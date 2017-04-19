@@ -16,9 +16,12 @@
 
 package android.support.v4.text.util;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.util.PatternsCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -33,9 +36,9 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,6 +76,8 @@ public final class LinkifyCompat {
         }
     };
 
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef(flag = true, value = { Linkify.WEB_URLS, Linkify.EMAIL_ADDRESSES, Linkify.PHONE_NUMBERS,
             Linkify.MAP_ADDRESSES, Linkify.ALL })
     @Retention(RetentionPolicy.SOURCE)
