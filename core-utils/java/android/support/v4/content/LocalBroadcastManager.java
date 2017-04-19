@@ -44,10 +44,11 @@ import android.util.Log;
  * </ul>
  */
 public final class LocalBroadcastManager {
-    private static class ReceiverRecord {
+    private static final class ReceiverRecord {
         final IntentFilter filter;
         final BroadcastReceiver receiver;
         boolean broadcasting;
+        boolean dead;
 
         ReceiverRecord(IntentFilter _filter, BroadcastReceiver _receiver) {
             filter = _filter;
@@ -61,12 +62,15 @@ public final class LocalBroadcastManager {
             builder.append(receiver);
             builder.append(" filter=");
             builder.append(filter);
+            if (dead) {
+                builder.append(" DEAD");
+            }
             builder.append("}");
             return builder.toString();
         }
     }
 
-    private static class BroadcastRecord {
+    private static final class BroadcastRecord {
         final Intent intent;
         final ArrayList<ReceiverRecord> receivers;
 
@@ -81,13 +85,11 @@ public final class LocalBroadcastManager {
 
     private final Context mAppContext;
 
-    private final HashMap<BroadcastReceiver, ArrayList<IntentFilter>> mReceivers
-            = new HashMap<BroadcastReceiver, ArrayList<IntentFilter>>();
-    private final HashMap<String, ArrayList<ReceiverRecord>> mActions
-            = new HashMap<String, ArrayList<ReceiverRecord>>();
+    private final HashMap<BroadcastReceiver, ArrayList<ReceiverRecord>> mReceivers
+            = new HashMap<>();
+    private final HashMap<String, ArrayList<ReceiverRecord>> mActions = new HashMap<>();
 
-    private final ArrayList<BroadcastRecord> mPendingBroadcasts
-            = new ArrayList<BroadcastRecord>();
+    private final ArrayList<BroadcastRecord> mPendingBroadcasts = new ArrayList<>();
 
     static final int MSG_EXEC_PENDING_BROADCASTS = 1;
 
@@ -133,12 +135,12 @@ public final class LocalBroadcastManager {
     public void registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
         synchronized (mReceivers) {
             ReceiverRecord entry = new ReceiverRecord(filter, receiver);
-            ArrayList<IntentFilter> filters = mReceivers.get(receiver);
+            ArrayList<ReceiverRecord> filters = mReceivers.get(receiver);
             if (filters == null) {
-                filters = new ArrayList<IntentFilter>(1);
+                filters = new ArrayList<>(1);
                 mReceivers.put(receiver, filters);
             }
-            filters.add(filter);
+            filters.add(entry);
             for (int i=0; i<filter.countActions(); i++) {
                 String action = filter.getAction(i);
                 ArrayList<ReceiverRecord> entries = mActions.get(action);
@@ -162,20 +164,22 @@ public final class LocalBroadcastManager {
      */
     public void unregisterReceiver(BroadcastReceiver receiver) {
         synchronized (mReceivers) {
-            ArrayList<IntentFilter> filters = mReceivers.remove(receiver);
+            final ArrayList<ReceiverRecord> filters = mReceivers.remove(receiver);
             if (filters == null) {
                 return;
             }
-            for (int i=0; i<filters.size(); i++) {
-                IntentFilter filter = filters.get(i);
-                for (int j=0; j<filter.countActions(); j++) {
-                    String action = filter.getAction(j);
-                    ArrayList<ReceiverRecord> receivers = mActions.get(action);
+            for (int i=filters.size()-1; i>=0; i--) {
+                final ReceiverRecord filter = filters.get(i);
+                filter.dead = true;
+                for (int j=0; j<filter.filter.countActions(); j++) {
+                    final String action = filter.filter.getAction(j);
+                    final ArrayList<ReceiverRecord> receivers = mActions.get(action);
                     if (receivers != null) {
-                        for (int k=0; k<receivers.size(); k++) {
-                            if (receivers.get(k).receiver == receiver) {
+                        for (int k=receivers.size()-1; k>=0; k--) {
+                            final ReceiverRecord rec = receivers.get(k);
+                            if (rec.receiver == receiver) {
+                                rec.dead = true;
                                 receivers.remove(k);
-                                k--;
                             }
                         }
                         if (receivers.size() <= 0) {
@@ -196,6 +200,10 @@ public final class LocalBroadcastManager {
      *     Intent will receive the broadcast.
      *
      * @see #registerReceiver
+     *
+     * @return Returns true if the intent has been scheduled for delivery to one or more
+     * broadcast receivers.  (Note tha delivery may not ultimately take place if one of those
+     * receivers is unregistered before it is dispatched.)
      */
     public boolean sendBroadcast(Intent intent) {
         synchronized (mReceivers) {
@@ -281,7 +289,7 @@ public final class LocalBroadcastManager {
 
     private void executePendingBroadcasts() {
         while (true) {
-            BroadcastRecord[] brs = null;
+            final BroadcastRecord[] brs;
             synchronized (mReceivers) {
                 final int N = mPendingBroadcasts.size();
                 if (N <= 0) {
@@ -292,9 +300,13 @@ public final class LocalBroadcastManager {
                 mPendingBroadcasts.clear();
             }
             for (int i=0; i<brs.length; i++) {
-                BroadcastRecord br = brs[i];
-                for (int j=0; j<br.receivers.size(); j++) {
-                    br.receivers.get(j).receiver.onReceive(mAppContext, br.intent);
+                final BroadcastRecord br = brs[i];
+                final int nbr = br.receivers.size();
+                for (int j=0; j<nbr; j++) {
+                    final ReceiverRecord rec = br.receivers.get(j);
+                    if (!rec.dead) {
+                        rec.receiver.onReceive(mAppContext, br.intent);
+                    }
                 }
             }
         }
