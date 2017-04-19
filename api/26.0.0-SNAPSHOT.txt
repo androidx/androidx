@@ -6923,14 +6923,15 @@ package android.support.v4.graphics.drawable {
 
 package android.support.v4.graphics.fonts {
 
-  public final class FontRequest {
+  public final class FontRequest implements android.os.Parcelable {
     ctor public FontRequest(java.lang.String, java.lang.String, java.lang.String, java.util.List<java.util.List<byte[]>>);
-    ctor public FontRequest(java.lang.String, java.lang.String, java.lang.String, int);
+    method public int describeContents();
     method public java.util.List<java.util.List<byte[]>> getCertificates();
-    method public int getCertificatesArrayResId();
     method public java.lang.String getProviderAuthority();
     method public java.lang.String getProviderPackage();
     method public java.lang.String getQuery();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.support.v4.graphics.fonts.FontRequest> CREATOR;
   }
 
 }

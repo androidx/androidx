@@ -36,7 +36,6 @@ import android.provider.BaseColumns;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.content.res.FontResourcesParserCompat;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
@@ -234,7 +233,7 @@ public class FontsContract {
             receiver.send(RESULT_CODE_PROVIDER_NOT_FOUND, null);
             return null;
         }
-        List<List<byte[]>> requestCertificatesList = getCertificates(request);
+        List<List<byte[]>> requestCertificatesList = request.getCertificates();
         for (int i = 0; i < requestCertificatesList.size(); ++i) {
             // Make a copy so we can sort it without modifying the incoming data.
             List<byte[]> requestSignatures = new ArrayList<>(requestCertificatesList.get(i));
@@ -246,14 +245,6 @@ public class FontsContract {
         Log.e(TAG, "Certificates don't match for given provider " + providerAuthority);
         receiver.send(RESULT_CODE_WRONG_CERTIFICATES, null);
         return null;
-    }
-
-    private List<List<byte[]>> getCertificates(FontRequest request) {
-        if (request.getCertificates() != null) {
-            return request.getCertificates();
-        }
-        int resourceId = request.getCertificatesArrayResId();
-        return FontResourcesParserCompat.readCerts(mContext.getResources(), resourceId);
     }
 
     private static final Comparator<byte[]> sByteArrayComparator = new Comparator<byte[]>() {
