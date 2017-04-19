@@ -76,7 +76,7 @@ def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompi
 if (ext.inAppToolkitProject) {
     // always build offline docs for flatfoot specific builds.
     ext.buildOfflineDocs = true
-    init.addMavenRepositories(repositories)
+    repos.addMavenRepositories(repositories)
     init.setupRepoOutAndBuildNumber()
     init.configureSubProjects()
     init.setupRelease()
@@ -113,7 +113,7 @@ subprojects {
             force "com.google.guava:guava-jdk5:17.0"
         }
     }
-    init.addMavenRepositories(project.repositories)
+    repos.addMavenRepositories(project.repositories)
     if (project.name == 'doclava' || project.name == 'jdiff') {
         project.tasks.whenTaskAdded { task ->
             if (task instanceof org.gradle.api.tasks.testing.Test) {
