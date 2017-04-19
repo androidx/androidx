@@ -98,7 +98,8 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
             mediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
             mediaPlayerGlue.setArtist("A Googleer");
             mediaPlayerGlue.setTitle("Diving with Sharks");
-            mediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
+            mediaPlayerGlue.setVideoUrl("https://storage.googleapis.com/android-tv/Sample videos/"
+                    + "April Fool's 2013/Explore Treasure Mode with Google Maps.mp4");
         }
 
         final Context context = getActivity();

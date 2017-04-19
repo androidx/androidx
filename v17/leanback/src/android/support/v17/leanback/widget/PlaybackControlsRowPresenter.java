@@ -68,14 +68,20 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
         BoundData mSecondaryBoundData = new BoundData();
         Presenter.ViewHolder mSelectedViewHolder;
         Object mSelectedItem;
-        final PlaybackControlsRow.OnPlaybackStateChangedListener mListener =
-                new PlaybackControlsRow.OnPlaybackStateChangedListener() {
+        final PlaybackControlsRow.OnPlaybackProgressCallback mListener =
+                new PlaybackControlsRow.OnPlaybackProgressCallback() {
             @Override
-            public void onCurrentTimeChanged(long ms) {
+            public void onCurrentPositionChanged(PlaybackControlsRow row, long ms) {
                 mPlaybackControlsPresenter.setCurrentTimeLong(mControlsVh, ms);
             }
+
             @Override
-            public void onBufferedProgressChanged(long ms) {
+            public void onDurationChanged(PlaybackControlsRow row, long ms) {
+                mPlaybackControlsPresenter.setTotalTimeLong(mControlsVh, ms);
+            }
+
+            @Override
+            public void onBufferedPositionChanged(PlaybackControlsRow row, long ms) {
                 mPlaybackControlsPresenter.setSecondaryProgressLong(mControlsVh, ms);
             }
         };
@@ -405,7 +411,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
         mPlaybackControlsPresenter.setTotalTime(vh.mControlsVh, row.getTotalTime());
         mPlaybackControlsPresenter.setCurrentTime(vh.mControlsVh, row.getCurrentTime());
         mPlaybackControlsPresenter.setSecondaryProgress(vh.mControlsVh, row.getBufferedProgress());
-        row.setOnPlaybackStateChangedListener(vh.mListener);
+        row.setOnPlaybackProgressChangedListener(vh.mListener);
     }
 
     private void updateCardLayout(ViewHolder vh, int height) {
@@ -448,7 +454,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
         }
         mPlaybackControlsPresenter.onUnbindViewHolder(vh.mControlsVh);
         mSecondaryControlsPresenter.onUnbindViewHolder(vh.mSecondaryControlsVh);
-        row.setOnPlaybackStateChangedListener(null);
+        row.setOnPlaybackProgressChangedListener(null);
 
         super.onUnbindRowViewHolder(holder);
     }

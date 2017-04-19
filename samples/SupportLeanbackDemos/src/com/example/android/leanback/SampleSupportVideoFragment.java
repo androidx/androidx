@@ -41,7 +41,7 @@ public class SampleSupportVideoFragment extends android.support.v17.leanback.app
         mMediaPlayerGlue.setArtist("A Googleer");
         mMediaPlayerGlue.setTitle("Diving with Sharks");
         mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
-        mMediaPlayerGlue.setPlayerCallback(new PlaybackGlue.PlayerCallback() {
+        mMediaPlayerGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             @Override
             public void onReadyForPlayback() {
                 mMediaPlayerGlue.play();

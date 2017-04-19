@@ -163,11 +163,13 @@ public class VideoFragmentTest extends SingleFragmentTestBase {
             mGlue.setTitle("Leanback team at work");
             mGlue.setMediaSource(
                     Uri.parse("android.resource://android.support.v17.leanback.test/raw/video"));
-            mGlue.setPlayerCallback(new PlaybackGlue.PlayerCallback() {
+            mGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
                 @Override
-                public void onReadyForPlayback() {
-                    mGlueOnReadyForPlaybackCalled++;
-                    mGlue.play();
+                public void onPreparedStateChanged(PlaybackGlue glue) {
+                    if (glue.isPrepared()) {
+                        mGlueOnReadyForPlaybackCalled++;
+                        mGlue.play();
+                    }
                 }
             });
             mGlue.setHost(new VideoFragmentGlueHost(this));

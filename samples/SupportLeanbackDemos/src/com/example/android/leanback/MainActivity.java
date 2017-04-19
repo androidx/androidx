@@ -115,10 +115,10 @@ public class MainActivity extends Activity {
                     R.string.browseerror_description);
             addAction(actions, BrowseErrorSupportActivity.class, R.string.browseerror_support,
                     R.string.browseerror_support_description);
-            addAction(actions, PlaybackActivity.class, R.string.playback,
+            addAction(actions, PlaybackTransportControlActivity.class, R.string.playback,
                     R.string.playback_description);
-            addAction(actions, PlaybackSupportActivity.class, R.string.playback_support,
-                    R.string.playback_support_description);
+            addAction(actions, PlaybackTransportControlSupportActivity.class,
+                    R.string.playback_support, R.string.playback_support_description);
             addAction(actions, PlaybackOverlayActivity.class, R.string.playbackoverlay,
                     R.string.playbackoverlay_description);
             addAction(actions, PlaybackOverlaySupportActivity.class,

@@ -34,6 +34,7 @@ import android.view.SurfaceHolder;
 import android.view.View;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * This glue extends the {@link android.support.v17.leanback.media.PlaybackControlGlue} with a
@@ -71,7 +72,6 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     private long mLastKeyDownEvent = 0L; // timestamp when the last DPAD_CENTER KEY_DOWN occurred
     private Uri mMediaSourceUri = null;
     private String mMediaSourcePath = null;
-    private PlayerCallback mPlayerCallback;
     private MediaPlayer.OnCompletionListener mOnCompletionListener;
     private String mArtist;
     private String mTitle;
@@ -138,28 +138,32 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     /**
-     * Sets the callback, which would tell the listener that video is ready to be played.
-     */
-    @Override
-    public void setPlayerCallback(PlayerCallback callback) {
-        this.mPlayerCallback = callback;
-    }
-
-    /**
      * Will reset the {@link MediaPlayer} and the glue such that a new file can be played. You are
      * not required to call this method before playing the first file. However you have to call it
      * before playing a second one.
      */
     public void reset() {
-        mInitialized = false;
+        changeToUnitialized();
         mPlayer.reset();
+    }
+
+    void changeToUnitialized() {
+        if (mInitialized) {
+            mInitialized = false;
+            List<PlayerCallback> callbacks = getPlayerCallbacks();
+            if (callbacks != null) {
+                for (PlayerCallback callback: callbacks) {
+                    callback.onPreparedStateChanged(MediaPlayerGlue.this);
+                }
+            }
+        }
     }
 
     /**
      * Release internal MediaPlayer. Should not use the object after call release().
      */
     public void release() {
-        mInitialized = false;
+        changeToUnitialized();
         mPlayer.release();
     }
 
@@ -268,6 +272,11 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     @Override
     public boolean isMediaPlaying() {
         return mInitialized && mPlayer.isPlaying();
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return isMediaPlaying();
     }
 
     @Override
@@ -427,8 +436,11 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mInitialized = true;
-                if (mPlayerCallback != null) {
-                    mPlayerCallback.onReadyForPlayback();
+                List<PlayerCallback> callbacks = getPlayerCallbacks();
+                if (callbacks != null) {
+                    for (PlayerCallback callback: callbacks) {
+                        callback.onPreparedStateChanged(MediaPlayerGlue.this);
+                    }
                 }
             }
         });
@@ -474,6 +486,11 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
 
     @Override
     public boolean isReadyForPlayback() {
+        return mInitialized;
+    }
+
+    @Override
+    public boolean isPrepared() {
         return mInitialized;
     }
 

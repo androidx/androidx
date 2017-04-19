@@ -102,7 +102,7 @@ public class DetailsFragment extends BaseFragment {
     void switchToVideoBeforeVideoFragmentCreated() {
         // if the video fragment is not ready: immediately fade out covering drawable,
         // hide title and mark mPendingFocusOnVideo and set focus on it later.
-        mDetailsBackgroundController.crossFadeBackgroundToVideo(true, true);
+        mDetailsBackgroundController.switchToVideoBeforeCreate();
         showTitle(false);
         mPendingFocusOnVideo = true;
         slideOutGridView();
@@ -606,6 +606,9 @@ public class DetailsFragment extends BaseFragment {
      * @see DetailsFragmentBackgroundController#onCreateVideoFragment()
      */
     final Fragment findOrCreateVideoFragment() {
+        if (mVideoFragment != null) {
+            return mVideoFragment;
+        }
         Fragment fragment = getChildFragmentManager()
                 .findFragmentById(R.id.video_surface_container);
         if (fragment == null && mDetailsBackgroundController != null) {

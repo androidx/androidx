@@ -43,4 +43,5 @@ public class VideoSupportFragmentGlueHost extends PlaybackSupportFragmentGlueHos
     public void setSurfaceHolderCallback(SurfaceHolder.Callback callback) {
         mFragment.setSurfaceHolderCallback(callback);
     }
+
 }
