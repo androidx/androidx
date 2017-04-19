@@ -988,7 +988,7 @@ public class NotificationCompat {
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
                     b.mBigContentView, b.mHeadsUpContentView, b.mChannelId, b.mBadgeIcon,
-                    b.mShortcutId, b.mTimeout);
+                    b.mShortcutId, b.mTimeout, b.mColorized, b.mColorizedSet);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderApi24(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -1181,6 +1181,8 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP)
         public ArrayList<Action> mActions = new ArrayList<Action>();
         boolean mLocalOnly = false;
+        boolean mColorized;
+        boolean mColorizedSet;
         String mCategory;
         Bundle mExtras;
         int mColor = COLOR_DEFAULT;
@@ -1533,6 +1535,30 @@ public class NotificationCompat {
          */
         public Builder setOngoing(boolean ongoing) {
             setFlag(Notification.FLAG_ONGOING_EVENT, ongoing);
+            return this;
+        }
+
+        /**
+         * Set whether this notification should be colorized. When set, the color set with
+         * {@link #setColor(int)} will be used as the background color of this notification.
+         * <p>
+         * This should only be used for high priority ongoing tasks like navigation, an ongoing
+         * call, or other similarly high-priority events for the user.
+         * <p>
+         * For most styles, the coloring will only be applied if the notification is for a
+         * foreground service notification.
+         * <p>
+         * However, for MediaStyle and DecoratedMediaCustomViewStyle notifications
+         * that have a media session attached there is no such requirement.
+         * <p>
+         * Calling this method on any version prior to {@link android.os.Build.VERSION_CODES#O} will
+         * not have an effect on the notification and it won't be colorized.
+         *
+         * @see #setColor(int)
+         */
+        public Builder setColorized(boolean colorize) {
+            mColorized = colorize;
+            mColorizedSet = true;
             return this;
         }
 
