@@ -35,7 +35,6 @@ import android.support.v4.app.TestSupportActivity;
 import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.provider.FontsContract;
 import android.util.Base64;
 
@@ -76,94 +75,77 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
     @Before
     public void setup() {
         mIsPreN = Build.VERSION.SDK_INT < Build.VERSION_CODES.N;
-        if (BuildCompat.isAtLeastO()) {
-            mCompat = null;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            mCompat = new TypefaceCompatApi24Impl(mActivityTestRule.getActivity());
-        } else {
-            mCompat = new TypefaceCompatBaseImpl(mActivityTestRule.getActivity());
-        }
+        mCompat = mIsPreN ? new TypefaceCompatBaseImpl(mActivityTestRule.getActivity())
+                : new TypefaceCompatApi24Impl(mActivityTestRule.getActivity());
         TypefaceCompatBaseImpl.putInCache(PROVIDER, QUERY_CACHED, Typeface.MONOSPACE);
     }
 
     @Test
     public void testReceiveResult_cachedResult() {
-        if (mCompat != null) {
-            FontRequestCallback callback = mock(FontRequestCallback.class);
+        FontRequestCallback callback = mock(FontRequestCallback.class);
 
-            mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY_CACHED, CERTS),
-                    callback, 0, null);
+        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY_CACHED, CERTS),
+                callback, 0, null);
 
-            verify(callback).onTypefaceRetrieved(Typeface.MONOSPACE);
-        }
+        verify(callback).onTypefaceRetrieved(Typeface.MONOSPACE);
     }
 
     @Test
     public void testReceiveResult_resultCodeProviderNotFound() {
-        if (mCompat != null) {
-            FontRequestCallback callback = mock(FontRequestCallback.class);
+        FontRequestCallback callback = mock(FontRequestCallback.class);
 
-            mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                    FontsContract.RESULT_CODE_PROVIDER_NOT_FOUND, null);
+        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
+                FontsContract.RESULT_CODE_PROVIDER_NOT_FOUND, null);
 
-            verify(callback).onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND);
-        }
+        verify(callback).onTypefaceRequestFailed(
+                FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND);
     }
 
     @Test
     public void testReceiveResult_resultCodeFontNotFound() {
-        if (mCompat != null) {
-            FontRequestCallback callback = mock(FontRequestCallback.class);
+        FontRequestCallback callback = mock(FontRequestCallback.class);
 
-            mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                    FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND, null);
+        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
+                FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND, null);
 
-            verify(callback).onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-        }
+        verify(callback).onTypefaceRequestFailed(
+                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
     }
 
     @Test
     public void testReceiveResult_nullBundle() {
-        if (mCompat != null) {
-            FontRequestCallback callback = mock(FontRequestCallback.class);
+        FontRequestCallback callback = mock(FontRequestCallback.class);
 
-            mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                    FontsContract.Columns.RESULT_CODE_OK, null);
+        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
+                FontsContract.Columns.RESULT_CODE_OK, null);
 
-            verify(callback).onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-        }
+        verify(callback).onTypefaceRequestFailed(
+                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
     }
 
     @Test
     public void testReceiveResult_nullResult() {
-        if (mCompat != null) {
-            FontRequestCallback callback = mock(FontRequestCallback.class);
+        FontRequestCallback callback = mock(FontRequestCallback.class);
 
-            mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                    FontsContract.Columns.RESULT_CODE_OK, new Bundle());
+        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
+                FontsContract.Columns.RESULT_CODE_OK, new Bundle());
 
-            verify(callback).onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-        }
+        verify(callback).onTypefaceRequestFailed(
+                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
     }
 
     @Test
     public void testReceiveResult_emptyResult() {
-        if (mCompat != null) {
-            FontRequestCallback callback = mock(FontRequestCallback.class);
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(
-                    FontsContract.PARCEL_FONT_RESULTS, new ArrayList<FontResult>());
+        FontRequestCallback callback = mock(FontRequestCallback.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList(
+                FontsContract.PARCEL_FONT_RESULTS, new ArrayList<FontResult>());
 
-            mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                    FontsContract.Columns.RESULT_CODE_OK, bundle);
+        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
+                FontsContract.Columns.RESULT_CODE_OK, bundle);
 
-            verify(callback).onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-        }
+        verify(callback).onTypefaceRequestFailed(
+                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
     }
 
     @Test
