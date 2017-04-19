@@ -18,6 +18,7 @@ package android.support.v17.leanback.media;
 
 import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.PlaybackRowPresenter;
+import android.support.v17.leanback.widget.PlaybackSeekUi;
 import android.support.v17.leanback.widget.Row;
 import android.view.View;
 
@@ -28,7 +29,7 @@ import android.view.View;
  * <li>Render UI of PlaybackGlue: {@link #setPlaybackRow(Row)},
  * {@link #setPlaybackRowPresenter(PlaybackRowPresenter)}.
  * </li>
- * <li>Callback for fragment/activity onStart/onStop: {@link #setHostCallback(HostCallback)}.
+ * <li>Client for fragment/activity onStart/onStop: {@link #setHostCallback(HostCallback)}.
  * </li>
  * <li>Auto fade out controls after a short period: {@link #setFadingEnabled(boolean)}.
  * </li>
@@ -36,9 +37,11 @@ import android.view.View;
  * {@link #setOnActionClickedListener(OnActionClickedListener)}.
  * </li>
  *
- * Subclass of PlaybackGlueHost may implement optional interface e.g. {@link SurfaceHolderGlueHost}
- * to provide SurfaceView. These optional interface should be used during
- * {@link PlaybackGlue#setHost(PlaybackGlueHost)}.
+ * Subclass of PlaybackGlueHost may implement optional interfaces:
+ * <li>{@link SurfaceHolderGlueHost} to provide SurfaceView for video playback.</li>
+ * <li>{@link PlaybackSeekUi} to provide seek UI to glue</li>
+ * These optional interfaces should be accessed by glue in
+ * {@link PlaybackGlue#onAttachedToHost(PlaybackGlueHost)}.
  */
 public abstract class PlaybackGlueHost {
     PlaybackGlue mGlue;
@@ -50,47 +53,125 @@ public abstract class PlaybackGlueHost {
      */
     public abstract static class HostCallback {
         /**
-         * Callback triggered once the host(fragment) has started.
+         * Client triggered once the host(fragment) has started.
          */
         public void onHostStart() {
         }
 
         /**
-         * Callback triggered once the host(fragment) has stopped.
+         * Client triggered once the host(fragment) has stopped.
          */
         public void onHostStop() {
         }
 
         /**
-         * Callback triggered once the host(fragment) has paused.
+         * Client triggered once the host(fragment) has paused.
          */
         public void onHostPause() {
         }
 
         /**
-         * Callback triggered once the host(fragment) has resumed.
+         * Client triggered once the host(fragment) has resumed.
          */
         public void onHostResume() {
         }
 
         /**
-         * Callback triggered once the host(fragment) has been destroyed.
+         * Client triggered once the host(fragment) has been destroyed.
          */
         public void onHostDestroy() {
         }
     }
 
     /**
+     * Optional Client that implemented by PlaybackGlueHost to respond to player event.
+     */
+    public static class PlayerCallback {
+        /**
+         * Size of the video changes, the Host should adjust SurfaceView's layout width and height.
+         * @param videoWidth
+         * @param videoHeight
+         */
+        public void onVideoSizeChanged(int videoWidth, int videoHeight) {
+        }
+
+        /**
+         * notify media starts/stops buffering/preparing. The Host could start or stop
+         * progress bar.
+         * @param start True for buffering start, false otherwise.
+         */
+        public void onBufferingStateChanged(boolean start) {
+        }
+
+        /**
+         * notify media has error. The Host could show error dialog.
+         * @param errorCode Optional error code for specific implementation.
+         * @param errorMessage Optional error message for specific implementation.
+         */
+        public void onError(int errorCode, CharSequence errorMessage) {
+        }
+    }
+
+    /**
      * Enables or disables view fading.  If enabled, the view will be faded in when the
      * fragment starts and will fade out after a time period.
+     * @deprecated Use {@link #setControlsOverlayAutoHideEnabled(boolean)}
      */
+    @Deprecated
     public void setFadingEnabled(boolean enable) {
     }
 
     /**
-     * Fade out views immediately.
+     * Enables or disables controls overlay auto hidden.  If enabled, the view will be faded out
+     * after a time period.
+     * @param enabled True to enable auto hidden of controls overlay.
+     *
      */
+    public void setControlsOverlayAutoHideEnabled(boolean enabled) {
+        setFadingEnabled(enabled);
+    }
+
+    /**
+     * Returns true if auto hides controls overlay.
+     * @return True if auto hiding controls overlay.
+     */
+    public boolean isControlsOverlayAutoHideEnabled() {
+        return false;
+    }
+
+    /**
+     * Fades out the playback overlay immediately.
+     * @deprecated Call {@link #hideControlsOverlay(boolean)}
+     */
+    @Deprecated
     public void fadeOut() {
+    }
+
+    /**
+     * Returns true if controls overlay is visible, false otherwise.
+     *
+     * @return True if controls overlay is visible, false otherwise.
+     * @see #showControlsOverlay(boolean)
+     * @see #hideControlsOverlay(boolean)
+     */
+    public boolean isControlsOverlayVisible() {
+        return true;
+    }
+
+    /**
+     * Hide controls overlay.
+     *
+     * @param runAnimation True to run animation, false otherwise.
+     */
+    public void hideControlsOverlay(boolean runAnimation) {
+    }
+
+    /**
+     * Show controls overlay.
+     *
+     * @param runAnimation True to run animation, false otherwise.
+     */
+    public void showControlsOverlay(boolean runAnimation) {
     }
 
     /**
@@ -137,6 +218,15 @@ public abstract class PlaybackGlueHost {
         if (mGlue != null) {
             mGlue.onAttachedToHost(this);
         }
+    }
+
+    /**
+     * Implemented by PlaybackGlueHost for responding to player events. Such as showing a spinning
+     * wheel progress bar when {@link PlayerCallback#onBufferingStateChanged(boolean)}.
+     * @return PlayerEventCallback that Host supports, null if not supported.
+     */
+    public PlayerCallback getPlayerCallback() {
+        return null;
     }
 
 }

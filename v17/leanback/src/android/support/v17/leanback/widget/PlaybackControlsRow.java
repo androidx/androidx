@@ -45,6 +45,35 @@ import android.view.KeyEvent;
 public class PlaybackControlsRow extends Row {
 
     /**
+     * Listener for progress or duration change.
+     */
+    public static class OnPlaybackProgressCallback {
+        /**
+         * Called when {@link PlaybackControlsRow#getCurrentPosition()} changed.
+         * @param row The PlaybackControlsRow that current time changed.
+         * @param currentTimeMs Current time in milliseconds.
+         */
+        public void onCurrentPositionChanged(PlaybackControlsRow row, long currentTimeMs) {
+        }
+
+        /**
+         * Called when {@link PlaybackControlsRow#getDuration()} changed.
+         * @param row The PlaybackControlsRow that total time changed.
+         * @param totalTime Total time in milliseconds.
+         */
+        public void onDurationChanged(PlaybackControlsRow row, long totalTime) {
+        }
+
+        /**
+         * Called when {@link PlaybackControlsRow#getBufferedPosition()} changed.
+         * @param row The PlaybackControlsRow that buffered progress changed.
+         * @param bufferedProgressMs Buffered time in milliseconds.
+         */
+        public void onBufferedPositionChanged(PlaybackControlsRow row, long bufferedProgressMs) {
+        }
+    }
+
+    /**
      * Base class for an action comprised of a series of icons.
      */
     public static abstract class MultiAction extends Action {
@@ -624,7 +653,7 @@ public class PlaybackControlsRow extends Row {
     private long mTotalTimeMs;
     private long mCurrentTimeMs;
     private long mBufferedProgressMs;
-    private OnPlaybackStateChangedListener mListener;
+    private OnPlaybackProgressCallback mListener;
 
     /**
      * Constructor for a PlaybackControlsRow that displays some details from
@@ -718,31 +747,62 @@ public class PlaybackControlsRow extends Row {
      * Sets the total time in milliseconds for the playback controls row.
      * <p>If set after the row has been bound to a view, the adapter must be notified that
      * this row has changed.</p>
+     * @deprecated Use {@link #setDuration(long)}
      */
+    @Deprecated
     public void setTotalTime(int ms) {
-        setTotalTimeLong((long) ms);
+        setDuration((long) ms);
     }
 
     /**
      * Sets the total time in milliseconds (long type) for the playback controls row.
      * @param ms Total time in milliseconds of long type.
+     * @deprecated Use {@link #setDuration(long)}
      */
+    @Deprecated
     public void setTotalTimeLong(long ms) {
-        mTotalTimeMs = ms;
+        setDuration(ms);
+    }
+
+    /**
+     * Sets the total time in milliseconds (long type) for the playback controls row.
+     * If this row is bound to a view, the view will automatically
+     * be updated to reflect the new value.
+     * @param ms Total time in milliseconds of long type.
+     */
+    public void setDuration(long ms) {
+        if (mTotalTimeMs != ms) {
+            mTotalTimeMs = ms;
+            if (mListener != null) {
+                mListener.onDurationChanged(this, mTotalTimeMs);
+            }
+        }
     }
 
     /**
      * Returns the total time in milliseconds for the playback controls row.
      * @throws ArithmeticException If total time in milliseconds overflows int.
+     * @deprecated use {@link #getDuration()}
      */
+    @Deprecated
     public int getTotalTime() {
         return MathUtil.safeLongToInt(getTotalTimeLong());
     }
 
     /**
      * Returns the total time in milliseconds of long type for the playback controls row.
+     * @deprecated use {@link #getDuration()}
      */
+    @Deprecated
     public long getTotalTimeLong() {
+        return mTotalTimeMs;
+    }
+
+    /**
+     * Returns duration in milliseconds.
+     * @return Duration in milliseconds.
+     */
+    public long getDuration() {
         return mTotalTimeMs;
     }
 
@@ -750,7 +810,9 @@ public class PlaybackControlsRow extends Row {
      * Sets the current time in milliseconds for the playback controls row.
      * If this row is bound to a view, the view will automatically
      * be updated to reflect the new value.
+     * @deprecated use {@link #setCurrentPosition(long)}
      */
+    @Deprecated
     public void setCurrentTime(int ms) {
         setCurrentTimeLong((long) ms);
     }
@@ -758,26 +820,51 @@ public class PlaybackControlsRow extends Row {
     /**
      * Sets the current time in milliseconds for playback controls row in long type.
      * @param ms Current time in milliseconds of long type.
+     * @deprecated use {@link #setCurrentPosition(long)}
      */
+    @Deprecated
     public void setCurrentTimeLong(long ms) {
+        setCurrentPosition(ms);
+    }
+
+    /**
+     * Sets the current time in milliseconds for the playback controls row.
+     * If this row is bound to a view, the view will automatically
+     * be updated to reflect the new value.
+     * @param ms Current time in milliseconds of long type.
+     */
+    public void setCurrentPosition(long ms) {
         if (mCurrentTimeMs != ms) {
             mCurrentTimeMs = ms;
-            currentTimeChanged();
+            if (mListener != null) {
+                mListener.onCurrentPositionChanged(this, mCurrentTimeMs);
+            }
         }
     }
 
     /**
      * Returns the current time in milliseconds for the playback controls row.
      * @throws ArithmeticException If current time in milliseconds overflows int.
+     * @deprecated Use {@link #getCurrentPosition()}
      */
+    @Deprecated
     public int getCurrentTime() {
         return MathUtil.safeLongToInt(getCurrentTimeLong());
     }
 
     /**
      * Returns the current time in milliseconds of long type for playback controls row.
+     * @deprecated Use {@link #getCurrentPosition()}
      */
+    @Deprecated
     public long getCurrentTimeLong() {
+        return mCurrentTimeMs;
+    }
+
+    /**
+     * Returns the current time in milliseconds of long type for playback controls row.
+     */
+    public long getCurrentPosition() {
         return mCurrentTimeMs;
     }
 
@@ -785,34 +872,58 @@ public class PlaybackControlsRow extends Row {
      * Sets the buffered progress for the playback controls row.
      * If this row is bound to a view, the view will automatically
      * be updated to reflect the new value.
+     * @deprecated Use {@link #setBufferedPosition(long)}
      */
+    @Deprecated
     public void setBufferedProgress(int ms) {
-        setBufferedProgressLong((long) ms);
+        setBufferedPosition((long) ms);
+    }
+
+    /**
+     * Sets the buffered progress for the playback controls row.
+     * @param ms Buffered progress in milliseconds of long type.
+     * @deprecated Use {@link #setBufferedPosition(long)}
+     */
+    @Deprecated
+    public void setBufferedProgressLong(long ms) {
+        setBufferedPosition(ms);
     }
 
     /**
      * Sets the buffered progress for the playback controls row.
      * @param ms Buffered progress in milliseconds of long type.
      */
-    public void setBufferedProgressLong(long ms) {
+    public void setBufferedPosition(long ms) {
         if (mBufferedProgressMs != ms) {
             mBufferedProgressMs = ms;
-            bufferedProgressChanged();
+            if (mListener != null) {
+                mListener.onBufferedPositionChanged(this, mBufferedProgressMs);
+            }
         }
     }
-
     /**
      * Returns the buffered progress for the playback controls row.
      * @throws ArithmeticException If buffered progress in milliseconds overflows int.
+     * @deprecated Use {@link #getBufferedPosition()}
      */
+    @Deprecated
     public int getBufferedProgress() {
-        return MathUtil.safeLongToInt(getBufferedProgressLong());
+        return MathUtil.safeLongToInt(getBufferedPosition());
+    }
+
+    /**
+     * Returns the buffered progress of long type for the playback controls row.
+     * @deprecated Use {@link #getBufferedPosition()}
+     */
+    @Deprecated
+    public long getBufferedProgressLong() {
+        return mBufferedProgressMs;
     }
 
     /**
      * Returns the buffered progress of long type for the playback controls row.
      */
-    public long getBufferedProgressLong() {
+    public long getBufferedPosition() {
         return mBufferedProgressMs;
     }
 
@@ -844,34 +955,10 @@ public class PlaybackControlsRow extends Row {
         return null;
     }
 
-    interface OnPlaybackStateChangedListener {
-        public void onCurrentTimeChanged(long currentTimeMs);
-        public void onBufferedProgressChanged(long bufferedProgressMs);
-    }
-
     /**
      * Sets a listener to be called when the playback state changes.
      */
-    void setOnPlaybackStateChangedListener(OnPlaybackStateChangedListener listener) {
+    public void setOnPlaybackProgressChangedListener(OnPlaybackProgressCallback listener) {
         mListener = listener;
-    }
-
-    /**
-     * Returns the playback state listener.
-     */
-    OnPlaybackStateChangedListener getOnPlaybackStateChangedListener() {
-        return mListener;
-    }
-
-    private void currentTimeChanged() {
-        if (mListener != null) {
-            mListener.onCurrentTimeChanged(mCurrentTimeMs);
-        }
-    }
-
-    private void bufferedProgressChanged() {
-        if (mListener != null) {
-            mListener.onBufferedProgressChanged(mBufferedProgressMs);
-        }
     }
 }

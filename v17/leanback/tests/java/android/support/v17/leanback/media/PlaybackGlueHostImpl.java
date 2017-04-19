@@ -23,9 +23,9 @@ import android.support.v17.leanback.widget.Row;
  */
 public class PlaybackGlueHostImpl extends PlaybackGlueHost {
 
-    HostCallback mHostCallback;
-    Row mRow;
-    PlaybackRowPresenter mPlaybackRowPresenter;
+    protected HostCallback mHostCallback;
+    protected Row mRow;
+    protected PlaybackRowPresenter mPlaybackRowPresenter;
 
     @Override
     public void setHostCallback(HostCallback callback) {
