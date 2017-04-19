@@ -16,6 +16,11 @@
 
 package android.support.v4.graphics.fonts;
 
+import static junit.framework.Assert.assertTrue;
+
+import static org.junit.Assert.assertEquals;
+
+import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Base64;
@@ -38,6 +43,28 @@ public class FontRequestTest {
     private static final byte[] BYTE_ARRAY =
             Base64.decode("e04fd020ea3a6910a2d808002b30", Base64.DEFAULT);
     private static final List<List<byte[]>> CERTS = Arrays.asList(Arrays.asList(BYTE_ARRAY));
+
+    @Test
+    public void testWriteToParcel() {
+        // GIVEN a FontRequest
+        FontRequest request = new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS);
+
+        // WHEN we write it to a Parcel
+        Parcel dest = Parcel.obtain();
+        request.writeToParcel(dest, 0);
+        dest.setDataPosition(0);
+
+        // THEN we create from that parcel and get the same values.
+        FontRequest result = FontRequest.CREATOR.createFromParcel(dest);
+        assertEquals(PROVIDER, result.getProviderAuthority());
+        assertEquals(PACKAGE, result.getProviderPackage());
+        assertEquals(QUERY, result.getQuery());
+        assertEquals(CERTS.size(), result.getCertificates().size());
+        List<byte[]> cert = CERTS.get(0);
+        List<byte[]> resultCert = result.getCertificates().get(0);
+        assertEquals(cert.size(), resultCert.size());
+        assertTrue(Arrays.equals(cert.get(0), resultCert.get(0)));
+    }
 
     @Test(expected = NullPointerException.class)
     public void testConstructor_nullAuthority() {
