@@ -20,8 +20,6 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -62,7 +60,6 @@ class AppCompatTextHelper {
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
         final Context context = mView.getContext();
         final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
-        final boolean shouldLoadFonts = shouldLoadFontResources(context);
 
         // First read the TextAppearance style id
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
@@ -97,7 +94,6 @@ class AppCompatTextHelper {
         ColorStateList textColor = null;
         ColorStateList textColorHint = null;
         ColorStateList textColorLink = null;
-        Typeface fontTypeface = null;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
@@ -105,16 +101,6 @@ class AppCompatTextHelper {
             if (!hasPwdTm && a.hasValue(R.styleable.TextAppearance_textAllCaps)) {
                 allCapsSet = true;
                 allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
-            }
-            if (shouldLoadFonts) {
-                // If we're running on < API 26, we need to load font resources manually.
-                if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)) {
-                    try {
-                        fontTypeface = a.getFont(R.styleable.TextAppearance_android_fontFamily);
-                    } catch (UnsupportedOperationException | Resources.NotFoundException e) {
-                        // Expected if it is not a font resource.
-                    }
-                }
             }
             if (Build.VERSION.SDK_INT < 23) {
                 // If we're running on < API 23, the text color may contain theme references
@@ -156,17 +142,6 @@ class AppCompatTextHelper {
                         R.styleable.TextAppearance_android_textColorLink);
             }
         }
-
-        if (shouldLoadFonts) {
-            // If we're running on < API 26, we need to load font resources manually.
-            if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)) {
-                try {
-                    fontTypeface = a.getFont(R.styleable.TextAppearance_android_fontFamily);
-                } catch (UnsupportedOperationException | Resources.NotFoundException e) {
-                    // Expected if it is not a font resource.
-                }
-            }
-        }
         a.recycle();
 
         if (textColor != null) {
@@ -180,9 +155,6 @@ class AppCompatTextHelper {
         }
         if (!hasPwdTm && allCapsSet) {
             setAllCaps(allCaps);
-        }
-        if (fontTypeface != null) {
-            mView.setTypeface(fontTypeface);
         }
 
         mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
@@ -209,11 +181,6 @@ class AppCompatTextHelper {
                 }
             }
         }
-    }
-
-    private boolean shouldLoadFontResources(Context context) {
-        // We do not load fonts on restricted contexts for security reasons.
-        return !context.isRestricted();
     }
 
     void onSetTextAppearance(Context context, int resId) {
