@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.app;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
@@ -24,10 +25,9 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 /**
- * @hide
+ * Base class for leanback Fragments. This class is not intended to be subclassed by apps.
  */
-@SuppressWarnings("FragmentNotInstantiable")
-class BaseFragment extends BrandedFragment {
+public class BaseFragment extends BrandedFragment {
 
     /**
      * The start state for all
@@ -130,6 +130,7 @@ class BaseFragment extends BrandedFragment {
     Object mEntranceTransition;
     final ProgressBarManager mProgressBarManager = new ProgressBarManager();
 
+    @SuppressLint("ValidFragment")
     BaseFragment() {
     }
 
@@ -302,6 +303,7 @@ class BaseFragment extends BrandedFragment {
 
     /**
      * Returns the {@link ProgressBarManager}.
+     * @return The {@link ProgressBarManager}.
      */
     public final ProgressBarManager getProgressBarManager() {
         return mProgressBarManager;
