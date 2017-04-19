@@ -19,68 +19,118 @@ package com.example.android.leanback;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v17.leanback.app.VideoSupportFragmentGlueHost;
-import android.support.v17.leanback.media.MediaPlayerGlue;
+import android.support.v17.leanback.media.MediaPlayerAdapter;
 import android.support.v17.leanback.media.PlaybackGlue;
+import android.support.v17.leanback.media.PlaybackTransportControlGlue;
+import android.support.v17.leanback.widget.PlaybackControlsRow;
 
 /**
  * Fragment demonstrating the use of {@link android.support.v17.leanback.app.VideoSupportFragment} to
  * render video with playback controls.
+ * <p>
+ * Showcase:
+ * </p>
+ * <li>Auto play when ready</li>
+ * <li>Set seek provider</li>
+ * <li>switch MediaSource</li>
+ * <li>switch PlaybackGlue</li>
  */
 public class SampleVideoSupportFragment extends android.support.v17.leanback.app.VideoSupportFragment {
-    private MediaPlayerGlue mMediaPlayerGlue;
+    private PlaybackTransportControlGlueSample<MediaPlayerAdapter> mMediaPlayerGlue;
+
+    final VideoSupportFragmentGlueHost mHost = new VideoSupportFragmentGlueHost(SampleVideoSupportFragment.this);
+
+    static void playWhenReady(PlaybackGlue glue) {
+        if (glue.isPrepared()) {
+            glue.play();
+        } else {
+            glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
+                @Override
+                public void onPreparedStateChanged(PlaybackGlue glue) {
+                    if (glue.isPrepared()) {
+                        glue.removePlayerCallback(this);
+                        glue.play();
+                    }
+                }
+            });
+        }
+    }
+
+    static void loadSeekData(final PlaybackTransportControlGlue glue) {
+        if (glue.isPrepared()) {
+            glue.setSeekProvider(new PlaybackSeekDataProviderSample(
+                    glue.getDuration(),
+                    glue.getDuration() / 100));
+        } else {
+            glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
+                @Override
+                public void onPreparedStateChanged(PlaybackGlue glue) {
+                    if (glue.isPrepared()) {
+                        glue.removePlayerCallback(this);
+                        PlaybackTransportControlGlue transportControlGlue =
+                                (PlaybackTransportControlGlue) glue;
+                        transportControlGlue.setSeekProvider(new PlaybackSeekDataProviderSample(
+                                transportControlGlue.getDuration(),
+                                transportControlGlue.getDuration() / 100));
+                    }
+                }
+            });
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mMediaPlayerGlue = new PlaybackTransportControlGlueSample(getActivity(),
+                new MediaPlayerAdapter(getActivity()));
+        mMediaPlayerGlue.setHost(mHost);
+        mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.NONE);
+        mMediaPlayerGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
+            boolean mSecondCompleted = false;
+            @Override
+            public void onPlayCompleted(PlaybackGlue glue) {
+                if (!mSecondCompleted) {
+                    mSecondCompleted = true;
+                    mMediaPlayerGlue.setSubtitle("Leanback artist Changed!");
+                    mMediaPlayerGlue.setTitle("Leanback team at work");
+                    String uriPath = "https://storage.googleapis.com/android-tv/Sample videos/"
+                            + "April Fool's 2013/Explore Treasure Mode with Google Maps.mp4";
+                    mMediaPlayerGlue.getPlayerAdapter().setDataSource(Uri.parse(uriPath));
+                    loadSeekData(mMediaPlayerGlue);
+                    playWhenReady(mMediaPlayerGlue);
+                } else {
+                    mMediaPlayerGlue.removePlayerCallback(this);
+                    switchAnotherGlue();
+                }
+            }
+        });
+        mMediaPlayerGlue.setSubtitle("Leanback artist");
+        mMediaPlayerGlue.setTitle("Leanback team at work");
+        String uriPath = "https://storage.googleapis.com/android-tv/Sample videos/"
+                + "April Fool's 2013/Explore Treasure Mode with Google Maps.mp4";
+        mMediaPlayerGlue.getPlayerAdapter().setDataSource(Uri.parse(uriPath));
+        loadSeekData(mMediaPlayerGlue);
+        playWhenReady(mMediaPlayerGlue);
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onPause() {
+        if (mMediaPlayerGlue != null) {
+            mMediaPlayerGlue.pause();
+        }
+        super.onPause();
     }
 
-    VideoSupportFragmentGlueHost host = new VideoSupportFragmentGlueHost(SampleVideoSupportFragment.this);
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        getView().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
-                mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
-                mMediaPlayerGlue.setPlayerCallback(new PlaybackGlue.PlayerCallback() {
-                    @Override
-                    public void onReadyForPlayback() {
-                        mMediaPlayerGlue.play();
-                    }
-                });
-                mMediaPlayerGlue.setArtist("Leanback");
-                mMediaPlayerGlue.setTitle("Leanback team at work");
-                String uriPath = "android.resource://com.example.android.leanback/raw/browse";
-                mMediaPlayerGlue.setMediaSource(Uri.parse(uriPath));
-                mMediaPlayerGlue.setHost(host);
-            }
-        }, 500);
-
-
-        getView().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mMediaPlayerGlue = new MediaPlayerGlue(getActivity());
-                mMediaPlayerGlue.setMode(MediaPlayerGlue.REPEAT_ALL);
-                mMediaPlayerGlue.setPlayerCallback(new PlaybackGlue.PlayerCallback() {
-                    @Override
-                    public void onReadyForPlayback() {
-                        mMediaPlayerGlue.play();
-                    }
-                });
-                mMediaPlayerGlue.setArtist("A Googler");
-                mMediaPlayerGlue.setTitle("Swimming with the fishes");
-
-                mMediaPlayerGlue.setVideoUrl("http://techslides.com/demos/sample-videos/small.mp4");
-                mMediaPlayerGlue.setHost(host);
-            }
-        }, 3000);
+    void switchAnotherGlue() {
+        mMediaPlayerGlue = new PlaybackTransportControlGlueSample(getActivity(),
+                new MediaPlayerAdapter(getActivity()));
+        mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.ONE);
+        mMediaPlayerGlue.setSubtitle("A Googler");
+        mMediaPlayerGlue.setTitle("Swimming with the fishes");
+        mMediaPlayerGlue.getPlayerAdapter().setDataSource(
+                Uri.parse("http://techslides.com/demos/sample-videos/small.mp4"));
+        mMediaPlayerGlue.setHost(mHost);
+        loadSeekData(mMediaPlayerGlue);
+        playWhenReady(mMediaPlayerGlue);
     }
 }

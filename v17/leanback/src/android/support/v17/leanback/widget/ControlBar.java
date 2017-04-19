@@ -31,6 +31,7 @@ class ControlBar extends LinearLayout {
     private int mChildMarginFromCenter;
     private OnChildFocusedListener mOnChildFocusedListener;
     int mLastFocusIndex = -1;
+    boolean mDefaultFocusToMiddle = true;
 
     public ControlBar(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -40,11 +41,19 @@ class ControlBar extends LinearLayout {
         super(context, attrs, defStyle);
     }
 
+    void setDefaultFocusToMiddle(boolean defaultFocusToMiddle) {
+        mDefaultFocusToMiddle = defaultFocusToMiddle;
+    }
+
+    int getDefaultFocusIndex() {
+        return mDefaultFocusToMiddle ? getChildCount() / 2 : 0;
+    }
+
     @Override
     protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
         if (getChildCount() > 0) {
             int index = mLastFocusIndex >= 0 && mLastFocusIndex < getChildCount()
-                    ? mLastFocusIndex : getChildCount() / 2;
+                    ? mLastFocusIndex : getDefaultFocusIndex();
             if (getChildAt(index).requestFocus(direction, previouslyFocusedRect)) {
                 return true;
             }
@@ -58,7 +67,7 @@ class ControlBar extends LinearLayout {
             if (mLastFocusIndex >= 0 && mLastFocusIndex < getChildCount()) {
                 views.add(getChildAt(mLastFocusIndex));
             } else if (getChildCount() > 0) {
-                views.add(getChildAt(getChildCount() / 2));
+                views.add(getChildAt(getDefaultFocusIndex()));
             }
         } else {
             super.addFocusables(views, direction, focusableMode);

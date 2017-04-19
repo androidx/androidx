@@ -21,7 +21,13 @@
         android:transitionGroup="false"
         android:layout_height="match_parent">
 
-    <FrameLayout
+    <android.support.v17.leanback.widget.NonOverlappingFrameLayout
+        android:id="@+id/playback_fragment_background"
+        android:transitionGroup="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <android.support.v17.leanback.widget.NonOverlappingFrameLayout
             android:id="@+id/playback_controls_dock"
             android:transitionGroup="true"
             android:layout_height="match_parent"

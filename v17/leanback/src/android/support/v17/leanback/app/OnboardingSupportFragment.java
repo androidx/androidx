@@ -398,6 +398,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * Returns the text color of TitleView if it's set through
      * {@link #setTitleViewTextColor(int)}. If no color was set, transparent is returned.
      */
+    @ColorInt
     public final int getTitleViewTextColor() {
         return mTitleViewTextColor;
     }
@@ -419,6 +420,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * Returns the text color of DescriptionView if it's set through
      * {@link #setDescriptionViewTextColor(int)}. If no color was set, transparent is returned.
      */
+    @ColorInt
     public final int getDescriptionViewTextColor() {
         return mDescriptionViewTextColor;
     }
@@ -439,6 +441,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * Returns the background color of the dot if it's set through
      * {@link #setDotBackgroundColor(int)}. If no color was set, transparent is returned.
      */
+    @ColorInt
     public final int getDotBackgroundColor() {
         return mDotBackgroundColor;
     }
@@ -460,6 +463,7 @@ abstract public class OnboardingSupportFragment extends Fragment {
      * Returns the background color of the arrow if it's set through
      * {@link #setArrowBackgroundColor(int)}. If no color was set, transparent is returned.
      */
+    @ColorInt
     public final int getArrowBackgroundColor() {
         return mArrowBackgroundColor;
     }

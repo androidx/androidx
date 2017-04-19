@@ -115,6 +115,7 @@ public class DetailsFragmentBackgroundController {
     Bitmap mCoverBitmap;
     int mSolidColor;
     boolean mCanUseHost = false;
+    boolean mInitialControlVisible = false;
 
     private Fragment mLastVideoFragmentForGlueHost;
 
@@ -241,7 +242,7 @@ public class DetailsFragmentBackgroundController {
         if (mCanUseHost && mPlaybackGlue != null) {
             if (playbackGlueHost == null
                     || mLastVideoFragmentForGlueHost != findOrCreateVideoFragment()) {
-                mPlaybackGlue.setHost(onCreateGlueHost());
+                mPlaybackGlue.setHost(createGlueHost());
                 mLastVideoFragmentForGlueHost = findOrCreateVideoFragment();
             } else {
                 mPlaybackGlue.setHost(playbackGlueHost);
@@ -261,7 +262,7 @@ public class DetailsFragmentBackgroundController {
     /**
      * Precondition allows user navigate to video fragment using DPAD. Default implementation
      * returns true if PlaybackGlue is not null. Subclass may override, e.g. only allow navigation
-     * when {@link PlaybackGlue#isReadyForPlayback()} is true. Note this method does not block
+     * when {@link PlaybackGlue#isPrepared()} is true. Note this method does not block
      * app calls {@link #switchToVideo}.
      *
      * @return True allow to navigate to video fragment.
@@ -270,8 +271,9 @@ public class DetailsFragmentBackgroundController {
         return mPlaybackGlue != null;
     }
 
-    void crossFadeBackgroundToVideo(boolean fadeToBackground, boolean immediate) {
-        mVideoHelper.crossFadeBackgroundToVideo(fadeToBackground, immediate);
+    void switchToVideoBeforeCreate() {
+        mVideoHelper.crossFadeBackgroundToVideo(true, true);
+        mInitialControlVisible = true;
     }
 
     /**
@@ -310,11 +312,11 @@ public class DetailsFragmentBackgroundController {
         if (!mCanUseHost) {
             mCanUseHost = true;
             if (mPlaybackGlue != null) {
-                mPlaybackGlue.setHost(onCreateGlueHost());
+                mPlaybackGlue.setHost(createGlueHost());
                 mLastVideoFragmentForGlueHost = findOrCreateVideoFragment();
             }
         }
-        if (mPlaybackGlue != null && mPlaybackGlue.isReadyForPlayback()) {
+        if (mPlaybackGlue != null && mPlaybackGlue.isPrepared()) {
             mPlaybackGlue.play();
         }
     }
@@ -389,6 +391,16 @@ public class DetailsFragmentBackgroundController {
      */
     public PlaybackGlueHost onCreateGlueHost() {
         return new VideoFragmentGlueHost((VideoFragment) findOrCreateVideoFragment());
+    }
+
+    PlaybackGlueHost createGlueHost() {
+        PlaybackGlueHost host = onCreateGlueHost();
+        if (mInitialControlVisible) {
+            host.showControlsOverlay(false);
+        } else {
+            host.hideControlsOverlay(false);
+        }
+        return host;
     }
 
     /**

@@ -809,7 +809,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
             }
         });
 
-        // wait a little bit then clear glue
+        // wait a little bit then reset glue
         SystemClock.sleep(1000);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {
@@ -819,7 +819,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                     }
                 }
         );
-        // background should fade in upon clear playback
+        // background should fade in upon reset playback
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {

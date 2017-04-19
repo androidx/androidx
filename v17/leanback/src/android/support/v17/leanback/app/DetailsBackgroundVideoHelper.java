@@ -125,10 +125,10 @@ final class DetailsBackgroundVideoHelper {
         switch (mCurrentState) {
             case PLAY_VIDEO:
                 if (mPlaybackGlue != null) {
-                    if (mPlaybackGlue.isReadyForPlayback()) {
+                    if (mPlaybackGlue.isPrepared()) {
                         internalStartPlayback();
                     } else {
-                        mPlaybackGlue.setPlayerCallback(mControlStateCallback);
+                        mPlaybackGlue.addPlayerCallback(mControlStateCallback);
                     }
                 } else {
                     crossFadeBackgroundToVideo(false);
@@ -137,7 +137,7 @@ final class DetailsBackgroundVideoHelper {
             case NO_VIDEO:
                 crossFadeBackgroundToVideo(false);
                 if (mPlaybackGlue != null) {
-                    mPlaybackGlue.setPlayerCallback(null);
+                    mPlaybackGlue.removePlayerCallback(mControlStateCallback);
                     mPlaybackGlue.pause();
                 }
                 break;
@@ -146,7 +146,7 @@ final class DetailsBackgroundVideoHelper {
 
     void setPlaybackGlue(PlaybackGlue playbackGlue) {
         if (mPlaybackGlue != null) {
-            mPlaybackGlue.setPlayerCallback(null);
+            mPlaybackGlue.removePlayerCallback(mControlStateCallback);
         }
         mPlaybackGlue = playbackGlue;
         applyState();
@@ -234,8 +234,10 @@ final class DetailsBackgroundVideoHelper {
     private class PlaybackControlStateCallback extends PlaybackGlue.PlayerCallback {
 
         @Override
-        public void onReadyForPlayback() {
-            internalStartPlayback();
+        public void onPreparedStateChanged(PlaybackGlue glue) {
+            if (glue.isPrepared()) {
+                internalStartPlayback();
+            }
         }
     }
 

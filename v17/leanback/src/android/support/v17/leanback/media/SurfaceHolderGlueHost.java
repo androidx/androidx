@@ -24,7 +24,6 @@ import android.view.SurfaceHolder;
  * the surface holder callback during {@link PlaybackGlue#setHost(PlaybackGlueHost)}.
  *
  * @see PlaybackGlue#setHost(PlaybackGlueHost)
- * @see MediaPlayerGlue
  */
 public interface SurfaceHolderGlueHost {
     /**
