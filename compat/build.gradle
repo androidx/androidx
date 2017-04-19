@@ -34,11 +34,6 @@ android {
                 'java'
         ]
         main.aidl.srcDirs = ['java']
-        main.res.srcDirs 'res', 'res-public'
-    }
-
-    aaptOptions {
-        noCompress 'ttf'
     }
 }
 
