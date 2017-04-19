@@ -35,7 +35,6 @@ import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesR
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
@@ -86,7 +85,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      * @param callback A callback that will be triggered when results are obtained. May not be null.
      */
     public void create(@NonNull final FontRequest request,
-            @NonNull final FontRequestCallback callback) {
+            @NonNull final TypefaceCompat.FontRequestCallback callback) {
         final Typeface cachedTypeface = findFromCache(
                 request.getProviderAuthority(), request.getQuery());
         if (cachedTypeface != null) {
@@ -138,7 +137,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
 
     @VisibleForTesting
     void receiveResult(FontRequest request,
-            FontRequestCallback callback, int resultCode, Bundle resultData) {
+            TypefaceCompat.FontRequestCallback callback, int resultCode, Bundle resultData) {
         Typeface cachedTypeface = findFromCache(
                 request.getProviderAuthority(), request.getQuery());
         if (cachedTypeface != null) {
@@ -153,14 +152,14 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         }
         if (resultData == null) {
             callback.onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
+                    TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
             return;
         }
         List<FontResult> resultList =
                 resultData.getParcelableArrayList(FontsContract.PARCEL_FONT_RESULTS);
         if (resultList == null || resultList.isEmpty()) {
             callback.onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
+                    TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
             return;
         }
 
@@ -169,7 +168,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         if (typeface == null) {
             Log.e(TAG, "Error creating font " + request.getQuery());
             callback.onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR);
+                    TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR);
             return;
         }
         putInCache(request.getProviderAuthority(), request.getQuery(), typeface);
@@ -271,8 +270,8 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         if (typeface != null) return typeface;
 
         if (entry instanceof ProviderResourceEntry) {
-            final ProviderResourceEntry providerEntry = (ProviderResourceEntry) entry;
-            return createFromResources(providerEntry);
+            // Downloadable Fonts support b/35381428
+            return null;
         }
 
         // family is FontFamilyFilesResourceEntry
@@ -293,37 +292,12 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     @Nullable
     Typeface createFromResources(FontFamilyFilesResourceEntry entry, Resources resources, int id,
             String path) {
+
         // When creating from file, we only support one font at a time.
         FontFileResourceEntry[] entries = entry.getEntries();
         FontFileResourceEntry firstEntry = entries[0];
         return ResourcesCompat.getFont(mApplicationContext, firstEntry.getResourceId());
     }
-
-    @Nullable
-    private Typeface createFromResources(ProviderResourceEntry entry) {
-        Typeface typeface = findFromCache(entry.getAuthority(), entry.getQuery());
-        if (typeface != null) {
-            return typeface;
-        }
-
-        // Downloadable font is not in cache, must fetch asynchronously.
-        FontRequest request = new FontRequest(entry.getAuthority(), entry.getPackage(),
-                entry.getQuery(), entry.getCerts());
-        create(request, NO_OP_REQUEST_CALLBACK);
-        return null;
-    }
-
-    private static final FontRequestCallback NO_OP_REQUEST_CALLBACK = new FontRequestCallback() {
-        @Override
-        public void onTypefaceRetrieved(Typeface typeface) {
-            // Do nothing.
-        }
-
-        @Override
-        public void onTypefaceRequestFailed(@FontRequestFailReason int reason) {
-            // Do nothing.
-        }
-    };
 
     @Override
     public Typeface findFromCache(Resources resources, int id, String path) {
