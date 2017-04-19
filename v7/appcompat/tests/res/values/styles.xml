@@ -52,13 +52,4 @@
     </style>
 
     <style name="PopupEmptyStyle" />
-
-    <style name="TextView_FontResource">
-        <item name="android:fontFamily">@font/samplefont</item>
-        <item name="android:textAppearance">@null</item>
-    </style>
-
-    <style name="TextView_FontXmlResource">
-        <item name="android:fontFamily">@font/samplexmlfont</item>
-    </style>
 </resources>

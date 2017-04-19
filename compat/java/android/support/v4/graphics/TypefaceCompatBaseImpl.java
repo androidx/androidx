@@ -19,22 +19,13 @@ package android.support.v4.graphics;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.content.res.FontResourcesParserCompat;
-import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
-import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
-import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
@@ -42,7 +33,6 @@ import android.support.v4.provider.FontsContract;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -59,7 +49,7 @@ import java.util.List;
 @RequiresApi(14)
 class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     private static final String TAG = "TypefaceCompatBaseImpl";
-    private static final String CACHE_FILE_PREFIX = "cached_font_";
+    private static final String FONT_FILE = "tmp_font_file";
 
     /**
      * Cache for Typeface objects dynamically loaded from assets. Currently max size is 16.
@@ -100,7 +90,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         synchronized (sLock) {
             if (sFontsContract == null) {
                 sFontsContract = new FontsContract(mApplicationContext);
-                sHandler = new Handler(Looper.getMainLooper());
+                sHandler = new Handler();
             }
             final ResultReceiver receiver = new ResultReceiver(null) {
                 @Override
@@ -129,8 +119,8 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     }
 
     static void putInCache(String providerAuthority, String query, Typeface typeface) {
-        String key = createProviderUid(providerAuthority, query);
         synchronized (sDynamicTypefaceCache) {
+            String key = createProviderUid(providerAuthority, query);
             sDynamicTypefaceCache.put(key, typeface);
         }
     }
@@ -183,8 +173,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     public Typeface createTypeface(List<FontResult> resultList) {
         // When we load from file, we can only load one font so just take the first one.
         Typeface typeface = null;
-        FileDescriptor fd = resultList.get(0).getFileDescriptor().getFileDescriptor();
-        File tmpFile = copyToCacheFile(new FileInputStream(fd));
+        File tmpFile = copyToCacheFile(resultList.get(0).getFileDescriptor().getFileDescriptor());
         if (tmpFile != null) {
             try {
                 typeface = Typeface.createFromFile(tmpFile.getPath());
@@ -200,25 +189,26 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return typeface;
     }
 
-    private File copyToCacheFile(final InputStream is) {
-        FileOutputStream fos = null;
-        File cacheFile;
+    private File copyToCacheFile(final FileDescriptor fd) {
+        final File cacheFile = new File(mApplicationContext.getCacheDir(),
+                FONT_FILE + Thread.currentThread().getId());
+        final InputStream is = new FileInputStream(fd);
         try {
-            cacheFile = new File(mApplicationContext.getCacheDir(),
-                    CACHE_FILE_PREFIX + Thread.currentThread().getId());
-            fos = new FileOutputStream(cacheFile, false);
-
-            byte[] buffer = new byte[1024];
-            int readLen;
-            while ((readLen = is.read(buffer)) != -1) {
-                fos.write(buffer, 0, readLen);
+            final FileOutputStream fos = new FileOutputStream(cacheFile, false);
+            try {
+                byte[] buffer = new byte[1024];
+                int readLen;
+                while ((readLen = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, readLen);
+                }
+            } finally {
+                fos.close();
             }
         } catch (IOException e) {
             Log.e(TAG, "Error copying font file descriptor to temp local file.", e);
             return null;
         } finally {
             closeQuietly(is);
-            closeQuietly(fos);
         }
         return cacheFile;
     }
@@ -238,117 +228,5 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      */
     private static String createProviderUid(String authority, String query) {
         return "provider:" + authority + "-" + query;
-    }
-
-    @Nullable
-    @Override
-    public Typeface createFromResources(Resources resources, int id, String path) {
-        final String key = createAssetUid(resources, id, path);
-        synchronized (sDynamicTypefaceCache) {
-            Typeface typeface = sDynamicTypefaceCache.get(key);
-            if (typeface != null) {
-                return typeface;
-            }
-            try {
-                typeface = createTypeface(resources, path);
-                if (typeface != null) {
-                    sDynamicTypefaceCache.put(key, typeface);
-                }
-                return typeface;
-            } catch (IOException e) {
-                Log.e(TAG, "Error creating font resource id " + id + " : " + path, e);
-            }
-        }
-        Log.e(TAG, "Error creating font resource id " + id + " : " + path);
-        return null;
-    }
-
-    @Nullable
-    public Typeface createFromResources(FontResourcesParserCompat.FamilyResourceEntry entry,
-            Resources resources, int id, String path) {
-        Typeface typeface = findFromCache(resources, id, path);
-        if (typeface != null) return typeface;
-
-        if (entry instanceof ProviderResourceEntry) {
-            // Downloadable Fonts support b/35381428
-            return null;
-        }
-
-        // family is FontFamilyFilesResourceEntry
-        final FontFamilyFilesResourceEntry filesEntry =
-                (FontFamilyFilesResourceEntry) entry;
-        typeface = createFromResources(filesEntry, resources, id, path);
-        if (typeface != null) {
-            final String key = createAssetUid(resources, id, path);
-            sDynamicTypefaceCache.put(key, typeface);
-        }
-        return typeface;
-    }
-
-    /**
-     * Implementation of resources font retrieval for a file type xml resource. This should be
-     * overriden by other implementations.
-     */
-    @Nullable
-    Typeface createFromResources(FontFamilyFilesResourceEntry entry, Resources resources, int id,
-            String path) {
-
-        // When creating from file, we only support one font at a time.
-        FontFileResourceEntry[] entries = entry.getEntries();
-        FontFileResourceEntry firstEntry = entries[0];
-        return ResourcesCompat.getFont(mApplicationContext, firstEntry.getResourceId());
-    }
-
-    @Override
-    public Typeface findFromCache(Resources resources, int id, String path) {
-        final String key = createAssetUid(resources, id, path);
-        synchronized (sDynamicTypefaceCache) {
-            Typeface typeface = sDynamicTypefaceCache.get(key);
-            if (typeface != null) {
-                return typeface;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Creates a unique id for a given AssetManager and asset path.
-     *
-     * @param resources Resources instance
-     * @param path The path for the asset.
-     * @return Unique id for a given AssetManager and asset path.
-     */
-    private static String createAssetUid(final Resources resources, int id, String path) {
-        return resources.getResourcePackageName(id) + "-" + path;
-    }
-
-    Typeface createTypeface(Resources resources, String path) throws IOException {
-        Typeface typeface = null;
-        AssetFileDescriptor fd = resources.getAssets().openNonAssetFd(path);
-        File tmpFile = copyToCacheFile(fd.createInputStream());
-        if (tmpFile != null) {
-            try {
-                typeface = Typeface.createFromFile(tmpFile.getPath());
-            } catch (RuntimeException e) {
-                // This was thrown from Typeface.createFromFile when a Typeface could not be loaded,
-                // such as due to an invalid ttf or unreadable file. We don't want to throw that
-                // exception anymore.
-                android.util.Log.e(TAG, "Failed to create font", e);
-                return null;
-            } finally {
-                tmpFile.delete();
-            }
-        }
-        return typeface;
-    }
-
-    static void closeQuietly(Closeable stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException io) {
-                Log.e(TAG, "Error closing stream", io);
-            }
-        }
     }
 }

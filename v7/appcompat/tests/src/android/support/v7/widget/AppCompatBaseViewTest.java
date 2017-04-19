@@ -59,7 +59,6 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
         extends BaseInstrumentationTestCase<A> {
     protected ViewGroup mContainer;
 
-    protected A mActivity;
     protected Resources mResources;
 
     public AppCompatBaseViewTest(Class clazz) {
@@ -68,9 +67,9 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
 
     @Before
     public void setUp() {
-        mActivity = mActivityTestRule.getActivity();
-        mContainer = mActivity.findViewById(R.id.container);
-        mResources = mActivity.getResources();
+        final A activity = mActivityTestRule.getActivity();
+        mContainer = (ViewGroup) activity.findViewById(R.id.container);
+        mResources = activity.getResources();
     }
 
     /**
