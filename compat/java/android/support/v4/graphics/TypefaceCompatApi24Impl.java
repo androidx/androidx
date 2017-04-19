@@ -22,12 +22,15 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import android.support.v4.graphics.fonts.FontResult;
+import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -41,6 +44,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the Typeface compat methods for API 24 and above.
@@ -139,6 +143,36 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
             return null;
         } finally {
             closeQuietly(fis);
+        }
+    }
+
+    @Override
+    public Typeface createTypeface(@NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer) {
+        if (sFamilyClass == null) {
+            // If the reflection methods were not available, fall back to loading from file path.
+            return super.createTypeface(fonts, uriBuffer);
+        }
+        try {
+            Object family = sFamilyCtor.newInstance();
+
+            for (FontInfo result : fonts) {
+                ByteBuffer fontBuffer = uriBuffer.get(result.getUri());
+
+                // load font into FontFamily
+                sAddFontWeightStyleMethod.invoke(family, fontBuffer, result.getTtcIndex(), null,
+                        result.getWeight(), result.isItalic());
+            }
+
+            Object familyArray = Array.newInstance(sFamilyClass, 1);
+            Array.set(familyArray, 0, family);
+
+            @SuppressWarnings("unchecked")
+            Typeface typeface = (Typeface) sCreateFromFamiliesWithDefaultMethod.invoke(
+                    null, familyArray);
+            return typeface;
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            Log.e(TAG, "Error generating typeface by reflection", e);
+            return null;
         }
     }
 

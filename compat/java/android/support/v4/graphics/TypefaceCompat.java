@@ -22,6 +22,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.IntDef;
@@ -31,15 +32,21 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
-import android.support.v4.provider.FontsContract;
+import android.support.v4.provider.FontsContractCompat;
+import android.support.v4.provider.FontsContractCompat.FontInfo;
+import android.support.v4.provider.FontsContractInternal;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Helper for accessing features in {@link Typeface} in a backwards compatible fashion.
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public class TypefaceCompat {
     @GuardedBy("sLock")
     private static TypefaceCompatImpl sTypefaceCompatImpl;
@@ -66,19 +73,12 @@ public class TypefaceCompat {
      * Create a Typeface from a given FontResult list.
      *
      * @param resultList a list of results, guaranteed to be non-null and non empty.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static Typeface createTypeface(Context context, @NonNull List<FontResult> resultList) {
         maybeInitImpl(context);
         return sTypefaceCompatImpl.createTypeface(resultList);
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
     interface TypefaceCompatImpl {
         /**
          * Create a typeface object given a font request. The font will be asynchronously fetched,
@@ -102,6 +102,7 @@ public class TypefaceCompat {
         Typeface createFromResources(FamilyResourceEntry entry, Resources resources, int id,
                 String path);
         Typeface findFromCache(Resources resources, int id, String path);
+        Typeface createTypeface(@NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer);
     }
 
     /**
@@ -132,13 +133,13 @@ public class TypefaceCompat {
          * provider was not found on the device.
          */
         public static final int FAIL_REASON_PROVIDER_NOT_FOUND =
-                FontsContract.RESULT_CODE_PROVIDER_NOT_FOUND;
+                FontsContractInternal.RESULT_CODE_PROVIDER_NOT_FOUND;
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
          * provider must be authenticated and the given certificates do not match its signature.
          */
         public static final int FAIL_REASON_WRONG_CERTIFICATES =
-                FontsContract.RESULT_CODE_WRONG_CERTIFICATES;
+                FontsContractInternal.RESULT_CODE_WRONG_CERTIFICATES;
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the font
          * returned by the provider was not loaded properly.
@@ -149,22 +150,20 @@ public class TypefaceCompat {
          * provider did not return any results for the given query.
          */
         public static final int FAIL_REASON_FONT_NOT_FOUND =
-                FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND;
+                FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND;
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the font
          * provider found the queried font, but it is currently unavailable.
          */
         public static final int FAIL_REASON_FONT_UNAVAILABLE =
-                FontsContract.Columns.RESULT_CODE_FONT_UNAVAILABLE;
+                FontsContractCompat.Columns.RESULT_CODE_FONT_UNAVAILABLE;
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
          * query was not supported by the provider.
          */
         public static final int FAIL_REASON_MALFORMED_QUERY =
-                FontsContract.Columns.RESULT_CODE_MALFORMED_QUERY;
+                FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY;
 
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
         @IntDef({ FAIL_REASON_PROVIDER_NOT_FOUND, FAIL_REASON_FONT_LOAD_ERROR,
                 FAIL_REASON_FONT_NOT_FOUND, FAIL_REASON_FONT_UNAVAILABLE,
                 FAIL_REASON_MALFORMED_QUERY })
@@ -193,10 +192,6 @@ public class TypefaceCompat {
 
     private TypefaceCompat() {}
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
     public static Typeface findFromCache(Resources resources, int id, String path) {
         synchronized (sLock) {
             // There is no cache if there is no impl.
@@ -207,10 +202,6 @@ public class TypefaceCompat {
         return sTypefaceCompatImpl.findFromCache(resources, id, path);
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
     public static Typeface createFromResources(Context context, FamilyResourceEntry entry,
             Resources resources, int id, String path) {
         maybeInitImpl(context);
@@ -218,14 +209,21 @@ public class TypefaceCompat {
     }
 
     /**
-     * @hide
      * Used by Resources to load a font resource of type font file.
      */
-    @RestrictTo(LIBRARY_GROUP)
     @Nullable
     public static Typeface createFromResources(Context context, Resources resources, int id,
             String path) {
         maybeInitImpl(context);
         return sTypefaceCompatImpl.createFromResources(resources, id, path);
+    }
+
+    /**
+     * Create a Typeface from a given FontInfo list and a map that matches them to ByteBuffers.
+     */
+    public static Typeface createTypeface(Context context, @NonNull FontInfo[] fonts,
+            Map<Uri, ByteBuffer> uriBuffer) {
+        maybeInitImpl(context);
+        return sTypefaceCompatImpl.createTypeface(fonts, uriBuffer);
     }
 }

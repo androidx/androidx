@@ -22,9 +22,11 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -39,7 +41,9 @@ import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
-import android.support.v4.provider.FontsContract;
+import android.support.v4.provider.FontsContractCompat;
+import android.support.v4.provider.FontsContractCompat.FontInfo;
+import android.support.v4.provider.FontsContractInternal;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -50,7 +54,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the Typeface compat methods for API 14 and above.
@@ -67,7 +73,8 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      */
     private static final LruCache<String, Typeface> sDynamicTypefaceCache = new LruCache<>(16);
     private static final Object sLock = new Object();
-    private static FontsContract sFontsContract;
+    @GuardedBy("sLock")
+    private static FontsContractInternal sFontsContract;
     private static Handler sHandler;
 
     private final Context mApplicationContext;
@@ -100,7 +107,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         }
         synchronized (sLock) {
             if (sFontsContract == null) {
-                sFontsContract = new FontsContract(mApplicationContext);
+                sFontsContract = new FontsContractInternal(mApplicationContext);
                 sHandler = new Handler(Looper.getMainLooper());
             }
             final ResultReceiver receiver = new ResultReceiver(null) {
@@ -147,7 +154,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
             callback.onTypefaceRetrieved(cachedTypeface);
             return;
         }
-        if (resultCode != FontsContract.Columns.RESULT_CODE_OK) {
+        if (resultCode != FontsContractCompat.Columns.RESULT_CODE_OK) {
             callback.onTypefaceRequestFailed(resultCode);
             return;
         }
@@ -157,7 +164,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
             return;
         }
         List<FontResult> resultList =
-                resultData.getParcelableArrayList(FontsContract.PARCEL_FONT_RESULTS);
+                resultData.getParcelableArrayList(FontsContractInternal.PARCEL_FONT_RESULTS);
         if (resultList == null || resultList.isEmpty()) {
             callback.onTypefaceRequestFailed(
                     FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
@@ -201,6 +208,30 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return typeface;
     }
 
+    @Override
+    public Typeface createTypeface(@NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer) {
+        // When we load from file, we can only load one font so just take the first one.
+        if (fonts.length < 1) {
+            return null;
+        }
+        Typeface typeface = null;
+        ByteBuffer buffer = uriBuffer.get(fonts[0].getUri());
+        File tmpFile = copyToCacheFile(buffer);
+        if (tmpFile != null) {
+            try {
+                typeface = Typeface.createFromFile(tmpFile.getPath());
+            } catch (RuntimeException e) {
+                // This was thrown from Typeface.createFromFile when a Typeface could not be loaded,
+                // such as due to an invalid ttf or unreadable file. We don't want to throw that
+                // exception anymore.
+                return null;
+            } finally {
+                tmpFile.delete();
+            }
+        }
+        return typeface;
+    }
+
     private File copyToCacheFile(final InputStream is) {
         FileOutputStream fos = null;
         File cacheFile;
@@ -219,6 +250,29 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
             return null;
         } finally {
             closeQuietly(is);
+            closeQuietly(fos);
+        }
+        return cacheFile;
+    }
+
+    private File copyToCacheFile(final ByteBuffer is) {
+        FileOutputStream fos = null;
+        File cacheFile;
+        try {
+            cacheFile = new File(mApplicationContext.getCacheDir(),
+                    CACHE_FILE_PREFIX + Thread.currentThread().getId());
+            fos = new FileOutputStream(cacheFile, false);
+
+            byte[] buffer = new byte[1024];
+            while (is.hasRemaining()) {
+                int len = Math.min(1024, is.remaining());
+                is.get(buffer, 0, len);
+                fos.write(buffer, 0, len);
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Error copying font file descriptor to temp local file.", e);
+            return null;
+        } finally {
             closeQuietly(fos);
         }
         return cacheFile;

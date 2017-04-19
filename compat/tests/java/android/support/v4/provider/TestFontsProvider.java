@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Provides a test Content Provider implementing {@link FontsContract}.
+ * Provides a test Content Provider implementing {@link FontsContractCompat}.
  */
 public class TestFontsProvider extends ContentProvider {
     static final String AUTHORITY = "android.provider.TestFontsProvider";
@@ -42,7 +42,7 @@ public class TestFontsProvider extends ContentProvider {
 
     private ParcelFileDescriptor mPfd;
     private boolean mReturnAllFields = true;
-    private int mResultCode = FontsContract.Columns.RESULT_CODE_OK;
+    private int mResultCode = FontsContractCompat.Columns.RESULT_CODE_OK;
     private MatrixCursor mCustomCursor = null;
 
     /**
@@ -80,14 +80,15 @@ public class TestFontsProvider extends ContentProvider {
         }
         MatrixCursor cursor;
         if (mReturnAllFields) {
-            cursor = new MatrixCursor(new String[] { FontsContract.Columns._ID,
-                    FontsContract.Columns.TTC_INDEX, FontsContract.Columns.VARIATION_SETTINGS,
-                    FontsContract.Columns.WEIGHT, FontsContract.Columns.ITALIC,
-                    FontsContract.Columns.RESULT_CODE });
+            cursor = new MatrixCursor(new String[] { FontsContractCompat.Columns._ID,
+                    FontsContractCompat.Columns.TTC_INDEX,
+                    FontsContractCompat.Columns.VARIATION_SETTINGS,
+                    FontsContractCompat.Columns.WEIGHT, FontsContractCompat.Columns.ITALIC,
+                    FontsContractCompat.Columns.RESULT_CODE });
             cursor.addRow(
                     new Object[] { 1, TTC_INDEX, VARIATION_SETTINGS, 400, 0, mResultCode });
         } else {
-            cursor = new MatrixCursor(new String[] { FontsContract.Columns._ID });
+            cursor = new MatrixCursor(new String[] { FontsContractCompat.Columns._ID });
             cursor.addRow(new Object[] { 1 });
         }
         return cursor;
