@@ -20,12 +20,15 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.provider.FontsContract;
@@ -47,14 +50,16 @@ public class TypefaceCompat {
      * therefore the result is delivered to the given callback. See {@link FontRequest}.
      * Only one of the methods in callback will be invoked, depending on whether the request
      * succeeds or fails. These calls will happen on the main thread.
+     * @param context A Context to retrieve the fonts on. The system will hold on to the application
+     *                context derived from this context.
      * @param request A {@link FontRequest} object that identifies the provider and query for the
      *                request. May not be null.
      * @param callback A callback that will be triggered when results are obtained. May not be null.
      */
-    @TargetApi(26)
     public static void create(Context context, @NonNull final FontRequest request,
             @NonNull final FontRequestCallback callback) {
-        getInstance(context).create(request, callback);
+        maybeInitImpl(context);
+        sTypefaceCompatImpl.create(request, callback);
     }
 
     /**
@@ -66,25 +71,8 @@ public class TypefaceCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static Typeface createTypeface(Context context, @NonNull List<FontResult> resultList) {
-        return getInstance(context).createTypeface(resultList);
-    }
-
-    @TargetApi(26)
-    private static TypefaceCompatImpl getInstance(Context context) {
-        if (sTypefaceCompatImpl == null) {
-            synchronized (sLock) {
-                if (sTypefaceCompatImpl == null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        sTypefaceCompatImpl = new TypefaceCompatApi26Impl();
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        sTypefaceCompatImpl = new TypefaceCompatApi24Impl(context);
-                    } else {
-                        sTypefaceCompatImpl = new TypefaceCompatBaseImpl(context);
-                    }
-                }
-            }
-        }
-        return sTypefaceCompatImpl;
+        maybeInitImpl(context);
+        return sTypefaceCompatImpl.createTypeface(resultList);
     }
 
     /**
@@ -104,14 +92,35 @@ public class TypefaceCompat {
          */
         void create(@NonNull FontRequest request,
                 @NonNull TypefaceCompat.FontRequestCallback callback);
-
-
         /**
          * Create a Typeface from a given FontResult list.
          *
          * @param resultList a list of results, guaranteed to be non-null and non empty.
          */
         Typeface createTypeface(@NonNull List<FontResult> resultList);
+        Typeface createFromResources(Resources resources, int id, String path);
+        Typeface createFromResources(FamilyResourceEntry entry, Resources resources, int id,
+                String path);
+        Typeface findFromCache(Resources resources, int id, String path);
+    }
+
+    /**
+     * If the current implementation is not set, set it according to the current build version. This
+     * is safe to call several times, even if the implementation has already been set.
+     */
+    @TargetApi(26)
+    private static void maybeInitImpl(Context context) {
+        if (sTypefaceCompatImpl == null) {
+            synchronized (sLock) {
+                if (sTypefaceCompatImpl == null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        sTypefaceCompatImpl = new TypefaceCompatApi24Impl(context);
+                    } else {
+                        sTypefaceCompatImpl = new TypefaceCompatBaseImpl(context);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -183,4 +192,40 @@ public class TypefaceCompat {
     }
 
     private TypefaceCompat() {}
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static Typeface findFromCache(Resources resources, int id, String path) {
+        synchronized (sLock) {
+            // There is no cache if there is no impl.
+            if (sTypefaceCompatImpl == null) {
+                return null;
+            }
+        }
+        return sTypefaceCompatImpl.findFromCache(resources, id, path);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static Typeface createFromResources(Context context, FamilyResourceEntry entry,
+            Resources resources, int id, String path) {
+        maybeInitImpl(context);
+        return sTypefaceCompatImpl.createFromResources(entry, resources, id, path);
+    }
+
+    /**
+     * @hide
+     * Used by Resources to load a font resource of type font file.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public static Typeface createFromResources(Context context, Resources resources, int id,
+            String path) {
+        maybeInitImpl(context);
+        return sTypefaceCompatImpl.createFromResources(resources, id, path);
+    }
 }
