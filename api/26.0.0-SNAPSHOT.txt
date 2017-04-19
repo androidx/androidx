@@ -7460,9 +7460,29 @@ package android.support.v4.os {
     method public abstract void onCancel();
   }
 
+  public final class ConfigurationCompat {
+    method public static android.support.v4.os.LocaleListCompat getLocales(android.content.res.Configuration);
+  }
+
   public final class EnvironmentCompat {
     method public static java.lang.String getStorageState(java.io.File);
     field public static final java.lang.String MEDIA_UNKNOWN = "unknown";
+  }
+
+  public final class LocaleListCompat {
+    method public static android.support.v4.os.LocaleListCompat create(java.util.Locale...);
+    method public static android.support.v4.os.LocaleListCompat forLanguageTags(java.lang.String);
+    method public java.util.Locale get(int);
+    method public static android.support.v4.os.LocaleListCompat getAdjustedDefault();
+    method public static android.support.v4.os.LocaleListCompat getDefault();
+    method public static android.support.v4.os.LocaleListCompat getEmptyLocaleList();
+    method public java.util.Locale getFirstMatch(java.lang.String[]);
+    method public int indexOf(java.util.Locale);
+    method public boolean isEmpty();
+    method public int size();
+    method public java.lang.String toLanguageTags();
+    method public java.lang.Object unwrap();
+    method public static android.support.v4.os.LocaleListCompat wrap(java.lang.Object);
   }
 
   public class OperationCanceledException extends java.lang.RuntimeException {
