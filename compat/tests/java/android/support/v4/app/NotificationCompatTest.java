@@ -44,6 +44,7 @@ import java.util.ArrayList;
 public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
     private static final String TEXT_RESULT_KEY = "text";
     private static final String DATA_RESULT_KEY = "data";
+    private static final String EXTRA_COLORIZED = "android.colorized";
 
     Context mContext;
 
@@ -118,6 +119,33 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
             assertEquals(channelId, NotificationCompat.getChannel(n));
         } else {
             assertNull(NotificationCompat.getChannel(n));
+        }
+    }
+
+    @Test
+    public void testNotificationActionBuilder_assignsColorized() throws Throwable {
+        Notification n = newNotificationBuilder().setColorized(true).build();
+        if (BuildCompat.isAtLeastO()) {
+            Bundle extras = NotificationCompat.getExtras(n);
+            assertTrue(Boolean.TRUE.equals(extras.get(EXTRA_COLORIZED)));
+        }
+    }
+
+    @Test
+    public void testNotificationActionBuilder_unassignesColorized() throws Throwable {
+        Notification n = newNotificationBuilder().setColorized(false).build();
+        if (BuildCompat.isAtLeastO()) {
+            Bundle extras = NotificationCompat.getExtras(n);
+            assertTrue(Boolean.FALSE.equals(extras.get(EXTRA_COLORIZED)));
+        }
+    }
+
+    @Test
+    public void testNotificationActionBuilder_doesntAssignColorized() throws Throwable {
+        Notification n = newNotificationBuilder().build();
+        if (BuildCompat.isAtLeastO()) {
+            Bundle extras = NotificationCompat.getExtras(n);
+            assertFalse(extras.containsKey(EXTRA_COLORIZED));
         }
     }
 
