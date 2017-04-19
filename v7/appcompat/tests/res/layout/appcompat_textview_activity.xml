@@ -118,57 +118,6 @@
             android:enabled="false"
             android:text="@string/text_link_disabled" />
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textview_fontresource_fontfamily"
-            android:text="@string/sample_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/samplefont" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textview_fontxmlresource_fontfamily"
-            android:text="@string/sample_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/samplexmlfont" />
-
-        <!-- This is here to test that the TextView constructor ignores references to
-         non Font resource types in the fontFamily attribute.-->
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textview_fontxmlresource_nonFontReference"
-            android:text="@string/sample_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@style/TextView_FontResource" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textview_fontresource_style"
-            android:text="@string/sample_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/TextView_FontResource" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textview_fontxmlresource_style"
-            android:text="@string/sample_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/TextView_FontXmlResource" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textview_fontresource_textAppearance"
-            android:text="@string/sample_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextView_FontResource" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/textview_fontxmlresource_textAppearance"
-            android:text="@string/sample_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextView_FontXmlResource" />
-
     </LinearLayout>
 
 </ScrollView>
