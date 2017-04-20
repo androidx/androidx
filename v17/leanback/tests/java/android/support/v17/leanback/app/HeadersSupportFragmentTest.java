@@ -100,4 +100,30 @@ public class HeadersSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertEquals(vh.itemView.getScaleY(), 1f, 0.001f);
     }
 
+    public static class F_disableScaleInConstructor extends HeadersSupportFragment {
+        public F_disableScaleInConstructor() {
+            FocusHighlightHelper.setupHeaderItemFocusHighlight(getBridgeAdapter(), false);
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            final ArrayObjectAdapter adapter = new ArrayObjectAdapter(new ListRowPresenter());
+            setAdapter(adapter);
+            loadData(adapter, 10);
+        }
+    }
+
+    @Test
+    public void disableScaleInConstructor() {
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
+                F_disableScaleInConstructor.class, 1000);
+
+        final VerticalGridView gridView = ((HeadersSupportFragment) activity.getTestFragment())
+                .getVerticalGridView();
+        ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
+                gridView.findViewHolderForAdapterPosition(0);
+        assertEquals(vh.itemView.getScaleX(), 1f, 0.001f);
+        assertEquals(vh.itemView.getScaleY(), 1f, 0.001f);
+    }
 }

@@ -2456,6 +2456,7 @@ package android.support.v17.leanback.app {
 
    abstract class BaseRowFragment extends android.app.Fragment {
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
+    method public final android.support.v17.leanback.widget.ItemBridgeAdapter getBridgeAdapter();
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
     method public int getSelectedPosition();
     method public final android.support.v17.leanback.widget.VerticalGridView getVerticalGridView();
@@ -2471,6 +2472,7 @@ package android.support.v17.leanback.app {
 
    abstract class BaseRowSupportFragment extends android.support.v4.app.Fragment {
     method public final android.support.v17.leanback.widget.ObjectAdapter getAdapter();
+    method public final android.support.v17.leanback.widget.ItemBridgeAdapter getBridgeAdapter();
     method public final android.support.v17.leanback.widget.PresenterSelector getPresenterSelector();
     method public int getSelectedPosition();
     method public final android.support.v17.leanback.widget.VerticalGridView getVerticalGridView();
@@ -4176,8 +4178,10 @@ package android.support.v17.leanback.widget {
   public class FocusHighlightHelper {
     ctor public FocusHighlightHelper();
     method public static void setupBrowseItemFocusHighlight(android.support.v17.leanback.widget.ItemBridgeAdapter, int, boolean);
-    method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView);
-    method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView, boolean);
+    method public static deprecated void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView);
+    method public static deprecated void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.VerticalGridView, boolean);
+    method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.ItemBridgeAdapter);
+    method public static void setupHeaderItemFocusHighlight(android.support.v17.leanback.widget.ItemBridgeAdapter, boolean);
   }
 
   public abstract interface FragmentAnimationProvider {
