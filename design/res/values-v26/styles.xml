@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2016 The Android Open Source Project
+  ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,14 +13,15 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
--->
+  -->
+
 <resources>
 
-    <style name="Base.Widget.Design.AppBarLayout" parent="Base.V21.Widget.Design.AppBarLayout" />
+    <style name="Base.Widget.Design.AppBarLayout" parent="Base.V26.Widget.Design.AppBarLayout" />
 
-    <style name="Base.V21.Widget.Design.AppBarLayout" parent="Base.V14.Widget.Design.AppBarLayout">
-        <item name="android:stateListAnimator">@animator/design_appbar_state_list_animator</item>
+    <style name="Base.V26.Widget.Design.AppBarLayout" parent="Base.V21.Widget.Design.AppBarLayout">
+        <item name="android:keyboardNavigationCluster">true</item>
+        <item name="android:touchscreenBlocksFocus">true</item>
     </style>
 
 </resources>
-
