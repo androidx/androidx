@@ -529,7 +529,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     /**
      * All the info about a connection.
      */
-    private class ConnectionRecord {
+    private static class ConnectionRecord {
         String pkg;
         Bundle rootHints;
         ServiceCallbacks callbacks;

@@ -1679,11 +1679,12 @@ public final class MediaControllerCompat {
     static class MediaControllerImplApi21 implements MediaControllerImpl {
         protected final Object mControllerObj;
 
+        private final List<Callback> mPendingCallbacks = new ArrayList<>();
+
         // Extra binder is used for applying the framework change of new APIs and bug fixes
         // after API 21.
         private IMediaSession mExtraBinder;
         private HashMap<Callback, ExtraCallback> mCallbackMap = new HashMap<>();
-        private List<Callback> mPendingCallbacks = new ArrayList<>();
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
@@ -1969,7 +1970,7 @@ public final class MediaControllerCompat {
             }
         }
 
-        private class ExtraCallback extends IMediaControllerCallback.Stub {
+        private static class ExtraCallback extends IMediaControllerCallback.Stub {
             private Callback mCallback;
 
             ExtraCallback(Callback callback) {
