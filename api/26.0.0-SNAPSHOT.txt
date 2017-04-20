@@ -3922,6 +3922,100 @@ package android.support.v17.leanback.widget {
     field public int viewType;
   }
 
+  public abstract class BaseGridView extends android.support.v7.widget.RecyclerView {
+    method public void addOnChildViewHolderSelectedListener(android.support.v17.leanback.widget.OnChildViewHolderSelectedListener);
+    method public void animateIn();
+    method public void animateOut();
+    method public int getChildDrawingOrder(int, int);
+    method public deprecated int getHorizontalMargin();
+    method public int getHorizontalSpacing();
+    method public int getInitialPrefetchItemCount();
+    method public int getItemAlignmentOffset();
+    method public float getItemAlignmentOffsetPercent();
+    method public int getItemAlignmentViewId();
+    method public android.support.v17.leanback.widget.BaseGridView.OnUnhandledKeyListener getOnUnhandledKeyListener();
+    method public final int getSaveChildrenLimitNumber();
+    method public final int getSaveChildrenPolicy();
+    method public int getSelectedPosition();
+    method public deprecated int getVerticalMargin();
+    method public int getVerticalSpacing();
+    method public void getViewSelectedOffsets(android.view.View, int[]);
+    method public int getWindowAlignment();
+    method public int getWindowAlignmentOffset();
+    method public float getWindowAlignmentOffsetPercent();
+    method public boolean hasPreviousViewInSameRow(int);
+    method public boolean isChildLayoutAnimated();
+    method public boolean isFocusDrawingOrderEnabled();
+    method public final boolean isFocusSearchDisabled();
+    method public boolean isItemAlignmentOffsetWithPadding();
+    method public boolean isScrollEnabled();
+    method public boolean onRequestFocusInDescendants(int, android.graphics.Rect);
+    method public void removeOnChildViewHolderSelectedListener(android.support.v17.leanback.widget.OnChildViewHolderSelectedListener);
+    method public void setAnimateChildLayout(boolean);
+    method public void setChildrenVisibility(int);
+    method public void setFocusDrawingOrderEnabled(boolean);
+    method public final void setFocusSearchDisabled(boolean);
+    method public void setGravity(int);
+    method public void setHasOverlappingRendering(boolean);
+    method public deprecated void setHorizontalMargin(int);
+    method public void setHorizontalSpacing(int);
+    method public void setInitialPrefetchItemCount(int);
+    method public void setItemAlignmentOffset(int);
+    method public void setItemAlignmentOffsetPercent(float);
+    method public void setItemAlignmentOffsetWithPadding(boolean);
+    method public void setItemAlignmentViewId(int);
+    method public deprecated void setItemMargin(int);
+    method public void setItemSpacing(int);
+    method public void setLayoutEnabled(boolean);
+    method public void setOnChildLaidOutListener(android.support.v17.leanback.widget.OnChildLaidOutListener);
+    method public void setOnChildSelectedListener(android.support.v17.leanback.widget.OnChildSelectedListener);
+    method public void setOnChildViewHolderSelectedListener(android.support.v17.leanback.widget.OnChildViewHolderSelectedListener);
+    method public void setOnKeyInterceptListener(android.support.v17.leanback.widget.BaseGridView.OnKeyInterceptListener);
+    method public void setOnMotionInterceptListener(android.support.v17.leanback.widget.BaseGridView.OnMotionInterceptListener);
+    method public void setOnTouchInterceptListener(android.support.v17.leanback.widget.BaseGridView.OnTouchInterceptListener);
+    method public void setOnUnhandledKeyListener(android.support.v17.leanback.widget.BaseGridView.OnUnhandledKeyListener);
+    method public void setPruneChild(boolean);
+    method public final void setSaveChildrenLimitNumber(int);
+    method public final void setSaveChildrenPolicy(int);
+    method public void setScrollEnabled(boolean);
+    method public void setSelectedPosition(int);
+    method public void setSelectedPosition(int, int);
+    method public void setSelectedPosition(int, android.support.v17.leanback.widget.ViewHolderTask);
+    method public void setSelectedPositionSmooth(int);
+    method public void setSelectedPositionSmooth(int, android.support.v17.leanback.widget.ViewHolderTask);
+    method public deprecated void setVerticalMargin(int);
+    method public void setVerticalSpacing(int);
+    method public void setWindowAlignment(int);
+    method public void setWindowAlignmentOffset(int);
+    method public void setWindowAlignmentOffsetPercent(float);
+    field public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
+    field public static final int SAVE_ALL_CHILD = 3; // 0x3
+    field public static final int SAVE_LIMITED_CHILD = 2; // 0x2
+    field public static final int SAVE_NO_CHILD = 0; // 0x0
+    field public static final int SAVE_ON_SCREEN_CHILD = 1; // 0x1
+    field public static final int WINDOW_ALIGN_BOTH_EDGE = 3; // 0x3
+    field public static final int WINDOW_ALIGN_HIGH_EDGE = 2; // 0x2
+    field public static final int WINDOW_ALIGN_LOW_EDGE = 1; // 0x1
+    field public static final int WINDOW_ALIGN_NO_EDGE = 0; // 0x0
+    field public static final float WINDOW_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
+  }
+
+  public static abstract interface BaseGridView.OnKeyInterceptListener {
+    method public abstract boolean onInterceptKeyEvent(android.view.KeyEvent);
+  }
+
+  public static abstract interface BaseGridView.OnMotionInterceptListener {
+    method public abstract boolean onInterceptMotionEvent(android.view.MotionEvent);
+  }
+
+  public static abstract interface BaseGridView.OnTouchInterceptListener {
+    method public abstract boolean onInterceptTouchEvent(android.view.MotionEvent);
+  }
+
+  public static abstract interface BaseGridView.OnUnhandledKeyListener {
+    method public abstract boolean onUnhandledKey(android.view.KeyEvent);
+  }
+
   public abstract interface BaseOnItemViewClickedListener<T> {
     method public abstract void onItemClicked(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, android.support.v17.leanback.widget.RowPresenter.ViewHolder, T);
   }
@@ -4378,7 +4472,7 @@ package android.support.v17.leanback.widget {
     method public void setDescription(java.lang.CharSequence);
   }
 
-  public class HorizontalGridView extends android.support.v7.widget.RecyclerView {
+  public class HorizontalGridView extends android.support.v17.leanback.widget.BaseGridView {
     ctor public HorizontalGridView(android.content.Context);
     ctor public HorizontalGridView(android.content.Context, android.util.AttributeSet);
     ctor public HorizontalGridView(android.content.Context, android.util.AttributeSet, int);
@@ -5382,7 +5476,7 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.VerticalGridView getGridView();
   }
 
-  public class VerticalGridView extends android.support.v7.widget.RecyclerView {
+  public class VerticalGridView extends android.support.v17.leanback.widget.BaseGridView {
     ctor public VerticalGridView(android.content.Context);
     ctor public VerticalGridView(android.content.Context, android.util.AttributeSet);
     ctor public VerticalGridView(android.content.Context, android.util.AttributeSet, int);
