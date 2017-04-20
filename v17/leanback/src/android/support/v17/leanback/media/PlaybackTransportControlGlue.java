@@ -292,9 +292,11 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
     }
 
     /**
-     * Sets the controls to fade after a timeout when media is playing.
+     * Sets the controls to auto hide after a timeout when media is playing.
+     * @param enable True to enable auto hide after a timeout when media is playing.
+     * @see PlaybackGlueHost#setControlsOverlayAutoHideEnabled(boolean)
      */
-    public void setFadingEnabled(boolean enable) {
+    public void setControlsOverlayAutoHideEnabled(boolean enable) {
         mFadeWhenPlaying = enable;
         if (!mFadeWhenPlaying && getHost() != null) {
             getHost().setControlsOverlayAutoHideEnabled(false);
@@ -302,9 +304,11 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
     }
 
     /**
-     * Returns true if controls are set to fade when media is playing.
+     * Returns true if the controls auto hides after a timeout when media is playing.
+     * @return true if the controls auto hides after a timeout when media is playing.
+     * @see PlaybackGlueHost#isControlsOverlayAutoHideEnabled()
      */
-    public boolean isFadingEnabled() {
+    public boolean isControlsOverlayAutoHideEnabled() {
         return mFadeWhenPlaying;
     }
 
