@@ -90,6 +90,8 @@ public class MainFragment extends BrowseFragment {
                 resource = R.raw.testvideo_1080p_60fps;
             } else if (whichVideo == IntentKeys.VIDEO_480P_60FPS) {
                 resource = R.raw.bbb_480p;
+            } else if (whichVideo == IntentKeys.VIDEO_360P_60FPS) {
+                resource = R.raw.bbb_360p;
             }
             Uri uri = Uri.parse("android.resource://" + getActivity().getPackageName() + "/"
                     + resource);
