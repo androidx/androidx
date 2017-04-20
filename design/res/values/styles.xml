@@ -108,11 +108,14 @@
         <item name="statusBarScrim">?attr/colorPrimaryDark</item>
     </style>
 
-    <style name="Base.Widget.Design.AppBarLayout" parent="android:Widget">
+    <style name="Base.Widget.Design.AppBarLayout" parent="Base.V14.Widget.Design.AppBarLayout" />
+
+    <style name="Base.V14.Widget.Design.AppBarLayout" parent="android:Widget">
         <item name="android:background">?attr/colorPrimary</item>
     </style>
 
     <style name="Widget.Design.AppBarLayout" parent="Base.Widget.Design.AppBarLayout">
+        <item name="android:paddingLeft">300px</item>
     </style>
 
     <style name="Widget.Design.CoordinatorLayout" parent="android:Widget">
