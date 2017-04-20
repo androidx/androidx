@@ -28,6 +28,7 @@ import android.support.media.tv.TvContractCompat.Programs;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
 
@@ -184,7 +185,7 @@ public class ProgramTest extends TestCase {
             assertTrue(Objects.equals(programA.isRecordingProhibited(),
                     programB.isRecordingProhibited()));
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (BuildCompat.isAtLeastO()) {
             assertEquals(programA.getReviewRatingStyle(), programB.getReviewRatingStyle());
             assertEquals(programA.getReviewRating(), programB.getReviewRating());
         }
