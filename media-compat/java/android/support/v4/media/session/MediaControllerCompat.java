@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioManager;
+import android.media.session.MediaController;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +29,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.SupportActivity;
@@ -69,6 +71,12 @@ import java.util.List;
  * <li>{@link #getRepeatMode()}</li>
  * <li>{@link #isShuffleModeEnabled()}</li>
  * </ul></p>
+ *
+ * <div class="special reference">
+ * <h3>Developer Guides</h3>
+ * <p>For information about building your media application, read the
+ * <a href="{@docRoot}guide/topics/media-apps/index.html">Media Apps</a> developer guide.</p>
+ * </div>
  */
 public final class MediaControllerCompat {
     static final String TAG = "MediaControllerCompat";
@@ -102,24 +110,24 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Sets a {@link MediaControllerCompat} for later retrieval via
-     * {@link #getMediaController()}.
+     * Sets a {@link MediaControllerCompat} in the {@code activity} for later retrieval via
+     * {@link #getMediaController(Activity)}.
      *
-     * <p>On API 21 and later, this controller will be tied to the window of the activity and
-     * media key and volume events which are received while the Activity is in the foreground
-     * will be forwarded to the controller and used to invoke transport controls or adjust the
-     * volume. Prior to API 21, the global handling of media key and volume events through an
-     * active {@link android.support.v4.media.session.MediaSessionCompat} and media button receiver
-     * will still be respected.</p>
+     * <p>This is compatible with {@link Activity#setMediaController(MediaController)}.
+     * If {@code activity} inherits {@link android.support.v4.app.FragmentActivity}, the
+     * {@code mediaController} will be saved in the {@code activity}. In addition to that,
+     * on API 21 and later, {@link Activity#setMediaController(MediaController)} will be
+     * called.</p>
      *
+     * @param activity The activity to set the {@code mediaController} in, must not be null.
      * @param mediaController The controller for the session which should receive
      *     media keys and volume changes on API 21 and later.
-     * @see #getMediaController()
+     * @see #getMediaController(Activity)
      * @see Activity#setMediaController(android.media.session.MediaController)
      */
-    public static void setMediaController(Activity activity,
+    public static void setMediaController(@NonNull Activity activity,
             MediaControllerCompat mediaController) {
-        if (activity instanceof  SupportActivity) {
+        if (activity instanceof SupportActivity) {
             ((SupportActivity) activity).putExtraData(
                     new MediaControllerExtraData(mediaController));
         }
@@ -134,13 +142,17 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Retrieves the current {@link MediaControllerCompat} for sending media key and volume events.
+     * Retrieves the {@link MediaControllerCompat} set in the activity by
+     * {@link #setMediaController(Activity, MediaControllerCompat)} for sending media key and volume
+     * events.
      *
+     * <p>This is compatible with {@link Activity#getMediaController()}.</p>
+     *
+     * @param activity The activity to get the media controller from, must not be null.
      * @return The controller which should receive events.
-     * @see #setMediaController(Activity,MediaControllerCompat)
-     * @see #getMediaController()
+     * @see #setMediaController(Activity, MediaControllerCompat)
      */
-    public static MediaControllerCompat getMediaController(Activity activity) {
+    public static MediaControllerCompat getMediaController(@NonNull Activity activity) {
         if (activity instanceof SupportActivity) {
             MediaControllerExtraData extraData =
                     ((SupportActivity) activity).getExtraData(MediaControllerExtraData.class);
@@ -169,7 +181,7 @@ public final class MediaControllerCompat {
      *
      * @param session The session to be controlled.
      */
-    public MediaControllerCompat(Context context, MediaSessionCompat session) {
+    public MediaControllerCompat(Context context, @NonNull MediaSessionCompat session) {
         if (session == null) {
             throw new IllegalArgumentException("session must not be null");
         }
@@ -193,7 +205,7 @@ public final class MediaControllerCompat {
      * @param sessionToken The token of the session to be controlled.
      * @throws RemoteException if the session is not accessible.
      */
-    public MediaControllerCompat(Context context, MediaSessionCompat.Token sessionToken)
+    public MediaControllerCompat(Context context, @NonNull MediaSessionCompat.Token sessionToken)
             throws RemoteException {
         if (sessionToken == null) {
             throw new IllegalArgumentException("sessionToken must not be null");
@@ -474,7 +486,7 @@ public final class MediaControllerCompat {
      *
      * @param callback The callback object, must not be null.
      */
-    public void registerCallback(Callback callback) {
+    public void registerCallback(@NonNull Callback callback) {
         registerCallback(callback, null);
     }
 
@@ -486,9 +498,9 @@ public final class MediaControllerCompat {
      * @param handler The handler to post updates on. If null the callers thread
      *            will be used.
      */
-    public void registerCallback(Callback callback, Handler handler) {
+    public void registerCallback(@NonNull Callback callback, Handler handler) {
         if (callback == null) {
-            throw new IllegalArgumentException("callback cannot be null");
+            throw new IllegalArgumentException("callback must not be null");
         }
         if (handler == null) {
             handler = new Handler();
@@ -502,9 +514,9 @@ public final class MediaControllerCompat {
      *
      * @param callback The callback to remove
      */
-    public void unregisterCallback(Callback callback) {
+    public void unregisterCallback(@NonNull Callback callback) {
         if (callback == null) {
-            throw new IllegalArgumentException("callback cannot be null");
+            throw new IllegalArgumentException("callback must not be null");
         }
         mImpl.unregisterCallback(callback);
     }
@@ -518,9 +530,9 @@ public final class MediaControllerCompat {
      * @param params Any parameters to include with the command
      * @param cb The callback to receive the result on
      */
-    public void sendCommand(String command, Bundle params, ResultReceiver cb) {
+    public void sendCommand(@NonNull String command, Bundle params, ResultReceiver cb) {
         if (TextUtils.isEmpty(command)) {
-            throw new IllegalArgumentException("command cannot be null or empty");
+            throw new IllegalArgumentException("command must neither be null nor empty");
         }
         mImpl.sendCommand(command, params, cb);
     }
