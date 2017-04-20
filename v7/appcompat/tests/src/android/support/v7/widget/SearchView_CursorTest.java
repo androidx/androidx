@@ -33,9 +33,7 @@ import android.database.MatrixCursor;
 import android.provider.BaseColumns;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.MediumTest;
-import android.support.test.filters.Suppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
@@ -44,6 +42,8 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.TestUtils;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.AutoCompleteTextView;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,6 +65,7 @@ public class SearchView_CursorTest {
 
     private CursorAdapter mSuggestionsAdapter;
 
+    // This should be protected to spy an object of this class.
     protected class MyQueryTextListener implements SearchView.OnQueryTextListener {
         @Override
         public boolean onQueryTextSubmit(String s) {
@@ -74,6 +75,9 @@ public class SearchView_CursorTest {
         @Override
         public boolean onQueryTextChange(String s) {
             if (mSuggestionsAdapter == null) {
+                return false;
+            }
+            if (!enoughToFilter()) {
                 return false;
             }
 
@@ -87,8 +91,15 @@ public class SearchView_CursorTest {
             mSuggestionsAdapter.swapCursor(c);
             return false;
         }
+
+        private boolean enoughToFilter() {
+            final View searchSrcText = mSearchView.findViewById(R.id.search_src_text);
+            return searchSrcText instanceof AutoCompleteTextView
+                    && ((AutoCompleteTextView) searchSrcText).enoughToFilter();
+        }
     }
 
+    // This should be protected to spy an object of this class.
     protected class MySuggestionListener implements SearchView.OnSuggestionListener {
         @Override
         public boolean onSuggestionSelect(int position) {
@@ -104,7 +115,7 @@ public class SearchView_CursorTest {
                     mSearchView.setQuery(cursor.getString(1), false);
                 }
             }
-            return false;
+            return true;
         }
     }
 
@@ -156,8 +167,6 @@ public class SearchView_CursorTest {
         verify(mockQueryTextListener, times(1)).onQueryTextChange("Di");
     }
 
-    @Suppress
-    @FlakyTest(bugId = 36702458)
     @Test
     public void testSuggestionSelection() throws Throwable {
         final SearchView.OnSuggestionListener mockSuggestionListener =
