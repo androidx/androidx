@@ -28,6 +28,7 @@ import android.support.media.tv.TvContractCompat.ProgramColumns;
 import android.support.media.tv.TvContractCompat.ProgramColumns.ReviewRatingStyle;
 import android.support.media.tv.TvContractCompat.Programs;
 import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
+import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
 import java.util.Arrays;
@@ -319,7 +320,7 @@ public abstract class BaseProgram {
                         && Objects.equals(mInternalProviderFlag4, program.mInternalProviderFlag4)))
                 && (Build.VERSION.SDK_INT < Build.VERSION_CODES.N
                         || Objects.equals(mSeasonTitle, program.mSeasonTitle))
-                && (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+                && (!BuildCompat.isAtLeastO()
                         || (Objects.equals(mReviewRatingStyle, program.mReviewRatingStyle)
                         && Objects.equals(mReviewRating, program.mReviewRating)));
     }
@@ -459,7 +460,7 @@ public abstract class BaseProgram {
                 values.put(ProgramColumns.COLUMN_SEASON_TITLE, mSeasonTitle);
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (BuildCompat.isAtLeastO()) {
             if (mReviewRatingStyle != INVALID_INT_VALUE) {
                 values.put(ProgramColumns.COLUMN_REVIEW_RATING_STYLE,
                         mReviewRatingStyle);
@@ -590,7 +591,7 @@ public abstract class BaseProgram {
                 builder.setSeasonTitle(cursor.getString(index));
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (BuildCompat.isAtLeastO()) {
             if ((index = cursor.getColumnIndex(
                     ProgramColumns.COLUMN_REVIEW_RATING_STYLE)) >= 0
                     && !cursor.isNull(index)) {
@@ -635,13 +636,13 @@ public abstract class BaseProgram {
         String[] nougatColumns = new String[] {
                 ProgramColumns.COLUMN_SEASON_TITLE,
         };
-        String[] oatmealColumns = new String[] {
+        String[] oColumns = new String[] {
                 ProgramColumns.COLUMN_REVIEW_RATING,
                 ProgramColumns.COLUMN_REVIEW_RATING_STYLE,
         };
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (BuildCompat.isAtLeastO()) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, nougatColumns,
-                    oatmealColumns);
+                oColumns);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, nougatColumns);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
