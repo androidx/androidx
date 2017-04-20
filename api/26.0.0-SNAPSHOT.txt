@@ -3728,7 +3728,7 @@ package android.support.v17.leanback.media {
     method public final android.support.v17.leanback.widget.PlaybackSeekDataProvider getSeekProvider();
     method public java.lang.CharSequence getSubtitle();
     method public java.lang.CharSequence getTitle();
-    method public boolean isFadingEnabled();
+    method public boolean isControlsOverlayAutoHideEnabled();
     method public final boolean isPlaying();
     method public final boolean isPrepared();
     method public final boolean isSeekEnabled();
@@ -3742,8 +3742,8 @@ package android.support.v17.leanback.media {
     method public final void play();
     method public final void seekTo(long);
     method public void setArt(android.graphics.drawable.Drawable);
+    method public void setControlsOverlayAutoHideEnabled(boolean);
     method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
-    method public void setFadingEnabled(boolean);
     method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
     method public final void setSeekEnabled(boolean);
     method public final void setSeekProvider(android.support.v17.leanback.widget.PlaybackSeekDataProvider);
