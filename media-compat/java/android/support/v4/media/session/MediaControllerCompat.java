@@ -258,7 +258,7 @@ public final class MediaControllerCompat {
      *
      * @return The current play queue or null.
      */
-    public List<MediaSessionCompat.QueueItem> getQueue() {
+    public List<QueueItem> getQueue() {
         return mImpl.getQueue();
     }
 
@@ -325,9 +325,17 @@ public final class MediaControllerCompat {
      * @throws UnsupportedOperationException If this session doesn't support this.
      * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
+     * @deprecated Use {@link #removeQueueItem(MediaDescriptionCompat)} instead.
      */
+    @Deprecated
     public void removeQueueItemAt(int index) {
-        mImpl.removeQueueItemAt(index);
+        List<QueueItem> queue = getQueue();
+        if (queue != null && index >= 0 && index < queue.size()) {
+            QueueItem item = queue.get(index);
+            if (item != null) {
+                removeQueueItem(item.getDescription());
+            }
+        }
     }
 
     /**
@@ -602,7 +610,7 @@ public final class MediaControllerCompat {
          *            include the currently playing item as well as previous and
          *            upcoming items if applicable.
          */
-        public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
+        public void onQueueChanged(List<QueueItem> queue) {
         }
 
         /**
@@ -826,7 +834,7 @@ public final class MediaControllerCompat {
                         onMetadataChanged((MediaMetadataCompat) msg.obj);
                         break;
                     case MSG_UPDATE_QUEUE:
-                        onQueueChanged((List<MediaSessionCompat.QueueItem>) msg.obj);
+                        onQueueChanged((List<QueueItem>) msg.obj);
                         break;
                     case MSG_UPDATE_QUEUE_TITLE:
                         onQueueTitleChanged((CharSequence) msg.obj);
@@ -1161,11 +1169,10 @@ public final class MediaControllerCompat {
         PlaybackStateCompat getPlaybackState();
         MediaMetadataCompat getMetadata();
 
-        List<MediaSessionCompat.QueueItem> getQueue();
+        List<QueueItem> getQueue();
         void addQueueItem(MediaDescriptionCompat description);
         void addQueueItem(MediaDescriptionCompat description, int index);
         void removeQueueItem(MediaDescriptionCompat description);
-        void removeQueueItemAt(int index);
         CharSequence getQueueTitle();
         Bundle getExtras();
         int getRatingType();
@@ -1266,7 +1273,7 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public List<MediaSessionCompat.QueueItem> getQueue() {
+        public List<QueueItem> getQueue() {
             try {
                 return mBinder.getQueue();
             } catch (RemoteException e) {
@@ -1314,20 +1321,6 @@ public final class MediaControllerCompat {
                 mBinder.removeQueueItem(description);
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in removeQueueItem.", e);
-            }
-        }
-
-        @Override
-        public void removeQueueItemAt(int index) {
-            try {
-                long flags = mBinder.getFlags();
-                if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
-                    throw new UnsupportedOperationException(
-                            "This session doesn't support queue management operations");
-                }
-                mBinder.removeQueueItemAt(index);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in removeQueueItemAt.", e);
             }
         }
 
@@ -1772,10 +1765,9 @@ public final class MediaControllerCompat {
         }
 
         @Override
-        public List<MediaSessionCompat.QueueItem> getQueue() {
+        public List<QueueItem> getQueue() {
             List<Object> queueObjs = MediaControllerCompatApi21.getQueue(mControllerObj);
-            return queueObjs != null ? MediaSessionCompat.QueueItem.fromQueueItemList(queueObjs)
-                    : null;
+            return queueObjs != null ? QueueItem.fromQueueItemList(queueObjs) : null;
         }
 
         @Override
@@ -1813,18 +1805,6 @@ public final class MediaControllerCompat {
             Bundle params = new Bundle();
             params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
             sendCommand(COMMAND_REMOVE_QUEUE_ITEM, params, null);
-        }
-
-        @Override
-        public void removeQueueItemAt(int index) {
-            long flags = getFlags();
-            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
-                throw new UnsupportedOperationException(
-                        "This session doesn't support queue management operations");
-            }
-            Bundle params = new Bundle();
-            params.putInt(COMMAND_ARGUMENT_INDEX, index);
-            sendCommand(COMMAND_REMOVE_QUEUE_ITEM_AT, params, null);
         }
 
         @Override
