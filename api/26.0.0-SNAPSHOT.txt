@@ -7459,7 +7459,7 @@ package android.support.v4.media.session {
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
     method public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat);
-    method public void removeQueueItemAt(int);
+    method public deprecated void removeQueueItemAt(int);
     method public void sendCommand(java.lang.String, android.os.Bundle, android.os.ResultReceiver);
     method public static void setMediaController(android.app.Activity, android.support.v4.media.session.MediaControllerCompat);
     method public void setVolumeTo(int, int);
@@ -7572,7 +7572,7 @@ package android.support.v4.media.session {
     method public void onPrepareFromSearch(java.lang.String, android.os.Bundle);
     method public void onPrepareFromUri(android.net.Uri, android.os.Bundle);
     method public void onRemoveQueueItem(android.support.v4.media.MediaDescriptionCompat);
-    method public void onRemoveQueueItemAt(int);
+    method public deprecated void onRemoveQueueItemAt(int);
     method public void onRewind();
     method public void onSeekTo(long);
     method public void onSetCaptioningEnabled(boolean);

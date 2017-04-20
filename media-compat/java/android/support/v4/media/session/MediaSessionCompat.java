@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -52,7 +51,6 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.VolumeProviderCompat;
-import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -307,10 +305,8 @@ public class MediaSessionCompat {
         }
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaSessionImplApi21(context, tag);
-            if (!BuildCompat.isAtLeastO()) {
-                // Set default callback to respond to controllers' extra binder requests.
-                setCallback(new Callback() {});
-            }
+            // Set default callback to respond to controllers' extra binder requests.
+            setCallback(new Callback() {});
             mImpl.setMediaButtonReceiver(mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 19) {
             mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent);
@@ -329,7 +325,7 @@ public class MediaSessionCompat {
 
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
-        if (android.os.Build.VERSION.SDK_INT >= 21 && !BuildCompat.isAtLeastO()) {
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
         }
@@ -971,7 +967,9 @@ public class MediaSessionCompat {
          * specified position in the play queue.
          *
          * @param index The index of the element to be removed.
+         * @deprecated {@link #onRemoveQueueItem} will be called instead.
          */
+        @Deprecated
         public void onRemoveQueueItemAt(int index) {
         }
 
@@ -1009,8 +1007,15 @@ public class MediaSessionCompat {
                             (MediaDescriptionCompat) extras.getParcelable(
                                     MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
                 } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM_AT)) {
-                    Callback.this.onRemoveQueueItemAt(
-                            extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
+                    MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
+                    if (impl != null && impl.mQueue != null) {
+                        int index = extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX, -1);
+                        QueueItem item = (index >= 0 && index < impl.mQueue.size())
+                                ? impl.mQueue.get(index) : null;
+                        if (item != null) {
+                            Callback.this.onRemoveQueueItem(item.getDescription());
+                        }
+                    }
                 } else {
                     Callback.this.onCommand(command, extras, cb);
                 }
@@ -2640,7 +2645,13 @@ public class MediaSessionCompat {
                         cb.onRemoveQueueItem((MediaDescriptionCompat) msg.obj);
                         break;
                     case MSG_REMOVE_QUEUE_ITEM_AT:
-                        cb.onRemoveQueueItemAt(msg.arg1);
+                        if (mQueue != null) {
+                            QueueItem item = (msg.arg1 >= 0 && msg.arg1 < mQueue.size())
+                                    ? mQueue.get(msg.arg1) : null;
+                            if (item != null) {
+                                cb.onRemoveQueueItem(item.getDescription());
+                            }
+                        }
                         break;
                     case MSG_ADJUST_VOLUME:
                         adjustVolume(msg.arg1, 0);
@@ -2881,6 +2892,7 @@ public class MediaSessionCompat {
                 new RemoteCallbackList<>();
 
         private PlaybackStateCompat mPlaybackState;
+        private List<QueueItem> mQueue;
         @RatingCompat.Style int mRatingType;
         boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
@@ -2902,7 +2914,7 @@ public class MediaSessionCompat {
         public void setCallback(Callback callback, Handler handler) {
             MediaSessionCompatApi21.setCallback(mSessionObj,
                     callback == null ? null : callback.mCallbackObj, handler);
-            if (!BuildCompat.isAtLeastO() && callback != null) {
+            if (callback != null) {
                 callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
             }
         }
@@ -2994,6 +3006,7 @@ public class MediaSessionCompat {
 
         @Override
         public void setQueue(List<QueueItem> queue) {
+            mQueue = queue;
             List<Object> queueObjs = null;
             if (queue != null) {
                 queueObjs = new ArrayList<>();
