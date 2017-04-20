@@ -37,7 +37,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".HelpActivity"
+            android:label="@string/help"/>
     </application>
 
 </manifest>

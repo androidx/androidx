@@ -27,6 +27,13 @@
         <attr name="startDestination" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="ActivityNavigator">
+        <attr name="android:name" />
+        <attr name="action" format="string" />
+        <attr name="data" format="string" />
+        <attr name="dataPattern" format="string" />
+    </declare-styleable>
+
     <declare-styleable name="FragmentDestination">
         <attr name="android:name" />
         <attr name="flow" format="string" />
