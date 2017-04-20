@@ -16,12 +16,15 @@
 
 package android.support.v4.content;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Process;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.AppOpsManagerCompat;
 
 import java.lang.annotation.Retention;
@@ -61,6 +64,8 @@ public final class PermissionChecker {
     /** Permission result: The permission is denied because the app op is not allowed. */
     public static final int PERMISSION_DENIED_APP_OP =  PackageManager.PERMISSION_DENIED  - 1;
 
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
     @IntDef({PERMISSION_GRANTED,
             PERMISSION_DENIED,
             PERMISSION_DENIED_APP_OP})
