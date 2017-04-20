@@ -299,7 +299,9 @@
     <style name="Base.Widget.AppCompat.PopupWindow" parent="android:Widget.PopupWindow">
     </style>
 
-    <style name="Base.Widget.AppCompat.Toolbar" parent="android:Widget">
+    <style name="Base.Widget.AppCompat.Toolbar" parent="Base.V7.Widget.AppCompat.Toolbar" />
+
+    <style name="Base.V7.Widget.AppCompat.Toolbar" parent="android:Widget">
         <item name="titleTextAppearance">@style/TextAppearance.Widget.AppCompat.Toolbar.Title</item>
         <item name="subtitleTextAppearance">@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle</item>
         <item name="android:minHeight">?attr/actionBarSize</item>
