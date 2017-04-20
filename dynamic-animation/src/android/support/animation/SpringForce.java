@@ -78,12 +78,6 @@ public final class SpringForce implements Force {
     // is a reasonable threshold.
     private static final double VELOCITY_THRESHOLD_MULTIPLIER = 1000.0 / 16.0;
 
-    // Default threshold for different properties.
-    static final double VALUE_THRESHOLD_IN_PIXEL = 0.75;
-    static final double VALUE_THRESHOLD_ALPHA = VALUE_THRESHOLD_IN_PIXEL / 255.0;
-    static final double VALUE_THRESHOLD_SCALE = VALUE_THRESHOLD_IN_PIXEL / 500.0;
-    static final double VALUE_THRESHOLD_ROTATION = VALUE_THRESHOLD_IN_PIXEL / 360.0;
-
     // Natural frequency
     double mNaturalFreq = Math.sqrt(STIFFNESS_MEDIUM);
     // Damping ratio.
@@ -97,8 +91,9 @@ public final class SpringForce implements Force {
 
     // Threshold for velocity and value to determine when it's reasonable to assume that the spring
     // is approximately at rest.
-    private double mValueThreshold = VALUE_THRESHOLD_IN_PIXEL;
-    private double mVelocityThreshold = VALUE_THRESHOLD_IN_PIXEL * VELOCITY_THRESHOLD_MULTIPLIER;
+    private double mValueThreshold = DynamicAnimation.VALUE_THRESHOLD_IN_PIXEL;
+    private double mVelocityThreshold =
+            DynamicAnimation.VALUE_THRESHOLD_IN_PIXEL * VELOCITY_THRESHOLD_MULTIPLIER;
 
     // Intermediate values to simplify the spring function calculation per frame.
     private double mGammaPlus;
@@ -109,13 +104,7 @@ public final class SpringForce implements Force {
     private double mFinalPosition = UNSET;
 
     // Internal state to hold a value/velocity pair.
-    private final MassState mMassState = new MassState();
-
-    // Internal state for value/velocity pair.
-    static class MassState {
-        float mValue;
-        float mVelocity;
-    }
+    private final DynamicAnimation.MassState mMassState = new DynamicAnimation.MassState();
 
     /**
      * Creates a spring force. Note that final position of the spring must be set through
@@ -141,11 +130,12 @@ public final class SpringForce implements Force {
      *
      * @param stiffness non-negative stiffness constant of a spring
      * @return the spring force that the given stiffness is set on
-     * @throws IllegalArgumentException if the given spring stiffness is negative.
+     * @throws IllegalArgumentException if the given spring stiffness is not positive
      */
-    public SpringForce setStiffness(@FloatRange(from = 0.0) float stiffness) {
-        if (stiffness < 0) {
-            throw new IllegalArgumentException("Spring stiffness constant cannot be negative");
+    public SpringForce setStiffness(
+            @FloatRange(from = 0.0, fromInclusive = false) float stiffness) {
+        if (stiffness <= 0) {
+            throw new IllegalArgumentException("Spring stiffness constant must be positive.");
         }
         mNaturalFreq = Math.sqrt(stiffness);
         // All the intermediate values need to be recalculated.
@@ -279,7 +269,8 @@ public final class SpringForce implements Force {
      * Internal only call for Spring to calculate the spring position/velocity using
      * an analytical approach.
      */
-    MassState updateValues(double lastDisplacement, double lastVelocity, long timeElapsed) {
+    DynamicAnimation.MassState updateValues(double lastDisplacement, double lastVelocity,
+            long timeElapsed) {
         init();
 
         double deltaT = timeElapsed / 1000d; // unit: seconds

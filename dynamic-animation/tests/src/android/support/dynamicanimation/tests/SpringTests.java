@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.os.SystemClock;
 import android.support.animation.DynamicAnimation;
+import android.support.animation.FloatPropertyCompat;
 import android.support.animation.SpringAnimation;
 import android.support.animation.SpringForce;
 import android.support.dynamicanimation.test.R;
@@ -67,6 +68,82 @@ public class SpringTests {
         mView1 = mActivityTestRule.getActivity().findViewById(R.id.anim_view);
         mView2 = mActivityTestRule.getActivity().findViewById(R.id.anim_another_view);
     }
+
+    /**
+     * Test that custom properties are supported.
+     */
+    @Test
+    public void testCustomProperties() {
+        final Object animObj = new Object();
+        FloatPropertyCompat property = new FloatPropertyCompat("") {
+            private float mValue = 0f;
+            @Override
+            public float getValue(Object object) {
+                assertEquals(animObj, object);
+                return mValue;
+            }
+
+            @Override
+            public void setValue(Object object, float value) {
+                assertEquals(animObj, object);
+                assertTrue(value >= mValue);
+                mValue = value;
+            }
+        };
+        final SpringAnimation anim = new SpringAnimation(animObj, property, 1f);
+        DynamicAnimation.OnAnimationEndListener listener = mock(
+                DynamicAnimation.OnAnimationEndListener.class);
+        anim.addEndListener(listener);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                anim.start();
+            }
+        });
+        verify(listener, timeout(1000)).onAnimationEnd(anim, false, 1f, 0f);
+        assertEquals(1f, property.getValue(animObj), 0f);
+    }
+
+    /**
+     * Test that spring animation can work with a single property without an object.
+     */
+    @Test
+    public void testPropertyWithoutObject() {
+        FloatPropertyCompat propertyNoObject = new FloatPropertyCompat("") {
+            private float mValue = 0f;
+            private int mInvocation = 0;
+            @Override
+            public float getValue(Object object) {
+                return mValue;
+            }
+
+            @Override
+            public void setValue(Object object, float value) {
+                if (value == 1000f) {
+                    // Last frame
+                    assertTrue(mInvocation > 10);
+                }
+                // New value >= value from last frame
+                assertTrue(mValue <= value);
+                mInvocation++;
+                mValue = value;
+            }
+        };
+        final SpringAnimation anim = new SpringAnimation(propertyNoObject);
+        anim.setSpring(new SpringForce(1000).setDampingRatio(1.2f));
+
+        DynamicAnimation.OnAnimationEndListener listener = mock(
+                DynamicAnimation.OnAnimationEndListener.class);
+        anim.addEndListener(listener);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                anim.setStartValue(0).start();
+            }
+        });
+        verify(listener, timeout(1000)).onAnimationEnd(anim, false, 1000f, 0f);
+    }
+
 
     /**
      * Check the final position of the default spring against what's being set through the

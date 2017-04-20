@@ -64,30 +64,77 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     private boolean mEndRequested = false;
 
     /**
-     * This creates a SpringAnimation that animates the property of the given view.
+     * <p>This creates a SpringAnimation that animates a float value that is not associated with an
+     * object. During the animation, the value will be updated via
+     * {@link FloatPropertyCompat#setValue(Object, float)} each frame. The caller can obtain the
+     * up-to-date animation value via {@link FloatPropertyCompat#getValue(Object)}. These setter
+     * and getter will be called with a <code>null</code> object.
+     *
+     * <p><strong>Note:</strong> changing the property value via
+     * {@link FloatPropertyCompat#setValue(Object, float)} outside of the animation during an
+     * animation run will not have any effect on the on-going animation.
+     *
+     * @param property the property to be animated
+     * @param <K> the class on which the Property is declared
+     */
+    public <K> SpringAnimation(FloatPropertyCompat<K> property) {
+        super(null, property);
+    }
+
+    /**
+     * This creates a SpringAnimation that animates the property of the given object.
      * Note, a spring will need to setup through {@link #setSpring(SpringForce)} before
      * the animation starts.
      *
-     * @param v The View whose property will be animated
-     * @param property the property index of the view
+     * @param object the Object whose property will be animated
+     * @param property the property to be animated
+     * @param <K> the class on which the Property is declared
      */
+    public <K> SpringAnimation(K object, FloatPropertyCompat<K> property) {
+        super(object, property);
+    }
+
+    /**
+     * This creates a SpringAnimation that animates the property of the given object. A Spring will
+     * be created with the given final position and default stiffness and damping ratio.
+     * This spring can be accessed and reconfigured through {@link #setSpring(SpringForce)}.
+     *
+     * @param object the Object whose property will be animated
+     * @param property the property to be animated
+     * @param finalPosition the final position of the spring to be created.
+     * @param <K> the class on which the Property is declared
+     */
+    public <K> SpringAnimation(K object, FloatPropertyCompat<K> property,
+            float finalPosition) {
+        super(object, property);
+        mSpring = new SpringForce(finalPosition);
+    }
+
+    /**
+     * @deprecated This API is being replaced with
+     * {@link #SpringAnimation(Object, FloatPropertyCompat)}.
+     *
+     * <p><b>Note: </b> Migration to the new API should require no modification to callers of this
+     * deprecated API.  The new API's parameters are the base class of the original's parameters and
+     * therefore is compatible to calls to this deprecated method.
+     */
+    @Deprecated
     public SpringAnimation(View v, ViewProperty property) {
         super(v, property);
     }
 
     /**
-     * This creates a SpringAnimation that animates the property of the given view. A Spring will be
-     * created with the given final position and default stiffness and damping ratio.
-     * This spring can be accessed and reconfigured through {@link #setSpring(SpringForce)}.
+     * @deprecated This API is being replaced with
+     * {@link #SpringAnimation(Object, FloatPropertyCompat, float)}.
      *
-     * @param v The View whose property will be animated
-     * @param property the property index of the view
-     * @param finalPosition the final position of the spring to be created.
+     * <p><b>Note: </b> Migration to the new API should require no modification to callers of this
+     * deprecated API.  The new API's parameters are the base class of the original's parameters and
+     * therefore is compatible to calls to this deprecated method.
      */
+    @Deprecated
     public SpringAnimation(View v, ViewProperty property, float finalPosition) {
         super(v, property);
         mSpring = new SpringForce(finalPosition);
-        setSpringThreshold();
     }
 
     /**
@@ -109,7 +156,6 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
      */
     public SpringAnimation setSpring(SpringForce force) {
         mSpring = force;
-        setSpringThreshold();
         return this;
     }
 
@@ -176,19 +222,6 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
 
     /************************ Below are private APIs *************************/
 
-    private void setSpringThreshold() {
-        if (mViewProperty == ROTATION || mViewProperty == ROTATION_X
-                || mViewProperty == ROTATION_Y) {
-            mSpring.setDefaultThreshold(SpringForce.VALUE_THRESHOLD_ROTATION);
-        } else if (mViewProperty == ALPHA) {
-            mSpring.setDefaultThreshold(SpringForce.VALUE_THRESHOLD_ALPHA);
-        } else if (mViewProperty == SCALE_X || mViewProperty == SCALE_Y) {
-            mSpring.setDefaultThreshold(SpringForce.VALUE_THRESHOLD_SCALE);
-        } else {
-            mSpring.setDefaultThreshold(SpringForce.VALUE_THRESHOLD_IN_PIXEL);
-        }
-    }
-
     private void sanityCheck() {
         if (mSpring == null) {
             throw new UnsupportedOperationException("Incomplete SpringAnimation: Either final"
@@ -223,7 +256,7 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
             double lastPosition = mSpring.getFinalPosition();
             // Approximate by considering half of the time spring position stayed at the old
             // position, half of the time it's at the new position.
-            SpringForce.MassState massState = mSpring.updateValues(mValue, mVelocity, deltaT / 2);
+            MassState massState = mSpring.updateValues(mValue, mVelocity, deltaT / 2);
             mSpring.setFinalPosition(mPendingPosition);
             mPendingPosition = UNSET;
 
@@ -232,7 +265,7 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
             mVelocity = massState.mVelocity;
 
         } else {
-            SpringForce.MassState massState = mSpring.updateValues(mValue, mVelocity, deltaT);
+            MassState massState = mSpring.updateValues(mValue, mVelocity, deltaT);
             mValue = massState.mValue;
             mVelocity = massState.mVelocity;
         }
@@ -256,5 +289,10 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     @Override
     boolean isAtEquilibrium(float value, float velocity) {
         return mSpring.isAtEquilibrium(value, velocity);
+    }
+
+    @Override
+    void setDefaultThreshold(float threshold) {
+        mSpring.setDefaultThreshold(threshold);
     }
 }
