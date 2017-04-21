@@ -89,6 +89,7 @@
      <public type="attr" name="colorControlActivated"/>
      <public type="attr" name="colorControlHighlight"/>
      <public type="attr" name="colorControlNormal"/>
+     <public type="attr" name="colorError"/>
      <public type="attr" name="colorPrimary"/>
      <public type="attr" name="colorPrimaryDark"/>
      <public type="attr" name="commitIcon"/>
@@ -198,7 +199,6 @@
      <public type="attr" name="textAppearanceSearchResultTitle"/>
      <public type="attr" name="textAppearanceSmallPopupMenu"/>
      <public type="attr" name="textColorAlertDialogListItem"/>
-     <public type="attr" name="textColorError"/>
      <public type="attr" name="theme"/>
      <public type="attr" name="thickness"/>
      <public type="attr" name="thumbTextPadding"/>

@@ -99,8 +99,7 @@
     <color name="primary_text_disabled_material_dark">#4Dffffff</color>
     <color name="secondary_text_disabled_material_dark">#36ffffff</color>
 
-    <color name="error_text_material_light">@color/material_red_A700</color>
-    <color name="error_text_material_dark">@color/material_red_A100</color>
+    <color name="error_color_material">#F4511E</color>
 
     <!-- Primary & accent colors -->
     <eat-comment />
@@ -119,7 +118,4 @@
     <color name="material_blue_grey_800">#ff37474f</color>
     <color name="material_blue_grey_900">#ff263238</color>
     <color name="material_blue_grey_950">#ff21272b</color>
-
-    <color name="material_red_A100">#ff8a80</color>
-    <color name="material_red_A700">#d50000</color>
 </resources>
