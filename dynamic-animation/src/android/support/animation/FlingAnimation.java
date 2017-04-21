@@ -19,34 +19,43 @@ package android.support.animation;
 import android.support.annotation.FloatRange;
 
 /**
- * Fling animation is an animation that continues an initial momentum (most often from gesture
+ * <p>Fling animation is an animation that continues an initial momentum (most often from gesture
  * velocity) and gradually slows down. The fling animation will come to a stop when the velocity of
  * the animation is below the velocity threshold defined with {@link #setVelocityThreshold(float)},
  * or when the value of the animation has gone beyond the min or max value defined via
  * {@link DynamicAnimation#setMinValue(float)} or {@link DynamicAnimation#setMaxValue(float)}.
  * It is recommended to restrict the fling animation with min and/or max value, such that the
  * animation can end when it goes beyond screen bounds, thus preserving CPU cycles and resources.
+ *
+ * <p>For example, you can create a fling animation that animates the translationX of a view:
+ * <pre class="prettyprint">
+ * FlingAnimation flingAnim = new FlingAnimation(view, DynamicAnimation.TRANSLATION_X)
+ *         // Sets the start velocity to -2000 (pixel/s)
+ *         .setStartVelocity(-2000)
+ *         // Optional but recommended to set a reasonable min and max range for the animation.
+ *         // In this particular case, we set the min and max to -200 and 2000 respectively.
+ *         .setMinValue(-200).setMaxValue(2000);
+ * flingAnim.start();
+ * </pre>
  */
 public final class FlingAnimation extends DynamicAnimation<FlingAnimation> {
 
     private final DragForce mFlingForce;
 
     /**
-     * <p>This creates a FlingAnimation that animates a float value that is not associated with an
-     * object. During the animation, the value will be updated via
-     * {@link FloatPropertyCompat#setValue(Object, float)} each frame. The caller can obtain the
-     * up-to-date animation value via {@link FloatPropertyCompat#getValue(Object)}. These setter
-     * and getter will be called with a <code>null</code> object.
+     * <p>This creates a FlingAnimation that animates a {@link FloatValueHolder} instance. During
+     * the animation, the {@link FloatValueHolder} instance will be updated via
+     * {@link FloatValueHolder#setValue(float)} each frame. The caller can obtain the up-to-date
+     * animation value via {@link FloatValueHolder#getValue()}.
      *
-     * <p><strong>Note:</strong> changing the property value via
-     * {@link FloatPropertyCompat#setValue(Object, float)} outside of the animation during an
+     * <p><strong>Note:</strong> changing the value in the {@link FloatValueHolder} via
+     * {@link FloatValueHolder#setValue(float)} outside of the animation during an
      * animation run will not have any effect on the on-going animation.
      *
-     * @param property the property to be animated
-     * @param <K> the class on which the Property is declared
+     * @param floatValueHolder the property to be animated
      */
-    public <K> FlingAnimation(FloatPropertyCompat<K> property) {
-        super(null, property);
+    public FlingAnimation(FloatValueHolder floatValueHolder) {
+        super(floatValueHolder);
         mFlingForce = new DragForce();
     }
 
@@ -112,6 +121,33 @@ public final class FlingAnimation extends DynamicAnimation<FlingAnimation> {
     @Override
     public FlingAnimation setMaxValue(float maxValue) {
         super.setMaxValue(maxValue);
+        return this;
+    }
+
+    /**
+     * Start velocity of the animation. Default velocity is 0. Unit: pixel/second
+     *
+     * <p>A <b>non-zero</b> start velocity is required for a FlingAnimation. If no start velocity is
+     * set through {@link #setStartVelocity(float)}, the start velocity defaults to 0. In that
+     * case, the fling animation will consider itself done in the next frame.
+     *
+     * <p>Note when using a fixed value as the start velocity (as opposed to getting the velocity
+     * through touch events), it is recommended to define such a value in dp/second and convert it
+     * to pixel/second based on the density of the screen to achieve a consistent look across
+     * different screens.
+     *
+     * <p>To convert from dp/second to pixel/second:
+     * <pre class="prettyprint">
+     * float pixelPerSecond = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpPerSecond,
+     *         getResources().getDisplayMetrics());
+     * </pre>
+     *
+     * @param startVelocity start velocity of the animation in pixel/second
+     * @return the Animation whose start velocity is being set
+     */
+    @Override
+    public FlingAnimation setStartVelocity(float startVelocity) {
+        super.setStartVelocity(startVelocity);
         return this;
     }
 
