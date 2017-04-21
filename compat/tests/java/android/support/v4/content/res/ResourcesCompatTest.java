@@ -16,9 +16,14 @@
 package android.support.v4.content.res;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.compat.test.R;
@@ -32,11 +37,13 @@ import org.junit.Test;
 
 @SmallTest
 public class ResourcesCompatTest {
+    private Context mContext;
     private Resources mResources;
 
     @Before
     public void setup() {
-        mResources = InstrumentationRegistry.getContext().getResources();
+        mContext = InstrumentationRegistry.getContext();
+        mResources = mContext.getResources();
     }
 
     @Test
@@ -277,5 +284,57 @@ public class ResourcesCompatTest {
         // We should get a drawable that corresponds to the theme requested in the API call.
         TestUtils.assertAllPixelsOfColor("Themed lilac density-aware drawable load : xxhigh color",
                 themedLilacDrawableForXXHighDensity, 0xFFF080F0);
+    }
+
+    @Test(expected = Resources.NotFoundException.class)
+    public void testGetFont_invalidResourceId() {
+        ResourcesCompat.getFont(mContext, -1);
+    }
+
+    @Test
+    public void testGetFont_fontFile() {
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont);
+
+        assertNotNull(font);
+        assertNotSame(Typeface.DEFAULT, font);
+    }
+
+    @Test
+    public void testGetFont_xmlFile() {
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont);
+
+        assertNotNull(font);
+        assertNotSame(Typeface.DEFAULT, font);
+    }
+
+    @Test
+    public void testGetFont_invalidXmlFile() {
+        try {
+            assertNull(ResourcesCompat.getFont(mContext, R.font.invalid_xmlfamily));
+        } catch (Resources.NotFoundException e) {
+            // pass
+        }
+
+        try {
+            assertNull(ResourcesCompat.getFont(mContext, R.font.invalid_xmlempty));
+        } catch (Resources.NotFoundException e) {
+            // pass
+        }
+    }
+
+    @Test
+    public void testGetFont_fontFileIsCached() {
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont);
+        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplefont);
+
+        assertEquals(font, font2);
+    }
+
+    @Test
+    public void testGetFont_xmlFileIsCached() {
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont);
+        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplexmlfont);
+
+        assertEquals(font, font2);
     }
 }
