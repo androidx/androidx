@@ -55,6 +55,7 @@ import android.widget.AdapterView;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 
 final class FragmentState implements Parcelable {
     final String mClassName;
@@ -440,7 +441,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 clazz = context.getClassLoader().loadClass(fname);
                 sClassMap.put(fname, clazz);
             }
-            Fragment f = (Fragment)clazz.newInstance();
+            Fragment f = (Fragment) clazz.getConstructor().newInstance();
             if (args != null) {
                 args.setClassLoader(f.getClass().getClassLoader());
                 f.setArguments(args);
@@ -458,6 +459,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new InstantiationException("Unable to instantiate fragment " + fname
                     + ": make sure class name exists, is public, and has an"
                     + " empty constructor that is public", e);
+        } catch (NoSuchMethodException e) {
+            throw new InstantiationException("Unable to instantiate fragment " + fname
+                    + ": could not find Fragment constructor", e);
+        } catch (InvocationTargetException e) {
+            throw new InstantiationException("Unable to instantiate fragment " + fname
+                    + ": calling Fragment constructor caused an exception", e);
         }
     }
 
@@ -623,6 +630,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param requestCode Optional request code, for convenience if you
      * are going to call back with {@link #onActivityResult(int, int, Intent)}.
      */
+    @SuppressWarnings("ReferenceEquality")
     public void setTargetFragment(Fragment fragment, int requestCode) {
         // Don't allow a caller to set a target fragment in another FragmentManager,
         // but there's a snag: people do set target fragments before fragments get added.
