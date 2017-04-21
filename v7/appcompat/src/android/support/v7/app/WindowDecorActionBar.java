@@ -25,7 +25,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -83,11 +82,6 @@ public class WindowDecorActionBar extends ActionBar implements
 
     private static final Interpolator sHideInterpolator = new AccelerateInterpolator();
     private static final Interpolator sShowInterpolator = new DecelerateInterpolator();
-
-    /**
-     * Only allow show/hide animations on ICS+, as that is what ViewPropertyAnimatorCompat supports
-     */
-    private static final boolean ALLOW_SHOW_HIDE_ANIMATIONS = Build.VERSION.SDK_INT >= 14;
 
     Context mContext;
     private Context mThemedContext;
@@ -795,8 +789,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
         mContainerView.setVisibility(View.VISIBLE);
 
-        if (mCurWindowVisibility == View.VISIBLE && ALLOW_SHOW_HIDE_ANIMATIONS &&
-                (mShowHideAnimationEnabled || fromSystem)) {
+        if (mCurWindowVisibility == View.VISIBLE && (mShowHideAnimationEnabled || fromSystem)) {
             // because we're about to ask its window loc
             mContainerView.setTranslationY(0f);
             float startingY = -mContainerView.getHeight();
@@ -844,8 +837,7 @@ public class WindowDecorActionBar extends ActionBar implements
             mCurrentShowAnim.cancel();
         }
 
-        if (mCurWindowVisibility == View.VISIBLE && ALLOW_SHOW_HIDE_ANIMATIONS
-                && (mShowHideAnimationEnabled || fromSystem)) {
+        if (mCurWindowVisibility == View.VISIBLE && (mShowHideAnimationEnabled || fromSystem)) {
             mContainerView.setAlpha(1f);
             mContainerView.setTransitioning(true);
             ViewPropertyAnimatorCompatSet anim = new ViewPropertyAnimatorCompatSet();
