@@ -226,6 +226,7 @@ public class DetailsFragmentBackgroundController {
      * @see #onCreateVideoFragment()
      * @see #onCreateGlueHost().
      */
+    @SuppressWarnings("ReferenceEquality")
     public void setupVideoPlayback(@NonNull PlaybackGlue playbackGlue) {
         if (mPlaybackGlue == playbackGlue) {
             return;
