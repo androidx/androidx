@@ -127,7 +127,15 @@ abstract class BaseRowSupportFragment extends Fragment {
     }
 
     void setAdapterAndSelection() {
-        mVerticalGridView.setAdapter(mBridgeAdapter);
+        if (mAdapter == null) {
+            // delay until ItemBridgeAdapter has wrappedAdapter. Once we assign ItemBridgeAdapter
+            // to RecyclerView, it will not be allowed to change "hasStableId" to true.
+            return;
+        }
+        if (mVerticalGridView.getAdapter() != mBridgeAdapter) {
+            // avoid extra layout if ItemBridgeAdapter was already set.
+            mVerticalGridView.setAdapter(mBridgeAdapter);
+        }
         // We don't set the selected position unless we've data in the adapter.
         boolean lateSelection = mBridgeAdapter.getItemCount() == 0 && mSelectedPosition >= 0;
         if (lateSelection) {
@@ -166,7 +174,8 @@ abstract class BaseRowSupportFragment extends Fragment {
     }
 
     /**
-     * Sets the adapter for the fragment.
+     * Sets the adapter that represents a list of rows.
+     * @param rowsAdapter Adapter that represents list of rows.
      */
     public final void setAdapter(ObjectAdapter rowsAdapter) {
         mAdapter = rowsAdapter;
@@ -174,16 +183,18 @@ abstract class BaseRowSupportFragment extends Fragment {
     }
 
     /**
-     * Returns the list of rows.
+     * Returns the Adapter that represents list of rows.
+     * @return Adapter that represents list of rows.
      */
     public final ObjectAdapter getAdapter() {
         return mAdapter;
     }
 
     /**
-     * Returns the bridge adapter.
+     * Returns the RecyclerView.Adapter that wraps {@link #getAdapter()}.
+     * @return The RecyclerView.Adapter that wraps {@link #getAdapter()}.
      */
-    final ItemBridgeAdapter getBridgeAdapter() {
+    public final ItemBridgeAdapter getBridgeAdapter() {
         return mBridgeAdapter;
     }
 
