@@ -24,8 +24,10 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.appcompat.test.R;
 import android.widget.TextView;
 
@@ -38,6 +40,7 @@ import org.junit.Test;
 @SmallTest
 public class AppCompatTextViewTest
         extends AppCompatBaseViewTest<AppCompatTextViewActivity, AppCompatTextView> {
+
     public AppCompatTextViewTest() {
         super(AppCompatTextViewActivity.class);
     }
@@ -47,10 +50,8 @@ public class AppCompatTextViewTest
         final String text1 = mResources.getString(R.string.sample_text1);
         final String text2 = mResources.getString(R.string.sample_text2);
 
-        final AppCompatTextView textView1 =
-                (AppCompatTextView) mContainer.findViewById(R.id.text_view_caps1);
-        final AppCompatTextView textView2 =
-                (AppCompatTextView) mContainer.findViewById(R.id.text_view_caps2);
+        final AppCompatTextView textView1 = mContainer.findViewById(R.id.text_view_caps1);
+        final AppCompatTextView textView2 = mContainer.findViewById(R.id.text_view_caps2);
 
         // Note that TextView.getText() returns the original text. We are interested in
         // the transformed text that is set on the Layout object used to draw the final
@@ -76,20 +77,20 @@ public class AppCompatTextViewTest
     public void testAppCompatAllCapsFalseOnButton() {
         final String text = mResources.getString(R.string.sample_text2);
         final AppCompatTextView textView =
-                (AppCompatTextView) mContainer.findViewById(R.id.text_view_app_allcaps_false);
+                 mContainer.findViewById(R.id.text_view_app_allcaps_false);
 
         assertEquals("Text view is not in all caps", text, textView.getLayout().getText());
     }
 
     @Test
     public void testTextColorSetHex() {
-        final TextView textView = (TextView) mContainer.findViewById(R.id.view_text_color_hex);
+        final TextView textView =  mContainer.findViewById(R.id.view_text_color_hex);
         assertEquals(Color.RED, textView.getCurrentTextColor());
     }
 
     @Test
     public void testTextColorSetColorStateList() {
-        final TextView textView = (TextView) mContainer.findViewById(R.id.view_text_color_csl);
+        final TextView textView =  mContainer.findViewById(R.id.view_text_color_csl);
 
         onView(withId(R.id.view_text_color_csl)).perform(setEnabled(true));
         assertEquals(ContextCompat.getColor(textView.getContext(), R.color.ocean_default),
@@ -102,14 +103,13 @@ public class AppCompatTextViewTest
 
     @Test
     public void testTextColorSetThemeAttrHex() {
-        final TextView textView = (TextView) mContainer.findViewById(R.id.view_text_color_primary);
+        final TextView textView =  mContainer.findViewById(R.id.view_text_color_primary);
         assertEquals(Color.BLUE, textView.getCurrentTextColor());
     }
 
     @Test
     public void testTextColorSetThemeAttrColorStateList() {
-        final TextView textView = (TextView)
-                mContainer.findViewById(R.id.view_text_color_secondary);
+        final TextView textView =  mContainer.findViewById(R.id.view_text_color_secondary);
 
         onView(withId(R.id.view_text_color_secondary)).perform(setEnabled(true));
         assertEquals(ContextCompat.getColor(textView.getContext(), R.color.sand_default),
@@ -132,5 +132,53 @@ public class AppCompatTextViewTest
     public void testTextLinkColor() {
         verifyTextLinkColor((TextView) mContainer.findViewById(R.id.view_text_link_enabled));
         verifyTextLinkColor((TextView) mContainer.findViewById(R.id.view_text_link_disabled));
+    }
+
+    @Test
+    public void testFontResources_setInXmlFamilyName() {
+        TextView textView = mContainer.findViewById(R.id.textview_fontresource_fontfamily);
+        Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
+
+        assertEquals(expected, textView.getTypeface());
+    }
+
+    @Test
+    public void testFontResourcesXml_setInXmlFamilyName() {
+        TextView textView = mContainer.findViewById(R.id.textview_fontxmlresource_fontfamily);
+        Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplexmlfont);
+
+        assertEquals(expected, textView.getTypeface());
+    }
+
+    @Test
+    public void testFontResources_setInXmlStyle() {
+        TextView textView = mContainer.findViewById(R.id.textview_fontresource_style);
+        Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
+
+        assertEquals(expected, textView.getTypeface());
+    }
+
+    @Test
+    public void testFontResourcesXml_setInXmlStyle() {
+        TextView textView = mContainer.findViewById(R.id.textview_fontxmlresource_style);
+        Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplexmlfont);
+
+        assertEquals(expected, textView.getTypeface());
+    }
+
+    @Test
+    public void testFontResources_setInXmlTextAppearance() {
+        TextView textView = mContainer.findViewById(R.id.textview_fontresource_textAppearance);
+        Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
+
+        assertEquals(expected, textView.getTypeface());
+    }
+
+    @Test
+    public void testFontResourcesXml_setInXmlTextAppearance() {
+        TextView textView = mContainer.findViewById(R.id.textview_fontxmlresource_textAppearance);
+        Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplexmlfont);
+
+        assertEquals(expected, textView.getTypeface());
     }
 }
