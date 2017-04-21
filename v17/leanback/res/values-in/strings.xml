@@ -48,12 +48,14 @@ limitations under the License.
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Aktifkan Pembuatan Teks"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Nonaktifkan Pembuatan Teks"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Masukkan Foto Dalam Mode Foto"</string>
+    <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Kontrol media ditampilkan"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Kontrol media disembunyikan, tekan d-pad untuk menampilkannya"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Selesai"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Lanjutkan"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
     <string name="lb_time_separator" msgid="2763247350845477227">"."</string>
+    <string name="lb_media_player_error" msgid="3650250994187305396">"Kode error MediaPlayer %1$d ekstra %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"MULAI"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Berikutnya"</string>
 </resources>
