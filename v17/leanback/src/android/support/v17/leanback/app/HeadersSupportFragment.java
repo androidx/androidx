@@ -94,6 +94,7 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
 
     public HeadersSupportFragment() {
         setPresenterSelector(sHeaderPresenter);
+        FocusHighlightHelper.setupHeaderItemFocusHighlight(getBridgeAdapter());
     }
 
     public void setOnHeaderClickedListener(OnHeaderClickedListener listener) {
@@ -168,7 +169,6 @@ public class HeadersSupportFragment extends BaseRowSupportFragment {
         if (listView == null) {
             return;
         }
-        FocusHighlightHelper.setupHeaderItemFocusHighlight(listView);
         if (mBackgroundColorSet) {
             listView.setBackgroundColor(mBackgroundColor);
             updateFadingEdgeToBrandColor(mBackgroundColor);

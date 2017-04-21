@@ -36,6 +36,7 @@ import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
@@ -298,6 +299,38 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 }
         );
         assertSame(prefetchedListRowVh.getItemViewHolder(0), fragment.mLastClickedItemViewHolder);
+    }
+
+    @Test
+    public void changeHasStableIdToTrueAfterViewCreated() throws InterruptedException {
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(RowsSupportFragment.class, 2000);
+        final RowsSupportFragment fragment = (RowsSupportFragment) activity.getTestFragment();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    public void run() {
+                        ObjectAdapter adapter = new ObjectAdapter() {
+                            @Override
+                            public int size() {
+                                return 0;
+                            }
+
+                            @Override
+                            public Object get(int position) {
+                                return null;
+                            }
+
+                            @Override
+                            public long getId(int position) {
+                                return 1;
+                            }
+                        };
+                        adapter.setHasStableIds(true);
+                        fragment.setAdapter(adapter);
+                    }
+                }
+        );
     }
 
 }
