@@ -150,9 +150,15 @@ public class NavController implements NavigatorProvider {
      * Adds an {@link OnNavigatedListener} to this controller to receive events when
      * the controller navigates to a new destination.
      *
+     * <p>The current destination, if any, will be immediately sent to your listener.</p>
+     *
      * @param listener the listener to receive events
      */
     public void addOnNavigatedListener(OnNavigatedListener listener) {
+        // Inform the new listener of our current state, if any
+        if (!mBackStack.isEmpty()) {
+            listener.onNavigated(this, mBackStack.peekLast());
+        }
         mOnNavigatedListeners.add(listener);
     }
 

@@ -213,22 +213,8 @@ public class NavHelper {
      */
     public static void setupActionBar(final NavController navController,
             final AppCompatActivity activity, final DrawerLayout drawerLayout) {
-        ActionBar actionBar = activity.getSupportActionBar();
-        NavDestination currentDestination = navController.getCurrentDestination();
-        if (currentDestination != null && !TextUtils.isEmpty(currentDestination.getLabel())) {
-            actionBar.setTitle(currentDestination.getLabel());
-        }
-        ActionBarOnNavigatedListener actionBarOnNavigatedListener =
-                new ActionBarOnNavigatedListener(activity, drawerLayout);
-        navController.addOnNavigatedListener(actionBarOnNavigatedListener);
-        boolean isStartDestination = currentDestination == null
-                || currentDestination.getId() == navController.getGraph().getStartDestination();
-        actionBar.setDisplayHomeAsUpEnabled(drawerLayout != null || !isStartDestination);
-        // Set the initial state of the up indicator: it should show as the drawer indicator
-        // if there is a DrawerLayout and we're on the starting destination, otherwise it should
-        // show as an Up arrow.
-        actionBarOnNavigatedListener.setActionBarUpIndicator(
-                drawerLayout != null && isStartDestination, false);
+        navController.addOnNavigatedListener(
+                new ActionBarOnNavigatedListener(activity, drawerLayout));
     }
 
     /**
@@ -266,6 +252,9 @@ public class NavHelper {
     public static void setupNavigationView(final NavController navController,
             final NavigationView navigationView,
             final NavigationView.OnNavigationItemSelectedListener listener) {
+        if (navigationView == null) {
+            return;
+        }
         addChildDestinationsToMenu(navController.getGraph(), navigationView.getMenu(),
                 NavDestination.NAV_TYPE_PRIMARY | NavDestination.NAV_TYPE_SECONDARY);
         navigationView.setNavigationItemSelectedListener(
@@ -330,6 +319,9 @@ public class NavHelper {
     public static void setupBottomNavigationView(final NavController navController,
             final BottomNavigationView bottomNavigationView,
             final BottomNavigationView.OnNavigationItemSelectedListener listener) {
+        if (bottomNavigationView == null) {
+            return;
+        }
         addChildDestinationsToMenu(navController.getGraph(), bottomNavigationView.getMenu(),
                 NavDestination.NAV_TYPE_PRIMARY);
         bottomNavigationView.setOnNavigationItemSelectedListener(
@@ -381,15 +373,18 @@ public class NavHelper {
             boolean isStartDestination =
                     controller.getGraph().getStartDestination() == destination.getId();
             actionBar.setDisplayHomeAsUpEnabled(mDrawerLayout != null || !isStartDestination);
-            setActionBarUpIndicator(mDrawerLayout != null && isStartDestination, true);
+            setActionBarUpIndicator(mDrawerLayout != null && isStartDestination);
         }
 
-        void setActionBarUpIndicator(boolean showAsDrawerIndicator, boolean animate) {
+        void setActionBarUpIndicator(boolean showAsDrawerIndicator) {
             ActionBarDrawerToggle.Delegate delegate = mActivity.getDrawerToggleDelegate();
+            boolean animate = true;
             if (mArrowDrawable == null) {
                 mArrowDrawable = new DrawerArrowDrawable(
                         delegate.getActionBarThemedContext());
                 delegate.setActionBarUpIndicator(mArrowDrawable, 0);
+                // We're setting the initial state, so skip the animation
+                animate = false;
             }
             float endValue = showAsDrawerIndicator ? 0f : 1f;
             if (animate) {

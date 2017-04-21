@@ -19,10 +19,12 @@ package com.android.support.navigation.testapp;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.NavigationView;
 import android.support.navigation.app.nav.NavController;
 import android.support.navigation.app.nav.NavDestination;
 import android.support.navigation.app.nav.NavHostFragment;
 import android.support.navigation.app.nav.Navigation;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,13 +33,15 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 /**
- * A simple activity demonstrating use of a NavHostFragment with a bottom navigation bar.
+ * A simple activity demonstrating use of a NavHostFragment with a navigation drawer.
  */
-public class BottomNavActivity extends AppCompatActivity {
+public class NavigationActivity extends AppCompatActivity {
+    private DrawerLayout mDrawerLayout;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.bottom_nav_activity);
+        setContentView(R.layout.navigation_activity);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -47,7 +51,10 @@ public class BottomNavActivity extends AppCompatActivity {
 
         if (host != null) {
             NavController navController = host.getNavController();
-            NavHelper.setupActionBar(navController, this);
+            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            NavHelper.setupActionBar(navController, this, mDrawerLayout);
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            NavHelper.setupNavigationView(navController, navigationView);
             BottomNavigationView bottomNavView =
                     (BottomNavigationView) findViewById(R.id.bottom_nav_view);
             NavHelper.setupBottomNavigationView(navController, bottomNavView);
@@ -55,10 +62,10 @@ public class BottomNavActivity extends AppCompatActivity {
                 @Override
                 public void onNavigated(NavController controller, NavDestination destination) {
                     String dest = getResources().getResourceName(destination.getId());
-                    Toast.makeText(BottomNavActivity.this, "Navigated to "
+                    Toast.makeText(NavigationActivity.this, "Navigated to "
                             + dest,
                             Toast.LENGTH_SHORT).show();
-                    Log.d("BottomNavActivity", "Navigated to " + dest, new Throwable());
+                    Log.d("NavigationActivity", "Navigated to " + dest, new Throwable());
                 }
             });
         }
@@ -66,17 +73,24 @@ public class BottomNavActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        NavController navController = Navigation.findController(this, R.id.my_nav_host_fragment);
-        NavHelper.addChildDestinationsToMenu(navController.getGraph(), menu,
-                NavDestination.NAV_TYPE_SECONDARY);
-        return true;
+        boolean retValue = super.onCreateOptionsMenu(menu);
+        BottomNavigationView bottomNavView =
+                (BottomNavigationView) findViewById(R.id.bottom_nav_view);
+        // Only add secondary navigation elements to the menu if there is a BottomNavigationView
+        if (bottomNavView != null) {
+            NavController navController =
+                    Navigation.findController(this, R.id.my_nav_host_fragment);
+            NavHelper.addChildDestinationsToMenu(navController.getGraph(), menu,
+                    NavDestination.NAV_TYPE_SECONDARY);
+            return true;
+        }
+        return retValue;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return NavHelper.handleMenuItemSelected(
-                Navigation.findController(this, R.id.my_nav_host_fragment), item)
+                Navigation.findController(this, R.id.my_nav_host_fragment), item, mDrawerLayout)
                 || super.onOptionsItemSelected(item);
     }
 }
