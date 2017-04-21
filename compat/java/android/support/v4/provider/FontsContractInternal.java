@@ -32,7 +32,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
-import android.provider.BaseColumns;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
@@ -40,6 +39,7 @@ import android.support.v4.content.res.FontResourcesParserCompat;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
+import android.support.v4.provider.FontsContractCompat.Columns;
 import android.util.Log;
 
 import java.io.FileNotFoundException;
@@ -51,80 +51,13 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Utility class to deal with Font ContentProviders.
+ * Utility class to deal with Font ContentProviders for internal use. This is kept for compatibility
+ * reasons with xml layout font loading.
+ * @hide
  */
-public class FontsContract {
+@RestrictTo(LIBRARY_GROUP)
+public class FontsContractInternal {
     private static final String TAG = "FontsContractCompat";
-
-    /**
-     * Defines the constants used in a response from a Font Provider. The cursor returned from the
-     * query should have the ID column populated with the content uri ID for the resulting font.
-     * This should point to a real file or shared memory, as the client will mmap the given file
-     * descriptor. Pipes, sockets and other non-mmap-able file descriptors will fail to load in the
-     * client application.
-     */
-    public static final class Columns implements BaseColumns {
-        /**
-         * Constant used to request data from a font provider. The cursor returned from the query
-         * should have this column populated with an int for the ttc index for the resulting font.
-         */
-        public static final String TTC_INDEX = android.provider.FontsContract.Columns.TTC_INDEX;
-        /**
-         * Constant used to request data from a font provider. The cursor returned from the query
-         * may populate this column with the font variation settings String information for the
-         * font.
-         */
-        public static final String VARIATION_SETTINGS =
-                android.provider.FontsContract.Columns.VARIATION_SETTINGS;
-        /**
-         * Constant used to request data from a font provider. The cursor returned from the query
-         * should have this column populated with the int weight for the resulting font. This value
-         * should be between 100 and 900. The most common values are 400 for regular weight and 700
-         * for bold weight.
-         */
-        public static final String WEIGHT = android.provider.FontsContract.Columns.WEIGHT;
-        /**
-         * Constant used to request data from a font provider. The cursor returned from the query
-         * should have this column populated with the int italic for the resulting font. This should
-         * be 0 for regular style and 1 for italic.
-         */
-        public static final String ITALIC = android.provider.FontsContract.Columns.ITALIC;
-        /**
-         * Constant used to request data from a font provider. The cursor returned from the query
-         * should have this column populated to indicate the result status of the
-         * query. This will be checked before any other data in the cursor. Possible values are
-         * {@link #RESULT_CODE_OK}, {@link #RESULT_CODE_FONT_NOT_FOUND},
-         * {@link #RESULT_CODE_MALFORMED_QUERY} and {@link #RESULT_CODE_FONT_UNAVAILABLE}. If not
-         * present, {@link #RESULT_CODE_OK} will be assumed.
-         */
-        public static final String RESULT_CODE = android.provider.FontsContract.Columns.RESULT_CODE;
-
-        /**
-         * Constant used to represent a result was retrieved successfully. The given fonts will be
-         * attempted to retrieve immediately via
-         * {@link android.content.ContentProvider#openFile(Uri, String)}. See {@link #RESULT_CODE}.
-         */
-        public static final int RESULT_CODE_OK =
-                android.provider.FontsContract.Columns.RESULT_CODE_OK;
-        /**
-         * Constant used to represent a result was not found. See {@link #RESULT_CODE}.
-         */
-        public static final int RESULT_CODE_FONT_NOT_FOUND =
-                android.provider.FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND;
-        /**
-         * Constant used to represent a result was found, but cannot be provided at this moment. Use
-         * this to indicate, for example, that a font needs to be fetched from the network. See
-         * {@link #RESULT_CODE}.
-         */
-        public static final int RESULT_CODE_FONT_UNAVAILABLE =
-                android.provider.FontsContract.Columns.RESULT_CODE_FONT_UNAVAILABLE;
-        /**
-         * Constant used to represent that the query was not in a supported format by the provider.
-         * See {@link #RESULT_CODE}.
-         */
-        public static final int RESULT_CODE_MALFORMED_QUERY =
-                android.provider.FontsContract.Columns.RESULT_CODE_MALFORMED_QUERY;
-    }
 
     /**
      * Constant used to identify the List of {@link ParcelFileDescriptor} item in the Bundle
@@ -156,13 +89,13 @@ public class FontsContract {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public FontsContract(Context context) {
+    public FontsContractInternal(Context context) {
         mContext = context.getApplicationContext();
         mPackageManager = mContext.getPackageManager();
     }
 
     @VisibleForTesting
-    FontsContract(Context context, PackageManager packageManager) {
+    FontsContractInternal(Context context, PackageManager packageManager) {
         mContext = context;
         mPackageManager = packageManager;
     }
@@ -294,27 +227,31 @@ public class FontsContract {
     @VisibleForTesting
     void getFontFromProvider(FontRequest request, ResultReceiver receiver,
             String authority) {
-        ArrayList<FontResult> result = null;
-        Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+        ArrayList<FontResult> result = new ArrayList<>();
+        final Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(authority)
+                .build();
+        final Uri fileBaseUri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+                .authority(authority)
+                .appendPath("file")
                 .build();
         Cursor cursor = null;
         try {
-            cursor = mContext.getContentResolver().query(uri, new String[] { Columns._ID,
-                    Columns.TTC_INDEX, Columns.VARIATION_SETTINGS, Columns.WEIGHT, Columns.ITALIC,
+            cursor = mContext.getContentResolver().query(uri, new String[] {
+                    Columns._ID, Columns.FILE_ID, Columns.TTC_INDEX,
+                    Columns.VARIATION_SETTINGS, Columns.WEIGHT, Columns.ITALIC,
                     Columns.RESULT_CODE },
                     "query = ?", new String[] { request.getQuery() }, null);
             if (cursor != null && cursor.getCount() > 0) {
                 final int resultCodeColumnIndex = cursor.getColumnIndex(Columns.RESULT_CODE);
-                int resultCode = -1;
-                result = new ArrayList<>();
                 final int idColumnIndex = cursor.getColumnIndex(Columns._ID);
+                final int fileIdColumnIndex = cursor.getColumnIndex(Columns.FILE_ID);
                 final int ttcIndexColumnIndex = cursor.getColumnIndex(Columns.TTC_INDEX);
                 final int vsColumnIndex = cursor.getColumnIndex(Columns.VARIATION_SETTINGS);
                 final int weightColumnIndex = cursor.getColumnIndex(Columns.WEIGHT);
                 final int italicColumnIndex = cursor.getColumnIndex(Columns.ITALIC);
                 while (cursor.moveToNext()) {
-                    resultCode = resultCodeColumnIndex != -1
+                    int resultCode = resultCodeColumnIndex != -1
                             ? cursor.getInt(resultCodeColumnIndex) : Columns.RESULT_CODE_OK;
                     if (resultCode != Columns.RESULT_CODE_OK) {
                         if (resultCode < 0) {
@@ -331,26 +268,34 @@ public class FontsContract {
                         receiver.send(resultCode, null);
                         return;
                     }
-                    long id = cursor.getLong(idColumnIndex);
-                    Uri fileUri = ContentUris.withAppendedId(uri, id);
+                    Uri fileUri;
+                    if (fileIdColumnIndex == -1) {
+                        long id = cursor.getLong(idColumnIndex);
+                        fileUri = ContentUris.withAppendedId(uri, id);
+                    } else {
+                        long id = cursor.getLong(fileIdColumnIndex);
+                        fileUri = ContentUris.withAppendedId(fileBaseUri, id);
+                    }
                     try {
                         ParcelFileDescriptor pfd =
                                 mContext.getContentResolver().openFileDescriptor(fileUri, "r");
-                        final int ttcIndex = ttcIndexColumnIndex != -1
-                                ? cursor.getInt(ttcIndexColumnIndex) : 0;
-                        final String variationSettings = vsColumnIndex != -1
-                                ? cursor.getString(vsColumnIndex) : null;
-                        int weight;
-                        boolean italic;
-                        if (weightColumnIndex != -1 && italicColumnIndex != -1) {
-                            weight = cursor.getInt(weightColumnIndex);
-                            italic = cursor.getInt(italicColumnIndex) == 1;
-                        } else {
-                            weight = 400;
-                            italic = false;
+                        if (pfd != null) {
+                            final int ttcIndex = ttcIndexColumnIndex != -1
+                                    ? cursor.getInt(ttcIndexColumnIndex) : 0;
+                            final String variationSettings = vsColumnIndex != -1
+                                    ? cursor.getString(vsColumnIndex) : null;
+                            int weight;
+                            boolean italic;
+                            if (weightColumnIndex != -1 && italicColumnIndex != -1) {
+                                weight = cursor.getInt(weightColumnIndex);
+                                italic = cursor.getInt(italicColumnIndex) == 1;
+                            } else {
+                                weight = 400;
+                                italic = false;
+                            }
+                            result.add(new FontResult(
+                                    pfd, ttcIndex, variationSettings, weight, italic));
                         }
-                        result.add(
-                                new FontResult(pfd, ttcIndex, variationSettings, weight, italic));
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "FileNotFoundException raised when interacting with content "
                                 + "provider " + authority, e);

@@ -25,12 +25,12 @@ import static android.support.v4.graphics.TypefaceCompat.FontRequestCallback
         .FAIL_REASON_MALFORMED_QUERY;
 import static android.support.v4.graphics.TypefaceCompat.FontRequestCallback
         .FAIL_REASON_WRONG_CERTIFICATES;
-import static android.support.v4.provider.FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND;
-import static android.support.v4.provider.FontsContract.Columns.RESULT_CODE_FONT_UNAVAILABLE;
-import static android.support.v4.provider.FontsContract.Columns.RESULT_CODE_MALFORMED_QUERY;
-import static android.support.v4.provider.FontsContract.Columns.RESULT_CODE_OK;
-import static android.support.v4.provider.FontsContract.RESULT_CODE_PROVIDER_NOT_FOUND;
-import static android.support.v4.provider.FontsContract.RESULT_CODE_WRONG_CERTIFICATES;
+import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND;
+import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_FONT_UNAVAILABLE;
+import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY;
+import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_OK;
+import static android.support.v4.provider.FontsContractCompat.RESULT_CODE_PROVIDER_NOT_FOUND;
+import static android.support.v4.provider.FontsContractCompat.RESULT_CODE_WRONG_CERTIFICATES;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -56,7 +56,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
-import android.support.v4.provider.FontsContract;
+import android.support.v4.provider.FontsContractInternal;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,14 +81,14 @@ public class FontRequestEmojiCompatConfigTest {
 
     private Context mContext;
     private FontRequest mFontRequest;
-    private FontsContract mFontsContract;
+    private FontsContractInternal mFontsContract;
 
     @Before
     public void setup() {
         mContext = InstrumentationRegistry.getContext();
         mFontRequest = new FontRequest("authority", "package", "query",
                 new ArrayList<List<byte[]>>());
-        mFontsContract = mock(FontsContract.class);
+        mFontsContract = mock(FontsContractInternal.class);
     }
 
     @Test(expected = NullPointerException.class)
@@ -166,7 +166,7 @@ public class FontRequestEmojiCompatConfigTest {
     @Test
     public void testLoad_cannotLoadTypeface() {
         final Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(FontsContract.PARCEL_FONT_RESULTS,
+        bundle.putParcelableArrayList(FontsContractInternal.PARCEL_FONT_RESULTS,
                 new ArrayList<Parcelable>());
         verifyLoaderOnFailedCalled(RESULT_CODE_OK,
                 FAIL_REASON_FONT_NOT_FOUND, bundle);
@@ -179,7 +179,7 @@ public class FontRequestEmojiCompatConfigTest {
                 ParcelFileDescriptor.MODE_READ_ONLY)) {
             final FontResult fontResult = new FontResult(pfd, 0, null, 1, false);
             final Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(FontsContract.PARCEL_FONT_RESULTS,
+            bundle.putParcelableArrayList(FontsContractInternal.PARCEL_FONT_RESULTS,
                     new ArrayList<>(Arrays.asList(fontResult)));
 
             doAnswer(new Answer() {

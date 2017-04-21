@@ -6980,22 +6980,6 @@ package android.support.v4.graphics {
     method public static boolean hasGlyph(android.graphics.Paint, java.lang.String);
   }
 
-  public class TypefaceCompat {
-    method public static void create(android.content.Context, android.support.v4.graphics.fonts.FontRequest, android.support.v4.graphics.TypefaceCompat.FontRequestCallback);
-  }
-
-  public static abstract class TypefaceCompat.FontRequestCallback {
-    ctor public TypefaceCompat.FontRequestCallback();
-    method public abstract void onTypefaceRequestFailed(int);
-    method public abstract void onTypefaceRetrieved(android.graphics.Typeface);
-    field public static final int FAIL_REASON_FONT_LOAD_ERROR = -3; // 0xfffffffd
-    field public static final int FAIL_REASON_FONT_NOT_FOUND = 1; // 0x1
-    field public static final int FAIL_REASON_FONT_UNAVAILABLE = 2; // 0x2
-    field public static final int FAIL_REASON_MALFORMED_QUERY = 3; // 0x3
-    field public static final int FAIL_REASON_PROVIDER_NOT_FOUND = -1; // 0xffffffff
-    field public static final int FAIL_REASON_WRONG_CERTIFICATES = -2; // 0xfffffffe
-  }
-
 }
 
 package android.support.v4.graphics.drawable {
@@ -7887,11 +7871,15 @@ package android.support.v4.provider {
     method public abstract boolean renameTo(java.lang.String);
   }
 
-  public class FontsContract {
+  public class FontsContractCompat {
+    method public static android.graphics.Typeface buildTypeface(android.content.Context, android.os.CancellationSignal, android.support.v4.provider.FontsContractCompat.FontInfo[]);
+    method public static android.support.v4.provider.FontsContractCompat.FontFamilyResult fetchFonts(android.content.Context, android.os.CancellationSignal, android.support.v4.graphics.fonts.FontRequest) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static void requestFont(android.content.Context, android.support.v4.graphics.fonts.FontRequest, android.support.v4.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
   }
 
-  public static final class FontsContract.Columns {
-    ctor public FontsContract.Columns();
+  public static final class FontsContractCompat.Columns {
+    ctor public FontsContractCompat.Columns();
+    field public static final java.lang.String FILE_ID = "file_id";
     field public static final java.lang.String ITALIC = "font_italic";
     field public static final java.lang.String RESULT_CODE = "result_code";
     field public static final int RESULT_CODE_FONT_NOT_FOUND = 1; // 0x1
@@ -7901,6 +7889,34 @@ package android.support.v4.provider {
     field public static final java.lang.String TTC_INDEX = "font_ttc_index";
     field public static final java.lang.String VARIATION_SETTINGS = "font_variation_settings";
     field public static final java.lang.String WEIGHT = "font_weight";
+  }
+
+  public static class FontsContractCompat.FontFamilyResult {
+    method public android.support.v4.provider.FontsContractCompat.FontInfo[] getFonts();
+    method public int getStatusCode();
+    field public static final int STATUS_OK = 0; // 0x0
+    field public static final int STATUS_UNEXPECTED_DATA_PROVIDED = 2; // 0x2
+    field public static final int STATUS_WRONG_CERTIFICATES = 1; // 0x1
+  }
+
+  public static class FontsContractCompat.FontInfo {
+    method public int getResultCode();
+    method public int getTtcIndex();
+    method public android.net.Uri getUri();
+    method public int getWeight();
+    method public boolean isItalic();
+  }
+
+  public static class FontsContractCompat.FontRequestCallback {
+    ctor public FontsContractCompat.FontRequestCallback();
+    method public void onTypefaceRequestFailed(int);
+    method public void onTypefaceRetrieved(android.graphics.Typeface);
+    field public static final int FAIL_REASON_FONT_LOAD_ERROR = -3; // 0xfffffffd
+    field public static final int FAIL_REASON_FONT_NOT_FOUND = 1; // 0x1
+    field public static final int FAIL_REASON_FONT_UNAVAILABLE = 2; // 0x2
+    field public static final int FAIL_REASON_MALFORMED_QUERY = 3; // 0x3
+    field public static final int FAIL_REASON_PROVIDER_NOT_FOUND = -1; // 0xffffffff
+    field public static final int FAIL_REASON_WRONG_CERTIFICATES = -2; // 0xfffffffe
   }
 
 }
