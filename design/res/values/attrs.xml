@@ -460,6 +460,10 @@
         <attr name="bottomSheetDialogTheme" format="reference" />
         <!-- Style to use for modal bottom sheets in this theme. -->
         <attr name="bottomSheetStyle" format="reference" />
+
+        <!-- Text color used to indicate an error has occurred. -->
+        <!-- {@deprecated Use colorError} -->
+        <attr name="textColorError" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="BottomNavigationView">
