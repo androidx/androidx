@@ -16,7 +16,10 @@
 
 package android.support.v4.app;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.AnimRes;
+import android.support.annotation.AnimatorRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
@@ -27,8 +30,6 @@ import android.view.View;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentTransaction}.
@@ -203,18 +204,35 @@ public abstract class FragmentTransaction {
      * Set specific animation resources to run for the fragments that are
      * entering and exiting in this transaction. These animations will not be
      * played when popping the back stack.
+     *
+     * @param enter An animation or animator resource ID used for the enter animation on the
+     *              view of the fragment being added or attached.
+     * @param exit An animation or animator resource ID used for the exit animation on the
+     *             view of the fragment being removed or detached.
      */
-    public abstract FragmentTransaction setCustomAnimations(@AnimRes int enter,
-            @AnimRes int exit);
+    public abstract FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
+            @AnimatorRes @AnimRes int exit);
 
     /**
      * Set specific animation resources to run for the fragments that are
      * entering and exiting in this transaction. The <code>popEnter</code>
      * and <code>popExit</code> animations will be played for enter/exit
      * operations specifically when popping the back stack.
+     *
+     * @param enter An animation or animator resource ID used for the enter animation on the
+     *              view of the fragment being added or attached.
+     * @param exit An animation or animator resource ID used for the exit animation on the
+     *             view of the fragment being removed or detached.
+     * @param popEnter An animation or animator resource ID used for the enter animation on the
+     *                 view of the fragment being readded or reattached caused by
+     *                 {@link FragmentManager#popBackStack()} or similar methods.
+     * @param popExit An animation or animator resource ID used for the enter animation on the
+     *                view of the fragment being removed or detached caused by
+     *                {@link FragmentManager#popBackStack()} or similar methods.
      */
-    public abstract FragmentTransaction setCustomAnimations(@AnimRes int enter,
-            @AnimRes int exit, @AnimRes int popEnter, @AnimRes int popExit);
+    public abstract FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
+            @AnimatorRes @AnimRes int exit, @AnimatorRes @AnimRes int popEnter,
+            @AnimatorRes @AnimRes int popExit);
 
     /**
      * Used with custom Transitions to map a View from a removed or hidden

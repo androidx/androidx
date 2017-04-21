@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v4.app;
 
 import static org.junit.Assert.assertEquals;
@@ -21,49 +22,49 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.Instrumentation;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
+import android.os.Build;
 import android.os.Parcelable;
-import android.support.annotation.AnimRes;
+import android.support.annotation.AnimatorRes;
+import android.support.annotation.RequiresApi;
 import android.support.fragment.test.R;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
-import android.support.v4.view.ViewCompat;
 import android.util.Pair;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class FragmentAnimationTest {
+public class FragmentAnimatorTest {
     // These are pretend resource IDs for animators. We don't need real ones since we
     // load them by overriding onCreateAnimator
-    @AnimRes
+    @AnimatorRes
     private static final int ENTER = 1;
-    @AnimRes
+    @AnimatorRes
     private static final int EXIT = 2;
-    @AnimRes
+    @AnimatorRes
     private static final int POP_ENTER = 3;
-    @AnimRes
+    @AnimatorRes
     private static final int POP_EXIT = 4;
 
     @Rule
     public ActivityTestRule<FragmentTestActivity> mActivityRule =
             new ActivityTestRule<FragmentTestActivity>(FragmentTestActivity.class);
 
-    private Instrumentation mInstrumentation;
-
     @Before
     public void setupContainer() {
-        mInstrumentation = InstrumentationRegistry.getInstrumentation();
         FragmentTestUtil.setContentView(mActivityRule, R.layout.simple_container);
     }
 
@@ -78,6 +79,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -91,13 +93,17 @@ public class FragmentAnimationTest {
 
         // One fragment with a view
         final AnimatorFragment fragment = new AnimatorFragment();
-        fm.beginTransaction().add(R.id.fragmentContainer, fragment, "1").commit();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "1")
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         fm.beginTransaction()
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .remove(fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -105,14 +111,23 @@ public class FragmentAnimationTest {
     }
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
+    // This tests optimized transactions
     @Test
-    public void showAnimators() throws Throwable {
+    public void showAnimatorsOptimized() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
         final AnimatorFragment fragment = new AnimatorFragment();
         fm.beginTransaction().add(R.id.fragmentContainer, fragment).hide(fragment).commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(View.GONE, fragment.getView().getVisibility());
+
+            }
+        });
 
         fm.beginTransaction()
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
@@ -121,7 +136,69 @@ public class FragmentAnimationTest {
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+            }
+        });
+
         assertEnterPopExit(fragment);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(View.GONE, fragment.getView().getVisibility());
+            }
+        });
+    }
+
+    // Ensure that showing and popping a Fragment uses the enter and popExit animators
+    // This tests unoptimized transactions
+    @Test
+    public void showAnimatorsUnoptimized() throws Throwable {
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        // One fragment with a view
+        final AnimatorFragment fragment = new AnimatorFragment();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment)
+                .hide(fragment)
+                .setAllowOptimization(false)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(View.GONE, fragment.getView().getVisibility());
+
+            }
+        });
+
+        fm.beginTransaction()
+                .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+                .show(fragment)
+                .setAllowOptimization(false)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+            }
+        });
+
+        assertEnterPopExit(fragment);
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(View.GONE, fragment.getView().getVisibility());
+            }
+        });
     }
 
     // Ensure that hiding and popping a Fragment uses the exit and popEnter animators
@@ -131,13 +208,17 @@ public class FragmentAnimationTest {
 
         // One fragment with a view
         final AnimatorFragment fragment = new AnimatorFragment();
-        fm.beginTransaction().add(R.id.fragmentContainer, fragment, "1").commit();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "1")
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         fm.beginTransaction()
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .hide(fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -151,13 +232,18 @@ public class FragmentAnimationTest {
 
         // One fragment with a view
         final AnimatorFragment fragment = new AnimatorFragment();
-        fm.beginTransaction().add(R.id.fragmentContainer, fragment).detach(fragment).commit();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment)
+                .detach(fragment)
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         fm.beginTransaction()
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .attach(fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -171,13 +257,17 @@ public class FragmentAnimationTest {
 
         // One fragment with a view
         final AnimatorFragment fragment = new AnimatorFragment();
-        fm.beginTransaction().add(R.id.fragmentContainer, fragment, "1").commit();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "1")
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         fm.beginTransaction()
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .detach(fragment)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -196,6 +286,7 @@ public class FragmentAnimationTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1, "1")
                 .add(R.id.fragmentContainer, fragment2, "2")
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -204,6 +295,7 @@ public class FragmentAnimationTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment3)
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -247,12 +339,16 @@ public class FragmentAnimationTest {
 
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators,
     // but the animators are delayed when an entering Fragment is postponed.
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void postponedRemoveAnimators() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         final AnimatorFragment fragment = new AnimatorFragment();
-        fm.beginTransaction().add(R.id.fragmentContainer, fragment, "1").commit();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment, "1")
+                .setAllowOptimization(true)
+                .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         fm.beginTransaction()
@@ -268,6 +364,7 @@ public class FragmentAnimationTest {
 
     // Ensure that adding and popping a Fragment is postponed in both directions
     // when the fragments have been marked for postponing.
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void postponedAddRemove() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
@@ -296,7 +393,7 @@ public class FragmentAnimationTest {
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
         assertEquals(1f, fragment1.getView().getAlpha(), 0f);
-        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
+        assertTrue(fragment1.getView().isAttachedToWindow());
 
         fragment2.startPostponedEnterTransition();
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -305,6 +402,7 @@ public class FragmentAnimationTest {
     }
 
     // Popping a postponed transaction should result in no animators
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void popPostponed() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
@@ -335,9 +433,8 @@ public class FragmentAnimationTest {
         FragmentTestUtil.popBackStackImmediate(mActivityRule);
 
         assertNotNull(fragment1.getView());
-        assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
         assertEquals(1f, fragment1.getView().getAlpha(), 0f);
-        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
+        assertTrue(fragment1.getView().isAttachedToWindow());
         assertTrue(fragment1.isAdded());
 
         assertNull(fragment2.getView());
@@ -345,8 +442,8 @@ public class FragmentAnimationTest {
 
         assertEquals(0, fragment1.numAnimators);
         assertEquals(0, fragment2.numAnimators);
-        assertNull(fragment1.animation);
-        assertNull(fragment2.animation);
+        assertNull(fragment1.animator);
+        assertNull(fragment2.animator);
     }
 
     // Make sure that if the state was saved while a Fragment was animating that its
@@ -362,32 +459,24 @@ public class FragmentAnimationTest {
         fragment1.setLayoutId(R.layout.scene1);
         fm1.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1, "1")
+                .setAllowOptimization(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         StrictViewFragment fragment2 = new StrictViewFragment();
 
         fm1.beginTransaction()
-                .setCustomAnimations(0, 0, 0, R.anim.long_fade_out)
+                .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
                 .replace(R.id.fragmentContainer, fragment2, "2")
                 .addToBackStack(null)
+                .setAllowOptimization(true)
                 .commit();
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                fm1.executePendingTransactions();
-            }
-        });
+        FragmentTestUtil.executePendingTransactions(mActivityRule, fm1);
         FragmentTestUtil.waitForExecution(mActivityRule);
 
         fm1.popBackStack();
 
-        mInstrumentation.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                fm1.executePendingTransactions();
-            }
-        });
+        FragmentTestUtil.executePendingTransactions(mActivityRule, fm1);
         FragmentTestUtil.waitForExecution(mActivityRule);
         // Now fragment2 should be animating away
         assertFalse(fragment2.isAdded());
@@ -432,6 +521,7 @@ public class FragmentAnimationTest {
         assertFragmentAnimation(replacement, expectedAnimators, true, POP_ENTER);
     }
 
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private void assertExitPostponedPopEnter(AnimatorFragment fragment) throws Throwable {
         assertFragmentAnimation(fragment, 1, false, EXIT);
 
@@ -450,9 +540,9 @@ public class FragmentAnimationTest {
         assertEquals(numAnimators, fragment.numAnimators);
         assertEquals(isEnter, fragment.enter);
         assertEquals(animatorResourceId, fragment.resourceId);
-        assertNotNull(fragment.animation);
-        assertTrue(FragmentTestUtil.waitForAnimationEnd(1000, fragment.animation));
-        assertTrue(fragment.animation.hasStarted());
+        assertNotNull(fragment.animator);
+        assertTrue(fragment.wasStarted);
+        assertTrue(fragment.endLatch.await(200, TimeUnit.MILLISECONDS));
     }
 
     private void assertPostponed(AnimatorFragment fragment, int expectedAnimators)
@@ -465,21 +555,35 @@ public class FragmentAnimationTest {
 
     public static class AnimatorFragment extends StrictViewFragment {
         public int numAnimators;
-        public Animation animation;
+        public Animator animator;
         public boolean enter;
         public int resourceId;
+        public boolean wasStarted;
+        public CountDownLatch endLatch;
 
         @Override
-        public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
             if (nextAnim == 0) {
                 return null;
             }
             this.numAnimators++;
-            this.animation = new TranslateAnimation(-10, 0, 0, 0);
-            this.animation.setDuration(1);
+            this.wasStarted = false;
+            this.animator = ValueAnimator.ofFloat(0, 1).setDuration(1);
+            this.endLatch = new CountDownLatch(1);
+            this.animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    wasStarted = true;
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    endLatch.countDown();
+                }
+            });
             this.resourceId = nextAnim;
             this.enter = enter;
-            return this.animation;
+            return this.animator;
         }
     }
 }
