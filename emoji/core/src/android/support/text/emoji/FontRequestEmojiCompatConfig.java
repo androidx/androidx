@@ -27,7 +27,8 @@ import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
-import android.support.v4.provider.FontsContract;
+import android.support.v4.provider.FontsContractCompat;
+import android.support.v4.provider.FontsContractInternal;
 import android.support.v4.util.Preconditions;
 
 import java.io.FileInputStream;
@@ -42,9 +43,8 @@ import java.util.List;
  * metadata using a {@link FontRequest}. FontRequest should be constructed to fetch an EmojiCompat
  * compatible emoji font.
  * <p/>
- * Uses {@link TypefaceCompat} and {@link FontsContract} in order to fetch the font.
- * See {@link FontRequestCallback#onTypefaceRequestFailed(int)} for more information
- * about the cases where the font loading can fail.
+ * See {@link FontsContractCompat.FontRequestCallback#onTypefaceRequestFailed(int)} for more
+ * information about the cases where the font loading can fail.
  */
 public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
 
@@ -61,26 +61,26 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public FontRequestEmojiCompatConfig(@NonNull Context context, @NonNull FontRequest request,
-            @NonNull FontsContract fontsContract) {
+            @NonNull FontsContractInternal fontsContract) {
         super(new FontRequestMetadataLoader(context, request, fontsContract));
     }
 
 
     /**
-     * MetadataLoader implementation that uses FontsContract and TypefaceCompat to load a given
-     * FontRequest.
+     * MetadataLoader implementation that uses FontsContractInternal and TypefaceCompat to load a
+     * given FontRequest.
      */
     private static class FontRequestMetadataLoader implements EmojiCompat.MetadataLoader {
         private final Context mContext;
         private final FontRequest mRequest;
-        private final FontsContract mFontsContract;
+        private final FontsContractInternal mFontsContract;
 
         FontRequestMetadataLoader(@NonNull Context context, @NonNull FontRequest request) {
-            this(context, request, new FontsContract(context));
+            this(context, request, new FontsContractInternal(context));
         }
 
         FontRequestMetadataLoader(@NonNull Context context, @NonNull FontRequest request,
-                @NonNull FontsContract fontsContract) {
+                @NonNull FontsContractInternal fontsContract) {
             Preconditions.checkNotNull(context, "Context cannot be null");
             Preconditions.checkNotNull(request, "FontRequest cannot be null");
             mContext = context.getApplicationContext();
@@ -107,7 +107,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         private void receiveResult(final EmojiCompat.LoaderCallback loaderCallback,
                 final int resultCode, final Bundle resultData) {
             try {
-                if (resultCode != FontsContract.Columns.RESULT_CODE_OK) {
+                if (resultCode != FontsContractCompat.Columns.RESULT_CODE_OK) {
                     throwException(resultCode);
                 }
 
@@ -115,8 +115,8 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                     throwException(FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
                 }
 
-                final List<FontResult> fontResults =
-                        resultData.getParcelableArrayList(FontsContract.PARCEL_FONT_RESULTS);
+                final List<FontResult> fontResults = resultData.getParcelableArrayList(
+                        FontsContractInternal.PARCEL_FONT_RESULTS);
                 if (fontResults == null || fontResults.isEmpty()) {
                     throwException(FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
                 }

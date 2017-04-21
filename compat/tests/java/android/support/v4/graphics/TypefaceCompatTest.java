@@ -35,7 +35,7 @@ import android.support.v4.app.TestSupportActivity;
 import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
-import android.support.v4.provider.FontsContract;
+import android.support.v4.provider.FontsContractCompat;
 import android.util.Base64;
 
 import org.junit.Before;
@@ -66,7 +66,6 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
     private static final List<List<byte[]>> CERTS = Arrays.asList(Arrays.asList(BYTE_ARRAY));
 
     private TypefaceCompatBaseImpl mCompat;
-    private boolean mIsPreN;
 
     public TypefaceCompatTest() {
         super(TestSupportActivity.class);
@@ -74,9 +73,11 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
 
     @Before
     public void setup() {
-        mIsPreN = Build.VERSION.SDK_INT < Build.VERSION_CODES.N;
-        mCompat = mIsPreN ? new TypefaceCompatBaseImpl(mActivityTestRule.getActivity())
-                : new TypefaceCompatApi24Impl(mActivityTestRule.getActivity());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mCompat = new TypefaceCompatApi24Impl(mActivityTestRule.getActivity());
+        } else {
+            mCompat = new TypefaceCompatBaseImpl(mActivityTestRule.getActivity());
+        }
         TypefaceCompatBaseImpl.putInCache(PROVIDER, QUERY_CACHED, Typeface.MONOSPACE);
     }
 
@@ -95,7 +96,7 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
         FontRequestCallback callback = mock(FontRequestCallback.class);
 
         mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContract.RESULT_CODE_PROVIDER_NOT_FOUND, null);
+                FontsContractCompat.RESULT_CODE_PROVIDER_NOT_FOUND, null);
 
         verify(callback).onTypefaceRequestFailed(
                 FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND);
@@ -106,7 +107,7 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
         FontRequestCallback callback = mock(FontRequestCallback.class);
 
         mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND, null);
+                FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND, null);
 
         verify(callback).onTypefaceRequestFailed(
                 FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
@@ -117,7 +118,7 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
         FontRequestCallback callback = mock(FontRequestCallback.class);
 
         mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContract.Columns.RESULT_CODE_OK, null);
+                FontsContractCompat.Columns.RESULT_CODE_OK, null);
 
         verify(callback).onTypefaceRequestFailed(
                 FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
@@ -128,7 +129,7 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
         FontRequestCallback callback = mock(FontRequestCallback.class);
 
         mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContract.Columns.RESULT_CODE_OK, new Bundle());
+                FontsContractCompat.Columns.RESULT_CODE_OK, new Bundle());
 
         verify(callback).onTypefaceRequestFailed(
                 FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
@@ -139,10 +140,10 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
         FontRequestCallback callback = mock(FontRequestCallback.class);
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(
-                FontsContract.PARCEL_FONT_RESULTS, new ArrayList<FontResult>());
+                FontsContractCompat.PARCEL_FONT_RESULTS, new ArrayList<FontResult>());
 
         mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContract.Columns.RESULT_CODE_OK, bundle);
+                FontsContractCompat.Columns.RESULT_CODE_OK, bundle);
 
         verify(callback).onTypefaceRequestFailed(
                 FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
@@ -151,11 +152,11 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
     @Test
     public void testTypefaceRequestFailureConstantsAreInSync() {
         // Error codes from the provider are positive numbers and are in sync
-        assertEquals(FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND,
+        assertEquals(FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND,
                 TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-        assertEquals(FontsContract.Columns.RESULT_CODE_FONT_UNAVAILABLE,
+        assertEquals(FontsContractCompat.Columns.RESULT_CODE_FONT_UNAVAILABLE,
                 TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_UNAVAILABLE);
-        assertEquals(FontsContract.Columns.RESULT_CODE_MALFORMED_QUERY,
+        assertEquals(FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY,
                 TypefaceCompat.FontRequestCallback.FAIL_REASON_MALFORMED_QUERY);
 
         // Internal errors are negative
