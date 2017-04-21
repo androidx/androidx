@@ -16,11 +16,11 @@
 
 package com.android.flatfoot.apireviewdemo.lifecycle_03_viewmodel;
 
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
 import com.android.flatfoot.apireviewdemo.common.entity.Person;
-import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.ViewModel;
 
 public class AccountViewModel extends ViewModel {
 
@@ -36,7 +36,7 @@ public class AccountViewModel extends ViewModel {
         }
     }
 
-    LiveData<PersonDataWithStatus> personData = new LiveData<>();
+    public final MutableLiveData<PersonDataWithStatus> personData = new MutableLiveData<>();
 
     public AccountViewModel() {
         personData.setValue(new PersonDataWithStatus(null, null, true));

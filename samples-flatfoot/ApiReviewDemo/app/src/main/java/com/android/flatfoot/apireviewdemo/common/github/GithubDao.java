@@ -16,12 +16,13 @@
 
 package com.android.flatfoot.apireviewdemo.common.github;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
+import android.arch.persistence.room.Query;
+
 import com.android.flatfoot.apireviewdemo.common.entity.Person;
-import com.android.support.lifecycle.LiveData;
-import com.android.support.room.Dao;
-import com.android.support.room.Insert;
-import com.android.support.room.OnConflictStrategy;
-import com.android.support.room.Query;
 
 /**
  * Data access object for github data table.

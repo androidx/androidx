@@ -17,8 +17,8 @@
 package com.android.flatfoot.apireviewdemo.db_01_basic;
 
 
-import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
 @Entity
 public class User {

@@ -16,7 +16,7 @@
 
 package com.android.flatfoot.apireviewdemo.db_06_decompose;
 
-import com.android.support.room.Decompose;
+import android.arch.persistence.room.Decompose;
 
 /**
  * Decomposed into {@link School}.

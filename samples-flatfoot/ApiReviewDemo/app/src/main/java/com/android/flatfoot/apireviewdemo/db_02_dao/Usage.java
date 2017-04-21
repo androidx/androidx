@@ -16,10 +16,10 @@
 
 package com.android.flatfoot.apireviewdemo.db_02_dao;
 
+import android.arch.persistence.room.Room;
 import android.content.Context;
 
 import com.android.flatfoot.apireviewdemo.db_01_basic.User;
-import com.android.support.room.Room;
 
 import java.util.List;
 
@@ -27,6 +27,7 @@ import timber.log.Timber;
 
 public class Usage {
     AppDatabase_02 mBasicDatabase;
+
     public Usage(Context context) {
         mBasicDatabase = Room.inMemoryDatabaseBuilder(context.getApplicationContext(),
                 AppDatabase_02.class).build();

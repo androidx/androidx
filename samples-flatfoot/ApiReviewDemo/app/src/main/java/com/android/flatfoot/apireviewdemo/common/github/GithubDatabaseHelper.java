@@ -31,10 +31,10 @@
  */
 package com.android.flatfoot.apireviewdemo.common.github;
 
+import android.arch.persistence.room.Room;
 import android.content.Context;
 
 import com.android.flatfoot.apireviewdemo.DemoApplication;
-import com.android.support.room.Room;
 
 /**
  * Database helper.

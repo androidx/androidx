@@ -16,16 +16,15 @@
 
 package com.android.flatfoot.apireviewdemo.lifecycle_04_shared_viewmodel;
 
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.ViewModel;
 import android.graphics.drawable.ShapeDrawable;
 
-import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.ViewModel;
-
 public class SharedViewModel extends ViewModel {
-    LiveData<ShapeDrawable> shapeDrawableData = createEmpty();
+    public final MutableLiveData<ShapeDrawable> shapeDrawableData = createEmpty();
 
-    private static LiveData<ShapeDrawable> createEmpty() {
-        LiveData<ShapeDrawable> empty = new LiveData<>();
+    private static MutableLiveData<ShapeDrawable> createEmpty() {
+        MutableLiveData<ShapeDrawable> empty = new MutableLiveData<>();
         empty.setValue(null);
         return empty;
     }

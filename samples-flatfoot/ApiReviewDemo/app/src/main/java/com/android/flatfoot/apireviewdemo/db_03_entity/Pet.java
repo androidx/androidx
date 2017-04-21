@@ -16,10 +16,10 @@
 
 package com.android.flatfoot.apireviewdemo.db_03_entity;
 
-import com.android.support.room.ColumnInfo;
-import com.android.support.room.Entity;
-import com.android.support.room.Index;
-import com.android.support.room.PrimaryKey;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 
 @Entity(indices = @Index("name"))
 public class Pet {

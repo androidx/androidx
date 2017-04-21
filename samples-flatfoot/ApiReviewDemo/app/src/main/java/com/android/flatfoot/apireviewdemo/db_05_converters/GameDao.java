@@ -16,9 +16,9 @@
 
 package com.android.flatfoot.apireviewdemo.db_05_converters;
 
-import com.android.support.room.Dao;
-import com.android.support.room.Query;
-import com.android.support.room.TypeConverters;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Query;
+import android.arch.persistence.room.TypeConverters;
 
 import java.util.Calendar;
 import java.util.Date;

@@ -16,11 +16,11 @@
 
 package com.android.flatfoot.apireviewdemo.exercise.db;
 
+import android.arch.persistence.room.Room;
+import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
 import com.android.flatfoot.apireviewdemo.DemoApplication;
-import com.android.support.room.Room;
-import com.android.support.room.RoomDatabase;
 
 //@Database(entities = Note.class)
 abstract public class NoteDatabase extends RoomDatabase {

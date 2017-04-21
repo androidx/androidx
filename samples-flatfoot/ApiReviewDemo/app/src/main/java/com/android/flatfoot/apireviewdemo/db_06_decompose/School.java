@@ -16,9 +16,9 @@
 
 package com.android.flatfoot.apireviewdemo.db_06_decompose;
 
-import com.android.support.room.Decompose;
-import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
+import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
 /**
  * Has decomposed address which has decomposed location so will have all the fields from 3 classes.

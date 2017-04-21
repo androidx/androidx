@@ -16,8 +16,8 @@
 
 package com.android.flatfoot.apireviewdemo.db_05_converters;
 
-import com.android.support.room.Database;
-import com.android.support.room.RoomDatabase;
+import android.arch.persistence.room.Database;
+import android.arch.persistence.room.RoomDatabase;
 
 @Database(entities = Game.class, version = 5)
 public abstract class AppDatabase_05 extends RoomDatabase {

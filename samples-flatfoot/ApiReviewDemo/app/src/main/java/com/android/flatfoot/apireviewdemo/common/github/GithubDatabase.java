@@ -16,9 +16,10 @@
 
 package com.android.flatfoot.apireviewdemo.common.github;
 
+import android.arch.persistence.room.Database;
+import android.arch.persistence.room.RoomDatabase;
+
 import com.android.flatfoot.apireviewdemo.common.entity.Person;
-import com.android.support.room.Database;
-import com.android.support.room.RoomDatabase;
 
 /**
  * Database for Github entities.

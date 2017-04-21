@@ -16,6 +16,9 @@
 
 package com.android.flatfoot.apireviewdemo.full_sample_xxx;
 
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -23,15 +26,12 @@ import android.widget.TextView;
 
 import com.android.flatfoot.apireviewdemo.R;
 import com.android.flatfoot.apireviewdemo.common.entity.Person;
-import com.android.support.lifecycle.LifecycleActivity;
-import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelProviders;
 
 import java.util.Random;
 
 public class SwitchAccountsActivity extends LifecycleActivity {
 
-    private final String[] USERS = new String[] {"yigit", "JakeWharton"};
+    public final String[] USERS = new String[]{"yigit", "JakeWharton"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

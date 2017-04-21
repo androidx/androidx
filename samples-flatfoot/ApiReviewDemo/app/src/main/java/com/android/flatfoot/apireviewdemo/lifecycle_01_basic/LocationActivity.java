@@ -16,6 +16,7 @@
 
 package com.android.flatfoot.apireviewdemo.lifecycle_01_basic;
 
+import android.arch.lifecycle.LifecycleActivity;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,7 +26,6 @@ import android.widget.Toast;
 import com.android.flatfoot.apireviewdemo.R;
 import com.android.flatfoot.apireviewdemo.internal.PermissionUtils;
 import com.android.flatfoot.apireviewdemo.internal.SimpleLocationListener;
-import com.android.support.lifecycle.LifecycleActivity;
 
 public class LocationActivity extends LifecycleActivity {
 

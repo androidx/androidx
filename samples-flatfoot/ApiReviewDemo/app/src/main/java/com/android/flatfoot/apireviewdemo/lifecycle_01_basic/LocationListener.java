@@ -16,15 +16,15 @@
 
 package com.android.flatfoot.apireviewdemo.lifecycle_01_basic;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.location.LocationManager;
 
 import com.android.flatfoot.apireviewdemo.DemoApplication;
 import com.android.flatfoot.apireviewdemo.internal.SimpleLocationListener;
-import com.android.support.lifecycle.Lifecycle;
-import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleOwner;
-import com.android.support.lifecycle.OnLifecycleEvent;
 
 @SuppressWarnings("MissingPermission")
 class LocationListener implements LifecycleObserver {

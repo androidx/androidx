@@ -16,7 +16,7 @@
 
 package com.android.flatfoot.apireviewdemo.db_04_pojo;
 
-import com.android.support.room.ColumnInfo;
+import android.arch.persistence.room.ColumnInfo;
 
 public class UserNameAndPetName {
     @ColumnInfo(name = "user_name")

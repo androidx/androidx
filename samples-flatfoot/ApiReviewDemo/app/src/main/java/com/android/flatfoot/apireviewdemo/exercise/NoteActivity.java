@@ -16,12 +16,12 @@
 
 package com.android.flatfoot.apireviewdemo.exercise;
 
+import android.arch.lifecycle.LifecycleActivity;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.flatfoot.apireviewdemo.R;
-import com.android.support.lifecycle.LifecycleActivity;
 
 public class NoteActivity extends LifecycleActivity {
 

@@ -17,16 +17,16 @@
 package com.android.flatfoot.apireviewdemo.db_01_basic;
 
 
+import android.arch.persistence.db.SupportSQLiteDatabase;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.database.Cursor;
-
-import com.android.support.db.SupportSQLiteDatabase;
-import com.android.support.room.Room;
 
 import timber.log.Timber;
 
 public class Usage {
     BasicDatabase mBasicDatabase;
+
     public Usage(Context context) {
         mBasicDatabase = Room.inMemoryDatabaseBuilder(context.getApplicationContext(),
                 BasicDatabase.class).build();

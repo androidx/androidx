@@ -16,14 +16,14 @@
 
 package com.android.flatfoot.apireviewdemo.lifecycle_03_viewmodel;
 
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import com.android.flatfoot.apireviewdemo.R;
-import com.android.support.lifecycle.LifecycleActivity;
-import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelProviders;
 
 public class OneAccountActivity extends LifecycleActivity {
 

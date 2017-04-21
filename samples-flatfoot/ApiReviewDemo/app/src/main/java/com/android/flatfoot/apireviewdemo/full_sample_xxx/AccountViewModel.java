@@ -16,20 +16,21 @@
 
 package com.android.flatfoot.apireviewdemo.full_sample_xxx;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.android.flatfoot.apireviewdemo.common.entity.Person;
 import com.android.flatfoot.apireviewdemo.common.github.GithubDatabaseHelper;
 import com.android.flatfoot.apireviewdemo.full_sample_xxx.DataManagement.Cancelable;
-import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModel;
 
 public class AccountViewModel extends ViewModel {
 
-    final LiveData<Status> statusData = new LiveData<>();
-    final LiveData<Person> personData = new LiveData<>();
+    public final MutableLiveData<Status> statusData = new MutableLiveData<>();
+    public final MutableLiveData<Person> personData = new MutableLiveData<>();
 
     private final DataManagement mDataManagement = DataManagement.getInstance();
 

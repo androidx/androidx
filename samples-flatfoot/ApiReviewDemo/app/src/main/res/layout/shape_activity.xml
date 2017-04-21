@@ -16,15 +16,15 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <fragment
         android:id="@+id/chosen_color_fragment"
         android:name="com.android.flatfoot.apireviewdemo.lifecycle_04_shared_viewmodel.ChosenShapeFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <fragment
         android:id="@+id/shape_chooser"

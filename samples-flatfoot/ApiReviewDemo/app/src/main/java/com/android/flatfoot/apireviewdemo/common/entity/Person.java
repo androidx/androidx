@@ -16,8 +16,8 @@
 
 package com.android.flatfoot.apireviewdemo.common.entity;
 
-import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
 @Entity
 public class Person {

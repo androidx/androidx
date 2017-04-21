@@ -16,9 +16,8 @@
 
 package com.android.flatfoot.apireviewdemo.db_05_converters;
 
-import com.android.support.room.Entity;
-import com.android.support.room.PrimaryKey;
-import com.android.support.room.TypeConverters;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.TypeConverters;
 
 import java.util.Date;
 
