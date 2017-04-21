@@ -270,10 +270,7 @@ public class ListRowPresenter extends RowPresenter {
 
         @Override
         public void onAttachedToWindow(ItemBridgeAdapter.ViewHolder viewHolder) {
-            if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
-                int dimmedColor = mRowViewHolder.mColorDimmer.getPaint().getColor();
-                mShadowOverlayHelper.setOverlayColor(viewHolder.itemView, dimmedColor);
-            }
+            applySelectLevelToChild(mRowViewHolder, viewHolder.itemView);
             mRowViewHolder.syncActivatedStatus(viewHolder.itemView);
         }
 
@@ -781,29 +778,49 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     /**
-     * Applies select level to header and draw a default color dim over each child
+     * Applies select level to header and draws a default color dim over each child
      * of {@link HorizontalGridView}.
      * <p>
-     * Subclass may override this method.  A subclass
-     * needs to call super.onSelectLevelChanged() for applying header select level
-     * and optionally applying a default select level to each child view of
-     * {@link HorizontalGridView} if {@link #isUsingDefaultListSelectEffect()}
-     * is true.  Subclass may override {@link #isUsingDefaultListSelectEffect()} to return
-     * false and deal with the individual item select level by itself.
+     * Subclass may override this method and starts with calling super if it has views to apply
+     * select effect other than header and HorizontalGridView.
+     * To override the default color dim over each child of {@link HorizontalGridView},
+     * app should override {@link #isUsingDefaultListSelectEffect()} to
+     * return false and override {@link #applySelectLevelToChild(ViewHolder, View)}.
      * </p>
+     * @see #isUsingDefaultListSelectEffect()
+     * @see RowPresenter.ViewHolder#getSelectLevel()
+     * @see #applySelectLevelToChild(ViewHolder, View)
      */
     @Override
     protected void onSelectLevelChanged(RowPresenter.ViewHolder holder) {
         super.onSelectLevelChanged(holder);
+        ViewHolder vh = (ViewHolder) holder;
+        for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
+            applySelectLevelToChild(vh, vh.mGridView.getChildAt(i));
+        }
+    }
+
+    /**
+     * Applies select level to a child.  Default implementation draws a default color
+     * dim over each child of {@link HorizontalGridView}. This method is called on all children in
+     * {@link #onSelectLevelChanged(RowPresenter.ViewHolder)} and when a child is attached to
+     * {@link HorizontalGridView}.
+     * <p>
+     * Subclass may disable the default implementation by override
+     * {@link #isUsingDefaultListSelectEffect()} to return false and deal with the individual item
+     * select level by itself.
+     * </p>
+     * @param rowViewHolder The ViewHolder of the Row
+     * @param childView The child of {@link HorizontalGridView} to apply select level.
+     *
+     * @see #isUsingDefaultListSelectEffect()
+     * @see RowPresenter.ViewHolder#getSelectLevel()
+     * @see #onSelectLevelChanged(RowPresenter.ViewHolder)
+     */
+    protected void applySelectLevelToChild(ViewHolder rowViewHolder, View childView) {
         if (mShadowOverlayHelper != null && mShadowOverlayHelper.needsOverlay()) {
-            ViewHolder vh = (ViewHolder) holder;
-            int dimmedColor = vh.mColorDimmer.getPaint().getColor();
-            for (int i = 0, count = vh.mGridView.getChildCount(); i < count; i++) {
-                mShadowOverlayHelper.setOverlayColor(vh.mGridView.getChildAt(i), dimmedColor);
-            }
-            if (vh.mGridView.getFadingLeftEdge()) {
-                vh.mGridView.invalidate();
-            }
+            int dimmedColor = rowViewHolder.mColorDimmer.getPaint().getColor();
+            mShadowOverlayHelper.setOverlayColor(childView, dimmedColor);
         }
     }
 

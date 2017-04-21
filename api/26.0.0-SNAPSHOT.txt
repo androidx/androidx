@@ -4657,6 +4657,7 @@ package android.support.v17.leanback.widget {
     ctor public ListRowPresenter();
     ctor public ListRowPresenter(int);
     ctor public ListRowPresenter(int, boolean);
+    method protected void applySelectLevelToChild(android.support.v17.leanback.widget.ListRowPresenter.ViewHolder, android.view.View);
     method public final boolean areChildRoundedCornersEnabled();
     method protected android.support.v17.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
     method protected android.support.v17.leanback.widget.ShadowOverlayHelper.Options createShadowOverlayOptions();
