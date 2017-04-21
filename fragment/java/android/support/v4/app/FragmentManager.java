@@ -18,6 +18,12 @@ package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources.NotFoundException;
@@ -29,6 +35,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StringRes;
 import android.support.v4.util.ArraySet;
@@ -626,74 +633,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     static final String VIEW_STATE_TAG = "android:view_state";
     static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
-    static class AnimateOnHWLayerIfNeededListener implements AnimationListener {
-        private AnimationListener mOriginalListener;
-        private boolean mShouldRunOnHWLayer;
-        View mView;
-
-        public AnimateOnHWLayerIfNeededListener(final View v, Animation anim) {
-            if (v == null || anim == null) {
-                return;
-            }
-            mView = v;
-        }
-
-        public AnimateOnHWLayerIfNeededListener(final View v, Animation anim,
-                AnimationListener listener) {
-            if (v == null || anim == null) {
-                return;
-            }
-            mOriginalListener = listener;
-            mView = v;
-            mShouldRunOnHWLayer = true;
-        }
-
-        @Override
-        @CallSuper
-        public void onAnimationStart(Animation animation) {
-            if (mOriginalListener != null) {
-                mOriginalListener.onAnimationStart(animation);
-            }
-        }
-
-        @Override
-        @CallSuper
-        public void onAnimationEnd(Animation animation) {
-            if (mView != null && mShouldRunOnHWLayer) {
-                // If we're attached to a window, assume we're in the normal performTraversals
-                // drawing path for Animations running. It's not safe to change the layer type
-                // during drawing, so post it to the View to run later. If we're not attached
-                // or we're running on N and above, post it to the view. If we're not on N and
-                // not attached, do it right now since existing platform versions don't run the
-                // hwui renderer for detached views off the UI thread making changing layer type
-                // safe, but posting may not be.
-                // Prior to N posting to a detached view from a non-Looper thread could cause
-                // leaks, since the thread-local run queue on a non-Looper thread would never
-                // be flushed.
-                if (ViewCompat.isAttachedToWindow(mView) || Build.VERSION.SDK_INT >= 24) {
-                    mView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mView.setLayerType(View.LAYER_TYPE_NONE, null);
-                        }
-                    });
-                } else {
-                    mView.setLayerType(View.LAYER_TYPE_NONE, null);
-                }
-            }
-            if (mOriginalListener != null) {
-                mOriginalListener.onAnimationEnd(animation);
-            }
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-            if (mOriginalListener != null) {
-                mOriginalListener.onAnimationRepeat(animation);
-            }
-        }
-    }
-
     ArrayList<OpGenerator> mPendingActions;
     boolean mExecutingActions;
 
@@ -747,13 +686,38 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     };
 
-    static boolean modifiesAlpha(Animation anim) {
-        if (anim instanceof AlphaAnimation) {
+    static boolean modifiesAlpha(AnimationOrAnimator anim) {
+        if (anim.animation instanceof AlphaAnimation) {
             return true;
-        } else if (anim instanceof AnimationSet) {
-            List<Animation> anims = ((AnimationSet) anim).getAnimations();
+        } else if (anim.animation instanceof AnimationSet) {
+            List<Animation> anims = ((AnimationSet) anim.animation).getAnimations();
             for (int i = 0; i < anims.size(); i++) {
                 if (anims.get(i) instanceof AlphaAnimation) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return modifiesAlpha(anim.animator);
+        }
+    }
+
+    static boolean modifiesAlpha(Animator anim) {
+        if (anim == null) {
+            return false;
+        }
+        if (anim instanceof ValueAnimator) {
+            ValueAnimator valueAnim = (ValueAnimator) anim;
+            PropertyValuesHolder[] values = valueAnim.getValues();
+            for (int i = 0; i < values.length; i++) {
+                if (("alpha").equals(values[i].getPropertyName())) {
+                    return true;
+                }
+            }
+        } else if (anim instanceof AnimatorSet) {
+            List<Animator> animList = ((AnimatorSet) anim).getChildAnimations();
+            for (int i = 0; i < animList.size(); i++) {
+                if (modifiesAlpha(animList.get(i))) {
                     return true;
                 }
             }
@@ -761,7 +725,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return false;
     }
 
-    static boolean shouldRunOnHWLayer(View v, Animation anim) {
+    static boolean shouldRunOnHWLayer(View v, AnimationOrAnimator anim) {
+        if (v == null || anim == null) {
+            return false;
+        }
         return Build.VERSION.SDK_INT >= 19
                 && v.getLayerType() == View.LAYER_TYPE_NONE
                 && ViewCompat.hasOverlappingRendering(v)
@@ -1114,7 +1081,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     static final int ANIM_DUR = 220;
 
-    static Animation makeOpenCloseAnimation(Context context, float startScale,
+    static AnimationOrAnimator makeOpenCloseAnimation(Context context, float startScale,
             float endScale, float startAlpha, float endAlpha) {
         AnimationSet set = new AnimationSet(false);
         ScaleAnimation scale = new ScaleAnimation(startScale, endScale, startScale, endScale,
@@ -1126,28 +1093,66 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         alpha.setInterpolator(DECELERATE_CUBIC);
         alpha.setDuration(ANIM_DUR);
         set.addAnimation(alpha);
-        return set;
+        return new AnimationOrAnimator(set);
     }
 
-    static Animation makeFadeAnimation(Context context, float start, float end) {
+    static AnimationOrAnimator makeFadeAnimation(Context context, float start, float end) {
         AlphaAnimation anim = new AlphaAnimation(start, end);
         anim.setInterpolator(DECELERATE_CUBIC);
         anim.setDuration(ANIM_DUR);
-        return anim;
+        return new AnimationOrAnimator(anim);
     }
 
-    Animation loadAnimation(Fragment fragment, int transit, boolean enter,
+    AnimationOrAnimator loadAnimation(Fragment fragment, int transit, boolean enter,
             int transitionStyle) {
-        Animation animObj = fragment.onCreateAnimation(transit, enter, fragment.getNextAnim());
-        if (animObj != null) {
-            return animObj;
+        int nextAnim = fragment.getNextAnim();
+        Animation animation = fragment.onCreateAnimation(transit, enter, nextAnim);
+        if (animation != null) {
+            return new AnimationOrAnimator(animation);
         }
 
-        if (fragment.getNextAnim() != 0) {
-            Animation anim = AnimationUtils.loadAnimation(mHost.getContext(),
-                    fragment.getNextAnim());
-            if (anim != null) {
-                return anim;
+        Animator animator = fragment.onCreateAnimator(transit, enter, nextAnim);
+        if (animator != null) {
+            return new AnimationOrAnimator(animator);
+        }
+
+        if (nextAnim != 0) {
+            String dir = mHost.getContext().getResources().getResourceTypeName(nextAnim);
+            boolean isAnim = "anim".equals(dir);
+            boolean successfulLoad = false;
+            if (isAnim) {
+                // try AnimationUtils first
+                try {
+                    animation = AnimationUtils.loadAnimation(mHost.getContext(), nextAnim);
+                    if (animation != null) {
+                        return new AnimationOrAnimator(animation);
+                    }
+                    // A null animation may be returned and that is acceptable
+                    successfulLoad = true; // succeeded in loading animation, but it is null
+                } catch (NotFoundException e) {
+                    throw e; // Rethrow it -- the resource should be found if it is provided.
+                } catch (RuntimeException e) {
+                    // Other exceptions can occur when loading an Animator from AnimationUtils.
+                }
+            }
+            if (!successfulLoad) {
+                // try Animator
+                try {
+                    animator = AnimatorInflater.loadAnimator(mHost.getContext(), nextAnim);
+                    if (animator != null) {
+                        return new AnimationOrAnimator(animator);
+                    }
+                } catch (RuntimeException e) {
+                    if (isAnim) {
+                        // Rethrow it -- we already tried AnimationUtils and it failed.
+                        throw e;
+                    }
+                    // Otherwise, it is probably an animation resource
+                    animation = AnimationUtils.loadAnimation(mHost.getContext(), nextAnim);
+                    if (animation != null) {
+                        return new AnimationOrAnimator(animation);
+                    }
+                }
             }
         }
 
@@ -1175,6 +1180,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 return makeFadeAnimation(mHost.getContext(), 1, 0);
         }
 
+        // TODO: remove or fix transitionStyle -- it apparently never worked.
         if (transitionStyle == 0 && mHost.onHasWindowAnimations()) {
             transitionStyle = mHost.onGetWindowAnimations();
         }
@@ -1214,30 +1220,42 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * animations that already have listeners should do the layer change operations
      * in their existing listeners, rather than calling this function.
      */
-    private void setHWLayerAnimListenerIfAlpha(final View v, Animation anim) {
+    private static void setHWLayerAnimListenerIfAlpha(final View v, AnimationOrAnimator anim) {
         if (v == null || anim == null) {
             return;
         }
         if (shouldRunOnHWLayer(v, anim)) {
-            AnimationListener originalListener = null;
-            try {
-                if (sAnimationListenerField == null) {
-                    sAnimationListenerField = Animation.class.getDeclaredField("mListener");
-                    sAnimationListenerField.setAccessible(true);
-                }
-                originalListener = (AnimationListener) sAnimationListenerField.get(anim);
-            } catch (NoSuchFieldException e) {
-                Log.e(TAG, "No field with the name mListener is found in Animation class", e);
-            } catch (IllegalAccessException e) {
-                Log.e(TAG, "Cannot access Animation's mListener field", e);
+            if (anim.animator != null) {
+                anim.animator.addListener(new AnimatorOnHWLayerIfNeededListener(v));
+            } else {
+                AnimationListener originalListener = getAnimationListener(anim.animation);
+                // If there's already a listener set on the animation, we need wrap the new listener
+                // around the existing listener, so that they will both get animation listener
+                // callbacks.
+                v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                anim.animation.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v,
+                        originalListener));
             }
-            // If there's already a listener set on the animation, we need wrap the new listener
-            // around the existing listener, so that they will both get animation listener
-            // callbacks.
-            v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(v, anim,
-                    originalListener));
         }
+    }
+
+    /**
+     * Returns an existing AnimationListener on an Animation or {@code null} if none exists.
+     */
+    private static AnimationListener getAnimationListener(Animation animation) {
+        AnimationListener originalListener = null;
+        try {
+            if (sAnimationListenerField == null) {
+                sAnimationListenerField = Animation.class.getDeclaredField("mListener");
+                sAnimationListenerField.setAccessible(true);
+            }
+            originalListener = (AnimationListener) sAnimationListenerField.get(animation);
+        } catch (NoSuchFieldException e) {
+            Log.e(TAG, "No field with the name mListener is found in Animation class", e);
+        } catch (IllegalAccessException e) {
+            Log.e(TAG, "Cannot access Animation's mListener field", e);
+        }
+        return originalListener;
     }
 
     boolean isStateAtLeast(int state) {
@@ -1271,12 +1289,13 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             if (f.mFromLayout && !f.mInLayout) {
                 return;
             }
-            if (f.getAnimatingAway() != null) {
+            if (f.getAnimatingAway() != null || f.getAnimator() != null) {
                 // The fragment is currently being animated...  but!  Now we
                 // want to move our state back up.  Give up on waiting for the
                 // animation, move to whatever the final state should be once
                 // the animation is done, and then we can proceed from there.
                 f.setAnimatingAway(null);
+                f.setAnimator(null);
                 moveToState(f, f.getStateAfterAnimating(), 0, 0, true);
             }
             switch (f.mState) {
@@ -1460,7 +1479,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         f.performDestroyView();
                         dispatchOnFragmentViewDestroyed(f, false);
                         if (f.mView != null && f.mContainer != null) {
-                            Animation anim = null;
+                            AnimationOrAnimator anim = null;
                             if (mCurState > Fragment.INITIALIZING && !mDestroyed
                                     && f.mView.getVisibility() == View.VISIBLE
                                     && f.mPostponedAlpha >= 0) {
@@ -1469,23 +1488,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             }
                             f.mPostponedAlpha = 0;
                             if (anim != null) {
-                                final Fragment fragment = f;
-                                f.setAnimatingAway(f.mView);
-                                f.setStateAfterAnimating(newState);
-                                final View viewToAnimate = f.mView;
-                                anim.setAnimationListener(new AnimateOnHWLayerIfNeededListener(
-                                        viewToAnimate, anim) {
-                                    @Override
-                                    public void onAnimationEnd(Animation animation) {
-                                        super.onAnimationEnd(animation);
-                                        if (fragment.getAnimatingAway() != null) {
-                                            fragment.setAnimatingAway(null);
-                                            moveToState(fragment, fragment.getStateAfterAnimating(),
-                                                    0, 0, false);
-                                        }
-                                    }
-                                });
-                                f.mView.startAnimation(anim);
+                                animateRemoveFragment(f, anim, newState);
                             }
                             f.mContainer.removeView(f.mView);
                         }
@@ -1497,19 +1500,23 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 case Fragment.CREATED:
                     if (newState < Fragment.CREATED) {
                         if (mDestroyed) {
+                            // The fragment's containing activity is
+                            // being destroyed, but this fragment is
+                            // currently animating away.  Stop the
+                            // animation right now -- it is not needed,
+                            // and we can't wait any more on destroying
+                            // the fragment.
                             if (f.getAnimatingAway() != null) {
-                                // The fragment's containing activity is
-                                // being destroyed, but this fragment is
-                                // currently animating away.  Stop the
-                                // animation right now -- it is not needed,
-                                // and we can't wait any more on destroying
-                                // the fragment.
                                 View v = f.getAnimatingAway();
                                 f.setAnimatingAway(null);
                                 v.clearAnimation();
+                            } else if (f.getAnimator() != null) {
+                                Animator animator = f.getAnimator();
+                                f.setAnimator(null);
+                                animator.cancel();
                             }
                         }
-                        if (f.getAnimatingAway() != null) {
+                        if (f.getAnimatingAway() != null || f.getAnimator() != null) {
                             // We are waiting for the fragment's view to finish
                             // animating away.  Just make a note of the state
                             // the fragment now should move to once the animation
@@ -1548,6 +1555,59 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
     }
 
+    /**
+     * Animates the removal of a fragment with the given animator or animation. After animating,
+     * the fragment's view will be removed from the hierarchy.
+     *
+     * @param fragment The fragment to animate out
+     * @param anim The animator or animation to run on the fragment's view
+     * @param newState The final state after animating.
+     */
+    private void animateRemoveFragment(@NonNull final Fragment fragment,
+            @NonNull AnimationOrAnimator anim, final int newState) {
+        final View viewToAnimate = fragment.mView;
+        fragment.setStateAfterAnimating(newState);
+        if (anim.animation != null) {
+            Animation animation = anim.animation;
+            fragment.setAnimatingAway(fragment.mView);
+            AnimationListener listener = getAnimationListener(animation);
+            animation.setAnimationListener(new AnimationListenerWrapper(listener) {
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    super.onAnimationEnd(animation);
+                    if (fragment.getAnimatingAway() != null) {
+                        fragment.setAnimatingAway(null);
+                        moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0, false);
+                    }
+                }
+            });
+            setHWLayerAnimListenerIfAlpha(viewToAnimate, anim);
+            fragment.mView.startAnimation(animation);
+        } else {
+            final Animator animator = anim.animator;
+            fragment.setAnimator(anim.animator);
+            final ViewGroup container = fragment.mContainer;
+            if (container != null) {
+                container.startViewTransition(viewToAnimate);
+            }
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator anim) {
+                    if (container != null) {
+                        container.endViewTransition(viewToAnimate);
+                    }
+                    if (fragment.getAnimator() != null) {
+                        fragment.setAnimator(null);
+                        moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0, false);
+                    }
+                }
+            });
+            animator.setTarget(fragment.mView);
+            setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
+            animator.start();
+        }
+    }
+
     void moveToState(Fragment f) {
         moveToState(f, mCurState, 0, 0, false);
     }
@@ -1580,20 +1640,48 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      */
     void completeShowHideFragment(final Fragment fragment) {
         if (fragment.mView != null) {
-            Animation anim = loadAnimation(fragment, fragment.getNextTransition(),
+            AnimationOrAnimator anim = loadAnimation(fragment, fragment.getNextTransition(),
                     !fragment.mHidden, fragment.getNextTransitionStyle());
-            if (anim != null) {
+            if (anim != null && anim.animator != null) {
+                anim.animator.setTarget(fragment.mView);
+                if (fragment.mHidden) {
+                    if (fragment.isHideReplaced()) {
+                        fragment.setHideReplaced(false);
+                    } else {
+                        final ViewGroup container = fragment.mContainer;
+                        final View animatingView = fragment.mView;
+                        container.startViewTransition(animatingView);
+                        // Delay the actual hide operation until the animation finishes,
+                        // otherwise the fragment will just immediately disappear
+                        anim.animator.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                container.endViewTransition(animatingView);
+                                animation.removeListener(this);
+                                if (fragment.mView != null) {
+                                    fragment.mView.setVisibility(View.GONE);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    fragment.mView.setVisibility(View.VISIBLE);
+                }
                 setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
-                fragment.mView.startAnimation(anim);
-                setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
-                anim.start();
-            }
-            final int visibility = fragment.mHidden && !fragment.isHideReplaced()
-                    ? View.GONE
-                    : View.VISIBLE;
-            fragment.mView.setVisibility(visibility);
-            if (fragment.isHideReplaced()) {
-                fragment.setHideReplaced(false);
+                anim.animator.start();
+            } else {
+                if (anim != null) {
+                    setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
+                    fragment.mView.startAnimation(anim.animation);
+                    anim.animation.start();
+                }
+                final int visibility = fragment.mHidden && !fragment.isHideReplaced()
+                        ? View.GONE
+                        : View.VISIBLE;
+                fragment.mView.setVisibility(visibility);
+                if (fragment.isHideReplaced()) {
+                    fragment.setHideReplaced(false);
+                }
             }
         }
         if (fragment.mAdded && fragment.mHasMenu && fragment.mMenuVisible) {
@@ -1645,11 +1733,16 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 f.mPostponedAlpha = 0f;
                 f.mIsNewlyAdded = false;
                 // run animations:
-                Animation anim = loadAnimation(f, f.getNextTransition(), true,
+                AnimationOrAnimator anim = loadAnimation(f, f.getNextTransition(), true,
                         f.getNextTransitionStyle());
                 if (anim != null) {
                     setHWLayerAnimListenerIfAlpha(f.mView, anim);
-                    f.mView.startAnimation(anim);
+                    if (anim.animation != null) {
+                        f.mView.startAnimation(anim.animation);
+                    } else {
+                        anim.animator.setTarget(f.mView);
+                        anim.animator.start();
+                    }
                 }
             }
         }
@@ -2291,8 +2384,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     /**
      * Any fragments that were removed because they have been postponed should have their views
-     * made invisible by setting their alpha to 0 on API >= 11 or setting visibility to INVISIBLE
-     * on API < 11.
+     * made invisible by setting their alpha to 0.
      *
      * @param fragments The fragments that were added during operation execution. Only the ones
      *                  that are no longer added will have their alpha changed.
@@ -2516,19 +2608,23 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         final int numFragments = mActive == null ? 0 : mActive.size();
         for (int i = 0; i < numFragments; i++) {
             Fragment fragment = mActive.valueAt(i);
-            if (fragment != null && fragment.getAnimatingAway() != null) {
-                // Give up waiting for the animation and just end it.
-                final int stateAfterAnimating = fragment.getStateAfterAnimating();
-                final View animatingAway = fragment.getAnimatingAway();
-                fragment.setAnimatingAway(null);
-                Animation animation = animatingAway.getAnimation();
-                if (animation != null) {
-                    animation.cancel();
-                    // force-clear the animation, as Animation#cancel() doesn't work prior to N,
-                    // and will instead cause the animation to infinitely loop
-                    animatingAway.clearAnimation();
+            if (fragment != null) {
+                if (fragment.getAnimatingAway() != null) {
+                    // Give up waiting for the animation and just end it.
+                    final int stateAfterAnimating = fragment.getStateAfterAnimating();
+                    final View animatingAway = fragment.getAnimatingAway();
+                    fragment.setAnimatingAway(null);
+                    Animation animation = animatingAway.getAnimation();
+                    if (animation != null) {
+                        animation.cancel();
+                        // force-clear the animation, as Animation#cancel() doesn't work prior to N,
+                        // and will instead cause the animation to infinitely loop
+                        animatingAway.clearAnimation();
+                    }
+                    moveToState(fragment, stateAfterAnimating, 0, 0, false);
+                } else if (fragment.getAnimator() != null) {
+                    fragment.getAnimator().end();
                 }
-                moveToState(fragment, stateAfterAnimating, 0, 0, false);
             }
         }
     }
@@ -3793,6 +3889,125 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
          */
         public void cancelTransaction() {
             mRecord.mManager.completeExecute(mRecord, mIsBack, false, false);
+        }
+    }
+
+    /**
+     * Contains either an animator or animation. One of these should be null.
+     */
+    private static class AnimationOrAnimator {
+        public final Animation animation;
+        public final Animator animator;
+
+        private AnimationOrAnimator(Animation animation) {
+            this.animation = animation;
+            this.animator = null;
+            if (animation == null) {
+                throw new IllegalStateException("Animation cannot be null");
+            }
+        }
+
+        private AnimationOrAnimator(Animator animator) {
+            this.animation = null;
+            this.animator = animator;
+            if (animator == null) {
+                throw new IllegalStateException("Animator cannot be null");
+            }
+        }
+    }
+
+    /**
+     * Wrap an AnimationListener that can be null. This allows us to chain animation listeners.
+     */
+    private static class AnimationListenerWrapper implements AnimationListener {
+        private final AnimationListener mWrapped;
+
+        private AnimationListenerWrapper(AnimationListener wrapped) {
+            mWrapped = wrapped;
+        }
+
+        @CallSuper
+        @Override
+        public void onAnimationStart(Animation animation) {
+            if (mWrapped != null) {
+                mWrapped.onAnimationStart(animation);
+            }
+        }
+
+        @CallSuper
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            if (mWrapped != null) {
+                mWrapped.onAnimationEnd(animation);
+            }
+        }
+
+        @CallSuper
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+            if (mWrapped != null) {
+                mWrapped.onAnimationRepeat(animation);
+            }
+        }
+    }
+
+    /**
+     * Reset the layer type to LAYER_TYPE_NONE at the end of an animation.
+     */
+    private static class AnimateOnHWLayerIfNeededListener extends AnimationListenerWrapper  {
+        View mView;
+
+        AnimateOnHWLayerIfNeededListener(final View v, AnimationListener listener) {
+            super(listener);
+            mView = v;
+        }
+
+        @Override
+        @CallSuper
+        public void onAnimationEnd(Animation animation) {
+            // If we're attached to a window, assume we're in the normal performTraversals
+            // drawing path for Animations running. It's not safe to change the layer type
+            // during drawing, so post it to the View to run later. If we're not attached
+            // or we're running on N and above, post it to the view. If we're not on N and
+            // not attached, do it right now since existing platform versions don't run the
+            // hwui renderer for detached views off the UI thread making changing layer type
+            // safe, but posting may not be.
+            // Prior to N posting to a detached view from a non-Looper thread could cause
+            // leaks, since the thread-local run queue on a non-Looper thread would never
+            // be flushed.
+            if (ViewCompat.isAttachedToWindow(mView) || Build.VERSION.SDK_INT >= 24) {
+                mView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mView.setLayerType(View.LAYER_TYPE_NONE, null);
+                    }
+                });
+            } else {
+                mView.setLayerType(View.LAYER_TYPE_NONE, null);
+            }
+            super.onAnimationEnd(animation);
+        }
+    }
+
+    /**
+     * Set the layer type to LAYER_TYPE_HARDWARE while an animator is running.
+     */
+    private static class AnimatorOnHWLayerIfNeededListener extends AnimatorListenerAdapter  {
+        View mView;
+
+        AnimatorOnHWLayerIfNeededListener(final View v) {
+            mView = v;
+        }
+
+        @Override
+        public void onAnimationStart(Animator animation) {
+            mView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            mView.setLayerType(View.LAYER_TYPE_NONE, null);
+            animation.removeListener(this);
         }
     }
 }

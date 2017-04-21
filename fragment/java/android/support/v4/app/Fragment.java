@@ -18,6 +18,7 @@ package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.ComponentCallbacks;
 import android.content.Context;
@@ -1334,9 +1335,41 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Called when a fragment loads an animation.
+     * Called when a fragment loads an animation. Note that if
+     * {@link FragmentTransaction#setCustomAnimations(int, int)} was called with
+     * {@link Animator} resources instead of {@link Animation} resources, {@code nextAnim}
+     * will be an animator resource.
+     *
+     * @param transit The value set in {@link FragmentTransaction#setTransition(int)} or 0 if not
+     *                set.
+     * @param enter {@code true} when the fragment is added/attached/shown or {@code false} when
+     *              the fragment is removed/detached/hidden.
+     * @param nextAnim The resource set in
+     *                 {@link FragmentTransaction#setCustomAnimations(int, int)},
+     *                 {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}, or
+     *                 0 if neither was called. The value will depend on the current operation.
      */
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        return null;
+    }
+
+    /**
+     * Called when a fragment loads an animator. This will be called when
+     * {@link #onCreateAnimation(int, boolean, int)} returns null. Note that if
+     * {@link FragmentTransaction#setCustomAnimations(int, int)} was called with
+     * {@link Animation} resources instead of {@link Animator} resources, {@code nextAnim}
+     * will be an animation resource.
+     *
+     * @param transit The value set in {@link FragmentTransaction#setTransition(int)} or 0 if not
+     *                set.
+     * @param enter {@code true} when the fragment is added/attached/shown or {@code false} when
+     *              the fragment is removed/detached/hidden.
+     * @param nextAnim The resource set in
+     *                 {@link FragmentTransaction#setCustomAnimations(int, int)},
+     *                 {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}, or
+     *                 0 if neither was called. The value will depend on the current operation.
+     */
+    public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
         return null;
     }
 
@@ -2657,6 +2690,17 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         ensureAnimationInfo().mAnimatingAway = view;
     }
 
+    void setAnimator(Animator animator) {
+        ensureAnimationInfo().mAnimator = animator;
+    }
+
+    Animator getAnimator() {
+        if (mAnimationInfo == null) {
+            return null;
+        }
+        return mAnimationInfo.mAnimator;
+    }
+
     int getStateAfterAnimating() {
         if (mAnimationInfo == null) {
             return 0;
@@ -2705,6 +2749,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // meaning we need to wait a bit on completely destroying it.  This is the
         // view that is animating.
         View mAnimatingAway;
+
+        // Non-null if the fragment's view hierarchy is currently animating away with an
+        // animator instead of an animation.
+        Animator mAnimator;
 
         // If mAnimatingAway != null, this is the state we should move to once the
         // animation is done.

@@ -5831,6 +5831,7 @@ package android.support.v4.app {
     method public boolean onContextItemSelected(android.view.MenuItem);
     method public void onCreate(android.os.Bundle);
     method public android.view.animation.Animation onCreateAnimation(int, boolean, int);
+    method public android.animation.Animator onCreateAnimator(int, boolean, int);
     method public void onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo);
     method public void onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
     method public android.view.View onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle);
