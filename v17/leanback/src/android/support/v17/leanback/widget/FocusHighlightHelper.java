@@ -22,6 +22,7 @@ import static android.support.v17.leanback.widget.FocusHighlight.ZOOM_FACTOR_XSM
 import android.animation.TimeAnimator;
 import android.content.res.Resources;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.app.HeadersFragment;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -203,30 +204,59 @@ public class FocusHighlightHelper {
      * Sets up default focus highlight behavior of a focused item in header list. It would scale
      * the focused item and update
      * {@link RowHeaderPresenter#onSelectLevelChanged(RowHeaderPresenter.ViewHolder)}.
-     * Equivalent to call setupHeaderItemFocusHighlight(gridView, true). This method should be
-     * called after header fragment onViewCreated().
+     * Equivalent to call setupHeaderItemFocusHighlight(gridView, true).
      *
      * @param gridView  The header list.
+     * @deprecated Use {@link #setupHeaderItemFocusHighlight(ItemBridgeAdapter)}
      */
+    @Deprecated
     public static void setupHeaderItemFocusHighlight(VerticalGridView gridView) {
         setupHeaderItemFocusHighlight(gridView, true);
     }
 
     /**
-     * Sets up the focus highlight behavior of a focused item in header list. This method should be
-     * called after header fragment onViewCreated().
+     * Sets up the focus highlight behavior of a focused item in header list.
      *
      * @param gridView  The header list.
      * @param scaleEnabled True if scale the item when focused, false otherwise. Note that
      * {@link RowHeaderPresenter#onSelectLevelChanged(RowHeaderPresenter.ViewHolder)}
      * will always be called regardless value of scaleEnabled.
+     * @deprecated Use {@link #setupHeaderItemFocusHighlight(ItemBridgeAdapter, boolean)}
      */
+    @Deprecated
     public static void setupHeaderItemFocusHighlight(VerticalGridView gridView,
                                                      boolean scaleEnabled) {
         if (gridView != null && gridView.getAdapter() instanceof ItemBridgeAdapter) {
             ((ItemBridgeAdapter) gridView.getAdapter())
                     .setFocusHighlight(new HeaderItemFocusHighlight(scaleEnabled));
         }
+    }
+
+    /**
+     * Sets up default focus highlight behavior of a focused item in header list. It would scale
+     * the focused item and update
+     * {@link RowHeaderPresenter#onSelectLevelChanged(RowHeaderPresenter.ViewHolder)}.
+     * Equivalent to call setupHeaderItemFocusHighlight(itemBridgeAdapter, true).
+     *
+     * @param adapter  The adapter of HeadersFragment.
+     * @see {@link HeadersFragment#getBridgeAdapter()}
+     */
+    public static void setupHeaderItemFocusHighlight(ItemBridgeAdapter adapter) {
+        setupHeaderItemFocusHighlight(adapter, true);
+    }
+
+    /**
+     * Sets up the focus highlight behavior of a focused item in header list.
+     *
+     * @param adapter  The adapter of HeadersFragment.
+     * @param scaleEnabled True if scale the item when focused, false otherwise. Note that
+     * {@link RowHeaderPresenter#onSelectLevelChanged(RowHeaderPresenter.ViewHolder)}
+     * will always be called regardless value of scaleEnabled.
+     * @see {@link HeadersFragment#getBridgeAdapter()}
+     */
+    public static void setupHeaderItemFocusHighlight(ItemBridgeAdapter adapter,
+            boolean scaleEnabled) {
+        adapter.setFocusHighlight(new HeaderItemFocusHighlight(scaleEnabled));
     }
 
     static class HeaderItemFocusHighlight implements FocusHighlightHandler {
