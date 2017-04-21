@@ -1030,6 +1030,7 @@ class FragmentTransition {
      *                               added fragments have Views in the hierarchy or false if the
      *                               operations haven't been executed yet.
      */
+    @SuppressWarnings("ReferenceEquality")
     private static void addToFirstInLastOut(BackStackRecord transaction, BackStackRecord.Op op,
             SparseArray<FragmentContainerTransition> transitioningFragments, boolean isPop,
             boolean isOptimizedTransaction) {
@@ -1097,7 +1098,7 @@ class FragmentTransition {
                 containerTransition.firstOut = null;
             }
 
-            /**
+            /*
              * Ensure that fragments that are entering are at least at the CREATED state
              * so that they may load Transitions using TransitionInflater.
              */
