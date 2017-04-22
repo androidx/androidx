@@ -16,18 +16,17 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
-
 import android.arch.core.executor.JunitTaskExecutorRule;
 import android.arch.core.executor.TaskExecutor;
+import android.support.annotation.Nullable;
+import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Rule;

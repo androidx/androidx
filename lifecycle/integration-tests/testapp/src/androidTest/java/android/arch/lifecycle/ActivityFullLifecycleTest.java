@@ -16,6 +16,12 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 import static android.arch.lifecycle.testapp.TestEvent.ACTIVITY_CALLBACK;
 import static android.arch.lifecycle.testapp.TestEvent.LIFECYCLE_EVENT;
 
@@ -23,15 +29,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import android.app.Activity;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
-import android.util.Pair;
-
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.testapp.CollectingActivity;
 import android.arch.lifecycle.testapp.FrameworkLifecycleRegistryActivity;
 import android.arch.lifecycle.testapp.FullLifecycleTestActivity;
 import android.arch.lifecycle.testapp.SupportLifecycleRegistryActivity;
 import android.arch.lifecycle.testapp.TestEvent;
+import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.util.Pair;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,21 +70,24 @@ public class ActivityFullLifecycleTest {
     @Test
     public void testFullLifecycle() throws InterruptedException {
         Activity activity = activityTestRule.getActivity();
-        List<Pair<TestEvent, Integer>> results = ((CollectingActivity) activity)
+        List<Pair<TestEvent, Event>> results = ((CollectingActivity) activity)
                 .waitForCollectedEvents();
 
-        int[] expectedEvents =
-                new int[]{Lifecycle.ON_CREATE, Lifecycle.ON_START, Lifecycle.ON_RESUME,
-                        Lifecycle.ON_PAUSE, Lifecycle.ON_STOP, Lifecycle.ON_DESTROY};
+        Event[] expectedEvents =
+                new Event[]{ON_CREATE, ON_START, ON_RESUME, ON_PAUSE, ON_STOP, ON_DESTROY};
 
-        List<Pair<TestEvent, Integer>> expected = new ArrayList<>();
-        for (int i : expectedEvents) {
-            if (i <= Lifecycle.ON_RESUME) {
+        List<Pair<TestEvent, Event>> expected = new ArrayList<>();
+        boolean beforeResume = true;
+        for (Event i : expectedEvents) {
+            if (beforeResume) {
                 expected.add(new Pair<>(ACTIVITY_CALLBACK, i));
                 expected.add(new Pair<>(LIFECYCLE_EVENT, i));
             } else {
                 expected.add(new Pair<>(LIFECYCLE_EVENT, i));
                 expected.add(new Pair<>(ACTIVITY_CALLBACK, i));
+            }
+            if (i == ON_RESUME) {
+                beforeResume = false;
             }
         }
         assertThat(results, is(expected));

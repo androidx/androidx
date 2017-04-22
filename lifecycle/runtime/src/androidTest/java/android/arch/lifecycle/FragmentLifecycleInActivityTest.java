@@ -16,6 +16,13 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -23,13 +30,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.arch.lifecycle.activity.FragmentLifecycleActivity;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.Fragment;
-
-import android.arch.lifecycle.activity.FragmentLifecycleActivity;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -70,17 +76,17 @@ public class FragmentLifecycleInActivityTest {
     public void testFullEvents() throws Throwable {
         final FragmentLifecycleActivity activity = launchActivity();
         waitForIdle();
-        assertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START, Lifecycle.ON_RESUME);
+        assertEvents(ON_CREATE, ON_START, ON_RESUME);
         reset();
         finishActivity(activity);
-        assertEvents(Lifecycle.ON_PAUSE, Lifecycle.ON_STOP, Lifecycle.ON_DESTROY);
+        assertEvents(ON_PAUSE, ON_STOP, ON_DESTROY);
     }
 
     @Test
     public void testStopStart() throws Throwable {
         final FragmentLifecycleActivity activity = launchActivity();
         waitForIdle();
-        assertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START, Lifecycle.ON_RESUME);
+        assertEvents(ON_CREATE, ON_START, ON_RESUME);
         reset();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -90,7 +96,7 @@ public class FragmentLifecycleInActivityTest {
             }
         });
         waitForIdle();
-        assertEvents(Lifecycle.ON_PAUSE, Lifecycle.ON_STOP);
+        assertEvents(ON_PAUSE, ON_STOP);
         reset();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -100,7 +106,7 @@ public class FragmentLifecycleInActivityTest {
             }
         });
         waitForIdle();
-        assertEvents(Lifecycle.ON_START, Lifecycle.ON_RESUME);
+        assertEvents(ON_START, ON_RESUME);
     }
 
     private FragmentLifecycleActivity launchActivity() throws Throwable {
@@ -143,7 +149,7 @@ public class FragmentLifecycleInActivityTest {
         monitor.waitForActivity();
     }
 
-    private void assertEvents(Integer... events) {
+    private void assertEvents(Lifecycle.Event... events) {
         assertThat(mActivityRule.getActivity().getLoggedEvents(), is(Arrays.asList(events)));
     }
 }

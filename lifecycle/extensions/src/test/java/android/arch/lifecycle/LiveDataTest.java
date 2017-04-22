@@ -16,12 +16,12 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.ON_CREATE;
-import static android.arch.lifecycle.Lifecycle.ON_DESTROY;
-import static android.arch.lifecycle.Lifecycle.ON_PAUSE;
-import static android.arch.lifecycle.Lifecycle.ON_RESUME;
-import static android.arch.lifecycle.Lifecycle.ON_START;
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -36,11 +36,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
-
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
+import android.support.annotation.Nullable;
+import android.support.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;

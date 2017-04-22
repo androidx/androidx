@@ -25,10 +25,9 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.support.test.filters.SmallTest;
-
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
+import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -65,8 +64,8 @@ public class MediatorLiveDataTest {
         };
         mSourceActive = false;
         mMediator.observe(mOwner, mock(Observer.class));
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_CREATE);
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_START);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
     @Before
@@ -80,7 +79,7 @@ public class MediatorLiveDataTest {
         mMediator.addSource(mSource, observer);
         mSource.setValue("flatfoot");
         verify(observer).onChanged("flatfoot");
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_STOP);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         reset(observer);
         verify(observer, never()).onChanged(any());
     }
@@ -92,10 +91,10 @@ public class MediatorLiveDataTest {
         mMediator.observe(mOwner, mock(Observer.class));
         mSource.setValue("one");
         verify(observer).onChanged("one");
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_STOP);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         reset(observer);
         mSource.setValue("flatfoot");
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_START);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
         verify(observer).onChanged("flatfoot");
     }
 
@@ -111,11 +110,11 @@ public class MediatorLiveDataTest {
     @Test
     public void testAddSourceToInActive() {
         mSource.setValue("flatfoot");
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_STOP);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         Observer observer = mock(Observer.class);
         mMediator.addSource(mSource, observer);
         verify(observer, never()).onChanged(any());
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_START);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
         verify(observer).onChanged("flatfoot");
     }
 
@@ -136,9 +135,9 @@ public class MediatorLiveDataTest {
         Observer observer = mock(Observer.class);
         mMediator.addSource(mSource, observer);
         assertThat(mSourceActive, is(true));
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_STOP);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         assertThat(mSourceActive, is(false));
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_START);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
         assertThat(mSourceActive, is(true));
     }
 
@@ -151,8 +150,8 @@ public class MediatorLiveDataTest {
         Observer observer = mock(Observer.class);
         mMediator.addSource(mSource, observer);
         assertThat(mSource.getObserverCount(), is(1));
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_STOP);
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_DESTROY);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         mMediator = null;
         assertThat(mSource.getObserverCount(), is(0));
     }
@@ -172,7 +171,7 @@ public class MediatorLiveDataTest {
         verify(observer1, never()).onChanged(any());
         verify(observer2).onChanged(1703);
         reset(observer1, observer2);
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_STOP);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         mSource.setValue("failure");
         source2.setValue(0);
         verify(observer1, never()).onChanged(any());

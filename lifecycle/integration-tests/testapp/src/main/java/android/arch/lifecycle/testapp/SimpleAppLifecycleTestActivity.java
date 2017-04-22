@@ -51,14 +51,14 @@ public class SimpleAppLifecycleTestActivity extends LifecycleActivity {
         }
 
         @SuppressWarnings("unused")
-        @OnLifecycleEvent(Lifecycle.ON_ANY)
-        void onEvent(LifecycleOwner provider, @Lifecycle.Event int event) {
+        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+        void onEvent(LifecycleOwner provider, Lifecycle.Event event) {
             sCollectedEvents.add(new Pair<>(mType, event));
             sLatch.countDown();
         }
     }
 
-    static List<Pair<TestEventType, Integer>> sCollectedEvents = new ArrayList<>();
+    static List<Pair<TestEventType, Lifecycle.Event>> sCollectedEvents = new ArrayList<>();
     static CountDownLatch sLatch = new CountDownLatch(11);
 
     /**
@@ -92,7 +92,7 @@ public class SimpleAppLifecycleTestActivity extends LifecycleActivity {
     /**
      * returns collected events
      */
-    public static List<Pair<TestEventType, Integer>> awaitForEvents()
+    public static List<Pair<TestEventType, Lifecycle.Event>> awaitForEvents()
             throws InterruptedException {
         boolean success = sLatch.await(TIMEOUT_SECS, TimeUnit.SECONDS);
         return success ? sCollectedEvents : null;

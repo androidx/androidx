@@ -1,8 +1,9 @@
 package foo;
 
-import static android.arch.lifecycle.Lifecycle.ON_START;
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
@@ -16,7 +17,7 @@ public class Bar {
     }
 
     @OnLifecycleEvent(ON_STOP)
-    public void doOnStop2Args(LifecycleOwner provider, int lastEvent) {
+    public void doOnStop2Args(LifecycleOwner provider, Event lastEvent) {
     }
 
     public static class Inner1 {

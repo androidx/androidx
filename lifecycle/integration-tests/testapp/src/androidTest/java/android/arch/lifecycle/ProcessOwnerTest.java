@@ -16,6 +16,10 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 import static android.arch.lifecycle.TestUtils.waitTillResumed;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,16 +27,16 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import android.app.Instrumentation;
+import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.testapp.NavigationDialogActivity;
+import android.arch.lifecycle.testapp.NavigationTestActivityFirst;
+import android.arch.lifecycle.testapp.NavigationTestActivitySecond;
 import android.content.Context;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-
-import android.arch.lifecycle.testapp.NavigationDialogActivity;
-import android.arch.lifecycle.testapp.NavigationTestActivityFirst;
-import android.arch.lifecycle.testapp.NavigationTestActivitySecond;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -54,7 +58,7 @@ public class ProcessOwnerTest {
     static class ProcessObserver implements LifecycleObserver {
         volatile boolean mChangedState;
 
-        @OnLifecycleEvent(Lifecycle.ON_ANY)
+        @OnLifecycleEvent(Event.ON_ANY)
         void onEvent() {
             mChangedState = true;
         }
@@ -111,11 +115,11 @@ public class ProcessOwnerTest {
         LifecycleActivity dialogActivity = (LifecycleActivity) monitor.waitForActivity();
         checkProcessObserverSilent(dialogActivity);
 
-        List<Integer> events = Collections.synchronizedList(new ArrayList<>());
+        List<Event> events = Collections.synchronizedList(new ArrayList<>());
 
         LifecycleObserver collectingObserver = new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.ON_ANY)
-            public void onStateChanged(LifecycleOwner provider, @Lifecycle.Event int event) {
+            @OnLifecycleEvent(Event.ON_ANY)
+            public void onStateChanged(LifecycleOwner provider, Event event) {
                 events.add(event);
             }
         };
@@ -123,12 +127,12 @@ public class ProcessOwnerTest {
         events.clear();
         assertThat(activity.moveTaskToBack(true), is(true));
         Thread.sleep(ProcessLifecycleOwner.TIMEOUT_MS * 2);
-        assertThat(events.toArray(), is(new Integer[]{Lifecycle.ON_PAUSE, Lifecycle.ON_STOP}));
+        assertThat(events.toArray(), is(new Event[]{ON_PAUSE, ON_STOP}));
         events.clear();
         Context context = InstrumentationRegistry.getContext();
         context.startActivity(new Intent(activity, NavigationDialogActivity.class));
         waitTillResumed(dialogActivity, activityTestRule);
-        assertThat(events.toArray(), is(new Integer[]{Lifecycle.ON_START, Lifecycle.ON_RESUME}));
+        assertThat(events.toArray(), is(new Event[]{ON_START, ON_RESUME}));
         removeProcessObserver(collectingObserver);
         dialogActivity.finish();
     }

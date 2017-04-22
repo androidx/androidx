@@ -16,13 +16,14 @@
 
 package bar;
 
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import foo.DifferentPackagesBase2;
 
 public class DifferentPackagesDerived2 extends DifferentPackagesBase2 {
     @OnLifecycleEvent(ON_STOP)
-    void onStop2(LifecycleOwner provider, int prevstate){}
+    void onStop2(LifecycleOwner provider, Event event){}
 }

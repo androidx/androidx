@@ -52,44 +52,44 @@ public class ReportFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         dispatchCreate(mProcessListener);
-        dispatch(Lifecycle.ON_CREATE);
+        dispatch(Lifecycle.Event.ON_CREATE);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         dispatchStart(mProcessListener);
-        dispatch(Lifecycle.ON_START);
+        dispatch(Lifecycle.Event.ON_START);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         dispatchResume(mProcessListener);
-        dispatch(Lifecycle.ON_RESUME);
+        dispatch(Lifecycle.Event.ON_RESUME);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        dispatch(Lifecycle.ON_PAUSE);
+        dispatch(Lifecycle.Event.ON_PAUSE);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        dispatch(Lifecycle.ON_STOP);
+        dispatch(Lifecycle.Event.ON_STOP);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        dispatch(Lifecycle.ON_DESTROY);
+        dispatch(Lifecycle.Event.ON_DESTROY);
         // just want to be sure that we won't leak reference to an activity
         mProcessListener = null;
     }
 
-    private void dispatch(@Lifecycle.Event int event) {
+    private void dispatch(Lifecycle.Event event) {
         if (getActivity() instanceof LifecycleRegistryOwner) {
             ((LifecycleRegistryOwner) getActivity()).getLifecycle().handleLifecycleEvent(event);
         }

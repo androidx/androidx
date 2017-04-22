@@ -17,27 +17,28 @@
 package bar;
 
 import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import foo.DifferentPackagesBase1_LifecycleAdapter;
 import java.lang.Object;
 import java.lang.Override;
 
 public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecycleObserver {
-    final DifferentPackagesDerived1 mReceiver;
+  final DifferentPackagesDerived1 mReceiver;
 
-    DifferentPackagesDerived1_LifecycleAdapter(DifferentPackagesDerived1 receiver) {
-        this.mReceiver = receiver;
-    }
+  DifferentPackagesDerived1_LifecycleAdapter(DifferentPackagesDerived1 receiver) {
+    this.mReceiver = receiver;
+  }
 
-    @Override
-    public void onStateChanged(LifecycleOwner owner, int event) {
-        if ((event & 8192) != 0) {
-            DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver, owner, event);
-            mReceiver.onStop2(owner, event);
-        }
+  @Override
+  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
+    if (event == Lifecycle.Event.ON_STOP) {
+      DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver,owner,event);
+      mReceiver.onStop2(owner,event);
     }
+  }
 
-    public Object getReceiver() {
-        return mReceiver;
-    }
+  public Object getReceiver() {
+    return mReceiver;
+  }
 }

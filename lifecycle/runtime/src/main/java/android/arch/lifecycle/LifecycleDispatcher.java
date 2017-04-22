@@ -16,9 +16,12 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.ON_DESTROY;
-import static android.arch.lifecycle.Lifecycle.ON_PAUSE;
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import android.app.Activity;
 import android.app.Application;
@@ -119,7 +122,7 @@ class LifecycleDispatcher {
             dispatch(ON_DESTROY);
         }
 
-        protected void dispatch(@Lifecycle.Event int event) {
+        protected void dispatch(Lifecycle.Event event) {
             dispatchIfLifecycleOwner(getParentFragment(), event);
         }
     }
@@ -150,7 +153,7 @@ class LifecycleDispatcher {
         markState(activity.getSupportFragmentManager(), state);
     }
 
-    private static void dispatchIfLifecycleOwner(Fragment fragment, @Lifecycle.Event int event) {
+    private static void dispatchIfLifecycleOwner(Fragment fragment, Lifecycle.Event event) {
         if (fragment instanceof LifecycleRegistryOwner) {
             ((LifecycleRegistryOwner) fragment).getLifecycle().handleLifecycleEvent(event);
         }
@@ -162,7 +165,7 @@ class LifecycleDispatcher {
 
         @Override
         public void onFragmentCreated(FragmentManager fm, Fragment f, Bundle savedInstanceState) {
-            dispatchIfLifecycleOwner(f, Lifecycle.ON_CREATE);
+            dispatchIfLifecycleOwner(f, ON_CREATE);
 
             if (!(f instanceof LifecycleRegistryOwner)) {
                 return;
@@ -176,12 +179,12 @@ class LifecycleDispatcher {
 
         @Override
         public void onFragmentStarted(FragmentManager fm, Fragment f) {
-            dispatchIfLifecycleOwner(f, Lifecycle.ON_START);
+            dispatchIfLifecycleOwner(f, ON_START);
         }
 
         @Override
         public void onFragmentResumed(FragmentManager fm, Fragment f) {
-            dispatchIfLifecycleOwner(f, Lifecycle.ON_RESUME);
+            dispatchIfLifecycleOwner(f, ON_RESUME);
         }
     }
 }

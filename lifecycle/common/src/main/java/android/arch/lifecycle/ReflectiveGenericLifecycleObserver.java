@@ -16,14 +16,18 @@
 
 package android.arch.lifecycle;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.support.annotation.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An internal implementation of {@link GenericLifecycleObserver} that relies on reflection.
@@ -41,15 +45,15 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     }
 
     @Override
-    public void onStateChanged(LifecycleOwner source, @Lifecycle.Event int event) {
+    public void onStateChanged(LifecycleOwner source, Event event) {
         final int state = source.getLifecycle().getCurrentState();
         invokeCallbacks(mInfo, source, state, event);
     }
 
     @SuppressWarnings("ConstantConditions")
     private void invokeCallbacks(CallbackInfo info, LifecycleOwner source,
-            @Lifecycle.State int state, @Lifecycle.Event int event) {
-        if ((info.mEvents & event) != 0) {
+            @Lifecycle.State int state, Event event) {
+        if (info.mEvents.contains(event)) {
             for (int i = info.mMethodReferences.size() - 1; i >= 0; i--) {
                 MethodReference reference = info.mMethodReferences.get(i);
                 invokeCallback(reference, source, state, event);
@@ -68,8 +72,9 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     }
 
     private void invokeCallback(MethodReference reference, LifecycleOwner source,
-            @Lifecycle.State int state, @Lifecycle.Event  int event) {
-        if ((reference.mEvents & event) != 0) {
+            @Lifecycle.State int state, Event event) {
+        if (reference.mEvents.contains(event)) {
+            //noinspection TryWithIdenticalCatches
             try {
                 switch (reference.mCallType) {
                     case CALL_TYPE_NO_ARG:
@@ -107,7 +112,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     private static CallbackInfo createInfo(Class klass) {
         Method[] methods = klass.getDeclaredMethods();
         List<MethodReference> methodReferences = null;
-        int allEvents = 0;
+        Set<Event> allEvents = new HashSet<>();
         for (Method method : methods) {
             OnLifecycleEvent annotation = method.getAnnotation(OnLifecycleEvent.class);
             if (annotation == null) {
@@ -124,7 +129,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
             }
             if (params.length > 1) {
                 callType = CALL_TYPE_PROVIDER_WITH_EVENT;
-                if (!params[1].isAssignableFrom(int.class)) {
+                if (!params[1].isAssignableFrom(Event.class)) {
                     throw new IllegalArgumentException(
                             "invalid parameter type. second arg must be an event");
                 }
@@ -135,8 +140,9 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
             if (methodReferences == null) {
                 methodReferences = new ArrayList<>();
             }
-            methodReferences.add(new MethodReference(annotation.value(), callType, method));
-            allEvents |= annotation.value();
+            Set<Event> events = expandOnAnyEvents(annotation.value());
+            methodReferences.add(new MethodReference(events, callType, method));
+            allEvents.addAll(events);
         }
         CallbackInfo info = new CallbackInfo(allEvents, methodReferences);
         sInfoCache.put(klass, info);
@@ -147,7 +153,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         Class[] interfaces = klass.getInterfaces();
         for (Class intrfc : interfaces) {
             CallbackInfo interfaceInfo = getInfo(intrfc);
-            if (interfaceInfo.mEvents != 0) {
+            if (!interfaceInfo.mEvents.isEmpty()) {
                 if (info.mInterfaces == null) {
                     info.mInterfaces = new ArrayList<>();
                 }
@@ -159,7 +165,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     @SuppressWarnings("WeakerAccess")
     static class CallbackInfo {
-        int mEvents;
+        final Set<Event> mEvents;
         @Nullable
         List<MethodReference> mMethodReferences;
         @Nullable
@@ -167,7 +173,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         @Nullable
         CallbackInfo mSuper;
 
-        CallbackInfo(int events, @Nullable List<MethodReference> methodReferences) {
+        CallbackInfo(Set<Event> events, @Nullable List<MethodReference> methodReferences) {
             mEvents = events;
             mMethodReferences = methodReferences;
         }
@@ -175,16 +181,46 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     @SuppressWarnings("WeakerAccess")
     static class MethodReference {
-        final int mEvents;
+        final Set<Event> mEvents;
         final int mCallType;
         final Method mMethod;
 
-        MethodReference(int events, int callType, Method method) {
+        MethodReference(Set<Event> events, int callType, Method method) {
             mEvents = events;
             mCallType = callType;
             mMethod = method;
+            mMethod.setAccessible(true);
         }
     }
+
+    private static Set<Event> expandOnAnyEvents(Event[] events) {
+        boolean hasOnAllEvents = false;
+        for (Event e: events) {
+            if (e == Event.ON_ANY) {
+                hasOnAllEvents = true;
+                break;
+            }
+        }
+
+        if (!hasOnAllEvents) {
+            HashSet<Event> set = new HashSet<>();
+            Collections.addAll(set, events);
+            return set;
+        } else {
+            return ALL_EVENTS;
+        }
+    }
+
+    private static final Set<Event> ALL_EVENTS = new HashSet<Event>() {
+        {
+            add(Event.ON_CREATE);
+            add(Event.ON_START);
+            add(Event.ON_RESUME);
+            add(Event.ON_PAUSE);
+            add(Event.ON_STOP);
+            add(Event.ON_DESTROY);
+        }
+    };
 
     private static final int CALL_TYPE_NO_ARG = 0;
     private static final int CALL_TYPE_PROVIDER = 1;

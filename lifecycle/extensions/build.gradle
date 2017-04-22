@@ -30,6 +30,7 @@ dependencies {
     compile project(":lifecycle:runtime")
     compile project(":arch:core")
     compile libs.support.fragments
+
     testCompile project(":arch:core-testing")
     testCompile libs.junit
     testCompile libs.mockito.all

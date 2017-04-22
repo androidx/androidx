@@ -16,18 +16,17 @@
 
 package android.arch.lifecycle.service;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleService;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LifecycleService;
-import android.arch.lifecycle.OnLifecycleEvent;
 
 public class TestService extends LifecycleService {
 
@@ -38,8 +37,8 @@ public class TestService extends LifecycleService {
 
     public TestService() {
         getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.ON_ANY)
-            public void anyEvent(LifecycleOwner owner, @Lifecycle.Event int event) {
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            public void anyEvent(LifecycleOwner owner, Lifecycle.Event event) {
                 Context context = (TestService) owner;
                 Intent intent = new Intent(ACTION_LOG_EVENT);
                 intent.putExtra(EXTRA_KEY_EVENT, event);

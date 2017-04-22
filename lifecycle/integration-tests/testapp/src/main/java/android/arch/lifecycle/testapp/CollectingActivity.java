@@ -16,6 +16,7 @@
 
 package android.arch.lifecycle.testapp;
 
+import android.arch.lifecycle.Lifecycle;
 import android.util.Pair;
 
 import java.util.List;
@@ -32,5 +33,5 @@ public interface CollectingActivity {
      * @return The list of collected events.
      * @throws InterruptedException
      */
-    List<Pair<TestEvent, Integer>> waitForCollectedEvents() throws InterruptedException;
+    List<Pair<TestEvent, Lifecycle.Event>> waitForCollectedEvents() throws InterruptedException;
 }

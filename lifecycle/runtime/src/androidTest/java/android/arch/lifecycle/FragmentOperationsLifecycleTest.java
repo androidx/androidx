@@ -16,25 +16,24 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.ON_CREATE;
-import static android.arch.lifecycle.Lifecycle.ON_DESTROY;
-import static android.arch.lifecycle.Lifecycle.ON_PAUSE;
-import static android.arch.lifecycle.Lifecycle.ON_RESUME;
-import static android.arch.lifecycle.Lifecycle.ON_START;
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import static java.util.Arrays.asList;
 
+import android.arch.lifecycle.activity.EmptyActivity;
+import android.arch.lifecycle.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.FragmentManager;
-
-import android.arch.lifecycle.activity.EmptyActivity;
-import android.arch.lifecycle.test.R;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -100,15 +99,15 @@ public class FragmentOperationsLifecycleTest {
     }
 
     private static class CollectingObserver implements LifecycleObserver {
-        final List<Integer> mCollectedEvents = new ArrayList<>();
+        final List<Lifecycle.Event> mCollectedEvents = new ArrayList<>();
 
-        @OnLifecycleEvent(Lifecycle.ON_ANY)
-        public void anyEvent(LifecycleOwner owner, @Lifecycle.Event int event) {
+        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+        public void anyEvent(LifecycleOwner owner, Lifecycle.Event event) {
             mCollectedEvents.add(event);
         }
 
-        List<Integer> getEventsAndReset() {
-            ArrayList<Integer> events = new ArrayList<>(mCollectedEvents);
+        List<Lifecycle.Event> getEventsAndReset() {
+            ArrayList<Lifecycle.Event> events = new ArrayList<>(mCollectedEvents);
             mCollectedEvents.clear();
             return events;
         }

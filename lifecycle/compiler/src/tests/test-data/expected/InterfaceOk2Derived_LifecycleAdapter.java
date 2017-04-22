@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,28 @@
 package foo;
 
 import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-
 import java.lang.Object;
 import java.lang.Override;
 
 public class InterfaceOk2Derived_LifecycleAdapter implements GenericLifecycleObserver {
-    final InterfaceOk2Derived mReceiver;
+  final InterfaceOk2Derived mReceiver;
 
-    InterfaceOk2Derived_LifecycleAdapter(InterfaceOk2Derived receiver) {
-        this.mReceiver = receiver;
-    }
+  InterfaceOk2Derived_LifecycleAdapter(InterfaceOk2Derived receiver) {
+    this.mReceiver = receiver;
+  }
 
-    @Override
-    public void onStateChanged(LifecycleOwner owner, int event) {
-        if ((event & 8192) != 0) {
-            mReceiver.onStop1(owner, event);
-            mReceiver.onStop2(owner, event);
-            mReceiver.onStop3(owner, event);
-        }
+  @Override
+  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
+    if (event == Lifecycle.Event.ON_STOP) {
+      mReceiver.onStop1(owner,event);
+      mReceiver.onStop2(owner,event);
+      mReceiver.onStop3(owner,event);
     }
+  }
 
-    public Object getReceiver() {
-        return mReceiver;
-    }
+  public Object getReceiver() {
+    return mReceiver;
+  }
 }
-

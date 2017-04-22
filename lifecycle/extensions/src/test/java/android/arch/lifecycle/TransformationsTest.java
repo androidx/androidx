@@ -23,11 +23,10 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.support.test.filters.SmallTest;
-
 import android.arch.core.executor.AppToolkitTaskExecutor;
-import android.arch.lifecycle.util.InstantTaskExecutor;
 import android.arch.core.util.Function;
+import android.arch.lifecycle.util.InstantTaskExecutor;
+import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,8 +50,8 @@ public class TransformationsTest {
         mOwner = mock(LifecycleOwner.class);
         LifecycleRegistry registry = new LifecycleRegistry(mOwner);
         when(mOwner.getLifecycle()).thenReturn(registry);
-        registry.handleLifecycleEvent(Lifecycle.ON_CREATE);
-        registry.handleLifecycleEvent(Lifecycle.ON_START);
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+        registry.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
     @Test

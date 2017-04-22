@@ -16,7 +16,7 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -24,6 +24,9 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
+import android.arch.lifecycle.viewmodeltest.TestViewModel;
+import android.arch.lifecycle.viewmodeltest.ViewModelActivity;
+import android.arch.lifecycle.viewmodeltest.ViewModelActivity.ViewModelFragment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
@@ -31,10 +34,6 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-
-import android.arch.lifecycle.viewmodeltest.TestViewModel;
-import android.arch.lifecycle.viewmodeltest.ViewModelActivity;
-import android.arch.lifecycle.viewmodeltest.ViewModelActivity.ViewModelFragment;
 
 import org.junit.Rule;
 import org.junit.Test;

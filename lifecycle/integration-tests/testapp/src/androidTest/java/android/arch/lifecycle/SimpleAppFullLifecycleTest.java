@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.notNullValue;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.testapp.SimpleAppLifecycleTestActivity;
 import android.arch.lifecycle.testapp.SimpleAppLifecycleTestActivity.TestEventType;
 import android.support.test.filters.LargeTest;
@@ -43,24 +44,24 @@ public class SimpleAppFullLifecycleTest {
     @SuppressWarnings("unchecked")
     private static final Pair[] EXPECTED_EVENTS_CONSTRUCTION =
             new Pair[] {
-                new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_CREATE),
-                new Pair(TestEventType.ACTIVITY_EVENT, Lifecycle.ON_CREATE),
-                new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_START),
-                new Pair(TestEventType.ACTIVITY_EVENT, Lifecycle.ON_START),
-                new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_RESUME),
-                new Pair(TestEventType.ACTIVITY_EVENT, Lifecycle.ON_RESUME),
+                new Pair(TestEventType.PROCESS_EVENT, Event.ON_CREATE),
+                new Pair(TestEventType.ACTIVITY_EVENT, Event.ON_CREATE),
+                new Pair(TestEventType.PROCESS_EVENT, Event.ON_START),
+                new Pair(TestEventType.ACTIVITY_EVENT, Event.ON_START),
+                new Pair(TestEventType.PROCESS_EVENT, Event.ON_RESUME),
+                new Pair(TestEventType.ACTIVITY_EVENT, Event.ON_RESUME),
             };
 
     @SuppressWarnings("unchecked")
     private static final Pair[] EXPECTED_EVENTS_DESTRUCTION =
             new Pair[]{
 
-                    new Pair(TestEventType.ACTIVITY_EVENT, Lifecycle.ON_PAUSE),
-                    new Pair(TestEventType.ACTIVITY_EVENT, Lifecycle.ON_STOP),
-                    new Pair(TestEventType.ACTIVITY_EVENT, Lifecycle.ON_DESTROY),
+                    new Pair(TestEventType.ACTIVITY_EVENT, Event.ON_PAUSE),
+                    new Pair(TestEventType.ACTIVITY_EVENT, Event.ON_STOP),
+                    new Pair(TestEventType.ACTIVITY_EVENT, Event.ON_DESTROY),
 
-                    new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_PAUSE),
-                    new Pair(TestEventType.PROCESS_EVENT, Lifecycle.ON_STOP),
+                    new Pair(TestEventType.PROCESS_EVENT, Event.ON_PAUSE),
+                    new Pair(TestEventType.PROCESS_EVENT, Event.ON_STOP),
             };
     @Rule
     public ActivityTestRule<SimpleAppLifecycleTestActivity> activityTestRule =
@@ -87,13 +88,13 @@ public class SimpleAppFullLifecycleTest {
         int currentState = ProcessLifecycleOwner.get().getLifecycle().getCurrentState();
         assertThat(currentState, is(Lifecycle.STOPPED));
         activityTestRule.launchActivity(null);
-        List<Pair<TestEventType, Integer>> events = SimpleAppLifecycleTestActivity.awaitForEvents();
+        List<Pair<TestEventType, Event>> events = SimpleAppLifecycleTestActivity.awaitForEvents();
         assertThat("Failed to await for events", events, notNullValue());
         //noinspection ConstantConditions
         assertThat(events.subList(0, 6).toArray(), is(EXPECTED_EVENTS_CONSTRUCTION));
 
         // TODO: bug 35122523
-        for (Pair<TestEventType, Integer> event: events.subList(6, 11)) {
+        for (Pair<TestEventType, Event> event: events.subList(6, 11)) {
             assertThat(event, isIn(EXPECTED_EVENTS_DESTRUCTION));
         }
     }

@@ -28,12 +28,12 @@ import android.support.annotation.VisibleForTesting;
  * Class that provides lifecycle for the whole application process.
  * <p>
  * You can consider this LifecycleOwner as the composite of all of your Activities, except that
- * {@link Lifecycle#ON_CREATE} will be dispatched once and {@link Lifecycle#ON_DESTROY} will never
- * be dispatched. Other lifecycle events will be dispatched with following rules:
- * ProcessLifecycleOwner will dispatch {@link Lifecycle#ON_START}, {@link Lifecycle#ON_RESUME}
- * events, as a first activity moves through these events.
- * {@link Lifecycle#ON_PAUSE}, {@link Lifecycle#ON_STOP}, events will be dispatched with a
- * <b>delay</b> after a last activity
+ * {@link Lifecycle.Event#ON_CREATE} will be dispatched once and {@link Lifecycle.Event#ON_DESTROY}
+ * will never be dispatched. Other lifecycle events will be dispatched with following rules:
+ * ProcessLifecycleOwner will dispatch {@link Lifecycle.Event#ON_START},
+ * {@link Lifecycle.Event#ON_RESUME} events, as a first activity moves through these events.
+ * {@link Lifecycle.Event#ON_PAUSE}, {@link Lifecycle.Event#ON_STOP}, events will be dispatched with
+ * a <b>delay</b> after a last activity
  * passed through them. This delay is long enough to guarantee that ProcessLifecycleOwner
  * won't send any events if activities are destroyed and recreated due to a
  * configuration change.
@@ -103,7 +103,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
     void activityStarted() {
         mStartedCounter++;
         if (mStartedCounter == 1 && mStopSent) {
-            mRegistry.handleLifecycleEvent(Lifecycle.ON_START);
+            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
             mStopSent = false;
         }
     }
@@ -112,7 +112,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         mResumedCounter++;
         if (mResumedCounter == 1) {
             if (mPauseSent) {
-                mRegistry.handleLifecycleEvent(Lifecycle.ON_RESUME);
+                mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
                 mPauseSent = false;
             } else {
                 mHandler.removeCallbacks(mDelayedPauseRunnable);
@@ -135,13 +135,13 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
     private void dispatchPauseIfNeeded() {
         if (mResumedCounter == 0) {
             mPauseSent = true;
-            mRegistry.handleLifecycleEvent(Lifecycle.ON_PAUSE);
+            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
         }
     }
 
     private void dispatchStopIfNeeded() {
         if (mStartedCounter == 0 && mPauseSent) {
-            mRegistry.handleLifecycleEvent(Lifecycle.ON_STOP);
+            mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
             mStopSent = true;
         }
     }
@@ -151,7 +151,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
 
     void attach(Context context) {
         mHandler = new Handler();
-        mRegistry.handleLifecycleEvent(Lifecycle.ON_CREATE);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         Application app = (Application) context.getApplicationContext();
         app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
             @Override

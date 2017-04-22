@@ -36,59 +36,61 @@ import java.util.concurrent.TimeUnit;
 public class FrameworkLifecycleRegistryActivity extends Activity implements
         LifecycleRegistryOwner, CollectingActivity {
     private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+
     @Override
     public LifecycleRegistry getLifecycle() {
         return mLifecycleRegistry;
     }
 
-    private List<Pair<TestEvent, Integer>> mCollectedEvents = new ArrayList<>();
+    private List<Pair<TestEvent, Lifecycle.Event>> mCollectedEvents = new ArrayList<>();
     private TestObserver mTestObserver = new TestObserver(mCollectedEvents);
     private CountDownLatch mLatch = new CountDownLatch(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.ON_CREATE));
+        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.Event.ON_CREATE));
         getLifecycle().addObserver(mTestObserver);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.ON_START));
+        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.Event.ON_START));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.ON_RESUME));
+        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.Event.ON_RESUME));
         finish();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.ON_DESTROY));
+        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.Event.ON_DESTROY));
         mLatch.countDown();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.ON_STOP));
+        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.Event.ON_STOP));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.ON_PAUSE));
+        mCollectedEvents.add(new Pair<>(ACTIVITY_CALLBACK, Lifecycle.Event.ON_PAUSE));
     }
 
     /**
      * awaits for all events and returns them.
      */
     @Override
-    public List<Pair<TestEvent, Integer>> waitForCollectedEvents() throws InterruptedException {
+    public List<Pair<TestEvent, Lifecycle.Event>> waitForCollectedEvents()
+            throws InterruptedException {
         mLatch.await(TIMEOUT, TimeUnit.SECONDS);
         return mCollectedEvents;
     }

@@ -39,7 +39,7 @@ public class ServiceLifecycleDispatcher {
         mHandler = new Handler();
     }
 
-    private void postDispatchRunnable(@Lifecycle.Event int event) {
+    private void postDispatchRunnable(Lifecycle.Event event) {
         if (mLastDispatchRunnable != null) {
             mLastDispatchRunnable.run();
         }
@@ -51,7 +51,7 @@ public class ServiceLifecycleDispatcher {
      * Must be a first call in {@link Service#onCreate()} method, even before super.onCreate call.
      */
     public void onServicePreSuperOnCreate() {
-        postDispatchRunnable(Lifecycle.ON_CREATE);
+        postDispatchRunnable(Lifecycle.Event.ON_CREATE);
     }
 
     /**
@@ -59,7 +59,7 @@ public class ServiceLifecycleDispatcher {
      * call.
      */
     public void onServicePreSuperOnBind() {
-        postDispatchRunnable(Lifecycle.ON_START);
+        postDispatchRunnable(Lifecycle.Event.ON_START);
     }
 
     /**
@@ -68,7 +68,7 @@ public class ServiceLifecycleDispatcher {
      * a corresponding super call.
      */
     public void onServicePreSuperOnStart() {
-        postDispatchRunnable(Lifecycle.ON_START);
+        postDispatchRunnable(Lifecycle.Event.ON_START);
     }
 
     /**
@@ -76,8 +76,8 @@ public class ServiceLifecycleDispatcher {
      * call.
      */
     public void onServicePreSuperOnDestroy() {
-        postDispatchRunnable(Lifecycle.ON_STOP);
-        postDispatchRunnable(Lifecycle.ON_DESTROY);
+        postDispatchRunnable(Lifecycle.Event.ON_STOP);
+        postDispatchRunnable(Lifecycle.Event.ON_DESTROY);
     }
 
     /**
@@ -89,11 +89,10 @@ public class ServiceLifecycleDispatcher {
 
     static class DispatchRunnable implements Runnable {
         private final LifecycleRegistry mRegistry;
-        @Lifecycle.Event
-        final int mEvent;
+        final Lifecycle.Event mEvent;
         private boolean mWasExecuted = false;
 
-        DispatchRunnable(@NonNull LifecycleRegistry registry, @Lifecycle.Event int event) {
+        DispatchRunnable(@NonNull LifecycleRegistry registry, Lifecycle.Event event) {
             mRegistry = registry;
             mEvent = event;
         }

@@ -68,9 +68,9 @@ public class LiveData<T> {
 
         private LifecycleRegistry init() {
             LifecycleRegistry registry = new LifecycleRegistry(this);
-            registry.handleLifecycleEvent(Lifecycle.ON_CREATE);
-            registry.handleLifecycleEvent(Lifecycle.ON_START);
-            registry.handleLifecycleEvent(Lifecycle.ON_RESUME);
+            registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
+            registry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+            registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
             return registry;
         }
 
@@ -371,7 +371,7 @@ public class LiveData<T> {
         }
 
         @SuppressWarnings("unused")
-        @OnLifecycleEvent(Lifecycle.ON_ANY)
+        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
         void onStateChange() {
             if (owner.getLifecycle().getCurrentState() == DESTROYED) {
                 removeObserver(observer);

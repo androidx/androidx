@@ -17,27 +17,26 @@
 package foo;
 
 import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import java.lang.Object;
 import java.lang.Override;
 
 public class DifferentPackagesBase2_LifecycleAdapter implements GenericLifecycleObserver {
-    final DifferentPackagesBase2 mReceiver;
+  final DifferentPackagesBase2 mReceiver;
 
-    DifferentPackagesBase2_LifecycleAdapter(DifferentPackagesBase2 receiver) {
-        this.mReceiver = receiver;
-    }
+  DifferentPackagesBase2_LifecycleAdapter(DifferentPackagesBase2 receiver) {
+    this.mReceiver = receiver;
+  }
 
-    @Override
-    public void onStateChanged(LifecycleOwner owner, int event) {
-        if ((event & 8192) != 0) {
-            mReceiver.onStop(owner, event);
-        }
+  @Override
+  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
+    if (event == Lifecycle.Event.ON_STOP) {
+      mReceiver.onStop(owner,event);
     }
+  }
 
-    public Object getReceiver() {
-        return mReceiver;
-    }
+  public Object getReceiver() {
+    return mReceiver;
+  }
 }
-
-

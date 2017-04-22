@@ -16,8 +16,8 @@
 
 package foo;
 
-import static android.arch.lifecycle.Lifecycle.ON_START;
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import android.arch.lifecycle.OnLifecycleEvent;
 
@@ -28,7 +28,7 @@ class Base {
 }
 
 class Derived extends Base {
-    @OnLifecycleEvent(ON_START | ON_STOP)
+    @OnLifecycleEvent({ON_START ,ON_STOP})
     void onStop() {
     }
 }

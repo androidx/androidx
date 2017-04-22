@@ -30,6 +30,11 @@ class ValidCasesTest {
     }
 
     @Test
+    fun testOnAny() {
+        processClass("foo.OnAnyMethod").compilesWithoutError()
+    }
+
+    @Test
     fun testInheritance() {
         processClass("foo.InheritanceOk1").compilesWithoutError()
     }

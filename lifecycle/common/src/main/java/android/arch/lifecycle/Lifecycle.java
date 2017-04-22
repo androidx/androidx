@@ -26,12 +26,12 @@ import android.support.annotation.MainThread;
  * getLifecycle} method to access the Lifecycle. You can also implement {@link LifecycleOwner}
  * in your own classes.
  * <p>
- * {@link #ON_CREATE}, {@link #ON_START}, {@link #ON_RESUME} events in this class are dispatched
- * <b>after</b> the {@link LifecycleOwner}'s related method returns.
- * {@link #ON_PAUSE}, {@link #ON_STOP}, {@link #ON_DESTROY} events in this class are dispatched
- * <b>before</b> the {@link LifecycleOwner}'s related method is called.
- * For instance, {@link #ON_START} will be dispatched after
- * {@link android.app.Activity#onStart onStart} returns, {@link #ON_STOP} will be dispatched
+ * {@link Event#ON_CREATE}, {@link Event#ON_START}, {@link Event#ON_RESUME} events in this class
+ * are dispatched <b>after</b> the {@link LifecycleOwner}'s related method returns.
+ * {@link Event#ON_PAUSE}, {@link Event#ON_STOP}, {@link Event#ON_DESTROY} events in this class
+ * are dispatched <b>before</b> the {@link LifecycleOwner}'s related method is called.
+ * For instance, {@link Event#ON_START} will be dispatched after
+ * {@link android.app.Activity#onStart onStart} returns, {@link Event#ON_STOP} will be dispatched
  * before {@link android.app.Activity#onStop onStop} is called.
  * This gives you certain guarantees on which state the owner is in.
  * <p>
@@ -75,7 +75,7 @@ public interface Lifecycle {
      * <p>
      * The given observer will be brought to the current state of the LifecycleOwner.
      * For example, if the LifecycleOwner is in {@link #STARTED} state, the given observer
-     * will receive {@link #ON_CREATE}, {@link #ON_START} events.
+     * will receive {@link Event#ON_CREATE}, {@link Event#ON_START} events.
      *
      * @param observer The observer to notify.
      */
@@ -87,10 +87,10 @@ public interface Lifecycle {
      * <p>
      * If this method is called while a state change is being dispatched,
      * <ul>
-     *  <li>If the given observer has not yet received that event, it will not receive it.
-     *  <li>If the given observer has more than 1 method that observes the currently dispatched
-     *  event and at least one of them received the event, all of them will receive the event and
-     *  the removal will happen afterwards.
+     * <li>If the given observer has not yet received that event, it will not receive it.
+     * <li>If the given observer has more than 1 method that observes the currently dispatched
+     * event and at least one of them received the event, all of them will receive the event and
+     * the removal will happen afterwards.
      * </ul>
      *
      * @param observer The observer to be removed.
@@ -127,6 +127,7 @@ public interface Lifecycle {
      * is reached after {@link android.app.Activity#onResume() onResume} is called.
      */
     int RESUMED = STARTED << 1;
+
     /**
      * IntDef for Lifecycle states. You can consider the states as the nodes in a graph and
      * {@link Event}s as the edges between these nodes.
@@ -140,44 +141,39 @@ public interface Lifecycle {
      *
      * @return The current state of the Lifecycle.
      */
-    @MainThread @State
+    @MainThread
+    @State
     int getCurrentState();
 
-    /**
-     * Constant for onCreate event of the {@link LifecycleOwner}.
-     */
-    int ON_CREATE = RESUMED << 1;
-    /**
-     * Constant for onStart event of the {@link LifecycleOwner}.
-     */
-    int ON_START = ON_CREATE << 2;
-    /**
-     * Constant for onResume event of the {@link LifecycleOwner}.
-     */
-    int ON_RESUME = ON_START << 2;
-    /**
-     * Constant for onPause event of the {@link LifecycleOwner}.
-     */
-    int ON_PAUSE = ON_RESUME << 2;
-    /**
-     * Constant for onStop event of the {@link LifecycleOwner}.
-     */
-    int ON_STOP = ON_PAUSE << 2;
-    /**
-     * Constant for onDestroy event of the {@link LifecycleOwner}.
-     */
-    int ON_DESTROY = ON_STOP << 2;
-    /**
-     * An {@link Event Event} constant that can be used to match all events.
-     */
-    int ON_ANY = -1;
-
-    /**
-     * IntDef for Lifecycle events. You can consider the {@link State}s as the nodes in a graph and
-     * Events as the edges between these nodes.
-     */
-    @IntDef(value = {ON_CREATE, ON_START, ON_RESUME, ON_PAUSE, ON_STOP, ON_DESTROY, ON_ANY},
-            flag = true)
-    public @interface Event {
+    @SuppressWarnings("WeakerAccess")
+    enum Event {
+        /**
+         * Constant for onCreate event of the {@link LifecycleOwner}.
+         */
+        ON_CREATE,
+        /**
+         * Constant for onStart event of the {@link LifecycleOwner}.
+         */
+        ON_START,
+        /**
+         * Constant for onResume event of the {@link LifecycleOwner}.
+         */
+        ON_RESUME,
+        /**
+         * Constant for onPause event of the {@link LifecycleOwner}.
+         */
+        ON_PAUSE,
+        /**
+         * Constant for onStop event of the {@link LifecycleOwner}.
+         */
+        ON_STOP,
+        /**
+         * Constant for onDestroy event of the {@link LifecycleOwner}.
+         */
+        ON_DESTROY,
+        /**
+         * An {@link Event Event} constant that can be used to match all events.
+         */
+        ON_ANY
     }
 }

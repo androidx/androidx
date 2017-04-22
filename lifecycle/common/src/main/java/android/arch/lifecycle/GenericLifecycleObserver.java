@@ -28,7 +28,7 @@ public interface GenericLifecycleObserver extends LifecycleObserver {
      * @param source The source of the event
      * @param event The event
      */
-    void onStateChanged(LifecycleOwner source, @Lifecycle.Event int event);
+    void onStateChanged(LifecycleOwner source, Lifecycle.Event event);
 
     /**
      * Returns the actual receiver of the event

@@ -16,9 +16,16 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.service.TestService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,7 +37,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.v4.content.LocalBroadcastManager;
 
-import android.arch.lifecycle.service.TestService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,7 +57,7 @@ public class ServiceLifecycleTest {
 
     private Intent mServiceIntent;
 
-    private volatile List<Integer> mLoggerEvents;
+    private volatile List<Event> mLoggerEvents;
     private EventLogger mLogger;
 
     @Before
@@ -83,112 +89,109 @@ public class ServiceLifecycleTest {
     public void testUnboundedService() throws TimeoutException, InterruptedException {
         Context context = InstrumentationRegistry.getTargetContext();
         context.startService(mServiceIntent);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
         context.stopService(mServiceIntent);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START,
-                Lifecycle.ON_STOP, Lifecycle.ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY);
     }
 
     @Test
     public void testBoundedService() throws TimeoutException, InterruptedException {
         ServiceConnection connection = bindToService();
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
         InstrumentationRegistry.getTargetContext().unbindService(connection);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START,
-                Lifecycle.ON_STOP, Lifecycle.ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY);
     }
 
     @Test
     public void testStartBindUnbindStop() throws InterruptedException {
         Context context = InstrumentationRegistry.getTargetContext();
         context.startService(mServiceIntent);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         ServiceConnection connection = bindToService();
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // still the same events
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.unbindService(connection);
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // service is still started (stopServices/stopSelf weren't called)
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.stopService(mServiceIntent);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START,
-                Lifecycle.ON_STOP, Lifecycle.ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START, ON_STOP, ON_DESTROY);
     }
 
     @Test
     public void testStartBindStopUnbind() throws InterruptedException {
         Context context = InstrumentationRegistry.getTargetContext();
         context.startService(mServiceIntent);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         ServiceConnection connection = bindToService();
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // still the same events
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.stopService(mServiceIntent);
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // service is still bound
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.unbindService(connection);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START,
-                Lifecycle.ON_STOP, Lifecycle.ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START,
+                ON_STOP, ON_DESTROY);
     }
 
     @Test
     public void testBindStartUnbindStop() throws InterruptedException {
         Context context = InstrumentationRegistry.getTargetContext();
         ServiceConnection connection = bindToService();
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
 
         context.startService(mServiceIntent);
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // still the same events
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.unbindService(connection);
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // service is still started (stopServices/stopSelf weren't called)
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.stopService(mServiceIntent);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START,
-                Lifecycle.ON_STOP, Lifecycle.ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START,
+                ON_STOP, ON_DESTROY);
     }
 
     @Test
     public void testBindStartStopUnbind() throws InterruptedException {
         Context context = InstrumentationRegistry.getTargetContext();
         ServiceConnection connection = bindToService();
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.startService(mServiceIntent);
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // still the same events
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.stopService(mServiceIntent);
         // Precaution: give a chance to dispatch events
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // service is still bound
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START);
+        awaitAndAssertEvents(ON_CREATE, ON_START);
 
         context.unbindService(connection);
-        awaitAndAssertEvents(Lifecycle.ON_CREATE, Lifecycle.ON_START,
-                Lifecycle.ON_STOP, Lifecycle.ON_DESTROY);
+        awaitAndAssertEvents(ON_CREATE, ON_START,
+                ON_STOP, ON_DESTROY);
     }
 
     // can't use ServiceTestRule because it proxies connection, so we can't use unbindService method
@@ -214,7 +217,7 @@ public class ServiceLifecycleTest {
         return connection;
     }
 
-    private void awaitAndAssertEvents(Integer... events) throws InterruptedException {
+    private void awaitAndAssertEvents(Event... events) throws InterruptedException {
         //noinspection SynchronizeOnNonFinalField
         synchronized (mLoggerEvents) {
             int retryCount = 0;
@@ -226,16 +229,16 @@ public class ServiceLifecycleTest {
     }
 
     private static class EventLogger extends BroadcastReceiver {
-        private final List<Integer> mLoggerEvents;
+        private final List<Event> mLoggerEvents;
 
-        private EventLogger(List<Integer> loggerEvents) {
+        private EventLogger(List<Event> loggerEvents) {
             mLoggerEvents = loggerEvents;
         }
 
         @Override
         public void onReceive(Context context, Intent intent) {
             synchronized (mLoggerEvents) {
-                mLoggerEvents.add(intent.getIntExtra(TestService.EXTRA_KEY_EVENT, -1));
+                mLoggerEvents.add((Event) intent.getSerializableExtra(TestService.EXTRA_KEY_EVENT));
                 mLoggerEvents.notifyAll();
             }
         }

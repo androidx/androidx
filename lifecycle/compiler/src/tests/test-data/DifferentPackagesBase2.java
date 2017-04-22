@@ -16,17 +16,18 @@
 
 package foo;
 
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
 class DifferentPackagesPreBase2 {
     @OnLifecycleEvent(ON_STOP)
-    void onStop(LifecycleOwner provider, int prevstate){}
+    void onStop(LifecycleOwner provider, Event event){}
 }
 
 public class DifferentPackagesBase2 extends DifferentPackagesPreBase2 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, int prevstate){}
+    public void onStop(LifecycleOwner provider, Event event){}
 }

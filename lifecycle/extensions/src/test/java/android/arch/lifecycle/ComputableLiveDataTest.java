@@ -128,7 +128,7 @@ public class ComputableLiveDataTest {
     @Test
     public void addingObserverShouldTriggerAComputation() {
         TestComputable computable = new TestComputable(1);
-        mLifecycleOwner.handleEvent(Lifecycle.ON_CREATE);
+        mLifecycleOwner.handleEvent(Lifecycle.Event.ON_CREATE);
         final AtomicInteger mValue = new AtomicInteger(-1);
         computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
@@ -139,7 +139,7 @@ public class ComputableLiveDataTest {
         });
         verify(mTaskExecutor, never()).executeOnDiskIO(any(Runnable.class));
         assertThat(mValue.get(), is(-1));
-        mLifecycleOwner.handleEvent(Lifecycle.ON_START);
+        mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         verify(mTaskExecutor).executeOnDiskIO(computable.mRefreshRunnable);
         assertThat(mValue.get(), is(1));
     }
@@ -147,7 +147,7 @@ public class ComputableLiveDataTest {
     @Test
     public void invalidationShouldNotReTriggerComputationIfObserverIsInActive() {
         TestComputable computable = new TestComputable(1, 2);
-        mLifecycleOwner.handleEvent(Lifecycle.ON_START);
+        mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         final AtomicInteger mValue = new AtomicInteger(-1);
         computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
@@ -157,7 +157,7 @@ public class ComputableLiveDataTest {
             }
         });
         assertThat(mValue.get(), is(1));
-        mLifecycleOwner.handleEvent(Lifecycle.ON_STOP);
+        mLifecycleOwner.handleEvent(Lifecycle.Event.ON_STOP);
         computable.invalidate();
         reset(mTaskExecutor);
         verify(mTaskExecutor, never()).executeOnDiskIO(computable.mRefreshRunnable);
@@ -167,7 +167,7 @@ public class ComputableLiveDataTest {
     @Test
     public void invalidationShouldReTriggerQueryIfObserverIsActive() {
         TestComputable computable = new TestComputable(1, 2);
-        mLifecycleOwner.handleEvent(Lifecycle.ON_START);
+        mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         final AtomicInteger mValue = new AtomicInteger(-1);
         computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
@@ -208,7 +208,7 @@ public class ComputableLiveDataTest {
             return mLifecycle;
         }
 
-        void handleEvent(@Lifecycle.Event int event) {
+        void handleEvent(Lifecycle.Event event) {
             mLifecycle.handleLifecycleEvent(event);
         }
     }

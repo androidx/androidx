@@ -16,12 +16,13 @@
 
 package foo;
 
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.OnLifecycleEvent;
 
 public class InvalidMethodModifier {
     @OnLifecycleEvent(ON_STOP)
-    private void onStop(int lastEvent) {
+    private void onStop(Event event) {
     }
 }

@@ -16,18 +16,17 @@
 
 package android.arch.lifecycle.activity;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.test.R;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +37,8 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
     public static final String MAIN_TAG = "main_fragment";
     private static final String EXTRA_NESTED = "nested";
 
-    private final List<Integer> mLoggedEvents = Collections
-            .synchronizedList(new ArrayList<Integer>());
+    private final List<Lifecycle.Event> mLoggedEvents = Collections
+            .synchronizedList(new ArrayList<Lifecycle.Event>());
     private LifecycleOwner mObservedOwner;
 
     @Override
@@ -89,14 +88,14 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
     public void observe(LifecycleOwner provider) {
         mObservedOwner = provider;
         provider.getLifecycle().addObserver(new LifecycleObserver() {
-            @OnLifecycleEvent(Lifecycle.ON_ANY)
-            public void anyEvent(LifecycleOwner owner, @Lifecycle.Event int event) {
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            public void anyEvent(LifecycleOwner owner, Lifecycle.Event event) {
                 mLoggedEvents.add(event);
             }
         });
     }
 
-    public List<Integer> getLoggedEvents() {
+    public List<Lifecycle.Event> getLoggedEvents() {
         return mLoggedEvents;
     }
 

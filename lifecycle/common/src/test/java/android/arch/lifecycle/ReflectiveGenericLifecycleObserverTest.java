@@ -16,13 +16,14 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.Event.ON_ANY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 import static android.arch.lifecycle.Lifecycle.INITIALIZED;
-import static android.arch.lifecycle.Lifecycle.ON_CREATE;
-import static android.arch.lifecycle.Lifecycle.ON_DESTROY;
-import static android.arch.lifecycle.Lifecycle.ON_PAUSE;
-import static android.arch.lifecycle.Lifecycle.ON_RESUME;
-import static android.arch.lifecycle.Lifecycle.ON_START;
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
 import static android.arch.lifecycle.Lifecycle.RESUMED;
 import static android.arch.lifecycle.Lifecycle.STARTED;
 import static android.arch.lifecycle.Lifecycle.STOPPED;
@@ -80,7 +81,7 @@ public class ReflectiveGenericLifecycleObserverTest {
     }
 
     private static class AnyStateListener implements LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.ON_ANY)
+        @OnLifecycleEvent(ON_ANY)
         void onAnyState() {
 
         }
@@ -109,7 +110,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         }
         @SuppressWarnings("UnusedParameters")
         @OnLifecycleEvent(ON_CREATE)
-        void onCreated(LifecycleOwner provider, int event) {
+        void onCreated(LifecycleOwner provider, Lifecycle.Event event) {
 
         }
     }

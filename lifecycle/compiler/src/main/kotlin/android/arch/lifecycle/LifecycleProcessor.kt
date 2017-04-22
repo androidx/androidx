@@ -51,7 +51,7 @@ class LifecycleProcessor : AbstractProcessor() {
     companion object ErrorMessages {
         const val TOO_MANY_ARGS_ERROR_MSG = "callback method cannot have more than 2 parameters"
         const val INVALID_SECOND_ARGUMENT = "2nd argument of a callback method" +
-                " must be an int and represent the previous state"
+                " must be Lifecycle.Event and represent the current event"
         const val INVALID_FIRST_ARGUMENT = "1st argument of a callback method must be " +
                 "a LifecycleOwner which represents the source of the event"
         const val INVALID_METHOD_MODIFIER = "method marked with OnLifecycleEvent annotation can " +
@@ -63,6 +63,7 @@ class LifecycleProcessor : AbstractProcessor() {
     }
 
     private val LIFECYCLE_OWNER = ClassName.get(LifecycleOwner::class.java)
+    private val JAVA_LIFECYCLE_EVENT = Lifecycle.Event::class.java
     private val T = "\$T"
     private val N = "\$N"
     private val L = "\$L"
@@ -91,7 +92,8 @@ class LifecycleProcessor : AbstractProcessor() {
         }
         if (method.parameters.size > 1) {
             // 2nd parameter must be an int
-            return validateParam(method.parameters[1], Integer.TYPE, INVALID_SECOND_ARGUMENT)
+            return validateParam(method.parameters[1], JAVA_LIFECYCLE_EVENT,
+                    INVALID_SECOND_ARGUMENT)
         }
         if (method.parameters.size > 0) {
             return validateParam(method.parameters[0], LifecycleOwner::class.java,
@@ -134,9 +136,11 @@ class LifecycleProcessor : AbstractProcessor() {
                 .groupBy { MoreElements.asType(it.method.enclosingElement) }
                 .mapValues { entry -> LifecycleObserverInfo(entry.key, entry.value) }
 
+
         flattenObserverInfos(world).forEach {
             writeAdapter(it)
         }
+
         return true
     }
 
@@ -239,7 +243,7 @@ class LifecycleProcessor : AbstractProcessor() {
 
     private fun writeAdapter(observer: LifecycleObserverInfo) {
         val ownerParam = ParameterSpec.builder(LIFECYCLE_OWNER, "owner").build()
-        val eventParam = ParameterSpec.builder(TypeName.INT, "event").build()
+        val eventParam = ParameterSpec.builder(ClassName.get(JAVA_LIFECYCLE_EVENT), "event").build()
         val receiverName = "mReceiver"
         val receiverField = FieldSpec.builder(ClassName.get(observer.type), receiverName,
                 Modifier.FINAL).build()
@@ -251,31 +255,18 @@ class LifecycleProcessor : AbstractProcessor() {
                 .addModifiers(PUBLIC)
                 .addAnnotation(Override::class.java)
         val dispatchMethod = dispatchMethodBuilder.apply {
-            observer.methods.groupBy { it.onLifecycleEvent.value }.forEach { entry ->
-                val onStateValue = entry.key
-                val methods = entry.value
-                beginControlFlow("if (($N & $L) != 0)", eventParam, onStateValue).apply {
-                    methods.forEach { method ->
-                        val count = method.method.parameters.size
-                        if (method.syntheticAccess == null) {
-                            val paramString = generateParamString(count)
-                            addStatement("$N.$L($paramString)", receiverField,
-                                    method.method.name(),
-                                    *takeParams(count, ownerParam, eventParam))
-
-                        } else {
-                            val originalType = method.syntheticAccess
-                            val paramString = generateParamString(count + 1)
-                            val className = ClassName.get(originalType.getPackageQName(),
-                                    getAdapterName(originalType))
-                            addStatement("$T.$L($paramString)", className,
-                                    syntheticName(method.method),
-                                    *takeParams(count + 1, receiverField, ownerParam,
-                                            eventParam))
-                        }
-                    }
+            observer.methods.flatMap { stateMethod ->
+                stateMethod.onLifecycleEvent.value.map { event -> Pair(event, stateMethod) }
+            }.groupBy { pair -> pair.first }.forEach { entry ->
+                val event = entry.key
+                val methods = entry.value.map { pair -> pair.second }
+                if (event == Lifecycle.Event.ON_ANY) {
+                    writeMethodCalls(eventParam, methods, ownerParam, receiverField)
+                } else {
+                    beginControlFlow("if ($N == $T.$L)", eventParam, JAVA_LIFECYCLE_EVENT, event)
+                            .writeMethodCalls(eventParam, methods, ownerParam, receiverField)
+                    endControlFlow()
                 }
-                endControlFlow()
             }
         }.build()
 
@@ -325,6 +316,31 @@ class LifecycleProcessor : AbstractProcessor() {
                 .build()
         JavaFile.builder(observer.type.getPackageQName(), adapter)
                 .build().writeTo(processingEnv.filer)
+    }
+
+    private fun MethodSpec.Builder.writeMethodCalls(eventParam: ParameterSpec,
+                                                    methods: List<StateMethod>,
+                                                    ownerParam: ParameterSpec,
+                                                    receiverField: FieldSpec) {
+        methods.forEach { method ->
+            val count = method.method.parameters.size
+            if (method.syntheticAccess == null) {
+                val paramString = generateParamString(count)
+                addStatement("$N.$L($paramString)", receiverField,
+                        method.method.name(),
+                        *takeParams(count, ownerParam, eventParam))
+
+            } else {
+                val originalType = method.syntheticAccess
+                val paramString = generateParamString(count + 1)
+                val className = ClassName.get(originalType.getPackageQName(),
+                        getAdapterName(originalType))
+                addStatement("$T.$L($paramString)", className,
+                        syntheticName(method.method),
+                        *takeParams(count + 1, receiverField, ownerParam,
+                                eventParam))
+            }
+        }
     }
 
     private fun syntheticName(method: ExecutableElement) = "__synthetic_" + method.simpleName

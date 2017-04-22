@@ -21,10 +21,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
@@ -35,6 +31,9 @@ import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
+import android.support.annotation.Nullable;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,14 +57,14 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     public void observeById() throws InterruptedException, ExecutionException {
         final LiveData<User> userLiveData = mUserDao.liveUserById(5);
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();
-        testOwner.handleEvent(Lifecycle.ON_CREATE);
+        testOwner.handleEvent(Lifecycle.Event.ON_CREATE);
         final LatchObserver<User> observer = new LatchObserver<>();
         observe(userLiveData, testOwner, observer);
 
         observer.assertNoUpdate();
 
         observer.reset();
-        testOwner.handleEvent(Lifecycle.ON_START);
+        testOwner.handleEvent(Lifecycle.Event.ON_START);
         assertThat(observer.get(), is(nullValue()));
 
         // another id
@@ -85,7 +84,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         assertThat(updated, is(notNullValue()));
         assertThat(updated.getName(), is("foo-foo-foo"));
 
-        testOwner.handleEvent(Lifecycle.ON_STOP);
+        testOwner.handleEvent(Lifecycle.Event.ON_STOP);
         observer.reset();
         u5.setName("baba");
         mUserDao.insertOrReplace(u5);
@@ -96,7 +95,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     public void observeListQuery() throws InterruptedException, ExecutionException {
         final LiveData<List<User>> userLiveData = mUserDao.liveUsersListByName("frida");
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
-        lifecycleOwner.handleEvent(Lifecycle.ON_START);
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         final LatchObserver<List<User>> observer = new LatchObserver<>();
         observe(userLiveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(Collections.<User>emptyList()));
@@ -119,7 +118,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         mUserDao.insertOrReplace(user1);
         assertThat(observer.get(), is(Collections.<User>emptyList()));
 
-        lifecycleOwner.handleEvent(Lifecycle.ON_STOP);
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_STOP);
 
         observer.reset();
         final User user3 = TestUtil.createUser(9);
@@ -133,7 +132,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         mUserDao.insertOrReplace(user4);
         observer.assertNoUpdate();
 
-        lifecycleOwner.handleEvent(Lifecycle.ON_START);
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         assertThat(observer.get(), is(Arrays.asList(user4, user3)));
     }
 
@@ -153,7 +152,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         users[3].setWeight(21);
 
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
-        lifecycleOwner.handleEvent(Lifecycle.ON_START);
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
 
         final LatchObserver<AvgWeightByAge> observer = new LatchObserver<>();
         LiveData<AvgWeightByAge> liveData = mUserDao.maxWeightByAgeGroup();
@@ -178,7 +177,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final LiveData<UserAndAllPets> liveData = mUserPetDao.liveUserWithPets(3);
         final LatchObserver<UserAndAllPets> observer = new LatchObserver<>();
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
-        lifecycleOwner.handleEvent(Lifecycle.ON_START);
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         observe(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(nullValue()));
 
@@ -223,7 +222,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
             return mLifecycle;
         }
 
-        void handleEvent(@Lifecycle.Event int event) {
+        void handleEvent(Lifecycle.Event event) {
             mLifecycle.handleLifecycleEvent(event);
         }
     }

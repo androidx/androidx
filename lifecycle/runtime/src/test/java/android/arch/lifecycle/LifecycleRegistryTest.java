@@ -16,12 +16,12 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.ON_CREATE;
-import static android.arch.lifecycle.Lifecycle.ON_DESTROY;
-import static android.arch.lifecycle.Lifecycle.ON_PAUSE;
-import static android.arch.lifecycle.Lifecycle.ON_RESUME;
-import static android.arch.lifecycle.Lifecycle.ON_START;
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
+import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
+import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -209,7 +209,7 @@ public class LifecycleRegistryTest {
         verify(observer2).onCreate();
     }
 
-    private void dispatchEvent(@Lifecycle.Event int event) {
+    private void dispatchEvent(Lifecycle.Event event) {
         when(mLifecycle.getCurrentState()).thenReturn(LifecycleRegistry.getStateAfter(event));
         mRegistry.handleLifecycleEvent(event);
     }

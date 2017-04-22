@@ -16,14 +16,15 @@
 
 package foo;
 
-import static android.arch.lifecycle.Lifecycle.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
 class Base1 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, int lastEvent) {
+    public void onStop(LifecycleOwner provider, Event event) {
     }
 }
 
@@ -32,24 +33,24 @@ class Proxy extends Base1 {
 
 class Derived1 extends Proxy {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop2(LifecycleOwner provider, int lastEvent) {
+    public void onStop2(LifecycleOwner provider, Event event) {
     }
 }
 
 class Derived2 extends Proxy {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop2(LifecycleOwner provider, int lastEvent) {
+    public void onStop2(LifecycleOwner provider, Event event) {
     }
 }
 
 class Base2 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, int lastEvent) {
+    public void onStop(LifecycleOwner provider, Event event) {
     }
 }
 
 class Derived3 extends Base2 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop2(LifecycleOwner provider, int lastEvent) {
+    public void onStop2(LifecycleOwner provider, Event event) {
     }
 }

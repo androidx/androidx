@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package foo;
-
-import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
-
-import android.arch.lifecycle.Lifecycle.Event;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.OnLifecycleEvent;
-
-class InheritanceOk3Base {
-    @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event) {
-    }
-}
-
-class InheritanceOk3Derived extends InheritanceOk3Base {
-    @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event) {
-    }
-}

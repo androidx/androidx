@@ -24,14 +24,14 @@ import static org.hamcrest.Matchers.is;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Instrumentation;
+import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.testapp.LifecycleTestActivity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.UiThreadTestRule;
 import android.support.test.runner.AndroidJUnit4;
-
-import android.arch.lifecycle.testapp.LifecycleTestActivity;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class SynchronousActivityLifecycleTest {
 
     @Test
     public void testOnCreateCall() throws Throwable {
-        testSynchronousCall(Lifecycle.ON_CREATE,
+        testSynchronousCall(Event.ON_CREATE,
                 activity -> {
                 },
                 activity -> getInstrumentation().callActivityOnCreate(activity, null));
@@ -60,14 +60,14 @@ public class SynchronousActivityLifecycleTest {
 
     @Test
     public void testOnStartCall() throws Throwable {
-        testSynchronousCall(Lifecycle.ON_START,
+        testSynchronousCall(Lifecycle.Event.ON_START,
                 activity -> getInstrumentation().callActivityOnCreate(activity, null),
                 SynchronousActivityLifecycleTest::performStart);
     }
 
     @Test
     public void testOnResumeCall() throws Throwable {
-        testSynchronousCall(Lifecycle.ON_RESUME,
+        testSynchronousCall(Lifecycle.Event.ON_RESUME,
                 activity -> {
                     getInstrumentation().callActivityOnCreate(activity, null);
                     performStart(activity);
@@ -77,7 +77,7 @@ public class SynchronousActivityLifecycleTest {
 
     @Test
     public void testOnStopCall() throws Throwable {
-        testSynchronousCall(Lifecycle.ON_STOP,
+        testSynchronousCall(Lifecycle.Event.ON_STOP,
                 activity -> {
                     getInstrumentation().callActivityOnCreate(activity, null);
                     performStart(activity);
@@ -87,12 +87,12 @@ public class SynchronousActivityLifecycleTest {
 
     @Test
     public void testOnDestroyCall() throws Throwable {
-        testSynchronousCall(Lifecycle.ON_DESTROY,
+        testSynchronousCall(Lifecycle.Event.ON_DESTROY,
                 activity -> getInstrumentation().callActivityOnCreate(activity, null),
                 activity -> getInstrumentation().callActivityOnDestroy(activity));
     }
 
-    public void testSynchronousCall(int event, ActivityCall preInit, ActivityCall call)
+    public void testSynchronousCall(Event event, ActivityCall preInit, ActivityCall call)
             throws Throwable {
         uiThreadTestRule.runOnUiThread(() -> {
             Intent intent = new Intent();
@@ -155,11 +155,11 @@ public class SynchronousActivityLifecycleTest {
 
     private static class TestObserver implements GenericLifecycleObserver {
         private final LifecycleTestActivity mActivity;
-        private final int mExpectedEvent;
+        private final Event mExpectedEvent;
         boolean mEventReceived = false;
         boolean mMuted = true;
 
-        private TestObserver(LifecycleTestActivity activity, int expectedEvent) {
+        private TestObserver(LifecycleTestActivity activity, Event expectedEvent) {
             this.mActivity = activity;
             this.mExpectedEvent = expectedEvent;
         }
@@ -169,8 +169,7 @@ public class SynchronousActivityLifecycleTest {
         }
 
         @Override
-        public void onStateChanged(LifecycleOwner lifecycleOwner,
-                @Lifecycle.Event int event) {
+        public void onStateChanged(LifecycleOwner lifecycleOwner, Event event) {
             if (mMuted) {
                 return;
             }
