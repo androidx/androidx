@@ -408,6 +408,40 @@ public class FragmentAnimationTest {
         assertNotNull(fragment1restored.getView());
     }
 
+    // When an animation is running on a Fragment's View, the view shouldn't be
+    // prevented from being removed. There's no way to directly test this, so we have to
+    // test to see if the animation is still running.
+    @Test
+    public void clearAnimations() throws Throwable {
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        final StrictViewFragment fragment1 = new StrictViewFragment();
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .setAllowOptimization(true)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        final View fragmentView = fragment1.getView();
+
+        final TranslateAnimation xAnimation = new TranslateAnimation(0, 1000, 0, 0);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragmentView.startAnimation(xAnimation);
+            }
+        });
+
+        FragmentTestUtil.waitForExecution(mActivityRule);
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertNull(fragmentView.getAnimation());
+            }
+        });
+    }
+
     private void assertEnterPopExit(AnimatorFragment fragment) throws Throwable {
         assertFragmentAnimation(fragment, 1, true, ENTER);
 
