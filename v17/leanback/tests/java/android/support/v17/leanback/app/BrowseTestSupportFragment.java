@@ -16,6 +16,7 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_HEADERS_STATE;
 import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY;
 import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_NUM_ROWS;
 import static android.support.v17.leanback.app.BrowseSupportFragmentTestActivity.EXTRA_REPEAT_PER_ROW;
@@ -80,7 +81,7 @@ public class BrowseTestSupportFragment extends BrowseSupportFragment {
         }
 
         setTitle("BrowseTestSupportFragment");
-        setHeadersState(HEADERS_ENABLED);
+        setHeadersState(arguments.getInt(EXTRA_HEADERS_STATE, HEADERS_ENABLED));
 
         setOnSearchClickedListener(new View.OnClickListener() {
             @Override
