@@ -39,6 +39,7 @@ public abstract class ComputableLiveData<T> {
     private final LiveData<T> mLiveData;
 
     private AtomicBoolean mInvalid = new AtomicBoolean(true);
+    private AtomicBoolean mComputing = new AtomicBoolean(false);
 
     /**
      * Creates a computable live data which is computed when there are active observers.
@@ -73,9 +74,34 @@ public abstract class ComputableLiveData<T> {
         @WorkerThread
         @Override
         public void run() {
-            if (mInvalid.compareAndSet(true, false)) {
-                mLiveData.postValue(compute());
-            }
+            boolean computed;
+            do {
+                computed = false;
+                // compute can happen only in 1 thread but no reason to lock others.
+                if (mComputing.compareAndSet(false, true)) {
+                    // as long as it is invalid, keep computing.
+                    try {
+                        T value = null;
+                        while (mInvalid.compareAndSet(true, false)) {
+                            computed = true;
+                            value = compute();
+                        }
+                        if (computed) {
+                            mLiveData.postValue(value);
+                        }
+                    } finally {
+                        // release compute lock
+                        mComputing.set(false);
+                    }
+                }
+                // check invalid after releasing compute lock to avoid the following scenario.
+                // Thread A runs compute()
+                // Thread A checks invalid, it is false
+                // Main thread sets invalid to true
+                // Thread B runs, fails to acquire compute lock and skips
+                // Thread A releases compute lock
+                // We've left invalid in set state. The check below recovers.
+            } while (computed && mInvalid.get());
         }
     };
 

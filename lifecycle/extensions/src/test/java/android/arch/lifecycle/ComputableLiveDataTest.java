@@ -19,29 +19,37 @@ package android.arch.lifecycle;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-
-import android.support.annotation.Nullable;
 
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
+import android.arch.core.executor.TaskExecutorWithFakeMainThread;
 import android.arch.lifecycle.util.InstantTaskExecutor;
+import android.support.annotation.Nullable;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
 
+import java.util.Collections;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(JUnit4.class)
 public class ComputableLiveDataTest {
     private TaskExecutor mTaskExecutor;
     private TestLifecycleOwner mLifecycleOwner;
+
     @Before
     public void setup() {
         mLifecycleOwner = new TestLifecycleOwner();
@@ -63,6 +71,58 @@ public class ComputableLiveDataTest {
         final TestComputable computable = new TestComputable();
         verify(mTaskExecutor, never()).executeOnDiskIO(computable.mRefreshRunnable);
         verify(mTaskExecutor, never()).executeOnDiskIO(computable.mInvalidationRunnable);
+    }
+
+    @Test
+    public void noConcurrentCompute() throws InterruptedException {
+        TaskExecutorWithFakeMainThread executor = new TaskExecutorWithFakeMainThread(2);
+        AppToolkitTaskExecutor.getInstance().setDelegate(executor);
+        try {
+            // # of compute calls
+            final Semaphore computeCounter = new Semaphore(0);
+            // available permits for computation
+            final Semaphore computeLock = new Semaphore(0);
+            final TestComputable computable = new TestComputable(1, 2) {
+                @Override
+                protected Integer compute() {
+                    try {
+                        computeCounter.release(1);
+                        computeLock.tryAcquire(1, 20, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        throw new AssertionError(e);
+                    }
+                    return super.compute();
+                }
+            };
+            final ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+            //noinspection unchecked
+            Observer<Integer> observer = mock(Observer.class);
+            computable.getLiveData().observeForever(observer);
+            verify(observer, never()).onChanged(anyInt());
+            // wait for first compute call
+            assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), is(true));
+            // re-invalidate while in compute
+            computable.invalidate();
+            computable.invalidate();
+            computable.invalidate();
+            computable.invalidate();
+            // ensure another compute call does not arrive
+            assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), is(false));
+            // allow computation to finish
+            computeLock.release(2);
+            // wait for the second result, first will be skipped due to invalidation during compute
+            verify(observer, timeout(2000)).onChanged(captor.capture());
+            assertThat(captor.getAllValues(), is(Collections.singletonList(2)));
+            reset(observer);
+            // allow all computations to run, there should not be any.
+            computeLock.release(100);
+            // unfortunately, Mockito.after is not available in 1.9.5
+            executor.drainTasks(2);
+            // assert no other results arrive
+            verify(observer, never()).onChanged(anyInt());
+        } finally {
+            AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        }
     }
 
     @Test
@@ -124,6 +184,7 @@ public class ComputableLiveDataTest {
     static class TestComputable extends ComputableLiveData<Integer> {
         final int[] mValues;
         AtomicInteger mValueCounter;
+
         TestComputable(int... values) {
             mValueCounter = new AtomicInteger();
             mValues = values;

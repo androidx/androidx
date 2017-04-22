@@ -17,6 +17,7 @@
 package android.arch.core.executor;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +30,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A TaskExecutor that has a real thread for main thread operations and can wait for execution etc.
+ *
+ * @hide
  */
-class TaskExecutorWithFakeMainThread extends TaskExecutor {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class TaskExecutorWithFakeMainThread extends TaskExecutor {
     private List<Throwable> mCaughtExceptions = Collections.synchronizedList(new ArrayList
             <Throwable>());
 
@@ -48,7 +52,7 @@ class TaskExecutorWithFakeMainThread extends TaskExecutor {
                 }
             });
 
-    TaskExecutorWithFakeMainThread(int ioThreadCount) {
+    public TaskExecutorWithFakeMainThread(int ioThreadCount) {
         mIOThreadCount = ioThreadCount;
         mIOService = Executors.newFixedThreadPool(ioThreadCount, new ThreadFactory() {
             @Override
@@ -89,7 +93,12 @@ class TaskExecutorWithFakeMainThread extends TaskExecutor {
         mIOService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS);
     }
 
-    void drainTasks(int seconds) throws InterruptedException {
+    /**
+     * Drains tasks at the given time limit
+     * @param seconds Number of seconds to wait
+     * @throws InterruptedException
+     */
+    public void drainTasks(int seconds) throws InterruptedException {
         if (isMainThread()) {
             throw new IllegalStateException();
         }
