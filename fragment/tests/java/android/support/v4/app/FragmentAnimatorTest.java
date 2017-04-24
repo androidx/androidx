@@ -34,6 +34,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
+import android.support.v4.view.ViewCompat;
 import android.util.Pair;
 import android.view.View;
 
@@ -364,7 +365,6 @@ public class FragmentAnimatorTest {
 
     // Ensure that adding and popping a Fragment is postponed in both directions
     // when the fragments have been marked for postponing.
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void postponedAddRemove() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
@@ -393,7 +393,7 @@ public class FragmentAnimatorTest {
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
         assertEquals(1f, fragment1.getView().getAlpha(), 0f);
-        assertTrue(fragment1.getView().isAttachedToWindow());
+        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
 
         fragment2.startPostponedEnterTransition();
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -402,7 +402,6 @@ public class FragmentAnimatorTest {
     }
 
     // Popping a postponed transaction should result in no animators
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void popPostponed() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
@@ -434,7 +433,7 @@ public class FragmentAnimatorTest {
 
         assertNotNull(fragment1.getView());
         assertEquals(1f, fragment1.getView().getAlpha(), 0f);
-        assertTrue(fragment1.getView().isAttachedToWindow());
+        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
         assertTrue(fragment1.isAdded());
 
         assertNull(fragment2.getView());
@@ -521,7 +520,6 @@ public class FragmentAnimatorTest {
         assertFragmentAnimation(replacement, expectedAnimators, true, POP_ENTER);
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private void assertExitPostponedPopEnter(AnimatorFragment fragment) throws Throwable {
         assertFragmentAnimation(fragment, 1, false, EXIT);
 
