@@ -77,7 +77,7 @@ public class ShadowOverlayContainer extends FrameLayout {
     private int mRoundedCornerRadius;
     private static final Rect sTempRect = new Rect();
     private Paint mOverlayPaint;
-    private int mOverlayColor;
+    int mOverlayColor;
 
     /**
      * Create ShadowOverlayContainer and auto select shadow type.
