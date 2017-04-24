@@ -606,7 +606,11 @@ public class Preference implements Comparable<Preference> {
             imageFrame = holder.findViewById(AndroidResources.ANDROID_R_ICON_FRAME);
         }
         if (imageFrame != null) {
-            imageFrame.setVisibility(mIcon != null ? View.VISIBLE : View.GONE);
+            if (mIcon != null) {
+                imageFrame.setVisibility(View.VISIBLE);
+            } else {
+                imageFrame.setVisibility(mIconSpaceReserved ? View.INVISIBLE : View.GONE);
+            }
         }
 
         if (mShouldDisableView) {
