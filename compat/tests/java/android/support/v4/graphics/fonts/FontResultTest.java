@@ -108,7 +108,7 @@ public class FontResultTest {
         try {
             cacheFile = new File(mActivity.getCacheDir(), TEST_FONT_FILE);
             cacheFile.getParentFile().mkdirs();
-            copyToCacheFile("samplefont.ttf", cacheFile);
+            copyToCacheFile("fonts/samplefont1.ttf", cacheFile);
             return ParcelFileDescriptor.open(cacheFile, MODE_READ_ONLY);
         } catch (IOException e) {
             e.printStackTrace();

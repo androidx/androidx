@@ -20,24 +20,38 @@ import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_COD
 import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY;
 import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_OK;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.app.Instrumentation;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ProviderInfo;
 import android.content.pm.Signature;
-import android.database.MatrixCursor;
+import android.graphics.Typeface;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.graphics.fonts.FontRequest;
-import android.support.v4.provider.FontsContractCompat.Columns;
+import android.support.v4.provider.FontsContractCompat.FontFamilyResult;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
-import android.test.ProviderTestCase2;
 import android.util.Base64;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,10 +59,35 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Unit tests for {@link FontsContractInternal}.
+ * Unit tests for {@link FontsContractCompat}.
  */
+@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class FontsContractCompatTest extends ProviderTestCase2<TestFontsProvider> {
+public class FontsContractCompatTest {
+    private static final String AUTHORITY = "android.provider.fonts.font";
+    private static final String PACKAGE = "android.support.compat.test";
+
+    // Signature to be used for authentication to access content provider.
+    // In this test case, the content provider and consumer live in the same package, self package's
+    // signature works.
+    private static final List<List<byte[]>> SIGNATURE;
+    static {
+        final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(
+                    context.getPackageName(), PackageManager.GET_SIGNATURES);
+            ArrayList<byte[]> out = new ArrayList<>();
+            for (Signature sig : info.signatures) {
+                out.add(sig.toByteArray());
+            }
+            SIGNATURE = new ArrayList<>();
+            SIGNATURE.add(out);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static final byte[] BYTE_ARRAY =
             Base64.decode("e04fd020ea3a6910a2d808002b30", Base64.DEFAULT);
     // Use a different instance to test byte array comparison
@@ -56,314 +95,323 @@ public class FontsContractCompatTest extends ProviderTestCase2<TestFontsProvider
             Base64.decode("e04fd020ea3a6910a2d808002b30", Base64.DEFAULT);
     private static final byte[] BYTE_ARRAY_2 =
             Base64.decode("e04fd020ea3a6910a2d808002b32", Base64.DEFAULT);
-    private static final String PACKAGE_NAME = "com.my.font.provider.package";
+    private Instrumentation mInstrumentation;
+    private Context mContext;
 
-    private final FontRequest mRequest = new FontRequest(TestFontsProvider.AUTHORITY, PACKAGE_NAME,
-            "query", Arrays.asList(Arrays.asList(BYTE_ARRAY)));
-    private TestFontsProvider mProvider;
-    private PackageManager mPackageManager;
-
-    public FontsContractCompatTest() {
-        super(TestFontsProvider.class, TestFontsProvider.AUTHORITY);
-    }
-
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
-        mProvider = getProvider();
-        mPackageManager = mock(PackageManager.class);
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
+        mContext = mInstrumentation.getTargetContext();
+        MockFontProvider.prepareFontFiles(
+                InstrumentationRegistry.getInstrumentation().getTargetContext());
     }
 
+    @After
+    public void tearDown() {
+        MockFontProvider.cleanUpFontFiles(
+                InstrumentationRegistry.getInstrumentation().getTargetContext());
+    }
+
+    private static class TestCallback extends FontsContractCompat.FontRequestCallback {
+        private Typeface mTypeface;
+
+        private int mSuccessCallCount;
+        private int mFailedCallCount;
+
+        public void onTypefaceRetrieved(Typeface typeface) {
+            mTypeface = typeface;
+            mSuccessCallCount++;
+        }
+
+        public void onTypefaceRequestFailed(int reason) {
+            mFailedCallCount++;
+        }
+
+        public Typeface getTypeface() {
+            return mTypeface;
+        }
+
+        public int getSuccessCallCount() {
+            return mSuccessCallCount;
+        }
+
+        public int getFailedCallCount() {
+            return mFailedCallCount;
+        }
+    }
+
+    @Test
+    public void typefaceNotCacheTest() throws NameNotFoundException {
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.SINGLE_FONT_FAMILY_QUERY, SIGNATURE);
+        FontFamilyResult result = FontsContractCompat.fetchFonts(
+                mContext, null /* cancellation signal */, request);
+        assertEquals(FontFamilyResult.STATUS_OK, result.getStatusCode());
+        Typeface typeface = FontsContractCompat.buildTypeface(
+                mContext, null /* cancellation signal */, result.getFonts());
+
+        FontFamilyResult result2 = FontsContractCompat.fetchFonts(
+                mContext, null /* cancellation signal */, request);
+        assertEquals(FontFamilyResult.STATUS_OK, result2.getStatusCode());
+        Typeface typeface2 = FontsContractCompat.buildTypeface(
+                mContext, null /* cancellation signal */, result2.getFonts());
+
+        // Neither fetchFonts nor buildTypeface should cache the Typeface.
+        assertNotSame(typeface, typeface2);
+    }
+
+    @Test
     public void testGetFontFromProvider_resultOK() {
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.SINGLE_FONT_FAMILY2_QUERY, SIGNATURE);
         FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
-                getMockContext(), mRequest, TestFontsProvider.AUTHORITY, null);
-        assertNotNull(fonts);
-        assertEquals(1, fonts.length);
-        FontInfo font = fonts[0];
-        assertEquals(TestFontsProvider.TTC_INDEX, font.getTtcIndex());
-        assertEquals(TestFontsProvider.NORMAL_WEIGHT, font.getWeight());
-        assertEquals(TestFontsProvider.ITALIC, font.isItalic());
-        assertNotNull(font.getUri());
-        assertEquals(RESULT_CODE_OK, font.getResultCode());
-    }
-
-    public void testGetFontFromProvider_providerDoesntReturnAllFields() {
-        mProvider.setReturnAllFields(false);
-
-        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
-                getMockContext(), mRequest, TestFontsProvider.AUTHORITY, null);
+                mContext, request, AUTHORITY, null);
         assertNotNull(fonts);
         assertEquals(1, fonts.length);
         FontInfo font = fonts[0];
         assertEquals(0, font.getTtcIndex());
-        assertEquals(400, font.getWeight());
-        assertFalse(font.isItalic());
+        assertEquals(700, font.getWeight());
+        assertTrue(font.isItalic());
         assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_OK, font.getResultCode());
     }
 
-    public void testGetFontFromProvider_resultFontNotFound() {
-        // Make the provider return unknown
-        mProvider.setResultCode(RESULT_CODE_FONT_NOT_FOUND);
+    @Test
+    public void testGetFontFromProvider_providerDoesntReturnAllFields() {
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.MANDATORY_FIELDS_ONLY_QUERY, SIGNATURE);
         FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
-                getMockContext(), mRequest, TestFontsProvider.AUTHORITY, null);
+                mContext, request, AUTHORITY, null);
         assertNotNull(fonts);
         assertEquals(1, fonts.length);
         FontInfo font = fonts[0];
-        assertEquals(TestFontsProvider.TTC_INDEX, font.getTtcIndex());
-        assertNotNull(font.getUri());
+        assertEquals(0, font.getTtcIndex());
+        assertEquals(RESULT_CODE_OK, font.getResultCode());
+    }
+
+    @Test
+    public void testGetFontFromProvider_resultFontNotFound() {
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.NOT_FOUND_QUERY, SIGNATURE);
+        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+                mContext, request, AUTHORITY, null);
+        assertNotNull(fonts);
+        assertEquals(1, fonts.length);
+        FontInfo font = fonts[0];
         assertEquals(RESULT_CODE_FONT_NOT_FOUND, font.getResultCode());
     }
 
+    @Test
     public void testGetFontFromProvider_resultFontUnavailable() {
-        // Make the provider return font unavailable
-        mProvider.setResultCode(RESULT_CODE_FONT_UNAVAILABLE);
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.UNAVAILABLE_QUERY, SIGNATURE);
         FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
-                getMockContext(), mRequest, TestFontsProvider.AUTHORITY, null);
+                mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
         assertEquals(1, fonts.length);
         FontInfo font = fonts[0];
-        assertEquals(TestFontsProvider.TTC_INDEX, font.getTtcIndex());
-        assertEquals(TestFontsProvider.NORMAL_WEIGHT, font.getWeight());
-        assertEquals(TestFontsProvider.ITALIC, font.isItalic());
-        assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_FONT_UNAVAILABLE, font.getResultCode());
     }
 
+    @Test
     public void testGetFontFromProvider_resultMalformedQuery() {
-        // Make the provider return font unavailable
-        mProvider.setResultCode(RESULT_CODE_MALFORMED_QUERY);
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.MALFORMED_QUERY, SIGNATURE);
         FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
-                getMockContext(), mRequest, TestFontsProvider.AUTHORITY, null);
+                mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
         assertEquals(1, fonts.length);
         FontInfo font = fonts[0];
-        assertEquals(TestFontsProvider.TTC_INDEX, font.getTtcIndex());
-        assertEquals(TestFontsProvider.NORMAL_WEIGHT, font.getWeight());
-        assertEquals(TestFontsProvider.ITALIC, font.isItalic());
-        assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_MALFORMED_QUERY, font.getResultCode());
     }
 
+    @Test
     public void testGetFontFromProvider_resultFontNotFoundSecondRow() {
-        MatrixCursor cursor = new MatrixCursor(new String[] { Columns._ID,
-                Columns.TTC_INDEX, Columns.VARIATION_SETTINGS,
-                Columns.WEIGHT, Columns.ITALIC,
-                Columns.RESULT_CODE });
-        cursor.addRow(new Object[] { 1, 0, null, 400, 0, RESULT_CODE_OK});
-        cursor.addRow(new Object[] { 1, 0, null, 400, 0,
-                RESULT_CODE_FONT_NOT_FOUND});
-        mProvider.setCustomCursor(cursor);
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.NOT_FOUND_SECOND_QUERY, SIGNATURE);
         FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
-                getMockContext(), mRequest, TestFontsProvider.AUTHORITY, null);
+                mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
         assertEquals(2, fonts.length);
 
         FontInfo font = fonts[0];
-        assertEquals(0, font.getTtcIndex());
-        assertEquals(400, font.getWeight());
-        assertFalse(font.isItalic());
-        assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_OK, font.getResultCode());
 
         font = fonts[1];
-        assertEquals(0, font.getTtcIndex());
-        assertEquals(400, font.getWeight());
-        assertFalse(font.isItalic());
-        assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_FONT_NOT_FOUND, font.getResultCode());
     }
 
+    @Test
     public void testGetFontFromProvider_resultFontNotFoundOtherRow() {
-        MatrixCursor cursor = new MatrixCursor(new String[] { Columns._ID, Columns.TTC_INDEX,
-                Columns.VARIATION_SETTINGS, Columns.WEIGHT, Columns.ITALIC, Columns.RESULT_CODE });
-        cursor.addRow(new Object[] { 1, 0, null, 400, 0, RESULT_CODE_OK});
-        cursor.addRow(new Object[] { 1, 0, null, 400, 0, RESULT_CODE_FONT_NOT_FOUND});
-        cursor.addRow(new Object[] { 1, 0, null, 400, 0, RESULT_CODE_OK});
-        mProvider.setCustomCursor(cursor);
+        FontRequest request = new FontRequest(
+                AUTHORITY, PACKAGE, MockFontProvider.NOT_FOUND_THIRD_QUERY, SIGNATURE);
         FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
-                getMockContext(), mRequest, TestFontsProvider.AUTHORITY, null);
+                mContext, request, AUTHORITY, null);
 
         assertNotNull(fonts);
         assertEquals(3, fonts.length);
 
         FontInfo font = fonts[0];
-        assertEquals(0, font.getTtcIndex());
-        assertEquals(400, font.getWeight());
-        assertFalse(font.isItalic());
-        assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_OK, font.getResultCode());
 
         font = fonts[1];
-        assertEquals(0, font.getTtcIndex());
-        assertEquals(400, font.getWeight());
-        assertFalse(font.isItalic());
-        assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_FONT_NOT_FOUND, font.getResultCode());
 
         font = fonts[2];
-        assertEquals(0, font.getTtcIndex());
-        assertEquals(400, font.getWeight());
-        assertFalse(font.isItalic());
-        assertNotNull(font.getUri());
         assertEquals(RESULT_CODE_OK, font.getResultCode());
     }
 
-    public void testGetProvider_providerNotFound() {
-        when(mPackageManager.resolveContentProvider(anyString(), anyInt())).thenReturn(null);
-
-        try {
-            FontsContractCompat.getProvider(mPackageManager, mRequest, null);
-            fail();
-        } catch (NameNotFoundException e) {
-            // pass
-        }
-    }
-
-    public void testGetProvider_providerIsSystemApp() throws PackageManager.NameNotFoundException {
-        ProviderInfo info = setupPackageManager();
-        info.applicationInfo.flags = ApplicationInfo.FLAG_SYSTEM;
-        when(mPackageManager.resolveContentProvider(anyString(), anyInt())).thenReturn(info);
-
-        ProviderInfo result = FontsContractCompat.getProvider(mPackageManager, mRequest, null);
-        assertEquals(info, result);
-    }
-
-    public void testGetProvider_providerIsSystemAppWrongPackage()
-            throws PackageManager.NameNotFoundException {
-        ProviderInfo info = setupPackageManager();
-        info.applicationInfo.flags = ApplicationInfo.FLAG_SYSTEM;
-        when(mPackageManager.resolveContentProvider(anyString(), anyInt())).thenReturn(info);
-
+    public void testGetFontFromProvider_resultCodeIsNegativeNumber() {
         FontRequest request = new FontRequest(
-                TestFontsProvider.AUTHORITY, "com.wrong.package", "query",
-                Arrays.asList(Arrays.asList(BYTE_ARRAY)));
+                AUTHORITY, PACKAGE, MockFontProvider.NEGATIVE_ERROR_CODE_QUERY, SIGNATURE);
+        FontInfo[] fonts = FontsContractCompat.getFontFromProvider(
+                mContext, request, AUTHORITY, null);
+
+
+        assertNotNull(fonts);
+        assertEquals(1, fonts.length);
+        FontInfo font = fonts[0];
+        assertEquals(RESULT_CODE_FONT_NOT_FOUND, font.getResultCode());
+    }
+
+    @Test
+    public void testGetProvider_providerNotFound() {
+        PackageManager packageManager = mock(PackageManager.class);
+        when(packageManager.resolveContentProvider(anyString(), anyInt())).thenReturn(null);
+
+        FontRequest request = new FontRequest(AUTHORITY, PACKAGE, "query", SIGNATURE);
         try {
-            FontsContractCompat.getProvider(mPackageManager, request, null);
+            FontsContractCompat.getProvider(packageManager, request, null);
             fail();
         } catch (NameNotFoundException e) {
             // pass
         }
-
     }
 
-    public void testGetProvider_providerIsNonSystemAppNoCerts()
+    @Test
+    public void testGetProvider_noCerts()
             throws PackageManager.NameNotFoundException {
-        setupPackageManager();
+        PackageManager packageManager = mContext.getPackageManager();
 
         List<List<byte[]>> emptyList = Collections.emptyList();
 
-        FontRequest request = new FontRequest(
-                TestFontsProvider.AUTHORITY, PACKAGE_NAME, "query", emptyList);
-        assertNull(FontsContractCompat.getProvider(mPackageManager, request, null));
+        FontRequest request = new FontRequest(AUTHORITY, PACKAGE, "query", emptyList);
+        assertNull(FontsContractCompat.getProvider(packageManager, request, null));
     }
 
-    public void testGetProvider_providerIsNonSystemAppWrongCerts()
+    @Test
+    public void testGetProvider_wrongCerts()
             throws PackageManager.NameNotFoundException {
-        setupPackageManager();
+        PackageManager packageManager = mock(PackageManager.class);
+        setupPackageManager(packageManager);
 
         byte[] wrongCert = Base64.decode("this is a wrong cert", Base64.DEFAULT);
         List<byte[]> certList = Arrays.asList(wrongCert);
         FontRequest requestWrongCerts = new FontRequest(
-                TestFontsProvider.AUTHORITY, PACKAGE_NAME, "query", Arrays.asList(certList));
+                AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
 
-        assertNull(FontsContractCompat.getProvider(mPackageManager, requestWrongCerts, null));
+        assertNull(FontsContractCompat.getProvider(packageManager, requestWrongCerts, null));
     }
 
-    public void testGetProvider_providerIsNonSystemAppCorrectCerts()
+    @Test
+    public void testGetProvider_correctCerts()
             throws PackageManager.NameNotFoundException {
-        ProviderInfo info = setupPackageManager();
+        PackageManager packageManager = mock(PackageManager.class);
+        ProviderInfo info = setupPackageManager(packageManager);
 
         List<byte[]> certList = Arrays.asList(BYTE_ARRAY);
         FontRequest requestRightCerts = new FontRequest(
-                TestFontsProvider.AUTHORITY, PACKAGE_NAME, "query", Arrays.asList(certList));
-        ProviderInfo result = FontsContractCompat.getProvider(
-                mPackageManager, requestRightCerts, null);
+                AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
+        ProviderInfo result =
+                FontsContractCompat.getProvider(packageManager, requestRightCerts, null);
 
         assertEquals(info, result);
     }
 
-    public void testGetProvider_providerIsNonSystemAppMoreCerts()
+    @Test
+    public void testGetProvider_moreCerts()
             throws PackageManager.NameNotFoundException {
-        setupPackageManager();
+        PackageManager packageManager = mock(PackageManager.class);
+        setupPackageManager(packageManager);
 
         byte[] wrongCert = Base64.decode("this is a wrong cert", Base64.DEFAULT);
         List<byte[]> certList = Arrays.asList(wrongCert, BYTE_ARRAY);
         FontRequest requestRightCerts = new FontRequest(
-                TestFontsProvider.AUTHORITY, PACKAGE_NAME, "query", Arrays.asList(certList));
-        assertNull(FontsContractCompat.getProvider(mPackageManager, requestRightCerts, null));
+                AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
+        assertNull(FontsContractCompat.getProvider(packageManager, requestRightCerts, null));
     }
 
-    public void testGetProvider_providerIsNonSystemAppDuplicateCerts()
+    @Test
+    public void testGetProvider_duplicateCerts()
             throws PackageManager.NameNotFoundException {
-        ProviderInfo info = new ProviderInfo();
-        info.packageName = PACKAGE_NAME;
-        info.applicationInfo = new ApplicationInfo();
-        when(mPackageManager.resolveContentProvider(anyString(), anyInt())).thenReturn(info);
+        PackageManager packageManager = mock(PackageManager.class);
+        setupPackageManager(packageManager);
         PackageInfo packageInfo = new PackageInfo();
         Signature signature = mock(Signature.class);
         when(signature.toByteArray()).thenReturn(BYTE_ARRAY_COPY);
         Signature signature2 = mock(Signature.class);
         when(signature2.toByteArray()).thenReturn(BYTE_ARRAY_COPY);
-        packageInfo.packageName = PACKAGE_NAME;
+        packageInfo.packageName = PACKAGE;
         packageInfo.signatures = new Signature[] { signature, signature2 };
-        when(mPackageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
+        when(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
 
         // The provider has {BYTE_ARRAY_COPY, BYTE_ARRAY_COPY}, the request has
         // {BYTE_ARRAY_2, BYTE_ARRAY_COPY}.
         List<byte[]> certList = Arrays.asList(BYTE_ARRAY_2, BYTE_ARRAY_COPY);
         FontRequest requestRightCerts = new FontRequest(
-                TestFontsProvider.AUTHORITY, PACKAGE_NAME, "query", Arrays.asList(certList));
-        assertNull(FontsContractCompat.getProvider(mPackageManager, requestRightCerts, null));
+                AUTHORITY, PACKAGE, "query", Arrays.asList(certList));
+        assertNull(FontsContractCompat.getProvider(packageManager, requestRightCerts, null));
     }
 
-    public void testGetProvider_providerIsNonSystemAppCorrectCertsSeveralSets()
+    @Test
+    public void testGetProvider_correctCertsSeveralSets()
             throws PackageManager.NameNotFoundException {
-        ProviderInfo info = setupPackageManager();
+        PackageManager packageManager = mock(PackageManager.class);
+        ProviderInfo info = setupPackageManager(packageManager);
 
         List<List<byte[]>> certList = new ArrayList<>();
         byte[] wrongCert = Base64.decode("this is a wrong cert", Base64.DEFAULT);
         certList.add(Arrays.asList(wrongCert));
         certList.add(Arrays.asList(BYTE_ARRAY));
-        FontRequest requestRightCerts = new FontRequest(
-                TestFontsProvider.AUTHORITY, PACKAGE_NAME, "query", certList);
+        FontRequest requestRightCerts = new FontRequest(AUTHORITY, PACKAGE, "query", certList);
         ProviderInfo result =
-                FontsContractCompat.getProvider(mPackageManager, requestRightCerts, null);
+                FontsContractCompat.getProvider(packageManager, requestRightCerts, null);
 
         assertEquals(info, result);
     }
 
-    public void testGetProvider_providerIsNonSystemAppWrongPackage()
+    @Test
+    public void testGetProvider_wrongPackage()
             throws PackageManager.NameNotFoundException {
-        setupPackageManager();
+        PackageManager packageManager = mContext.getPackageManager();
 
         List<List<byte[]>> certList = new ArrayList<>();
         certList.add(Arrays.asList(BYTE_ARRAY));
         FontRequest requestRightCerts = new FontRequest(
-                TestFontsProvider.AUTHORITY, "com.wrong.package.name", "query", certList);
+                AUTHORITY, "com.wrong.package.name", "query", certList);
         try {
-            FontsContractCompat.getProvider(mPackageManager, requestRightCerts, null);
+            FontsContractCompat.getProvider(packageManager, requestRightCerts, null);
             fail();
         } catch (NameNotFoundException e) {
             // pass
         }
     }
 
-    private ProviderInfo setupPackageManager()
+    private ProviderInfo setupPackageManager(PackageManager packageManager)
             throws PackageManager.NameNotFoundException {
         ProviderInfo info = new ProviderInfo();
-        info.packageName = PACKAGE_NAME;
+        info.packageName = PACKAGE;
         info.applicationInfo = new ApplicationInfo();
-        when(mPackageManager.resolveContentProvider(anyString(), anyInt())).thenReturn(info);
+        when(packageManager.resolveContentProvider(anyString(), anyInt())).thenReturn(info);
         PackageInfo packageInfo = new PackageInfo();
         Signature signature = mock(Signature.class);
         when(signature.toByteArray()).thenReturn(BYTE_ARRAY_COPY);
-        packageInfo.packageName = PACKAGE_NAME;
+        packageInfo.packageName = PACKAGE;
         packageInfo.signatures = new Signature[] { signature };
-        when(mPackageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
+        when(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
         return info;
     }
 }
