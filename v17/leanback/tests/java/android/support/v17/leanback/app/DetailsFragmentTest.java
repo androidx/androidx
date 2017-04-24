@@ -560,14 +560,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         final DetailsFragmentWithNoVideo detailsFragment =
                 (DetailsFragmentWithNoVideo) activity.getTestFragment();
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                detailsFragment.setItem(new PhotoItem("Hello world", "Fake content goes here",
-                        android.support.v17.leanback.test.R.drawable.spiderman));
-            }
-        });
-
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
@@ -673,14 +665,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         final DetailsFragmentWithNoVideo detailsFragment =
                 (DetailsFragmentWithNoVideo) activity.getTestFragment();
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                detailsFragment.setItem(new PhotoItem("Hello world", "Fake content goes here",
-                        android.support.v17.leanback.test.R.drawable.spiderman));
-            }
-        });
-
         SystemClock.sleep(1000);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {
@@ -753,14 +737,6 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
         final DetailsFragmentWithNoVideo detailsFragment =
                 (DetailsFragmentWithNoVideo) activity.getTestFragment();
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                detailsFragment.setItem(new PhotoItem("Hello world", "Fake content goes here",
-                        android.support.v17.leanback.test.R.drawable.spiderman));
-            }
-        });
 
         PollingCheck.waitFor(4000, new PollingCheck.PollingCheckCondition() {
             @Override
