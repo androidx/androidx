@@ -22,11 +22,11 @@ if (hasProperty("libs")) {
     ffLibs = libs
 }
 def ffVersions = [:]
-ffVersions.kotlin = "1.0.5"
+ffVersions.kotlin = "1.1.1"
 ffVersions.auto_common = "0.6"
 ffVersions.javapoet = "1.8.0"
 ffVersions.compile_testing = "0.9"
-ffVersions.localize_maven = "1.1"
+ffVersions.localize_maven = "1.2"
 ffVersions.support_lib = "25.2.0"
 ffVersions.mockito = "1.9.5"
 ffVersions.intellij_annotations = "12.0"

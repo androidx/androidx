@@ -186,6 +186,18 @@ subprojects {
             project.localizeMaven {
                 localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
                 otherRepoDirs = repoNames
+                licenseInformation = [
+                        [
+                                libraries: ["org.jetbrains:annotations",
+                                            "org.jetbrains.kotlin:kotlin-compiler-runner"],
+                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
+                        ],
+                        [
+                                libraries: ["com.google.code.gson:gson"],
+                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
+                        ]
+
+                ]
             }
         }
     }

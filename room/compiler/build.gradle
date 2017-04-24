@@ -28,7 +28,6 @@ dependencies {
     // taken from ButterKnife
     def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
     def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
-
     compile project(":room:common")
     compile project(":room:migration")
     compile libs.kotlin.stdlib
