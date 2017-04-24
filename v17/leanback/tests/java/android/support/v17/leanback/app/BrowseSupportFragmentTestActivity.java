@@ -20,7 +20,6 @@ package android.support.v17.leanback.app;
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.test.R;
@@ -32,7 +31,8 @@ public class BrowseSupportFragmentTestActivity extends FragmentActivity {
     public static final String EXTRA_REPEAT_PER_ROW = "repeatPerRow";
     public static final String EXTRA_LOAD_DATA_DELAY = "loadDataDelay";
     public static final String EXTRA_TEST_ENTRANCE_TRANSITION = "testEntranceTransition";
-    public final static String EXTRA_SET_ADAPTER_AFTER_DATA_LOAD = "set_adapter_after_data_load";
+    public static final String EXTRA_SET_ADAPTER_AFTER_DATA_LOAD = "set_adapter_after_data_load";
+    public static final String EXTRA_HEADERS_STATE = "headers_state";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

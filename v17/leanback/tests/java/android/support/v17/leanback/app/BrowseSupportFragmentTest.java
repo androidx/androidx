@@ -196,6 +196,25 @@ public class BrowseSupportFragmentTest {
         });
     }
 
+
+    @Test
+    public void lateLoadingHeaderDisabled() throws Throwable {
+        final long dataLoadingDelay = 1000;
+        Intent intent = new Intent();
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_LOAD_DATA_DELAY, dataLoadingDelay);
+        intent.putExtra(BrowseSupportFragmentTestActivity.EXTRA_HEADERS_STATE,
+                BrowseSupportFragment.HEADERS_DISABLED);
+        mActivity = activityTestRule.launchActivity(intent);
+        waitForEntranceTransitionFinished();
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mActivity.getBrowseTestSupportFragment().getGridView() != null
+                        && mActivity.getBrowseTestSupportFragment().getGridView().getChildCount() > 0;
+            }
+        });
+    }
+
     private void sendKeys(int ...keys) {
         for (int i = 0; i < keys.length; i++) {
             InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keys[i]);
