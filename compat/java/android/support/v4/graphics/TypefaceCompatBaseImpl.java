@@ -24,8 +24,6 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -41,6 +39,7 @@ import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
+import android.support.v4.os.TraceCompat;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.provider.FontsContractInternal;
@@ -57,6 +56,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of the Typeface compat methods for API 14 and above.
@@ -68,6 +70,9 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     private static final String TAG = "TypefaceCompatBaseImpl";
     private static final String CACHE_FILE_PREFIX = "cached_font_";
 
+    private static final boolean VERBOSE_TRACING = false;
+    private static final int SYNC_FETCH_TIMEOUT_MS = 500;
+
     /**
      * Cache for Typeface objects dynamically loaded from assets. Currently max size is 16.
      */
@@ -75,7 +80,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
     private static FontsContractInternal sFontsContract;
-    private static Handler sHandler;
 
     private final Context mApplicationContext;
 
@@ -87,7 +91,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      * Create a typeface object given a font request. The font will be asynchronously fetched,
      * therefore the result is delivered to the given callback. See {@link FontRequest}.
      * Only one of the methods in callback will be invoked, depending on whether the request
-     * succeeds or fails. These calls will happen on the main thread.
+     * succeeds or fails. These calls will happen on the background thread.
      * @param request A {@link FontRequest} object that identifies the provider and query for the
      *                request. May not be null.
      * @param callback A callback that will be triggered when results are obtained. May not be null.
@@ -97,28 +101,16 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         final Typeface cachedTypeface = findFromCache(
                 request.getProviderAuthority(), request.getQuery());
         if (cachedTypeface != null) {
-            sHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onTypefaceRetrieved(cachedTypeface);
-                }
-            });
-            return;
+            callback.onTypefaceRetrieved(cachedTypeface);
         }
         synchronized (sLock) {
             if (sFontsContract == null) {
                 sFontsContract = new FontsContractInternal(mApplicationContext);
-                sHandler = new Handler(Looper.getMainLooper());
             }
             final ResultReceiver receiver = new ResultReceiver(null) {
                 @Override
                 public void onReceiveResult(final int resultCode, final Bundle resultData) {
-                    sHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            receiveResult(request, callback, resultCode, resultData);
-                        }
-                    });
+                    receiveResult(request, callback, resultCode, resultData);
                 }
             };
             sFontsContract.getFont(request, receiver);
@@ -359,23 +351,100 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         if (typeface != null) {
             return typeface;
         }
-
-        // Downloadable font is not in cache, must fetch asynchronously.
         FontRequest request = new FontRequest(entry.getAuthority(), entry.getPackage(),
                 entry.getQuery(), entry.getCerts());
-        create(request, NO_OP_REQUEST_CALLBACK);
-        return null;
+        WaitableCallback callback =
+                new WaitableCallback(entry.getAuthority() + "/" + entry.getQuery());
+        create(request, callback);
+        return callback.waitWithTimeout(SYNC_FETCH_TIMEOUT_MS);
     }
 
-    private static final FontRequestCallback NO_OP_REQUEST_CALLBACK = new FontRequestCallback() {
+    private static final class WaitableCallback extends FontRequestCallback {
+        private final ReentrantLock mLock = new ReentrantLock();
+        private final Condition mCond = mLock.newCondition();
+
+        private final String mFontTitle;  // For debugging message.
+
+        private static final int NOT_STARTED = 0;
+        private static final int WAITING = 1;
+        private static final int FINISHED = 2;
+        @GuardedBy("mLock")
+        private int mState = NOT_STARTED;
+
+        @GuardedBy("mLock")
+        private Typeface mTypeface;
+
+        WaitableCallback(String fontTitle) {
+            mFontTitle = fontTitle;
+        }
+
         @Override
         public void onTypefaceRetrieved(Typeface typeface) {
-            // Do nothing.
+            mLock.lock();
+            try {
+                if (mState == WAITING) {
+                    mTypeface = typeface;
+                    mState = FINISHED;
+                }
+                mCond.signal();
+            } finally {
+                mLock.unlock();
+            }
         }
 
         @Override
         public void onTypefaceRequestFailed(@FontRequestFailReason int reason) {
-            // Do nothing.
+            Log.w(TAG, "Remote font fetch failed(" + reason + "): " + mFontTitle);
+            mLock.lock();
+            try {
+                if (mState == WAITING) {
+                    mTypeface = null;
+                    mState = FINISHED;
+                }
+                mCond.signal();
+            } finally {
+                mLock.unlock();
+            }
+        }
+
+        public Typeface waitWithTimeout(long timeoutMillis) {
+            if (VERBOSE_TRACING) {
+                TraceCompat.beginSection("Remote Font Fetch");
+            }
+            mLock.lock();
+            try {
+                if (mState == FINISHED) {
+                    return mTypeface;  // Already has a result.
+                }
+                if (mState != NOT_STARTED) {
+                    return null;  // Unexpected state. Reusing the same callback again?
+                }
+                mState = WAITING;
+                long remainingNanos = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+                while (mState == WAITING) {
+                    try {
+                        remainingNanos = mCond.awaitNanos(remainingNanos);
+                    } catch (InterruptedException e) {
+                    }
+                    if (mState == FINISHED) {
+                        final long elapsedMillis =
+                                timeoutMillis - TimeUnit.NANOSECONDS.toMillis(remainingNanos);
+                        Log.w(TAG, "Remote font fetched in " + elapsedMillis + "ms :" + mFontTitle);
+                        return mTypeface;
+                    }
+                    if (remainingNanos < 0) {
+                        Log.w(TAG, "Remote font fetch timed out: " + mFontTitle);
+                        mState = FINISHED;
+                        return null;  // Timed out.
+                    }
+                }
+                return null;
+            } finally {
+                mLock.unlock();
+                if (VERBOSE_TRACING) {
+                    TraceCompat.endSection();
+                }
+            }
         }
     };
 
