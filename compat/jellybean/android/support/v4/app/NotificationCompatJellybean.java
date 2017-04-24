@@ -437,20 +437,4 @@ class NotificationCompatJellybean {
                 action.getRemoteInputs()));
         return bundle;
     }
-
-    public static boolean getLocalOnly(Notification notif) {
-        return getExtras(notif).getBoolean(EXTRA_LOCAL_ONLY);
-    }
-
-    public static String getGroup(Notification n) {
-        return getExtras(n).getString(EXTRA_GROUP_KEY);
-    }
-
-    public static boolean isGroupSummary(Notification n) {
-        return getExtras(n).getBoolean(EXTRA_GROUP_SUMMARY);
-    }
-
-    public static String getSortKey(Notification n) {
-        return getExtras(n).getString(EXTRA_SORT_KEY);
-    }
 }
