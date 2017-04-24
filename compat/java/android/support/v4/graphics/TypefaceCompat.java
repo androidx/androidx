@@ -30,7 +30,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
-import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
@@ -53,23 +52,6 @@ public class TypefaceCompat {
     private static final Object sLock = new Object();
 
     /**
-     * Create a typeface object given a font request. The font will be asynchronously fetched,
-     * therefore the result is delivered to the given callback. See {@link FontRequest}.
-     * Only one of the methods in callback will be invoked, depending on whether the request
-     * succeeds or fails. These calls will happen on the main thread.
-     * @param context A Context to retrieve the fonts on. The system will hold on to the application
-     *                context derived from this context.
-     * @param request A {@link FontRequest} object that identifies the provider and query for the
-     *                request. May not be null.
-     * @param callback A callback that will be triggered when results are obtained. May not be null.
-     */
-    public static void create(Context context, @NonNull final FontRequest request,
-            @NonNull final FontRequestCallback callback) {
-        maybeInitImpl(context);
-        sTypefaceCompatImpl.create(request, callback);
-    }
-
-    /**
      * Create a Typeface from a given FontResult list.
      *
      * @param resultList a list of results, guaranteed to be non-null and non empty.
@@ -80,18 +62,6 @@ public class TypefaceCompat {
     }
 
     interface TypefaceCompatImpl {
-        /**
-         * Create a typeface object given a font request. The font will be asynchronously fetched,
-         * therefore the result is delivered to the given callback. See {@link FontRequest}.
-         * Only one of the methods in callback will be invoked, depending on whether the request
-         * succeeds or fails. These calls will happen on the main thread.
-         * @param request A {@link FontRequest} object that identifies the provider and query for
-         *                the request. May not be null.
-         * @param callback A callback that will be triggered when results are obtained. May not be
-         *                 null.
-         */
-        void create(@NonNull FontRequest request,
-                @NonNull TypefaceCompat.FontRequestCallback callback);
         /**
          * Create a Typeface from a given FontResult list.
          *
