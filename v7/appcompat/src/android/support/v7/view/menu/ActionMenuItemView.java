@@ -193,8 +193,9 @@ public class ActionMenuItemView extends AppCompatTextView
         // Show the tooltip for items that do not already show text.
         final CharSequence contentDescription = mItemData.getContentDescription();
         if (TextUtils.isEmpty(contentDescription)) {
-            // Use the uncondensed title for content description.
-            setContentDescription(mItemData.getTitle());
+            // Use the uncondensed title for content description, but only if the title is not
+            // shown already.
+            setContentDescription(visible ? null : mItemData.getTitle());
         } else {
             setContentDescription(contentDescription);
         }

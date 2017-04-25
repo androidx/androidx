@@ -191,7 +191,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
 
         onView(withId(R.id.action_alpha_shortcut))
                 .check(matches(isDisplayed()))
-                .check(matches(withContentDescription(R.string.alpha_menu_title)));
+                .check(matches(withContentDescription((String) null)));
 
         Menu menu = getActivity().getMenu();
         final MenuItem alphaItem = menu.findItem(R.id.action_alpha_shortcut);
