@@ -125,7 +125,7 @@ public class MediaRouteButton extends View {
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.MediaRouteButton, defStyleAttr, 0);
-        mButtonTint = a.getColorStateList(R.styleable.MediaRouteButton_buttonTint);
+        mButtonTint = a.getColorStateList(R.styleable.MediaRouteButton_mediaRouteButtonTint);
         setRemoteIndicatorDrawable(a.getDrawable(
                 R.styleable.MediaRouteButton_externalRouteEnabledDrawable));
         mMinWidth = a.getDimensionPixelSize(
