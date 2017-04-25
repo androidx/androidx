@@ -58,7 +58,6 @@ public class WindowCallbackWrapper implements Window.Callback {
         return mWrapped.dispatchKeyEvent(event);
     }
 
-    @RequiresApi(11)
     @Override
     public boolean dispatchKeyShortcutEvent(KeyEvent event) {
         return mWrapped.dispatchKeyShortcutEvent(event);
@@ -74,7 +73,6 @@ public class WindowCallbackWrapper implements Window.Callback {
         return mWrapped.dispatchTrackballEvent(event);
     }
 
-    @RequiresApi(12)
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
         return mWrapped.dispatchGenericMotionEvent(event);
@@ -151,7 +149,6 @@ public class WindowCallbackWrapper implements Window.Callback {
         return mWrapped.onSearchRequested();
     }
 
-    @RequiresApi(11)
     @Override
     public ActionMode onWindowStartingActionMode(ActionMode.Callback callback) {
         return mWrapped.onWindowStartingActionMode(callback);
@@ -163,13 +160,11 @@ public class WindowCallbackWrapper implements Window.Callback {
         return mWrapped.onWindowStartingActionMode(callback, type);
     }
 
-    @RequiresApi(11)
     @Override
     public void onActionModeStarted(ActionMode mode) {
         mWrapped.onActionModeStarted(mode);
     }
 
-    @RequiresApi(11)
     @Override
     public void onActionModeFinished(ActionMode mode) {
         mWrapped.onActionModeFinished(mode);
@@ -180,5 +175,11 @@ public class WindowCallbackWrapper implements Window.Callback {
     public void onProvideKeyboardShortcuts(
             List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
         mWrapped.onProvideKeyboardShortcuts(data, menu, deviceId);
+    }
+
+    @RequiresApi(26)
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        mWrapped.onPointerCaptureChanged(hasCapture);
     }
 }
