@@ -388,12 +388,12 @@ public class LiveData<T> {
                 return;
             }
             active = newActive;
-            boolean inInActive = mActiveCount == 0;
-            mActiveCount += active ? 1 : -1;
-            if (inInActive && active) {
+            boolean wasInactive = LiveData.this.mActiveCount == 0;
+            LiveData.this.mActiveCount += active ? 1 : -1;
+            if (wasInactive && active) {
                 onActive();
             }
-            if (!inInActive && !active) {
+            if (LiveData.this.mActiveCount == 0 && !active) {
                 onInactive();
             }
             if (active) {

@@ -389,6 +389,21 @@ public class LiveDataTest {
         verify(observer).onChanged("b");
     }
 
+    @Test
+    public void testNotCallInactiveWithObserveForever() {
+        mRegistry.handleLifecycleEvent(ON_START);
+        Observer<String> observer = (Observer<String>) mock(Observer.class);
+        Observer<String> observer2 = (Observer<String>) mock(Observer.class);
+        mLiveData.observe(mOwner, observer);
+        mLiveData.observeForever(observer2);
+        verify(mActiveObserversChanged).onCall(true);
+        reset(mActiveObserversChanged);
+        mRegistry.handleLifecycleEvent(ON_STOP);
+        verify(mActiveObserversChanged, never()).onCall(anyBoolean());
+        mRegistry.handleLifecycleEvent(ON_START);
+        verify(mActiveObserversChanged, never()).onCall(anyBoolean());
+    }
+
     @SuppressWarnings("WeakerAccess")
     static class PublicLiveData<T> extends LiveData<T> {
         // cannot spy due to internal calls
