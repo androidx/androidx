@@ -6046,6 +6046,7 @@ package android.support.v4.app {
     method public void onFragmentDetached(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
     method public void onFragmentPaused(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
     method public void onFragmentPreAttached(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.content.Context);
+    method public void onFragmentPreCreated(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.os.Bundle);
     method public void onFragmentResumed(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
     method public void onFragmentSaveInstanceState(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment, android.os.Bundle);
     method public void onFragmentStarted(android.support.v4.app.FragmentManager, android.support.v4.app.Fragment);
@@ -6100,10 +6101,10 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction hide(android.support.v4.app.Fragment);
     method public abstract boolean isAddToBackStackAllowed();
     method public abstract boolean isEmpty();
-    method public abstract android.support.v4.app.FragmentTransaction postOnCommit(java.lang.Runnable);
     method public abstract android.support.v4.app.FragmentTransaction remove(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment, java.lang.String);
+    method public abstract android.support.v4.app.FragmentTransaction runOnCommit(java.lang.Runnable);
     method public abstract deprecated android.support.v4.app.FragmentTransaction setAllowOptimization(boolean);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(int);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(java.lang.CharSequence);
