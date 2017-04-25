@@ -28,6 +28,7 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ActionProvider;
+import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v7.appcompat.R;
 import android.support.v7.view.menu.ShowableListMenu;
 import android.util.AttributeSet;
@@ -36,6 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
@@ -241,6 +243,13 @@ public class ActivityChooserView extends ViewGroup implements
 
         final FrameLayout expandButton = findViewById(R.id.expand_activities_button);
         expandButton.setOnClickListener(mCallbacks);
+        expandButton.setAccessibilityDelegate(new AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                AccessibilityNodeInfoCompat.wrap(info).setCanOpenPopup(true);
+            }
+        });
         expandButton.setOnTouchListener(new ForwardingListener(expandButton) {
             @Override
             public ShowableListMenu getPopup() {
