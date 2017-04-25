@@ -712,6 +712,39 @@ public class MediaSessionCompat {
         return null;
     }
 
+    private static PlaybackStateCompat getStateWithUpdatedPosition(
+            PlaybackStateCompat state, MediaMetadataCompat metadata) {
+        if (state == null || state.getPosition() == PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN) {
+            return state;
+        }
+
+        if (state.getState() == PlaybackStateCompat.STATE_PLAYING
+                || state.getState() == PlaybackStateCompat.STATE_FAST_FORWARDING
+                || state.getState() == PlaybackStateCompat.STATE_REWINDING) {
+            long updateTime = state.getLastPositionUpdateTime();
+            if (updateTime > 0) {
+                long currentTime = SystemClock.elapsedRealtime();
+                long position = (long) (state.getPlaybackSpeed() * (currentTime - updateTime))
+                        + state.getPosition();
+                long duration = -1;
+                if (metadata != null && metadata.containsKey(
+                        MediaMetadataCompat.METADATA_KEY_DURATION)) {
+                    duration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+                }
+
+                if (duration >= 0 && position > duration) {
+                    position = duration;
+                } else if (position < 0) {
+                    position = 0;
+                }
+                return new PlaybackStateCompat.Builder(state)
+                        .setState(state.getState(), position, state.getPlaybackSpeed(), currentTime)
+                        .build();
+            }
+        }
+        return state;
+    }
+
     /**
      * Receives transport controls, media buttons, and commands from controllers
      * and the system. The callback may be set using {@link #setCallback}.
@@ -2046,43 +2079,6 @@ public class MediaSessionCompat {
             }
         }
 
-        PlaybackStateCompat getStateWithUpdatedPosition() {
-            PlaybackStateCompat state;
-            long duration = -1;
-            synchronized (mLock) {
-                state = mState;
-                if (mMetadata != null
-                        && mMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
-                    duration = mMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-                }
-            }
-
-            PlaybackStateCompat result = null;
-            if (state != null) {
-                if (state.getState() == PlaybackStateCompat.STATE_PLAYING
-                        || state.getState() == PlaybackStateCompat.STATE_FAST_FORWARDING
-                        || state.getState() == PlaybackStateCompat.STATE_REWINDING) {
-                    long updateTime = state.getLastPositionUpdateTime();
-                    long currentTime = SystemClock.elapsedRealtime();
-                    if (updateTime > 0) {
-                        long position = (long) (state.getPlaybackSpeed()
-                                * (currentTime - updateTime)) + state.getPosition();
-                        if (duration >= 0 && position > duration) {
-                            position = duration;
-                        } else if (position < 0) {
-                            position = 0;
-                        }
-                        PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder(
-                                state);
-                        builder.setState(state.getState(), position, state.getPlaybackSpeed(),
-                                currentTime);
-                        result = builder.build();
-                    }
-                }
-            }
-            return result == null ? state : result;
-        }
-
         void sendVolumeInfoChanged(ParcelableVolumeInfo info) {
             int size = mControllerCallbacks.beginBroadcast();
             for (int i = size - 1; i >= 0; i--) {
@@ -2427,7 +2423,13 @@ public class MediaSessionCompat {
 
             @Override
             public PlaybackStateCompat getPlaybackState() {
-                return getStateWithUpdatedPosition();
+                PlaybackStateCompat state;
+                MediaMetadataCompat metadata;
+                synchronized (mLock) {
+                    state = mState;
+                    metadata = mMetadata;
+                }
+                return getStateWithUpdatedPosition(state, metadata);
             }
 
             @Override
@@ -2899,6 +2901,7 @@ public class MediaSessionCompat {
 
         private PlaybackStateCompat mPlaybackState;
         private List<QueueItem> mQueue;
+        private MediaMetadataCompat mMetadata;
         @RatingCompat.Style int mRatingType;
         boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
@@ -2996,6 +2999,7 @@ public class MediaSessionCompat {
 
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
+            mMetadata = metadata;
             MediaSessionCompatApi21.setMetadata(mSessionObj,
                     metadata == null ? null : metadata.getMediaMetadata());
         }
@@ -3311,7 +3315,7 @@ public class MediaSessionCompat {
 
             @Override
             public PlaybackStateCompat getPlaybackState() {
-                return mPlaybackState;
+                return getStateWithUpdatedPosition(mPlaybackState, mMetadata);
             }
 
             @Override
