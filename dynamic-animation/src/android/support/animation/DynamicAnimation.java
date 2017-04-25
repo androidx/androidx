@@ -319,6 +319,26 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     }
 
     /**
+     * Creates a dynamic animation with the given FloatValueHolder instance.
+     *
+     * @param floatValueHolder the FloatValueHolder instance to be animated.
+     */
+    DynamicAnimation(final FloatValueHolder floatValueHolder) {
+        mTarget = null;
+        mProperty = new FloatPropertyCompat("FloatValueHolder") {
+            @Override
+            public float getValue(Object object) {
+                return floatValueHolder.getValue();
+            }
+
+            @Override
+            public void setValue(Object object, float value) {
+                floatValueHolder.setValue(value);
+            }
+        };
+    }
+
+    /**
      * Creates a dynamic animation to animate the given property for the given {@link View}
      *
      * @param object the Object whose property is to be animated

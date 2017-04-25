@@ -64,21 +64,19 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     private boolean mEndRequested = false;
 
     /**
-     * <p>This creates a SpringAnimation that animates a float value that is not associated with an
-     * object. During the animation, the value will be updated via
-     * {@link FloatPropertyCompat#setValue(Object, float)} each frame. The caller can obtain the
-     * up-to-date animation value via {@link FloatPropertyCompat#getValue(Object)}. These setter
-     * and getter will be called with a <code>null</code> object.
+     * <p>This creates a SpringAnimation that animates a {@link FloatValueHolder} instance. During
+     * the animation, the {@link FloatValueHolder} instance will be updated via
+     * {@link FloatValueHolder#setValue(float)} each frame. The caller can obtain the up-to-date
+     * animation value via {@link FloatValueHolder#getValue()}.
      *
-     * <p><strong>Note:</strong> changing the property value via
-     * {@link FloatPropertyCompat#setValue(Object, float)} outside of the animation during an
+     * <p><strong>Note:</strong> changing the value in the {@link FloatValueHolder} via
+     * {@link FloatValueHolder#setValue(float)} outside of the animation during an
      * animation run will not have any effect on the on-going animation.
      *
-     * @param property the property to be animated
-     * @param <K> the class on which the Property is declared
+     * @param floatValueHolder the property to be animated
      */
-    public <K> SpringAnimation(FloatPropertyCompat<K> property) {
-        super(null, property);
+    public SpringAnimation(FloatValueHolder floatValueHolder) {
+        super(floatValueHolder);
     }
 
     /**
