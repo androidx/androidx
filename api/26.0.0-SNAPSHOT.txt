@@ -5681,13 +5681,13 @@ package android.support.v4.app {
     method public void syncState();
   }
 
-  public static abstract interface ActionBarDrawerToggle.Delegate {
+  public static abstract deprecated interface ActionBarDrawerToggle.Delegate {
     method public abstract android.graphics.drawable.Drawable getThemeUpIndicator();
     method public abstract void setActionBarDescription(int);
     method public abstract void setActionBarUpIndicator(android.graphics.drawable.Drawable, int);
   }
 
-  public static abstract interface ActionBarDrawerToggle.DelegateProvider {
+  public static abstract deprecated interface ActionBarDrawerToggle.DelegateProvider {
     method public abstract android.support.v4.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
   }
 
