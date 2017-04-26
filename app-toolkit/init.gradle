@@ -75,7 +75,10 @@ def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompi
 
 if (ext.inAppToolkitProject) {
     // always build offline docs for flatfoot specific builds.
-    ext.buildOfflineDocs = true
+    ext.docs.dac = [
+            libraryroot: "android/arch",
+            dataname: "ARCH_DATA"
+    ]
     repos.addMavenRepositories(repositories)
     init.setupRepoOutAndBuildNumber()
     init.configureSubProjects()
