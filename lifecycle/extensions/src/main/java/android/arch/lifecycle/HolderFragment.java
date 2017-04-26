@@ -115,25 +115,27 @@ public class HolderFragment extends Fragment {
 
         private boolean mActivityCallbacksIsAdded = false;
 
-        private FragmentLifecycleCallbacks mFragmentsCallbacks = new FragmentLifecycleCallbacks() {
-            @Override
-            public void onFragmentDestroyed(FragmentManager fm, Fragment f) {
-                super.onFragmentDestroyed(fm, f);
-                HolderFragment fragment = mNotCommittedFragmentHolders.remove(f);
-                if (fragment != null) {
-                    Log.e(LOG_TAG, "Failed to save a ViewModel for " + f);
-                }
-            }
-        };
+        private FragmentLifecycleCallbacks mParentDestroyedCallback =
+                new FragmentLifecycleCallbacks() {
+                    @Override
+                    public void onFragmentDestroyed(FragmentManager fm, Fragment parentFragment) {
+                        super.onFragmentDestroyed(fm, parentFragment);
+                        HolderFragment fragment = mNotCommittedFragmentHolders.remove(
+                                parentFragment);
+                        if (fragment != null) {
+                            Log.e(LOG_TAG, "Failed to save a ViewModel for " + parentFragment);
+                        }
+                    }
+                };
 
-        void holderFragmentCreated(Fragment fragment) {
-            Fragment parentFragment = fragment.getParentFragment();
+        void holderFragmentCreated(Fragment holderFragment) {
+            Fragment parentFragment = holderFragment.getParentFragment();
             if (parentFragment != null) {
-                mNotCommittedFragmentHolders.remove(fragment);
-                fragment.getFragmentManager().unregisterFragmentLifecycleCallbacks(
-                        mFragmentsCallbacks);
+                mNotCommittedFragmentHolders.remove(parentFragment);
+                parentFragment.getFragmentManager().unregisterFragmentLifecycleCallbacks(
+                        mParentDestroyedCallback);
             } else {
-                mNotCommittedActivityHolders.remove(fragment.getActivity());
+                mNotCommittedActivityHolders.remove(holderFragment.getActivity());
             }
         }
 
@@ -176,21 +178,21 @@ public class HolderFragment extends Fragment {
             return holder;
         }
 
-        HolderFragment holderFragmentFor(Fragment fragment) {
-            FragmentManager fm = fragment.getChildFragmentManager();
+        HolderFragment holderFragmentFor(Fragment parentFragment) {
+            FragmentManager fm = parentFragment.getChildFragmentManager();
             HolderFragment holder = findHolderFragment(fm);
             if (holder != null) {
                 return holder;
             }
-            holder = mNotCommittedFragmentHolders.get(fragment);
+            holder = mNotCommittedFragmentHolders.get(parentFragment);
             if (holder != null) {
                 return holder;
             }
 
-            fragment.getFragmentManager().registerFragmentLifecycleCallbacks(mFragmentsCallbacks,
-                    false);
+            parentFragment.getFragmentManager()
+                    .registerFragmentLifecycleCallbacks(mParentDestroyedCallback, false);
             holder = createHolderFragment(fm);
-            mNotCommittedFragmentHolders.put(fragment, holder);
+            mNotCommittedFragmentHolders.put(parentFragment, holder);
             return holder;
         }
     }
