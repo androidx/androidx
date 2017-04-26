@@ -16,6 +16,8 @@
 
 package android.arch.lifecycle;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -161,5 +163,34 @@ public class TransformationsTest {
         reset(observer);
         trigger.setValue(2);
         verify(observer, never()).onChanged(anyString());
+    }
+
+    @Test
+    public void testSwitchMapToNull() {
+        LiveData<Integer> trigger = new MutableLiveData<>();
+        final LiveData<String> first = new MutableLiveData<>();
+        LiveData<String> result = Transformations.switchMap(trigger,
+                new Function<Integer, LiveData<String>>() {
+                    @Override
+                    public LiveData<String> apply(Integer input) {
+                        if (input == 1) {
+                            return first;
+                        } else {
+                            return null;
+                        }
+                    }
+                });
+
+        Observer<String> observer = mock(Observer.class);
+        result.observe(mOwner, observer);
+        verify(observer, never()).onChanged(anyString());
+        first.setValue("first");
+        trigger.setValue(1);
+        verify(observer).onChanged("first");
+        reset(observer);
+
+        trigger.setValue(2);
+        verify(observer, never()).onChanged(anyString());
+        assertThat(first.hasObservers(), is(false));
     }
 }

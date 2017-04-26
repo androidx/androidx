@@ -61,6 +61,9 @@ public class Transformations {
      * "Backing" LiveData means, that all events emitted by it will retransmitted
      * by {@code swLiveData}.
      * <p>
+     * If the given function returns null, then {@code swLiveData} is not "backed" by any other
+     * LiveData.
+     * <p>
      * The given function {@code func} will be executed on the main thread.
      *
      * @param trigger a {@code LiveData} to listen to
@@ -85,12 +88,14 @@ public class Transformations {
                     result.removeSource(mSource);
                 }
                 mSource = newLiveData;
-                result.addSource(mSource, new Observer<Y>() {
-                    @Override
-                    public void onChanged(@Nullable Y y) {
-                        result.setValue(y);
-                    }
-                });
+                if (mSource != null) {
+                    result.addSource(mSource, new Observer<Y>() {
+                        @Override
+                        public void onChanged(@Nullable Y y) {
+                            result.setValue(y);
+                        }
+                    });
+                }
             }
         });
         return result;
