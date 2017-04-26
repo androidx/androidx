@@ -59,7 +59,7 @@ import java.util.Map;
 @SuppressWarnings({"WeakerAccess", "unused"})
 // TODO: Thread checks are too strict right now, we may consider automatically moving them to main
 // thread.
-public class LiveData<T> {
+public abstract class LiveData<T> {
     private final Object mDataLock = new Object();
     static final int START_VERSION = -1;
     private static final Object NOT_SET = new Object();
@@ -333,32 +333,28 @@ public class LiveData<T> {
      * lifecycle states aren't {@link Lifecycle.State#STARTED} or {@link Lifecycle.State#RESUMED}
      * (like an Activity in the back stack).
      * <p>
-     * You can get the number of observers via {@link #getObserverCount()}.
+     * You can check if there are observers via {@link #hasObservers()}.
      */
     protected void onInactive() {
 
     }
 
     /**
-     * Returns the number of observers.
-     * <p>
-     * If called on a background thread, the value might be unreliable.
+     * Returns true if this LiveData has observers.
      *
-     * @return The number of observers
+     * @return true if this LiveData has observers
      */
-    public int getObserverCount() {
-        return mObservers.size();
+    public boolean hasObservers() {
+        return mObservers.size() > 0;
     }
 
     /**
-     * Returns the number of active observers.
-     * <p>
-     * If called on a background thread, the value might be unreliable.
+     * Returns true if this LiveData has active observers.
      *
-     * @return The number of active observers
+     * @return true if this LiveData has active observers
      */
-    public int getActiveObserverCount() {
-        return mActiveCount;
+    public boolean hasActiveObservers() {
+        return mActiveCount > 0;
     }
 
     class LifecycleBoundObserver implements LifecycleObserver {

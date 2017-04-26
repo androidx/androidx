@@ -146,14 +146,14 @@ public class MediatorLiveDataTest {
         // Imitates a destruction of a ViewModel: a listener of LiveData is destroyed,
         // a reference to MediatorLiveData is cleaned up. In this case we shouldn't leak
         // MediatorLiveData as an observer of mSource.
-        assertThat(mSource.getObserverCount(), is(0));
+        assertThat(mSource.hasObservers(), is(false));
         Observer observer = mock(Observer.class);
         mMediator.addSource(mSource, observer);
-        assertThat(mSource.getObserverCount(), is(1));
+        assertThat(mSource.hasObservers(), is(true));
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         mMediator = null;
-        assertThat(mSource.getObserverCount(), is(0));
+        assertThat(mSource.hasObservers(), is(false));
     }
 
     @Test

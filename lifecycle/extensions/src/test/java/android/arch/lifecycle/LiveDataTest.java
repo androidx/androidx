@@ -82,13 +82,13 @@ public class LiveDataTest {
         mLiveData.observe(mOwner, observer);
 
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
-        assertThat(mLiveData.getObserverCount(), is(1));
-        assertThat(mLiveData.getActiveObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(true));
+        assertThat(mLiveData.hasActiveObservers(), is(false));
 
         mLiveData.removeObserver(observer);
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
-        assertThat(mLiveData.getObserverCount(), is(0));
-        assertThat(mLiveData.getActiveObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(false));
+        assertThat(mLiveData.hasActiveObservers(), is(false));
     }
 
     @Test
@@ -97,30 +97,30 @@ public class LiveDataTest {
         mLiveData.observe(mOwner, observer);
 
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
-        assertThat(mLiveData.getObserverCount(), is(1));
-        assertThat(mLiveData.getActiveObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(true));
+        assertThat(mLiveData.hasActiveObservers(), is(false));
 
         mRegistry.handleLifecycleEvent(ON_START);
         verify(mActiveObserversChanged).onCall(true);
-        assertThat(mLiveData.getActiveObserverCount(), is(1));
+        assertThat(mLiveData.hasActiveObservers(), is(true));
         reset(mActiveObserversChanged);
 
         mRegistry.handleLifecycleEvent(ON_STOP);
         verify(mActiveObserversChanged).onCall(false);
-        assertThat(mLiveData.getActiveObserverCount(), is(0));
-        assertThat(mLiveData.getObserverCount(), is(1));
+        assertThat(mLiveData.hasActiveObservers(), is(false));
+        assertThat(mLiveData.hasObservers(), is(true));
 
         reset(mActiveObserversChanged);
         mRegistry.handleLifecycleEvent(ON_START);
         verify(mActiveObserversChanged).onCall(true);
-        assertThat(mLiveData.getActiveObserverCount(), is(1));
-        assertThat(mLiveData.getObserverCount(), is(1));
+        assertThat(mLiveData.hasActiveObservers(), is(true));
+        assertThat(mLiveData.hasObservers(), is(true));
 
         reset(mActiveObserversChanged);
         mLiveData.removeObserver(observer);
         verify(mActiveObserversChanged).onCall(false);
-        assertThat(mLiveData.getActiveObserverCount(), is(0));
-        assertThat(mLiveData.getObserverCount(), is(0));
+        assertThat(mLiveData.hasActiveObservers(), is(false));
+        assertThat(mLiveData.hasObservers(), is(false));
 
         verifyNoMoreInteractions(mActiveObserversChanged);
     }
@@ -130,7 +130,7 @@ public class LiveDataTest {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mLiveData.observe(mOwner, observer);
         mLiveData.observe(mOwner, observer);
-        assertThat(mLiveData.getObserverCount(), is(1));
+        assertThat(mLiveData.hasObservers(), is(true));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class LiveDataTest {
         Observer<String> o2 = (Observer<String>) mock(Observer.class);
         mLiveData.observe(mOwner, o1);
         mLiveData.observe(mOwner, o2);
-        assertThat(mLiveData.getObserverCount(), is(2));
+        assertThat(mLiveData.hasObservers(), is(true));
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
 
         mRegistry.handleLifecycleEvent(ON_START);
@@ -150,7 +150,7 @@ public class LiveDataTest {
 
         mLiveData.removeObservers(mOwner);
 
-        assertThat(mLiveData.getObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(false));
         assertThat(mRegistry.getObserverCount(), is(0));
     }
 
@@ -180,14 +180,14 @@ public class LiveDataTest {
         mLiveData.observe(mOwner, observer);
         mRegistry.handleLifecycleEvent(ON_START);
         verify(mActiveObserversChanged).onCall(true);
-        assertThat(mLiveData.getObserverCount(), is(1));
-        assertThat(mLiveData.getActiveObserverCount(), is(1));
+        assertThat(mLiveData.hasObservers(), is(true));
+        assertThat(mLiveData.hasActiveObservers(), is(true));
 
         reset(mActiveObserversChanged);
 
         mRegistry.handleLifecycleEvent(ON_DESTROY);
-        assertThat(mLiveData.getObserverCount(), is(0));
-        assertThat(mLiveData.getActiveObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(false));
+        assertThat(mLiveData.hasActiveObservers(), is(false));
         verify(mActiveObserversChanged).onCall(false);
     }
 
@@ -196,7 +196,7 @@ public class LiveDataTest {
         Observer<String> observer = (Observer<String>) mock(Observer.class);
         mRegistry.handleLifecycleEvent(ON_DESTROY);
         mLiveData.observe(mOwner, observer);
-        assertThat(mLiveData.getObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(false));
     }
 
     @Test
@@ -253,8 +253,8 @@ public class LiveDataTest {
             @Override
             public void onChanged(@Nullable String s) {
                 mRegistry.handleLifecycleEvent(ON_STOP);
-                assertThat(mLiveData.getObserverCount(), is(2));
-                assertThat(mLiveData.getActiveObserverCount(), is(0));
+                assertThat(mLiveData.hasObservers(), is(true));
+                assertThat(mLiveData.hasActiveObservers(), is(false));
             }
         });
         final Observer observer2 = mock(Observer.class);
@@ -263,8 +263,8 @@ public class LiveDataTest {
         mLiveData.setValue("bla");
         verify(observer1).onChanged(anyString());
         verify(observer2, Mockito.never()).onChanged(anyString());
-        assertThat(mLiveData.getObserverCount(), is(2));
-        assertThat(mLiveData.getActiveObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(true));
+        assertThat(mLiveData.hasActiveObservers(), is(false));
     }
 
     @Test
@@ -275,7 +275,7 @@ public class LiveDataTest {
                 assertThat(mInObserver, is(false));
                 mInObserver = true;
                 mRegistry.handleLifecycleEvent(ON_START);
-                assertThat(mLiveData.getActiveObserverCount(), is(2));
+                assertThat(mLiveData.hasActiveObservers(), is(true));
                 mInObserver = false;
             }
         });
@@ -285,8 +285,8 @@ public class LiveDataTest {
         mLiveData.setValue("bla");
         verify(observer1).onChanged(anyString());
         verify(observer2).onChanged(anyString());
-        assertThat(mLiveData.getObserverCount(), is(2));
-        assertThat(mLiveData.getActiveObserverCount(), is(2));
+        assertThat(mLiveData.hasObservers(), is(true));
+        assertThat(mLiveData.hasActiveObservers(), is(true));
     }
 
     @Test
@@ -295,15 +295,15 @@ public class LiveDataTest {
         Observer<String> observer = spy(new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                assertThat(mLiveData.getObserverCount(), is(1));
+                assertThat(mLiveData.hasObservers(), is(true));
                 mLiveData.removeObserver(this);
-                assertThat(mLiveData.getObserverCount(), is(0));
+                assertThat(mLiveData.hasObservers(), is(false));
             }
         });
         mLiveData.observe(mOwner, observer);
         mLiveData.setValue("bla");
         verify(observer).onChanged(anyString());
-        assertThat(mLiveData.getObserverCount(), is(0));
+        assertThat(mLiveData.hasObservers(), is(false));
     }
 
     @Test
@@ -316,8 +316,8 @@ public class LiveDataTest {
                 assertThat(mInObserver, is(false));
                 mInObserver = true;
                 mLiveData.observe(mOwner, observer2);
-                assertThat(mLiveData.getObserverCount(), is(2));
-                assertThat(mLiveData.getActiveObserverCount(), is(2));
+                assertThat(mLiveData.hasObservers(), is(true));
+                assertThat(mLiveData.hasActiveObservers(), is(true));
                 mInObserver = false;
             }
         });
@@ -325,8 +325,8 @@ public class LiveDataTest {
         mLiveData.setValue("bla");
         verify(observer1).onChanged(anyString());
         verify(observer2).onChanged(anyString());
-        assertThat(mLiveData.getObserverCount(), is(2));
-        assertThat(mLiveData.getActiveObserverCount(), is(2));
+        assertThat(mLiveData.hasObservers(), is(true));
+        assertThat(mLiveData.hasActiveObservers(), is(true));
     }
 
     @Test

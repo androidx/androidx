@@ -49,7 +49,7 @@ public class ThreadedLiveDataTest {
 
     @Before
     public void init() {
-        mLiveData = new LiveData<>();
+        mLiveData = new MutableLiveData<>();
         mLifecycleOwner = mock(LifecycleOwner.class);
         mRegistry = new LifecycleRegistry(mLifecycleOwner);
         when(mLifecycleOwner.getLifecycle()).thenReturn(mRegistry);

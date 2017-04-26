@@ -166,7 +166,7 @@ public class LiveDataReactiveStreamsTest {
 
     @Test
     public void convertsToPublisherWithSyncData() {
-        LiveData<String> liveData = new LiveData<>();
+        MutableLiveData<String> liveData = new MutableLiveData<>();
         liveData.setValue("foo");
         assertThat(liveData.getValue(), is("foo"));
 
@@ -183,7 +183,7 @@ public class LiveDataReactiveStreamsTest {
 
     @Test
     public void convertingToPublisherIsCancelable() {
-        LiveData<String> liveData = new LiveData<>();
+        MutableLiveData<String> liveData = new MutableLiveData<>();
         liveData.setValue("foo");
         assertThat(liveData.getValue(), is("foo"));
 
@@ -199,7 +199,7 @@ public class LiveDataReactiveStreamsTest {
         liveData.setValue("bar");
         liveData.setValue("baz");
 
-        assertThat(liveData.getObserverCount(), is(1));
+        assertThat(liveData.hasObservers(), is(true));
         disposable.dispose();
 
         liveData.setValue("fizz");
@@ -207,12 +207,12 @@ public class LiveDataReactiveStreamsTest {
 
         assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar", "baz")));
         // Canceling disposable should also remove livedata mObserver.
-        assertThat(liveData.getObserverCount(), is(0));
+        assertThat(liveData.hasObservers(), is(false));
     }
 
     @Test
     public void convertsToPublisherWithBackpressure() {
-        LiveData<String> liveData = new LiveData<>();
+        MutableLiveData<String> liveData = new MutableLiveData<>();
 
         final AsyncSubject<Subscription> subscriptionSubject = AsyncSubject.create();
 
@@ -273,7 +273,7 @@ public class LiveDataReactiveStreamsTest {
 
     @Test
     public void convertsToPublisherWithAsyncData() {
-        LiveData<String> liveData = new LiveData<>();
+        MutableLiveData<String> liveData = new MutableLiveData<>();
 
         Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
                 .observeOn(sBackgroundScheduler)

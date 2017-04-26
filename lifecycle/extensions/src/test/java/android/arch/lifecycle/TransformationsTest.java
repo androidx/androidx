@@ -56,7 +56,7 @@ public class TransformationsTest {
 
     @Test
     public void testMap() {
-        LiveData<String> source = new LiveData<>();
+        LiveData<String> source = new MutableLiveData<>();
         LiveData<Integer> mapped = Transformations.map(source, new Function<String, Integer>() {
             @Override
             public Integer apply(String input) {
@@ -71,9 +71,9 @@ public class TransformationsTest {
 
     @Test
     public void testSwitchMap() {
-        LiveData<Integer> trigger = new LiveData<>();
-        final LiveData<String> first = new LiveData<>();
-        final LiveData<String> second = new LiveData<>();
+        LiveData<Integer> trigger = new MutableLiveData<>();
+        final LiveData<String> first = new MutableLiveData<>();
+        final LiveData<String> second = new MutableLiveData<>();
         LiveData<String> result = Transformations.switchMap(trigger,
                 new Function<Integer, LiveData<String>>() {
                     @Override
@@ -104,9 +104,9 @@ public class TransformationsTest {
 
     @Test
     public void testSwitchMap2() {
-        LiveData<Integer> trigger = new LiveData<>();
-        final LiveData<String> first = new LiveData<>();
-        final LiveData<String> second = new LiveData<>();
+        LiveData<Integer> trigger = new MutableLiveData<>();
+        final LiveData<String> first = new MutableLiveData<>();
+        final LiveData<String> second = new MutableLiveData<>();
         LiveData<String> result = Transformations.switchMap(trigger,
                 new Function<Integer, LiveData<String>>() {
                     @Override
@@ -142,8 +142,8 @@ public class TransformationsTest {
 
     @Test
     public void testNoRedispatchSwitchMap() {
-        LiveData<Integer> trigger = new LiveData<>();
-        final LiveData<String> first = new LiveData<>();
+        LiveData<Integer> trigger = new MutableLiveData<>();
+        final LiveData<String> first = new MutableLiveData<>();
         LiveData<String> result = Transformations.switchMap(trigger,
                 new Function<Integer, LiveData<String>>() {
                     @Override

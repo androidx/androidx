@@ -51,7 +51,7 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
     public <S> void addSource(LiveData<S> source, Observer<S> onChanged) {
         Source<S> e = new Source<>(source, onChanged);
         mSources.add(e);
-        if (getActiveObserverCount() > 0) {
+        if (hasActiveObservers()) {
             e.plug();
         }
     }

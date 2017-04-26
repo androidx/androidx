@@ -135,9 +135,9 @@ public final class LiveDataReactiveStreams {
      * Creates an Observable {@link LiveData} stream from a ReactiveStreams publisher.
      */
     public static <T> LiveData<T> fromPublisher(final Publisher<T> publisher) {
-        LiveData<T> liveData = new LiveData<>();
+        MutableLiveData<T> liveData = new MutableLiveData<>();
         // Since we don't have a way to directly observe cancels, weakly hold the live data.
-        final WeakReference<LiveData<T>> liveDataRef = new WeakReference<>(liveData);
+        final WeakReference<MutableLiveData<T>> liveDataRef = new WeakReference<>(liveData);
 
         publisher.subscribe(new Subscriber<T>() {
             @Override

@@ -111,7 +111,7 @@ public abstract class ComputableLiveData<T> {
         @MainThread
         @Override
         public void run() {
-            boolean isActive = mLiveData.getActiveObserverCount() > 0;
+            boolean isActive = mLiveData.hasActiveObservers();
             if (mInvalid.compareAndSet(false, true)) {
                 if (isActive) {
                     // TODO if we make this class public, we should accept an executor.
