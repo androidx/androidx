@@ -46,8 +46,8 @@ import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v4.graphics.PathParser;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.LayoutDirection;
 import android.util.Log;
 import android.util.Xml;
 
@@ -818,7 +818,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     // We don't support RTL auto mirroring since the getLayoutDirection() is for API 17+.
     private boolean needMirroring() {
         if (Build.VERSION.SDK_INT >= 17) {
-            return isAutoMirrored() && getLayoutDirection() == LayoutDirection.RTL;
+            return isAutoMirrored()
+                    && DrawableCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
         } else {
             return false;
         }
