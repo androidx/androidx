@@ -17,6 +17,7 @@
 package android.arch.lifecycle;
 
 import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.Lifecycle.State;
 import android.support.annotation.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -46,13 +47,13 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     @Override
     public void onStateChanged(LifecycleOwner source, Event event) {
-        final int state = source.getLifecycle().getCurrentState();
+        final State state = source.getLifecycle().getCurrentState();
         invokeCallbacks(mInfo, source, state, event);
     }
 
     @SuppressWarnings("ConstantConditions")
     private void invokeCallbacks(CallbackInfo info, LifecycleOwner source,
-            @Lifecycle.State int state, Event event) {
+            State state, Event event) {
         if (info.mEvents.contains(event)) {
             for (int i = info.mMethodReferences.size() - 1; i >= 0; i--) {
                 MethodReference reference = info.mMethodReferences.get(i);
@@ -72,7 +73,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     }
 
     private void invokeCallback(MethodReference reference, LifecycleOwner source,
-            @Lifecycle.State int state, Event event) {
+            State state, Event event) {
         if (reference.mEvents.contains(event)) {
             //noinspection TryWithIdenticalCatches
             try {

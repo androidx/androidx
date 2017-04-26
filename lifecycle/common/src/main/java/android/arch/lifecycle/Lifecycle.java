@@ -16,7 +16,6 @@
 
 package android.arch.lifecycle;
 
-import android.support.annotation.IntDef;
 import android.support.annotation.MainThread;
 
 /**
@@ -37,31 +36,31 @@ import android.support.annotation.MainThread;
  * <p>
  * Lifecycle events are observed using annotations.
  * <pre>
- * interface TestObserver extends LifecycleObserver {
+ * class TestObserver implements LifecycleObserver {
  *   {@literal @}OnLifecycleEvent(ON_STOP)
- *   void onStopped();
+ *   void onStopped() {}
  * }
  * </pre>
  * <p>
  * A method can observe multiple events as well as multiple methods can observe the same event.
  * <pre>
- * interface TestObserver extends LifecycleObserver {
- *   {@literal @}OnLifecycleEvent(ON_STOP | ON_START)
- *   void onStoppedOrStarted();
+ * class TestObserver implements LifecycleObserver {
+ *   {@literal @}OnLifecycleEvent({ON_STOP, ON_START})
+ *   void onStoppedOrStarted() {}
  *   {@literal @}OnLifecycleEvent(ON_STOP)
- *   void onStopped();
+ *   void onStopped() {}
  * }
  * </pre>
  * <p>
  * Observer methods can receive 0, 1 or 2 arguments.
  * If used, the first argument must be of type {@link LifecycleOwner} and the second argument
- * must be an integer with {@link Event} type annotation.
+ * must be of type {@link Event}.
  * <pre>
- * interface TestObserver extends LifecycleObserver {
+ * class TestObserver implements LifecycleObserver {
  *   {@literal @}OnLifecycleEvent(ON_CREATE)
- *   void onCreated(LifecycleOwner source);
- *   {@literal @}OnLifecycleEvent(ON_STOP | ON_START)
- *   void onStoppedOrStarted(LifecycleOwner source, {@literal @}Event int event);
+ *   void onCreated(LifecycleOwner source) {}
+ *   {@literal @}OnLifecycleEvent({ON_STOP, ON_START})
+ *   void onStoppedOrStarted(LifecycleOwner source, Event event) {}
  * }
  * </pre>
  * These additional parameters are provided to allow you to conveniently observe multiple providers
@@ -74,7 +73,7 @@ public interface Lifecycle {
      * state.
      * <p>
      * The given observer will be brought to the current state of the LifecycleOwner.
-     * For example, if the LifecycleOwner is in {@link #STARTED} state, the given observer
+     * For example, if the LifecycleOwner is in {@link State#STARTED} state, the given observer
      * will receive {@link Event#ON_CREATE}, {@link Event#ON_START} events.
      *
      * @param observer The observer to notify.
@@ -99,51 +98,12 @@ public interface Lifecycle {
     void removeObserver(LifecycleObserver observer);
 
     /**
-     * Destroyed state for a LifecycleOwner. After this event, this Lifecycle will not dispatch
-     * any more events. For instance, fo an {@link android.app.Activity}, this state is reached
-     * <b>after</b> Activity's {@link android.app.Activity#onDestroy() onDestroy} returns.
-     */
-    int DESTROYED = 1;
-    /**
-     * Initialized state for a LifecycleOwner. For an {@link android.app.Activity}, this is
-     * the state when it is constructed but has not received
-     * {@link android.app.Activity#onCreate(android.os.Bundle) onCreate} yet.
-     */
-    int INITIALIZED = DESTROYED << 1;
-    /**
-     * Stopped state for a LifecycleOwner. For an {@link android.app.Activity}, this state
-     * is reached after {@link android.app.Activity#onCreate(android.os.Bundle) onCreate} and
-     * {@link android.app.Activity#onCreate(android.os.Bundle) onStop} calls.
-     */
-    int STOPPED = INITIALIZED << 1;
-    /**
-     * Started state for a LifecycleOwner. For an {@link android.app.Activity}, this state
-     * is reached after {@link android.app.Activity#onStart() onStart} and
-     * {@link android.app.Activity#onCreate(android.os.Bundle) onPause} calls.
-     */
-    int STARTED = STOPPED << 1;
-    /**
-     * Resumed state for a LifecycleOwner. For an {@link android.app.Activity}, this state
-     * is reached after {@link android.app.Activity#onResume() onResume} is called.
-     */
-    int RESUMED = STARTED << 1;
-
-    /**
-     * IntDef for Lifecycle states. You can consider the states as the nodes in a graph and
-     * {@link Event}s as the edges between these nodes.
-     */
-    @IntDef(value = {DESTROYED, INITIALIZED, STOPPED, STARTED, RESUMED})
-    public @interface State {
-    }
-
-    /**
      * Returns the current state of the Lifecycle.
      *
      * @return The current state of the Lifecycle.
      */
     @MainThread
-    @State
-    int getCurrentState();
+    State getCurrentState();
 
     @SuppressWarnings("WeakerAccess")
     enum Event {
@@ -175,5 +135,61 @@ public interface Lifecycle {
          * An {@link Event Event} constant that can be used to match all events.
          */
         ON_ANY
+    }
+
+    /**
+     * Lifecycle states. You can consider the states as the nodes in a graph and
+     * {@link Event}s as the edges between these nodes.
+     */
+    enum State {
+        /**
+         * Destroyed state for a LifecycleOwner. After this event, this Lifecycle will not dispatch
+         * any more events. For instance, for an {@link android.app.Activity}, this state is reached
+         * <b>right before</b> Activity's {@link android.app.Activity#onDestroy() onDestroy} call.
+         */
+        DESTROYED,
+
+        /**
+         * Initialized state for a LifecycleOwner. For an {@link android.app.Activity}, this is
+         * the state when it is constructed but has not received
+         * {@link android.app.Activity#onCreate(android.os.Bundle) onCreate} yet.
+         */
+        INITIALIZED,
+
+        /**
+         * Created state for a LifecycleOwner. For an {@link android.app.Activity}, this state
+         * is reached in two cases:
+         * <ul>
+         *     <li>after {@link android.app.Activity#onCreate(android.os.Bundle) onCreate} call;
+         *     <li><b>right before</b> {@link android.app.Activity#onStop() onStop} call.
+         * </ul>
+         */
+        CREATED,
+
+        /**
+         * Started state for a LifecycleOwner. For an {@link android.app.Activity}, this state
+         * is reached in two cases:
+         * <ul>
+         *     <li>after {@link android.app.Activity#onStart() onStart} call;
+         *     <li><b>right before</b> {@link android.app.Activity#onPause() onPause} call.
+         * </ul>
+         */
+        STARTED,
+
+        /**
+         * Resumed state for a LifecycleOwner. For an {@link android.app.Activity}, this state
+         * is reached after {@link android.app.Activity#onResume() onResume} is called.
+         */
+        RESUMED;
+
+        /**
+         * Compares if this State is greater or equal to the given {@code state}.
+         *
+         * @param state State to compare with
+         * @return true if this State is greater or equal to the given {@code state}
+         */
+        public boolean isAtLeast(State state) {
+            return compareTo(state) >= 0;
+        }
     }
 }

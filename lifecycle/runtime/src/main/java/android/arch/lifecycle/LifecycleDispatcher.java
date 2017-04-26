@@ -22,9 +22,11 @@ import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
 import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
 import static android.arch.lifecycle.Lifecycle.Event.ON_START;
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.State.CREATED;
 
 import android.app.Activity;
 import android.app.Application;
+import android.arch.lifecycle.Lifecycle.State;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
@@ -90,14 +92,14 @@ class LifecycleDispatcher {
         @Override
         public void onActivityStopped(Activity activity) {
             if (activity instanceof FragmentActivity) {
-                markState((FragmentActivity) activity, Lifecycle.STOPPED);
+                markState((FragmentActivity) activity, CREATED);
             }
         }
 
         @Override
         public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
             if (activity instanceof FragmentActivity) {
-                markState((FragmentActivity) activity, Lifecycle.STOPPED);
+                markState((FragmentActivity) activity, CREATED);
             }
         }
     }
@@ -127,7 +129,7 @@ class LifecycleDispatcher {
         }
     }
 
-    private static void markState(FragmentManager manager, @Lifecycle.State int state) {
+    private static void markState(FragmentManager manager, State state) {
         Collection<Fragment> fragments = manager.getFragments();
         if (fragments == null) {
             return;
@@ -141,14 +143,14 @@ class LifecycleDispatcher {
         }
     }
 
-    private static void markStateIn(Object object, @Lifecycle.State int state) {
+    private static void markStateIn(Object object, State state) {
         if (object instanceof LifecycleRegistryOwner) {
             LifecycleRegistry registry = ((LifecycleRegistryOwner) object).getLifecycle();
             registry.markState(state);
         }
     }
 
-    private static void markState(FragmentActivity activity, @Lifecycle.State int state) {
+    private static void markState(FragmentActivity activity, State state) {
         markStateIn(activity, state);
         markState(activity.getSupportFragmentManager(), state);
     }

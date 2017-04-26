@@ -16,12 +16,15 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.State.CREATED;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.notNullValue;
 
 import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.Lifecycle.State;
 import android.arch.lifecycle.testapp.SimpleAppLifecycleTestActivity;
 import android.arch.lifecycle.testapp.SimpleAppLifecycleTestActivity.TestEventType;
 import android.support.test.filters.LargeTest;
@@ -85,8 +88,8 @@ public class SimpleAppFullLifecycleTest {
 
     @Test
     public void testFullLifecycle() throws InterruptedException {
-        int currentState = ProcessLifecycleOwner.get().getLifecycle().getCurrentState();
-        assertThat(currentState, is(Lifecycle.STOPPED));
+        State currentState = ProcessLifecycleOwner.get().getLifecycle().getCurrentState();
+        assertThat(currentState, is(CREATED));
         activityTestRule.launchActivity(null);
         List<Pair<TestEventType, Event>> events = SimpleAppLifecycleTestActivity.awaitForEvents();
         assertThat("Failed to await for events", events, notNullValue());

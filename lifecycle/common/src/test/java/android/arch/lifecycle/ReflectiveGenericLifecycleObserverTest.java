@@ -23,10 +23,10 @@ import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
 import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
 import static android.arch.lifecycle.Lifecycle.Event.ON_START;
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
-import static android.arch.lifecycle.Lifecycle.INITIALIZED;
-import static android.arch.lifecycle.Lifecycle.RESUMED;
-import static android.arch.lifecycle.Lifecycle.STARTED;
-import static android.arch.lifecycle.Lifecycle.STOPPED;
+import static android.arch.lifecycle.Lifecycle.State.CREATED;
+import static android.arch.lifecycle.Lifecycle.State.INITIALIZED;
+import static android.arch.lifecycle.Lifecycle.State.RESUMED;
+import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -91,7 +91,7 @@ public class ReflectiveGenericLifecycleObserverTest {
     public void singleMethod() {
         CreatedStateListener obj = mock(CreatedStateListener.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(mLifecycle.getCurrentState()).thenReturn(STOPPED);
+        when(mLifecycle.getCurrentState()).thenReturn(CREATED);
         observer.onStateChanged(mOwner, ON_CREATE);
         verify(obj).onCreated();
         verify(obj).onCreated(mOwner);
@@ -119,7 +119,7 @@ public class ReflectiveGenericLifecycleObserverTest {
     public void eachEvent() {
         AllMethodsListener obj = mock(AllMethodsListener.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
-        when(mLifecycle.getCurrentState()).thenReturn(STOPPED);
+        when(mLifecycle.getCurrentState()).thenReturn(CREATED);
 
         observer.onStateChanged(mOwner, ON_CREATE);
         verify(obj).created();
@@ -140,7 +140,7 @@ public class ReflectiveGenericLifecycleObserverTest {
         verify(obj).paused();
         reset(obj);
 
-        when(mLifecycle.getCurrentState()).thenReturn(STOPPED);
+        when(mLifecycle.getCurrentState()).thenReturn(CREATED);
         observer.onStateChanged(mOwner, ON_STOP);
         verify(obj).stopped();
         reset(obj);

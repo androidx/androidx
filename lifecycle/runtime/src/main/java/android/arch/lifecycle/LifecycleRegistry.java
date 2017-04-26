@@ -22,6 +22,11 @@ import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
 import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
 import static android.arch.lifecycle.Lifecycle.Event.ON_START;
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
+import static android.arch.lifecycle.Lifecycle.State.CREATED;
+import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
+import static android.arch.lifecycle.Lifecycle.State.INITIALIZED;
+import static android.arch.lifecycle.Lifecycle.State.RESUMED;
+import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import android.arch.core.internal.SafeIterableMap;
 import android.support.annotation.NonNull;
@@ -45,8 +50,7 @@ public class LifecycleRegistry implements Lifecycle {
     /**
      * Current state
      */
-    @State
-    private int mState;
+    private State mState;
     /**
      * Latest event that was provided via {@link #handleLifecycleEvent(Event)}.
      */
@@ -73,9 +77,10 @@ public class LifecycleRegistry implements Lifecycle {
     /**
      * Only marks the current state as the given value. It doesn't dispatch any event to its
      * listeners.
+     *
      * @param state new state
      */
-    public void markState(@State int state) {
+    public void markState(State state) {
         mState = state;
     }
 
@@ -132,18 +137,15 @@ public class LifecycleRegistry implements Lifecycle {
     }
 
     @Override
-    @State
-    public int getCurrentState() {
+    public State getCurrentState() {
         return mState;
     }
 
-    @Lifecycle.State
-    static int getStateAfter(Event event) {
-        // TODO do some masking logic to return this fast.
+    static State getStateAfter(Event event) {
         switch (event) {
             case ON_CREATE:
             case ON_STOP:
-                return STOPPED;
+                return CREATED;
             case ON_START:
             case ON_PAUSE:
                 return STARTED;
@@ -157,11 +159,11 @@ public class LifecycleRegistry implements Lifecycle {
         throw new IllegalArgumentException("Unexpected event value " + event);
     }
 
-    static Event downEvent(@State int state) {
+    static Event downEvent(State state) {
         switch (state) {
             case INITIALIZED:
                 throw new IllegalArgumentException();
-            case STOPPED:
+            case CREATED:
                 return ON_DESTROY;
             case STARTED:
                 return ON_STOP;
@@ -173,12 +175,12 @@ public class LifecycleRegistry implements Lifecycle {
         throw new IllegalArgumentException("Unexpected state value " + state);
     }
 
-    static Event upEvent(@State int state) {
+    static Event upEvent(State state) {
         switch (state) {
             case INITIALIZED:
             case DESTROYED:
                 return ON_CREATE;
-            case STOPPED:
+            case CREATED:
                 return ON_START;
             case STARTED:
                 return ON_RESUME;
@@ -189,8 +191,7 @@ public class LifecycleRegistry implements Lifecycle {
     }
 
     class ObserverWithState {
-        @State
-        private int mObserverCurrentState = INITIALIZED;
+        private State mObserverCurrentState = INITIALIZED;
         private GenericLifecycleObserver mCallback;
 
         ObserverWithState(LifecycleObserver observer) {
@@ -202,8 +203,8 @@ public class LifecycleRegistry implements Lifecycle {
                 mObserverCurrentState = DESTROYED;
             }
             while (mObserverCurrentState != mState) {
-                Event event = mObserverCurrentState > mState ? downEvent(mObserverCurrentState)
-                        : upEvent(mObserverCurrentState);
+                Event event = mObserverCurrentState.isAtLeast(mState)
+                        ? downEvent(mObserverCurrentState) : upEvent(mObserverCurrentState);
                 mObserverCurrentState = getStateAfter(event);
                 mCallback.onStateChanged(mLifecycleOwner, event);
             }

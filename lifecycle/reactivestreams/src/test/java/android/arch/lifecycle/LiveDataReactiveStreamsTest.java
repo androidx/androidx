@@ -16,14 +16,15 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.State.RESUMED;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
-
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
+import android.support.annotation.Nullable;
+import android.support.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,8 +57,8 @@ public class LiveDataReactiveStreamsTest {
         }
 
         @Override
-        public int getCurrentState() {
-            return Lifecycle.RESUMED;
+        public State getCurrentState() {
+            return RESUMED;
         }
     };
     private static final LifecycleOwner S_LIFECYCLE_OWNER = new LifecycleOwner() {

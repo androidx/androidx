@@ -16,6 +16,8 @@
 
 package android.arch.lifecycle;
 
+import static android.arch.lifecycle.Lifecycle.State.RESUMED;
+
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
@@ -62,8 +64,8 @@ public class TestUtils {
             throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         activityRule.runOnUiThread(() -> {
-            int currentState = a.getLifecycle().getCurrentState();
-            if (currentState == Lifecycle.RESUMED) {
+            Lifecycle.State currentState = a.getLifecycle().getCurrentState();
+            if (currentState == RESUMED) {
                 latch.countDown();
             }
             a.getLifecycle().addObserver(new LifecycleObserver() {

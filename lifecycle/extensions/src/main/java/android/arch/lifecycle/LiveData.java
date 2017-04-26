@@ -16,11 +16,12 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.DESTROYED;
-import static android.arch.lifecycle.Lifecycle.STARTED;
+import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
+import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.core.internal.SafeIterableMap;
+import android.arch.lifecycle.Lifecycle.State;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 
@@ -32,14 +33,15 @@ import java.util.Map;
  * This means that an {@link Observer} can be added in a pair with a {@link LifecycleOwner}, and
  * this observer will be notified about modifications of the wrapped data only if the paired
  * LifecycleOwner is in active state. LifecycleOwner is considered as active, if its state is
- * {@link Lifecycle#STARTED} or {@link Lifecycle#RESUMED}. An observer added without a
- * LifecycleOwner is considered as always active and thus will be always notified about
- * modifications. For those observers, you should manually call {@link #removeObserver(Observer)}.
+ * {@link Lifecycle.State#STARTED} or {@link Lifecycle.State#RESUMED}. An observer added via
+ * {@link #observeForever(Observer)} is considered as always active and thus will be always notified
+ * about modifications. For those observers, you should manually call
+ * {@link #removeObserver(Observer)}.
  *
  * <p> An observer added with a Lifecycle will be automatically removed if the corresponding
- * Lifecycle moves to {@link Lifecycle#DESTROYED} state. This is especially useful for activities
- * and fragments where they can safely observe LiveData and not worry about leaks: they will be
- * instantly unsubscribed when they are destroyed.
+ * Lifecycle moves to {@link Lifecycle.State#DESTROYED} state. This is especially useful for
+ * activities and fragments where they can safely observe LiveData and not worry about leaks:
+ * they will be instantly unsubscribed when they are destroyed.
  *
  * <p>
  * In addition, LiveData has {@link LiveData#onActive()} and {@link LiveData#onInactive()} methods
@@ -156,10 +158,10 @@ public class LiveData<T> {
      * owner. The events are dispatched on the main thread. If LiveData already has data
      * set, it will be delivered to the observer.
      * <p>
-     * The observer will only receive events if the owner is in {@link Lifecycle#STARTED}
-     * or {@link Lifecycle#RESUMED} state (active).
+     * The observer will only receive events if the owner is in {@link Lifecycle.State#STARTED}
+     * or {@link Lifecycle.State#RESUMED} state (active).
      * <p>
-     * If the owner moves to the {@link Lifecycle#DESTROYED} state, the observer will
+     * If the owner moves to the {@link Lifecycle.State#DESTROYED} state, the observer will
      * automatically be removed.
      * <p>
      * When data changes while the {@code owner} is not active, it will not receive any updates.
@@ -169,7 +171,7 @@ public class LiveData<T> {
      * given LifecycleOwner is not destroyed. When it is destroyed, LiveData removes references to
      * the observer &amp; the owner.
      * <p>
-     * If the given owner is already in {@link Lifecycle#DESTROYED} state, LiveData
+     * If the given owner is already in {@link Lifecycle.State#DESTROYED} state, LiveData
      * ignores the call.
      * <p>
      * If the given owner, observer tuple is already in the list, the call is ignored.
@@ -328,8 +330,8 @@ public class LiveData<T> {
      * Called when the number of active observers change from 1 to 0.
      * <p>
      * This does not mean that there are no observers left, there may still be observers but their
-     * lifecycle states is not {@link Lifecycle#STARTED} or {@link Lifecycle#STOPPED} (like an
-     * Activity in the back stack).
+     * lifecycle states aren't {@link Lifecycle.State#STARTED} or {@link Lifecycle.State#RESUMED}
+     * (like an Activity in the back stack).
      * <p>
      * You can get the number of observers via {@link #getObserverCount()}.
      */
@@ -402,8 +404,8 @@ public class LiveData<T> {
         }
     }
 
-    static boolean isActiveState(@Lifecycle.State int state) {
-        return state >= STARTED;
+    static boolean isActiveState(State state) {
+        return state.isAtLeast(STARTED);
     }
 
     private void assertMainThread(String methodName) {
