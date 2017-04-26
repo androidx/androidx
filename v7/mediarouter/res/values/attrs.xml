@@ -22,7 +22,7 @@
              that media is playing to the local device only. -->
         <attr name="externalRouteEnabledDrawable" format="reference" />
         <!-- Tint to apply to the media route button -->
-        <attr name="buttonTint" format="color" />
+        <attr name="mediaRouteButtonTint" format="color" />
 
         <attr name="android:minWidth" />
         <attr name="android:minHeight" />
