@@ -18,6 +18,7 @@ package android.support.v4.app;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.os.Bundle;
 import android.support.annotation.AnimRes;
 import android.support.annotation.AnimatorRes;
 import android.support.annotation.IdRes;
@@ -318,31 +319,43 @@ public abstract class FragmentTransaction {
 
     /**
      * Sets whether or not to allow optimizing operations within and across
-     * transactions. Optimizing fragment transaction's operations can eliminate
+     * transactions. This will remove redundant operations, eliminating
      * operations that cancel. For example, if two transactions are executed
      * together, one that adds a fragment A and the next replaces it with fragment B,
      * the operations will cancel and only fragment B will be added. That means that
      * fragment A may not go through the creation/destruction lifecycle.
      * <p>
-     * The side effect of optimization is that fragments may have state changes
+     * The side effect of removing redundant operations is that fragments may have state changes
      * out of the expected order. For example, one transaction adds fragment A,
-     * a second adds fragment B, then a third removes fragment A. Without optimization,
-     * fragment B could expect that while it is being created, fragment A will also
+     * a second adds fragment B, then a third removes fragment A. Without removing the redundant
+     * operations, fragment B could expect that while it is being created, fragment A will also
      * exist because fragment A will be removed after fragment B was added.
-     * With optimization, fragment B cannot expect fragment A to exist when
+     * With removing redundant operations, fragment B cannot expect fragment A to exist when
      * it has been created because fragment A's add/remove will be optimized out.
+     * <p>
+     * It can also reorder the state changes of Fragments to allow for better Transitions.
+     * Added Fragments may have {@link Fragment#onCreate(Bundle)} called before replaced
+     * Fragments have {@link Fragment#onDestroy()} called.
+     * <p>
+     * {@link Fragment#postponeEnterTransition()} requires {@code setReorderingAllowed(true)}.
      * <p>
      * The default is {@code false}.
      *
-     * @param allowOptimization {@code true} to enable optimizing operations
-     *                          or {@code false} to disable optimizing
+     * @param reorderingAllowed {@code true} to enable optimizing out redundant operations
+     *                          or {@code false} to disable optimizing out redundant
      *                          operations on this transaction.
      */
+    public abstract FragmentTransaction setReorderingAllowed(boolean reorderingAllowed);
+
+    /**
+     * @deprecated This has been renamed {@link #setReorderingAllowed(boolean)}.
+     */
+    @Deprecated
     public abstract FragmentTransaction setAllowOptimization(boolean allowOptimization);
 
     /**
      * Add a Runnable to this transaction that will be run after this transaction has
-     * been committed. If fragment transactions are {@link #setAllowOptimization(boolean) optimized}
+     * been committed. If fragment transactions are {@link #setReorderingAllowed(boolean) optimized}
      * this may be after other subsequent fragment operations have also taken place, or operations
      * in this transaction may have been optimized out due to the presence of a subsequent
      * fragment transaction in the batch.

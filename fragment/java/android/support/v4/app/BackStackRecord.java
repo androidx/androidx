@@ -42,7 +42,7 @@ final class BackStackState implements Parcelable {
     final CharSequence mBreadCrumbShortTitleText;
     final ArrayList<String> mSharedElementSourceNames;
     final ArrayList<String> mSharedElementTargetNames;
-    final boolean mAllowOptimization;
+    final boolean mReorderingAllowed;
 
     public BackStackState(BackStackRecord bse) {
         final int numOps = bse.mOps.size();
@@ -72,7 +72,7 @@ final class BackStackState implements Parcelable {
         mBreadCrumbShortTitleText = bse.mBreadCrumbShortTitleText;
         mSharedElementSourceNames = bse.mSharedElementSourceNames;
         mSharedElementTargetNames = bse.mSharedElementTargetNames;
-        mAllowOptimization = bse.mAllowOptimization;
+        mReorderingAllowed = bse.mReorderingAllowed;
     }
 
     public BackStackState(Parcel in) {
@@ -87,7 +87,7 @@ final class BackStackState implements Parcelable {
         mBreadCrumbShortTitleText = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(in);
         mSharedElementSourceNames = in.createStringArrayList();
         mSharedElementTargetNames = in.createStringArrayList();
-        mAllowOptimization = in.readInt() != 0;
+        mReorderingAllowed = in.readInt() != 0;
     }
 
     public BackStackRecord instantiate(FragmentManagerImpl fm) {
@@ -128,7 +128,7 @@ final class BackStackState implements Parcelable {
         bse.mBreadCrumbShortTitleText = mBreadCrumbShortTitleText;
         bse.mSharedElementSourceNames = mSharedElementSourceNames;
         bse.mSharedElementTargetNames = mSharedElementTargetNames;
-        bse.mAllowOptimization = mAllowOptimization;
+        bse.mReorderingAllowed = mReorderingAllowed;
         bse.bumpBackStackNesting(1);
         return bse;
     }
@@ -151,7 +151,7 @@ final class BackStackState implements Parcelable {
         TextUtils.writeToParcel(mBreadCrumbShortTitleText, dest, 0);
         dest.writeStringList(mSharedElementSourceNames);
         dest.writeStringList(mSharedElementTargetNames);
-        dest.writeInt(mAllowOptimization ? 1 : 0);
+        dest.writeInt(mReorderingAllowed ? 1 : 0);
     }
 
     public static final Parcelable.Creator<BackStackState> CREATOR
@@ -226,7 +226,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     ArrayList<String> mSharedElementSourceNames;
     ArrayList<String> mSharedElementTargetNames;
-    boolean mAllowOptimization = false;
+    boolean mReorderingAllowed = false;
 
     ArrayList<Runnable> mCommitRunnables;
 
@@ -652,9 +652,14 @@ final class BackStackRecord extends FragmentTransaction implements
     }
 
     @Override
-    public FragmentTransaction setAllowOptimization(boolean allowOptimization) {
-        mAllowOptimization = allowOptimization;
+    public FragmentTransaction setReorderingAllowed(boolean reorderingAllowed) {
+        mReorderingAllowed = reorderingAllowed;
         return this;
+    }
+
+    @Override
+    public FragmentTransaction setAllowOptimization(boolean allowOptimization) {
+        return setReorderingAllowed(allowOptimization);
     }
 
     int commitInternal(boolean allowStateLoss) {
@@ -785,11 +790,11 @@ final class BackStackRecord extends FragmentTransaction implements
                 default:
                     throw new IllegalArgumentException("Unknown cmd: " + op.cmd);
             }
-            if (!mAllowOptimization && op.cmd != OP_ADD && f != null) {
+            if (!mReorderingAllowed && op.cmd != OP_ADD && f != null) {
                 mManager.moveFragmentToExpectedState(f);
             }
         }
-        if (!mAllowOptimization) {
+        if (!mReorderingAllowed) {
             // Added fragments are added at the end to comply with prior behavior.
             mManager.moveToState(mManager.mCurState, true);
         }
@@ -797,10 +802,10 @@ final class BackStackRecord extends FragmentTransaction implements
 
     /**
      * Reverses the execution of the operations within this transaction. The Fragment states will
-     * only be modified if optimizations are not allowed.
+     * only be modified if reordering is not allowed.
      *
      * @param moveToState {@code true} if added fragments should be moved to their final state
-     *                    in unoptimized transactions
+     *                    in ordered transactions
      */
     void executePopOps(boolean moveToState) {
         for (int opNum = mOps.size() - 1; opNum >= 0; opNum--) {
@@ -844,11 +849,11 @@ final class BackStackRecord extends FragmentTransaction implements
                 default:
                     throw new IllegalArgumentException("Unknown cmd: " + op.cmd);
             }
-            if (!mAllowOptimization && op.cmd != OP_REMOVE && f != null) {
+            if (!mReorderingAllowed && op.cmd != OP_REMOVE && f != null) {
                 mManager.moveFragmentToExpectedState(f);
             }
         }
-        if (!mAllowOptimization && moveToState) {
+        if (!mReorderingAllowed && moveToState) {
             mManager.moveToState(mManager.mCurState, true);
         }
     }

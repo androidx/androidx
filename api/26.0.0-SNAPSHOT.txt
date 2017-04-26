@@ -5681,13 +5681,13 @@ package android.support.v4.app {
     method public void syncState();
   }
 
-  public static abstract interface ActionBarDrawerToggle.Delegate {
+  public static abstract deprecated interface ActionBarDrawerToggle.Delegate {
     method public abstract android.graphics.drawable.Drawable getThemeUpIndicator();
     method public abstract void setActionBarDescription(int);
     method public abstract void setActionBarUpIndicator(android.graphics.drawable.Drawable, int);
   }
 
-  public static abstract interface ActionBarDrawerToggle.DelegateProvider {
+  public static abstract deprecated interface ActionBarDrawerToggle.DelegateProvider {
     method public abstract android.support.v4.app.ActionBarDrawerToggle.Delegate getDrawerToggleDelegate();
   }
 
@@ -6097,7 +6097,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction remove(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment, java.lang.String);
-    method public abstract android.support.v4.app.FragmentTransaction setAllowOptimization(boolean);
+    method public abstract deprecated android.support.v4.app.FragmentTransaction setAllowOptimization(boolean);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(int);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(java.lang.CharSequence);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbTitle(int);
@@ -6105,6 +6105,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int);
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int, int, int);
     method public abstract android.support.v4.app.FragmentTransaction setPrimaryNavigationFragment(android.support.v4.app.Fragment);
+    method public abstract android.support.v4.app.FragmentTransaction setReorderingAllowed(boolean);
     method public abstract android.support.v4.app.FragmentTransaction setTransition(int);
     method public abstract android.support.v4.app.FragmentTransaction setTransitionStyle(int);
     method public abstract android.support.v4.app.FragmentTransaction show(android.support.v4.app.Fragment);

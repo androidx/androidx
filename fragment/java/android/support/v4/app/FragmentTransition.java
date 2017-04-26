@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Contains the Fragment Transition functionality for both optimized and unoptimized
- * Fragment Transactions. With optimized fragment transactions, all Views have been
- * added to the View hierarchy prior to calling startTransitions. With unoptimized
+ * Contains the Fragment Transition functionality for both ordered and reordered
+ * Fragment Transactions. With reordered fragment transactions, all Views have been
+ * added to the View hierarchy prior to calling startTransitions. With ordered
  * fragment transactions, Views will be removed and added after calling startTransitions.
  */
 class FragmentTransition {
@@ -62,9 +62,9 @@ class FragmentTransition {
      * {@link Fragment#getSharedElementReturnTransition()} and the entering
      * {@link Fragment#getReenterTransition()} will be run.
      * <p>
-     * With optimized Fragment Transitions, all Views have been added to the
+     * With reordered Fragment Transitions, all Views have been added to the
      * View hierarchy prior to calling this method. The incoming Fragment's Views
-     * will be INVISIBLE. With unoptimized Fragment Transitions, this method
+     * will be INVISIBLE. With ordered Fragment Transitions, this method
      * is called before any change has been made to the hierarchy. That means
      * that the added Fragments have not created their Views yet and the hierarchy
      * is unknown.
@@ -76,13 +76,13 @@ class FragmentTransition {
      *                   part of this transition.
      * @param endIndex One past the last index into records and isRecordPop to execute
      *                 as part of this transition.
-     * @param isOptimized true if this is an optimized transaction, meaning that the
+     * @param isReordered true if this is a reordered transaction, meaning that the
      *                    Views of incoming fragments have been added. false if the
      *                    transaction has yet to be run and Views haven't been created.
      */
     static void startTransitions(FragmentManagerImpl fragmentManager,
             ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop,
-            int startIndex, int endIndex, boolean isOptimized) {
+            int startIndex, int endIndex, boolean isReordered) {
         if (fragmentManager.mCurState < Fragment.CREATED) {
             return;
         }
@@ -94,9 +94,9 @@ class FragmentTransition {
                 final BackStackRecord record = records.get(i);
                 final boolean isPop = isRecordPop.get(i);
                 if (isPop) {
-                    calculatePopFragments(record, transitioningFragments, isOptimized);
+                    calculatePopFragments(record, transitioningFragments, isReordered);
                 } else {
-                    calculateFragments(record, transitioningFragments, isOptimized);
+                    calculateFragments(record, transitioningFragments, isReordered);
                 }
             }
 
@@ -111,11 +111,11 @@ class FragmentTransition {
                     FragmentContainerTransition containerTransition =
                             transitioningFragments.valueAt(i);
 
-                    if (isOptimized) {
-                        configureTransitionsOptimized(fragmentManager, containerId,
+                    if (isReordered) {
+                        configureTransitionsReordered(fragmentManager, containerId,
                                 containerTransition, nonExistentView, nameOverrides);
                     } else {
-                        configureTransitionsUnoptimized(fragmentManager, containerId,
+                        configureTransitionsOrdered(fragmentManager, containerId,
                                 containerTransition, nonExistentView, nameOverrides);
                     }
                 }
@@ -176,7 +176,7 @@ class FragmentTransition {
 
     /**
      * Configures a transition for a single fragment container for which the transaction was
-     * optimized. That means that all Fragment Views have been added and incoming fragment
+     * reordered. That means that all Fragment Views have been added and incoming fragment
      * Views are marked invisible.
      *
      * @param fragmentManager The executing FragmentManagerImpl
@@ -190,7 +190,7 @@ class FragmentTransition {
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
     @RequiresApi(21)
-    private static void configureTransitionsOptimized(FragmentManagerImpl fragmentManager,
+    private static void configureTransitionsReordered(FragmentManagerImpl fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
         ViewGroup sceneRoot = null;
@@ -210,7 +210,7 @@ class FragmentTransition {
         Object enterTransition = getEnterTransition(inFragment, inIsPop);
         Object exitTransition = getExitTransition(outFragment, outIsPop);
 
-        Object sharedElementTransition = configureSharedElementsOptimized(sceneRoot,
+        Object sharedElementTransition = configureSharedElementsReordered(sceneRoot,
                 nonExistentView, nameOverrides, fragments, sharedElementsOut, sharedElementsIn,
                 enterTransition, exitTransition);
 
@@ -233,12 +233,12 @@ class FragmentTransition {
         if (transition != null) {
             replaceHide(exitTransition, outFragment, exitingViews);
             ArrayList<String> inNames =
-                    FragmentTransitionCompat21.prepareSetNameOverridesOptimized(sharedElementsIn);
+                    FragmentTransitionCompat21.prepareSetNameOverridesReordered(sharedElementsIn);
             FragmentTransitionCompat21.scheduleRemoveTargets(transition,
                     enterTransition, enteringViews, exitTransition, exitingViews,
                     sharedElementTransition, sharedElementsIn);
             FragmentTransitionCompat21.beginDelayedTransition(sceneRoot, transition);
-            FragmentTransitionCompat21.setNameOverridesOptimized(sceneRoot, sharedElementsOut,
+            FragmentTransitionCompat21.setNameOverridesReordered(sceneRoot, sharedElementsOut,
                     sharedElementsIn, inNames, nameOverrides);
             setViewVisibility(enteringViews, View.VISIBLE);
             FragmentTransitionCompat21.swapSharedElementTargets(sharedElementTransition,
@@ -271,7 +271,7 @@ class FragmentTransition {
 
     /**
      * Configures a transition for a single fragment container for which the transaction was
-     * not optimized. That means that the transaction has not been executed yet, so incoming
+     * ordrered. That means that the transaction has not been executed yet, so incoming
      * Views are not yet known.
      *
      * @param fragmentManager The executing FragmentManagerImpl
@@ -285,7 +285,7 @@ class FragmentTransition {
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
     @RequiresApi(21)
-    private static void configureTransitionsUnoptimized(FragmentManagerImpl fragmentManager,
+    private static void configureTransitionsOrdered(FragmentManagerImpl fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
         ViewGroup sceneRoot = null;
@@ -306,7 +306,7 @@ class FragmentTransition {
         ArrayList<View> sharedElementsOut = new ArrayList<>();
         ArrayList<View> sharedElementsIn = new ArrayList<>();
 
-        Object sharedElementTransition = configureSharedElementsUnoptimized(sceneRoot,
+        Object sharedElementTransition = configureSharedElementsOrdered(sceneRoot,
                 nonExistentView, nameOverrides, fragments, sharedElementsOut, sharedElementsIn,
                 enterTransition, exitTransition);
 
@@ -336,7 +336,7 @@ class FragmentTransition {
                     sharedElementTransition, sharedElementsIn);
             scheduleTargetChange(sceneRoot, inFragment, nonExistentView, sharedElementsIn,
                     enterTransition, enteringViews, exitTransition, exitingViews);
-            FragmentTransitionCompat21.setNameOverridesUnoptimized(sceneRoot, sharedElementsIn,
+            FragmentTransitionCompat21.setNameOverridesOrdered(sceneRoot, sharedElementsIn,
                     nameOverrides);
 
             FragmentTransitionCompat21.beginDelayedTransition(sceneRoot, transition);
@@ -346,7 +346,7 @@ class FragmentTransition {
     }
 
     /**
-     * This method is used for fragment transitions for unoptimized transactions to change the
+     * This method is used for fragment transitions for ordrered transactions to change the
      * enter and exit transition targets after the call to
      * {@link FragmentTransitionCompat21#beginDelayedTransition(ViewGroup, Object)}. The exit
      * transition must ensure that it does not target any Views and the enter transition must start
@@ -444,7 +444,7 @@ class FragmentTransition {
     }
 
     /**
-     * Configures the shared elements of an optimized fragment transaction's transition.
+     * Configures the shared elements of a reordered fragment transaction's transition.
      * This retrieves the shared elements of the outgoing and incoming fragments, maps the
      * views, and sets up the epicenter on the transitions.
      * <p>
@@ -471,7 +471,7 @@ class FragmentTransition {
      * @return The shared element transition or null if no shared elements exist
      */
     @RequiresApi(21)
-    private static Object configureSharedElementsOptimized(final ViewGroup sceneRoot,
+    private static Object configureSharedElementsReordered(final ViewGroup sceneRoot,
             final View nonExistentView, final ArrayMap<String, String> nameOverrides,
             final FragmentContainerTransition fragments,
             final ArrayList<View> sharedElementsOut,
@@ -572,7 +572,7 @@ class FragmentTransition {
     }
 
     /**
-     * Configures the shared elements of an unoptimized fragment transaction's transition.
+     * Configures the shared elements of an ordered fragment transaction's transition.
      * This retrieves the shared elements of the incoming fragments, and schedules capturing
      * the incoming fragment's shared elements. It also maps the views, and sets up the epicenter
      * on the transitions.
@@ -600,7 +600,7 @@ class FragmentTransition {
      * @return The shared element transition or null if no shared elements exist
      */
     @RequiresApi(21)
-    private static Object configureSharedElementsUnoptimized(final ViewGroup sceneRoot,
+    private static Object configureSharedElementsOrdered(final ViewGroup sceneRoot,
             final View nonExistentView, final ArrayMap<String, String> nameOverrides,
             final FragmentContainerTransition fragments,
             final ArrayList<View> sharedElementsOut,
@@ -989,11 +989,11 @@ class FragmentTransition {
      */
     public static void calculateFragments(BackStackRecord transaction,
             SparseArray<FragmentContainerTransition> transitioningFragments,
-            boolean isOptimized) {
+            boolean isReordered) {
         final int numOps = transaction.mOps.size();
         for (int opNum = 0; opNum < numOps; opNum++) {
             final BackStackRecord.Op op = transaction.mOps.get(opNum);
-            addToFirstInLastOut(transaction, op, transitioningFragments, false, isOptimized);
+            addToFirstInLastOut(transaction, op, transitioningFragments, false, isReordered);
         }
     }
 
@@ -1006,14 +1006,14 @@ class FragmentTransition {
      *                               this method.
      */
     public static void calculatePopFragments(BackStackRecord transaction,
-            SparseArray<FragmentContainerTransition> transitioningFragments, boolean isOptimized) {
+            SparseArray<FragmentContainerTransition> transitioningFragments, boolean isReordered) {
         if (!transaction.mManager.mContainer.onHasView()) {
             return; // nothing to see, so no transitions
         }
         final int numOps = transaction.mOps.size();
         for (int opNum = numOps - 1; opNum >= 0; opNum--) {
             final BackStackRecord.Op op = transaction.mOps.get(opNum);
-            addToFirstInLastOut(transaction, op, transitioningFragments, true, isOptimized);
+            addToFirstInLastOut(transaction, op, transitioningFragments, true, isReordered);
         }
     }
 
@@ -1026,14 +1026,14 @@ class FragmentTransition {
      * @param transitioningFragments A structure holding the first in and last out fragments
      *                               for each fragment container.
      * @param isPop Is the operation a pop?
-     * @param isOptimizedTransaction True if the operations have been partially executed and the
+     * @param isReorderedTransaction True if the operations have been partially executed and the
      *                               added fragments have Views in the hierarchy or false if the
      *                               operations haven't been executed yet.
      */
     @SuppressWarnings("ReferenceEquality")
     private static void addToFirstInLastOut(BackStackRecord transaction, BackStackRecord.Op op,
             SparseArray<FragmentContainerTransition> transitioningFragments, boolean isPop,
-            boolean isOptimizedTransaction) {
+            boolean isReorderedTransaction) {
         final Fragment fragment = op.fragment;
         if (fragment == null) {
             return; // no fragment, no transition
@@ -1049,7 +1049,7 @@ class FragmentTransition {
         boolean wasAdded = false;
         switch (command) {
             case BackStackRecord.OP_SHOW:
-                if (isOptimizedTransaction) {
+                if (isReorderedTransaction) {
                     setLastIn = fragment.mHiddenChanged && !fragment.mHidden && fragment.mAdded;
                 } else {
                     setLastIn = fragment.mHidden;
@@ -1058,7 +1058,7 @@ class FragmentTransition {
                 break;
             case BackStackRecord.OP_ADD:
             case BackStackRecord.OP_ATTACH:
-                if (isOptimizedTransaction) {
+                if (isReorderedTransaction) {
                     setLastIn = fragment.mIsNewlyAdded;
                 } else {
                     setLastIn = !fragment.mAdded && !fragment.mHidden;
@@ -1066,7 +1066,7 @@ class FragmentTransition {
                 wasAdded = true;
                 break;
             case BackStackRecord.OP_HIDE:
-                if (isOptimizedTransaction) {
+                if (isReorderedTransaction) {
                     setFirstOut = fragment.mHiddenChanged && fragment.mAdded && fragment.mHidden;
                 } else {
                     setFirstOut = fragment.mAdded && !fragment.mHidden;
@@ -1075,7 +1075,7 @@ class FragmentTransition {
                 break;
             case BackStackRecord.OP_REMOVE:
             case BackStackRecord.OP_DETACH:
-                if (isOptimizedTransaction) {
+                if (isReorderedTransaction) {
                     setFirstOut = !fragment.mAdded && fragment.mView != null
                             && fragment.mView.getVisibility() == View.VISIBLE
                             && fragment.mPostponedAlpha >= 0;
@@ -1093,7 +1093,7 @@ class FragmentTransition {
             containerTransition.lastInIsPop = isPop;
             containerTransition.lastInTransaction = transaction;
         }
-        if (!isOptimizedTransaction && wasAdded) {
+        if (!isReorderedTransaction && wasAdded) {
             if (containerTransition != null && containerTransition.firstOut == fragment) {
                 containerTransition.firstOut = null;
             }
@@ -1104,7 +1104,7 @@ class FragmentTransition {
              */
             FragmentManagerImpl manager = transaction.mManager;
             if (fragment.mState < Fragment.CREATED && manager.mCurState >= Fragment.CREATED
-                    && !transaction.mAllowOptimization) {
+                    && !transaction.mReorderingAllowed) {
                 manager.makeActive(fragment);
                 manager.moveToState(fragment, Fragment.CREATED, 0, 0, false);
             }
@@ -1117,7 +1117,7 @@ class FragmentTransition {
             containerTransition.firstOutTransaction = transaction;
         }
 
-        if (!isOptimizedTransaction && wasRemoved
+        if (!isReorderedTransaction && wasRemoved
                 && (containerTransition != null && containerTransition.lastIn == fragment)) {
             containerTransition.lastIn = null;
         }
