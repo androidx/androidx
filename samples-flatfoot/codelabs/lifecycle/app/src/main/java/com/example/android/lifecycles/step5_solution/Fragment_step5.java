@@ -17,6 +17,9 @@
 package com.example.android.lifecycles.step5_solution;
 
 
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,9 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 
-import com.android.support.lifecycle.LifecycleOwner;
-import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelProviders;
 import com.example.android.codelabs.lifecycle.R;
 import com.example.android.lifecycles.step5.SeekBarViewModel;
 

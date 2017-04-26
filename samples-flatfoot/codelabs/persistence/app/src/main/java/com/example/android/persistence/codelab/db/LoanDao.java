@@ -17,16 +17,16 @@
 package com.example.android.persistence.codelab.db;
 
 
-import com.android.support.lifecycle.LiveData;
-import com.android.support.room.Dao;
-import com.android.support.room.Insert;
-import com.android.support.room.Query;
-import com.android.support.room.TypeConverters;
+import android.arch.lifecycle.LiveData;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.Query;
+import android.arch.persistence.room.TypeConverters;
 
 import java.util.Date;
 import java.util.List;
 
-import static com.android.support.room.OnConflictStrategy.ABORT;
+import static android.arch.persistence.room.OnConflictStrategy.ABORT;
 
 @Dao
 @TypeConverters(DateConverter.class)

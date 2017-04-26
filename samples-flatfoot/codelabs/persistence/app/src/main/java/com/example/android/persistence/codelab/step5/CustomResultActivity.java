@@ -21,9 +21,9 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 
-import com.android.support.lifecycle.LifecycleActivity;
-import com.android.support.lifecycle.Observer;
-import com.android.support.lifecycle.ViewModelProviders;
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import com.example.android.codelabs.persistence.R;
 
 

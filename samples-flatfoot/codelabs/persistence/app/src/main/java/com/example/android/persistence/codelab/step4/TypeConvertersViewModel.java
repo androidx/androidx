@@ -18,8 +18,8 @@ package com.example.android.persistence.codelab.step4;
 
 import android.app.Application;
 
-import com.android.support.lifecycle.AndroidViewModel;
-import com.android.support.lifecycle.LiveData;
+import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import com.example.android.persistence.codelab.db.AppDatabase;
 import com.example.android.persistence.codelab.db.Book;
 import com.example.android.persistence.codelab.db.utils.DatabaseInitializer;

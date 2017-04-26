@@ -20,8 +20,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 
-import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.ViewModel;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.ViewModel;
 
 import java.util.Timer;
 import java.util.TimerTask;

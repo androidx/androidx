@@ -16,14 +16,14 @@
 
 package com.example.android.persistence.codelab.db;
 
-import com.android.support.room.Dao;
-import com.android.support.room.Delete;
-import com.android.support.room.Insert;
-import com.android.support.room.Query;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.Query;
 
 import java.util.List;
 
-import static com.android.support.room.OnConflictStrategy.IGNORE;
+import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
 
 @Dao
 public interface UserDao {
@@ -54,7 +54,7 @@ public interface UserDao {
     @Query("SELECT * FROM User WHERE :age == :age") // TODO: Fix this!
     List<User> findYoungerThan(int age);
 
-    @Query("SELECT * FROM User WHERE age < :age") // TODO: Fix this!
+    @Query("SELECT * FROM User WHERE age < :age")
     List<User> findYoungerThanSolution(int age);
 
     @Query("DELETE FROM User")

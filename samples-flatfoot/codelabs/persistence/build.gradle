@@ -32,11 +32,21 @@ allprojects {
     repositories {
         jcenter()
         maven {
-            url "../../prebuilts"
+            url "../../prebuilts2604"
         }
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+ext {
+    buildToolsVersion = "25.0.2"
+    supportLibVersion = "25.3.1"
+    runnerVersion = "0.5"
+    rulesVersion = "0.5"
+    espressoVersion = "2.2.2"
+    archLifecycleVersion = "1.0-SNAPSHOT"
+    archRoomVersion = "1.0-SNAPSHOT"
 }

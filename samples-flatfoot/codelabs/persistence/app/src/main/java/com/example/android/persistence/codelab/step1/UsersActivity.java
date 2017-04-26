@@ -19,7 +19,7 @@ package com.example.android.persistence.codelab.step1;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.android.support.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.LifecycleActivity;
 import com.example.android.codelabs.persistence.R;
 import com.example.android.persistence.codelab.db.AppDatabase;
 import com.example.android.persistence.codelab.db.User;

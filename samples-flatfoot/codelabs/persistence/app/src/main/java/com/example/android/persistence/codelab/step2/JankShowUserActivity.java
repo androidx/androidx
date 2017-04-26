@@ -21,7 +21,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
-import com.android.support.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.LifecycleActivity;
 import com.example.android.codelabs.persistence.R;
 import com.example.android.persistence.codelab.db.AppDatabase;
 import com.example.android.persistence.codelab.db.Book;

@@ -20,8 +20,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.widget.Chronometer;
 
-import com.android.support.lifecycle.LifecycleActivity;
-import com.android.support.lifecycle.ViewModelProviders;
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.ViewModelProviders;
 import com.example.android.codelabs.lifecycle.R;
 
 public class ChronoActivity2 extends LifecycleActivity {

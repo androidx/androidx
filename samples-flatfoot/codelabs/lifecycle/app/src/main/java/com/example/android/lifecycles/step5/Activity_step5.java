@@ -18,7 +18,7 @@ package com.example.android.lifecycles.step5;
 
 import android.os.Bundle;
 
-import com.android.support.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.LifecycleActivity;
 import com.example.android.codelabs.lifecycle.R;
 
 /**

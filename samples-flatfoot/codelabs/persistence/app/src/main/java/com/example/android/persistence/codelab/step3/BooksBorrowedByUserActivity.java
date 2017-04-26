@@ -21,8 +21,8 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
-import com.android.support.lifecycle.LifecycleActivity;
-import com.android.support.lifecycle.ViewModelProviders;
+import android.arch.lifecycle.LifecycleActivity;
+import android.arch.lifecycle.ViewModelProviders;
 import com.example.android.codelabs.persistence.R;
 import com.example.android.persistence.codelab.db.Book;
 
@@ -55,7 +55,7 @@ public class BooksBorrowedByUserActivity extends LifecycleActivity {
 
     private void subscribeUiBooks() {
         // TODO: refresh the list of books when there's new data
-        // mViewModel.getBooks().observe(...
+        // mViewModel.books.observe(...
     }
 
     @SuppressWarnings("unused")

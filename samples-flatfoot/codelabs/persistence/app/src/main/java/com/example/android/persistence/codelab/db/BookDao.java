@@ -16,18 +16,18 @@
 
 package com.example.android.persistence.codelab.db;
 
-import com.android.support.lifecycle.LiveData;
-import com.android.support.room.Dao;
-import com.android.support.room.Insert;
-import com.android.support.room.Query;
-import com.android.support.room.TypeConverters;
-import com.android.support.room.Update;
+import android.arch.lifecycle.LiveData;
+import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.Query;
+import android.arch.persistence.room.TypeConverters;
+import android.arch.persistence.room.Update;
 
 import java.util.Date;
 import java.util.List;
 
-import static com.android.support.room.OnConflictStrategy.IGNORE;
-import static com.android.support.room.OnConflictStrategy.REPLACE;
+import static android.arch.persistence.room.OnConflictStrategy.IGNORE;
+import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 
 @Dao

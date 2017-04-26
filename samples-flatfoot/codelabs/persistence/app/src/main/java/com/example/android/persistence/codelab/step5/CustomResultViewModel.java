@@ -17,46 +17,27 @@
 package com.example.android.persistence.codelab.step5;
 
 import android.app.Application;
-import android.support.annotation.NonNull;
+import android.arch.core.util.Function;
+import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Transformations;
 
-import com.android.support.lifecycle.AndroidViewModel;
-import com.android.support.lifecycle.LiveData;
-import com.android.support.lifecycle.Observer;
 import com.example.android.persistence.codelab.db.AppDatabase;
 import com.example.android.persistence.codelab.db.LoanWithUserAndBook;
 import com.example.android.persistence.codelab.db.utils.DatabaseInitializer;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 
 public class CustomResultViewModel extends AndroidViewModel {
 
-    private LiveData<List<LoanWithUserAndBook>> mLoans;
-
     private LiveData<String> mLoansResult;
 
     private AppDatabase mDb;
-
-    private final Observer<List<LoanWithUserAndBook>> mObserver =
-            new Observer<List<LoanWithUserAndBook>>() {
-                @Override
-                public void onChanged(
-                        @NonNull final List<LoanWithUserAndBook> loansWithUserAndBook) {
-                    StringBuilder sb = new StringBuilder();
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm",
-                            Locale.US);
-
-                    for (LoanWithUserAndBook loan : loansWithUserAndBook) {
-                        sb.append(String.format("%s\n  (Returned: %s)\n",
-                                loan.bookTitle,
-                                simpleDateFormat.format(loan.endTime)));
-
-                    }
-                    mLoansResult.setValue(sb.toString());
-                }
-            };
 
     public CustomResultViewModel(Application application) {
         super(application);
@@ -77,26 +58,33 @@ public class CustomResultViewModel extends AndroidViewModel {
     }
 
     private void subscribeToDbChanges() {
-        // Books is a LiveData object so updates are observed.
-        removeObserver();
-
         // TODO: Modify this query to show only recent loans from specific user
-        mLoans = mDb.loanModel().findAllWithUserAndBook();
+        LiveData<List<LoanWithUserAndBook>> loans
+                = mDb.loanModel().findAllWithUserAndBook();
 
-        mLoansResult = new LiveData<>();
+        // Instead of exposing the list of Loans, we can apply a transformation and expose Strings.
+        mLoansResult = Transformations.map(loans,
+                new Function<List<LoanWithUserAndBook>, String>() {
+            @Override
+            public String apply(List<LoanWithUserAndBook> loansWithUserAndBook) {
+                StringBuilder sb = new StringBuilder();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm",
+                        Locale.US);
 
-        mLoans.observeForever(mObserver);
+                for (LoanWithUserAndBook loan : loansWithUserAndBook) {
+                    sb.append(String.format("%s\n  (Returned: %s)\n",
+                            loan.bookTitle,
+                            simpleDateFormat.format(loan.endTime)));
+                }
+                return sb.toString();
+            }
+        });
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        removeObserver();
-    }
-
-    private void removeObserver() {
-        if (mLoans != null) {
-            mLoans.removeObserver(mObserver);
-        }
+    @SuppressWarnings("unused")
+    private Date getYesterdayDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DATE, -1);
+        return calendar.getTime();
     }
 }

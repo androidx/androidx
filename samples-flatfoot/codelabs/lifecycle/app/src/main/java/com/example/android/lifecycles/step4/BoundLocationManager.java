@@ -22,8 +22,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.util.Log;
 
-import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleRegistryOwner;
 
 
 public class BoundLocationManager {

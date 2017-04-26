@@ -18,7 +18,7 @@ package com.example.android.lifecycles.step2;
 
 import android.support.annotation.Nullable;
 
-import com.android.support.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModel;
 
 /**
  * A ViewModel used for the {@link ChronoActivity2}.

@@ -18,9 +18,9 @@ package com.example.android.persistence.codelab.db;
 
 import android.content.Context;
 
-import com.android.support.room.Database;
-import com.android.support.room.Room;
-import com.android.support.room.RoomDatabase;
+import android.arch.persistence.room.Database;
+import android.arch.persistence.room.Room;
+import android.arch.persistence.room.RoomDatabase;
 
 @Database(entities = {User.class, Book.class, Loan.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {

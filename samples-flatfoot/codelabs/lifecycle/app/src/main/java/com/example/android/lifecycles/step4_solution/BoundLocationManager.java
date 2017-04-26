@@ -16,19 +16,18 @@
 
 package com.example.android.lifecycles.step4_solution;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.util.Log;
 
-import com.android.support.lifecycle.Lifecycle;
-import com.android.support.lifecycle.LifecycleObserver;
-import com.android.support.lifecycle.LifecycleRegistryOwner;
-import com.android.support.lifecycle.OnLifecycleEvent;
-
 public class BoundLocationManager {
-    public static void bindLocationListenerIn(LifecycleRegistryOwner lifecycleOwner,
+    public static void bindLocationListenerIn(LifecycleOwner lifecycleOwner,
                                               LocationListener listener, Context context) {
         new BoundLocationListener(lifecycleOwner, listener, context);
     }
@@ -39,14 +38,14 @@ public class BoundLocationManager {
         private LocationManager mLocationManager;
         private final LocationListener mListener;
 
-        public BoundLocationListener(LifecycleRegistryOwner lifecycleOwner,
+        public BoundLocationListener(LifecycleOwner lifecycleOwner,
                                      LocationListener listener, Context context) {
             mContext = context;
             mListener = listener;
             lifecycleOwner.getLifecycle().addObserver(this);
         }
 
-        @OnLifecycleEvent(Lifecycle.ON_RESUME)
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         void addLocationListener() {
             // Note: Use the Fused Location Provider from Google Play Services instead.
             // https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderApi
@@ -65,7 +64,7 @@ public class BoundLocationManager {
         }
 
 
-        @OnLifecycleEvent(Lifecycle.ON_PAUSE)
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         void removeLocationListener() {
             if (mLocationManager == null) {
                 return;

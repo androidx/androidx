@@ -16,8 +16,8 @@
 
 package com.example.android.persistence.codelab.db;
 
-import com.android.support.room.ColumnInfo;
-import com.android.support.room.TypeConverters;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.TypeConverters;
 
 import java.util.Date;
 
