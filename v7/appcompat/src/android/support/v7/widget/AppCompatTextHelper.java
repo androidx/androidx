@@ -29,7 +29,6 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
-import android.support.v7.text.AllCapsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -240,9 +239,7 @@ class AppCompatTextHelper {
     }
 
     void setAllCaps(boolean allCaps) {
-        mView.setTransformationMethod(allCaps
-                ? new AllCapsTransformationMethod(mView.getContext())
-                : null);
+        mView.setAllCaps(allCaps);
     }
 
     void applyCompoundDrawablesTints() {
