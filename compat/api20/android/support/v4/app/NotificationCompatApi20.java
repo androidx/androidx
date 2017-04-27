@@ -16,6 +16,13 @@
 
 package android.support.v4.app;
 
+import static android.support.v4.app.NotificationCompat.DEFAULT_SOUND;
+import static android.support.v4.app.NotificationCompat.DEFAULT_VIBRATE;
+import static android.support.v4.app.NotificationCompat.FLAG_GROUP_SUMMARY;
+import static android.support.v4.app.NotificationCompat.GROUP_ALERT_ALL;
+import static android.support.v4.app.NotificationCompat.GROUP_ALERT_CHILDREN;
+import static android.support.v4.app.NotificationCompat.GROUP_ALERT_SUMMARY;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -36,6 +43,7 @@ class NotificationCompatApi20 {
         private Bundle mExtras;
         private RemoteViews mContentView;
         private RemoteViews mBigContentView;
+        private int mGroupAlertBehavior;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -44,7 +52,8 @@ class NotificationCompatApi20 {
                 int progressMax, int progress, boolean progressIndeterminate, boolean showWhen,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
-                String sortKey, RemoteViews contentView, RemoteViews bigContentView) {
+                String sortKey, RemoteViews contentView, RemoteViews bigContentView,
+                int groupAlertBehavior) {
             b = new Notification.Builder(context)
                 .setWhen(n.when)
                 .setShowWhen(showWhen)
@@ -85,6 +94,7 @@ class NotificationCompatApi20 {
             }
             mContentView = contentView;
             mBigContentView = bigContentView;
+            mGroupAlertBehavior = groupAlertBehavior;
         }
 
         @Override
@@ -107,7 +117,30 @@ class NotificationCompatApi20 {
             if (mBigContentView != null) {
                 notification.bigContentView = mBigContentView;
             }
+
+            if (mGroupAlertBehavior != GROUP_ALERT_ALL) {
+                // if is summary and only children should alert
+                if (notification.getGroup() != null
+                        && (notification.flags & FLAG_GROUP_SUMMARY) != 0
+                        && mGroupAlertBehavior == GROUP_ALERT_CHILDREN) {
+                    removeSoundAndVibration(notification);
+                }
+                // if is group child and only summary should alert
+                if (notification.getGroup() != null
+                        && (notification.flags & FLAG_GROUP_SUMMARY) == 0
+                        && mGroupAlertBehavior == GROUP_ALERT_SUMMARY) {
+                    removeSoundAndVibration(notification);
+                }
+            }
+
             return notification;
+        }
+
+        private void removeSoundAndVibration(Notification notification) {
+            notification.sound = null;
+            notification.vibrate = null;
+            notification.defaults &= ~DEFAULT_SOUND;
+            notification.defaults &= ~DEFAULT_VIBRATE;
         }
     }
 

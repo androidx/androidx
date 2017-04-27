@@ -6208,6 +6208,7 @@ package android.support.v4.app {
     method public static java.lang.String getChannelId(android.app.Notification);
     method public static android.os.Bundle getExtras(android.app.Notification);
     method public static java.lang.String getGroup(android.app.Notification);
+    method public static int getGroupAlertBehavior(android.app.Notification);
     method public static boolean getLocalOnly(android.app.Notification);
     method public static java.lang.String getShortcutId(android.app.Notification);
     method public static java.lang.String getSortKey(android.app.Notification);
@@ -6274,6 +6275,9 @@ package android.support.v4.app {
     field public static final int FLAG_ONGOING_EVENT = 2; // 0x2
     field public static final int FLAG_ONLY_ALERT_ONCE = 8; // 0x8
     field public static final int FLAG_SHOW_LIGHTS = 1; // 0x1
+    field public static final int GROUP_ALERT_ALL = 0; // 0x0
+    field public static final int GROUP_ALERT_CHILDREN = 2; // 0x2
+    field public static final int GROUP_ALERT_SUMMARY = 1; // 0x1
     field public static final int PRIORITY_DEFAULT = 0; // 0x0
     field public static final int PRIORITY_HIGH = 1; // 0x1
     field public static final int PRIORITY_LOW = -1; // 0xffffffff
@@ -6382,6 +6386,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setExtras(android.os.Bundle);
     method public android.support.v4.app.NotificationCompat.Builder setFullScreenIntent(android.app.PendingIntent, boolean);
     method public android.support.v4.app.NotificationCompat.Builder setGroup(java.lang.String);
+    method public android.support.v4.app.NotificationCompat.Builder setGroupAlertBehavior(int);
     method public android.support.v4.app.NotificationCompat.Builder setGroupSummary(boolean);
     method public android.support.v4.app.NotificationCompat.Builder setLargeIcon(android.graphics.Bitmap);
     method public android.support.v4.app.NotificationCompat.Builder setLights(int, int, int);
