@@ -22,7 +22,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBar;
@@ -429,10 +428,8 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
             super.onInitializeAccessibilityNodeInfo(info);
 
-            if (Build.VERSION.SDK_INT >= 14) {
-                // This view masquerades as an action bar tab.
-                info.setClassName(ActionBar.Tab.class.getName());
-            }
+            // This view masquerades as an action bar tab.
+            info.setClassName(ActionBar.Tab.class.getName());
         }
 
         @Override

@@ -19,7 +19,6 @@ package android.support.v7.widget;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -356,16 +355,14 @@ public class ActionBarContextView extends AbsActionBarView {
 
     @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 14) {
-            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-                // Action mode started
-                event.setSource(this);
-                event.setClassName(getClass().getName());
-                event.setPackageName(getContext().getPackageName());
-                event.setContentDescription(mTitle);
-            } else {
-                super.onInitializeAccessibilityEvent(event);
-            }
+        if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            // Action mode started
+            event.setSource(this);
+            event.setClassName(getClass().getName());
+            event.setPackageName(getContext().getPackageName());
+            event.setContentDescription(mTitle);
+        } else {
+            super.onInitializeAccessibilityEvent(event);
         }
     }
 
