@@ -145,10 +145,6 @@ class NotificationCompatApi21 {
         }
     }
 
-    public static String getCategory(Notification notif) {
-        return notif.category;
-    }
-
     static Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
         if (uc == null) {
             return null;
