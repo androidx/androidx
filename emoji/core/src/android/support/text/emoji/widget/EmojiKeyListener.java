@@ -17,6 +17,7 @@ package android.support.text.emoji.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
 import android.text.Editable;
@@ -29,6 +30,7 @@ import android.view.View;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@RequiresApi(19)
 final class EmojiKeyListener implements android.text.method.KeyListener {
     private final android.text.method.KeyListener mKeyListener;
 

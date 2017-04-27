@@ -23,7 +23,8 @@ import android.util.AttributeSet;
 import android.widget.Button;
 
 /**
- * Button widget enhanced with emoji capability by using {@link EmojiTextViewHelper}.
+ * Button widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When used
+ * on devices running API 18 or below, this widget acts as a regular {@link Button}.
  */
 public class EmojiButton extends Button {
     private EmojiTextViewHelper mEmojiTextViewHelper;

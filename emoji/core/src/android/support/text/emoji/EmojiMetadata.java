@@ -24,6 +24,7 @@ import android.support.annotation.AnyThread;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.flatbuffer.MetadataItem;
 import android.support.text.emoji.flatbuffer.MetadataList;
@@ -38,6 +39,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @RestrictTo(LIBRARY_GROUP)
 @AnyThread
+@RequiresApi(19)
 public class EmojiMetadata {
     /**
      * Defines whether the system can render the emoji.
