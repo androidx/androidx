@@ -34,7 +34,6 @@ import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -63,7 +62,6 @@ import android.view.MotionEvent;
 import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
@@ -373,35 +371,17 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
         mDropDownAnchor = findViewById(mSearchSrcTextView.getDropDownAnchor());
         if (mDropDownAnchor != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                addOnLayoutChangeListenerToDropDownAnchorSDK11();
-            } else {
-                addOnLayoutChangeListenerToDropDownAnchorBase();
-            }
+            mDropDownAnchor.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                        int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    adjustDropDownSizeAndPosition();
+                }
+            });
         }
 
         updateViewsVisibility(mIconifiedByDefault);
         updateQueryHint();
-    }
-
-    private void addOnLayoutChangeListenerToDropDownAnchorSDK11() {
-        mDropDownAnchor.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                adjustDropDownSizeAndPosition();
-            }
-        });
-    }
-
-    private void addOnLayoutChangeListenerToDropDownAnchorBase() {
-        mDropDownAnchor.getViewTreeObserver()
-                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        adjustDropDownSizeAndPosition();
-                    }
-                });
     }
 
     int getSuggestionRowLayout() {

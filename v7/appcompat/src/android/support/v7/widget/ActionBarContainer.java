@@ -171,17 +171,15 @@ public class ActionBarContainer extends FrameLayout {
 
     @Override
     public void jumpDrawablesToCurrentState() {
-        if (Build.VERSION.SDK_INT >= 11) {
-            super.jumpDrawablesToCurrentState();
-            if (mBackground != null) {
-                mBackground.jumpToCurrentState();
-            }
-            if (mStackedBackground != null) {
-                mStackedBackground.jumpToCurrentState();
-            }
-            if (mSplitBackground != null) {
-                mSplitBackground.jumpToCurrentState();
-            }
+        super.jumpDrawablesToCurrentState();
+        if (mBackground != null) {
+            mBackground.jumpToCurrentState();
+        }
+        if (mStackedBackground != null) {
+            mStackedBackground.jumpToCurrentState();
+        }
+        if (mSplitBackground != null) {
+            mSplitBackground.jumpToCurrentState();
         }
     }
 
