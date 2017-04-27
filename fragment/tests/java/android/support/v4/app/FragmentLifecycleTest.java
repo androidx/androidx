@@ -1037,11 +1037,11 @@ public class FragmentLifecycleTest {
         StrictFragment fragment2 = new StrictFragment();
         fm.beginTransaction()
                 .add(fragment1, "1")
-                .setAllowOptimization(false)
+                .setReorderingAllowed(false)
                 .commit();
         fm.beginTransaction()
                 .add(fragment2, "Hello")
-                .setAllowOptimization(false)
+                .setReorderingAllowed(false)
                 .commit();
         fm.executePendingTransactions();
 
