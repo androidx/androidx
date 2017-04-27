@@ -19,6 +19,7 @@ import static org.junit.Assert.fail;
 
 import android.content.res.AssetManager;
 import android.support.annotation.GuardedBy;
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 
 import java.util.concurrent.CountDownLatch;
@@ -62,7 +63,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(final EmojiCompat.LoaderCallback loaderCallback) {
+        public void load(@NonNull final EmojiCompat.LoaderCallback loaderCallback) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -93,7 +94,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(EmojiCompat.LoaderCallback loaderCallback) {
+        public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
             if (sMetadataRepo == null) {
                 synchronized (sMetadataRepoLock) {
                     if (sMetadataRepo == null) {

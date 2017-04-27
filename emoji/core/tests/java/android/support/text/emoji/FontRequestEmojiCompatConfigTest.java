@@ -44,6 +44,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -51,6 +52,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.graphics.fonts.FontRequest;
@@ -173,6 +175,8 @@ public class FontRequestEmojiCompatConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
+    @TargetApi(19)
     public void testLoad_success() throws IOException, InterruptedException {
         final File file = loadFont(mContext, "NotoColorEmojiCompat.ttf");
         try (ParcelFileDescriptor pfd = ParcelFileDescriptor.open(file,
