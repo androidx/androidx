@@ -209,20 +209,4 @@ class NotificationCompatApi20 {
         }
         return parcelables;
     }
-
-    public static boolean getLocalOnly(Notification notif) {
-        return (notif.flags & Notification.FLAG_LOCAL_ONLY) != 0;
-    }
-
-    public static String getGroup(Notification notif) {
-        return notif.getGroup();
-    }
-
-    public static boolean isGroupSummary(Notification notif) {
-        return (notif.flags & Notification.FLAG_GROUP_SUMMARY) != 0;
-    }
-
-    public static String getSortKey(Notification notif) {
-        return notif.getSortKey();
-    }
 }
