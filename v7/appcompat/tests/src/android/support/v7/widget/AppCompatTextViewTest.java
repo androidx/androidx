@@ -56,21 +56,21 @@ public class AppCompatTextViewTest
         // Note that TextView.getText() returns the original text. We are interested in
         // the transformed text that is set on the Layout object used to draw the final
         // (transformed) content.
-        assertEquals("Text view starts in all caps on", text1.toUpperCase(),
-                textView1.getLayout().getText());
-        assertEquals("Text view starts in all caps off", text2,
-                textView2.getLayout().getText());
+        assertEquals("Text view starts in all caps on",
+                text1.toUpperCase(), textView1.getLayout().getText().toString());
+        assertEquals("Text view starts in all caps off",
+                text2, textView2.getLayout().getText().toString());
 
         // Toggle all-caps mode on the two text views
         onView(withId(R.id.text_view_caps1)).perform(
                 setTextAppearance(R.style.TextStyleAllCapsOff));
-        assertEquals("Text view is now in all caps off", text1,
-                textView1.getLayout().getText());
+        assertEquals("Text view is now in all caps off",
+                text1, textView1.getLayout().getText().toString());
 
         onView(withId(R.id.text_view_caps2)).perform(
                 setTextAppearance(R.style.TextStyleAllCapsOn));
-        assertEquals("Text view is now in all caps on", text2.toUpperCase(),
-                textView2.getLayout().getText());
+        assertEquals("Text view is now in all caps on",
+                text2.toUpperCase(), textView2.getLayout().getText().toString());
     }
 
     @Test
