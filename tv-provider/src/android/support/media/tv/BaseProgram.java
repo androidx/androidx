@@ -50,6 +50,7 @@ public abstract class BaseProgram {
     private static final int IS_SEARCHABLE = 1;
 
     private final long mId;
+    private final String mPackageName;
     private final String mTitle;
     private final String mEpisodeTitle;
     private final String mSeasonNumber;
@@ -76,6 +77,7 @@ public abstract class BaseProgram {
     /* package-private */
     BaseProgram(Builder builder) {
         mId = builder.mId;
+        mPackageName = builder.mPackageName;
         mTitle = builder.mTitle;
         mEpisodeTitle = builder.mEpisodeTitle;
         mSeasonNumber = builder.mSeasonNumber;
@@ -102,10 +104,20 @@ public abstract class BaseProgram {
 
     /**
      * @return The ID for the program.
-     * @see Programs#_ID
+     * @see BaseTvColumns#_ID
      */
     public long getId() {
         return mId;
+    }
+
+    /**
+     * @return The package name for the program.
+     * @see BaseTvColumns#COLUMN_PACKAGE_NAME
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public String getPackageName() {
+        return mPackageName;
     }
 
     /**
@@ -329,6 +341,7 @@ public abstract class BaseProgram {
     public String toString() {
         return "BaseProgram{"
                 + "id=" + mId
+                + ", packageName=" + mPackageName
                 + ", title=" + mTitle
                 + ", episodeTitle=" + mEpisodeTitle
                 + ", seasonNumber=" + mSeasonNumber
@@ -351,6 +364,9 @@ public abstract class BaseProgram {
         ContentValues values = new ContentValues();
         if (mId != INVALID_LONG_VALUE) {
             values.put(BaseTvColumns._ID, mId);
+        }
+        if (!TextUtils.isEmpty(mPackageName)) {
+            values.put(BaseTvColumns.COLUMN_PACKAGE_NAME, mPackageName);
         }
         if (!TextUtils.isEmpty(mTitle)) {
             values.put(ProgramColumns.COLUMN_TITLE, mTitle);
@@ -484,6 +500,10 @@ public abstract class BaseProgram {
         if ((index = cursor.getColumnIndex(BaseTvColumns._ID)) >= 0 && !cursor.isNull(index)) {
             builder.setId(cursor.getLong(index));
         }
+        if ((index = cursor.getColumnIndex(BaseTvColumns.COLUMN_PACKAGE_NAME)) >= 0
+                && !cursor.isNull(index)) {
+            builder.setPackageName(cursor.getString(index));
+        }
         if ((index = cursor.getColumnIndex(ProgramColumns.COLUMN_TITLE)) >= 0
                 && !cursor.isNull(index)) {
             builder.setTitle(cursor.getString(index));
@@ -607,6 +627,7 @@ public abstract class BaseProgram {
     private static String[] getProjection() {
         String[] baseColumns = new String[] {
                 BaseTvColumns._ID,
+                BaseTvColumns.COLUMN_PACKAGE_NAME,
                 ProgramColumns.COLUMN_TITLE,
                 ProgramColumns.COLUMN_EPISODE_TITLE,
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
@@ -659,6 +680,7 @@ public abstract class BaseProgram {
      */
     public abstract static class Builder<T extends Builder> {
         private long mId = INVALID_LONG_VALUE;
+        private String mPackageName;
         private String mTitle;
         private String mEpisodeTitle;
         private String mSeasonNumber;
@@ -694,6 +716,7 @@ public abstract class BaseProgram {
          */
         public Builder(BaseProgram other) {
             mId = other.mId;
+            mPackageName = other.mPackageName;
             mTitle = other.mTitle;
             mEpisodeTitle = other.mEpisodeTitle;
             mSeasonNumber = other.mSeasonNumber;
@@ -727,6 +750,20 @@ public abstract class BaseProgram {
          */
         public T setId(long programId) {
             mId = programId;
+            return (T) this;
+        }
+
+        /**
+         * Sets the package name for this program.
+         *
+         * @param packageName The package name for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see BaseTvColumns#COLUMN_PACKAGE_NAME
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public T setPackageName(String packageName) {
+            mPackageName = packageName;
             return (T) this;
         }
 
