@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.view.SupportActionModeWrapper;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -215,8 +216,10 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 config.uiMode = newNightMode | (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
                 res.updateConfiguration(config, metrics);
 
-                // We may need to flush the Resources' drawable cache due to framework bugs..
-                ResourcesFlusher.flush(res);
+                // We may need to flush the Resources' drawable cache due to framework bugs.
+                if (!BuildCompat.isAtLeastO()) {
+                    ResourcesFlusher.flush(res);
+                }
             }
             return true;
         } else {
