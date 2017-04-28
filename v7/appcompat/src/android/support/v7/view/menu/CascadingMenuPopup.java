@@ -114,6 +114,24 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
         }
     };
 
+    private final View.OnAttachStateChangeListener mAttachStateChangeListener =
+            new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {
+                }
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                    if (mTreeObserver != null) {
+                        if (!mTreeObserver.isAlive()) {
+                            mTreeObserver = v.getViewTreeObserver();
+                        }
+                        mTreeObserver.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+                    }
+                    v.removeOnAttachStateChangeListener(this);
+                }
+            };
+
     private final MenuItemHoverListener mMenuItemHoverListener = new MenuItemHoverListener() {
         @Override
         public void onItemHoverExit(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
@@ -253,6 +271,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
             if (addGlobalListener) {
                 mTreeObserver.addOnGlobalLayoutListener(mGlobalLayoutListener);
             }
+            mShownAnchorView.addOnAttachStateChangeListener(mAttachStateChangeListener);
         }
     }
 
@@ -676,7 +695,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
                 }
                 mTreeObserver = null;
             }
-
+            mShownAnchorView.removeOnAttachStateChangeListener(mAttachStateChangeListener);
 
             // If every [sub]menu was dismissed, that means the whole thing was
             // dismissed, so notify the owner.

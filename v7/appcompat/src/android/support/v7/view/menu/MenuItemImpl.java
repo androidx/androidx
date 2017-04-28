@@ -168,8 +168,8 @@ public final class MenuItemImpl implements SupportMenuItem {
             return true;
         }
 
-        if (mMenu.dispatchMenuItemSelected(mMenu.getRootMenu(), this)) {
-          return true;
+        if (mMenu.dispatchMenuItemSelected(mMenu, this)) {
+            return true;
         }
 
         if (mItemCallback != null) {
