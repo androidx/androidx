@@ -28,6 +28,8 @@ import static android.arch.lifecycle.Lifecycle.State.INITIALIZED;
 import static android.arch.lifecycle.Lifecycle.State.RESUMED;
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -169,6 +171,74 @@ public class ReflectiveGenericLifecycleObserverTest {
         void stopped() {}
 
         @OnLifecycleEvent(ON_DESTROY)
-        void destroyed() {}
+        void destroyed() {
+        }
     }
+
+    @Test
+    public void testFailingObserver() {
+        class UnprecedentedError extends Error {
+        }
+
+        LifecycleObserver obj = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_START)
+            void started() {
+                throw new UnprecedentedError();
+            }
+        };
+        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
+        try {
+            observer.onStateChanged(mOwner, ON_START);
+        } catch (Exception e) {
+            assertThat("exception cause is wrong",
+                    e.getCause() instanceof UnprecedentedError);
+        }
+    }
+
+    @Test
+    public void testPrivateObserverMethods() {
+        class ObserverWithPrivateMethod implements LifecycleObserver {
+            boolean called = false;
+            @OnLifecycleEvent(ON_START)
+            private void started() {
+                called = true;
+            }
+        }
+
+        ObserverWithPrivateMethod obj = mock(ObserverWithPrivateMethod.class);
+        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
+        observer.onStateChanged(mOwner, ON_START);
+        assertThat(obj.called, is(true));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongFirstParam() {
+        LifecycleObserver observer = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_START)
+            private void started(Lifecycle.Event e) {
+            }
+        };
+        new ReflectiveGenericLifecycleObserver(observer);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongSecondParam() {
+        LifecycleObserver observer = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_START)
+            private void started(LifecycleOwner owner, Lifecycle l) {
+            }
+        };
+        new ReflectiveGenericLifecycleObserver(observer);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testThreeParams() {
+        LifecycleObserver observer = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_START)
+            private void started(LifecycleOwner owner, Lifecycle.Event e, int i) {
+            }
+        };
+        new ReflectiveGenericLifecycleObserver(observer);
+    }
+
 }

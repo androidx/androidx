@@ -17,7 +17,6 @@
 package android.arch.lifecycle;
 
 import android.arch.lifecycle.Lifecycle.Event;
-import android.arch.lifecycle.Lifecycle.State;
 import android.support.annotation.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +32,6 @@ import java.util.Set;
 /**
  * An internal implementation of {@link GenericLifecycleObserver} that relies on reflection.
  */
-@SuppressWarnings("unused")
 class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     private final Object mWrapped;
     private final CallbackInfo mInfo;
@@ -47,33 +45,30 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     @Override
     public void onStateChanged(LifecycleOwner source, Event event) {
-        final State state = source.getLifecycle().getCurrentState();
-        invokeCallbacks(mInfo, source, state, event);
+        invokeCallbacks(mInfo, source, event);
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void invokeCallbacks(CallbackInfo info, LifecycleOwner source,
-            State state, Event event) {
+    private void invokeCallbacks(CallbackInfo info, LifecycleOwner source, Event event) {
         if (info.mEvents.contains(event)) {
             for (int i = info.mMethodReferences.size() - 1; i >= 0; i--) {
                 MethodReference reference = info.mMethodReferences.get(i);
-                invokeCallback(reference, source, state, event);
+                invokeCallback(reference, source, event);
             }
         }
         // TODO prevent duplicate calls into the same method. Preferably while parsing
         if (info.mSuper != null) {
-            invokeCallbacks(info.mSuper, source, state, event);
+            invokeCallbacks(info.mSuper, source, event);
         }
         if (info.mInterfaces != null) {
             final int size = info.mInterfaces.size();
             for (int i = 0; i < size; i++) {
-                invokeCallbacks(info.mInterfaces.get(i), source, state, event);
+                invokeCallbacks(info.mInterfaces.get(i), source, event);
             }
         }
     }
 
-    private void invokeCallback(MethodReference reference, LifecycleOwner source,
-            State state, Event event) {
+    private void invokeCallback(MethodReference reference, LifecycleOwner source, Event event) {
         if (reference.mEvents.contains(event)) {
             //noinspection TryWithIdenticalCatches
             try {
@@ -89,7 +84,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
                         break;
                 }
             } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to call observer method", e.getCause());
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
