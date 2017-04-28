@@ -207,7 +207,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         final TypedValue tv = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
         final int theme = tv.resourceId;
-        if (theme <= 0) {
+        if (theme == 0) {
             throw new IllegalStateException("Must specify preferenceTheme in theme");
         }
         mStyledContext = new ContextThemeWrapper(getActivity(), theme);
