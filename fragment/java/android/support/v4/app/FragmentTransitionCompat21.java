@@ -294,12 +294,12 @@ class FragmentTransitionCompat21 {
 
     /**
      * Prepares for setting the shared element names by gathering the names of the incoming
-     * shared elements and clearing them. {@link #setNameOverridesOptimized(View, ArrayList,
+     * shared elements and clearing them. {@link #setNameOverridesReordered(View, ArrayList,
      * ArrayList, ArrayList, Map)} must be called after this to complete setting the shared element
      * name overrides. This must be called before
      * {@link #beginDelayedTransition(ViewGroup, Object)}.
      */
-    public static ArrayList<String> prepareSetNameOverridesOptimized(
+    public static ArrayList<String> prepareSetNameOverridesReordered(
             final ArrayList<View> sharedElementsIn) {
         final ArrayList<String> names = new ArrayList<>();
         final int numSharedElements = sharedElementsIn.size();
@@ -317,7 +317,7 @@ class FragmentTransitionCompat21 {
      * outgoing shared elements. Must be called after
      * {@link #beginDelayedTransition(ViewGroup, Object)}.
      */
-    public static void setNameOverridesOptimized(final View sceneRoot,
+    public static void setNameOverridesReordered(final View sceneRoot,
             final ArrayList<View> sharedElementsOut, final ArrayList<View> sharedElementsIn,
             final ArrayList<String> inNames, final Map<String, String> nameOverrides) {
         final int numSharedElements = sharedElementsIn.size();
@@ -398,7 +398,7 @@ class FragmentTransitionCompat21 {
         }
     }
 
-    public static void setNameOverridesUnoptimized(final View sceneRoot,
+    public static void setNameOverridesOrdered(final View sceneRoot,
             final ArrayList<View> sharedElementsIn, final Map<String, String> nameOverrides) {
         OneShotPreDrawListener.add(sceneRoot, new Runnable() {
             @Override
