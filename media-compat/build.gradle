@@ -35,6 +35,10 @@ android {
         ]
         main.aidl.srcDirs = ['java']
     }
+
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
 }
 
 supportLibrary {
