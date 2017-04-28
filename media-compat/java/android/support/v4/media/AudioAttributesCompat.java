@@ -770,7 +770,8 @@ public class AudioAttributesCompat {
         return ((mContentType == that.getContentType())
                 && (mFlags == that.getFlags())
                 && (mUsage == that.getUsage())
-                && (mLegacyStream == that.mLegacyStream)); // query the slot directly, don't guess
+                && (mLegacyStream != null ? mLegacyStream.equals(that.mLegacyStream)
+                        : that.mLegacyStream == null)); // query the slot directly, don't guess
     }
 
     /** @hide */
