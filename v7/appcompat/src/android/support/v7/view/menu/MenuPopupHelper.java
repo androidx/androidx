@@ -226,10 +226,8 @@ public class MenuPopupHelper implements MenuHelper {
 
         if (Build.VERSION.SDK_INT >= 17) {
             display.getRealSize(displaySize);
-        } else if (Build.VERSION.SDK_INT >= 13) {
-            display.getSize(displaySize);
         } else {
-            displaySize.set(display.getWidth(), display.getHeight());
+            display.getSize(displaySize);
         }
 
         final int smallestWidth = Math.min(displaySize.x, displaySize.y);
