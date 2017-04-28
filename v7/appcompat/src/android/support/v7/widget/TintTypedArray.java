@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -30,6 +29,7 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleableRes;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.TypefaceCompat.TypefaceHolder;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -102,11 +102,11 @@ public class TintTypedArray {
      *         not a font resource.
      */
     @Nullable
-    public Typeface getFont(@StyleableRes int index) {
+    public TypefaceHolder getFont(@StyleableRes int index, int style) {
         if (mWrapped.hasValue(index)) {
             final int resourceId = mWrapped.getResourceId(index, 0);
             if (resourceId != 0) {
-                return ResourcesCompat.getFont(mContext, resourceId);
+                return ResourcesCompat.getFont(mContext, resourceId, style);
             }
         }
         return null;
