@@ -33,8 +33,8 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.app.TestSupportActivity;
 import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
-import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
+import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
 import android.util.Base64;
 

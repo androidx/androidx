@@ -43,7 +43,6 @@ import android.graphics.Typeface;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.provider.FontsContractCompat.FontFamilyResult;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.util.Base64;
