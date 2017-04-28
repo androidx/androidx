@@ -23,7 +23,18 @@ import android.support.v17.leanback.widget.PlaybackControlsRow;
 
 /**
  * Fragment demonstrating the use of {@link android.support.v17.leanback.app.VideoFragment} to
- * render video with playback controls.
+ * render video with playback controls. And demonstrates video seeking with thumbnails.
+ *
+ * Generate 1 frame per second thumbnail bitmaps and put on sdcard:
+ * <pre>
+ * sudo apt-get install libav-tools
+ * avconv -i input.mp4 -s 240x135 -vsync 1 -r 1 -an -y -qscale 8 frame_%04d.jpg
+ * adb shell mkdir /sdcard/seek
+ * adb push frame_*.jpg /sdcard/seek/
+ * </pre>
+ * Change to 1 frame per minute: use "-r 1/60".
+ * For more options, see https://wiki.libav.org/Snippets/avconv
+ *
  * <p>
  * Showcase:
  * </p>
@@ -55,9 +66,10 @@ public class SampleVideoFragment extends android.support.v17.leanback.app.VideoF
 
     static void loadSeekData(final PlaybackTransportControlGlue glue) {
         if (glue.isPrepared()) {
-            glue.setSeekProvider(new PlaybackSeekDataProviderSample(
+            glue.setSeekProvider(new PlaybackSeekDiskDataProvider(
                     glue.getDuration(),
-                    glue.getDuration() / 100));
+                    1000,
+                    "/sdcard/seek/frame_%04d.jpg"));
         } else {
             glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
                 @Override
@@ -66,9 +78,10 @@ public class SampleVideoFragment extends android.support.v17.leanback.app.VideoF
                         glue.removePlayerCallback(this);
                         PlaybackTransportControlGlue transportControlGlue =
                                 (PlaybackTransportControlGlue) glue;
-                        transportControlGlue.setSeekProvider(new PlaybackSeekDataProviderSample(
+                        transportControlGlue.setSeekProvider(new PlaybackSeekDiskDataProvider(
                                 transportControlGlue.getDuration(),
-                                transportControlGlue.getDuration() / 100));
+                                1000,
+                                "/sdcard/seek/frame_%04d.jpg"));
                     }
                 }
             });
