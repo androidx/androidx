@@ -72,6 +72,22 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
         }
     };
 
+    private final View.OnAttachStateChangeListener mAttachStateChangeListener =
+            new View.OnAttachStateChangeListener() {
+        @Override
+        public void onViewAttachedToWindow(View v) {
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View v) {
+            if (mTreeObserver != null) {
+                if (!mTreeObserver.isAlive()) mTreeObserver = v.getViewTreeObserver();
+                mTreeObserver.removeGlobalOnLayoutListener(mGlobalLayoutListener);
+            }
+            v.removeOnAttachStateChangeListener(this);
+        }
+    };
+
     private PopupWindow.OnDismissListener mOnDismissListener;
 
     private View mAnchorView;
@@ -145,6 +161,7 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
         if (addGlobalListener) {
             mTreeObserver.addOnGlobalLayoutListener(mGlobalLayoutListener);
         }
+        anchor.addOnAttachStateChangeListener(mAttachStateChangeListener);
         mPopup.setAnchorView(anchor);
         mPopup.setDropDownGravity(mDropDownGravity);
 
@@ -215,6 +232,8 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
             mTreeObserver.removeGlobalOnLayoutListener(mGlobalLayoutListener);
             mTreeObserver = null;
         }
+        mShownAnchorView.removeOnAttachStateChangeListener(mAttachStateChangeListener);
+
         if (mOnDismissListener != null) {
             mOnDismissListener.onDismiss();
         }
