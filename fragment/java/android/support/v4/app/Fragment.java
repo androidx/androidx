@@ -2023,11 +2023,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * independent containers will not interfere with each other's postponement.
      * <p>
      * Calling postponeEnterTransition on Fragments with a null View will not postpone the
-     * transition. Likewise, postponement only works if FragmentTransaction optimizations are
+     * transition. Likewise, postponement only works if
+     * {@link FragmentTransaction#setReorderingAllowed(boolean) FragmentTransaction reordering} is
      * enabled.
      *
      * @see Activity#postponeEnterTransition()
-     * @see FragmentTransaction#setAllowOptimization(boolean)
+     * @see FragmentTransaction#setReorderingAllowed(boolean)
      */
     public void postponeEnterTransition() {
         ensureAnimationInfo().mEnterTransitionPostponed = true;

@@ -6104,7 +6104,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction remove(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment, java.lang.String);
-    method public abstract android.support.v4.app.FragmentTransaction setAllowOptimization(boolean);
+    method public abstract deprecated android.support.v4.app.FragmentTransaction setAllowOptimization(boolean);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(int);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbShortTitle(java.lang.CharSequence);
     method public abstract android.support.v4.app.FragmentTransaction setBreadCrumbTitle(int);
@@ -6112,6 +6112,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int);
     method public abstract android.support.v4.app.FragmentTransaction setCustomAnimations(int, int, int, int);
     method public abstract android.support.v4.app.FragmentTransaction setPrimaryNavigationFragment(android.support.v4.app.Fragment);
+    method public abstract android.support.v4.app.FragmentTransaction setReorderingAllowed(boolean);
     method public abstract android.support.v4.app.FragmentTransaction setTransition(int);
     method public abstract android.support.v4.app.FragmentTransaction setTransitionStyle(int);
     method public abstract android.support.v4.app.FragmentTransaction show(android.support.v4.app.Fragment);
