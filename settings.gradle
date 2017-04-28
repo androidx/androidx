@@ -88,8 +88,8 @@ project(':support-dynamic-animation').projectDir = new File(rootDir, 'dynamic-an
 include ':support-exifinterface'
 project(':support-exifinterface').projectDir = new File(rootDir, 'exifinterface')
 
-include ':support-wearable'
-project(':support-wearable').projectDir = new File(rootDir, 'wearable')
+include ':support-wear'
+project(':support-wear').projectDir = new File(rootDir, 'wear')
 
 include ':support-tv-provider'
 project(':support-tv-provider').projectDir = new File(rootDir, 'tv-provider')
