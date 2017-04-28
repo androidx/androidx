@@ -29,6 +29,8 @@ import android.support.v4.app.FragmentActivity;
  * {@link SavedStateProvider} provides a convenient way to create variables that are saved with the
  * owner Activity or Fragment. Using it is similar to implementing
  * {@link android.app.Activity#onSaveInstanceState(Bundle)}.
+ *
+ * @hide
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class StateProviders {

@@ -25,6 +25,8 @@ import android.os.Parcelable;
  * <p>
  * This class can be obtained from {@link SavedStateValue}.
  * @param <T> - type of the object.
+ *
+ * @hide
  */
 @SuppressWarnings("WeakerAccess")
 public class SavedStateValue<T extends Parcelable> extends Saveable {

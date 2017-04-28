@@ -28,6 +28,8 @@ import java.util.Map;
 
 /**
  * Class that facilitates work with saved state associated with an Activity or Fragment.
+ *
+ * @hide
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class SavedStateProvider {
