@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.graphics.fonts;
+package android.support.v4.provider;
 
 import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;

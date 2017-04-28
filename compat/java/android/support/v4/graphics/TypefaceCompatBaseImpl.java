@@ -36,10 +36,10 @@ import android.support.v4.content.res.FontResourcesParserCompat.FontFileResource
 import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
-import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.os.TraceCompat;
+import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.provider.FontsContractInternal;
