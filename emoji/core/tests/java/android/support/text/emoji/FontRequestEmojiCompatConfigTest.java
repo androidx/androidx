@@ -53,9 +53,9 @@ import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
+import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractInternal;
 
 import org.junit.Before;

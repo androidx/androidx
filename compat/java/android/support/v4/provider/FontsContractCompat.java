@@ -42,7 +42,6 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.FontResourcesParserCompat;
 import android.support.v4.graphics.TypefaceCompat;
-import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.util.Preconditions;
 
 import java.io.FileInputStream;
