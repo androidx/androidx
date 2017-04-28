@@ -78,11 +78,11 @@ public class FontResourcesParserCompatTest {
         assertEquals(true, font2.isItalic());
         assertEquals("res/font/samplefont2.ttf", font2.getFileName());
         FontFileResourceEntry font3 = fileEntries[2];
-        assertEquals(800, font3.getWeight());
+        assertEquals(700, font3.getWeight());
         assertEquals(false, font3.isItalic());
         assertEquals("res/font/samplefont3.ttf", font3.getFileName());
         FontFileResourceEntry font4 = fileEntries[3];
-        assertEquals(800, font4.getWeight());
+        assertEquals(700, font4.getWeight());
         assertEquals(true, font4.isItalic());
         assertEquals("res/font/samplefont4.ttf", font4.getFileName());
     }

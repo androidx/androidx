@@ -154,7 +154,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                 final ParcelFileDescriptor dupFd = mFontResult.getFileDescriptor().dup();
                 // this one will close fd that is in mFontResult
                 final Typeface typeface = TypefaceCompat.createTypeface(mContext,
-                        Arrays.asList(mFontResult));
+                        Arrays.asList(mFontResult)).getTypeface();
                 if (typeface == null) {
                     throwException(FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR);
                 }
