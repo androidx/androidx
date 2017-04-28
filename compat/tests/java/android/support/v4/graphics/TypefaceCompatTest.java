@@ -56,7 +56,8 @@ import java.util.List;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportActivity> {
-    private static final String TEST_FONT_FILE = "samplefont.ttf";
+    private static final String TEST_FONT_FILE = "fonts/samplefont1.ttf";
+    private static final String CACHE_FILE = "cachedfont.ttf";
     private static final String PROVIDER = "com.test.fontprovider.authority";
     private static final String QUERY_CACHED = "query_cached";
     private static final String QUERY = "query";
@@ -166,7 +167,7 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
     }
 
     private File loadFont() {
-        File cacheFile = new File(mActivityTestRule.getActivity().getCacheDir(), TEST_FONT_FILE);
+        File cacheFile = new File(mActivityTestRule.getActivity().getCacheDir(), CACHE_FILE);
         try {
             copyToCacheFile(TEST_FONT_FILE, cacheFile);
             return cacheFile;
