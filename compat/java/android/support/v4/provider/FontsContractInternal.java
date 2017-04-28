@@ -36,7 +36,6 @@ import android.support.annotation.GuardedBy;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.FontResourcesParserCompat;
-import android.support.v4.graphics.fonts.FontRequest;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.provider.FontsContractCompat.Columns;
