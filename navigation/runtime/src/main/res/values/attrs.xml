@@ -51,6 +51,8 @@
         <attr name="clearTask" format="boolean" />
         <attr name="popUpTo" format="reference" />
         <attr name="popUpToInclusive" format="boolean" />
+        <attr name="enterAnim" format="reference" />
+        <attr name="exitAnim" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="NavInclude">

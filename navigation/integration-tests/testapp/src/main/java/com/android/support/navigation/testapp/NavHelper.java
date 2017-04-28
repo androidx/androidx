@@ -169,6 +169,8 @@ public class NavHelper {
                     new NavOptions.Builder()
                             .setPopUpTo(navController.getGraph().getStartDestination(), false)
                             .setLaunchSingleTop(true)
+                            .setEnterAnim(R.anim.fade_in)
+                            .setExitAnim(R.anim.fade_out)
                             .build());
             return true;
         } catch (IllegalArgumentException e) {

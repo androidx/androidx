@@ -109,8 +109,17 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     public boolean navigate(Destination destination, Bundle args,
                             NavOptions navOptions) {
         final Fragment frag = destination.createFragment(args);
-        final FragmentTransaction ft = mFragmentManager.beginTransaction()
-                .replace(mContainerId, frag);
+        final FragmentTransaction ft = mFragmentManager.beginTransaction();
+
+        int enterAnim = navOptions != null ? navOptions.getEnterAnim() : -1;
+        int exitAnim = navOptions != null ? navOptions.getExitAnim() : -1;
+        if (enterAnim != -1 || exitAnim != -1) {
+            enterAnim = enterAnim != -1 ? enterAnim : 0;
+            exitAnim = exitAnim != -1 ? exitAnim : 0;
+            ft.setCustomAnimations(enterAnim, exitAnim);
+        }
+
+        ft.replace(mContainerId, frag);
 
         final StateFragment oldState = getState();
         if (oldState != null) {

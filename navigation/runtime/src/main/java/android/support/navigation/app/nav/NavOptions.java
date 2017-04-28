@@ -17,6 +17,8 @@
 package android.support.navigation.app.nav;
 
 import android.os.Bundle;
+import android.support.annotation.AnimRes;
+import android.support.annotation.AnimatorRes;
 import android.support.annotation.IdRes;
 
 /**
@@ -30,16 +32,25 @@ public class NavOptions {
     private static final String KEY_LAUNCH_MODE = "launchMode";
     private static final String KEY_POP_UP_TO = "popUpTo";
     private static final String KEY_POP_UP_TO_INCLUSIVE = "popUpToInclusive";
+    private static final String KEY_ENTER_ANIM = "enterAnim";
+    private static final String KEY_EXIT_ANIM = "exitAnim";
 
     private int mLaunchMode;
     @IdRes
     private int mPopUpTo;
     private boolean mPopUpToInclusive;
+    @AnimRes @AnimatorRes
+    private int mEnterAnim;
+    @AnimRes @AnimatorRes
+    private int mExitAnim;
 
-    NavOptions(int launchMode, @IdRes int popUpTo, boolean popUpToInclusive) {
+    NavOptions(int launchMode, @IdRes int popUpTo, boolean popUpToInclusive,
+            @AnimRes @AnimatorRes int enterAnim, @AnimRes @AnimatorRes int exitAnim) {
         mLaunchMode = launchMode;
         mPopUpTo = popUpTo;
         mPopUpToInclusive = popUpToInclusive;
+        mEnterAnim = enterAnim;
+        mExitAnim = exitAnim;
     }
 
     boolean shouldLaunchSingleTop() {
@@ -75,17 +86,38 @@ public class NavOptions {
         return mPopUpToInclusive;
     }
 
+    /**
+     * The custom enter Animation/Animator that should be run.
+     * @return the resource id of a Animation or Animator or -1 if none.
+     */
+    @AnimRes @AnimatorRes
+    public int getEnterAnim() {
+        return mEnterAnim;
+    }
+
+    /**
+     * The custom exit Animation/Animator that should be run.
+     * @return the resource id of a Animation or Animator or -1 if none.
+     */
+    @AnimRes @AnimatorRes
+    public int getExitAnim() {
+        return mExitAnim;
+    }
+
     Bundle toBundle() {
         Bundle b = new Bundle();
         b.putInt(KEY_LAUNCH_MODE, mLaunchMode);
         b.putInt(KEY_POP_UP_TO, mPopUpTo);
         b.putBoolean(KEY_POP_UP_TO_INCLUSIVE, mPopUpToInclusive);
+        b.putInt(KEY_ENTER_ANIM, mEnterAnim);
+        b.putInt(KEY_EXIT_ANIM, mExitAnim);
         return b;
     }
 
     static NavOptions fromBundle(Bundle b) {
         return new NavOptions(b.getInt(KEY_LAUNCH_MODE, 0),
-                b.getInt(KEY_POP_UP_TO, 0), b.getBoolean(KEY_POP_UP_TO_INCLUSIVE, false));
+                b.getInt(KEY_POP_UP_TO, 0), b.getBoolean(KEY_POP_UP_TO_INCLUSIVE, false),
+                b.getInt(KEY_ENTER_ANIM, -1), b.getInt(KEY_EXIT_ANIM, -1));
     }
 
     /**
@@ -96,6 +128,10 @@ public class NavOptions {
         @IdRes
         int mPopUpTo;
         boolean mPopUpToInclusive;
+        @AnimRes @AnimatorRes
+        int mEnterAnim = -1;
+        @AnimRes @AnimatorRes
+        int mExitAnim = -1;
 
         public Builder() {
         }
@@ -170,10 +206,36 @@ public class NavOptions {
         }
 
         /**
+         * Sets a custom Animation or Animator resource for the enter animation.
+         *
+         * <p>Note: Animator resources are not supported for navigating to a new Activity</p>
+         * @param enterAnim Custom animation to run
+         * @return this Builder
+         * @see NavOptions#getEnterAnim()
+         */
+        public Builder setEnterAnim(@AnimRes @AnimatorRes int enterAnim) {
+            mEnterAnim = enterAnim;
+            return this;
+        }
+
+        /**
+         * Sets a custom Animation or Animator resource for the exit animation.
+         *
+         * <p>Note: Animator resources are not supported for navigating to a new Activity</p>
+         * @param exitAnim Custom animation to run
+         * @return this Builder
+         * @see NavOptions#getExitAnim()
+         */
+        public Builder setExitAnim(@AnimRes @AnimatorRes int exitAnim) {
+            mExitAnim = exitAnim;
+            return this;
+        }
+
+        /**
          * @return a constructed NavOptions
          */
         public NavOptions build() {
-            return new NavOptions(mLaunchMode, mPopUpTo, mPopUpToInclusive);
+            return new NavOptions(mLaunchMode, mPopUpTo, mPopUpToInclusive, mEnterAnim, mExitAnim);
         }
     }
 }

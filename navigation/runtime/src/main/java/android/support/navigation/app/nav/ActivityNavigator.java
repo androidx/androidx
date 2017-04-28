@@ -124,6 +124,15 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         final int destId = destination.getId();
         intent.putExtra(EXTRA_NAV_CURRENT, destId);
         mContext.startActivity(intent);
+        if (navOptions != null && mHostActivity != null) {
+            int enterAnim = navOptions.getEnterAnim();
+            int exitAnim = navOptions.getExitAnim();
+            if (enterAnim != -1 || exitAnim != -1) {
+                enterAnim = enterAnim != -1 ? enterAnim : 0;
+                exitAnim = exitAnim != -1 ? exitAnim : 0;
+                mHostActivity.overridePendingTransition(enterAnim, exitAnim);
+            }
+        }
         dispatchOnNavigatorNavigated(destId, false);
 
         // Always return false. You can't pop the back stack from the caller of a new
