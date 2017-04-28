@@ -42,7 +42,7 @@ class LocationListener implements LifecycleObserver {
         mListener = listener;
     }
 
-    @OnLifecycleEvent(Lifecycle.ON_RESUME)
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     void start() {
         mLocationManager = (LocationManager) DemoApplication.context().getSystemService(
                 Context.LOCATION_SERVICE);
@@ -51,7 +51,7 @@ class LocationListener implements LifecycleObserver {
     }
 
 
-    @OnLifecycleEvent(Lifecycle.ON_PAUSE)
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     void stop() {
         mLocationManager.removeUpdates(mListener);
         mLocationManager = null;
