@@ -40,7 +40,7 @@ import java.util.Map;
  * a custom LifecycleOwner.
  */
 @SuppressWarnings("WeakerAccess")
-public class LifecycleRegistry implements Lifecycle {
+public class LifecycleRegistry extends Lifecycle {
 
     /**
      * Custom list that keeps observers and can handle removals / additions during traversal.

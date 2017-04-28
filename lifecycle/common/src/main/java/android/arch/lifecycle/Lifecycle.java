@@ -66,8 +66,7 @@ import android.support.annotation.MainThread;
  * These additional parameters are provided to allow you to conveniently observe multiple providers
  * and events without tracking them manually.
  */
-@SuppressWarnings({"UnnecessaryInterfaceModifier", "WeakerAccess", "unused"})
-public interface Lifecycle {
+public abstract class Lifecycle {
     /**
      * Adds a LifecycleObserver that will be notified when the LifecycleOwner changes
      * state.
@@ -79,7 +78,7 @@ public interface Lifecycle {
      * @param observer The observer to notify.
      */
     @MainThread
-    void addObserver(LifecycleObserver observer);
+    public abstract void addObserver(LifecycleObserver observer);
 
     /**
      * Removes the given observer from the observers list.
@@ -95,7 +94,7 @@ public interface Lifecycle {
      * @param observer The observer to be removed.
      */
     @MainThread
-    void removeObserver(LifecycleObserver observer);
+    public abstract void removeObserver(LifecycleObserver observer);
 
     /**
      * Returns the current state of the Lifecycle.
@@ -103,10 +102,10 @@ public interface Lifecycle {
      * @return The current state of the Lifecycle.
      */
     @MainThread
-    State getCurrentState();
+    public abstract State getCurrentState();
 
     @SuppressWarnings("WeakerAccess")
-    enum Event {
+    public enum Event {
         /**
          * Constant for onCreate event of the {@link LifecycleOwner}.
          */
@@ -141,7 +140,8 @@ public interface Lifecycle {
      * Lifecycle states. You can consider the states as the nodes in a graph and
      * {@link Event}s as the edges between these nodes.
      */
-    enum State {
+    @SuppressWarnings("WeakerAccess")
+    public enum State {
         /**
          * Destroyed state for a LifecycleOwner. After this event, this Lifecycle will not dispatch
          * any more events. For instance, for an {@link android.app.Activity}, this state is reached
