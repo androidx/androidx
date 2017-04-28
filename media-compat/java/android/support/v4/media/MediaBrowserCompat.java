@@ -1380,6 +1380,7 @@ public final class MediaBrowserCompat {
         /**
          * Return true if {@code callback} is the current ServiceCallbacks. Also logs if it's not.
          */
+        @SuppressWarnings("ReferenceEquality")
         private boolean isCurrent(Messenger callback, String funcName) {
             if (mCallbacksMessenger != callback) {
                 if (mState != CONNECT_STATE_DISCONNECTED) {
@@ -1841,6 +1842,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("ReferenceEquality")
         public void onLoadChildren(Messenger callback, String parentId, List list, Bundle options) {
             if (mCallbacksMessenger != callback) {
                 return;
