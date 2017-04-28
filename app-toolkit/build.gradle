@@ -20,6 +20,7 @@ buildscript {
     apply from: 'init.gradle'
     repos.addMavenRepositories(repositories)
     dependencies {
+        classpath libs.jacoco
         classpath libs.gradle
         classpath libs.kotlin.gradle_plugin
         if (enablePublicRepos) {
