@@ -34,6 +34,7 @@ import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.test.FragmentTestActivity;
+import android.support.v4.view.ViewCompat;
 import android.util.Pair;
 import android.view.View;
 
@@ -79,7 +80,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -95,7 +96,7 @@ public class FragmentAnimatorTest {
         final AnimatorFragment fragment = new AnimatorFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment, "1")
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -103,7 +104,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .remove(fragment)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -111,9 +112,9 @@ public class FragmentAnimatorTest {
     }
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
-    // This tests optimized transactions
+    // This tests reordered transactions
     @Test
-    public void showAnimatorsOptimized() throws Throwable {
+    public void showAnimatorsReordered() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -154,9 +155,9 @@ public class FragmentAnimatorTest {
     }
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
-    // This tests unoptimized transactions
+    // This tests ordered transactions
     @Test
-    public void showAnimatorsUnoptimized() throws Throwable {
+    public void showAnimatorsOrdered() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
         // One fragment with a view
@@ -164,7 +165,7 @@ public class FragmentAnimatorTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment)
                 .hide(fragment)
-                .setAllowOptimization(false)
+                .setReorderingAllowed(false)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -179,7 +180,7 @@ public class FragmentAnimatorTest {
         fm.beginTransaction()
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .show(fragment)
-                .setAllowOptimization(false)
+                .setReorderingAllowed(false)
                 .addToBackStack(null)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -210,7 +211,7 @@ public class FragmentAnimatorTest {
         final AnimatorFragment fragment = new AnimatorFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment, "1")
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -218,7 +219,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .hide(fragment)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -235,7 +236,7 @@ public class FragmentAnimatorTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment)
                 .detach(fragment)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -243,7 +244,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .attach(fragment)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -259,7 +260,7 @@ public class FragmentAnimatorTest {
         final AnimatorFragment fragment = new AnimatorFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment, "1")
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -267,7 +268,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .detach(fragment)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -286,7 +287,7 @@ public class FragmentAnimatorTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1, "1")
                 .add(R.id.fragmentContainer, fragment2, "2")
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -295,7 +296,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment3)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -326,7 +327,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .add(R.id.fragmentContainer, fragment)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -347,7 +348,7 @@ public class FragmentAnimatorTest {
         final AnimatorFragment fragment = new AnimatorFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment, "1")
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -355,7 +356,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .remove(fragment)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -364,7 +365,6 @@ public class FragmentAnimatorTest {
 
     // Ensure that adding and popping a Fragment is postponed in both directions
     // when the fragments have been marked for postponing.
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void postponedAddRemove() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
@@ -373,7 +373,7 @@ public class FragmentAnimatorTest {
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -384,7 +384,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -393,7 +393,7 @@ public class FragmentAnimatorTest {
         assertNotNull(fragment1.getView());
         assertEquals(View.VISIBLE, fragment1.getView().getVisibility());
         assertEquals(1f, fragment1.getView().getAlpha(), 0f);
-        assertTrue(fragment1.getView().isAttachedToWindow());
+        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
 
         fragment2.startPostponedEnterTransition();
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -402,7 +402,6 @@ public class FragmentAnimatorTest {
     }
 
     // Popping a postponed transaction should result in no animators
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void popPostponed() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
@@ -410,7 +409,7 @@ public class FragmentAnimatorTest {
         final AnimatorFragment fragment1 = new AnimatorFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
         assertEquals(0, fragment1.numAnimators);
@@ -422,7 +421,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
                 .replace(R.id.fragmentContainer, fragment2)
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
 
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -434,7 +433,7 @@ public class FragmentAnimatorTest {
 
         assertNotNull(fragment1.getView());
         assertEquals(1f, fragment1.getView().getAlpha(), 0f);
-        assertTrue(fragment1.getView().isAttachedToWindow());
+        assertTrue(ViewCompat.isAttachedToWindow(fragment1.getView()));
         assertTrue(fragment1.isAdded());
 
         assertNull(fragment2.getView());
@@ -459,7 +458,7 @@ public class FragmentAnimatorTest {
         fragment1.setLayoutId(R.layout.scene1);
         fm1.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1, "1")
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
@@ -469,7 +468,7 @@ public class FragmentAnimatorTest {
                 .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
                 .replace(R.id.fragmentContainer, fragment2, "2")
                 .addToBackStack(null)
-                .setAllowOptimization(true)
+                .setReorderingAllowed(true)
                 .commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule, fm1);
         FragmentTestUtil.waitForExecution(mActivityRule);
@@ -521,7 +520,6 @@ public class FragmentAnimatorTest {
         assertFragmentAnimation(replacement, expectedAnimators, true, POP_ENTER);
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private void assertExitPostponedPopEnter(AnimatorFragment fragment) throws Throwable {
         assertFragmentAnimation(fragment, 1, false, EXIT);
 
