@@ -1286,7 +1286,8 @@ public final class TvContractCompat {
         /**
          * The release date of this TV program.
          *
-         * <p>The value should be in the form of either "yyyy-MM-dd" or "yyyy".
+         * <p>The value should be in one of the following formats:
+         * "yyyy", "yyyy-MM-dd", and "yyyy-MM-ddTHH:mm:ssZ" (UTC in ISO 8601).
          *
          * <p>Type: TEXT
          */
