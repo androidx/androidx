@@ -1475,7 +1475,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @return the ItemDecoration at index position, or null if invalid index.
      */
     public ItemDecoration getItemDecorationAt(int index) {
-        if (index < 0 || index > mItemDecorations.size()) {
+        if (index < 0 || index >= mItemDecorations.size()) {
             return null;
         }
 
