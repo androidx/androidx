@@ -41,7 +41,7 @@ FRAMEWORKS_SUPPORT_SUBDIRS := \
     v14/preference \
     v17/leanback \
     v17/preference-leanback \
-    wearable
+    wear
 
 #
 # A version of FRAMEWORKS_SUPPORT_SUBDIRS that is expanded to full paths from

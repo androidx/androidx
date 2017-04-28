@@ -12778,7 +12778,7 @@ package android.support.v7.widget.util {
 
 }
 
-package android.support.wearable.widget {
+package android.support.wear.widget {
 
   public class BoxInsetLayout extends android.view.ViewGroup {
     ctor public BoxInsetLayout(android.content.Context);
@@ -12795,7 +12795,7 @@ package android.support.wearable.widget {
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
     ctor public BoxInsetLayout.LayoutParams(android.widget.FrameLayout.LayoutParams);
-    ctor public BoxInsetLayout.LayoutParams(android.support.wearable.widget.BoxInsetLayout.LayoutParams);
+    ctor public BoxInsetLayout.LayoutParams(android.support.wear.widget.BoxInsetLayout.LayoutParams);
     field public static final int BOX_ALL = 15; // 0xf
     field public static final int BOX_BOTTOM = 8; // 0x8
     field public static final int BOX_LEFT = 1; // 0x1
@@ -12805,7 +12805,7 @@ package android.support.wearable.widget {
     field public int boxedEdges;
   }
 
-  public class CurvingLayoutCallback extends android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback {
+  public class CurvingLayoutCallback extends android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback {
     ctor public CurvingLayoutCallback(android.content.Context);
     method public void adjustAnchorOffsetXY(android.view.View, float[]);
     method public void onLayoutFinished(android.view.View, android.support.v7.widget.RecyclerView);
@@ -12816,22 +12816,22 @@ package android.support.wearable.widget {
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet, int, int);
-    method public void addCallback(android.support.wearable.widget.SwipeDismissFrameLayout.Callback);
-    method public void removeCallback(android.support.wearable.widget.SwipeDismissFrameLayout.Callback);
+    method public void addCallback(android.support.wear.widget.SwipeDismissFrameLayout.Callback);
+    method public void removeCallback(android.support.wear.widget.SwipeDismissFrameLayout.Callback);
   }
 
   public static abstract class SwipeDismissFrameLayout.Callback {
     ctor public SwipeDismissFrameLayout.Callback();
-    method public void onDismissed(android.support.wearable.widget.SwipeDismissFrameLayout);
-    method public void onSwipeCanceled(android.support.wearable.widget.SwipeDismissFrameLayout);
-    method public void onSwipeStarted(android.support.wearable.widget.SwipeDismissFrameLayout);
+    method public void onDismissed(android.support.wear.widget.SwipeDismissFrameLayout);
+    method public void onSwipeCanceled(android.support.wear.widget.SwipeDismissFrameLayout);
+    method public void onSwipeStarted(android.support.wear.widget.SwipeDismissFrameLayout);
   }
 
   public class WearableLinearLayoutManager extends android.support.v7.widget.LinearLayoutManager {
-    ctor public WearableLinearLayoutManager(android.content.Context, android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback);
+    ctor public WearableLinearLayoutManager(android.content.Context, android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback);
     ctor public WearableLinearLayoutManager(android.content.Context);
-    method public android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback getLayoutCallback();
-    method public void setLayoutCallback(android.support.wearable.widget.WearableLinearLayoutManager.LayoutCallback);
+    method public android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback getLayoutCallback();
+    method public void setLayoutCallback(android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback);
   }
 
   public static abstract class WearableLinearLayoutManager.LayoutCallback {
