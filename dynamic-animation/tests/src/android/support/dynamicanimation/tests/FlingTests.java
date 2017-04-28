@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import android.support.animation.DynamicAnimation;
 import android.support.animation.FlingAnimation;
 import android.support.animation.FloatPropertyCompat;
+import android.support.animation.FloatValueHolder;
 import android.support.dynamicanimation.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
@@ -104,22 +105,11 @@ public class FlingTests {
      * Test that spring animation can work with a single property without an object.
      */
     @Test
-    public void testPropertyWithoutObject() {
-        FloatPropertyCompat propertyNoObject = new FloatPropertyCompat("") {
-            private float mValue = 0f;
-            @Override
-            public float getValue(Object object) {
-                return mValue;
-            }
+    public void testFloatValueHolder() {
+        FloatValueHolder floatValueHolder = new FloatValueHolder();
+        assertEquals(0.0f, floatValueHolder.getValue());
 
-            @Override
-            public void setValue(Object object, float value) {
-                // New value <= value from last frame
-                assertTrue(mValue >= value);
-                mValue = value;
-            }
-        };
-        final FlingAnimation anim = new FlingAnimation(propertyNoObject);
+        final FlingAnimation anim = new FlingAnimation(floatValueHolder).setStartVelocity(-2500);
 
         DynamicAnimation.OnAnimationEndListener listener = mock(
                 DynamicAnimation.OnAnimationEndListener.class);
@@ -127,7 +117,7 @@ public class FlingTests {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                anim.setStartVelocity(-2500).start();
+                anim.start();
             }
         });
         verify(listener, timeout(1000)).onAnimationEnd(eq(anim), eq(false), floatThat(
@@ -141,11 +131,11 @@ public class FlingTests {
      */
     @Test
     public void testFriction() {
-        FloatPropertyCompat propertyNoObject = mock(FloatPropertyCompat.class);
+        FloatValueHolder floatValueHolder = new FloatValueHolder();
         float lowFriction = 0.5f;
         float highFriction = 2f;
-        final FlingAnimation animLowFriction = new FlingAnimation(propertyNoObject);
-        final FlingAnimation animHighFriction = new FlingAnimation(propertyNoObject);
+        final FlingAnimation animLowFriction = new FlingAnimation(floatValueHolder);
+        final FlingAnimation animHighFriction = new FlingAnimation(floatValueHolder);
 
         animHighFriction.setFriction(highFriction);
         animLowFriction.setFriction(lowFriction);
@@ -184,11 +174,11 @@ public class FlingTests {
      */
     @Test
     public void testVelocityThreshold() {
-        FloatPropertyCompat propertyNoObject = mock(FloatPropertyCompat.class);
+        FloatValueHolder floatValueHolder = new FloatValueHolder();
         float lowThreshold = 50f;
         final float highThreshold = 1000f;
-        final FlingAnimation animLowThreshold = new FlingAnimation(propertyNoObject);
-        final FlingAnimation animHighThreshold = new FlingAnimation(propertyNoObject);
+        final FlingAnimation animLowThreshold = new FlingAnimation(floatValueHolder);
+        final FlingAnimation animHighThreshold = new FlingAnimation(floatValueHolder);
 
         animHighThreshold.setVelocityThreshold(highThreshold);
         animHighThreshold.addUpdateListener(new DynamicAnimation.OnAnimationUpdateListener() {
