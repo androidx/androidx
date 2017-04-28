@@ -1328,8 +1328,7 @@ public final class TvContractCompat {
         /**
          * The URI for the preview video.
          *
-         * <p>This is only relevant to {@link Channels#TYPE_PREVIEW}. The data in the column must be
-         * a URL, or a URI in one of the following formats:
+         * <p>The data in the column must be a URL, or a URI in one of the following formats:
          *
          * <ul>
          * <li>content ({@link android.content.ContentResolver#SCHEME_CONTENT})</li>
@@ -1345,9 +1344,8 @@ public final class TvContractCompat {
         String COLUMN_PREVIEW_VIDEO_URI = "preview_video_uri";
 
         /**
-         * The last playback position (in milliseconds) of the preview video.
-         *
-         * <p>This is only relevant to {@link Channels#TYPE_PREVIEW}.
+         * The last playback position (in milliseconds) of the original content of this preview
+         * program.
          *
          * <p>Can be empty.
          *
@@ -1357,9 +1355,7 @@ public final class TvContractCompat {
                 "last_playback_position_millis";
 
         /**
-         * The duration (in milliseconds) of the preview video.
-         *
-         * <p>This is only relevant to {@link Channels#TYPE_PREVIEW}.
+         * The duration (in milliseconds) of the original content of this preview program.
          *
          * <p>Can be empty.
          *
