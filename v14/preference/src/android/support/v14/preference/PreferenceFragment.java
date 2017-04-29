@@ -218,7 +218,7 @@ public abstract class PreferenceFragment extends Fragment implements
         getActivity().getTheme().resolveAttribute(
                 android.support.v7.preference.R.attr.preferenceTheme, tv, true);
         final int theme = tv.resourceId;
-        if (theme <= 0) {
+        if (theme == 0) {
             throw new IllegalStateException("Must specify preferenceTheme in theme");
         }
         mStyledContext = new ContextThemeWrapper(getActivity(), theme);

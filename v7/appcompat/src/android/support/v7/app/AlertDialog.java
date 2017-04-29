@@ -106,7 +106,8 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
     }
 
     static int resolveDialogTheme(@NonNull Context context, @StyleRes int resid) {
-        if (resid >= 0x01000000) {   // start of real resource IDs.
+        // Check to see if this resourceId has a valid package ID.
+        if (((resid >>> 24) & 0x000000ff) >= 0x00000001) {   // start of real resource IDs.
             return resid;
         } else {
             TypedValue outValue = new TypedValue();
