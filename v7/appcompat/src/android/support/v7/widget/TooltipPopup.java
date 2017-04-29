@@ -146,7 +146,7 @@ class TooltipPopup {
             final Resources res = mContext.getResources();
             final int statusBarHeight;
             int resourceId = res.getIdentifier("status_bar_height", "dimen", "android");
-            if (resourceId > 0) {
+            if (resourceId != 0) {
                 statusBarHeight = res.getDimensionPixelSize(resourceId);
             } else {
                 statusBarHeight = 0;
