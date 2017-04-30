@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"‏לחצן הפעלת Cast. מנותק"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"‏לחצן הפעלת Cast. מתחבר"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"‏לחצן הפעלת Cast. מחובר"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"העבר אל"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"העברה אל"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"מחפש מכשירים"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"נתק"</string>
     <string name="mr_controller_stop_casting" msgid="8857886794086583226">"הפסק את ההעברה"</string>
