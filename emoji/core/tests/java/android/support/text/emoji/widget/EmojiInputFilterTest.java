@@ -46,17 +46,16 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class EmojiInputFilterTest {
 
-    private TextView mTextView;
     private EmojiInputFilter mInputFilter;
     private EmojiCompat mEmojiCompat;
 
     @Before
     public void setup() {
-        mTextView = mock(TextView.class);
+        final TextView textView = mock(TextView.class);
         mEmojiCompat = mock(EmojiCompat.class);
         EmojiCompat.reset(mEmojiCompat);
         when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCESS);
-        mInputFilter = new EmojiInputFilter(mTextView);
+        mInputFilter = new EmojiInputFilter(textView);
     }
 
     @Test

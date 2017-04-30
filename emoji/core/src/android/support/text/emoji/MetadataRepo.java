@@ -21,6 +21,7 @@ import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.text.emoji.flatbuffer.MetadataList;
@@ -35,6 +36,7 @@ import java.nio.ByteBuffer;
  * Class to hold the emoji metadata required to process and draw emojis.
  */
 @AnyThread
+@RequiresApi(19)
 public final class MetadataRepo {
     /**
      * The default children size of the root node.

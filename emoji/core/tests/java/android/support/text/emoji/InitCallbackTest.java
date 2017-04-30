@@ -21,7 +21,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.TestConfigBuilder.TestConfig;
@@ -51,6 +53,7 @@ public class InitCallbackTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);
@@ -70,11 +73,12 @@ public class InitCallbackTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback_whenOnFailCalledByLoader() {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.MetadataLoader loader = new EmojiCompat.MetadataLoader() {
             @Override
-            public void load(EmojiCompat.LoaderCallback loaderCallback) {
+            public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
                 loaderCallback.onFailed(new RuntimeException(""));
             }
         };
@@ -88,11 +92,12 @@ public class InitCallbackTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback_whenMetadataRepoIsNull() {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.MetadataLoader loader = new EmojiCompat.MetadataLoader() {
             @Override
-            public void load(EmojiCompat.LoaderCallback loaderCallback) {
+            public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
                 loaderCallback.onLoaded(null);
             }
         };
@@ -106,6 +111,7 @@ public class InitCallbackTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testUnregisterInitCallback_doesNotInteractWithCallback()
             throws InterruptedException {
         // will be registered

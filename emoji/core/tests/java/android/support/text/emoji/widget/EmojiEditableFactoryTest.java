@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import android.annotation.SuppressLint;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.EmojiMetadata;
@@ -72,6 +73,7 @@ public class EmojiEditableFactoryTest {
         assertSame(spans[0], span);
     }
 
+    @SuppressLint("PrivateApi")
     @Test
     public void testNewEditable_returnsEmojiSpannableIfWatcherClassExists() {
         Class clazz = null;

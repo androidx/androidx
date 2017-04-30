@@ -18,6 +18,7 @@ package android.support.text.emoji.widget;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
 import android.support.text.emoji.EmojiCompat.InitCallback;
@@ -39,6 +40,7 @@ import java.lang.ref.WeakReference;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@RequiresApi(19)
 final class EmojiInputFilter implements android.text.InputFilter {
     private final TextView mTextView;
     private InitCallback mInitCallback;

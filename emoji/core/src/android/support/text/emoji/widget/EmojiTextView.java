@@ -23,7 +23,8 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 /**
- * TextView widget enhanced with emoji capability by using {@link EmojiTextViewHelper}.
+ * TextView widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When used
+ * on devices running API 18 or below, this widget acts as a regular {@link TextView}.
  */
 public class EmojiTextView extends TextView {
     private EmojiTextViewHelper mEmojiTextViewHelper;

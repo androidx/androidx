@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
 import android.text.method.TransformationMethod;
@@ -31,6 +32,7 @@ import android.view.View;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
+@RequiresApi(19)
 class EmojiTransformationMethod implements TransformationMethod {
     private final TransformationMethod mTransformationMethod;
 

@@ -19,6 +19,7 @@ package android.support.text.emoji.bundled;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.text.emoji.EmojiCompat;
 import android.support.text.emoji.MetadataRepo;
 import android.support.v4.util.Preconditions;
@@ -50,6 +51,7 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         @Override
+        @RequiresApi(19)
         public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "loaderCallback cannot be null");
             final InitRunnable runnable = new InitRunnable(mContext, loaderCallback);
@@ -59,6 +61,7 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
         }
     }
 
+    @RequiresApi(19)
     private static class InitRunnable implements Runnable {
         private static final String FONT_NAME = "NotoColorEmojiCompat.ttf";
         private final EmojiCompat.LoaderCallback mLoaderCallback;

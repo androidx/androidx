@@ -19,6 +19,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.Preconditions;
@@ -28,6 +29,7 @@ import android.text.style.ReplacementSpan;
  * Base span class for the emoji replacement. When an emoji is found and needs to be replaced in a
  * CharSequence, an instance of this class is added to the CharSequence.
  */
+@RequiresApi(19)
 public abstract class EmojiSpan extends ReplacementSpan {
 
     /**
