@@ -22,8 +22,8 @@
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"ტრანსლირების ღილაკი. გათიშული"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"ტრანსლირების ღილაკი. მიმდინარეობს დაკავშირება"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"ტრანსლირების ღილაკი. დაკავშირებული"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"ტრანსლირებული"</string>
-    <string name="mr_chooser_searching" msgid="6349900579507521956">"მიმდინარეობს მოწყობილობების მოძიება"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"ტრანსლირება:"</string>
+    <string name="mr_chooser_searching" msgid="6349900579507521956">"მოწყობილობების მოძიება..."</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"კავშირის გაწყვეტა"</string>
     <string name="mr_controller_stop_casting" msgid="8857886794086583226">"ტრანსლირების შეწყვეტა"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"დახურვა"</string>
