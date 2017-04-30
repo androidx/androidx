@@ -18,6 +18,7 @@ package android.support.text.emoji;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.MetadataRepo.Node;
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class MetadataRepoTest {
 
     MetadataRepo mMetadataRepo;
@@ -38,17 +40,17 @@ public class MetadataRepoTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testPut_withNullMetadata() throws Exception {
+    public void testPut_withNullMetadata() {
         mMetadataRepo.put(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPut_withEmptyKeys() throws Exception {
+    public void testPut_withEmptyKeys() {
         mMetadataRepo.put(new TestEmojiMetadata(new int[0]));
     }
 
     @Test
-    public void testPut_withSingleCodePointMapping() throws Exception {
+    public void testPut_withSingleCodePointMapping() {
         final int[] codePoint = new int[]{1};
         final TestEmojiMetadata metadata = new TestEmojiMetadata(codePoint);
         mMetadataRepo.put(metadata);
@@ -56,7 +58,7 @@ public class MetadataRepoTest {
     }
 
     @Test
-    public void testPut_withMultiCodePointsMapping() throws Exception {
+    public void testPut_withMultiCodePointsMapping() {
         final int[] codePoint = new int[]{1, 2, 3, 4};
         final TestEmojiMetadata metadata = new TestEmojiMetadata(codePoint);
         mMetadataRepo.put(metadata);
@@ -69,7 +71,7 @@ public class MetadataRepoTest {
     }
 
     @Test
-    public void testPut_sequentialCodePoints() throws Exception {
+    public void testPut_sequentialCodePoints() {
         final int[] codePoint1 = new int[]{1, 2, 3, 4};
         final EmojiMetadata metadata1 = new TestEmojiMetadata(codePoint1);
 

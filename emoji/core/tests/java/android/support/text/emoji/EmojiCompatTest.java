@@ -42,6 +42,7 @@ import static android.support.text.emoji.util.Emoji.EMOJI_WITH_ZWJ;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmoji;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiAt;
 import static android.support.text.emoji.util.EmojiMatcher.hasEmojiCount;
+import static android.support.text.emoji.util.KeyboardUtil.del;
 
 import static junit.framework.TestCase.assertFalse;
 
@@ -53,25 +54,35 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.EmojiCompat.Config;
 import android.support.text.emoji.util.Emoji.EmojiMapping;
 import android.support.text.emoji.util.TestString;
 import android.text.Editable;
+import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
+import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,51 +96,53 @@ public class EmojiCompatTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testGet_throwsException() throws Exception {
+    public void testGet_throwsException() {
         EmojiCompat.reset((EmojiCompat) null);
         EmojiCompat.get();
     }
 
     @Test
-    public void testProcess_doesNothing_withNullCharSequence() throws Exception {
+    public void testProcess_doesNothing_withNullCharSequence() {
         assertNull(EmojiCompat.get().process(null));
     }
 
     @Test
-    public void testProcess_returnsEmptySpanned_withEmptyString() throws Exception {
+    public void testProcess_returnsEmptySpanned_withEmptyString() {
         final CharSequence charSequence = EmojiCompat.get().process("");
         assertNotNull(charSequence);
         assertEquals(0, charSequence.length());
         assertThat(charSequence, not(hasEmoji()));
     }
 
+    @SuppressLint("Range")
     @Test(expected = IllegalArgumentException.class)
-    public void testProcess_withNegativeStartValue() throws Exception {
+    public void testProcess_withNegativeStartValue() {
         EmojiCompat.get().process("a", -1, 1);
     }
 
+    @SuppressLint("Range")
     @Test(expected = IllegalArgumentException.class)
-    public void testProcess_withNegativeEndValue() throws Exception {
+    public void testProcess_withNegativeEndValue() {
         EmojiCompat.get().process("a", 1, -1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testProcess_withStartSmallerThanEndValue() throws Exception {
+    public void testProcess_withStartSmallerThanEndValue() {
         EmojiCompat.get().process("aa", 1, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testProcess_withStartGreaterThanLength() throws Exception {
+    public void testProcess_withStartGreaterThanLength() {
         EmojiCompat.get().process("a", 2, 2);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testProcess_withEndGreaterThanLength() throws Exception {
+    public void testProcess_withEndGreaterThanLength() {
         EmojiCompat.get().process("a", 0, 2);
     }
 
     @Test
-    public void testProcessWithStartEnd_withNoOpValues() throws Exception {
+    public void testProcessWithStartEnd_withNoOpValues() {
         final Spannable spannable = new SpannableString(new TestString('a')
                 .withPrefix().withSuffix().toString());
         // early return check
@@ -139,9 +152,8 @@ public class EmojiCompatTest {
                 spannable.length()));
     }
 
-
     @Test
-    public void testProcess_doesNotAddEmojiSpan() throws Exception {
+    public void testProcess_doesNotAddEmojiSpan() {
         final String string = "abc";
         final CharSequence charSequence = EmojiCompat.get().process(string);
         assertNotNull(charSequence);
@@ -150,80 +162,109 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testProcess_addsSingleCodePointEmoji() throws Exception {
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testProcess_returnsSameCharSequence_pre19() {
+        assertNull(EmojiCompat.get().process(null));
+
+        CharSequence testString = "abc";
+        assertSame(testString, EmojiCompat.get().process(testString));
+
+        testString = new SpannableString("abc");
+        assertSame(testString, EmojiCompat.get().process(testString));
+
+        testString = new TestString(new int[]{CHAR_DEFAULT_EMOJI_STYLE}).toString();
+        assertSame(testString, EmojiCompat.get().process(testString));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsSingleCodePointEmoji() {
         assertCodePointMatch(EMOJI_SINGLE_CODEPOINT);
     }
 
     @Test
-    public void testProcess_addsFlagEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsFlagEmoji() {
         assertCodePointMatch(EMOJI_FLAG);
     }
 
     @Test
-    public void testProcess_addsUnknownFlagEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsUnknownFlagEmoji() {
         assertCodePointMatch(EMOJI_UNKNOWN_FLAG);
     }
 
     @Test
-    public void testProcess_addsRegionalIndicatorSymbol() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsRegionalIndicatorSymbol() {
         assertCodePointMatch(EMOJI_REGIONAL_SYMBOL);
     }
 
     @Test
-    public void testProcess_addsKeyCapEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsKeyCapEmoji() {
         assertCodePointMatch(EMOJI_DIGIT_KEYCAP);
     }
 
     @Test
-    public void testProcess_doesNotAddEmojiForNumbers() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_doesNotAddEmojiForNumbers() {
         assertCodePointDoesNotMatch(new int[] {CHAR_DIGIT});
     }
 
     @Test
-    public void testProcess_doesNotAddEmojiForNumbers_1() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_doesNotAddEmojiForNumbers_1() {
         final TestString string = new TestString(EMOJI_SINGLE_CODEPOINT).append('1', 'f');
         CharSequence charSequence = EmojiCompat.get().process(string.toString());
         assertThat(charSequence, hasEmojiCount(1));
     }
 
     @Test
-    public void testProcess_addsVariantSelectorEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsVariantSelectorEmoji() {
         assertCodePointMatch(EMOJI_DIGIT_ES);
     }
 
     @Test
-    public void testProcess_doesNotAddVariantSelectorTextStyle() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_doesNotAddVariantSelectorTextStyle() {
         assertCodePointDoesNotMatch(new int[]{CHAR_DIGIT, CHAR_VS_TEXT});
     }
 
     @Test
-    public void testProcess_addsVariantSelectorAndKeyCapEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsVariantSelectorAndKeyCapEmoji() {
         assertCodePointMatch(EMOJI_DIGIT_ES_KEYCAP);
     }
 
     @Test
-    public void testProcess_doesNotAddEmoji_forVariantBaseWithoutSelector() throws Exception {
+    public void testProcess_doesNotAddEmoji_forVariantBaseWithoutSelector() {
         assertCodePointDoesNotMatch(new int[]{CHAR_DIGIT});
     }
 
     @Test
-    public void testProcess_addsAsteriskKeyCapEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsAsteriskKeyCapEmoji() {
         assertCodePointMatch(EMOJI_ASTERISK_KEYCAP);
     }
 
     @Test
-    public void testProcess_addsSkinModifierEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsSkinModifierEmoji() {
         assertCodePointMatch(EMOJI_SKIN_MODIFIER);
         assertCodePointMatch(EMOJI_SKIN_MODIFIER_TYPE_ONE);
     }
 
     @Test
-    public void testProcess_addsSkinModifierEmoji_withVariantSelector() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsSkinModifierEmoji_withVariantSelector() {
         assertCodePointMatch(EMOJI_SKIN_MODIFIER_WITH_VS);
     }
 
     @Test
-    public void testProcess_addsSkinModifierEmoji_270c_withVariantSelector() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsSkinModifierEmoji_270c_withVariantSelector() {
         // 0x270c is a Standardized Variant Base, Emoji Modifier Base and also Emoji
         // therefore it is different than i.e. 0x1f3c3. The code actually failed for this test
         // at first.
@@ -231,26 +272,30 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testProcess_defaultStyleDoesNotAddSpan() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_defaultStyleDoesNotAddSpan() {
         assertCodePointDoesNotMatch(new int[]{CHAR_DEFAULT_TEXT_STYLE});
         assertCodePointMatch(DEFAULT_TEXT_STYLE);
     }
 
     @Test
-    public void testProcess_defaultEmojiStyle_withTextStyleVs() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_defaultEmojiStyle_withTextStyleVs() {
         assertCodePointMatch(EMOJI_SINGLE_CODEPOINT.id(),
                 new int[]{CHAR_DEFAULT_EMOJI_STYLE, CHAR_VS_EMOJI});
         assertCodePointDoesNotMatch(new int[]{CHAR_DEFAULT_EMOJI_STYLE, CHAR_VS_TEXT});
     }
 
     @Test
-    public void testProcess_genderEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_genderEmoji() {
         assertCodePointMatch(EMOJI_GENDER);
         assertCodePointMatch(EMOJI_GENDER_WITHOUT_VS);
     }
 
     @Test
-    public void testProcess_standardizedVariantEmojiExceptions() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_standardizedVariantEmojiExceptions() {
         final int[][] exceptions = new int[][]{
                 {0x2600, 0xF034D},
                 {0x2601, 0xF0167},
@@ -273,12 +318,14 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testProcess_addsZwjEmoji() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsZwjEmoji() {
         assertCodePointMatch(EMOJI_WITH_ZWJ);
     }
 
     @Test
-    public void testProcess_doesNotAddEmojiForNumbersAfterZwjEmo() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_doesNotAddEmojiForNumbersAfterZwjEmo() {
         TestString string = new TestString(EMOJI_WITH_ZWJ).append(0x20, 0x2B, 0x31)
                 .withSuffix().withPrefix();
         CharSequence charSequence = EmojiCompat.get().process(string.toString());
@@ -292,7 +339,8 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testProcess_withAppend() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_withAppend() {
         final Editable editable = new SpannableStringBuilder(new TestString('a').withPrefix()
                 .withSuffix().toString());
         final int start = 1;
@@ -304,7 +352,7 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testProcess_doesNotCreateSpannable_ifNoEmoji() throws Exception {
+    public void testProcess_doesNotCreateSpannable_ifNoEmoji() {
         CharSequence processed = EmojiCompat.get().process("abc");
         assertNotNull(processed);
         assertThat(processed, instanceOf(String.class));
@@ -315,7 +363,8 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testProcess_reprocess() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_reprocess() {
         final String string = new TestString(EMOJI_SINGLE_CODEPOINT)
                 .append(EMOJI_SINGLE_CODEPOINT)
                 .append(EMOJI_SINGLE_CODEPOINT)
@@ -326,9 +375,7 @@ public class EmojiCompatTest {
 
         final EmojiSpan[] spans = processed.getSpans(0, processed.length(), EmojiSpan.class);
         final Set<EmojiSpan> spanSet = new HashSet<>();
-        for (int i = 0; i < spans.length; i++) {
-            spanSet.add(spans[i]);
-        }
+        Collections.addAll(spanSet, spans);
 
         processed = (Spannable) EmojiCompat.get().process(processed);
         assertThat(processed, hasEmojiCount(3));
@@ -339,12 +386,13 @@ public class EmojiCompatTest {
         }
     }
 
+    @SuppressLint("Range")
     @Test(expected = IllegalArgumentException.class)
     public void testProcess_throwsException_withMaxEmojiSetToNegative() {
         final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
 
         final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
-                -1 /**maxEmojiCount**/);
+                -1 /*maxEmojiCount*/);
 
         assertThat(processed, not(hasEmoji()));
     }
@@ -354,23 +402,25 @@ public class EmojiCompatTest {
         final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
 
         final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
-                0 /**maxEmojiCount**/);
+                0 /*maxEmojiCount*/);
 
         assertThat(processed, not(hasEmoji()));
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withMaxEmojiSetToOne() {
         final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
 
         final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
-                1 /**maxEmojiCount**/);
+                1 /*maxEmojiCount*/);
 
         assertThat(processed, hasEmojiCount(1));
         assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withMaxEmojiSetToLessThenExistingSpanCount() {
         final String original = new TestString(EMOJI_SINGLE_CODEPOINT)
                 .append(EMOJI_SINGLE_CODEPOINT)
@@ -385,13 +435,14 @@ public class EmojiCompatTest {
         // use the Spannable with 2 spans, but use maxEmojiCount=1, start from the beginning of
         // last (3rd) emoji
         EmojiCompat.get().process(processed, original.length() - EMOJI_SINGLE_CODEPOINT.charCount(),
-                original.length(), 1 /**maxEmojiCount**/);
+                original.length(), 1 /*maxEmojiCount*/);
 
         // expectation: there are still 2 emojis
         assertThat(processed, hasEmojiCount(2));
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withMaxEmojiSet_withExistingEmojis() {
         // test string with two emoji characters
         final String original = new TestString(EMOJI_SINGLE_CODEPOINT)
@@ -399,7 +450,7 @@ public class EmojiCompatTest {
 
         // process and add 1 EmojiSpan, maxEmojiCount=1
         CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
-                1 /**maxEmojiCount**/);
+                1 /*maxEmojiCount*/);
 
         // assert that there is a single emoji
         assertThat(processed, hasEmojiCount(1));
@@ -408,7 +459,7 @@ public class EmojiCompatTest {
 
         // call process again with the charSequence that already has 1 span
         processed = EmojiCompat.get().process(processed, EMOJI_SINGLE_CODEPOINT.charCount(),
-                processed.length(), 1 /**maxEmojiCount**/);
+                processed.length(), 1 /*maxEmojiCount*/);
 
         // assert that there is still a single emoji
         assertThat(processed, hasEmojiCount(1));
@@ -417,7 +468,7 @@ public class EmojiCompatTest {
 
         // make the same call, this time with maxEmojiCount=2
         processed = EmojiCompat.get().process(processed, EMOJI_SINGLE_CODEPOINT.charCount(),
-                processed.length(), 2 /**maxEmojiCount**/);
+                processed.length(), 2 /*maxEmojiCount*/);
 
         // assert that it contains 2 emojis
         assertThat(processed, hasEmojiCount(2));
@@ -428,20 +479,46 @@ public class EmojiCompatTest {
                         original.length()));
     }
 
-    @Test
-    public void testHasGlyph_returnsMetadata() throws Exception {
-        final String sequence = new TestString(EMOJI_FLAG).toString();
-        assertNotNull(EmojiCompat.get().hasEmojiGlyph(sequence));
+    @Test(expected = NullPointerException.class)
+    public void testHasEmojiGlyph_withNullCharSequence() {
+        EmojiCompat.get().hasEmojiGlyph(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testHasEmojiGlyph_withMetadataVersion_withNullCharSequence() {
+        EmojiCompat.get().hasEmojiGlyph(null, Integer.MAX_VALUE);
     }
 
     @Test
-    public void testHasGlyph_returnsNullForNonExistentEmoji() throws Exception {
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testHasEmojiGlyph_pre19() {
+        String sequence = new TestString(new int[]{CHAR_DEFAULT_EMOJI_STYLE}).toString();
+        assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testHasEmojiGlyph_withMetaVersion_pre19() {
+        String sequence = new TestString(new int[]{CHAR_DEFAULT_EMOJI_STYLE}).toString();
+        assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence, Integer.MAX_VALUE));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testHasEmojiGlyph_returnsTrueForExistingEmoji() {
+        final String sequence = new TestString(EMOJI_FLAG).toString();
+        assertTrue(EmojiCompat.get().hasEmojiGlyph(sequence));
+    }
+
+    @Test
+    public void testHasGlyph_returnsFalseForNonExistentEmoji() {
         final String sequence = new TestString(EMOJI_FLAG).append(0x1111).toString();
         assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence));
     }
 
     @Test
-    public void testHashGlyph_withDefaultEmojiStyles() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testHashEmojiGlyph_withDefaultEmojiStyles() {
         String sequence = new TestString(new int[]{CHAR_DEFAULT_EMOJI_STYLE}).toString();
         assertTrue(EmojiCompat.get().hasEmojiGlyph(sequence));
 
@@ -453,13 +530,21 @@ public class EmojiCompatTest {
     }
 
     @Test
-    public void testHashGlyph_withMetadataVersion() throws Exception {
+    @SdkSuppress(minSdkVersion = 19)
+    public void testHashEmojiGlyph_withMetadataVersion() {
         final String sequence = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
         assertFalse(EmojiCompat.get().hasEmojiGlyph(sequence, 0));
         assertTrue(EmojiCompat.get().hasEmojiGlyph(sequence, Integer.MAX_VALUE));
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testGetLoadState_returnsSuccess_pre19() {
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_SUCCESS);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testGetLoadState_returnsSuccessIfLoadSuccess() throws InterruptedException {
         final WaitingDataLoader metadataLoader = new WaitingDataLoader(true /*success*/);
         final Config config = new TestConfig(metadataLoader);
@@ -475,6 +560,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testGetLoadState_returnsFailIfLoadFail() throws InterruptedException {
         final WaitingDataLoader metadataLoader = new WaitingDataLoader(false/*fail*/);
         final Config config = new TestConfig(metadataLoader);
@@ -508,6 +594,7 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testUpdateEditorInfoAttrs_setsKeysIfInitialized() {
         final EditorInfo editorInfo = new EditorInfo();
         editorInfo.extras = new Bundle();
@@ -527,6 +614,39 @@ public class EmojiCompatTest {
 
         assertTrue(extras.containsKey(EmojiCompat.EDITOR_INFO_REPLACE_ALL_KEY));
         assertTrue(extras.getBoolean(EmojiCompat.EDITOR_INFO_REPLACE_ALL_KEY));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testHandleDeleteSurroundingText_pre19() {
+        final TestString testString = new TestString(EMOJI_SINGLE_CODEPOINT);
+        final InputConnection inputConnection = mock(InputConnection.class);
+        final Editable editable = spy(new SpannableStringBuilder(testString.toString()));
+
+        Selection.setSelection(editable, testString.emojiEndIndex());
+
+        reset(editable);
+        reset(inputConnection);
+        verifyNoMoreInteractions(editable);
+        verifyNoMoreInteractions(inputConnection);
+
+        // try backwards delete 1 character
+        assertFalse(
+                EmojiCompat.handleDeleteSurroundingText(inputConnection, editable, 1, 0, false));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testOnKeyDown_pre19() {
+        final TestString testString = new TestString(EMOJI_SINGLE_CODEPOINT);
+        final Editable editable = spy(new SpannableStringBuilder(testString.toString()));
+        Selection.setSelection(editable, testString.emojiEndIndex());
+        final KeyEvent event = del();
+
+        reset(editable);
+        verifyNoMoreInteractions(editable);
+
+        assertFalse(EmojiCompat.handleOnKeyDown(editable, event.getKeyCode(), event));
     }
 
     private void assertCodePointMatch(EmojiMapping emoji) {

@@ -15,6 +15,7 @@
  */
 package android.support.text.emoji.widget;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +45,7 @@ final class EmojiEditableFactory extends Editable.Factory {
 
     @Nullable private static Class<?> sWatcherClass;
 
+    @SuppressLint("PrivateApi")
     private EmojiEditableFactory() {
         try {
             String className = "android.text.DynamicLayout$ChangeWatcher";

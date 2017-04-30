@@ -25,9 +25,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.TargetApi;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.text.TextPaint;
@@ -40,6 +42,8 @@ import org.mockito.stubbing.Answer;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
+@TargetApi(19)
 public class EmojiSpanTest {
 
     @Before
@@ -48,7 +52,7 @@ public class EmojiSpanTest {
     }
 
     @Test
-    public void testGetSize() throws Exception {
+    public void testGetSize() {
         final short dimensionX = 18;
         final short dimensionY = 20;
         final int fontHeight = 10;

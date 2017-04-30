@@ -24,7 +24,8 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 /**
- * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}.
+ * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}. When used
+ * on devices running API 18 or below, this widget acts as a regular {@link EditText}.
  */
 public class EmojiEditText extends EditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;

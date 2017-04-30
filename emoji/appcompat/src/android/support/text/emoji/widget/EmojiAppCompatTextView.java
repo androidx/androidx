@@ -23,6 +23,8 @@ import android.util.AttributeSet;
 
 /**
  * AppCompatTextView widget enhanced with emoji capability by using {@link EmojiTextViewHelper}.
+ * When used on devices running API 18 or below, this widget acts as a regular
+ * {@link AppCompatTextView}.
  */
 public class EmojiAppCompatTextView extends AppCompatTextView {
     private EmojiTextViewHelper mEmojiTextViewHelper;
