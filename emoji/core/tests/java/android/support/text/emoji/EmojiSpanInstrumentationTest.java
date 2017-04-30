@@ -24,9 +24,11 @@ import static junit.framework.Assert.assertNotNull;
 
 import static org.junit.Assert.assertThat;
 
+import android.annotation.TargetApi;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.util.TestString;
@@ -44,6 +46,8 @@ import org.junit.runner.RunWith;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
+@TargetApi(19)
 public class EmojiSpanInstrumentationTest {
 
     @Rule
@@ -62,7 +66,7 @@ public class EmojiSpanInstrumentationTest {
     }
 
     @Test
-    public void testGetSize_withRelativeSizeSpan() throws Exception {
+    public void testGetSize_withRelativeSizeSpan() {
         final TestActivity activity = mActivityRule.getActivity();
         final TextView textView = (TextView) activity.findViewById(
                 android.support.text.emoji.test.R.id.text);

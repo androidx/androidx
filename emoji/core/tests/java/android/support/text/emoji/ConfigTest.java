@@ -29,9 +29,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.util.TestString;
@@ -67,6 +69,8 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
+    @TargetApi(19)
     public void testBuild_withDefaultValues() {
         final EmojiCompat.Config config = new ValidTestConfig().setReplaceAll(true);
 
@@ -93,6 +97,8 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19) //Fail callback never called for pre 19
+    @TargetApi(19)
     public void testInitCallback_callsFailCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);

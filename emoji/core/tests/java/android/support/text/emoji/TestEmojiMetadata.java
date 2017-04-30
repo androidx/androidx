@@ -15,6 +15,9 @@
  */
 package android.support.text.emoji;
 
+import android.support.annotation.RequiresApi;
+
+@RequiresApi(19)
 public class TestEmojiMetadata extends EmojiMetadata {
     private final int[] mCodePoints;
     private int mId;

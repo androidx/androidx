@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.res.AssetManager;
 import android.support.annotation.AnyThread;
 import android.support.annotation.IntRange;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.flatbuffer.MetadataList;
 
@@ -35,6 +36,7 @@ import java.nio.ByteOrder;
  */
 @RestrictTo(LIBRARY_GROUP)
 @AnyThread
+@RequiresApi(19)
 class MetadataListReader {
 
     /**
@@ -180,11 +182,11 @@ class MetadataListReader {
         }
     }
 
-    static final int toUnsignedShort(final short value) {
+    static int toUnsignedShort(final short value) {
         return value & 0xFFFF;
     }
 
-    static final long toUnsignedInt(final int value) {
+    static long toUnsignedInt(final int value) {
         return value & 0xFFFFFFFFL;
     }
 

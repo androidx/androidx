@@ -28,6 +28,8 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import android.annotation.SuppressLint;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.util.Emoji;
@@ -44,6 +46,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class SoftDeleteTest {
     private InputConnection mInputConnection;
     private TestString mTestString;
@@ -106,6 +109,7 @@ public class SoftDeleteTest {
         assertEquals(mTestString.toString(), mEditable.toString());
     }
 
+    @SuppressLint("Range")
     @Test
     public void testDelete_withInvalidLength() {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
@@ -117,6 +121,7 @@ public class SoftDeleteTest {
         assertEquals(mTestString.toString(), mEditable.toString());
     }
 
+    @SuppressLint("Range")
     @Test
     public void testDelete_withInvalidAfterLength() {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
