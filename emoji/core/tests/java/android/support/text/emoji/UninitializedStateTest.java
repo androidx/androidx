@@ -15,6 +15,7 @@
  */
 package android.support.text.emoji;
 
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.TestConfigBuilder.TestConfig;
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class UninitializedStateTest {
 
     private WaitingDataLoader mWaitingDataLoader;
@@ -45,22 +47,22 @@ public class UninitializedStateTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testHasEmojiGlyph() throws Exception {
+    public void testHasEmojiGlyph() {
         EmojiCompat.get().hasEmojiGlyph("anystring");
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testHasEmojiGlyph_withMetadataVersion() throws Exception {
+    public void testHasEmojiGlyph_withMetadataVersion() {
         EmojiCompat.get().hasEmojiGlyph("anystring", 1);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testProcess() throws Exception {
+    public void testProcess() {
         EmojiCompat.get().process("anystring");
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testProcess_withStartEnd() throws Exception {
+    public void testProcess_withStartEnd() {
         EmojiCompat.get().process("anystring", 1, 2);
     }
 }

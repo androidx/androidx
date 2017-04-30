@@ -18,6 +18,7 @@ package android.support.text.emoji;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.AnyThread;
@@ -27,6 +28,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArraySet;
@@ -136,15 +138,9 @@ public class EmojiCompat {
     private final Handler mMainHandler;
 
     /**
-     * Responsible to process a CharSequence and add the spans. @{code Null} until the time the
-     * metadata is loaded.
+     * Helper class for pre 19 compatibility.
      */
-    private EmojiProcessor mProcessor;
-
-    /**
-     * Keeps the information about emojis. Null until the time the data is loaded.
-     */
-    private MetadataRepo mMetadataRepo;
+    private final CompatInternal mHelper;
 
     /**
      * MetadataLoader instance given in the Config instance.
@@ -182,11 +178,15 @@ public class EmojiCompat {
         if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
             mInitCallbacks.addAll(config.mInitCallbacks);
         }
+        mHelper = Build.VERSION.SDK_INT < 19 ? new CompatInternal(this) : new CompatInternal19(
+                this);
         loadMetadata();
     }
 
     /**
-     * Initialize the singleton instance with a configuration.
+     * Initialize the singleton instance with a configuration. When used on devices running API 18
+     * or below, the singleton instance is immediately moved into {@link #LOAD_STATE_SUCCESS} state
+     * without loading any metadata.
      *
      * @see EmojiCompat.Config
      */
@@ -254,32 +254,10 @@ public class EmojiCompat {
             mInitLock.writeLock().unlock();
         }
 
-        try {
-            mMetadataLoader.load(new LoaderCallback() {
-                @Override
-                public void onLoaded(@NonNull MetadataRepo metadataRepo) {
-                    onMetadataLoadSuccess(metadataRepo);
-                }
-
-                @Override
-                public void onFailed(@Nullable Throwable throwable) {
-                    onMetadataLoadFailed(throwable);
-                }
-            });
-        } catch (Throwable t) {
-            onMetadataLoadFailed(t);
-        }
+        mHelper.loadMetadata();
     }
 
-    private void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
-        if (metadataRepo == null) {
-            onMetadataLoadFailed(new IllegalArgumentException("metadataRepo cannot be null"));
-            return;
-        }
-
-        mMetadataRepo = metadataRepo;
-        mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(), mReplaceAll);
-
+    private void onMetadataLoadSuccess() {
         final Collection<InitCallback> initCallbacks = new ArrayList<>();
         mInitLock.writeLock().lock();
         try {
@@ -310,6 +288,10 @@ public class EmojiCompat {
      * Registers an initialization callback. If the initialization is already completed by the time
      * the listener is added, the callback functions are called immediately. Callbacks are called on
      * the main looper.
+     * <p/>
+     * When used on devices running API 18 or below, {@link InitCallback#onInitialized()} is called
+     * without loading any metadata. In such cases {@link InitCallback#onFailed(Throwable)} is never
+     * called.
      *
      * @param initCallback the initialization callback to register, cannot be {@code null}
      *
@@ -346,7 +328,8 @@ public class EmojiCompat {
     }
 
     /**
-     * Returns loading state of the EmojiCompat instance.
+     * Returns loading state of the EmojiCompat instance. When used on devices running API 18 or
+     * below always returns {@link #LOAD_STATE_SUCCESS}.
      *
      * @return one of {@link #LOAD_STATE_LOADING}, {@link #LOAD_STATE_SUCCESS},
      * {@link #LOAD_STATE_FAILURE}
@@ -364,12 +347,7 @@ public class EmojiCompat {
      * @return {@code true} if EmojiCompat is successfully initialized
      */
     private boolean isInitialized() {
-        mInitLock.readLock().lock();
-        try {
-            return mLoadState == LOAD_STATE_SUCCESS;
-        } finally {
-            mInitLock.readLock().unlock();
-        }
+        return getLoadState() == LOAD_STATE_SUCCESS;
     }
 
     /**
@@ -398,6 +376,8 @@ public class EmojiCompat {
      * <p/>
      * If there is a selection where selection start is not equal to selection end, does not
      * delete.
+     * <p/>
+     * When used on devices running API 18 or below, always returns {@code false}.
      *
      * @param editable Editable instance passed to {@link KeyListener#onKeyDown(android.view.View,
      *                 Editable, int, KeyEvent)}
@@ -410,7 +390,11 @@ public class EmojiCompat {
      */
     public static boolean handleOnKeyDown(@NonNull final Editable editable, final int keyCode,
             final KeyEvent event) {
-        return EmojiProcessor.handleOnKeyDown(editable, keyCode, event);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return EmojiProcessor.handleOnKeyDown(editable, keyCode, event);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -420,6 +404,8 @@ public class EmojiCompat {
      * <p/>
      * If there is a selection where selection start is not equal to selection end, does not
      * delete.
+     * <p/>
+     * When used on devices running API 18 or below, always returns {@code false}.
      *
      * @param inputConnection InputConnection instance
      * @param editable TextView.Editable instance
@@ -433,12 +419,17 @@ public class EmojiCompat {
             @NonNull final InputConnection inputConnection, @NonNull final Editable editable,
             @IntRange(from = 0) final int beforeLength, @IntRange(from = 0) final int afterLength,
             final boolean inCodePoints) {
-        return EmojiProcessor.handleDeleteSurroundingText(inputConnection, editable, beforeLength,
-                afterLength, inCodePoints);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return EmojiProcessor.handleDeleteSurroundingText(inputConnection, editable,
+                    beforeLength, afterLength, inCodePoints);
+        } else {
+            return false;
+        }
     }
 
     /**
-     * Returns {@code true} if EmojiCompat is capable of rendering an emoji.
+     * Returns {@code true} if EmojiCompat is capable of rendering an emoji. When used on devices
+     * running API 18 or below, always returns {@code false}.
      *
      * @param sequence CharSequence representing the emoji
      *
@@ -449,29 +440,32 @@ public class EmojiCompat {
     public boolean hasEmojiGlyph(@NonNull final CharSequence sequence) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
         Preconditions.checkNotNull(sequence, "sequence cannot be null");
-        return mProcessor.getEmojiMetadata(sequence) != null;
+        return mHelper.hasEmojiGlyph(sequence);
     }
 
     /**
      * Returns {@code true} if EmojiCompat is capable of rendering an emoji at the given metadata
-     * version.
+     * version. When used on devices running API 18 or below, always returns {@code false}.
      *
      * @param sequence CharSequence representing the emoji
-     * @param metadataVersion the metadata version to check against
+     * @param metadataVersion the metadata version to check against, should be greater than or
+     *                        equal to {@code 0},
      *
      * @return {@code true} if EmojiCompat can render given emoji, cannot be {@code null}
      *
      * @throws IllegalStateException if not initialized yet
      */
-    public boolean hasEmojiGlyph(@NonNull final CharSequence sequence, final int metadataVersion) {
+    public boolean hasEmojiGlyph(@NonNull final CharSequence sequence,
+            @IntRange(from = 0) final int metadataVersion) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
         Preconditions.checkNotNull(sequence, "sequence cannot be null");
-        final EmojiMetadata emojiMetadata = mProcessor.getEmojiMetadata(sequence);
-        return emojiMetadata != null && emojiMetadata.getCompatAdded() <= metadataVersion;
+        return mHelper.hasEmojiGlyph(sequence, metadataVersion);
     }
 
     /**
-     * Checks a given CharSequence for emojis, and adds EmojiSpans if any emojis are found.
+     * Checks a given CharSequence for emojis, and adds EmojiSpans if any emojis are found. When
+     * used on devices running API 18 or below, returns the given {@code charSequence} without
+     * processing it.
      *
      * @param charSequence CharSequence to add the EmojiSpans
      *
@@ -497,6 +491,8 @@ public class EmojiCompat {
      * a new {@link android.text.Spannable} instance is returned. </li>
      * <li>If the given input is a Spannable, the same instance is returned. </li>
      * </ul>
+     * When used on devices running API 18 or below, returns the given {@code charSequence} without
+     * processing it.
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
@@ -526,6 +522,8 @@ public class EmojiCompat {
      * a new {@link android.text.Spannable} instance is returned. </li>
      * <li>If the given input is a Spannable, the same instance is returned. </li>
      * </ul>
+     * When used on devices running API 18 or below, returns the given {@code charSequence} without
+     * processing it.
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
@@ -566,11 +564,12 @@ public class EmojiCompat {
             return charSequence;
         }
 
-        return mProcessor.process(charSequence, start, end, maxEmojiCount);
+        return mHelper.process(charSequence, start, end, maxEmojiCount);
     }
 
     /**
-     * Updates the EditorInfo attributes in order to communicate information to Keyboards.
+     * Updates the EditorInfo attributes in order to communicate information to Keyboards. When
+     * used on devices running API 18 or below, does not update EditorInfo attributes.
      *
      * @param outAttrs EditorInfo instance passed to
      *                 {@link android.widget.TextView#onCreateInputConnection(EditorInfo)}
@@ -583,8 +582,7 @@ public class EmojiCompat {
     @RestrictTo(LIBRARY_GROUP)
     public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
         if (isInitialized() && outAttrs != null && outAttrs.extras != null) {
-            outAttrs.extras.putInt(EDITOR_INFO_METAVERSION_KEY, mMetadataRepo.getMetadataVersion());
-            outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mReplaceAll);
+            mHelper.updateEditorInfoAttrs(outAttrs);
         }
     }
 
@@ -594,6 +592,7 @@ public class EmojiCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @RequiresApi(19)
     static class SpanFactory {
         /**
          * Create EmojiSpan instance.
@@ -612,13 +611,15 @@ public class EmojiCompat {
      */
     public abstract static class InitCallback {
         /**
-         * Called when EmojiCompat is initialized and the emoji data is loaded.
+         * Called when EmojiCompat is initialized and the emoji data is loaded. When used on devices
+         * running API 18 or below, this function is always called.
          */
         public void onInitialized() {
         }
 
         /**
-         * Called when an unrecoverable error occurs during EmojiCompat initialization.
+         * Called when an unrecoverable error occurs during EmojiCompat initialization. When used on
+         * devices running API 18 or below, this function is never called.
          */
         public void onFailed(@Nullable Throwable throwable) {
         }
@@ -630,9 +631,9 @@ public class EmojiCompat {
     public interface MetadataLoader {
         /**
          * Start loading the metadata. When the loading operation is finished {@link
-         * LoaderCallback#onLoaded(MetadataRepo)} or
-         * {@link LoaderCallback#onFailed(Throwable)}
-         * should be called.
+         * LoaderCallback#onLoaded(MetadataRepo)} or {@link LoaderCallback#onFailed(Throwable)}
+         * should be called. When used on devices running API 18 or below, this function is never
+         * called.
          *
          * @param loaderCallback callback to signal the loading state
          */
@@ -807,6 +808,118 @@ public class EmojiCompat {
                     }
                     break;
             }
+        }
+    }
+
+    /**
+     * Internal helper class to behave no-op for certain functions.
+     */
+    private static class CompatInternal {
+        protected final EmojiCompat mEmojiCompat;
+
+        CompatInternal(EmojiCompat emojiCompat) {
+            mEmojiCompat = emojiCompat;
+        }
+
+        void loadMetadata() {
+            // Moves into LOAD_STATE_SUCCESS state immediately.
+            mEmojiCompat.onMetadataLoadSuccess();
+        }
+
+        boolean hasEmojiGlyph(@NonNull final CharSequence sequence) {
+            // Since no metadata is loaded, EmojiCompat cannot detect or render any emojis.
+            return false;
+        }
+
+        boolean hasEmojiGlyph(@NonNull final CharSequence sequence, final int metadataVersion) {
+            // Since no metadata is loaded, EmojiCompat cannot detect or render any emojis.
+            return false;
+        }
+
+        CharSequence process(@NonNull final CharSequence charSequence,
+                @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
+                @IntRange(from = 0) final int maxEmojiCount) {
+            // Returns the given charSequence as it is.
+            return charSequence;
+        }
+
+        void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
+            // Does not add any EditorInfo attributes.
+        }
+    }
+
+    @RequiresApi(19)
+    private static class CompatInternal19 extends CompatInternal {
+        /**
+         * Responsible to process a CharSequence and add the spans. @{code Null} until the time the
+         * metadata is loaded.
+         */
+        private volatile EmojiProcessor mProcessor;
+
+        /**
+         * Keeps the information about emojis. Null until the time the data is loaded.
+         */
+        private volatile MetadataRepo mMetadataRepo;
+
+
+        CompatInternal19(EmojiCompat emojiCompat) {
+            super(emojiCompat);
+        }
+
+        @Override
+        void loadMetadata() {
+            try {
+                mEmojiCompat.mMetadataLoader.load(new LoaderCallback() {
+                    @Override
+                    public void onLoaded(@NonNull MetadataRepo metadataRepo) {
+                        onMetadataLoadSuccess(metadataRepo);
+                    }
+
+                    @Override
+                    public void onFailed(@Nullable Throwable throwable) {
+                        mEmojiCompat.onMetadataLoadFailed(throwable);
+                    }
+                });
+            } catch (Throwable t) {
+                mEmojiCompat.onMetadataLoadFailed(t);
+            }
+        }
+
+        private void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
+            if (metadataRepo == null) {
+                mEmojiCompat.onMetadataLoadFailed(
+                        new IllegalArgumentException("metadataRepo cannot be null"));
+                return;
+            }
+
+            mMetadataRepo = metadataRepo;
+            mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(),
+                    mEmojiCompat.mReplaceAll);
+
+            mEmojiCompat.onMetadataLoadSuccess();
+        }
+
+        @Override
+        boolean hasEmojiGlyph(@NonNull CharSequence sequence) {
+            return mProcessor.getEmojiMetadata(sequence) != null;
+        }
+
+        @Override
+        boolean hasEmojiGlyph(@NonNull CharSequence sequence, int metadataVersion) {
+            final EmojiMetadata emojiMetadata = mProcessor.getEmojiMetadata(sequence);
+            return emojiMetadata != null && emojiMetadata.getCompatAdded() <= metadataVersion;
+        }
+
+        @Override
+        CharSequence process(@NonNull CharSequence charSequence, int start, int end,
+                int maxEmojiCount) {
+            return mProcessor.process(charSequence, start, end, maxEmojiCount);
+        }
+
+        @Override
+        void updateEditorInfoAttrs(@NonNull EditorInfo outAttrs) {
+            outAttrs.extras.putInt(EDITOR_INFO_METAVERSION_KEY, mMetadataRepo.getMetadataVersion());
+            outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mEmojiCompat.mReplaceAll);
         }
     }
 }

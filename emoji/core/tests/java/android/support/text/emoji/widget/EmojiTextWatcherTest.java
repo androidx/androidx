@@ -41,16 +41,15 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class EmojiTextWatcherTest {
 
-    private EditText mEditText;
     private EmojiTextWatcher mTextWatcher;
     private EmojiCompat mEmojiCompat;
 
     @Before
     public void setup() {
-        mEditText = mock(EditText.class);
+        final EditText editText = mock(EditText.class);
         mEmojiCompat = mock(EmojiCompat.class);
         EmojiCompat.reset(mEmojiCompat);
-        mTextWatcher = new EmojiTextWatcher(mEditText);
+        mTextWatcher = new EmojiTextWatcher(editText);
     }
 
     @Test

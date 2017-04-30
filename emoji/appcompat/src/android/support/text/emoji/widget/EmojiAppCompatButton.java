@@ -22,7 +22,8 @@ import android.text.InputFilter;
 import android.util.AttributeSet;
 
 /**
- * AppCompatButton widget enhanced with emoji capability by using {@link EmojiTextViewHelper}.
+ * AppCompatButton widget enhanced with emoji capability by using {@link EmojiTextViewHelper}. When
+ * used on devices running API 18 or below, this widget acts as a regular {@link AppCompatButton}.
  */
 public class EmojiAppCompatButton extends AppCompatButton {
     private EmojiTextViewHelper mEmojiTextViewHelper;

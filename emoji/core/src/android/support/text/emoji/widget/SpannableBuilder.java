@@ -143,6 +143,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
      * If previously a DynamicLayout$ChangeWatcher was wrapped in a WatcherWrapper, return the
      * correct Object that the client has set.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T[] getSpans(int queryStart, int queryEnd, Class<T> kind) {
         if (isWatcher(kind)) {

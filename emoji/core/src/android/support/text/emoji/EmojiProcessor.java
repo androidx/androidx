@@ -22,6 +22,7 @@ import android.support.annotation.AnyThread;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.widget.SpannableBuilder;
 import android.support.v4.graphics.PaintCompat;
@@ -46,6 +47,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @AnyThread
 @RestrictTo(LIBRARY_GROUP)
+@RequiresApi(19)
 final class EmojiProcessor {
 
     /**
