@@ -788,7 +788,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         }
     }
 
-    private class ActionMenuPresenterCallback implements ActionMenuPresenter.Callback {
+    private static class ActionMenuPresenterCallback implements ActionMenuPresenter.Callback {
         ActionMenuPresenterCallback() {
         }
 

@@ -347,6 +347,7 @@ class NotificationCompatJellybean {
         }
     }
 
+    @SuppressWarnings("LiteralClassName")
     private static boolean ensureActionReflectionReadyLocked() {
         if (sActionsAccessFailed) {
             return false;

@@ -185,6 +185,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         getDelegate().onStop();
     }
 
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @Override
     public <T extends View> T findViewById(@IdRes int id) {
         return getDelegate().findViewById(id);

@@ -544,6 +544,7 @@ public final class DrawableCompat {
      *
      * @see #wrap(Drawable)
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T extends Drawable> T unwrap(@NonNull Drawable drawable) {
         if (drawable instanceof DrawableWrapper) {
             return (T) ((DrawableWrapper) drawable).getWrappedDrawable();

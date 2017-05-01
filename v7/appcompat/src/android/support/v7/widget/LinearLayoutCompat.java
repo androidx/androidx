@@ -771,7 +771,7 @@ public class LinearLayoutCompat extends ViewGroup {
         // shrink them if they extend beyond our current bounds. If we skipped
         // measurement on any children, we need to measure them now.
         int delta = heightSize - mTotalLength;
-        if (skippedMeasure || delta != 0 && totalWeight > 0.0f) {
+        if (skippedMeasure || (delta != 0 && totalWeight > 0.0f)) {
             float weightSum = mWeightSum > 0.0f ? mWeightSum : totalWeight;
 
             mTotalLength = 0;
@@ -1155,7 +1155,7 @@ public class LinearLayoutCompat extends ViewGroup {
         // shrink them if they extend beyond our current bounds. If we skipped
         // measurement on any children, we need to measure them now.
         int delta = widthSize - mTotalLength;
-        if (skippedMeasure || delta != 0 && totalWeight > 0.0f) {
+        if (skippedMeasure || (delta != 0 && totalWeight > 0.0f)) {
             float weightSum = mWeightSum > 0.0f ? mWeightSum : totalWeight;
 
             maxAscent[0] = maxAscent[1] = maxAscent[2] = maxAscent[3] = -1;
