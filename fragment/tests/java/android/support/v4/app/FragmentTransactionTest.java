@@ -235,7 +235,7 @@ public class FragmentTransactionTest {
             public void run() {
                 final boolean[] ran = new boolean[1];
                 FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
-                fm.beginTransaction().postOnCommit(new Runnable() {
+                fm.beginTransaction().runOnCommit(new Runnable() {
                     @Override
                     public void run() {
                         ran[0] = true;
@@ -243,13 +243,13 @@ public class FragmentTransactionTest {
                 }).commit();
                 fm.executePendingTransactions();
 
-                assertTrue("postOnCommit runnable never ran", ran[0]);
+                assertTrue("runOnCommit runnable never ran", ran[0]);
 
                 ran[0] = false;
 
                 boolean threw = false;
                 try {
-                    fm.beginTransaction().postOnCommit(new Runnable() {
+                    fm.beginTransaction().runOnCommit(new Runnable() {
                         @Override
                         public void run() {
                             ran[0] = true;
@@ -261,9 +261,9 @@ public class FragmentTransactionTest {
 
                 fm.executePendingTransactions();
 
-                assertTrue("postOnCommit was allowed to be called for back stack transaction",
+                assertTrue("runOnCommit was allowed to be called for back stack transaction",
                         threw);
-                assertFalse("postOnCommit runnable for back stack transaction was run", ran[0]);
+                assertFalse("runOnCommit runnable for back stack transaction was run", ran[0]);
             }
         });
     }
