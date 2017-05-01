@@ -56,6 +56,10 @@ public abstract class SharedSQLiteStatement {
      */
     protected abstract String createQuery();
 
+    protected void assertNotMainThread() {
+        mDatabase.assertNotMainThread();
+    }
+
     private SupportSQLiteStatement createNewStatement() {
         String query = createQuery();
         return mDatabase.compileStatement(query);
@@ -79,6 +83,7 @@ public abstract class SharedSQLiteStatement {
      * Call this to get the statement. Must call {@link #release(SupportSQLiteStatement)} once done.
      */
     public SupportSQLiteStatement acquire() {
+        assertNotMainThread();
         return getStmt(mLock.compareAndSet(false, true));
     }
 

@@ -125,7 +125,7 @@ public class MigrationTestHelper extends TestWatcher {
         SchemaBundle schemaBundle = loadSchema(version);
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mContext, name, mOpenFactory, container);
+                mContext, name, mOpenFactory, container, true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash());
@@ -167,7 +167,7 @@ public class MigrationTestHelper extends TestWatcher {
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         container.addMigrations(migrations);
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mContext, name, mOpenFactory, container);
+                mContext, name, mOpenFactory, container, true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 schemaBundle.getDatabase().getIdentityHash());

@@ -50,22 +50,30 @@ public class DatabaseConfiguration {
     public final RoomDatabase.MigrationContainer migrationContainer;
 
     /**
+     * Whether Room should throw an exception for queries run on the main thread.
+     */
+    public final boolean allowMainThreadQueries;
+
+    /**
      * Creates a database configuration with the given values.
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
      * @param sqliteOpenHelperFactory The open helper factory to use.
      * @param migrationContainer The migration container for migrations.
+     * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
             @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
-            @NonNull RoomDatabase.MigrationContainer migrationContainer) {
+            @NonNull RoomDatabase.MigrationContainer migrationContainer,
+            boolean allowMainThreadQueries) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
         this.migrationContainer = migrationContainer;
+        this.allowMainThreadQueries = allowMainThreadQueries;
     }
 }

@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.arch.persistence.db.SupportSQLiteStatement;
@@ -39,24 +40,30 @@ import java.util.concurrent.FutureTask;
 @RunWith(JUnit4.class)
 public class SharedSQLiteStatementTest {
     private SharedSQLiteStatement mSharedStmt;
-
+    RoomDatabase mDb;
     @Before
     public void init() {
-        RoomDatabase mockDb = mock(RoomDatabase.class);
-        when(mockDb.compileStatement(anyString())).thenAnswer(new Answer<SupportSQLiteStatement>() {
+        mDb = mock(RoomDatabase.class);
+        when(mDb.compileStatement(anyString())).thenAnswer(new Answer<SupportSQLiteStatement>() {
 
             @Override
             public SupportSQLiteStatement answer(InvocationOnMock invocation) throws Throwable {
                 return mock(SupportSQLiteStatement.class);
             }
         });
-        when(mockDb.getInvalidationTracker()).thenReturn(mock(InvalidationTracker.class));
-        mSharedStmt = new SharedSQLiteStatement(mockDb) {
+        when(mDb.getInvalidationTracker()).thenReturn(mock(InvalidationTracker.class));
+        mSharedStmt = new SharedSQLiteStatement(mDb) {
             @Override
             protected String createQuery() {
                 return "foo";
             }
         };
+    }
+
+    @Test
+    public void checkMainThread() {
+        mSharedStmt.acquire();
+        verify(mDb).assertNotMainThread();
     }
 
     @Test

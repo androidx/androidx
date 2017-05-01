@@ -25,12 +25,11 @@ import static org.mockito.Mockito.mock;
 
 import static java.util.Arrays.asList;
 
-import android.content.Context;
-
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.arch.persistence.room.migration.Migration;
+import android.content.Context;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -117,8 +116,19 @@ public class BuilderTest {
         assertThat(config, notNullValue());
         assertThat(config.context, is(context));
         assertThat(config.name, is(nullValue()));
+        assertThat(config.allowMainThreadQueries, is(false));
         assertThat(config.sqliteOpenHelperFactory,
                 instanceOf(FrameworkSQLiteOpenHelperFactory.class));
+    }
+
+    @Test
+    public void createAllowMainThread() {
+        Context context = mock(Context.class);
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
+                .allowMainThreadQueries()
+                .build();
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+        assertThat(config.allowMainThreadQueries, is(true));
     }
 
     @Test
@@ -135,7 +145,8 @@ public class BuilderTest {
         assertThat(config.sqliteOpenHelperFactory, is(factory));
     }
 
-    abstract static class TestDatabase extends RoomDatabase {}
+    abstract static class TestDatabase extends RoomDatabase {
+    }
 
     static class EmptyMigration extends Migration {
         EmptyMigration(int start, int end) {

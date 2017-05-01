@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room;
 
+import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteQuery;
@@ -27,6 +28,7 @@ import android.database.Cursor;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.Log;
 
@@ -50,6 +52,7 @@ public abstract class RoomDatabase {
     protected volatile SupportSQLiteDatabase mDatabase;
     private SupportSQLiteOpenHelper mOpenHelper;
     private final InvalidationTracker mInvalidationTracker;
+    private boolean mAllowMainThreadQueries;
 
     /**
      * Creates a RoomDatabase.
@@ -70,6 +73,7 @@ public abstract class RoomDatabase {
     @CallSuper
     public void init(DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
+        mAllowMainThreadQueries = configuration.allowMainThreadQueries;
     }
 
     /**
@@ -119,6 +123,22 @@ public abstract class RoomDatabase {
         }
     }
 
+    /**
+     * Asserts that we are not on the main thread.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void assertNotMainThread() {
+        if (mAllowMainThreadQueries) {
+            return;
+        }
+        if (AppToolkitTaskExecutor.getInstance().isMainThread()) {
+            throw new IllegalStateException("Cannot access database on the main thread since"
+                    + " it may potentially lock the UI for a long periods of time.");
+        }
+    }
+
     // Below, there are wrapper methods for SupportSQLiteDatabase. This helps us track which
     // methods we are using and also helps unit tests to mock this class without mocking
     // all SQLite database methods.
@@ -131,6 +151,7 @@ public abstract class RoomDatabase {
      * @return Result of the query.
      */
     public Cursor query(String sql, String[] selectionArgs) {
+        assertNotMainThread();
         return mOpenHelper.getWritableDatabase().rawQuery(sql, selectionArgs);
     }
 
@@ -141,6 +162,7 @@ public abstract class RoomDatabase {
      * @return Result of the query.
      */
     public Cursor query(SupportSQLiteQuery query) {
+        assertNotMainThread();
         return mOpenHelper.getWritableDatabase().rawQuery(query);
     }
 
@@ -151,6 +173,7 @@ public abstract class RoomDatabase {
      * @return The compiled query.
      */
     public SupportSQLiteStatement compileStatement(String sql) {
+        assertNotMainThread();
         return mOpenHelper.getWritableDatabase().compileStatement(sql);
     }
 
@@ -158,6 +181,7 @@ public abstract class RoomDatabase {
      * Wrapper for {@link SupportSQLiteDatabase#beginTransaction()}.
      */
     public void beginTransaction() {
+        assertNotMainThread();
         mInvalidationTracker.syncTriggers();
         mOpenHelper.getWritableDatabase().beginTransaction();
     }
@@ -223,6 +247,7 @@ public abstract class RoomDatabase {
 
         private SupportSQLiteOpenHelper.Factory mFactory;
         private boolean mInMemory;
+        private boolean mAllowMainThreadQueries;
         /**
          * Migrations, mapped by from-to pairs.
          */
@@ -272,6 +297,23 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Disables the main thread query check for Room.
+         * <p>
+         * Room ensures that Database is never accessed on the main thread because it may lock the
+         * main thread and trigger an ANR. If you need to access the database from the main thread,
+         * you should always use async alternatives or manually move the call to a background
+         * thread.
+         * <p>
+         * You may want to turn this check off for testing.
+         *
+         * @return this
+         */
+        public Builder<T> allowMainThreadQueries() {
+            mAllowMainThreadQueries = true;
+            return this;
+        }
+
+        /**
          * Creates the databases and initializes it.
          * <p>
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -293,7 +335,8 @@ public abstract class RoomDatabase {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
             DatabaseConfiguration configuration =
-                    new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer);
+                    new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
+                            mAllowMainThreadQueries);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
