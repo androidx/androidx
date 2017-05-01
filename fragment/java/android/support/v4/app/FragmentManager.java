@@ -397,6 +397,8 @@ public abstract class FragmentManager {
 
     /**
      * Return the currently active primary navigation fragment for this FragmentManager.
+     * The primary navigation fragment is set by fragment transactions using
+     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}.
      *
      * <p>The primary navigation fragment's
      * {@link Fragment#getChildFragmentManager() child FragmentManager} will be called first
@@ -446,8 +448,8 @@ public abstract class FragmentManager {
     public abstract static class FragmentLifecycleCallbacks {
         /**
          * Called right before the fragment's {@link Fragment#onAttach(Context)} method is called.
-         * This is a good time to inject any required dependencies for the fragment before any of
-         * the fragment's lifecycle methods are invoked.
+         * This is a good time to inject any required dependencies or perform other configuration
+         * for the fragment before any of the fragment's lifecycle methods are invoked.
          *
          * @param fm Host FragmentManager
          * @param f Fragment changing state
@@ -464,6 +466,18 @@ public abstract class FragmentManager {
          * @param context Context that the Fragment was attached to
          */
         public void onFragmentAttached(FragmentManager fm, Fragment f, Context context) {}
+
+        /**
+         * Called right before the fragment's {@link Fragment#onCreate(Bundle)} method is called.
+         * This is a good time to inject any required dependencies or perform other configuration
+         * for the fragment.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         * @param savedInstanceState Saved instance bundle from a previous instance
+         */
+        public void onFragmentPreCreated(FragmentManager fm, Fragment f,
+                Bundle savedInstanceState) {}
 
         /**
          * Called after the fragment has returned from the FragmentManager's call to
@@ -1357,6 +1371,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         dispatchOnFragmentAttached(f, mHost.getContext(), false);
 
                         if (!f.mRetaining) {
+                            dispatchOnFragmentPreCreated(f, f.mSavedFragmentState, false);
                             f.performCreate(f.mSavedFragmentState);
                             dispatchOnFragmentCreated(f, f.mSavedFragmentState, false);
                         } else {
@@ -3421,6 +3436,25 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
             if (!onlyRecursive || p.second) {
                 p.first.onFragmentAttached(this, f, context);
+            }
+        }
+    }
+
+    void dispatchOnFragmentPreCreated(Fragment f, Bundle savedInstanceState,
+            boolean onlyRecursive) {
+        if (mParent != null) {
+            FragmentManager parentManager = mParent.getFragmentManager();
+            if (parentManager instanceof FragmentManagerImpl) {
+                ((FragmentManagerImpl) parentManager)
+                        .dispatchOnFragmentPreCreated(f, savedInstanceState, true);
+            }
+        }
+        if (mLifecycleCallbacks == null) {
+            return;
+        }
+        for (Pair<FragmentLifecycleCallbacks, Boolean> p : mLifecycleCallbacks) {
+            if (!onlyRecursive || p.second) {
+                p.first.onFragmentPreCreated(this, f, savedInstanceState);
             }
         }
     }
