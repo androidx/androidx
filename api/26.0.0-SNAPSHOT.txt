@@ -3054,6 +3054,7 @@ package android.support.v17.leanback.app {
     method protected abstract int getPageCount();
     method protected abstract java.lang.CharSequence getPageDescription(int);
     method protected abstract java.lang.CharSequence getPageTitle(int);
+    method public final java.lang.CharSequence getStartButtonText();
     method public final int getTitleViewTextColor();
     method protected final boolean isLogoAnimationFinished();
     method protected void moveToNextPage();
@@ -3074,6 +3075,7 @@ package android.support.v17.leanback.app {
     method public void setDotBackgroundColor(int);
     method public final void setIconResouceId(int);
     method public final void setLogoResourceId(int);
+    method public void setStartButtonText(java.lang.CharSequence);
     method public void setTitleViewTextColor(int);
     method protected final void startEnterAnimation(boolean);
   }
@@ -3089,6 +3091,7 @@ package android.support.v17.leanback.app {
     method protected abstract int getPageCount();
     method protected abstract java.lang.CharSequence getPageDescription(int);
     method protected abstract java.lang.CharSequence getPageTitle(int);
+    method public final java.lang.CharSequence getStartButtonText();
     method public final int getTitleViewTextColor();
     method protected final boolean isLogoAnimationFinished();
     method protected void moveToNextPage();
@@ -3109,6 +3112,7 @@ package android.support.v17.leanback.app {
     method public void setDotBackgroundColor(int);
     method public final void setIconResouceId(int);
     method public final void setLogoResourceId(int);
+    method public void setStartButtonText(java.lang.CharSequence);
     method public void setTitleViewTextColor(int);
     method protected final void startEnterAnimation(boolean);
   }

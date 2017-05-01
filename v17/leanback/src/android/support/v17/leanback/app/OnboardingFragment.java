@@ -43,6 +43,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -196,20 +197,24 @@ abstract public class OnboardingFragment extends Fragment {
     int mCurrentPageIndex;
 
     @ColorInt
-    int mTitleViewTextColor = Color.TRANSPARENT;
-    boolean mTitleViewTextColorSet;
+    private int mTitleViewTextColor = Color.TRANSPARENT;
+    private boolean mTitleViewTextColorSet;
 
     @ColorInt
-    int mDescriptionViewTextColor = Color.TRANSPARENT;
-    boolean mDescriptionViewTextColorSet;
+    private int mDescriptionViewTextColor = Color.TRANSPARENT;
+    private boolean mDescriptionViewTextColorSet;
 
     @ColorInt
-    int mDotBackgroundColor = Color.TRANSPARENT;
-    boolean mDotBackgroundColorSet;
+    private int mDotBackgroundColor = Color.TRANSPARENT;
+    private boolean mDotBackgroundColorSet;
 
     @ColorInt
-    int mArrowBackgroundColor = Color.TRANSPARENT;
-    boolean mArrowBackgroundColorSet;
+    private int mArrowBackgroundColor = Color.TRANSPARENT;
+    private boolean mArrowBackgroundColorSet;
+
+    private CharSequence mStartButtonText;
+    private boolean mStartButtonTextSet;
+
 
     private AnimatorSet mAnimator;
 
@@ -324,6 +329,9 @@ abstract public class OnboardingFragment extends Fragment {
         }
         if (mArrowBackgroundColorSet) {
             mPageIndicator.setDotBackgroundColor(mArrowBackgroundColor);
+        }
+        if (mStartButtonTextSet) {
+            ((Button) mStartButton).setText(mStartButtonText);
         }
         final Context context = FragmentUtil.getContext(this);
         if (sSlideDistance == 0) {
@@ -463,6 +471,28 @@ abstract public class OnboardingFragment extends Fragment {
     @ColorInt
     public final int getArrowBackgroundColor() {
         return mArrowBackgroundColor;
+    }
+
+    /**
+     * Returns the start button text if it's set through
+     * {@link #setStartButtonText(CharSequence)}}. If no string was set, null is returned.
+     */
+    public final CharSequence getStartButtonText() {
+        return mStartButtonText;
+    }
+
+    /**
+     * Sets the text on the start button text. If not set, the default text set in
+     * {@link R.styleable#LeanbackOnboardingTheme_onboardingStartButtonStyle} will be used.
+     *
+     * @param text the start button text
+     */
+    public void setStartButtonText(CharSequence text) {
+        mStartButtonText = text;
+        mStartButtonTextSet = true;
+        if (mStartButton != null) {
+            ((Button) mStartButton).setText(mStartButtonText);
+        }
     }
 
     /**
