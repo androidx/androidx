@@ -81,10 +81,10 @@ class NotificationCompatApi26 {
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion)
                     .setRemoteInputHistory(remoteInputHistory)
-                    .setChannel(channelId)
+                    .setChannelId(channelId)
                     .setBadgeIconType(badgeIcon)
                     .setShortcutId(shortcutId)
-                    .setTimeout(timeoutMs);
+                    .setTimeoutAfter(timeoutMs);
             if (colorizedSet) {
                 mB.setColorized(colorized);
             }
