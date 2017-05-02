@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Deaktiver høj kvalitet"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Aktivér undertekster"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Deaktiver undertekster"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Tilføj billedet i billedtilstand"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Tilstand med integreret billede"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Knapperne til afspilning er synlige"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Knapperne til afspilning er skjult. Tryk på D-pad\'en for at se dem"</string>
