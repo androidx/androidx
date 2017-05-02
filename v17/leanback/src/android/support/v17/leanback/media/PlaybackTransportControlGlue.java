@@ -118,7 +118,13 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
 
     PlaybackSeekDataProvider mSeekProvider;
     boolean mSeekEnabled;
-    private PlaybackGlueHost.PlayerCallback mPlayerCallback;
+    PlaybackGlueHost.PlayerCallback mPlayerCallback;
+    boolean mBuffering = false;
+    int mVideoWidth = 0;
+    int mVideoHeight = 0;
+    boolean mErrorSet = false;
+    int mErrorCode;
+    String mErrorMessage;
 
     static class UpdatePlaybackStateHandler extends Handler {
         @Override
@@ -178,6 +184,8 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
 
         @Override
         public void onVideoSizeChanged(PlayerAdapter wrapper, int width, int height) {
+            mVideoWidth = width;
+            mVideoHeight = height;
             if (mPlayerCallback != null) {
                 mPlayerCallback.onVideoSizeChanged(width, height);
             }
@@ -185,6 +193,9 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
 
         @Override
         public void onError(PlayerAdapter wrapper, int errorCode, String errorMessage) {
+            mErrorSet = true;
+            mErrorCode = errorCode;
+            mErrorMessage = errorMessage;
             if (mPlayerCallback != null) {
                 mPlayerCallback.onError(errorCode, errorMessage);
             }
@@ -192,6 +203,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
 
         @Override
         public void onBufferingStateChanged(PlayerAdapter wrapper, boolean start) {
+            mBuffering = start;
             if (mPlayerCallback != null) {
                 mPlayerCallback.onBufferingStateChanged(start);
             }
@@ -227,7 +239,29 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
             ((PlaybackSeekUi) host).setPlaybackSeekUiClient(mPlaybackSeekUiClient);
         }
         mPlayerCallback = host.getPlayerCallback();
+        onAttachHostCallback();
         mPlayerAdapter.onAttachedToHost(host);
+    }
+
+    void onAttachHostCallback() {
+        if (mPlayerCallback != null) {
+            if (mVideoWidth != 0 && mVideoHeight != 0) {
+                mPlayerCallback.onVideoSizeChanged(mVideoWidth, mVideoHeight);
+            }
+            if (mErrorSet) {
+                mPlayerCallback.onError(mErrorCode, mErrorMessage);
+            }
+            mPlayerCallback.onBufferingStateChanged(mBuffering);
+        }
+    }
+
+    void onDetachHostCallback() {
+        mErrorSet = false;
+        mErrorCode = 0;
+        mErrorMessage = null;
+        if (mPlayerCallback != null) {
+            mPlayerCallback.onBufferingStateChanged(false);
+        }
     }
 
     @Override
@@ -245,9 +279,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
         if (getHost() instanceof PlaybackSeekUi) {
             ((PlaybackSeekUi) getHost()).setPlaybackSeekUiClient(null);
         }
-        if (mPlayerCallback != null) {
-            mPlayerCallback.onBufferingStateChanged(false);
-        }
+        onDetachHostCallback();
         mPlayerCallback = null;
         mPlayerAdapter.onDetachedFromHost();
         mPlayerAdapter.setProgressUpdatingEnabled(false);

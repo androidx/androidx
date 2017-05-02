@@ -162,4 +162,10 @@ public class MainActivity extends Activity {
         }
 
     }
+
+    @Override
+    protected void onDestroy() {
+        MovieData.clear();
+        super.onDestroy();
+    }
 }
