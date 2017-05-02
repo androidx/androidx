@@ -584,6 +584,8 @@
         <attr name="dotToArrowGap" format="reference" />
         <!-- Attribute for background color of the dots in PagingIndicator. -->
         <attr name="dotBgColor" format="reference" />
+        <!-- Attribute for the arrow color in PagingIndicator. -->
+        <attr name="arrowColor" format="reference" />
         <!-- Attribute for background color of the arrow in PagingIndicator. -->
         <attr name="arrowBgColor" format="reference" />
     </declare-styleable>
