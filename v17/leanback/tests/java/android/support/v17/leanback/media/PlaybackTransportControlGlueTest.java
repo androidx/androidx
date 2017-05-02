@@ -20,6 +20,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -211,6 +213,63 @@ public class PlaybackTransportControlGlueTest {
         impl.getCallback().onDurationChanged(impl);
         assertEquals((long) (Integer.MAX_VALUE) * 2, mGlue.getControlsRow().getDuration());
 
+    }
+
+    @Test
+    public void savePlayerAdapterEventBeforeAttachToHost() {
+        mContext = new ContextThemeWrapper(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                android.support.v17.leanback.test.R.style.Theme_Leanback);
+
+        final PlayerAdapter impl = Mockito.mock(PlayerAdapter.class);
+        when(impl.isPrepared()).thenReturn(true);
+        when(impl.getCurrentPosition()).thenReturn(123L);
+        when(impl.getDuration()).thenReturn(20000L);
+        when(impl.getBufferedPosition()).thenReturn(321L);
+        final PlaybackGlueHost.PlayerCallback hostCallback = Mockito.mock(
+                PlaybackGlueHost.PlayerCallback.class);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mGlue = new PlaybackTransportControlGlueImpl(mContext, impl);
+                // fire events before attach to host.
+                impl.getCallback().onBufferingStateChanged(impl, true);
+                impl.getCallback().onVideoSizeChanged(impl, 200, 150);
+                impl.getCallback().onError(impl, 12, "abc");
+                PlaybackGlueHostImpl host = new PlaybackGlueHostImpl();
+                host.setPlayerCallback(hostCallback);
+                mGlue.setHost(host);
+            }
+        });
+
+        // when attach to host, should pass the buffering state, video size and last error message
+        // to the host.
+        Mockito.verify(hostCallback, times(1)).onBufferingStateChanged(true);
+        Mockito.verify(hostCallback, times(1)).onVideoSizeChanged(200, 150);
+        Mockito.verify(hostCallback, times(1)).onError(12, "abc");
+        Mockito.reset(hostCallback);
+
+        final PlaybackGlueHost.PlayerCallback hostCallback2 = Mockito.mock(
+                PlaybackGlueHost.PlayerCallback.class);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                PlaybackGlueHostImpl host = new PlaybackGlueHostImpl();
+                host.setPlayerCallback(hostCallback2);
+                mGlue.setHost(host);
+            }
+        });
+
+        // when detach from host, should have host stop buffering.
+        Mockito.verify(hostCallback, times(1)).onBufferingStateChanged(false);
+        Mockito.verify(hostCallback, times(0)).onVideoSizeChanged(anyInt(), anyInt());
+        Mockito.verify(hostCallback, times(0)).onError(anyInt(), anyString());
+
+        // attach to a different host, buffering state and video size should be saved, one time
+        // error state is not saved.
+        Mockito.verify(hostCallback2, times(1)).onBufferingStateChanged(true);
+        Mockito.verify(hostCallback2, times(1)).onVideoSizeChanged(200, 150);
+        Mockito.verify(hostCallback2, times(0)).onError(anyInt(), anyString());
     }
 
 }
