@@ -469,7 +469,7 @@ public class AnimatedVectorDrawableTest {
         final Canvas c = new Canvas(bitmap);
 
         final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
-                R.drawable.animation_path_morphing_rect);
+                R.drawable.animation_path_morphing_rect2);
         avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
 
         bitmap.eraseColor(0);
