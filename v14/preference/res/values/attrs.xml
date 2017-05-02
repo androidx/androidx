@@ -50,7 +50,7 @@
         <!-- List separator height -->
         <attr name="android:dividerHeight" />
         <!-- Whether a divider is allowed to draw after the last item -->
-        <attr name="allowDividerAfterLastItem" format="boolean" />
+        <attr name="allowDividerAfterLastItem" />
     </declare-styleable>
 
 </resources>
