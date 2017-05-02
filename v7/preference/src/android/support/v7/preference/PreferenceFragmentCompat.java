@@ -252,6 +252,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                 R.styleable.PreferenceFragmentCompat_android_divider);
         final int dividerHeight = a.getDimensionPixelSize(
                 R.styleable.PreferenceFragmentCompat_android_dividerHeight, -1);
+        final boolean allowDividerAfterLastItem = a.getBoolean(
+                R.styleable.PreferenceFragmentCompat_allowDividerAfterLastItem, true);
 
         a.recycle();
 
@@ -286,6 +288,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         if (dividerHeight != -1) {
             setDividerHeight(dividerHeight);
         }
+        mDividerDecoration.setAllowDividerAfterLastItem(allowDividerAfterLastItem);
 
         listContainer.addView(mList);
         mHandler.post(mRequestFocus);
@@ -769,6 +772,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
         private Drawable mDivider;
         private int mDividerHeight;
+        private boolean mAllowDividerAfterLastItem = true;
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
@@ -802,7 +806,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             if (!dividerAllowedBelow) {
                 return false;
             }
-            boolean nextAllowed = true;
+            boolean nextAllowed = mAllowDividerAfterLastItem;
             int index = parent.indexOfChild(view);
             if (index < parent.getChildCount() - 1) {
                 final View nextView = parent.getChildAt(index + 1);
@@ -826,6 +830,10 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         public void setDividerHeight(int dividerHeight) {
             mDividerHeight = dividerHeight;
             mList.invalidateItemDecorations();
+        }
+
+        public void setAllowDividerAfterLastItem(boolean allowDividerAfterLastItem) {
+            mAllowDividerAfterLastItem = allowDividerAfterLastItem;
         }
     }
 }
