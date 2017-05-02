@@ -32,7 +32,6 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.app.TestSupportActivity;
 import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
-import android.support.v4.graphics.TypefaceCompat.TypefaceHolder;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
@@ -75,8 +74,7 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
     @Before
     public void setup() {
         mCompat = new TypefaceCompatBaseImpl(mActivityTestRule.getActivity());
-        TypefaceCompatBaseImpl.putInCache(PROVIDER, QUERY_CACHED,
-                new TypefaceHolder(Typeface.MONOSPACE, 400, false));
+        TypefaceCompatBaseImpl.putInCache(PROVIDER, QUERY_CACHED, Typeface.MONOSPACE);
     }
 
     @Test
@@ -203,9 +201,9 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
                 ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
         try {
             FontResult result = new FontResult(pfd, 0, null, 400, false /* italic */);
-            TypefaceHolder typeface = mCompat.createTypeface(Arrays.asList(result));
+            Typeface typeface = mCompat.createTypeface(Arrays.asList(result));
 
-            assertNotNull(typeface.getTypeface());
+            assertNotNull(typeface);
         } finally {
             if (file != null) {
                 file.delete();

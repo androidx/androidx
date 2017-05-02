@@ -34,7 +34,6 @@ import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesR
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
 import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
-import android.support.v4.graphics.TypefaceCompat.TypefaceHolder;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.os.TraceCompat;
@@ -75,7 +74,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     /**
      * Cache for Typeface objects dynamically loaded from assets. Currently max size is 16.
      */
-    private static final LruCache<String, TypefaceHolder> sDynamicTypefaceCache =
+    private static final LruCache<String, Typeface> sDynamicTypefaceCache =
             new LruCache<>(16);
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
@@ -98,10 +97,10 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      */
     public void create(@NonNull final FontRequest request,
             @NonNull final FontRequestCallback callback) {
-        final TypefaceHolder cachedTypeface = findFromCache(
+        final Typeface cachedTypeface = findFromCache(
                 request.getProviderAuthority(), request.getQuery());
         if (cachedTypeface != null) {
-            callback.onTypefaceRetrieved(cachedTypeface.getTypeface());
+            callback.onTypefaceRetrieved(cachedTypeface);
         }
         synchronized (sLock) {
             if (sFontsContract == null) {
@@ -117,10 +116,10 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         }
     }
 
-    private static TypefaceHolder findFromCache(String providerAuthority, String query) {
+    private static Typeface findFromCache(String providerAuthority, String query) {
         synchronized (sDynamicTypefaceCache) {
             final String key = createProviderUid(providerAuthority, query);
-            TypefaceHolder typeface = sDynamicTypefaceCache.get(key);
+            Typeface typeface = sDynamicTypefaceCache.get(key);
             if (typeface != null) {
                 return typeface;
             }
@@ -128,7 +127,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return null;
     }
 
-    static void putInCache(String providerAuthority, String query, TypefaceHolder typeface) {
+    static void putInCache(String providerAuthority, String query, Typeface typeface) {
         String key = createProviderUid(providerAuthority, query);
         synchronized (sDynamicTypefaceCache) {
             sDynamicTypefaceCache.put(key, typeface);
@@ -138,12 +137,12 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     @VisibleForTesting
     void receiveResult(FontRequest request,
             FontRequestCallback callback, int resultCode, Bundle resultData) {
-        TypefaceHolder cachedTypeface = findFromCache(
+        Typeface cachedTypeface = findFromCache(
                 request.getProviderAuthority(), request.getQuery());
         if (cachedTypeface != null) {
             // We already know the result.
             // Probably the requester requests the same font again in a short interval.
-            callback.onTypefaceRetrieved(cachedTypeface.getTypeface());
+            callback.onTypefaceRetrieved(cachedTypeface);
             return;
         }
         if (resultCode != FontsContractCompat.Columns.RESULT_CODE_OK) {
@@ -163,7 +162,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
             return;
         }
 
-        TypefaceHolder typeface = createTypeface(resultList);
+        Typeface typeface = createTypeface(resultList);
 
         if (typeface == null) {
             Log.e(TAG, "Error creating font " + request.getQuery());
@@ -172,7 +171,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
             return;
         }
         putInCache(request.getProviderAuthority(), request.getQuery(), typeface);
-        callback.onTypefaceRetrieved(typeface.getTypeface());
+        callback.onTypefaceRetrieved(typeface);
     }
 
     /**
@@ -180,7 +179,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      * @param resultList a list of results, guaranteed to be non-null and non empty.
      */
     @Override
-    public TypefaceHolder createTypeface(List<FontResult> resultList) {
+    public Typeface createTypeface(List<FontResult> resultList) {
         // When we load from file, we can only load one font so just take the first one.
         Typeface typeface = null;
         FontResult result = resultList.get(0);
@@ -198,14 +197,11 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
                 tmpFile.delete();
             }
         }
-        if (typeface == null) {
-            return null;
-        }
-        return new TypefaceHolder(typeface, result.getWeight(), result.getItalic());
+        return typeface;
     }
 
     @Override
-    public TypefaceHolder createTypeface(
+    public Typeface createTypeface(
             @NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer) {
         // When we load from file, we can only load one font so just take the first one.
         if (fonts.length < 1) {
@@ -227,10 +223,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
                 tmpFile.delete();
             }
         }
-        if (typeface == null) {
-            return null;
-        }
-        return new TypefaceHolder(typeface, font.getWeight(), font.isItalic());
+        return typeface;
     }
 
     private File copyToCacheFile(final InputStream is) {
@@ -298,23 +291,17 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
 
     @Nullable
     @Override
-    public TypefaceHolder createFromResourcesFontFile(Resources resources, int id, int style) {
+    public Typeface createFromResourcesFontFile(Resources resources, int id, int style) {
         InputStream is = null;
         try {
             is = resources.openRawResource(id);
-            Typeface baseTypeface = createTypeface(resources, is);
-            if (baseTypeface == null) {
-                return null;
-            }
-            Typeface typeface = Typeface.create(baseTypeface, style);
+            Typeface typeface = createTypeface(resources, is);
             if (typeface == null) {
                 return null;
             }
-            // TODO: Read font file metadata to determine font's weight/italic.
-            TypefaceHolder result = new TypefaceHolder(typeface, 400, false);
             final String key = createAssetUid(resources, id, style);
-            sDynamicTypefaceCache.put(key, result);
-            return result;
+            sDynamicTypefaceCache.put(key, typeface);
+            return typeface;
         } catch (IOException e) {
             // This is fine. The resource can be string type which indicates a name of Typeface.
         } finally {
@@ -324,7 +311,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     }
 
     @Nullable
-    public TypefaceHolder createFromResourcesFamilyXml(
+    public Typeface createFromResourcesFamilyXml(
             FontResourcesParserCompat.FamilyResourceEntry entry, Resources resources, int id,
             int style) {
         if (entry instanceof ProviderResourceEntry) {
@@ -335,7 +322,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         // family is FontFamilyFilesResourceEntry
         final FontFamilyFilesResourceEntry filesEntry =
                 (FontFamilyFilesResourceEntry) entry;
-        TypefaceHolder typeface = createFromResources(filesEntry, resources, id, style);
+        Typeface typeface = createFromResources(filesEntry, resources, id, style);
         if (typeface != null) {
             final String key = createAssetUid(resources, id, style);
             sDynamicTypefaceCache.put(key, typeface);
@@ -365,7 +352,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      * overriden by other implementations.
      */
     @Nullable
-    TypefaceHolder createFromResources(FontFamilyFilesResourceEntry entry, Resources resources,
+    Typeface createFromResources(FontFamilyFilesResourceEntry entry, Resources resources,
             int id, int style) {
         FontFileResourceEntry best = findBestEntry(
                 entry, ((style & Typeface.BOLD) == 0) ? 400 : 700, (style & Typeface.ITALIC) != 0);
@@ -376,15 +363,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         InputStream is = null;
         try {
             is = resources.openRawResource(best.getResourceId());
-            Typeface baseTypeface = createTypeface(resources, is);
-            if (baseTypeface == null) {
-                return null;
-            }
-            Typeface typeface = Typeface.create(baseTypeface, style);
-            if (typeface == null) {
-                return null;
-            }
-            return new TypefaceHolder(typeface, best.getWeight(), best.isItalic());
+            return createTypeface(resources, is);
         } catch (IOException e) {
             // This is fine. The resource can be string type which indicates a name of Typeface.
         } finally {
@@ -394,8 +373,8 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     }
 
     @Nullable
-    private TypefaceHolder createFromResources(ProviderResourceEntry entry) {
-        TypefaceHolder cached = findFromCache(entry.getAuthority(), entry.getQuery());
+    private Typeface createFromResources(ProviderResourceEntry entry) {
+        Typeface cached = findFromCache(entry.getAuthority(), entry.getQuery());
         if (cached != null) {
             return cached;
         }
@@ -404,9 +383,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         WaitableCallback callback =
                 new WaitableCallback(entry.getAuthority() + "/" + entry.getQuery());
         create(request, callback);
-        Typeface typeface = callback.waitWithTimeout(SYNC_FETCH_TIMEOUT_MS);
-        // TODO: Read font file metadata to determine font's weight/italic.
-        return new TypefaceHolder(typeface, 400, false);
+        return callback.waitWithTimeout(SYNC_FETCH_TIMEOUT_MS);
     }
 
     private static final class WaitableCallback extends FontRequestCallback {
@@ -499,7 +476,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     };
 
     @Override
-    public TypefaceHolder findFromCache(Resources resources, int id, int style) {
+    public Typeface findFromCache(Resources resources, int id, int style) {
         final String key = createAssetUid(resources, id, style);
         synchronized (sDynamicTypefaceCache) {
             return sDynamicTypefaceCache.get(key);
