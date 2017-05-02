@@ -80,6 +80,8 @@
         <attr name="android:divider" />
         <!-- List separator height -->
         <attr name="android:dividerHeight" />
+        <!-- Whether a divider is allowed to draw after the last item -->
+        <attr name="allowDividerAfterLastItem" format="boolean" />
     </declare-styleable>
 
     <!-- Base attributes available to PreferenceGroup. -->
