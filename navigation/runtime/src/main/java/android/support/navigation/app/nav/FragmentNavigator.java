@@ -130,7 +130,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         if (!initialNavigation && !isSingleTopReplacement) {
             ft.addToBackStack(getBackStackName(destId));
         } else if (!isSingleTopReplacement) {
-            ft.postOnCommit(new Runnable() {
+            ft.runOnCommit(new Runnable() {
                 @Override
                 public void run() {
                     dispatchOnNavigatorNavigated(destId, false);

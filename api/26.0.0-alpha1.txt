@@ -5279,7 +5279,7 @@ package android.support.v4.app {
     method public abstract android.support.v4.app.FragmentTransaction hide(android.support.v4.app.Fragment);
     method public abstract boolean isAddToBackStackAllowed();
     method public abstract boolean isEmpty();
-    method public abstract android.support.v4.app.FragmentTransaction postOnCommit(java.lang.Runnable);
+    method public abstract android.support.v4.app.FragmentTransaction runOnCommit(java.lang.Runnable);
     method public abstract android.support.v4.app.FragmentTransaction remove(android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment);
     method public abstract android.support.v4.app.FragmentTransaction replace(int, android.support.v4.app.Fragment, java.lang.String);
