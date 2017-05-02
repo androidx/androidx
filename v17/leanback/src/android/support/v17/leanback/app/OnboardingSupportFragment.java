@@ -212,6 +212,10 @@ abstract public class OnboardingSupportFragment extends Fragment {
     private boolean mDotBackgroundColorSet;
 
     @ColorInt
+    private int mArrowColor = Color.TRANSPARENT;
+    private boolean mArrowColorSet;
+
+    @ColorInt
     private int mArrowBackgroundColor = Color.TRANSPARENT;
     private boolean mArrowBackgroundColorSet;
 
@@ -329,6 +333,9 @@ abstract public class OnboardingSupportFragment extends Fragment {
         }
         if (mDotBackgroundColorSet) {
             mPageIndicator.setDotBackgroundColor(mDotBackgroundColor);
+        }
+        if (mArrowColorSet) {
+            mPageIndicator.setArrowColor(mArrowColor);
         }
         if (mArrowBackgroundColorSet) {
             mPageIndicator.setDotBackgroundColor(mArrowBackgroundColor);
@@ -452,6 +459,30 @@ abstract public class OnboardingSupportFragment extends Fragment {
     @ColorInt
     public final int getDotBackgroundColor() {
         return mDotBackgroundColor;
+    }
+
+    /**
+     * Sets the color of the arrow. This color will supersede the color set in the theme attribute
+     * {@link R.styleable#PagingIndicator_arrowColor} if provided. If none of these two are set, the
+     * arrow will have its original bitmap color.
+     *
+     * @param color the color to use for arrow background
+     */
+    public void setArrowColor(@ColorInt int color) {
+        mArrowColor = color;
+        mArrowColorSet = true;
+        if (mPageIndicator != null) {
+            mPageIndicator.setArrowColor(color);
+        }
+    }
+
+    /**
+     * Returns the color of the arrow if it's set through
+     * {@link #setArrowColor(int)}. If no color was set, transparent is returned.
+     */
+    @ColorInt
+    public final int getArrowColor() {
+        return mArrowColor;
     }
 
     /**

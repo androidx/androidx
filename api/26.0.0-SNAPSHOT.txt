@@ -3046,6 +3046,7 @@ package android.support.v17.leanback.app {
   public abstract class OnboardingFragment extends android.app.Fragment {
     ctor public OnboardingFragment();
     method public final int getArrowBackgroundColor();
+    method public final int getArrowColor();
     method protected final int getCurrentPageIndex();
     method public final int getDescriptionViewTextColor();
     method public final int getDotBackgroundColor();
@@ -3071,6 +3072,7 @@ package android.support.v17.leanback.app {
     method protected void onPageChanged(int, int);
     method public int onProvideTheme();
     method public void setArrowBackgroundColor(int);
+    method public void setArrowColor(int);
     method public void setDescriptionViewTextColor(int);
     method public void setDotBackgroundColor(int);
     method public final void setIconResouceId(int);
@@ -3083,6 +3085,7 @@ package android.support.v17.leanback.app {
   public abstract class OnboardingSupportFragment extends android.support.v4.app.Fragment {
     ctor public OnboardingSupportFragment();
     method public final int getArrowBackgroundColor();
+    method public final int getArrowColor();
     method protected final int getCurrentPageIndex();
     method public final int getDescriptionViewTextColor();
     method public final int getDotBackgroundColor();
@@ -3108,6 +3111,7 @@ package android.support.v17.leanback.app {
     method protected void onPageChanged(int, int);
     method public int onProvideTheme();
     method public void setArrowBackgroundColor(int);
+    method public void setArrowColor(int);
     method public void setDescriptionViewTextColor(int);
     method public void setDotBackgroundColor(int);
     method public final void setIconResouceId(int);
