@@ -1,20 +1,14 @@
 apply plugin: android.support.SupportLibraryPlugin
-apply plugin: 'org.anarres.jarjar'
 archivesBaseName = 'support-emoji'
 
 ext {
-    File externalRoot = new File(rootDir, '../../external')
-    emojiCompatFontDir = externalRoot.canonicalPath + '/noto-fonts/emoji-compat'
+    fontDir = project(':noto-emoji-compat').projectDir
 }
 
+evaluationDependsOn(':noto-emoji-compat')
 dependencies {
     compile project(':support-compat')
-
-    compile jarjar.repackage {
-        from files("$emojiCompatFontDir/libs/flatbuffers-java-1.6.0.jar")
-        destinationName 'flatbuffers-java-1.6.0-repacked.jar'
-        classRename 'com.google.flatbuffers.**', 'android.support.text.emoji.flatbuffer.@1'
-    }
+    compile files(project(':noto-emoji-compat').configurations.parser.artifacts.getFiles())
 
     androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
@@ -37,16 +31,17 @@ android {
 
     sourceSets {
         main.java {
-            srcDirs = ['src', "$emojiCompatFontDir/src/java"]
+            srcDirs = ['src']
         }
         main.resources {
-            srcDirs = ["$emojiCompatFontDir"]
+            srcDirs = [fontDir.getAbsolutePath()]
             includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
         }
 
         androidTest {
             assets {
-                srcDirs = ["$emojiCompatFontDir/font", "$emojiCompatFontDir/supported-emojis"]
+                srcDirs = [new File(fontDir, "font").getAbsolutePath(),
+                           new File(fontDir, "supported-emojis").getAbsolutePath()]
             }
         }
     }
