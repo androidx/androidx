@@ -173,6 +173,9 @@ project(':doclava').projectDir = new File(externalRoot, 'doclava')
 include ':jdiff'
 project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
 
+include ':noto-emoji-compat'
+project(':noto-emoji-compat').projectDir = new File(externalRoot, 'noto-fonts/emoji-compat')
+
 ///// FLATFOOT START
 
 ///// FLATFOOT END

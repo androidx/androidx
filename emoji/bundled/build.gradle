@@ -2,8 +2,7 @@ apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'support-emoji-bundled'
 
 ext {
-    File externalRoot = new File(rootDir, '../../external')
-    emojiCompatFontDir = externalRoot.absolutePath + '/noto-fonts/emoji-compat'
+    fontDir = project(':noto-emoji-compat').projectDir
 }
 
 android {
@@ -15,7 +14,7 @@ android {
 
     sourceSets {
         main.java.srcDir 'src'
-        main.assets.srcDirs "$emojiCompatFontDir/font"
+        main.assets.srcDirs new File(fontDir, "font").getAbsolutePath()
     }
 }
 
