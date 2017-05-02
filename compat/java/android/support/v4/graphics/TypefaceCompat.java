@@ -51,41 +51,11 @@ public class TypefaceCompat {
     private static final Object sLock = new Object();
 
     /**
-     * A class holds Typeface and its style information.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static class TypefaceHolder {
-        private final Typeface mTypeface;
-        // Since Typeface.getStyle() is not reliable on API 19 or before, we hold it separately.
-        private final int mWeight;
-        private final boolean mItalic;
-
-        public TypefaceHolder(Typeface typeface, int weight, boolean italic) {
-            mTypeface = typeface;
-            mWeight = weight;
-            mItalic = italic;
-        }
-
-        public Typeface getTypeface() {
-            return mTypeface;
-        }
-
-        public int getWeight() {
-            return mWeight;
-        }
-
-        public boolean isItalic() {
-            return mItalic;
-        }
-    };
-
-    /**
      * Create a Typeface from a given FontResult list.
      *
      * @param resultList a list of results, guaranteed to be non-null and non empty.
      */
-    public static TypefaceHolder createTypeface(
+    public static Typeface createTypeface(
             Context context, @NonNull List<FontResult> resultList) {
         maybeInitImpl(context);
         return sTypefaceCompatImpl.createTypeface(resultList);
@@ -93,14 +63,14 @@ public class TypefaceCompat {
 
     interface TypefaceCompatImpl {
         // Create Typeface from font file in res/font directory.
-        TypefaceHolder createFromResourcesFontFile(Resources resources, int id, int style);
+        Typeface createFromResourcesFontFile(Resources resources, int id, int style);
 
         // Create Typeface from XML which root node is "font-family"
-        TypefaceHolder createFromResourcesFamilyXml(
+        Typeface createFromResourcesFamilyXml(
                 FamilyResourceEntry entry, Resources resources, int id, int style);
 
         // For finiding cache before parsing xml data.
-        TypefaceHolder findFromCache(Resources resources, int id, int style);
+        Typeface findFromCache(Resources resources, int id, int style);
 
         /**
          * Create a Typeface from a given FontResult list.
@@ -108,8 +78,8 @@ public class TypefaceCompat {
          * @param resultList a list of results, guaranteed to be non-null and non empty.
          */
         // TODO: remove
-        TypefaceHolder createTypeface(@NonNull List<FontResult> resultList);
-        TypefaceHolder createTypeface(@NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer);
+        Typeface createTypeface(@NonNull List<FontResult> resultList);
+        Typeface createTypeface(@NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer);
     }
 
     /**
@@ -201,7 +171,7 @@ public class TypefaceCompat {
      *
      * @return null if not found.
      */
-    public static TypefaceHolder findFromCache(Resources resources, int id, int style) {
+    public static Typeface findFromCache(Resources resources, int id, int style) {
         synchronized (sLock) {
             // There is no cache if there is no impl.
             if (sTypefaceCompatImpl == null) {
@@ -216,7 +186,7 @@ public class TypefaceCompat {
      *
      * @return null if failed to create.
      */
-    public static TypefaceHolder createFromResourcesFamilyXml(
+    public static Typeface createFromResourcesFamilyXml(
             Context context, FamilyResourceEntry entry, Resources resources, int id, int style) {
         maybeInitImpl(context);
         return sTypefaceCompatImpl.createFromResourcesFamilyXml(entry, resources, id, style);
@@ -226,7 +196,7 @@ public class TypefaceCompat {
      * Used by Resources to load a font resource of type font file.
      */
     @Nullable
-    public static TypefaceHolder createFromResourcesFontFile(
+    public static Typeface createFromResourcesFontFile(
             Context context, Resources resources, int id, int style) {
         maybeInitImpl(context);
         return sTypefaceCompatImpl.createFromResourcesFontFile(resources, id, style);
@@ -235,7 +205,7 @@ public class TypefaceCompat {
     /**
      * Create a Typeface from a given FontInfo list and a map that matches them to ByteBuffers.
      */
-    public static TypefaceHolder createTypeface(Context context, @NonNull FontInfo[] fonts,
+    public static Typeface createTypeface(Context context, @NonNull FontInfo[] fonts,
             Map<Uri, ByteBuffer> uriBuffer) {
         maybeInitImpl(context);
         return sTypefaceCompatImpl.createTypeface(fonts, uriBuffer);

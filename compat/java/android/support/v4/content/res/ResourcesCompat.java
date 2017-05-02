@@ -36,7 +36,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.graphics.TypefaceCompat;
-import android.support.v4.graphics.TypefaceCompat.TypefaceHolder;
 import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -199,31 +198,28 @@ public final class ResourcesCompat {
             // Use framework support.
             return context.getResources().getFont(id);
         }
-        return loadFont(context, id, Typeface.NORMAL).getTypeface();
+        return loadFont(context, id, Typeface.NORMAL);
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public static TypefaceHolder getFont(@NonNull Context context, @FontRes int id, int style)
+    public static Typeface getFont(@NonNull Context context, @FontRes int id, int style)
             throws NotFoundException {
         if (context.isRestricted()) {
             return null;
         }
         if (BuildCompat.isAtLeastO()) {
             // Use framework support.
-            Typeface typeface = context.getResources().getFont(id);
-            return new TypefaceHolder(
-                Typeface.create(typeface, style), (style & Typeface.BOLD) == 0 ? 400 : 700,
-                (style & Typeface.ITALIC) != 0);
+            return context.getResources().getFont(id);
         }
         return loadFont(context, id, style);
     }
 
-    private static TypefaceHolder loadFont(@NonNull Context context, int id, int style) {
+    private static Typeface loadFont(@NonNull Context context, int id, int style) {
         final TypedValue value = new TypedValue();
         final Resources resources = context.getResources();
         resources.getValue(id, value, true);
-        TypefaceHolder typeface = loadFont(context, resources, value, id, style);
+        Typeface typeface = loadFont(context, resources, value, id, style);
         if (typeface != null) {
             return typeface;
         }
@@ -231,14 +227,14 @@ public final class ResourcesCompat {
                 + Integer.toHexString(id));
     }
 
-    private static TypefaceHolder loadFont(
+    private static Typeface loadFont(
             @NonNull Context context, Resources wrapper, TypedValue value, int id, int style) {
         if (value.string == null) {
             throw new NotFoundException("Resource \"" + wrapper.getResourceName(id) + "\" ("
                     + Integer.toHexString(id) + ") is not a Font: " + value);
         }
 
-        TypefaceHolder cached = TypefaceCompat.findFromCache(wrapper, id, style);
+        Typeface cached = TypefaceCompat.findFromCache(wrapper, id, style);
         if (cached != null) {
             return cached;
         }

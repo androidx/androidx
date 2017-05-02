@@ -27,10 +27,8 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.graphics.TypefaceCompat.TypefaceHolder;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
-import android.text.TextPaint;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -98,7 +96,7 @@ class AppCompatTextHelper {
         ColorStateList textColor = null;
         ColorStateList textColorHint = null;
         ColorStateList textColorLink = null;
-        TypefaceHolder fontTypeface = null;
+        Typeface fontTypeface = null;
         int style = Typeface.NORMAL;
 
         // First check TextAppearance's textAllCaps value
@@ -188,13 +186,7 @@ class AppCompatTextHelper {
             setAllCaps(allCaps);
         }
         if (fontTypeface != null) {
-            mView.setTypeface(fontTypeface.getTypeface());
-            TextPaint paint = mView.getPaint();
-            boolean needFakeBold =
-                    (style & Typeface.BOLD) != 0 && fontTypeface.getWeight() < 600;
-            paint.setFakeBoldText(needFakeBold);
-            boolean needFakeItalic = (style & Typeface.ITALIC) != 0 && !fontTypeface.isItalic();
-            paint.setTextSkewX(needFakeItalic ? -0.25f : 0);
+            mView.setTypeface(fontTypeface, style);
         }
 
         mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
