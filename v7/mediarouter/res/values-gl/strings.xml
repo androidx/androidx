@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Botón de emitir. Desconectado"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Botón de emitir. Conectando"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"Botón de emitir. Conectado"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Emitir en"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Emitir a"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Buscando dispositivos"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Desconectar"</string>
     <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Deter emisión"</string>
