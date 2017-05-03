@@ -17,22 +17,18 @@
 package android.support.v7.widget;
 
 import android.content.Context;
-import android.support.v4.view.NestedScrollingParent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.view.NestedScrollingParent2;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-public class TestedFrameLayout extends FrameLayout implements NestedScrollingParent {
+public class TestedFrameLayout extends FrameLayout implements NestedScrollingParent2 {
 
-    static final int TEST_NESTED_SCROLL_MODE_IGNORE = 0;
-    static final int TEST_NESTED_SCROLL_MODE_CONSUME = 1;
-
-    private int mNestedScrollMode;
-    private int mNestedFlingMode;
-    private boolean mNestedStopNestedScrollCalled;
+    private NestedScrollingParent2 mNestedScrollingDelegate;
 
     public TestedFrameLayout(Context context) {
         super(context);
@@ -105,7 +101,6 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
         }
     }
 
-
     private RecyclerView getRvChild() {
         for (int i = 0; i < getChildCount(); i++) {
             if (getChildAt(i) instanceof RecyclerView) {
@@ -137,65 +132,91 @@ public class TestedFrameLayout extends FrameLayout implements NestedScrollingPar
 
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
-        // Always start nested scroll
-        return mNestedFlingMode == TEST_NESTED_SCROLL_MODE_CONSUME
-                || mNestedScrollMode == TEST_NESTED_SCROLL_MODE_CONSUME;
+        return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
-    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-        Log.d("TestedFrameLayout", "onNestedPreFling: " + mNestedFlingMode);
-
-        return mNestedFlingMode == TEST_NESTED_SCROLL_MODE_CONSUME;
+    public void onNestedScrollAccepted(View child, View target, int axes) {
+        onNestedScrollAccepted(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-        if (mNestedScrollMode == TEST_NESTED_SCROLL_MODE_CONSUME) {
-            // We consume all scroll deltas
-            consumed[0] = dx;
-            consumed[1] = dy;
-        }
+        onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
             int dyUnconsumed) {
-        // ignore
-    }
-
-    @Override
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
-        // ignore
-        return false;
-    }
-
-    @Override
-    public void onNestedScrollAccepted(View child, View target, int axes) {
-        // ignore
-    }
-
-    @Override
-    public int getNestedScrollAxes() {
-        // We can scroll in both direction
-        return ViewCompat.SCROLL_AXIS_HORIZONTAL | ViewCompat.SCROLL_AXIS_VERTICAL;
+        onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                ViewCompat.TYPE_TOUCH);
     }
 
     @Override
     public void onStopNestedScroll(View target) {
-        mNestedStopNestedScrollCalled = true;
+        onStopNestedScroll(target, ViewCompat.TYPE_TOUCH);
     }
 
-    public boolean stopNestedScrollCalled() {
-        return mNestedStopNestedScrollCalled;
+    @Override
+    public int getNestedScrollAxes() {
+        return mNestedScrollingDelegate != null
+                ? mNestedScrollingDelegate.getNestedScrollAxes()
+                : 0;
     }
 
-    public void setNestedScrollMode(int mode) {
-        mNestedScrollMode = mode;
+    @Override
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
+            @ViewCompat.ScrollAxis int axes, @ViewCompat.NestedScrollType int type) {
+        return mNestedScrollingDelegate != null
+                && mNestedScrollingDelegate.onStartNestedScroll(child, target, axes, type);
     }
 
-    public void setNestedFlingMode(int mode) {
-        mNestedFlingMode = mode;
+    @Override
+    public void onNestedScrollAccepted(@NonNull View child, @NonNull View target,
+            @ViewCompat.ScrollAxis int axes, @ViewCompat.NestedScrollType int type) {
+        if (mNestedScrollingDelegate != null) {
+            mNestedScrollingDelegate.onNestedScrollAccepted(child, target, axes, type);
+        }
+    }
+
+    @Override
+    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+        return mNestedScrollingDelegate != null
+                && mNestedScrollingDelegate.onNestedPreFling(target, velocityX, velocityY);
+    }
+
+    @Override
+    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+        return mNestedScrollingDelegate != null
+                && mNestedScrollingDelegate.onNestedFling(target, velocityX, velocityY, consumed);
+    }
+
+    @Override
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed, @ViewCompat.NestedScrollType int type) {
+        if (mNestedScrollingDelegate != null) {
+            mNestedScrollingDelegate.onNestedScroll(target, dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, type);
+        }
+    }
+
+    @Override
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @Nullable int[] consumed,
+            @ViewCompat.NestedScrollType int type) {
+        if (mNestedScrollingDelegate != null) {
+            mNestedScrollingDelegate.onNestedPreScroll(target, dx, dy, consumed, type);
+        }
+    }
+
+    @Override
+    public void onStopNestedScroll(@NonNull View target, @ViewCompat.NestedScrollType int type) {
+        if (mNestedScrollingDelegate != null) {
+            mNestedScrollingDelegate.onStopNestedScroll(target, type);
+        }
+    }
+
+    public void setNestedScrollingDelegate(NestedScrollingParent2 delegate) {
+        mNestedScrollingDelegate = delegate;
     }
 
     public static class FullControlLayoutParams extends FrameLayout.LayoutParams {

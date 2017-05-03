@@ -318,6 +318,14 @@ public class ViewCompat {
     public static final int MEASURED_STATE_TOO_SMALL = 0x01000000;
 
     /**
+     * @hide
+     */
+    @IntDef(value = {SCROLL_AXIS_NONE, SCROLL_AXIS_HORIZONTAL, SCROLL_AXIS_VERTICAL}, flag = true)
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface ScrollAxis {}
+
+    /**
      * Indicates no axis of view scrolling.
      */
     public static final int SCROLL_AXIS_NONE = 0;
@@ -331,6 +339,25 @@ public class ViewCompat {
      * Indicates scrolling along the vertical axis.
      */
     public static final int SCROLL_AXIS_VERTICAL = 1 << 1;
+
+    /**
+     * @hide
+     */
+    @IntDef({TYPE_TOUCH, TYPE_NON_TOUCH})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    public @interface NestedScrollType {}
+
+    /**
+     * Indicates that the input type for the gesture is from a user touching the screen.
+     */
+    public static final int TYPE_TOUCH = 0;
+
+    /**
+     * Indicates that the input type for the gesture is caused by something which is not a user
+     * touching a screen. This is usually from a fling which is settling.
+     */
+    public static final int TYPE_NON_TOUCH = 1;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -2998,7 +3025,7 @@ public class ViewCompat {
      *
      * @see #isNestedScrollingEnabled(View)
      */
-    public static void setNestedScrollingEnabled(View view, boolean enabled) {
+    public static void setNestedScrollingEnabled(@NonNull View view, boolean enabled) {
         IMPL.setNestedScrollingEnabled(view, enabled);
     }
 
@@ -3014,8 +3041,92 @@ public class ViewCompat {
      *
      * @see #setNestedScrollingEnabled(View, boolean)
      */
-    public static boolean isNestedScrollingEnabled(View view) {
+    public static boolean isNestedScrollingEnabled(@NonNull View view) {
         return IMPL.isNestedScrollingEnabled(view);
+    }
+
+    /**
+     * Begin a nestable scroll operation along the given axes.
+     *
+     * <p>This version of the method just calls {@link #startNestedScroll(View, int, int)} using
+     * the touch input type.</p>
+     *
+     * @param axes Flags consisting of a combination of {@link ViewCompat#SCROLL_AXIS_HORIZONTAL}
+     *             and/or {@link ViewCompat#SCROLL_AXIS_VERTICAL}.
+     * @return true if a cooperative parent was found and nested scrolling has been enabled for
+     *         the current gesture.
+     */
+    public static boolean startNestedScroll(@NonNull View view, @ScrollAxis int axes) {
+        return IMPL.startNestedScroll(view, axes);
+    }
+
+    /**
+     * Stop a nested scroll in progress.
+     *
+     * <p>This version of the method just calls {@link #stopNestedScroll(View, int)} using the
+     * touch input type.</p>
+     *
+     * @see #startNestedScroll(View, int)
+     */
+    public static void stopNestedScroll(@NonNull View view) {
+        IMPL.stopNestedScroll(view);
+    }
+
+    /**
+     * Returns true if this view has a nested scrolling parent.
+     *
+     * <p>This version of the method just calls {@link #hasNestedScrollingParent(View, int)}
+     * using the touch input type.</p>
+     *
+     * @return whether this view has a nested scrolling parent
+     */
+    public static boolean hasNestedScrollingParent(@NonNull View view) {
+        return IMPL.hasNestedScrollingParent(view);
+    }
+
+    /**
+     * Dispatch one step of a nested scroll in progress.
+     *
+     * <p>This version of the method just calls
+     * {@link #dispatchNestedScroll(View, int, int, int, int, int[], int)} using the touch input
+     * type.</p>
+     *
+     * @param dxConsumed Horizontal distance in pixels consumed by this view during this scroll step
+     * @param dyConsumed Vertical distance in pixels consumed by this view during this scroll step
+     * @param dxUnconsumed Horizontal scroll distance in pixels not consumed by this view
+     * @param dyUnconsumed Horizontal scroll distance in pixels not consumed by this view
+     * @param offsetInWindow Optional. If not null, on return this will contain the offset
+     *                       in local view coordinates of this view from before this operation
+     *                       to after it completes. View implementations may use this to adjust
+     *                       expected input coordinate tracking.
+     * @return true if the event was dispatched, false if it could not be dispatched.
+     */
+    public static boolean dispatchNestedScroll(@NonNull View view, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow) {
+        return IMPL.dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow);
+    }
+
+    /**
+     * Dispatch one step of a nested scroll in progress before this view consumes any portion of it.
+     *
+     * <p>This version of the method just calls
+     * {@link #dispatchNestedPreScroll(View, int, int, int[], int[], int)} using the touch input
+     * type.</p>
+     *
+     * @param dx Horizontal scroll distance in pixels
+     * @param dy Vertical scroll distance in pixels
+     * @param consumed Output. If not null, consumed[0] will contain the consumed component of dx
+     *                 and consumed[1] the consumed dy.
+     * @param offsetInWindow Optional. If not null, on return this will contain the offset
+     *                       in local view coordinates of this view from before this operation
+     *                       to after it completes. View implementations may use this to adjust
+     *                       expected input coordinate tracking.
+     * @return true if the parent consumed some or all of the scroll delta
+     */
+    public static boolean dispatchNestedPreScroll(@NonNull View view, int dx, int dy,
+            @Nullable int[] consumed, @Nullable int[] offsetInWindow) {
+        return IMPL.dispatchNestedPreScroll(view, dx, dy, consumed, offsetInWindow);
     }
 
     /**
@@ -3049,6 +3160,7 @@ public class ViewCompat {
      *
      * @param axes Flags consisting of a combination of {@link ViewCompat#SCROLL_AXIS_HORIZONTAL}
      *             and/or {@link ViewCompat#SCROLL_AXIS_VERTICAL}.
+     * @param type the type of input which cause this scroll event
      * @return true if a cooperative parent was found and nested scrolling has been enabled for
      *         the current gesture.
      *
@@ -3056,8 +3168,14 @@ public class ViewCompat {
      * @see #dispatchNestedPreScroll(View, int, int, int[], int[])
      * @see #dispatchNestedScroll(View, int, int, int, int, int[])
      */
-    public static boolean startNestedScroll(View view, int axes) {
-        return IMPL.startNestedScroll(view, axes);
+    public static boolean startNestedScroll(@NonNull View view, @ScrollAxis int axes,
+            @NestedScrollType int type) {
+        if (view instanceof NestedScrollingChild2) {
+            return ((NestedScrollingChild2) view).startNestedScroll(axes, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            return IMPL.startNestedScroll(view, axes);
+        }
+        return false;
     }
 
     /**
@@ -3065,10 +3183,15 @@ public class ViewCompat {
      *
      * <p>Calling this method when a nested scroll is not currently in progress is harmless.</p>
      *
+     * @param type the type of input which cause this scroll event
      * @see #startNestedScroll(View, int)
      */
-    public static void stopNestedScroll(View view) {
-        IMPL.stopNestedScroll(view);
+    public static void stopNestedScroll(@NonNull View view, @NestedScrollType int type) {
+        if (view instanceof NestedScrollingChild2) {
+            ((NestedScrollingChild2) view).stopNestedScroll(type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            IMPL.stopNestedScroll(view);
+        }
     }
 
     /**
@@ -3077,10 +3200,16 @@ public class ViewCompat {
      * <p>The presence of a nested scrolling parent indicates that this view has initiated
      * a nested scroll and it was accepted by an ancestor view further up the view hierarchy.</p>
      *
+     * @param type the type of input which cause this scroll event
      * @return whether this view has a nested scrolling parent
      */
-    public static boolean hasNestedScrollingParent(View view) {
-        return IMPL.hasNestedScrollingParent(view);
+    public static boolean hasNestedScrollingParent(@NonNull View view, @NestedScrollType int type) {
+        if (view instanceof NestedScrollingChild2) {
+            ((NestedScrollingChild2) view).hasNestedScrollingParent(type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            return IMPL.hasNestedScrollingParent(view);
+        }
+        return false;
     }
 
     /**
@@ -3103,13 +3232,21 @@ public class ViewCompat {
      *                       in local view coordinates of this view from before this operation
      *                       to after it completes. View implementations may use this to adjust
      *                       expected input coordinate tracking.
+     * @param type the type of input which cause this scroll event
      * @return true if the event was dispatched, false if it could not be dispatched.
      * @see #dispatchNestedPreScroll(View, int, int, int[], int[])
      */
-    public static boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed,
-            int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
-        return IMPL.dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
-                offsetInWindow);
+    public static boolean dispatchNestedScroll(@NonNull View view, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow,
+            @NestedScrollType int type) {
+        if (view instanceof NestedScrollingChild2) {
+            return ((NestedScrollingChild2) view).dispatchNestedScroll(dxConsumed, dyConsumed,
+                    dxUnconsumed, dyUnconsumed, offsetInWindow, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            return IMPL.dispatchNestedScroll(view, dxConsumed, dyConsumed, dxUnconsumed,
+                    dyUnconsumed, offsetInWindow);
+        }
+        return false;
     }
 
     /**
@@ -3128,12 +3265,19 @@ public class ViewCompat {
      *                       in local view coordinates of this view from before this operation
      *                       to after it completes. View implementations may use this to adjust
      *                       expected input coordinate tracking.
+     * @param type the type of input which cause this scroll event
      * @return true if the parent consumed some or all of the scroll delta
      * @see #dispatchNestedScroll(View, int, int, int, int, int[])
      */
-    public static boolean dispatchNestedPreScroll(View view, int dx, int dy, int[] consumed,
-            int[] offsetInWindow) {
-        return IMPL.dispatchNestedPreScroll(view, dx, dy, consumed, offsetInWindow);
+    public static boolean dispatchNestedPreScroll(@NonNull View view, int dx, int dy,
+            @Nullable int[] consumed, @Nullable int[] offsetInWindow, @NestedScrollType int type) {
+        if (view instanceof NestedScrollingChild2) {
+            return ((NestedScrollingChild2) view).dispatchNestedPreScroll(dx, dy, consumed,
+                    offsetInWindow, type);
+        } else if (type == ViewCompat.TYPE_TOUCH) {
+            return IMPL.dispatchNestedPreScroll(view, dx, dy, consumed, offsetInWindow);
+        }
+        return false;
     }
 
     /**
@@ -3154,7 +3298,7 @@ public class ViewCompat {
      * @param consumed true if the child consumed the fling, false otherwise
      * @return true if the nested scrolling parent consumed or otherwise reacted to the fling
      */
-    public static boolean dispatchNestedFling(View view, float velocityX, float velocityY,
+    public static boolean dispatchNestedFling(@NonNull View view, float velocityX, float velocityY,
             boolean consumed) {
         return IMPL.dispatchNestedFling(view, velocityX, velocityY, consumed);
     }
@@ -3189,7 +3333,8 @@ public class ViewCompat {
      * @param velocityY Vertical fling velocity in pixels per second
      * @return true if a nested scrolling parent consumed the fling
      */
-    public static boolean dispatchNestedPreFling(View view, float velocityX, float velocityY) {
+    public static boolean dispatchNestedPreFling(@NonNull View view, float velocityX,
+            float velocityY) {
         return IMPL.dispatchNestedPreFling(view, velocityX, velocityY);
     }
 

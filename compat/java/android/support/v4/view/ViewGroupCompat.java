@@ -17,7 +17,9 @@
 package android.support.v4.view;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.view.ViewCompat.ScrollAxis;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -224,7 +226,8 @@ public final class ViewGroupCompat {
      * @see ViewCompat#SCROLL_AXIS_VERTICAL
      * @see ViewCompat#SCROLL_AXIS_NONE
      */
-    public static int getNestedScrollAxes(ViewGroup group) {
+    @ScrollAxis
+    public static int getNestedScrollAxes(@NonNull ViewGroup group) {
         return IMPL.getNestedScrollAxes(group);
     }
 }
