@@ -144,13 +144,18 @@ public class GridWidgetTest {
      * Change selected position.
      */
     private void setSelectedPosition(final int position, final int scrollExtra) throws Throwable {
+        startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mGridView.setSelectedPosition(position, scrollExtra);
             }
         });
-        Thread.sleep(500);
+        waitForLayout(false);
+    }
+
+    private void setSelectedPosition(final int position) throws Throwable {
+        setSelectedPosition(position, 0);
     }
 
     /**
@@ -398,6 +403,14 @@ public class GridWidgetTest {
      * wait layout to be called and remove the listener.
      */
     protected void waitForLayout() {
+        waitForLayout(true);
+    }
+
+    /**
+     * wait layout to be called and remove the listener.
+     * @param force True if always wait regardless if layout requested
+     */
+    protected void waitForLayout(boolean force) {
         if (mWaitLayoutListener == null) {
             throw new IllegalStateException("startWaitLayout() not called");
         }
@@ -405,8 +418,10 @@ public class GridWidgetTest {
             throw new IllegalStateException("layout listener inconistent");
         }
         try {
-            verify(mWaitLayoutListener, timeout(WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS).atLeastOnce())
-                    .onLayoutCompleted(any(RecyclerView.State.class));
+            if (force || mGridView.isLayoutRequested()) {
+                verify(mWaitLayoutListener, timeout(WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS).atLeastOnce())
+                        .onLayoutCompleted(any(RecyclerView.State.class));
+            }
         } finally {
             mWaitLayoutListener = null;
             mLayoutManager.mLayoutCompleteListener = null;
@@ -3774,6 +3789,316 @@ public class GridWidgetTest {
         mGridView.getLayoutManager().onInitializeAccessibilityNodeInfoForItem(null, null,
                 lastView, info);
         assertNoCollectionItemInfo(info);
+    }
+
+    static class FiveViewTypesProvider implements ViewTypeProvider {
+
+        @Override
+        public int getViewType(int position) {
+            switch (position) {
+                case 0:
+                    return 0;
+                case 1:
+                    return 1;
+                case 2:
+                    return 2;
+                case 3:
+                    return 3;
+                case 4:
+                    return 4;
+            }
+            return 199;
+        }
+    }
+
+    // Used by testItemAlignmentVertical() testItemAlignmentHorizontal()
+    static class ItemAlignmentWithPaddingFacetProvider implements
+            ItemAlignmentFacetProvider {
+        final ItemAlignmentFacet mFacet0;
+        final ItemAlignmentFacet mFacet1;
+        final ItemAlignmentFacet mFacet2;
+        final ItemAlignmentFacet mFacet3;
+        final ItemAlignmentFacet mFacet4;
+
+        ItemAlignmentWithPaddingFacetProvider() {
+            ItemAlignmentFacet.ItemAlignmentDef[] defs;
+            mFacet0 = new ItemAlignmentFacet();
+            defs = new ItemAlignmentFacet.ItemAlignmentDef[1];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t1);
+            defs[0].setItemAlignmentOffsetPercent(0);
+            defs[0].setItemAlignmentOffsetWithPadding(false);
+            mFacet0.setAlignmentDefs(defs);
+            mFacet1 = new ItemAlignmentFacet();
+            defs = new ItemAlignmentFacet.ItemAlignmentDef[1];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t1);
+            defs[0].setItemAlignmentOffsetPercent(0);
+            defs[0].setItemAlignmentOffsetWithPadding(true);
+            mFacet1.setAlignmentDefs(defs);
+            mFacet2 = new ItemAlignmentFacet();
+            defs = new ItemAlignmentFacet.ItemAlignmentDef[1];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t2);
+            defs[0].setItemAlignmentOffsetPercent(100);
+            defs[0].setItemAlignmentOffsetWithPadding(true);
+            mFacet2.setAlignmentDefs(defs);
+            mFacet3 = new ItemAlignmentFacet();
+            defs = new ItemAlignmentFacet.ItemAlignmentDef[1];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t2);
+            defs[0].setItemAlignmentOffsetPercent(50);
+            defs[0].setItemAlignmentOffsetWithPadding(true);
+            mFacet3.setAlignmentDefs(defs);
+            mFacet4 = new ItemAlignmentFacet();
+            defs = new ItemAlignmentFacet.ItemAlignmentDef[1];
+            defs[0] = new ItemAlignmentFacet.ItemAlignmentDef();
+            defs[0].setItemAlignmentViewId(R.id.t2);
+            defs[0].setItemAlignmentOffsetPercent(50);
+            defs[0].setItemAlignmentOffsetWithPadding(false);
+            mFacet4.setAlignmentDefs(defs);
+        }
+
+        @Override
+        public ItemAlignmentFacet getItemAlignmentFacet(int viewType) {
+            switch (viewType) {
+                case 0:
+                    return mFacet0;
+                case 1:
+                    return mFacet1;
+                case 2:
+                    return mFacet2;
+                case 3:
+                    return mFacet3;
+                case 4:
+                    return mFacet4;
+            }
+            return null;
+        }
+    }
+
+    @Test
+    public void testItemAlignmentVertical() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout2);
+        int[] items = new int[5];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_VIEWTYPEPROVIDER_CLASS,
+                FiveViewTypesProvider.class.getName());
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_CLASS,
+                ItemAlignmentWithPaddingFacetProvider.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffsetPercent(50);
+                mGridView.setWindowAlignmentOffset(0);
+            }
+        });
+        waitForLayout();
+
+        final int windowAlignCenter = mGridView.getHeight() / 2;
+        Rect rect = new Rect();
+        View textView;
+
+        // test 1: does not include padding
+        textView = mGridView.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.t1);
+        rect.set(0, 0, textView.getWidth(), textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.top);
+
+        // test 2: including low padding
+        setSelectedPosition(1);
+        textView = mGridView.findViewHolderForAdapterPosition(1).itemView.findViewById(R.id.t1);
+        assertTrue(textView.getPaddingTop() > 0);
+        rect.set(0, textView.getPaddingTop(), textView.getWidth(), textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.top);
+
+        // test 3: including high padding
+        setSelectedPosition(2);
+        textView = mGridView.findViewHolderForAdapterPosition(2).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingBottom() > 0);
+        rect.set(0, 0, textView.getWidth(),
+                textView.getHeight() - textView.getPaddingBottom());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.bottom);
+
+        // test 4: including padding will be ignored if offsetPercent is not 0 or 100
+        setSelectedPosition(3);
+        textView = mGridView.findViewHolderForAdapterPosition(3).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingTop() != textView.getPaddingBottom());
+        rect.set(0, 0, textView.getWidth(), textView.getHeight() / 2);
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.bottom);
+
+        // test 5: does not include padding
+        setSelectedPosition(4);
+        textView = mGridView.findViewHolderForAdapterPosition(4).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingTop() != textView.getPaddingBottom());
+        rect.set(0, 0, textView.getWidth(), textView.getHeight() / 2);
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.bottom);
+    }
+
+    @Test
+    public void testItemAlignmentHorizontal() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout3);
+        int[] items = new int[5];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_VIEWTYPEPROVIDER_CLASS,
+                FiveViewTypesProvider.class.getName());
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_CLASS,
+                ItemAlignmentWithPaddingFacetProvider.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffsetPercent(50);
+                mGridView.setWindowAlignmentOffset(0);
+            }
+        });
+        waitForLayout();
+
+        final int windowAlignCenter = mGridView.getWidth() / 2;
+        Rect rect = new Rect();
+        View textView;
+
+        // test 1: does not include padding
+        textView = mGridView.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.t1);
+        rect.set(0, 0, textView.getWidth(), textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.left);
+
+        // test 2: including low padding
+        setSelectedPosition(1);
+        textView = mGridView.findViewHolderForAdapterPosition(1).itemView.findViewById(R.id.t1);
+        assertTrue(textView.getPaddingLeft() > 0);
+        rect.set(textView.getPaddingLeft(), 0, textView.getWidth(), textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.left);
+
+        // test 3: including high padding
+        setSelectedPosition(2);
+        textView = mGridView.findViewHolderForAdapterPosition(2).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingRight() > 0);
+        rect.set(0, 0, textView.getWidth() - textView.getPaddingRight(),
+                textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.right);
+
+        // test 4: including padding will be ignored if offsetPercent is not 0 or 100
+        setSelectedPosition(3);
+        textView = mGridView.findViewHolderForAdapterPosition(3).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
+        rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.right);
+
+        // test 5: does not include padding
+        setSelectedPosition(4);
+        textView = mGridView.findViewHolderForAdapterPosition(4).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
+        rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.right);
+    }
+
+    @Test
+    public void testItemAlignmentHorizontalRtl() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.relative_layout3);
+        int[] items = new int[5];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_VIEWTYPEPROVIDER_CLASS,
+                FiveViewTypesProvider.class.getName());
+        intent.putExtra(GridActivity.EXTRA_ITEMALIGNMENTPROVIDER_CLASS,
+                ItemAlignmentWithPaddingFacetProvider.class.getName());
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffsetPercent(50);
+                mGridView.setWindowAlignmentOffset(0);
+            }
+        });
+        waitForLayout();
+
+        final int windowAlignCenter = mGridView.getWidth() / 2;
+        Rect rect = new Rect();
+        View textView;
+
+        // test 1: does not include padding
+        textView = mGridView.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.t1);
+        rect.set(0, 0, textView.getWidth(), textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.right);
+
+        // test 2: including low padding
+        setSelectedPosition(1);
+        textView = mGridView.findViewHolderForAdapterPosition(1).itemView.findViewById(R.id.t1);
+        assertTrue(textView.getPaddingRight() > 0);
+        rect.set(0, 0, textView.getWidth() - textView.getPaddingRight(),
+                textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.right);
+
+        // test 3: including high padding
+        setSelectedPosition(2);
+        textView = mGridView.findViewHolderForAdapterPosition(2).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingLeft() > 0);
+        rect.set(textView.getPaddingLeft(), 0, textView.getWidth(),
+                textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.left);
+
+        // test 4: including padding will be ignored if offsetPercent is not 0 or 100
+        setSelectedPosition(3);
+        textView = mGridView.findViewHolderForAdapterPosition(3).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
+        rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.right);
+
+        // test 5: does not include padding
+        setSelectedPosition(4);
+        textView = mGridView.findViewHolderForAdapterPosition(4).itemView.findViewById(R.id.t2);
+        assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
+        rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
+        mGridView.offsetDescendantRectToMyCoords(textView, rect);
+        assertEquals(windowAlignCenter, rect.right);
     }
 }
 

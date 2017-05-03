@@ -360,13 +360,12 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Sets the absolute offset in pixels for item alignment.
+     * Sets number of pixels to the end of low edge. Supports right to left layout direction.
      * Item alignment settings are ignored for the child if {@link ItemAlignmentFacet}
      * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
      *
-     * @param offset The number of pixels to offset. Can be negative for
-     *        alignment from the high edge, or positive for alignment from the
-     *        low edge.
+     * @param offset In left to right or vertical case, it's the offset added to left/top edge.
+     *               In right to left case, it's the offset subtracted from right edge.
      */
     public void setItemAlignmentOffset(int offset) {
         mLayoutManager.setItemAlignmentOffset(offset);
@@ -374,23 +373,27 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Returns the absolute offset in pixels for item alignment.
+     * Returns number of pixels to the end of low edge. Supports right to left layout direction. In
+     * left to right or vertical case, it's the offset added to left/top edge. In right to left
+     * case, it's the offset subtracted from right edge.
+     * Item alignment settings are ignored for the child if {@link ItemAlignmentFacet}
+     * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
      *
-     * @return The number of pixels to offset. Will be negative for alignment
-     *         from the high edge, or positive for alignment from the low edge.
-     *         Default value is 0.
+     * @return The number of pixels to the end of low edge.
      */
     public int getItemAlignmentOffset() {
         return mLayoutManager.getItemAlignmentOffset();
     }
 
     /**
-     * Set to true if include padding in calculating item align offset.
-     * Item alignment settings are ignored for the child if {@link ItemAlignmentFacet}
-     * is provided by {@link RecyclerView.ViewHolder} or {@link FacetProviderAdapter}.
-     *
-     * @param withPadding When it is true: we include left/top padding for positive
-     *          item offset, include right/bottom padding for negative item offset.
+     * Sets whether applies padding to item alignment when {@link #getItemAlignmentOffsetPercent()}
+     * is 0 or 100.
+     * <p>When true:
+     * Applies start/top padding if {@link #getItemAlignmentOffsetPercent()} is 0.
+     * Applies end/bottom padding if {@link #getItemAlignmentOffsetPercent()} is 100.
+     * Does not apply padding if {@link #getItemAlignmentOffsetPercent()} is neither 0 nor 100.
+     * </p>
+     * <p>When false: does not apply padding</p>
      */
     public void setItemAlignmentOffsetWithPadding(boolean withPadding) {
         mLayoutManager.setItemAlignmentOffsetWithPadding(withPadding);
@@ -398,8 +401,14 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Returns true if include padding in calculating item align offset.
-     * @return True if include padding in calculating item align offset.
+     * Returns true if applies padding to item alignment when
+     * {@link #getItemAlignmentOffsetPercent()} is 0 or 100; returns false otherwise.
+     * <p>When true:
+     * Applies start/top padding when {@link #getItemAlignmentOffsetPercent()} is 0.
+     * Applies end/bottom padding when {@link #getItemAlignmentOffsetPercent()} is 100.
+     * Does not apply padding if {@link #getItemAlignmentOffsetPercent()} is neither 0 nor 100.
+     * </p>
+     * <p>When false: does not apply padding</p>
      */
     public boolean isItemAlignmentOffsetWithPadding() {
         return mLayoutManager.isItemAlignmentOffsetWithPadding();

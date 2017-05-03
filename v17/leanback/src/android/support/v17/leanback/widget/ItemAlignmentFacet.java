@@ -26,17 +26,17 @@ import android.view.View;
  * ItemAlignmentFacet contains single or multiple {@link ItemAlignmentDef}s. First
  * {@link ItemAlignmentDef} describes the default alignment position for ViewHolder, it also
  * overrides the default item alignment settings on {@link VerticalGridView} and
- * {@link HorizontalGridView}. When there are multiple {@link ItemAlignmentDef}s, the extra
- * {@link ItemAlignmentDef}s are used to calculate deltas from first alignment position. When a
- * descendant view is focused within the ViewHolder, grid view will visit focused view and its
- * ancestors till the root of ViewHolder to match extra {@link ItemAlignmentDef}s'
- * {@link ItemAlignmentDef#getItemAlignmentViewId()}. Once a match found, the
- * {@link ItemAlignmentDef} is used to adjust a scroll delta from default alignment position.
+ * {@link HorizontalGridView} (see {@link BaseGridView#setItemAlignmentOffset(int)} etc). One
+ * ItemAlignmentFacet can have multiple {@link ItemAlignmentDef}s, e.g. having two aligned positions
+ * when child1 gets focus or child2 gets focus. Grid view will visit focused view and its
+ * ancestors till the root of ViewHolder to match {@link ItemAlignmentDef}s'
+ * {@link ItemAlignmentDef#getItemAlignmentFocusViewId()}. Once a match found, the
+ * {@link ItemAlignmentDef} is used to calculate alignment position.
  */
 public final class ItemAlignmentFacet {
 
     /**
-     * Value indicates that percent is not used.
+     * Value indicates that percent is not used. Equivalent to 0.
      */
     public final static float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1;
 
@@ -52,32 +52,47 @@ public final class ItemAlignmentFacet {
         private boolean mAlignToBaseline;
 
         /**
-         * Sets number of pixels to offset. Can be negative for alignment from the high edge, or
-         * positive for alignment from the low edge.
+         * Sets number of pixels to the end of low edge. Supports right to left layout direction.
+         * @param offset In left to right or vertical case, it's the offset added to left/top edge.
+         *               In right to left case, it's the offset subtracted from right edge.
          */
         public final void setItemAlignmentOffset(int offset) {
             mOffset = offset;
         }
 
         /**
-         * Gets number of pixels to offset. Can be negative for alignment from the high edge, or
-         * positive for alignment from the low edge.
+         * Returns number of pixels to the end of low edge. Supports right to left layout direction.
+         * In left to right or vertical case, it's the offset added to left/top edge. In right to
+         * left case, it's the offset subtracted from right edge.
+         * @return Number of pixels to the end of low edge.
          */
         public final int getItemAlignmentOffset() {
             return mOffset;
         }
 
         /**
-         * Sets whether to include left/top padding for positive item offset, include
-         * right/bottom padding for negative item offset.
+         * Sets whether applies padding to item alignment when
+         * {@link #getItemAlignmentOffsetPercent()} is 0 or 100.
+         * <p>When true:
+         * Applies start/top padding if {@link #getItemAlignmentOffsetPercent()} is 0.
+         * Applies end/bottom padding if {@link #getItemAlignmentOffsetPercent()} is 100.
+         * Does not apply padding if {@link #getItemAlignmentOffsetPercent()} is neither 0 nor 100.
+         * </p>
+         * <p>When false: does not apply padding</p>
          */
         public final void setItemAlignmentOffsetWithPadding(boolean withPadding) {
             mOffsetWithPadding = withPadding;
         }
 
         /**
-         * When it is true: we include left/top padding for positive item offset, include
-         * right/bottom padding for negative item offset.
+         * Returns true if applies padding to item alignment when
+         * {@link #getItemAlignmentOffsetPercent()} is 0 or 100; returns false otherwise.
+         * <p>When true:
+         * Applies start/top padding when {@link #getItemAlignmentOffsetPercent()} is 0.
+         * Applies end/bottom padding when {@link #getItemAlignmentOffsetPercent()} is 100.
+         * Does not apply padding if {@link #getItemAlignmentOffsetPercent()} is neither 0 nor 100.
+         * </p>
+         * <p>When false: does not apply padding</p>
          */
         public final boolean isItemAlignmentOffsetWithPadding() {
             return mOffsetWithPadding;
@@ -85,8 +100,8 @@ public final class ItemAlignmentFacet {
 
         /**
          * Sets the offset percent for item alignment in addition to offset.  E.g., 40
-         * means 40% of the width from the low edge. Use {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED}
-         * to disable.
+         * means 40% of width/height from the low edge. In the right to left case, it's the 40%
+         * width from right edge. Use {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED} to disable.
          */
         public final void setItemAlignmentOffsetPercent(float percent) {
             if ((percent < 0 || percent > 100)
@@ -98,8 +113,8 @@ public final class ItemAlignmentFacet {
 
         /**
          * Gets the offset percent for item alignment in addition to offset. E.g., 40
-         * means 40% of the width from the low edge. Use {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED}
-         * to disable.
+         * means 40% of the width from the low edge. In the right to left case, it's the 40% from
+         * right edge. Use {@link #ITEM_ALIGN_OFFSET_PERCENT_DISABLED} to disable.
          */
         public final float getItemAlignmentOffsetPercent() {
             return mOffsetPercent;
@@ -107,17 +122,28 @@ public final class ItemAlignmentFacet {
 
         /**
          * Sets Id of which child view to be aligned.  View.NO_ID refers to root view and should
-         * be only used in first one.  Extra ItemAlignmentDefs should provide view id to match
-         * currently focused view.
+         * be only used in first one.  Different view ids of {@link ItemAlignmentFacet
+         * #getAlignmentDefs()} define multiple alignment steps within one itemView, e.g. there are
+         * two child views R.id.child1 and R.id.child2. App may allocated two
+         * {@link ItemAlignmentDef}s, one with view id R.id.child1, the other with view id
+         * R.id.child2. Note this id may or may not be same as the child view that takes focus.
+         *
+         * @param viewId The id of child view that will be aligned to.
+         * @see #setItemAlignmentFocusViewId(int)
          */
         public final void setItemAlignmentViewId(int viewId) {
             mViewId = viewId;
         }
 
         /**
-         * Gets Id of which child view to be aligned.  View.NO_ID refers to root view and should
-         * be only used in first one.  Extra ItemAlignmentDefs should provide view id to match
-         * currently focused view.
+         * Returns Id of which child view to be aligned.  View.NO_ID refers to root view and should
+         * be only used in first one.  Different view ids of {@link ItemAlignmentFacet
+         * #getAlignmentDefs()} define multiple alignment steps within one itemView, e.g. there are
+         * two child views R.id.child1 and R.id.child2. App may allocated two
+         * {@link ItemAlignmentDef}s, one with view id R.id.child1, the other with view id
+         * R.id.child2. Note this id may or may not be same as the child view that takes focus.
+         *
+         * @see #setItemAlignmentFocusViewId(int)
          */
         public final int getItemAlignmentViewId() {
             return mViewId;
@@ -125,7 +151,8 @@ public final class ItemAlignmentFacet {
 
         /**
          * Sets Id of which child view take focus for alignment.  When not set, it will use
-         * use same id of {@link #getItemAlignmentViewId()}
+         * use same id of {@link #getItemAlignmentViewId()}.
+         * @param viewId The id of child view that will be focused to.
          */
         public final void setItemAlignmentFocusViewId(int viewId) {
             mFocusViewId = viewId;
