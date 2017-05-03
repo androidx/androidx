@@ -2535,7 +2535,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             mBackStack = new ArrayList<BackStackRecord>();
         }
         mBackStack.add(state);
-        reportBackStackChanged();
     }
 
     @SuppressWarnings("unused")

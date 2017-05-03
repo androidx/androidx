@@ -40,6 +40,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,10 +61,28 @@ public class FragmentTransactionTest {
             new ActivityTestRule<>(FragmentTestActivity.class);
 
     private FragmentTestActivity mActivity;
+    private int mOnBackStackChangedTimes;
+    private FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener;
 
     @Before
     public void setUp() {
         mActivity = mActivityRule.getActivity();
+        mOnBackStackChangedTimes = 0;
+        mOnBackStackChangedListener = new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                mOnBackStackChangedTimes++;
+            }
+        };
+        mActivity.getSupportFragmentManager()
+                .addOnBackStackChangedListener(mOnBackStackChangedListener);
+    }
+
+    @After
+    public void tearDown() {
+        mActivity.getSupportFragmentManager()
+                .removeOnBackStackChangedListener(mOnBackStackChangedListener);
+        mOnBackStackChangedListener = null;
     }
 
     @Test
@@ -77,6 +96,7 @@ public class FragmentTransactionTest {
                         .addToBackStack(null)
                         .commit();
                 mActivity.getSupportFragmentManager().executePendingTransactions();
+                assertEquals(1, mOnBackStackChangedTimes);
             }
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
@@ -96,6 +116,7 @@ public class FragmentTransactionTest {
                             .addToBackStack(null)
                             .commit();
                     mActivity.getSupportFragmentManager().executePendingTransactions();
+                    assertEquals(1, mOnBackStackChangedTimes);
                 } catch (IllegalStateException e) {
                     exceptionThrown = true;
                 } finally {
@@ -120,6 +141,7 @@ public class FragmentTransactionTest {
                             .addToBackStack(null)
                             .commit();
                     mActivity.getSupportFragmentManager().executePendingTransactions();
+                    assertEquals(1, mOnBackStackChangedTimes);
                 } catch (IllegalStateException e) {
                     exceptionThrown = true;
                 } finally {
@@ -144,6 +166,7 @@ public class FragmentTransactionTest {
                             .addToBackStack(null)
                             .commit();
                     mActivity.getSupportFragmentManager().executePendingTransactions();
+                    assertEquals(1, mOnBackStackChangedTimes);
                 } catch (IllegalStateException e) {
                     exceptionThrown = true;
                 } finally {
@@ -216,6 +239,7 @@ public class FragmentTransactionTest {
                             .addToBackStack(null)
                             .commit();
                     mActivity.getSupportFragmentManager().executePendingTransactions();
+                    assertEquals(1, mOnBackStackChangedTimes);
                 } catch (IllegalStateException e) {
                     exceptionThrown = true;
                 } finally {
