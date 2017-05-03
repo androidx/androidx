@@ -287,29 +287,22 @@ class AppCompatTextHelper {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        // Auto-size is supported by the framework starting from Android O.
-        if (Build.VERSION.SDK_INT < 26) {
-            if (isAutoSizeEnabled()) {
-                if (getNeedsAutoSizeText()) {
-                    // Call auto-size after the width and height have been calculated.
-                    autoSizeText();
-                }
-                // Always try to auto-size if enabled. Functions that do not want to trigger
-                // auto-sizing after the next layout round should set this to false.
-                setNeedsAutoSizeText(true);
+        if (isAutoSizeEnabled()) {
+            if (getNeedsAutoSizeText()) {
+                // Call auto-size after the width and height have been calculated.
+                autoSizeText();
             }
+            // Always try to auto-size if enabled. Functions that do not want to trigger
+            // auto-sizing after the next layout round should set this to false.
+            setNeedsAutoSizeText(true);
         }
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     void setTextSize(int unit, float size) {
-        if (Build.VERSION.SDK_INT < 26) {
-            if (!isAutoSizeEnabled()) {
-                setTextSizeInternal(unit, size);
-            }
-        } else {
-            mView.setTextSize(unit, size);
+        if (!isAutoSizeEnabled()) {
+            setTextSizeInternal(unit, size);
         }
     }
 
