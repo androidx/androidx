@@ -389,13 +389,12 @@ package android.support.design.widget {
     ctor public AppBarLayout.Behavior(android.content.Context, android.util.AttributeSet);
     method public boolean onLayoutChild(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, int);
     method public boolean onMeasureChild(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, int, int, int, int);
-    method public boolean onNestedFling(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, float, float, boolean);
-    method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, int, int, int[]);
-    method public void onNestedScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, int, int, int, int);
+    method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, int, int, int, int, int);
     method public void onRestoreInstanceState(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout);
-    method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, android.view.View, int);
-    method public void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View);
+    method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, android.support.design.widget.AppBarLayout, android.view.View, int);
     method public void setDragCallback(android.support.design.widget.AppBarLayout.Behavior.DragCallback);
   }
 
@@ -608,7 +607,7 @@ package android.support.design.widget {
     field public static final int COLLAPSE_MODE_PIN = 1; // 0x1
   }
 
-  public class CoordinatorLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingParent {
+  public class CoordinatorLayout extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingParent2 {
     ctor public CoordinatorLayout(android.content.Context);
     ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet);
     ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet, int);
@@ -624,6 +623,11 @@ package android.support.design.widget {
     method protected void onLayout(boolean, int, int, int, int);
     method public void onLayoutChild(android.view.View, int);
     method public void onMeasureChild(android.view.View, int, int, int, int);
+    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View, int);
     method public void setStatusBarBackground(android.graphics.drawable.Drawable);
     method public void setStatusBarBackgroundColor(int);
     method public void setStatusBarBackgroundResource(int);
@@ -648,14 +652,19 @@ package android.support.design.widget {
     method public boolean onMeasureChild(android.support.design.widget.CoordinatorLayout, V, int, int, int, int);
     method public boolean onNestedFling(android.support.design.widget.CoordinatorLayout, V, android.view.View, float, float, boolean);
     method public boolean onNestedPreFling(android.support.design.widget.CoordinatorLayout, V, android.view.View, float, float);
-    method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
-    method public void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int);
-    method public void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public deprecated void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
+    method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[], int);
+    method public deprecated void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int);
+    method public void onNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int, int, int);
+    method public deprecated void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public void onNestedScrollAccepted(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
     method public boolean onRequestChildRectangleOnScreen(android.support.design.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
     method public void onRestoreInstanceState(android.support.design.widget.CoordinatorLayout, V, android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState(android.support.design.widget.CoordinatorLayout, V);
-    method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
-    method public void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View);
+    method public deprecated boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
+    method public deprecated void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View);
+    method public void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int);
     method public boolean onTouchEvent(android.support.design.widget.CoordinatorLayout, V, android.view.MotionEvent);
     method public static void setTag(android.view.View, java.lang.Object);
   }
@@ -8468,19 +8477,32 @@ package android.support.v4.view {
     method public abstract void stopNestedScroll();
   }
 
+  public abstract interface NestedScrollingChild2 implements android.support.v4.view.NestedScrollingChild {
+    method public abstract boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public abstract boolean dispatchNestedScroll(int, int, int, int, int[], int);
+    method public abstract boolean hasNestedScrollingParent(int);
+    method public abstract boolean startNestedScroll(int, int);
+    method public abstract void stopNestedScroll(int);
+  }
+
   public class NestedScrollingChildHelper {
     ctor public NestedScrollingChildHelper(android.view.View);
     method public boolean dispatchNestedFling(float, float, boolean);
     method public boolean dispatchNestedPreFling(float, float);
     method public boolean dispatchNestedPreScroll(int, int, int[], int[]);
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
     method public boolean dispatchNestedScroll(int, int, int, int, int[]);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public boolean hasNestedScrollingParent();
+    method public boolean hasNestedScrollingParent(int);
     method public boolean isNestedScrollingEnabled();
     method public void onDetachedFromWindow();
     method public void onStopNestedScroll(android.view.View);
     method public void setNestedScrollingEnabled(boolean);
     method public boolean startNestedScroll(int);
+    method public boolean startNestedScroll(int, int);
     method public void stopNestedScroll();
+    method public void stopNestedScroll(int);
   }
 
   public abstract interface NestedScrollingParent {
@@ -8494,11 +8516,21 @@ package android.support.v4.view {
     method public abstract void onStopNestedScroll(android.view.View);
   }
 
+  public abstract interface NestedScrollingParent2 implements android.support.v4.view.NestedScrollingParent {
+    method public abstract void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public abstract void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public abstract void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public abstract boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public abstract void onStopNestedScroll(android.view.View, int);
+  }
+
   public class NestedScrollingParentHelper {
     ctor public NestedScrollingParentHelper(android.view.ViewGroup);
     method public int getNestedScrollAxes();
     method public void onNestedScrollAccepted(android.view.View, android.view.View, int);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
     method public void onStopNestedScroll(android.view.View);
+    method public void onStopNestedScroll(android.view.View, int);
   }
 
   public abstract interface OnApplyWindowInsetsListener {
@@ -8623,7 +8655,9 @@ package android.support.v4.view {
     method public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
     method public static boolean dispatchNestedPreFling(android.view.View, float, float);
     method public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[], int[]);
+    method public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[], int[], int);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]);
+    method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[], int);
     method public static void dispatchStartTemporaryDetach(android.view.View);
     method public static int getAccessibilityLiveRegion(android.view.View);
     method public static android.support.v4.view.accessibility.AccessibilityNodeProviderCompat getAccessibilityNodeProvider(android.view.View);
@@ -8667,6 +8701,7 @@ package android.support.v4.view {
     method public static float getZ(android.view.View);
     method public static boolean hasAccessibilityDelegate(android.view.View);
     method public static boolean hasNestedScrollingParent(android.view.View);
+    method public static boolean hasNestedScrollingParent(android.view.View, int);
     method public static boolean hasOnClickListeners(android.view.View);
     method public static boolean hasOverlappingRendering(android.view.View);
     method public static boolean hasTransientState(android.view.View);
@@ -8741,7 +8776,9 @@ package android.support.v4.view {
     method public static void setZ(android.view.View, float);
     method public static boolean startDragAndDrop(android.view.View, android.content.ClipData, android.view.View.DragShadowBuilder, java.lang.Object, int);
     method public static boolean startNestedScroll(android.view.View, int);
+    method public static boolean startNestedScroll(android.view.View, int, int);
     method public static void stopNestedScroll(android.view.View);
+    method public static void stopNestedScroll(android.view.View, int);
     method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
     field public static final int ACCESSIBILITY_LIVE_REGION_ASSERTIVE = 2; // 0x2
     field public static final int ACCESSIBILITY_LIVE_REGION_NONE = 0; // 0x0
@@ -8773,6 +8810,8 @@ package android.support.v4.view {
     field public static final int SCROLL_INDICATOR_RIGHT = 8; // 0x8
     field public static final int SCROLL_INDICATOR_START = 16; // 0x10
     field public static final int SCROLL_INDICATOR_TOP = 1; // 0x1
+    field public static final int TYPE_NON_TOUCH = 1; // 0x1
+    field public static final int TYPE_TOUCH = 0; // 0x0
   }
 
   public final deprecated class ViewConfigurationCompat {
@@ -8873,10 +8912,15 @@ package android.support.v4.view {
     method public static boolean onNestedFling(android.view.ViewParent, android.view.View, float, float, boolean);
     method public static boolean onNestedPreFling(android.view.ViewParent, android.view.View, float, float);
     method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[]);
+    method public static void onNestedPreScroll(android.view.ViewParent, android.view.View, int, int, int[], int);
     method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int);
+    method public static void onNestedScroll(android.view.ViewParent, android.view.View, int, int, int, int, int);
     method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static void onNestedScrollAccepted(android.view.ViewParent, android.view.View, android.view.View, int, int);
     method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int);
+    method public static boolean onStartNestedScroll(android.view.ViewParent, android.view.View, android.view.View, int, int);
     method public static void onStopNestedScroll(android.view.ViewParent, android.view.View);
+    method public static void onStopNestedScroll(android.view.ViewParent, android.view.View, int);
     method public static deprecated boolean requestSendAccessibilityEvent(android.view.ViewParent, android.view.View, android.view.accessibility.AccessibilityEvent);
   }
 
@@ -9590,16 +9634,19 @@ package android.support.v4.widget {
     method public static void scrollListBy(android.widget.ListView, int);
   }
 
-  public class NestedScrollView extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingChild android.support.v4.view.NestedScrollingParent android.support.v4.view.ScrollingView {
+  public class NestedScrollView extends android.widget.FrameLayout implements android.support.v4.view.NestedScrollingChild2 android.support.v4.view.NestedScrollingParent android.support.v4.view.ScrollingView {
     ctor public NestedScrollView(android.content.Context);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet);
     ctor public NestedScrollView(android.content.Context, android.util.AttributeSet, int);
     method public boolean arrowScroll(int);
     method protected int computeScrollDeltaToGetChildRectOnScreen(android.graphics.Rect);
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public boolean executeKeyEvent(android.view.KeyEvent);
     method public void fling(int);
     method public boolean fullScroll(int);
     method public int getMaxScrollAmount();
+    method public boolean hasNestedScrollingParent(int);
     method public boolean isFillViewport();
     method public boolean isSmoothScrollingEnabled();
     method public void onAttachedToWindow();
@@ -9609,6 +9656,8 @@ package android.support.v4.widget {
     method public void setSmoothScrollingEnabled(boolean);
     method public final void smoothScrollBy(int, int);
     method public final void smoothScrollTo(int, int);
+    method public boolean startNestedScroll(int, int);
+    method public void stopNestedScroll(int);
   }
 
   public static abstract interface NestedScrollView.OnScrollChangeListener {
@@ -11903,7 +11952,7 @@ package android.support.v7.widget {
     method public abstract boolean onMenuItemClick(android.view.MenuItem);
   }
 
-  public class RecyclerView extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild android.support.v4.view.ScrollingView {
+  public class RecyclerView extends android.view.ViewGroup implements android.support.v4.view.NestedScrollingChild2 android.support.v4.view.ScrollingView {
     ctor public RecyclerView(android.content.Context);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet);
     ctor public RecyclerView(android.content.Context, android.util.AttributeSet, int);
@@ -11920,6 +11969,8 @@ package android.support.v7.widget {
     method public int computeVerticalScrollExtent();
     method public int computeVerticalScrollOffset();
     method public int computeVerticalScrollRange();
+    method public boolean dispatchNestedPreScroll(int, int, int[], int[], int);
+    method public boolean dispatchNestedScroll(int, int, int, int, int[], int);
     method public boolean drawChild(android.graphics.Canvas, android.view.View, long);
     method public android.view.View findChildViewUnder(float, float);
     method public android.view.View findContainingItemView(android.view.View);
@@ -11947,6 +11998,7 @@ package android.support.v7.widget {
     method public android.support.v7.widget.RecyclerView.RecycledViewPool getRecycledViewPool();
     method public int getScrollState();
     method public boolean hasFixedSize();
+    method public boolean hasNestedScrollingParent(int);
     method public boolean hasPendingAdapterUpdates();
     method public void invalidateItemDecorations();
     method public boolean isAnimating();
@@ -11983,6 +12035,8 @@ package android.support.v7.widget {
     method public void smoothScrollBy(int, int);
     method public void smoothScrollBy(int, int, android.view.animation.Interpolator);
     method public void smoothScrollToPosition(int);
+    method public boolean startNestedScroll(int, int);
+    method public void stopNestedScroll(int);
     method public void stopScroll();
     method public void swapAdapter(android.support.v7.widget.RecyclerView.Adapter, boolean);
     field public static final int HORIZONTAL = 0; // 0x0
