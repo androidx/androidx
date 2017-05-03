@@ -47,7 +47,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
     }
 
     @Override
-    public boolean navigate(NavGraph destination, Bundle args, NavOptions navOptions) {
+    public void navigate(NavGraph destination, Bundle args, NavOptions navOptions) {
         int startId = destination.getStartDestination();
         if (startId == 0) {
             final Resources res = mContext.getResources();
@@ -64,7 +64,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
                     + " is not a direct child of this NavGraph");
         }
         dispatchOnNavigatorNavigated(destination.getId(), false);
-        return startDestination.navigate(args, navOptions);
+        startDestination.navigate(args, navOptions);
     }
 
     @Override

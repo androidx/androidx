@@ -75,7 +75,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     }
 
     @Override
-    public boolean navigate(Destination destination, Bundle args, NavOptions navOptions) {
+    public void navigate(Destination destination, Bundle args, NavOptions navOptions) {
         Intent intent = new Intent(destination.getIntent());
         if (args != null) {
             intent.putExtras(args);
@@ -134,10 +134,6 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             }
         }
         dispatchOnNavigatorNavigated(destId, false);
-
-        // Always return false. You can't pop the back stack from the caller of a new
-        // Activity, so we don't add this navigator to the controller's back stack.
-        return false;
     }
 
     /**

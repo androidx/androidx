@@ -106,7 +106,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     }
 
     @Override
-    public boolean navigate(Destination destination, Bundle args,
+    public void navigate(Destination destination, Bundle args,
                             NavOptions navOptions) {
         final Fragment frag = destination.createFragment(args);
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -147,8 +147,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             });
         }
         ft.commit();
-
-        return true;
     }
 
     private StateFragment getState() {

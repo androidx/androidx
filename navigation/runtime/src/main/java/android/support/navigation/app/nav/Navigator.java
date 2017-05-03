@@ -83,12 +83,14 @@ public abstract class Navigator<D extends NavDestination> {
      * the navigation graph. This method generally should not be called directly;
      * {@link NavController} will delegate to it when appropriate.</p>
      *
+     * <p>Implementations should {@link #dispatchOnNavigatorNavigated(int, boolean)} to notify
+     * listeners of the resulting navigation destination.</p>
+     *
      * @param destination destination node to navigate to
      * @param args arguments to use for navigation
      * @param navOptions additional options for navigation
-     * @return true if navigation created a back stack entry that should be tracked
      */
-    public abstract boolean navigate(D destination, Bundle args,
+    public abstract void navigate(D destination, Bundle args,
                                      NavOptions navOptions);
 
     /**

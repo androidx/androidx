@@ -348,9 +348,8 @@ public class NavDestination {
      *
      * @param args arguments to the new destination
      * @param navOptions options for navigation
-     * @return true if navigation created a back stack entry that should be tracked
      */
-    public boolean navigate(Bundle args, NavOptions navOptions) {
+    public void navigate(Bundle args, NavOptions navOptions) {
         Bundle finalArgs = null;
         Bundle defaultArgs = getDefaultArguments();
         if (defaultArgs != null) {
@@ -363,6 +362,6 @@ public class NavDestination {
             }
             finalArgs.putAll(args);
         }
-        return mNavigator.navigate(this, finalArgs, navOptions);
+        mNavigator.navigate(this, finalArgs, navOptions);
     }
 }
