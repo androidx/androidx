@@ -548,6 +548,36 @@ public class NotificationCompat {
      */
     public static final int BADGE_ICON_LARGE = Notification.BADGE_ICON_LARGE;
 
+    /**
+     * Constant for {@link Builder#setGroupAlertBehavior(int)}, meaning that all notifications in a
+     * group with sound or vibration ought to make sound or vibrate (respectively), so this
+     * notification will not be muted when it is in a group.
+     */
+    public static final int GROUP_ALERT_ALL = 0;
+
+    /**
+     * Constant for {@link Builder#setGroupAlertBehavior(int)}, meaning that all children
+     * notification in a group should be silenced (no sound or vibration) even if they would
+     * otherwise make sound or vibrate. Use this constant to mute this notification if this
+     * notification is a group child.
+     *
+     * <p> For example, you might want to use this constant if you post a number of children
+     * notifications at once (say, after a periodic sync), and only need to notify the user
+     * audibly once.
+     */
+    public static final int GROUP_ALERT_SUMMARY = 1;
+
+    /**
+     * Constant for {@link Builder#setGroupAlertBehavior(int)}, meaning that the summary
+     * notification in a group should be silenced (no sound or vibration) even if they would
+     * otherwise make sound or vibrate. Use this constant
+     * to mute this notification if this notification is a group summary.
+     *
+     * <p>For example, you might want to use this constant if only the children notifications
+     * in your group have content and the summary is only used to visually group notifications.
+     */
+    public static final int GROUP_ALERT_CHILDREN = 2;
+
     static final NotificationCompatImpl IMPL;
 
     interface NotificationCompatImpl {
@@ -735,7 +765,8 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
+                    b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -776,7 +807,7 @@ public class NotificationCompat {
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
-                    b.mHeadsUpContentView);
+                    b.mHeadsUpContentView, b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderJellybean(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -812,7 +843,7 @@ public class NotificationCompat {
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
-                    b.mBigContentView, b.mHeadsUpContentView);
+                    b.mBigContentView, b.mHeadsUpContentView, b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderApi24(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -836,7 +867,8 @@ public class NotificationCompat {
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
                     b.mBigContentView, b.mHeadsUpContentView, b.mChannelId, b.mBadgeIcon,
-                    b.mShortcutId, b.mTimeout, b.mColorized, b.mColorizedSet);
+                    b.mShortcutId, b.mTimeout, b.mColorized, b.mColorizedSet,
+                    b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
             addStyleToBuilderApi24(builder, b.mStyle);
             Notification notification = extender.build(b, builder);
@@ -1023,6 +1055,7 @@ public class NotificationCompat {
         int mBadgeIcon = BADGE_ICON_NONE;
         String mShortcutId;
         long mTimeout;
+        private int mGroupAlertBehavior = GROUP_ALERT_ALL;
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
@@ -1795,6 +1828,19 @@ public class NotificationCompat {
          */
         public Builder setBadgeIconType(@BadgeIconType int icon) {
             mBadgeIcon = icon;
+            return this;
+        }
+
+        /**
+         * Sets the group alert behavior for this notification. Use this method to mute this
+         * notification if alerts for this notification's group should be handled by a different
+         * notification. This is only applicable for notifications that belong to a
+         * {@link #setGroup(String) group}.
+         *
+         * <p> The default value is {@link #GROUP_ALERT_ALL}.</p>
+         */
+        public Builder setGroupAlertBehavior(int groupAlertBehavior) {
+            mGroupAlertBehavior = groupAlertBehavior;
             return this;
         }
 
@@ -4417,6 +4463,19 @@ public class NotificationCompat {
             return notification.getShortcutId();
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Returns which type of notifications in a group are responsible for audibly alerting the
+     * user. See {@link #GROUP_ALERT_ALL}, {@link #GROUP_ALERT_CHILDREN},
+     * {@link #GROUP_ALERT_SUMMARY}.
+     */
+    public static int getGroupAlertBehavior(Notification notification) {
+        if (BuildCompat.isAtLeastO()) {
+            return notification.getGroupAlertBehavior();
+        } else {
+            return GROUP_ALERT_ALL;
         }
     }
 }
