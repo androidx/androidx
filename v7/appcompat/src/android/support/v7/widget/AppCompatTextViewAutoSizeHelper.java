@@ -516,15 +516,8 @@ class AppCompatTextViewAutoSizeHelper {
             }
 
             mNeedsAutoSizeText = true;
-            // If the build version is at least 26 there is no need to auto-size using this
-            // helper because the job has been delegated to the actual TextView but the
-            // configuration still needs to be done for the case where this function is called
-            // from {@link #loadFromAttributes}, in which case the auto-size configuration
-            // attributes set up in this function will be read by {@link AppCompatTextHelper}
-            // and after passed on to the actual TextView which will take care of auto-sizing.
-            if (Build.VERSION.SDK_INT < 26) {
-                autoSizeText();
-            }
+
+            autoSizeText();
         }
     }
 
