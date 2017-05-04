@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" />
 <!--
-<android.support.wearable.view.drawer.WearableDrawerLayout
+<android.support.wear.view.drawer.WearableDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
@@ -27,7 +27,7 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <fragment android:name="android.support.wearable.view.SwipeDismissPreferenceFragment"
+    <fragment android:name="android.support.wear.view.SwipeDismissPreferenceFragment"
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -37,10 +37,10 @@
         Set clickable=true to avoid sending click events to the underlying view.
       -->
 <!--
-    <android.support.wearable.view.drawer.WearableNavigationDrawer
+    <android.support.wear.view.drawer.WearableNavigationDrawer
         android:id="@+id/top_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:navigation_style="single_page" />
-</android.support.wearable.view.drawer.WearableDrawerLayout>
+</android.support.wear.view.drawer.WearableDrawerLayout>
 -->
