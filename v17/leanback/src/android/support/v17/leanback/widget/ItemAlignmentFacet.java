@@ -167,16 +167,16 @@ public final class ItemAlignmentFacet {
         }
 
         /**
-         * Align to baseline if {@link #getItemAlignmentViewId()} is a TextView and
-         * alignToBaseline is true.
-         * @param alignToBaseline Boolean indicating whether to align the text to baseline.
+         * When true, align to {@link View#getBaseline()} for the view of with id equals
+         * {@link #getItemAlignmentViewId()}; false otherwise.
+         * @param alignToBaseline Boolean indicating whether to align to view baseline.
          */
         public final void setAlignedToTextViewBaseline(boolean alignToBaseline) {
             this.mAlignToBaseline = alignToBaseline;
         }
 
         /**
-         * Returns true when TextView should be aligned to the baseline.
+         * Returns true when View should be aligned to {@link View#getBaseline()}
          */
         public boolean isAlignedToTextViewBaseLine() {
             return mAlignToBaseline;
