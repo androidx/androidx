@@ -60,12 +60,11 @@ public class BuildCompat {
      * and all calls should be replaced with {@code Build.SDK_INT >= Build.VERSION_CODES#O}.
      *
      * @return {@code true} if O APIs are available for use, {@code false} otherwise
-     * @deprecated Android O is a finalized release and this method is no longer necessary. It will
-     *             be removed in a future release of the Support Library. Instead use
-     *             {@code Build.SDK_INT >= Build.VERSION_CODES#O}.
      */
     public static boolean isAtLeastO() {
-        return VERSION.SDK_INT >= 26;
+        return VERSION.CODENAME.equals("O")
+                || VERSION.CODENAME.startsWith("ODR")
+                || isAtLeastOMR1();
     }
 
     /**
