@@ -15,14 +15,14 @@
  */
 
 package android.arch.persistence.room.integration.testapp.vo;
+
+import android.arch.persistence.room.Embedded;
 import android.support.annotation.NonNull;
 
-import android.arch.persistence.room.Decompose;
-
 public class UserAndPetNonNull {
-    @Decompose
+    @Embedded
     private User mUser;
-    @Decompose
+    @Embedded
     @NonNull
     private Pet mPet;
 

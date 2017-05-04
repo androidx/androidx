@@ -29,8 +29,8 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
                  var affinity: SQLTypeAffinity?,
                  val columnName: String = name,
                  /* means that this field does not belong to parent, instead, it belongs to a
-                 * decomposed child of the main Pojo*/
-                 val parent: DecomposedField? = null,
+                 * embedded child of the main Pojo*/
+                 val parent: EmbeddedField? = null,
                  // index might be removed when being merged into an Entity
                  var indexed : Boolean = false) {
     lateinit var getter: FieldGetter

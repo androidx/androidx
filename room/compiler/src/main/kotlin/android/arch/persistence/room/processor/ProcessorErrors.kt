@@ -66,8 +66,8 @@ object ProcessorErrors {
     val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
     val AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT = "If a primary key is annotated with" +
             " autoGenerate, its type must be int, Integer, long or Long."
-    val AUTO_INCREMENT_DECOMPOSED_HAS_MULTIPLE_FIELDS = "When @PrimaryKey annotation is used on a" +
-            " field annotated with @Decompose, the decomposed class should have only 1 field."
+    val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS = "When @PrimaryKey annotation is used on a" +
+            " field annotated with @Embedded, the embedded class should have only 1 field."
 
     fun multiplePrimaryKeyAnnotations(primaryKeys: List<String>): String {
         return """
@@ -248,7 +248,7 @@ object ProcessorErrors {
                 " Field names: ${fieldPaths.joinToString(", ")}."
     }
 
-    fun decomposedPrimaryKeyIsDropped(entityQName: String, fieldName: String): String {
+    fun embeddedPrimaryKeyIsDropped(entityQName: String, fieldName: String): String {
         return "Primary key constraint on $fieldName is ignored when being merged into " +
                 entityQName
     }
@@ -272,13 +272,13 @@ object ProcessorErrors {
                 "${indexPaths.joinToString(", ")}."
     }
 
-    fun droppedDecomposedFieldIndex(fieldPath: String, grandParent: String): String {
+    fun droppedEmbeddedFieldIndex(fieldPath: String, grandParent: String): String {
         return "The index will be dropped when being merged into $grandParent" +
                 "($fieldPath). You must re-declare it in $grandParent if you want to index this" +
                 " field in $grandParent."
     }
 
-    fun droppedDecomposedIndex(entityName: String, fieldPath: String, grandParent: String)
+    fun droppedEmbeddedIndex(entityName: String, fieldPath: String, grandParent: String)
             : String {
         return "Indices defined in $entityName will be dropped when it is merged into" +
                 " $grandParent ($fieldPath). You can re-declare them in $grandParent."

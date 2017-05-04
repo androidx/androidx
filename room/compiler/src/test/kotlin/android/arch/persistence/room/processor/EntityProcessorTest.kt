@@ -241,7 +241,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 @PrimaryKey
                 int id;
-                @Decompose
+                @Embedded
                 Point myPoint;
                 static class Point {
                     @PrimaryKey
@@ -253,7 +253,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
         }.compilesWithoutError()
                 .withWarningCount(1)
-                .withWarningContaining(ProcessorErrors.decomposedPrimaryKeyIsDropped(
+                .withWarningContaining(ProcessorErrors.embeddedPrimaryKeyIsDropped(
                         "foo.bar.MyEntity", "x"))
     }
 
@@ -263,8 +263,8 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 @PrimaryKey
                 int id;
-                @Decompose
-                @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED)
+                @Embedded
+                @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
                 Point myPoint;
                 static class Point {
                     @PrimaryKey
@@ -670,12 +670,12 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun index_droppedDecomposedEntityIndex() {
+    fun index_droppedEmbeddedEntityIndex() {
         singleEntity(
                 """
                 @PrimaryKey
                 public int id;
-                @Decompose
+                @Embedded
                 public Foo foo;
                 @Entity(indices = {@Index("a")})
                 static class Foo {
@@ -689,7 +689,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.compilesWithoutError()
                 .withWarningContaining(
-                        ProcessorErrors.droppedDecomposedIndex(
+                        ProcessorErrors.droppedEmbeddedIndex(
                                 entityName = "foo.bar.MyEntity.Foo",
                                 fieldPath = "foo",
                                 grandParent = "foo.bar.MyEntity")
@@ -697,12 +697,12 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun index_onDecomposedField() {
+    fun index_onEmbeddedField() {
         singleEntity(
                 """
                 @PrimaryKey
                 public int id;
-                @Decompose
+                @Embedded
                 @ColumnInfo(index = true)
                 public Foo foo;
                 static class Foo {
@@ -717,12 +717,12 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun index_droppedDecomposedFieldIndex() {
+    fun index_droppedEmbeddedFieldIndex() {
         singleEntity(
                 """
                 @PrimaryKey
                 public int id;
-                @Decompose
+                @Embedded
                 public Foo foo;
                 static class Foo {
                     @ColumnInfo(index = true)
@@ -732,17 +732,17 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.compilesWithoutError()
                 .withWarningContaining(
-                        ProcessorErrors.droppedDecomposedFieldIndex("foo > a", "foo.bar.MyEntity")
+                        ProcessorErrors.droppedEmbeddedFieldIndex("foo > a", "foo.bar.MyEntity")
                 )
     }
 
     @Test
-    fun index_referenceDecomposedField() {
+    fun index_referenceEmbeddedField() {
         singleEntity(
                 """
                 @PrimaryKey
                 public int id;
-                @Decompose
+                @Embedded
                 public Foo foo;
                 static class Foo {
                     public int a;
@@ -957,12 +957,12 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_decomposed(){
+    fun primaryKey_embedded(){
         singleEntity(
                 """
                 public int id;
 
-                @Decompose(prefix = "bar_")
+                @Embedded(prefix = "bar_")
                 @PrimaryKey
                 public Foo foo;
 
@@ -977,7 +977,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_decomposedInherited(){
+    fun primaryKey_embeddedInherited(){
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
@@ -986,7 +986,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public class Base {
                     long baseId;
                     String name, lastName;
-                    @Decompose(prefix = "bar_")
+                    @Embedded(prefix = "bar_")
                     @PrimaryKey
                     public Foo foo;
 
@@ -1008,7 +1008,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_overrideViaDecomposed() {
+    fun primaryKey_overrideViaEmbedded() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
@@ -1023,7 +1023,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         singleEntity(
                 """
                 public int id;
-                @Decompose(prefix = "bar_")
+                @Embedded(prefix = "bar_")
                 @PrimaryKey
                 public Foo foo;
 
@@ -1041,7 +1041,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
-    fun primaryKey_overrideDecomposed() {
+    fun primaryKey_overrideEmbedded() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
@@ -1050,7 +1050,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public class Base {
                     long baseId;
                     String name, lastName;
-                    @Decompose(prefix = "bar_")
+                    @Embedded(prefix = "bar_")
                     @PrimaryKey
                     public Foo foo;
 

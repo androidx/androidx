@@ -16,13 +16,13 @@
 
 package android.arch.persistence.room.integration.testapp.vo;
 
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Relation;
 
 import java.util.List;
 
 public class UserAndAllPets {
-    @Decompose
+    @Embedded
     public User user;
     @Relation(parentColumn = "mId", entityColumn = "mUserId")
     public List<Pet> pets;

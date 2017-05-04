@@ -194,7 +194,7 @@ class DatabaseVerifierTest {
                 tableName = tableName,
                 type = mock(DeclaredType::class.java),
                 fields = fields.toList(),
-                decomposedFields = emptyList(),
+                embeddedFields = emptyList(),
                 indices = emptyList(),
                 primaryKey = PrimaryKey(null, fields.take(1), false),
                 foreignKeys = emptyList(),

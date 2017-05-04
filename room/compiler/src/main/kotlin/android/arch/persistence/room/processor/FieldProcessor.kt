@@ -21,7 +21,7 @@ import android.arch.persistence.room.ext.getAsBoolean
 import android.arch.persistence.room.ext.getAsInt
 import android.arch.persistence.room.ext.getAsString
 import android.arch.persistence.room.parser.SQLTypeAffinity
-import android.arch.persistence.room.vo.DecomposedField
+import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.Field
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
@@ -31,8 +31,8 @@ import javax.lang.model.type.DeclaredType
 
 class FieldProcessor(baseContext: Context, val containing: DeclaredType, val element: Element,
                      val bindingScope: BindingScope,
-                     // pass only if this is processed as a child of Decomposed field
-                     val fieldParent: DecomposedField?) {
+                     // pass only if this is processed as a child of Embedded field
+                     val fieldParent: EmbeddedField?) {
     val context = baseContext.fork(element)
     fun process(): Field {
         val member = context.processingEnv.typeUtils.asMemberOf(containing, element)

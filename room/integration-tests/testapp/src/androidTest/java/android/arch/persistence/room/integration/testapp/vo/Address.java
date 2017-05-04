@@ -17,7 +17,7 @@
 package android.arch.persistence.room.integration.testapp.vo;
 
 import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 
 public class Address {
     @ColumnInfo(name = "street")
@@ -26,7 +26,7 @@ public class Address {
     private String mState;
     @ColumnInfo(name = "post_code")
     private int mPostCode;
-    @Decompose
+    @Embedded
     private Coordinates mCoordinates;
 
     public String getStreet() {

@@ -18,7 +18,7 @@ package android.arch.persistence.room.processor
 
 import android.arch.persistence.room.Relation
 import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Decompose
+import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.ext.getAllFieldsIncludingPrivateSupers
 import android.arch.persistence.room.ext.getAnnotationValue
@@ -37,7 +37,7 @@ import android.arch.persistence.room.vo.CallType
 import android.arch.persistence.room.vo.Constructor
 import android.arch.persistence.room.vo.Field
 import android.arch.persistence.room.vo.FieldGetter
-import android.arch.persistence.room.vo.DecomposedField
+import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.FieldSetter
 import android.arch.persistence.room.vo.Pojo
@@ -64,10 +64,10 @@ import javax.lang.model.util.ElementFilter
  */
 class PojoProcessor(baseContext: Context, val element: TypeElement,
                     val bindingScope: FieldProcessor.BindingScope,
-                    val parent: DecomposedField?) {
+                    val parent: EmbeddedField?) {
     val context = baseContext.fork(element)
     companion object {
-        val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Decompose::class,
+        val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class,
                     Relation::class)
     }
     fun process() : Pojo {
@@ -89,8 +89,8 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                             PROCESSED_ANNOTATIONS.count { field.hasAnnotation(it) } < 2, field,
                             ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION
                     )
-                    if (field.hasAnnotation(Decompose::class)) {
-                        Decompose::class
+                    if (field.hasAnnotation(Embedded::class)) {
+                        Embedded::class
                     } else if (field.hasAnnotation(Relation::class)) {
                         Relation::class
                     } else {
@@ -107,11 +107,11 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                             fieldParent = parent).process()
                 } ?: emptyList()
 
-        val decomposedFields = allFields[Decompose::class]
+        val embeddedFields = allFields[Embedded::class]
                 ?.map {
-                    processDecomposedField(declaredType, it)
+                    processEmbeddedField(declaredType, it)
                 } ?: emptyList()
-        val subFields = decomposedFields.flatMap { it.pojo.fields }
+        val subFields = embeddedFields.flatMap { it.pojo.fields }
 
         val fields = myFields + subFields
 
@@ -121,7 +121,7 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                 }
                 ?.filterNotNull() ?: emptyList()
 
-        val subRelations = decomposedFields.flatMap { it.pojo.relations }
+        val subRelations = embeddedFields.flatMap { it.pojo.relations }
 
         val relations = myRelationsList + subRelations
 
@@ -155,13 +155,13 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
             // we don't need to construct this POJO.
             null
         } else {
-            chooseConstructor(myFields, decomposedFields)
+            chooseConstructor(myFields, embeddedFields)
         }
 
         assignGetters(myFields, getterCandidates)
         assignSetters(myFields, setterCandidates, constructor)
 
-        decomposedFields.forEach {
+        embeddedFields.forEach {
             assignGetter(it.field, getterCandidates)
             assignSetter(it.field, setterCandidates, constructor)
         }
@@ -174,18 +174,18 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         val pojo = Pojo(element = element,
                 type = declaredType,
                 fields = fields,
-                decomposedFields = decomposedFields,
+                embeddedFields = embeddedFields,
                 relations = relations,
                 constructor = constructor)
         return pojo
     }
 
-    private fun chooseConstructor(myFields: List<Field>, decomposed : List<DecomposedField>)
+    private fun chooseConstructor(myFields: List<Field>, embedded: List<EmbeddedField>)
             : Constructor? {
         val constructors = ElementFilter.constructorsIn(element.enclosedElements)
                 .filterNot { it.hasAnnotation(Ignore::class) || it.hasAnyOf(PRIVATE) }
         val fieldMap = myFields.associateBy { it.name }
-        val decomposedMap = decomposed.associateBy { it.field.name }
+        val embeddedMap = embedded.associateBy { it.field.name }
         val typeUtils = context.processingEnv.typeUtils
         val failedConstructors = mutableMapOf<ExecutableElement, List<Constructor.Param?>>()
         val goodConstructors = constructors.map { constructor ->
@@ -208,31 +208,31 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                 if (matches(exactFieldMatch)) {
                     return@param Constructor.FieldParam(exactFieldMatch!!)
                 }
-                val exactDecomposedMatch = decomposedMap[paramName]
-                if (matches(exactDecomposedMatch?.field)) {
-                    return@param Constructor.DecomposedParam(exactDecomposedMatch!!)
+                val exactEmbeddedMatch = embeddedMap[paramName]
+                if (matches(exactEmbeddedMatch?.field)) {
+                    return@param Constructor.EmbeddedParam(exactEmbeddedMatch!!)
                 }
 
                 val matchingFields = myFields.filter {
                     matches(it)
                 }
-                val decomposedMatches = decomposed.filter {
+                val embeddedMatches = embedded.filter {
                     matches(it.field)
                 }
-                if (matchingFields.isEmpty() && decomposedMatches.isEmpty()) {
+                if (matchingFields.isEmpty() && embeddedMatches.isEmpty()) {
                     null
-                } else if (matchingFields.size + decomposedMatches.size == 1) {
+                } else if (matchingFields.size + embeddedMatches.size == 1) {
                     if (matchingFields.isNotEmpty()) {
                         Constructor.FieldParam(matchingFields.first())
                     } else {
-                        Constructor.DecomposedParam(decomposedMatches.first())
+                        Constructor.EmbeddedParam(embeddedMatches.first())
                     }
                 } else {
                     context.logger.e(param, ProcessorErrors.ambigiousConstructor(
                             pojo = element.qualifiedName.toString(),
                             paramName = param.simpleName.toString(),
                             matchingFields = matchingFields.map { it.getPath() }
-                                    + decomposed.map { it.field.getPath() }
+                                    + embedded.map { it.field.getPath() }
                     ))
                     null
                 }
@@ -268,18 +268,18 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         return goodConstructors.first()
     }
 
-    private fun processDecomposedField(declaredType: DeclaredType?, it: Element): DecomposedField {
-        val fieldPrefix = it.getAnnotationValue(Decompose::class.java, "prefix")
+    private fun processEmbeddedField(declaredType: DeclaredType?, it: Element): EmbeddedField {
+        val fieldPrefix = it.getAnnotationValue(Embedded::class.java, "prefix")
                 ?.toString() ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
-        val decomposedField = Field(
+        val embeddedField = Field(
                 it,
                 it.simpleName.toString(),
                 type = context.processingEnv.typeUtils.asMemberOf(declaredType, it),
                 affinity = null,
                 parent = parent)
-        val subParent = DecomposedField(
-                field = decomposedField,
+        val subParent = EmbeddedField(
+                field = embeddedField,
                 prefix = inheritedPrefix + fieldPrefix,
                 parent = parent)
         val asVariable = MoreElements.asVariable(it)

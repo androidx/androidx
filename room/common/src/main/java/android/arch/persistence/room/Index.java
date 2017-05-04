@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * {@link ColumnInfo#index()} property to index individual fields or define composite indices via
  * {@link Entity#indices()}.
  * <p>
- * If an indexed field is decomposed into another Entity via {@link Decompose}, it is <b>NOT</b>
+ * If an indexed field is embedded into another Entity via {@link Embedded}, it is <b>NOT</b>
  * added as an index to the containing {@link Entity}. If you want to keep it indexed, you must
  * re-declare it in the containing {@link Entity}.
  * <p>

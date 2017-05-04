@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  *   }
  *   public class Address {
  *       String street;
- *       {@literal @}Decompose
+ *       {@literal @}Embedded
  *       Coordinates coordinates;
  *   }
  * </pre>
@@ -54,30 +54,30 @@ import java.lang.annotation.Target;
  * specify a {@link #prefix()} for the items of the sub object. Note that prefix is always applied
  * to sub fields even if they have a {@link ColumnInfo} with a specific {@code name}.
  * <p>
- * If sub fields of a decomposed field has {@link PrimaryKey} annotation, they <b>will not</b> be
+ * If sub fields of an embedded field has {@link PrimaryKey} annotation, they <b>will not</b> be
  * considered as primary keys in the owner {@link Entity}.
  * <p>
- * When a decomposed field is read, if all fields of the decomposed field (and its sub fields) are
+ * When an embedded field is read, if all fields of the embedded field (and its sub fields) are
  * {@code null} in the {@link android.database.Cursor Cursor}, it is set to {@code null}. Otherwise,
  * it is constructed.
  * <p>
  * Note that even if you have {@link TypeConverter}s that convert a {@code null} column into a
- * {@code non-null} value, if all columns of the decomposed field in the
+ * {@code non-null} value, if all columns of the embedded field in the
  * {@link android.database.Cursor Cursor} are null, the {@link TypeConverter} will never be called
- * and the decomposed field will not be constructed.
+ * and the embedded field will not be constructed.
  * <p>
- * You can override this behavior by annotating the decomposed field with
+ * You can override this behavior by annotating the embedded field with
  * {@link android.support.annotation.NonNull}.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.CLASS)
-public @interface Decompose {
+public @interface Embedded {
     /**
-     * Specifies a prefix to prepend the column names of the fields in the decomposed fields.
+     * Specifies a prefix to prepend the column names of the fields in the embedded fields.
      * <p>
      * For the example above, if we've written:
      * <pre>
-     *   {@literal @}Decomposed(prefix = "foo_")
+     *   {@literal @}Embedded(prefix = "foo_")
      *   Coordinates coordinates;
      * </pre>
      * The column names for {@code latitude} and {@code longitude} will be {@code foo_latitude} and
@@ -85,7 +85,7 @@ public @interface Decompose {
      * <p>
      * By default, prefix is the empty string.
      *
-     * @return The prefix to be used for the fields of the decomposed item.
+     * @return The prefix to be used for the fields of the embedded item.
      */
     String prefix() default  "";
 }

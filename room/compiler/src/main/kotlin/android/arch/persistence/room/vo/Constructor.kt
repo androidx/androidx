@@ -28,7 +28,7 @@ data class Constructor(val element : ExecutableElement, val params : List<Param>
         return params.any {
             when (it) {
                 is FieldParam -> it.field === field
-                is DecomposedParam -> it.decomposed.field === field
+                is EmbeddedParam -> it.embedded.field === field
                 else -> false
             }
         }
@@ -39,8 +39,8 @@ data class Constructor(val element : ExecutableElement, val params : List<Param>
 
     }
 
-    class DecomposedParam(val decomposed: DecomposedField) : Param(ParamType.DECOMPOSED) {
-        override fun log(): String = decomposed.field.getPath()
+    class EmbeddedParam(val embedded: EmbeddedField) : Param(ParamType.EMBEDDED) {
+        override fun log(): String = embedded.field.getPath()
 
     }
 
@@ -50,6 +50,6 @@ data class Constructor(val element : ExecutableElement, val params : List<Param>
 
     enum class ParamType {
         FIELD,
-        DECOMPOSED
+        EMBEDDED
     }
 }

@@ -27,7 +27,7 @@ import android.arch.persistence.room.processor.ProcessorErrors.relationCannotFin
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.vo.CallType
 import android.arch.persistence.room.vo.Constructor
-import android.arch.persistence.room.vo.DecomposedField
+import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.Field
 import android.arch.persistence.room.vo.Pojo
 import android.arch.persistence.room.vo.RelationCollector
@@ -99,11 +99,11 @@ class PojoProcessorTest {
     }
 
     @Test
-    fun decomposed() {
+    fun embedded() {
         singleRun(
                 """
                 int id;
-                @Decompose
+                @Embedded
                 Point myPoint;
                 static class Point {
                     int x;
@@ -126,11 +126,11 @@ class PojoProcessorTest {
     }
 
     @Test
-    fun decomposedWithPrefix() {
+    fun embeddedWithPrefix() {
         singleRun(
                 """
                 int id;
-                @Decompose(prefix = "foo")
+                @Embedded(prefix = "foo")
                 Point myPoint;
                 static class Point {
                     int x;
@@ -150,17 +150,17 @@ class PojoProcessorTest {
     }
 
     @Test
-    fun nestedDecompose() {
+    fun nestedEmbedded() {
         singleRun(
                 """
                 int id;
-                @Decompose(prefix = "foo")
+                @Embedded(prefix = "foo")
                 Point myPoint;
                 static class Point {
                     int x;
                     @ColumnInfo(name = "y2")
                     int y;
-                    @Decompose(prefix = "bar")
+                    @Embedded(prefix = "bar")
                     Coordinate coordinate;
                 }
                 static class Coordinate {
@@ -194,11 +194,11 @@ class PojoProcessorTest {
     }
 
     @Test
-    fun duplicateColumnNamesFromDecomposed() {
+    fun duplicateColumnNamesFromEmbedded() {
         singleRun(
                 """
                 int id;
-                @Decompose
+                @Embedded
                 Foo foo;
                 static class Foo {
                     @ColumnInfo(name = "id")
@@ -219,7 +219,7 @@ class PojoProcessorTest {
                 """
                 @PrimaryKey
                 int id;
-                @Decompose
+                @Embedded
                 Point myPoint;
                 static class Point {
                     @PrimaryKey
@@ -318,7 +318,7 @@ class PojoProcessorTest {
                     @ColumnInfo(name = "foo")
                     public int id;
                 }
-                @Decompose
+                @Embedded
                 Nested nested;
                 @Relation(parentColumn = "foo", entityColumn = "uid")
                 public List<User> user;
@@ -333,7 +333,7 @@ class PojoProcessorTest {
         singleRun(
                 """
                 static class UserWithNested {
-                    @Decompose
+                    @Embedded
                     public User user;
                     @Relation(parentColumn = "uid", entityColumn = "uid")
                     public List<User> selfs;
@@ -440,17 +440,17 @@ class PojoProcessorTest {
                     parent = null,
                     indexed =  false
             )
-            val fakeDecomposed = DecomposedField(fakeField, "", null)
+            val fakeEmbedded = EmbeddedField(fakeField, "", null)
 
             val pojo6 = PojoProcessor(invocation.context, element,
-                    FieldProcessor.BindingScope.TWO_WAY, fakeDecomposed).process()
+                    FieldProcessor.BindingScope.TWO_WAY, fakeEmbedded).process()
             assertThat(pojo6, notNullValue())
             assertThat(pojo6, not(sameInstance(pojo1)))
             assertThat(pojo6, not(sameInstance(pojo3)))
             assertThat(pojo6, not(sameInstance(pojo4)))
 
             val pojo7 = PojoProcessor(invocation.context, element,
-                    FieldProcessor.BindingScope.TWO_WAY, fakeDecomposed).process()
+                    FieldProcessor.BindingScope.TWO_WAY, fakeEmbedded).process()
             assertThat(pojo7, sameInstance(pojo6))
         }.compilesWithoutError()
     }

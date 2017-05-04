@@ -55,7 +55,7 @@ package android.arch.persistence.room;
  *     String name;
  * }
  * public class UserAllPets {
- *   {@literal @}Decompose
+ *   {@literal @}Embedded
  *   public User user;
  *   {@literal @}Relation(parentColumn = "user.id", entityColumn = "userId", entity = Pet.class)
  *   public List<PetNameAndId> pets;
@@ -76,7 +76,7 @@ package android.arch.persistence.room;
  * use {@link #projection()} property in the {@code Relation} annotation.
  * <pre>
  * public class UserAndAllPets {
- *   {@literal @}Decompose
+ *   {@literal @}Embedded
  *   public User user;
  *   {@literal @}Relation(parentColumn = "user.id", entityColumn = "userId", entity = Pet.class,
  *           projection = {"name"})
@@ -101,10 +101,10 @@ public @interface Relation {
     /**
      * Reference field in the parent Pojo.
      * <p>
-     * If you would like to access to a sub item of a {@link Decompose}d field, you can use
+     * If you would like to access to a sub item of a {@link Embedded}d field, you can use
      * the {@code .} notation.
      * <p>
-     * For instance, if you have a {@link Decompose}d field named {@code user} with a sub field
+     * For instance, if you have a {@link Embedded}d field named {@code user} with a sub field
      * {@code id}, you can reference it via {@code user.id}.
      * <p>
      * This value will be matched against the value defined in {@link #entityColumn()}.

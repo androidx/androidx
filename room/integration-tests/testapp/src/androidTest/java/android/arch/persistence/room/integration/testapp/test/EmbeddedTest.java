@@ -21,11 +21,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.dao.PetCoupleDao;
@@ -41,6 +36,10 @@ import android.arch.persistence.room.integration.testapp.vo.SchoolRef;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPet;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPetNonNull;
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +51,7 @@ import java.util.concurrent.Callable;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class DecompositionTest {
+public class EmbeddedTest {
     private UserDao mUserDao;
     private PetDao mPetDao;
     private UserPetDao mUserPetDao;

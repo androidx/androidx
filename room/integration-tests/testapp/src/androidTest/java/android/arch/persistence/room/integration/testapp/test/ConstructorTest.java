@@ -19,19 +19,18 @@ package android.arch.persistence.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -68,13 +67,13 @@ public class ConstructorTest {
         @PrimaryKey
         public final int a;
         public final int b;
-        @Decompose
-        public final MyDecomposed decomposed;
+        @Embedded
+        public final MyEmbedded embedded;
 
-        FullConstructor(int a, int b, MyDecomposed decomposed) {
+        FullConstructor(int a, int b, MyEmbedded embedded) {
             this.a = a;
             this.b = b;
-            this.decomposed = decomposed;
+            this.embedded = embedded;
         }
 
         @Override
@@ -87,15 +86,15 @@ public class ConstructorTest {
             if (a != that.a) return false;
             //noinspection SimplifiableIfStatement
             if (b != that.b) return false;
-            return decomposed != null ? decomposed.equals(that.decomposed)
-                    : that.decomposed == null;
+            return embedded != null ? embedded.equals(that.embedded)
+                    : that.embedded == null;
         }
 
         @Override
         public int hashCode() {
             int result = a;
             result = 31 * result + b;
-            result = 31 * result + (decomposed != null ? decomposed.hashCode() : 0);
+            result = 31 * result + (embedded != null ? embedded.hashCode() : 0);
             return result;
         }
     }
@@ -106,19 +105,19 @@ public class ConstructorTest {
         @PrimaryKey
         public final int a;
         public int b;
-        @Decompose
-        private MyDecomposed mDecomposed;
+        @Embedded
+        private MyEmbedded mEmbedded;
 
         PartialConstructor(int a) {
             this.a = a;
         }
 
-        public MyDecomposed getDecomposed() {
-            return mDecomposed;
+        public MyEmbedded getEmbedded() {
+            return mEmbedded;
         }
 
-        public void setDecomposed(MyDecomposed decomposed) {
-            mDecomposed = decomposed;
+        public void setEmbedded(MyEmbedded embedded) {
+            mEmbedded = embedded;
         }
 
         @Override
@@ -131,24 +130,24 @@ public class ConstructorTest {
             if (a != that.a) return false;
             //noinspection SimplifiableIfStatement
             if (b != that.b) return false;
-            return mDecomposed != null ? mDecomposed.equals(that.mDecomposed)
-                    : that.mDecomposed == null;
+            return mEmbedded != null ? mEmbedded.equals(that.mEmbedded)
+                    : that.mEmbedded == null;
         }
 
         @Override
         public int hashCode() {
             int result = a;
             result = 31 * result + b;
-            result = 31 * result + (mDecomposed != null ? mDecomposed.hashCode() : 0);
+            result = 31 * result + (mEmbedded != null ? mEmbedded.hashCode() : 0);
             return result;
         }
     }
 
     @SuppressWarnings("WeakerAccess")
-    static class MyDecomposed {
+    static class MyEmbedded {
         public final String text;
 
-        MyDecomposed(String text) {
+        MyEmbedded(String text) {
             this.text = text;
         }
 
@@ -157,7 +156,7 @@ public class ConstructorTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            MyDecomposed that = (MyDecomposed) o;
+            MyEmbedded that = (MyEmbedded) o;
 
             return text != null ? text.equals(that.text) : that.text == null;
         }

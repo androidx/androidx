@@ -24,7 +24,7 @@ import android.arch.persistence.room.solver.CodeGenScope
 import android.arch.persistence.room.vo.CallType
 import android.arch.persistence.room.vo.Constructor
 import android.arch.persistence.room.vo.Field
-import android.arch.persistence.room.vo.DecomposedField
+import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.FieldWithIndex
 import android.arch.persistence.room.vo.Pojo
 import com.squareup.javapoet.TypeName
@@ -42,8 +42,8 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
          * Get all parents including the ones which have grand children in this list but does not
          * have any direct children in the list.
          */
-        fun getAllParents(fields: List<Field>): Set<DecomposedField> {
-            val allParents = mutableSetOf<DecomposedField>()
+        fun getAllParents(fields: List<Field>): Set<EmbeddedField> {
+            val allParents = mutableSetOf<EmbeddedField>()
             fun addAllParents(field: Field) {
                 var parent = field.parent
                 while (parent != null) {
@@ -134,7 +134,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
          */
         private fun construct(outVar : String, constructor : Constructor?, typeName : TypeName,
                               localVariableNames : Map<String, FieldWithIndex>,
-                              localDecomposeds : List<Node>, scope: CodeGenScope) {
+                              localEmbeddeds: List<Node>, scope: CodeGenScope) {
             if (constructor == null) {
                 // best hope code generation
                 scope.builder().apply {
@@ -147,8 +147,8 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     is Constructor.FieldParam -> localVariableNames.entries.firstOrNull {
                         it.value.field === param.field
                     }?.key
-                    is Constructor.DecomposedParam -> localDecomposeds.firstOrNull {
-                        it.fieldParent === param.decomposed
+                    is Constructor.EmbeddedParam -> localEmbeddeds.firstOrNull {
+                        it.fieldParent === param.embedded
                     }?.varName
                     else -> null
                 }
@@ -183,14 +183,14 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         construct(outVar = node.varName,
                                 constructor = fieldParent.pojo.constructor,
                                 typeName = fieldParent.field.typeName,
-                                localDecomposeds = node.subNodes,
+                                localEmbeddeds = node.subNodes,
                                 localVariableNames = constructorFields,
                                 scope = scope)
                     } else {
                         construct(outVar = node.varName,
                                 constructor = outPojo.constructor,
                                 typeName = outPojo.typeName,
-                                localDecomposeds = node.subNodes,
+                                localEmbeddeds = node.subNodes,
                                 localVariableNames = constructorFields,
                                 scope = scope)
                     }
@@ -343,7 +343,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             // root for me
             val varName: String,
             // set if I'm a FieldParent
-            val fieldParent: DecomposedField?) {
+            val fieldParent: EmbeddedField?) {
         // whom do i belong
         var parentNode: Node? = null
         // these fields are my direct fields

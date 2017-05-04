@@ -20,20 +20,20 @@ import android.support.annotation.NonNull
 import android.arch.persistence.room.ext.hasAnnotation
 
 /**
- * Used when a field is decomposed inside an Entity or Pojo.
+ * Used when a field is embedded inside an Entity or Pojo.
  */
 // used in cache matching, must stay as a data class or implement equals
-data class DecomposedField(val field : Field, val prefix : String = "",
-                      val parent : DecomposedField?) {
+data class EmbeddedField(val field : Field, val prefix : String = "",
+                         val parent : EmbeddedField?) {
     val getter by lazy { field.getter }
     val setter by lazy { field.setter }
     val nonNull = field.element.hasAnnotation(NonNull::class)
     lateinit var pojo: Pojo
-    val rootParent : DecomposedField by lazy {
-        parent?.rootParent ?: this
+    val mRootParent: EmbeddedField by lazy {
+        parent?.mRootParent ?: this
     }
 
-    fun isDescendantOf(other : DecomposedField) : Boolean {
+    fun isDescendantOf(other : EmbeddedField) : Boolean {
         if (parent == other) {
             return true
         } else if (parent == null) {

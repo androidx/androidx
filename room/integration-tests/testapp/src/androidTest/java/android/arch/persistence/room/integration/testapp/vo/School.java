@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room.integration.testapp.vo;
 
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
@@ -25,10 +25,10 @@ public class School {
     @PrimaryKey
     private int mId;
     private String mName;
-    @Decompose(prefix = "address_")
+    @Embedded(prefix = "address_")
     public Address address;
 
-    @Decompose(prefix = "manager_")
+    @Embedded(prefix = "manager_")
     private User mManager;
 
     public int getId() {

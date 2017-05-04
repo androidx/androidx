@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room.processor
 
+import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
 import android.arch.persistence.room.vo.Entity
@@ -65,7 +66,7 @@ abstract class BaseEntityParserTest {
                         .forAnnotations(android.arch.persistence.room.Entity::class,
                                 android.arch.persistence.room.PrimaryKey::class,
                                 android.arch.persistence.room.Ignore::class,
-                                android.arch.persistence.room.Decompose::class,
+                                Embedded::class,
                                 android.arch.persistence.room.ColumnInfo::class)
                         .nextRunHandler { invocation ->
                             val entity = invocation.roundEnv

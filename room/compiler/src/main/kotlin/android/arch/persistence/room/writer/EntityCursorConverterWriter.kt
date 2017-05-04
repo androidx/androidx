@@ -24,7 +24,7 @@ import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
 import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.Field
-import android.arch.persistence.room.vo.DecomposedField
+import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.FieldWithIndex
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -50,7 +50,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
         }
     }
 
-    private fun depth(parent: DecomposedField?): Int {
+    private fun depth(parent: EmbeddedField?): Int {
         return if (parent == null) {
             0
         } else {

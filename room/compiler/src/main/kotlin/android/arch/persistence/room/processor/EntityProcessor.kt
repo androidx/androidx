@@ -25,7 +25,7 @@ import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
 import android.arch.persistence.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import android.arch.persistence.room.processor.cache.Cache
-import android.arch.persistence.room.vo.DecomposedField
+import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.Field
 import android.arch.persistence.room.vo.ForeignKey
@@ -88,8 +88,8 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 .map {
                     if (it.parent != null) {
                         it.indexed = false
-                        context.logger.w(Warning.INDEX_FROM_DECOMPOSED_FIELD_IS_DROPPED, it.element,
-                                ProcessorErrors.droppedDecomposedFieldIndex(
+                        context.logger.w(Warning.INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED, it.element,
+                                ProcessorErrors.droppedEmbeddedFieldIndex(
                                         it.getPath(), element.qualifiedName.toString()))
                         null
                     } else if (it.element.enclosingElement != element && !inheritSuperIndices) {
@@ -112,7 +112,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         val indexInputs = entityIndices + fieldIndices + superIndices
         val indices = validateAndCreateIndices(indexInputs, pojo)
 
-        val primaryKey = findPrimaryKey(pojo.fields, pojo.decomposedFields)
+        val primaryKey = findPrimaryKey(pojo.fields, pojo.embeddedFields)
         val affinity = primaryKey.fields.firstOrNull()?.affinity ?: SQLTypeAffinity.TEXT
         context.checker.check(
                 !primaryKey.autoGenerateId || affinity == SQLTypeAffinity.INTEGER,
@@ -127,7 +127,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 tableName = tableName,
                 type = pojo.type,
                 fields = pojo.fields,
-                decomposedFields = pojo.decomposedFields,
+                embeddedFields = pojo.embeddedFields,
                 indices = indices,
                 primaryKey = primaryKey,
                 foreignKeys = entityForeignKeys,
@@ -226,11 +226,11 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         }.filterNotNull()
     }
 
-    private fun findPrimaryKey(fields: List<Field>, decomposedFields: List<DecomposedField>)
+    private fun findPrimaryKey(fields: List<Field>, embeddedFields: List<EmbeddedField>)
             : PrimaryKey {
         val candidates = collectPrimaryKeysFromEntityAnnotations(element, fields) +
                 collectPrimaryKeysFromPrimaryKeyAnnotations(fields) +
-                collectPrimaryKeysFromDecomposedFields(decomposedFields)
+                collectPrimaryKeysFromEmbeddedFields(embeddedFields)
 
         context.checker.check(candidates.isNotEmpty(), element, ProcessorErrors.MISSING_PRIMARY_KEY)
         if (candidates.size == 1) {
@@ -250,12 +250,12 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                     android.arch.persistence.room.PrimaryKey::class.java).orNull()?.let {
                 if (field.parent != null) {
                     // the field in the entity that contains this error.
-                    val grandParentField = field.parent.rootParent.field.element
+                    val grandParentField = field.parent.mRootParent.field.element
                     // bound for entity.
                     context.fork(grandParentField).logger.w(
-                            Warning.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED,
+                            Warning.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED,
                             grandParentField,
-                            ProcessorErrors.decomposedPrimaryKeyIsDropped(
+                            ProcessorErrors.embeddedPrimaryKeyIsDropped(
                                     element.qualifiedName.toString(), field.name))
                     null
                 } else {
@@ -309,18 +309,18 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         return superPKeys + myPkeys
     }
 
-    private fun collectPrimaryKeysFromDecomposedFields(decomposedFields: List<DecomposedField>)
+    private fun collectPrimaryKeysFromEmbeddedFields(embeddedFields: List<EmbeddedField>)
             : List<PrimaryKey> {
-        return decomposedFields.map { decomposedField ->
-            MoreElements.getAnnotationMirror(decomposedField.field.element,
+        return embeddedFields.map { embeddedField ->
+            MoreElements.getAnnotationMirror(embeddedField.field.element,
                     android.arch.persistence.room.PrimaryKey::class.java).orNull()?.let {
                 val autoGenerate = AnnotationMirrors
                         .getAnnotationValue(it, "autoGenerate").getAsBoolean(false)
-                context.checker.check(!autoGenerate || decomposedField.pojo.fields.size == 1,
-                        decomposedField.field.element,
-                        ProcessorErrors.AUTO_INCREMENT_DECOMPOSED_HAS_MULTIPLE_FIELDS)
-                PrimaryKey(declaredIn = decomposedField.field.element.enclosingElement,
-                        fields = decomposedField.pojo.fields,
+                context.checker.check(!autoGenerate || embeddedField.pojo.fields.size == 1,
+                        embeddedField.field.element,
+                        ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS)
+                PrimaryKey(declaredIn = embeddedField.field.element.enclosingElement,
+                        fields = embeddedField.pojo.fields,
                         autoGenerateId = autoGenerate)
             }
         }.filterNotNull()
@@ -389,18 +389,18 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                     context.logger.e(element, ProcessorErrors.duplicateIndexInEntity(it.key))
                 }
 
-        // see if any decomposed field is an entity with indices, if so, report a warning
-        pojo.decomposedFields.forEach { decomposed ->
-            val decomposedElement = decomposed.pojo.element
-            val subEntityAnnotation = MoreElements.getAnnotationMirror(decomposedElement,
+        // see if any embedded field is an entity with indices, if so, report a warning
+        pojo.embeddedFields.forEach { embedded ->
+            val embeddedElement = embedded.pojo.element
+            val subEntityAnnotation = MoreElements.getAnnotationMirror(embeddedElement,
                     android.arch.persistence.room.Entity::class.java).orNull()
             subEntityAnnotation?.let {
                 val subIndices = extractIndices(subEntityAnnotation, "")
                 if (subIndices.isNotEmpty()) {
-                    context.logger.w(Warning.INDEX_FROM_DECOMPOSED_ENTITY_IS_DROPPED,
-                            decomposed.field.element, ProcessorErrors.droppedDecomposedIndex(
-                            entityName = decomposed.pojo.typeName.toString(),
-                            fieldPath = decomposed.field.getPath(),
+                    context.logger.w(Warning.INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED,
+                            embedded.field.element, ProcessorErrors.droppedEmbeddedIndex(
+                            entityName = embedded.pojo.typeName.toString(),
+                            fieldPath = embedded.field.getPath(),
                             grandParent = element.qualifiedName.toString()))
                 }
             }

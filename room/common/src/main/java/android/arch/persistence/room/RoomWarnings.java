@@ -46,30 +46,30 @@ public class RoomWarnings {
             "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
 
     /**
-     * Reported when an {@link Entity} field that is annotated with {@link Decompose} has a
+     * Reported when an {@link Entity} field that is annotated with {@link Embedded} has a
      * sub field which is annotated with {@link PrimaryKey} but the {@link PrimaryKey} is dropped
-     * during the decomposition.
+     * while composing it into the parent object.
      */
-    public static final String PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED =
-            "ROOM_DECOMPOSED_PRIMARY_KEY_IS_DROPPED";
+    public static final String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED =
+            "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
 
     /**
-     * Reported when an {@link Entity} field that is annotated with {@link Decompose} has a
+     * Reported when an {@link Entity} field that is annotated with {@link Embedded} has a
      * sub field which has a {@link ColumnInfo} annotation with {@code index = true}.
      * <p>
      * You can re-define the index in the containing {@link Entity}.
      */
-    public static final String INDEX_FROM_DECOMPOSED_FIELD_IS_DROPPED =
-            "ROOM_DECOMPOSED_INDEX_IS_DROPPED";
+    public static final String INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED =
+            "ROOM_EMBEDDED_INDEX_IS_DROPPED";
 
     /**
-     * Reported when an {@link Entity} that has a {@link Decompose}d field whose type is another
+     * Reported when an {@link Entity} that has a {@link Embedded}d field whose type is another
      * {@link Entity} and that {@link Entity} has some indices defined.
      * These indices will NOT be created in the containing {@link Entity}. If you want to preserve
      * them, you can re-define them in the containing {@link Entity}.
      */
-    public static final String INDEX_FROM_DECOMPOSED_ENTITY_IS_DROPPED =
-            "ROOM_DECOMPOSED_ENTITY_INDEX_IS_DROPPED";
+    public static final String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED =
+            "ROOM_EMBEDDED_ENTITY_INDEX_IS_DROPPED";
 
     /**
      * Reported when an {@link Entity}'s parent declares an {@link Index}. Room does not

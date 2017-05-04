@@ -19,7 +19,7 @@
 package android.arch.persistence.room.processor.cache
 
 import android.arch.persistence.room.processor.FieldProcessor
-import android.arch.persistence.room.vo.DecomposedField
+import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.Pojo
 import android.arch.persistence.room.vo.Warning
@@ -57,7 +57,7 @@ class Cache(val parent: Cache?, val converters: LinkedHashSet<TypeMirror>,
      * Key for Pojo cache
      */
     data class PojoKey(val element: Element, val scope : FieldProcessor.BindingScope,
-                       val parent : DecomposedField?)
+                       val parent : EmbeddedField?)
 
     /**
      * Internal key representation with adapters & warnings included.

@@ -15,7 +15,7 @@
  */
 
 import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Decompose
+import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
@@ -103,7 +103,7 @@ fun simpleRun(vararg jfos : JavaFileObject, f: (TestInvocation) -> Unit): Compil
                         f(it)
                         true
                     }
-                    .forAnnotations(Query::class, PrimaryKey::class, Decompose::class,
+                    .forAnnotations(Query::class, PrimaryKey::class, Embedded::class,
                             ColumnInfo::class, Relation::class, Entity::class)
                     .build())
 }

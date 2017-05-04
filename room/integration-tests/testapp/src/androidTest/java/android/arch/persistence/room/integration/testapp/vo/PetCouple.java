@@ -16,19 +16,19 @@
 
 package android.arch.persistence.room.integration.testapp.vo;
 
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.RoomWarnings;
 
 @Entity
-@SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_DECOMPOSED_IS_DROPPED)
+@SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
 public class PetCouple {
     @PrimaryKey
     public String id;
-    @Decompose(prefix = "male_")
+    @Embedded(prefix = "male_")
     public Pet male;
-    @Decompose(prefix = "female_")
+    @Embedded(prefix = "female_")
     private Pet mFemale;
 
     public Pet getFemale() {

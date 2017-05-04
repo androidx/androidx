@@ -15,12 +15,12 @@
  */
 
 package android.arch.persistence.room.integration.testapp.vo;
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 
 public class UserAndPet {
-    @Decompose
+    @Embedded
     private User mUser;
-    @Decompose
+    @Embedded
     private Pet mPet;
 
     public User getUser() {
