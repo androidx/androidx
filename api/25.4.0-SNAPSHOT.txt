@@ -4,15 +4,21 @@ package android.support.animation {
     method public T addEndListener(android.support.animation.DynamicAnimation.OnAnimationEndListener);
     method public T addUpdateListener(android.support.animation.DynamicAnimation.OnAnimationUpdateListener);
     method public void cancel();
+    method public float getMinimumVisibleChange();
     method public boolean isRunning();
     method public void removeEndListener(android.support.animation.DynamicAnimation.OnAnimationEndListener);
     method public void removeUpdateListener(android.support.animation.DynamicAnimation.OnAnimationUpdateListener);
     method public T setMaxValue(float);
     method public T setMinValue(float);
+    method public T setMinimumVisibleChange(float);
     method public T setStartValue(float);
     method public T setStartVelocity(float);
     method public void start();
     field public static final android.support.animation.DynamicAnimation.ViewProperty ALPHA;
+    field public static final float MIN_VISIBLE_CHANGE_ALPHA = 0.00390625f;
+    field public static final float MIN_VISIBLE_CHANGE_PIXELS = 1.0f;
+    field public static final float MIN_VISIBLE_CHANGE_ROTATION_DEGREES = 0.1f;
+    field public static final float MIN_VISIBLE_CHANGE_SCALE = 0.002f;
     field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION;
     field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION_X;
     field public static final android.support.animation.DynamicAnimation.ViewProperty ROTATION_Y;
@@ -43,9 +49,7 @@ package android.support.animation {
     ctor public FlingAnimation(android.support.animation.FloatValueHolder);
     ctor public FlingAnimation(K, android.support.animation.FloatPropertyCompat<K>);
     method public float getFriction();
-    method public float getVelocityThreshold();
     method public android.support.animation.FlingAnimation setFriction(float);
-    method public android.support.animation.FlingAnimation setVelocityThreshold(float);
   }
 
   public abstract class FloatPropertyCompat<T> {

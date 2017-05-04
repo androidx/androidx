@@ -91,9 +91,8 @@ public final class SpringForce implements Force {
 
     // Threshold for velocity and value to determine when it's reasonable to assume that the spring
     // is approximately at rest.
-    private double mValueThreshold = DynamicAnimation.VALUE_THRESHOLD_IN_PIXEL;
-    private double mVelocityThreshold =
-            DynamicAnimation.VALUE_THRESHOLD_IN_PIXEL * VELOCITY_THRESHOLD_MULTIPLIER;
+    private double mValueThreshold;
+    private double mVelocityThreshold;
 
     // Intermediate values to simplify the spring function calculation per frame.
     private double mGammaPlus;
@@ -323,7 +322,7 @@ public final class SpringForce implements Force {
      * @param threshold the difference between the animation value and final spring position that
      *                  is allowed to end the animation when velocity is very low
      */
-    void setDefaultThreshold(double threshold) {
+    void setValueThreshold(double threshold) {
         mValueThreshold = Math.abs(threshold);
         mVelocityThreshold = mValueThreshold * VELOCITY_THRESHOLD_MULTIPLIER;
     }

@@ -175,12 +175,12 @@ public class FlingTests {
     @Test
     public void testVelocityThreshold() {
         FloatValueHolder floatValueHolder = new FloatValueHolder();
-        float lowThreshold = 50f;
-        final float highThreshold = 1000f;
+        float lowThreshold = 5f;
+        final float highThreshold = 10f;
         final FlingAnimation animLowThreshold = new FlingAnimation(floatValueHolder);
         final FlingAnimation animHighThreshold = new FlingAnimation(floatValueHolder);
 
-        animHighThreshold.setVelocityThreshold(highThreshold);
+        animHighThreshold.setMinimumVisibleChange(highThreshold);
         animHighThreshold.addUpdateListener(new DynamicAnimation.OnAnimationUpdateListener() {
             @Override
             public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
@@ -190,7 +190,7 @@ public class FlingTests {
                 }
             }
         });
-        animLowThreshold.setVelocityThreshold(lowThreshold);
+        animLowThreshold.setMinimumVisibleChange(lowThreshold);
 
         DynamicAnimation.OnAnimationEndListener listener = mock(
                 DynamicAnimation.OnAnimationEndListener.class);
@@ -215,8 +215,8 @@ public class FlingTests {
             }
         });
 
-        assertEquals(lowThreshold, animLowThreshold.getVelocityThreshold(), 0f);
-        assertEquals(highThreshold, animHighThreshold.getVelocityThreshold(), 0f);
+        assertEquals(lowThreshold, animLowThreshold.getMinimumVisibleChange(), 0f);
+        assertEquals(highThreshold, animHighThreshold.getMinimumVisibleChange(), 0f);
 
     }
 }
