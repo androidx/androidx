@@ -119,6 +119,20 @@
             android:text="@string/text_link_disabled" />
 
         <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_fontresource_fontfamily_string_direct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            android:fontFamily="sans-serif" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_fontresource_fontfamily_string_resource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            android:fontFamily="@string/font_sans_serif" />
+
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/textview_fontresource_fontfamily"
             android:text="@string/sample_text1"
             android:layout_width="wrap_content"
