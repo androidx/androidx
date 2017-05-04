@@ -46,6 +46,10 @@
                   android:authorities="android.provider.fonts.font"
                   android:exported="false"
                   android:multiprocess="true" />
+
+        <service android:name="android.support.v4.app.JobIntentServiceTest$TargetService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
 </manifest>
