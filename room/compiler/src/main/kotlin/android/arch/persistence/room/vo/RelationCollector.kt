@@ -179,7 +179,7 @@ data class RelationCollector(val relation: Relation,
                     parsedQuery.resultInfo = resultInfo
                     if (resultInfo?.error != null) {
                         context.logger.e(relation.field.element,
-                                DatabaseVerificaitonErrors.cannotVerifyQuery(resultInfo!!.error!!))
+                                DatabaseVerificaitonErrors.cannotVerifyQuery(resultInfo.error))
                     }
                 }
                 val resultInfo = parsedQuery.resultInfo

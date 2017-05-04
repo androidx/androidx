@@ -16,8 +16,6 @@
 
 package android.arch.persistence.room.integration.testapp.dao;
 
-import android.database.Cursor;
-
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
@@ -27,6 +25,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
 import android.arch.persistence.room.integration.testapp.vo.User;
+import android.database.Cursor;
 
 import org.reactivestreams.Publisher;
 
@@ -41,10 +40,10 @@ public interface UserDao {
     @Query("select * from user where mName like :name")
     List<User> findUsersByName(String name);
 
-    @Query("select * from user where mId = ?")
+    @Query("select * from user where mId = :id")
     User load(int id);
 
-    @Query("select * from user where mId IN(?)")
+    @Query("select * from user where mId IN(:ids)")
     User[] loadByIds(int... ids);
 
     @Insert
@@ -68,13 +67,13 @@ public interface UserDao {
     @Insert
     void insertAll(User[] users);
 
-    @Query("select * from user where mAdmin = ?")
+    @Query("select * from user where mAdmin = :isAdmin")
     List<User> findByAdmin(boolean isAdmin);
 
-    @Query("delete from user where mAge > ?")
+    @Query("delete from user where mAge > :age")
     int deleteAgeGreaterThan(int age);
 
-    @Query("delete from user where mId IN(?)")
+    @Query("delete from user where mId IN(:uids)")
     int deleteByUids(int... uids);
 
     @Query("delete from user where mAge >= :min AND mAge <= :max")
@@ -95,10 +94,10 @@ public interface UserDao {
     @Query("select * from user where mName LIKE '%' || :name || '%' ORDER BY mId DESC")
     LiveData<List<User>> liveUsersListByName(String name);
 
-    @Query("select * from user where length(mName) = ?")
+    @Query("select * from user where length(mName) = :length")
     List<User> findByNameLenght(int length);
 
-    @Query("select * from user where mAge = ?")
+    @Query("select * from user where mAge = :age")
     List<User> findByAge(int age);
 
     @Query("select mAge, AVG(mWeight) from user GROUP BY mAge ORDER BY 2 DESC")

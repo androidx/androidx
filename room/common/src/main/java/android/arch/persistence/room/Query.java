@@ -32,13 +32,11 @@ import java.lang.annotation.Target;
  * <href="https://www.sqlite.org/c3ref/bind_blob.html">SQLite's binding documentation</> for
  * details of bind arguments in SQLite.
  * <p>
- * Room supports only 2 types of bind arguments. {@code ?} placeholder and {@code :name}
- * named bind parameter. If there are more than 1 argument, you must use named bind parameters to
- * avoid confusion.
+ * Room only supports named bind parameter {@code :name} to avoid any confusion between the
+ * method parameters and the query bind parameters.
  * <p>
- * Room will automatically bind the parameters of the method into the bind arguments. When named
- * bind arguments are used, this is done by matching the name of the parameters to the name of the
- * bind arguments.
+ * Room will automatically bind the parameters of the method into the bind arguments. This is done
+ * by matching the name of the parameters to the name of the bind arguments.
  * <pre>
  *     {@literal @}Query("SELECT * FROM user WHERE user_name LIKE :name AND last_name LIKE :last")
  *     public abstract List&lt;User&gt; findUsersByNameAndLastName(String name, String last);
@@ -48,7 +46,7 @@ import java.lang.annotation.Target;
  * query. At runtime, Room will build the correct query to have matching number of bind arguments
  * depending on the number of items in the method parameter.
  * <pre>
- *     {@literal @}Query("SELECT * FROM user WHERE uid IN(?)")
+ *     {@literal @}Query("SELECT * FROM user WHERE uid IN(:userIds)")
  *     public abstract List<User> findByIds(int[] userIds);
  * </pre>
  * For the example above, if the {@code userIds} is an array of 3 elements, Room will run the
@@ -85,7 +83,7 @@ import java.lang.annotation.Target;
  * </pre>
  * You can write a query like this:
  * <pre>
- *     {@literal @}Query("SELECT last_name, name FROM user WHERE uid = ? LIMIT 1")
+ *     {@literal @}Query("SELECT last_name, name FROM user WHERE uid = :userId LIMIT 1")
  *     public abstract UserName findOneUserName(int userId);
  * </pre>
  * And Room will create the correct implementation to convert the query result into a

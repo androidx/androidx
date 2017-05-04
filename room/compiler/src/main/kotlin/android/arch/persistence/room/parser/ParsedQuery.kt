@@ -54,7 +54,7 @@ data class ParsedQuery(val original: String, val type: QueryType,
      * User may turn this off or it might be disabled for any reason so generated code should
      * always handle not having it.
      */
-    var resultInfo : QueryResultInfo? = null
+    var resultInfo: QueryResultInfo? = null
 
     val sections by lazy {
         val lines = original.lines()
@@ -83,13 +83,16 @@ data class ParsedQuery(val original: String, val type: QueryType,
     val bindSections by lazy { sections.filter { it.type == BIND_VAR } }
 
     private fun unnamedVariableErrors(): List<String> {
-        val hasUnnamed = inputs.any { it.text == "?" }
-        return inputs.filter {
+        val anonymousBindError = if (inputs.any { it.text == "?" }) {
+            arrayListOf(ParserErrors.ANONYMOUS_BIND_ARGUMENT)
+        } else {
+            emptyList<String>()
+        }
+        return anonymousBindError + inputs.filter {
             it.text.matches(STARTS_WITH_NUMBER)
         }.map {
             ParserErrors.cannotUseVariableIndices(it.text, it.symbol.charPositionInLine)
-        } + (if (hasUnnamed && inputs.size > 1) arrayListOf(ParserErrors.TOO_MANY_UNNAMED_VARIABLES)
-        else emptyList<String>())
+        }
     }
 
     private fun unknownQueryTypeErrors(): List<String> {

@@ -23,11 +23,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.database.sqlite.SQLiteException;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Delete;
@@ -40,6 +35,10 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.database.sqlite.SQLiteException;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -71,19 +70,19 @@ public class ForeignKeyTest {
         @Insert
         void insert(D... d);
 
-        @Query("SELECT * FROM A WHERE id = ?")
+        @Query("SELECT * FROM A WHERE id = :id")
         A loadA(int id);
 
-        @Query("SELECT * FROM B WHERE id = ?")
+        @Query("SELECT * FROM B WHERE id = :id")
         B loadB(int id);
 
-        @Query("SELECT * FROM C WHERE id = ?")
+        @Query("SELECT * FROM C WHERE id = :id")
         C loadC(int id);
 
-        @Query("SELECT * FROM D WHERE id = ?")
+        @Query("SELECT * FROM D WHERE id = :id")
         D loadD(int id);
 
-        @Query("SELECT * FROM E WHERE id = ?")
+        @Query("SELECT * FROM E WHERE id = :id")
         E loadE(int id);
 
         @Delete

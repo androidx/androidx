@@ -94,10 +94,11 @@ class SqlParserTest {
     }
 
     @Test
-    fun indexedVariablesError() {
-        assertErrors("select * from users where name like ?")
+    fun  indexedVariablesError() {
+        assertErrors("select * from users where name like ?",
+                ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         assertErrors("select * from users where name like ? or last_name like ?",
-                ParserErrors.TOO_MANY_UNNAMED_VARIABLES)
+                ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         assertErrors("select * from users where name like ?1",
                 ParserErrors.cannotUseVariableIndices("?1", 36))
     }

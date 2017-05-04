@@ -42,7 +42,7 @@ public abstract class PKeyTestDatabase extends RoomDatabase {
         @Insert
         long[] insertAndGetIds(IntAutoIncPKeyEntity... item);
 
-        @Query("select * from IntAutoIncPKeyEntity WHERE pKey = ?")
+        @Query("select * from IntAutoIncPKeyEntity WHERE pKey = :key")
         IntAutoIncPKeyEntity getMe(int key);
 
         @Query("select data from IntAutoIncPKeyEntity WHERE pKey IN(:ids)")
@@ -53,7 +53,7 @@ public abstract class PKeyTestDatabase extends RoomDatabase {
     public interface IntegerPKeyDao {
         @Insert
         void insertMe(IntegerAutoIncPKeyEntity items);
-        @Query("select * from IntegerAutoIncPKeyEntity WHERE pKey = ?")
+        @Query("select * from IntegerAutoIncPKeyEntity WHERE pKey = :key")
         IntegerAutoIncPKeyEntity getMe(int key);
 
         @Insert

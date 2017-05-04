@@ -122,7 +122,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testVarArgs() {
         singleQueryMethod(
                 """
-                @Query("SELECT * from User where uid in (?)")
+                @Query("SELECT * from User where uid in (:ids)")
                 abstract public long foo(int... ids);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -140,7 +140,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testParamBindingMatchingNoName() {
         singleQueryMethod(
                 """
-                @Query("SELECT uid from User where uid = ?")
+                @Query("SELECT uid from User where uid = :id")
                 abstract public long getIdById(int id);
                 """) { parsedQuery, invocation ->
             val section = parsedQuery.query.bindSections.first()
@@ -323,7 +323,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testReadDeleteWithBadReturnType() {
         singleQueryMethod(
                 """
-                @Query("DELETE from User where uid = ?")
+                @Query("DELETE from User where uid = :id")
                 abstract public float foo(int id);
                 """) { parsedQuery, invocation ->
         }.failsToCompile().withErrorContaining(
@@ -335,7 +335,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testSimpleDelete() {
         singleQueryMethod(
                 """
-                @Query("DELETE from User where uid = ?")
+                @Query("DELETE from User where uid = :id")
                 abstract public int foo(int id);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
@@ -348,7 +348,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     fun testVoidDeleteQuery() {
         singleQueryMethod(
                 """
-                @Query("DELETE from User where uid = ?")
+                @Query("DELETE from User where uid = :id")
                 abstract public void foo(int id);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))

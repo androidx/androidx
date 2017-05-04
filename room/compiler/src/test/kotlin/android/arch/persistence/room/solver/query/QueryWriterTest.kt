@@ -68,7 +68,7 @@ class QueryWriterTest {
     @Test
     fun simpleStringArgs() {
         singleQueryMethod("""
-                @Query("SELECT id FROM users WHERE name LIKE ?")
+                @Query("SELECT id FROM users WHERE name LIKE :name")
                 abstract java.util.List<Integer> selectAllIds(String name);
                 """) { writer ->
             val scope = testCodeGenScope()

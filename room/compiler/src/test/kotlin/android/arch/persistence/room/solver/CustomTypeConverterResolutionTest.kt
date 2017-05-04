@@ -276,7 +276,7 @@ class CustomTypeConverterResolutionTest {
                 addMethod(MethodSpec.methodBuilder("queryWithCustom").apply {
                     addAnnotation(AnnotationSpec.builder(Query::class.java).apply {
                         addMember("value", S, "SELECT COUNT(*) FROM ${ENTITY.simpleName()} where" +
-                                " id IN(?)")
+                                " id IN(:customs)")
                     }.build())
                     if (hasMethodConverters) {
                         addAnnotation(createConvertersAnnotation())

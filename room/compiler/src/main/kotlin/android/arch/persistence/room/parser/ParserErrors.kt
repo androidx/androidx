@@ -17,8 +17,8 @@
 package android.arch.persistence.room.parser
 
 object ParserErrors {
-    val TOO_MANY_UNNAMED_VARIABLES = "Unnamed bind variables can only be used if it is the only" +
-            " parameter. Use named parameters (e..g :name)"
+    val ANONYMOUS_BIND_ARGUMENT = "Room does not support ? as bind parameters. You must use" +
+            " named bind arguments (e..g :argName)"
 
     val NOT_ONE_QUERY = "Must have exactly 1 query in @Query value"
 

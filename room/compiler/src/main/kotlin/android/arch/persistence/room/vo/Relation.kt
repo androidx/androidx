@@ -48,6 +48,6 @@ class Relation(
     private fun createSelect(resultFields: List<String>): String {
         return "SELECT ${resultFields.joinToString(",")}" +
                 " FROM `${entity.tableName}`" +
-                " WHERE ${entityField.columnName} IN (?)"
+                " WHERE ${entityField.columnName} IN (:args)"
     }
 }

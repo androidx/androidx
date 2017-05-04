@@ -71,8 +71,8 @@
  * public interface UserDao {
  *   {@literal @}Query("SELECT * FROM user")
  *   List&lt;User&gt; loadAll();
- *   {@literal @}Query("SELECT * FROM user WHERE uid IN (?)")
- *   List&lt;User&gt; loadAllByUserId(int userIds);
+ *   {@literal @}Query("SELECT * FROM user WHERE uid IN (:userIds)")
+ *   List&lt;User&gt; loadAllByUserId(int... userIds);
  *   {@literal @}Query("SELECT * FROM user where name LIKE :first AND last_name LIKE :last LIMIT 1")
  *   User loadOneByNameAndLastName(String first, String last);
  *   {@literal @}Insert

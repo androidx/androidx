@@ -37,9 +37,9 @@ abstract interface DeletionDao {
     @Delete
     int multiPKey(MultiPKeyEntity entity);
 
-    @Query("DELETE FROM user where uid = ?")
+    @Query("DELETE FROM user where uid = :uid")
     int deleteByUid(int uid);
 
-    @Query("DELETE FROM user where uid IN(?)")
+    @Query("DELETE FROM user where uid IN(:uid)")
     int deleteByUidList(int... uid);
 }

@@ -53,6 +53,6 @@ public interface UserPetDao {
     @Query("SELECT * FROM User UNION ALL SELECT * FROM USER")
     List<UserAndAllPets> unionByItself();
 
-    @Query("SELECT * FROM User u where u.mId = ?")
+    @Query("SELECT * FROM User u where u.mId = :userId")
     LiveData<UserAndAllPets> liveUserWithPets(int userId);
 }

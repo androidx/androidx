@@ -70,21 +70,21 @@ class DatabaseProcessorTest {
                     @Insert
                     public void insert(User... users);
 
-                    @Query("SELECT * FROM user where uid = ?")
+                    @Query("SELECT * FROM user where uid = :uid")
                     public User loadOne(int uid);
 
                     @TypeConverters(Converter.class)
-                    @Query("SELECT * FROM user where uid = ?")
+                    @Query("SELECT * FROM user where uid = :uid")
                     public User loadWithConverter(int uid);
 
-                    @Query("SELECT * FROM user where uid = ?")
+                    @Query("SELECT * FROM user where uid = :uid")
                     public Pojo loadOnePojo(int uid);
 
                     @Query("SELECT * FROM user")
                     public java.util.List<Pojo> loadAllPojos();
 
                     @TypeConverters(Converter.class)
-                    @Query("SELECT * FROM user where uid = ?")
+                    @Query("SELECT * FROM user where uid = :uid")
                     public Pojo loadPojoWithConverter(int uid);
 
                     public static class Converter {
@@ -547,11 +547,11 @@ class DatabaseProcessorTest {
                         @Insert
                         public void insert(User... users);
 
-                        @Query("SELECT * FROM user where uid = ?")
+                        @Query("SELECT * FROM user where uid = :uid")
                         public User loadOne(int uid);
 
                         @TypeConverters(Converter.class)
-                        @Query("SELECT * FROM user where uid = ?")
+                        @Query("SELECT * FROM user where uid = :uid")
                         public User loadWithConverter(int uid);
                     }
                     public static class Converter {
