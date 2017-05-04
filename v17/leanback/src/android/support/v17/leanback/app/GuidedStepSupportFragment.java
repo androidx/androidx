@@ -1327,6 +1327,15 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
       this.entranceTransitionType = transitionType;
     }
 
+    /**
+     * Opens the provided action in edit mode and raises ime. This can be
+     * used to programmatically skip the extra click required to go into edit mode. This method
+     * can be invoked in {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     */
+    public void openInEditMode(GuidedAction action) {
+        mActionsStylist.openInEditMode(action);
+    }
+
     private void resolveTheme() {
         // Look up the guidedStepTheme in the currently specified theme.  If it exists,
         // replace the theme with its value.
@@ -1389,5 +1398,4 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
         set.playTogether(animators);
         set.start();
     }
-
 }

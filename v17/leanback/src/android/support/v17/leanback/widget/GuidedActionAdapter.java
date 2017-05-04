@@ -54,7 +54,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         /**
          * Called when the user clicks on an action.
          */
-        public void onGuidedActionClicked(GuidedAction action);
+        void onGuidedActionClicked(GuidedAction action);
 
     }
 
@@ -66,7 +66,7 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         /**
          * Called when the user focuses on an action.
          */
-        public void onGuidedActionFocused(GuidedAction action);
+        void onGuidedActionFocused(GuidedAction action);
     }
 
     /**
@@ -77,22 +77,22 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
         /**
          * Called when the user exits edit mode on an action.
          */
-        public void onGuidedActionEditCanceled(GuidedAction action);
+        void onGuidedActionEditCanceled(GuidedAction action);
 
         /**
          * Called when the user exits edit mode on an action and process confirm button in IME.
          */
-        public long onGuidedActionEditedAndProceed(GuidedAction action);
+        long onGuidedActionEditedAndProceed(GuidedAction action);
 
         /**
          * Called when Ime Open
          */
-        public void onImeOpen();
+        void onImeOpen();
 
         /**
          * Called when Ime Close
          */
-        public void onImeClose();
+        void onImeClose();
     }
 
     private final boolean mIsSubAdapter;
@@ -102,6 +102,8 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
     private final List<GuidedAction> mActions;
     private ClickListener mClickListener;
     final GuidedActionsStylist mStylist;
+    GuidedActionAdapterGroup mGroup;
+
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -124,7 +126,6 @@ public class GuidedActionAdapter extends RecyclerView.Adapter {
             }
         }
     };
-    GuidedActionAdapterGroup mGroup;
 
     /**
      * Constructs a GuidedActionAdapter with the given list of guided actions, the given click and

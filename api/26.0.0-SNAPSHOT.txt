@@ -2932,6 +2932,7 @@ package android.support.v17.leanback.app {
     method protected void onProvideFragmentTransitions();
     method public int onProvideTheme();
     method public boolean onSubGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
+    method public void openInEditMode(android.support.v17.leanback.widget.GuidedAction);
     method public void popBackStackToGuidedStepFragment(java.lang.Class, int);
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public void setButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
@@ -2992,6 +2993,7 @@ package android.support.v17.leanback.app {
     method protected void onProvideFragmentTransitions();
     method public int onProvideTheme();
     method public boolean onSubGuidedActionClicked(android.support.v17.leanback.widget.GuidedAction);
+    method public void openInEditMode(android.support.v17.leanback.widget.GuidedAction);
     method public void popBackStackToGuidedStepSupportFragment(java.lang.Class, int);
     method public void setActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
     method public void setButtonActions(java.util.List<android.support.v17.leanback.widget.GuidedAction>);
@@ -4449,6 +4451,7 @@ package android.support.v17.leanback.widget {
     method public int onProvideLayoutId();
     method public boolean onUpdateActivatorView(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder, android.support.v17.leanback.widget.GuidedAction);
     method public void onUpdateExpandedViewHolder(android.support.v17.leanback.widget.GuidedActionsStylist.ViewHolder);
+    method public void openInEditMode(android.support.v17.leanback.widget.GuidedAction);
     method public void setAsButtonActions();
     method public final void setBackKeyToCollapseActivatorView(boolean);
     method public final void setBackKeyToCollapseSubActions(boolean);
