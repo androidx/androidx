@@ -112,6 +112,13 @@
     <string name="start_service">Start Service</string>
     <string name="stop_service">Stop Service</string>
 
+    <string name="simple_job_intent_controller">App/Simple JobIntentService</string>
+    <string name="simple_job_intent_controller_msg">Demonstrates use of JobIntentService.
+        The buttons enqueue work in to the service, which it will then process.</string>
+    <string name="schedule_work_a">Work A</string>
+    <string name="schedule_work_b">Work B</string>
+    <string name="schedule_work_c">Work C</string>
+
     <string name="simple_wakeful_controller">Content/Simple WakefulReceiver</string>
 
     <string name="simple_wakeful_controller_msg">Demonstrates use of WakefulBroadcastReceiver
