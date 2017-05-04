@@ -127,7 +127,7 @@ public final class NavUtils {
             // else fall back to the meta-data element.
             Intent result = sourceActivity.getParentActivityIntent();
             if (result != null) {
-                return null;
+                return result;
             }
         }
         String parentName = NavUtils.getParentActivityName(sourceActivity);
