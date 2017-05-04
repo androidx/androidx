@@ -17,9 +17,13 @@
 package android.support.text.emoji.widget;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.annotation.TargetApi;
 import android.support.test.InstrumentationRegistry;
@@ -27,6 +31,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.EmojiCompat;
+import android.text.TextWatcher;
 import android.text.method.KeyListener;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
@@ -34,6 +39,7 @@ import android.widget.EditText;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -91,5 +97,33 @@ public class EmojiEditTextHelperTest {
         final InputConnection ic2 = mEmojiEditTextHelper.onCreateInputConnection(ic1, null);
 
         assertSame(ic1, ic2);
+    }
+
+    @Test
+    public void testAttachesTextWatcher() {
+        mEditText = spy(new EditText(InstrumentationRegistry.getTargetContext()));
+        mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
+
+        final ArgumentCaptor<TextWatcher> argumentCaptor = ArgumentCaptor.forClass(
+                TextWatcher.class);
+
+        verify(mEditText, times(1)).addTextChangedListener(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue(), instanceOf(EmojiTextWatcher.class));
+    }
+
+    @Test
+    public void testSetMaxCount() {
+        mEditText = spy(new EditText(InstrumentationRegistry.getTargetContext()));
+        mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
+        // capture TextWatcher
+        final ArgumentCaptor<TextWatcher> argumentCaptor = ArgumentCaptor.forClass(
+                TextWatcher.class);
+        verify(mEditText, times(1)).addTextChangedListener(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue(), instanceOf(EmojiTextWatcher.class));
+        final EmojiTextWatcher emojiTextWatcher = (EmojiTextWatcher) argumentCaptor.getValue();
+
+        mEmojiEditTextHelper.setMaxEmojiCount(1);
+
+        assertEquals(emojiTextWatcher.getMaxEmojiCount(), 1);
     }
 }
