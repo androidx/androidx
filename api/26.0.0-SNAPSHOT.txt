@@ -6172,14 +6172,6 @@ package android.support.v4.app {
     field public static final int TOTAL_INDEX = 0; // 0x0
   }
 
-  public abstract class JobIntentService extends android.app.Service {
-    ctor public JobIntentService();
-    method public static void enqueueWork(android.content.Context, java.lang.Class, int, android.content.Intent);
-    method public android.os.IBinder onBind(android.content.Intent);
-    method protected abstract void onHandleWork(android.content.Intent);
-    method public boolean onStopCurrentWork();
-  }
-
   public class ListFragment extends android.support.v4.app.Fragment {
     ctor public ListFragment();
     method public android.widget.ListAdapter getListAdapter();
