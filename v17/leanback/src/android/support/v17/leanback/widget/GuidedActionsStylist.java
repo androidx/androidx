@@ -151,6 +151,7 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
     public static final int VIEW_TYPE_DATE_PICKER = 1;
 
     final static ItemAlignmentFacet sGuidedActionItemAlignFacet;
+
     static {
         sGuidedActionItemAlignFacet = new ItemAlignmentFacet();
         ItemAlignmentFacet.ItemAlignmentDef alignedDef = new ItemAlignmentFacet.ItemAlignmentDef();
@@ -649,7 +650,6 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
      * @return The view to be added to the caller's view hierarchy.
      */
     public void onBindViewHolder(ViewHolder vh, GuidedAction action) {
-
         vh.mAction = action;
         if (vh.mTitleView != null) {
             vh.mTitleView.setText(action.getTitle());
@@ -704,6 +704,26 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         setupImeOptions(vh, action);
 
         updateChevronAndVisibility(vh);
+    }
+
+    /**
+     * Switches action to edit mode and pops up the keyboard.
+     */
+    public void openInEditMode(GuidedAction action) {
+        final GuidedActionAdapter guidedActionAdapter =
+                (GuidedActionAdapter) getActionsGridView().getAdapter();
+        int actionIndex = guidedActionAdapter.getActions().indexOf(action);
+        if (actionIndex < 0 || !action.isEditable()) {
+            return;
+        }
+
+        getActionsGridView().setSelectedPosition(actionIndex, new ViewHolderTask() {
+            @Override
+            public void run(RecyclerView.ViewHolder viewHolder) {
+                ViewHolder vh = (ViewHolder) viewHolder;
+                guidedActionAdapter.mGroup.openIme(guidedActionAdapter, vh);
+            }
+        });
     }
 
     private static void setMaxLines(TextView view, int maxLines) {
