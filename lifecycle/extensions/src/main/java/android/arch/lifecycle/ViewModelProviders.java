@@ -18,7 +18,7 @@ package android.arch.lifecycle;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.arch.lifecycle.ViewModelProvider.Creator;
+import android.arch.lifecycle.ViewModelProvider.Factory;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -32,11 +32,11 @@ import java.lang.reflect.InvocationTargetException;
 public class ViewModelProviders {
 
     @SuppressLint("StaticFieldLeak")
-    private static DefaultCreator sDefaultCreator;
+    private static DefaultFactory sDefaultFactory;
 
-    private static void initializeCreatorIfNeeded(Application application) {
-        if (sDefaultCreator == null) {
-            sDefaultCreator = new DefaultCreator(application);
+    private static void initializeFactoryIfNeeded(Application application) {
+        if (sDefaultFactory == null) {
+            sDefaultFactory = new DefaultFactory(application);
         }
     }
 
@@ -44,7 +44,7 @@ public class ViewModelProviders {
      * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given
      * {@code fragment} is alive. More detailed explanation is in {@link ViewModel}.
      * <p>
-     * It uses {@link ViewModelProviders.DefaultCreator} to instantiate new ViewModels.
+     * It uses {@link DefaultFactory} to instantiate new ViewModels.
      *
      * @param fragment a fragment, in whose scope ViewModels should be retained
      * @return a ViewModelProvider instance
@@ -56,71 +56,71 @@ public class ViewModelProviders {
             throw new IllegalArgumentException(
                     "Can't create ViewModelProvider for detached fragment");
         }
-        initializeCreatorIfNeeded(activity.getApplication());
-        return new ViewModelProvider(ViewModelStores.of(fragment), sDefaultCreator);
+        initializeFactoryIfNeeded(activity.getApplication());
+        return new ViewModelProvider(ViewModelStores.of(fragment), sDefaultFactory);
     }
 
     /**
      * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given Activity
      * is alive. More detailed explanation is in {@link ViewModel}.
      * <p>
-     * It uses {@link ViewModelProviders.DefaultCreator} to instantiate new ViewModels.
+     * It uses {@link DefaultFactory} to instantiate new ViewModels.
      *
      * @param activity an activity, in whose scope ViewModels should be retained
      * @return a ViewModelProvider instance
      */
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity) {
-        initializeCreatorIfNeeded(activity.getApplication());
-        return new ViewModelProvider(ViewModelStores.of(activity), sDefaultCreator);
+        initializeFactoryIfNeeded(activity.getApplication());
+        return new ViewModelProvider(ViewModelStores.of(activity), sDefaultFactory);
     }
 
     /**
      * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given
      * {@code fragment} is alive. More detailed explanation is in {@link ViewModel}.
      * <p>
-     * It uses the given {@link Creator} to instantiate new ViewModels.
+     * It uses the given {@link Factory} to instantiate new ViewModels.
      *
      * @param fragment a fragment, in whose scope ViewModels should be retained
-     * @param creator  a {@code Creator} to instantiate new ViewModels
+     * @param factory  a {@code Factory} to instantiate new ViewModels
      * @return a ViewModelProvider instance
      */
     @MainThread
-    public static ViewModelProvider of(@NonNull Fragment fragment, @NonNull Creator creator) {
-        return new ViewModelProvider(ViewModelStores.of(fragment), creator);
+    public static ViewModelProvider of(@NonNull Fragment fragment, @NonNull Factory factory) {
+        return new ViewModelProvider(ViewModelStores.of(fragment), factory);
     }
 
     /**
      * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given Activity
      * is alive. More detailed explanation is in {@link ViewModel}.
      * <p>
-     * It uses the given {@link Creator} to instantiate new ViewModels.
+     * It uses the given {@link Factory} to instantiate new ViewModels.
      *
      * @param activity an activity, in whose scope ViewModels should be retained
-     * @param creator  a {@code Creator} to instantiate new ViewModels
+     * @param factory  a {@code Factory} to instantiate new ViewModels
      * @return a ViewModelProvider instance
      */
     @MainThread
     public static ViewModelProvider of(@NonNull FragmentActivity activity,
-            @NonNull Creator creator) {
-        return new ViewModelProvider(ViewModelStores.of(activity), creator);
+            @NonNull Factory factory) {
+        return new ViewModelProvider(ViewModelStores.of(activity), factory);
     }
 
     /**
-     * {@link Creator} which may create {@link AndroidViewModel} and
+     * {@link Factory} which may create {@link AndroidViewModel} and
      * {@link ViewModel}, which have an empty constructor.
      */
     @SuppressWarnings("WeakerAccess")
-    public static class DefaultCreator extends ViewModelProvider.NewInstanceCreator {
+    public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
 
         private Application mApplication;
 
         /**
-         * Creates a {@code DefaultCreator}
+         * Creates a {@code DefaultFactory}
          *
          * @param application an application to pass in {@link AndroidViewModel}
          */
-        public DefaultCreator(@NonNull Application application) {
+        public DefaultFactory(@NonNull Application application) {
             mApplication = application;
         }
 

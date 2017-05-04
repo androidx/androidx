@@ -20,7 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.lifecycle.ViewModelProvider.NewInstanceCreator;
+import android.arch.lifecycle.ViewModelProvider.NewInstanceFactory;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class ViewModelProviderTest {
 
     @Before
     public void setup() {
-        mViewModelProvider = new ViewModelProvider(new ViewModelStore(), new NewInstanceCreator());
+        mViewModelProvider = new ViewModelProvider(new ViewModelStore(), new NewInstanceFactory());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ViewModelProviderTest {
                 return store;
             }
         };
-        ViewModelProvider provider = new ViewModelProvider(owner, new NewInstanceCreator());
+        ViewModelProvider provider = new ViewModelProvider(owner, new NewInstanceFactory());
         ViewModel1 viewModel = provider.get(ViewModel1.class);
         assertThat(viewModel, is(provider.get(ViewModel1.class)));
     }

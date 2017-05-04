@@ -32,9 +32,9 @@ public class ViewModelProvider {
             "android.arch.lifecycle.ViewModelProvider.DefaultKey";
 
     /**
-     * Implementations of {@code Creator} interface are responsible to instantiate ViewModels.
+     * Implementations of {@code Factory} interface are responsible to instantiate ViewModels.
      */
-    public interface Creator {
+    public interface Factory {
         /**
          * Creates a new instance of the given {@code Class}.
          * <p>
@@ -46,32 +46,32 @@ public class ViewModelProvider {
         <T extends ViewModel> T create(Class<T> modelClass);
     }
 
-    private final Creator mCreator;
+    private final Factory mFactory;
     private final ViewModelStore mViewModelStore;
 
     /**
      * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
-     * {@code Creator} and retain them in a store of the given {@code ViewModelStoreOwner}.
+     * {@code Factory} and retain them in a store of the given {@code ViewModelStoreOwner}.
      *
      * @param owner   a {@code ViewModelStoreOwner} whose {@link ViewModelStore} will be used to
      *                retain {@code ViewModels}
-     * @param creator a {@code Creator} which will be used to instantiate
+     * @param factory a {@code Factory} which will be used to instantiate
      *                new {@code ViewModels}
      */
-    public ViewModelProvider(@NonNull ViewModelStoreOwner owner, @NonNull Creator creator) {
-        this(owner.getViewModelStore(), creator);
+    public ViewModelProvider(@NonNull ViewModelStoreOwner owner, @NonNull Factory factory) {
+        this(owner.getViewModelStore(), factory);
     }
 
     /**
      * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
-     * {@code Creator} and retain them in the given {@code store}.
+     * {@code Factory} and retain them in the given {@code store}.
      *
      * @param store   {@code ViewModelStore} where ViewModels will be stored.
-     * @param creator creator a {@code Creator} which will be used to instantiate
+     * @param factory factory a {@code Factory} which will be used to instantiate
      *                new {@code ViewModels}
      */
-    public ViewModelProvider(ViewModelStore store, Creator creator) {
-        mCreator = creator;
+    public ViewModelProvider(ViewModelStore store, Factory factory) {
+        mFactory = factory;
         this.mViewModelStore = store;
     }
 
@@ -125,16 +125,16 @@ public class ViewModelProvider {
             }
         }
 
-        viewModel = mCreator.create(modelClass);
+        viewModel = mFactory.create(modelClass);
         mViewModelStore.put(key, viewModel);
         //noinspection unchecked
         return (T) viewModel;
     }
 
     /**
-     * Simple creator, which calls empty constructor on the give class.
+     * Simple factory, which calls empty constructor on the give class.
      */
-    public static class NewInstanceCreator implements Creator {
+    public static class NewInstanceFactory implements Factory {
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
