@@ -356,8 +356,8 @@ public class SwipeDismissFrameLayoutTest {
 
     /**
      * Sets up a more involved test case where the layout consists of a
-     * {@link WearableNavigationDrawer} and a
-     * {@link android.support.wearable.internal.view.SwipeDismissPreferenceFragment}
+     * {@code WearableNavigationDrawer} and a
+     * {@code android.support.wear.internal.view.SwipeDismissPreferenceFragment}
      */
   /*
   private void setUpPreferenceFragmentAndNavDrawer() {
