@@ -235,6 +235,17 @@
         <provider android:name=".app.LoaderThrottleSupport$SimpleProvider"
                   android:authorities="com.example.android.apis.supportv4.app.LoaderThrottle" />
 
+        <activity android:name=".app.SimpleJobIntentController"
+            android:label="@string/simple_job_intent_controller">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".app.SimpleJobIntentService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <activity android:name=".content.LocalServiceBroadcaster"
                 android:label="@string/local_service_broadcaster">
             <intent-filter>
