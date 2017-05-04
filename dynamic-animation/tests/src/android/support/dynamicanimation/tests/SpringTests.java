@@ -23,8 +23,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalMatchers.lt;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -558,6 +560,47 @@ public class SpringTests {
         verify(mockListener, timeout(1000).times(1)).onAnimationEnd(anim, false,
                 finalPosition + 1000f, 0);
 
+    }
+
+    /**
+     * Check that the min visible change does affect how soon spring animations end.
+     */
+    public void testScaleMinChange() {
+        FloatValueHolder valueHolder = new FloatValueHolder(0.5f);
+        final SpringAnimation anim = new SpringAnimation(valueHolder);
+        DynamicAnimation.OnAnimationUpdateListener mockListener =
+                mock(DynamicAnimation.OnAnimationUpdateListener.class);
+        anim.addUpdateListener(mockListener);
+
+        final DynamicAnimation.OnAnimationEndListener endListener =
+                mock(DynamicAnimation.OnAnimationEndListener.class);
+        anim.addEndListener(endListener);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                anim.animateToFinalPosition(1f);
+            }
+        });
+
+        verify(endListener, timeout(500)).onAnimationEnd(anim, false, 0, 0);
+        verify(mockListener, atMost(5)).onAnimationUpdate(eq(anim), anyFloat(), anyFloat());
+
+        assertEquals(DynamicAnimation.MIN_VISIBLE_CHANGE_PIXELS, anim.getMinimumVisibleChange());
+
+        // Set the right threshold and start again.
+        anim.setMinimumVisibleChange(DynamicAnimation.MIN_VISIBLE_CHANGE_SCALE);
+        anim.setStartValue(0.5f);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                anim.animateToFinalPosition(1f);
+            }
+        });
+
+        verify(endListener, timeout(2000)).onAnimationEnd(anim, false, 0, 0);
+        verify(mockListener, atLeast(10)).onAnimationUpdate(eq(anim), anyFloat(), anyFloat());
     }
 
     /**

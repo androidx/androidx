@@ -160,6 +160,7 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     @Override
     public void start() {
         sanityCheck();
+        mSpring.setValueThreshold(getValueThreshold());
         super.start();
     }
 
@@ -290,7 +291,6 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     }
 
     @Override
-    void setDefaultThreshold(float threshold) {
-        mSpring.setDefaultThreshold(threshold);
+    void setValueThreshold(float threshold) {
     }
 }
