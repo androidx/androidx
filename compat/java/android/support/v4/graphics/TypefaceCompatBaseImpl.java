@@ -316,11 +316,10 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
             sDynamicTypefaceCache.put(key, result);
             return result;
         } catch (IOException e) {
-            // This is fine. The resource can be string type which indicates a name of Typeface.
+            return null;
         } finally {
             closeQuietly(is);
         }
-        return null;
     }
 
     @Nullable

@@ -135,6 +135,16 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    public void testFontResources_setInStringFamilyName() {
+        TextView textView =
+                mContainer.findViewById(R.id.textview_fontresource_fontfamily_string_resource);
+        assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
+
+        textView = mContainer.findViewById(R.id.textview_fontresource_fontfamily_string_direct);
+        assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
+    }
+
+    @Test
     public void testFontResources_setInXmlFamilyName() {
         TextView textView = mContainer.findViewById(R.id.textview_fontresource_fontfamily);
         Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
