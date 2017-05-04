@@ -17,6 +17,9 @@
 package android.support.text.emoji.widget;
 
 import android.content.Context;
+import android.support.annotation.IntRange;
+import android.support.annotation.Nullable;
+import android.support.text.emoji.EmojiCompat;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
@@ -33,23 +36,26 @@ public class EmojiAppCompatEditText extends AppCompatEditText {
 
     public EmojiAppCompatEditText(Context context) {
         super(context);
-        init();
+        init(null /*attrs*/, 0 /*defStyleAttr*/);
     }
 
     public EmojiAppCompatEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs, android.support.v7.appcompat.R.attr.editTextStyle);
     }
 
     public EmojiAppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs, defStyleAttr);
     }
 
-    private void init() {
+    private void init(@Nullable AttributeSet attrs, int defStyleAttr) {
         if (!mInitialized) {
             mInitialized = true;
-            setKeyListener(getKeyListener());
+            final EditTextAttributeHelper attrHelper = new EditTextAttributeHelper(this, attrs,
+                    defStyleAttr);
+            setMaxEmojiCount(attrHelper.getMaxEmojiCount());
+            setKeyListener(super.getKeyListener());
         }
     }
 
@@ -62,6 +68,30 @@ public class EmojiAppCompatEditText extends AppCompatEditText {
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         InputConnection inputConnection = super.onCreateInputConnection(outAttrs);
         return getEmojiEditTextHelper().onCreateInputConnection(inputConnection, outAttrs);
+    }
+
+    /**
+     * Set the maximum number of EmojiSpans to be added to a CharSequence. The number of spans in a
+     * CharSequence affects the performance of the EditText insert/delete operations. Insert/delete
+     * operations slow down as the number of spans increases.
+     *
+     * @param maxEmojiCount maximum number of EmojiSpans to be added to a single CharSequence,
+     *                      should be equal or greater than 0
+     *
+     * @see EmojiCompat#process(CharSequence, int, int, int)
+     */
+    public void setMaxEmojiCount(@IntRange(from = 0) int maxEmojiCount) {
+        getEmojiEditTextHelper().setMaxEmojiCount(maxEmojiCount);
+    }
+
+    /**
+     * Returns the maximum number of EmojiSpans to be added to a CharSequence.
+     *
+     * @see #setMaxEmojiCount(int)
+     * @see EmojiCompat#process(CharSequence, int, int, int)
+     */
+    public int getMaxEmojiCount() {
+        return getEmojiEditTextHelper().getMaxEmojiCount();
     }
 
     private EmojiEditTextHelper getEmojiEditTextHelper() {

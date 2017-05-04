@@ -33,6 +33,7 @@ android {
         main.java {
             srcDirs = ['src']
         }
+        main.res.srcDirs = ['res', 'res-public']
         main.resources {
             srcDirs = [fontDir.getAbsolutePath()]
             includes = ["LICENSE_UNICODE", "LICENSE_OFL"]
