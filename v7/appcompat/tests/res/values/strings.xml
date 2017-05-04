@@ -93,4 +93,6 @@
     <string name="menu4">menu four</string>
     <string name="menu5">menu five</string>
     <string name="menu6">menu six</string>
+
+    <string name="font_sans_serif">sans-serif</string>
 </resources>
