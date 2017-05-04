@@ -16,6 +16,7 @@
 package android.support.text.emoji.widget;
 
 import android.os.Build;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.text.emoji.EmojiCompat;
@@ -64,6 +65,7 @@ import android.widget.TextView;
 public final class EmojiEditTextHelper {
 
     private final HelperInternal mHelper;
+    private int mMaxEmojiCount;
 
     /**
      * Default constructor.
@@ -74,6 +76,35 @@ public final class EmojiEditTextHelper {
         Preconditions.checkNotNull(editText, "editText cannot be null");
         mHelper = Build.VERSION.SDK_INT >= 19 ? new HelperInternal19(editText)
                 : new HelperInternal();
+    }
+
+    /**
+     * Set the maximum number of EmojiSpans to be added to a CharSequence. The number of spans in a
+     * CharSequence affects the performance of the EditText insert/delete operations. Insert/delete
+     * operations slow down as the number of spans increases.
+     * <p/>
+     *
+     * @param maxEmojiCount maximum number of EmojiSpans to be added to a single CharSequence,
+     *                      should be equal or greater than 0
+     *
+     * @see EmojiCompat#process(CharSequence, int, int, int)
+     */
+    public void setMaxEmojiCount(@IntRange(from = 0) int maxEmojiCount) {
+        Preconditions.checkArgumentNonnegative(maxEmojiCount,
+                "maxEmojiCount should be greater than 0");
+        mMaxEmojiCount = maxEmojiCount;
+        mHelper.setMaxEmojiCount(maxEmojiCount);
+    }
+
+
+    /**
+     * Returns the maximum number of EmojiSpans to be added to a CharSequence.
+     *
+     * @see #setMaxEmojiCount(int)
+     * @see EmojiCompat#process(CharSequence, int, int, int)
+     */
+    public int getMaxEmojiCount() {
+        return mMaxEmojiCount;
     }
 
     /**
@@ -120,6 +151,10 @@ public final class EmojiEditTextHelper {
                 @NonNull EditorInfo outAttrs) {
             return inputConnection;
         }
+
+        public void setMaxEmojiCount(int maxEmojiCount) {
+            // do nothing
+        }
     }
 
     @RequiresApi(19)
@@ -132,6 +167,11 @@ public final class EmojiEditTextHelper {
             mTextWatcher = new EmojiTextWatcher(mEditText);
             mEditText.addTextChangedListener(mTextWatcher);
             mEditText.setEditableFactory(EmojiEditableFactory.getInstance());
+        }
+
+        @Override
+        public void setMaxEmojiCount(int maxEmojiCount) {
+            mTextWatcher.setMaxEmojiCount(maxEmojiCount);
         }
 
         @Override
