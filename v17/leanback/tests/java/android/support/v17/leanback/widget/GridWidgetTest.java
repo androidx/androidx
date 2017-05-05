@@ -69,6 +69,7 @@ import java.util.HashSet;
 @RunWith(AndroidJUnit4.class)
 public class GridWidgetTest {
 
+    private static final float DELTA = 1f;
     private static final boolean HUMAN_DELAY = false;
     private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
     private static final int WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS = 2000;
@@ -3907,7 +3908,7 @@ public class GridWidgetTest {
         });
         waitForLayout();
 
-        final int windowAlignCenter = mGridView.getHeight() / 2;
+        final float windowAlignCenter = mGridView.getHeight() / 2f;
         Rect rect = new Rect();
         View textView;
 
@@ -3915,7 +3916,7 @@ public class GridWidgetTest {
         textView = mGridView.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.t1);
         rect.set(0, 0, textView.getWidth(), textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.top);
+        assertEquals(windowAlignCenter, rect.top, DELTA);
 
         // test 2: including low padding
         setSelectedPosition(1);
@@ -3923,7 +3924,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingTop() > 0);
         rect.set(0, textView.getPaddingTop(), textView.getWidth(), textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.top);
+        assertEquals(windowAlignCenter, rect.top, DELTA);
 
         // test 3: including high padding
         setSelectedPosition(2);
@@ -3932,7 +3933,7 @@ public class GridWidgetTest {
         rect.set(0, 0, textView.getWidth(),
                 textView.getHeight() - textView.getPaddingBottom());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.bottom);
+        assertEquals(windowAlignCenter, rect.bottom, DELTA);
 
         // test 4: including padding will be ignored if offsetPercent is not 0 or 100
         setSelectedPosition(3);
@@ -3940,7 +3941,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingTop() != textView.getPaddingBottom());
         rect.set(0, 0, textView.getWidth(), textView.getHeight() / 2);
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.bottom);
+        assertEquals(windowAlignCenter, rect.bottom, DELTA);
 
         // test 5: does not include padding
         setSelectedPosition(4);
@@ -3948,7 +3949,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingTop() != textView.getPaddingBottom());
         rect.set(0, 0, textView.getWidth(), textView.getHeight() / 2);
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.bottom);
+        assertEquals(windowAlignCenter, rect.bottom, DELTA);
     }
 
     @Test
@@ -3981,7 +3982,7 @@ public class GridWidgetTest {
         });
         waitForLayout();
 
-        final int windowAlignCenter = mGridView.getWidth() / 2;
+        final float windowAlignCenter = mGridView.getWidth() / 2f;
         Rect rect = new Rect();
         View textView;
 
@@ -3989,7 +3990,7 @@ public class GridWidgetTest {
         textView = mGridView.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.t1);
         rect.set(0, 0, textView.getWidth(), textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.left);
+        assertEquals(windowAlignCenter, rect.left, DELTA);
 
         // test 2: including low padding
         setSelectedPosition(1);
@@ -3997,7 +3998,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingLeft() > 0);
         rect.set(textView.getPaddingLeft(), 0, textView.getWidth(), textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.left);
+        assertEquals(windowAlignCenter, rect.left, DELTA);
 
         // test 3: including high padding
         setSelectedPosition(2);
@@ -4006,7 +4007,7 @@ public class GridWidgetTest {
         rect.set(0, 0, textView.getWidth() - textView.getPaddingRight(),
                 textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.right);
+        assertEquals(windowAlignCenter, rect.right, DELTA);
 
         // test 4: including padding will be ignored if offsetPercent is not 0 or 100
         setSelectedPosition(3);
@@ -4014,7 +4015,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
         rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.right);
+        assertEquals(windowAlignCenter, rect.right, DELTA);
 
         // test 5: does not include padding
         setSelectedPosition(4);
@@ -4022,7 +4023,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
         rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.right);
+        assertEquals(windowAlignCenter, rect.right, DELTA);
     }
 
     @Test
@@ -4056,7 +4057,7 @@ public class GridWidgetTest {
         });
         waitForLayout();
 
-        final int windowAlignCenter = mGridView.getWidth() / 2;
+        final float windowAlignCenter = mGridView.getWidth() / 2f;
         Rect rect = new Rect();
         View textView;
 
@@ -4064,7 +4065,7 @@ public class GridWidgetTest {
         textView = mGridView.findViewHolderForAdapterPosition(0).itemView.findViewById(R.id.t1);
         rect.set(0, 0, textView.getWidth(), textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.right);
+        assertEquals(windowAlignCenter, rect.right, DELTA);
 
         // test 2: including low padding
         setSelectedPosition(1);
@@ -4073,7 +4074,7 @@ public class GridWidgetTest {
         rect.set(0, 0, textView.getWidth() - textView.getPaddingRight(),
                 textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.right);
+        assertEquals(windowAlignCenter, rect.right, DELTA);
 
         // test 3: including high padding
         setSelectedPosition(2);
@@ -4082,7 +4083,7 @@ public class GridWidgetTest {
         rect.set(textView.getPaddingLeft(), 0, textView.getWidth(),
                 textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.left);
+        assertEquals(windowAlignCenter, rect.left, DELTA);
 
         // test 4: including padding will be ignored if offsetPercent is not 0 or 100
         setSelectedPosition(3);
@@ -4090,7 +4091,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
         rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.right);
+        assertEquals(windowAlignCenter, rect.right, DELTA);
 
         // test 5: does not include padding
         setSelectedPosition(4);
@@ -4098,7 +4099,7 @@ public class GridWidgetTest {
         assertTrue(textView.getPaddingLeft() != textView.getPaddingRight());
         rect.set(0, 0, textView.getWidth() / 2, textView.getHeight());
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
-        assertEquals(windowAlignCenter, rect.right);
+        assertEquals(windowAlignCenter, rect.right, DELTA);
     }
 }
 
