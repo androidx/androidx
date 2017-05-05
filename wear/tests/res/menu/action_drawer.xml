@@ -15,12 +15,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <style name="AppThemeNoSwipe" parent="@android:style/Theme.DeviceDefault.Light">
-        <item name="android:windowSwipeToDismiss">false</item>
-    </style>
-    <style name="DrawerLayoutStyle" parent="@android:style/Theme.DeviceDefault">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:title="Item 1" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 2" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 3" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 4" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 5" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 6" android:icon="@android:drawable/star_on"/>
+</menu>
