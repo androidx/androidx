@@ -16,7 +16,7 @@
 
 package com.android.flatfoot.apireviewdemo.db_06_decompose;
 
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
@@ -27,7 +27,7 @@ import android.arch.persistence.room.PrimaryKey;
 public class School {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    @Decompose
+    @Embedded
     private Address address;
 
     public int getId() {

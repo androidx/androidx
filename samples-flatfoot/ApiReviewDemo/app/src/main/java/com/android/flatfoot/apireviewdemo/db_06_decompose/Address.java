@@ -16,7 +16,7 @@
 
 package com.android.flatfoot.apireviewdemo.db_06_decompose;
 
-import android.arch.persistence.room.Decompose;
+import android.arch.persistence.room.Embedded;
 
 /**
  * Decomposed into {@link School}.
@@ -24,6 +24,6 @@ import android.arch.persistence.room.Decompose;
 public class Address {
     public String street;
     public String state;
-    @Decompose
+    @Embedded
     public Location location;
 }

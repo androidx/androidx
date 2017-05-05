@@ -32,13 +32,13 @@ public interface GithubDao {
     /**
      * Load full data for a person based on the login.
      */
-    @Query("select * from person where login = ?")
+    @Query("select * from person where login = :login")
     LiveData<Person> getLivePerson(String login);
 
     /**
      * Load full data for a person based on the login.
      */
-    @Query("select * from person where login = ?")
+    @Query("select * from person where login = :login")
     Person getPerson(String login);
 
     /**
