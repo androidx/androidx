@@ -26,6 +26,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.widget.AutoSizeableTextView;
 import android.support.v4.widget.TextViewCompat;
@@ -182,10 +183,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     @Override
     public void setTextSize(int unit, float size) {
-        if (mTextHelper != null) {
-            mTextHelper.setTextSize(unit, size);
-        } else {
+        if (BuildCompat.isAtLeastO()) {
             super.setTextSize(unit, size);
+        } else {
+            if (mTextHelper != null) {
+                mTextHelper.setTextSize(unit, size);
+            }
         }
     }
 
@@ -200,8 +203,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public void setAutoSizeTextTypeWithDefaults(
             @TextViewCompat.AutoSizeTextType int autoSizeTextType) {
-        if (mTextHelper != null) {
-            mTextHelper.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+        if (BuildCompat.isAtLeastO()) {
+            super.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+        } else {
+            if (mTextHelper != null) {
+                mTextHelper.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
+            }
         }
     }
 
@@ -219,9 +226,14 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
             int autoSizeMaxTextSize,
             int autoSizeStepGranularity,
             int unit) throws IllegalArgumentException {
-        if (mTextHelper != null) {
-            mTextHelper.setAutoSizeTextTypeUniformWithConfiguration(
+        if (BuildCompat.isAtLeastO()) {
+            super.setAutoSizeTextTypeUniformWithConfiguration(
                     autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+        } else {
+            if (mTextHelper != null) {
+                mTextHelper.setAutoSizeTextTypeUniformWithConfiguration(
+                        autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
+            }
         }
     }
 
@@ -236,8 +248,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
             throws IllegalArgumentException {
-        if (mTextHelper != null) {
-            mTextHelper.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+        if (BuildCompat.isAtLeastO()) {
+            super.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+        } else {
+            if (mTextHelper != null) {
+                mTextHelper.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
+            }
         }
     }
 
@@ -251,8 +267,14 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     @TextViewCompat.AutoSizeTextType
     public int getAutoSizeTextType() {
-        if (mTextHelper != null) {
-            return mTextHelper.getAutoSizeTextType();
+        if (BuildCompat.isAtLeastO()) {
+            return super.getAutoSizeTextType() == TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM
+                    ? TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM
+                    : TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
+        } else {
+            if (mTextHelper != null) {
+                return mTextHelper.getAutoSizeTextType();
+            }
         }
         return TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
     }
@@ -266,8 +288,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int getAutoSizeStepGranularity() {
-        if (mTextHelper != null) {
-            return mTextHelper.getAutoSizeStepGranularity();
+        if (BuildCompat.isAtLeastO()) {
+            return super.getAutoSizeStepGranularity();
+        } else {
+            if (mTextHelper != null) {
+                return mTextHelper.getAutoSizeStepGranularity();
+            }
         }
         return -1;
     }
@@ -281,8 +307,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int getAutoSizeMinTextSize() {
-        if (mTextHelper != null) {
-            return mTextHelper.getAutoSizeMinTextSize();
+        if (BuildCompat.isAtLeastO()) {
+            return super.getAutoSizeMinTextSize();
+        } else {
+            if (mTextHelper != null) {
+                return mTextHelper.getAutoSizeMinTextSize();
+            }
         }
         return -1;
     }
@@ -296,8 +326,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int getAutoSizeMaxTextSize() {
-        if (mTextHelper != null) {
-            return mTextHelper.getAutoSizeMaxTextSize();
+        if (BuildCompat.isAtLeastO()) {
+            return super.getAutoSizeMaxTextSize();
+        } else {
+            if (mTextHelper != null) {
+                return mTextHelper.getAutoSizeMaxTextSize();
+            }
         }
         return -1;
     }
@@ -311,8 +345,12 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int[] getAutoSizeTextAvailableSizes() {
-        if (mTextHelper != null) {
-            return mTextHelper.getAutoSizeTextAvailableSizes();
+        if (BuildCompat.isAtLeastO()) {
+            return super.getAutoSizeTextAvailableSizes();
+        } else {
+            if (mTextHelper != null) {
+                return mTextHelper.getAutoSizeTextAvailableSizes();
+            }
         }
         return new int[0];
     }
