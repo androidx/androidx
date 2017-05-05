@@ -16,14 +16,9 @@
 
 package android.arch.core.executor;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * A static class that serves as a central point to execute common tasks.
@@ -42,36 +37,7 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
     private TaskExecutor mDefaultTaskExecutor;
 
     private AppToolkitTaskExecutor() {
-        mDefaultTaskExecutor = new TaskExecutor() {
-            private final Object mLock = new Object();
-            private ExecutorService mDiskIO = Executors.newFixedThreadPool(2);
-
-            @Nullable
-            private volatile Handler mMainHandler;
-
-            @Override
-            public void executeOnDiskIO(Runnable runnable) {
-                mDiskIO.execute(runnable);
-            }
-
-            @Override
-            public void postToMainThread(Runnable runnable) {
-                if (mMainHandler == null) {
-                    synchronized (mLock) {
-                        if (mMainHandler == null) {
-                            mMainHandler = new Handler(Looper.getMainLooper());
-                        }
-                    }
-                }
-                //noinspection ConstantConditions
-                mMainHandler.post(runnable);
-            }
-
-            @Override
-            public boolean isMainThread() {
-                return Looper.getMainLooper().getThread() == Thread.currentThread();
-            }
-        };
+        mDefaultTaskExecutor = new DefaultTaskExecutor();
         mDelegate = mDefaultTaskExecutor;
     }
 
