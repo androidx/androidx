@@ -23,4 +23,17 @@
     <public type="attr" name="bezelWidth" />
     <public type="attr" name="circularScrollingGestureEnabled" />
     <public type="attr" name="scrollDegreesPerScreen" />
+
+    <!-- WearableDrawerView -->
+    <public type="attr" name="peekView" />
+    <public type="attr" name="drawerContent" />
+    <public type="attr" name="enableAutoPeek" />
+
+    <!-- WearableActionDrawerView -->
+    <public type="attr" name="actionMenu" />
+    <public type="attr" name="showOverflowInPeek" />
+    <public type="attr" name="drawerTitle" />
+
+    <!-- WearableNavigationDrawerView -->
+    <public type="attr" name="navigationStyle" />
 </resources>

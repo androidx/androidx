@@ -15,12 +15,18 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <style name="AppThemeNoSwipe" parent="@android:style/Theme.DeviceDefault.Light">
-        <item name="android:windowSwipeToDismiss">false</item>
-    </style>
-    <style name="DrawerLayoutStyle" parent="@android:style/Theme.DeviceDefault">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-</resources>
+<android.support.wear.widget.drawer.WearableDrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.wear.widget.drawer.WearableActionDrawerView
+        android:id="@+id/action_drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:drawerTitle="Action Drawer Title"
+        app:actionMenu="@menu/action_drawer" />
+
+</android.support.wear.widget.drawer.WearableDrawerLayout>
