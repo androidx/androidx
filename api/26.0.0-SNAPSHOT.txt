@@ -4001,6 +4001,8 @@ package android.support.v17.leanback.widget {
     method public final boolean isFocusSearchDisabled();
     method public boolean isItemAlignmentOffsetWithPadding();
     method public boolean isScrollEnabled();
+    method public boolean isWindowAlignmentPreferKeyLineOverHighEdge();
+    method public boolean isWindowAlignmentPreferKeyLineOverLowEdge();
     method public boolean onRequestFocusInDescendants(int, android.graphics.Rect);
     method public void removeOnChildViewHolderSelectedListener(android.support.v17.leanback.widget.OnChildViewHolderSelectedListener);
     method public void setAnimateChildLayout(boolean);
@@ -4040,6 +4042,8 @@ package android.support.v17.leanback.widget {
     method public void setWindowAlignment(int);
     method public void setWindowAlignmentOffset(int);
     method public void setWindowAlignmentOffsetPercent(float);
+    method public void setWindowAlignmentPreferKeyLineOverHighEdge(boolean);
+    method public void setWindowAlignmentPreferKeyLineOverLowEdge(boolean);
     field public static final float ITEM_ALIGN_OFFSET_PERCENT_DISABLED = -1.0f;
     field public static final int SAVE_ALL_CHILD = 3; // 0x3
     field public static final int SAVE_LIMITED_CHILD = 2; // 0x2

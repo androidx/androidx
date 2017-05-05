@@ -64,40 +64,47 @@ public abstract class BaseGridView extends RecyclerView {
 
     /**
      * The first item is aligned with the low edge of the viewport. When
-     * navigating away from the first item, the focus maintains a middle
-     * location.
+     * navigating away from the first item, the focus item is aligned to a key line location.
      * <p>
-     * For HorizontalGridView, low edge refers to left edge when RTL is false or
-     * right edge when RTL is true.
-     * For VerticalGridView, low edge refers to top edge.
+     * For HorizontalGridView, low edge refers to getPaddingLeft() when RTL is false or
+     * getWidth() - getPaddingRight() when RTL is true.
+     * For VerticalGridView, low edge refers to getPaddingTop().
      * <p>
-     * The middle location is calculated by "windowAlignOffset" and
+     * The key line location is calculated by "windowAlignOffset" and
      * "windowAlignOffsetPercent"; if neither of these two is defined, the
      * default value is 1/2 of the size.
+     * <p>
+     * Note if there are very few items between low edge and key line, use
+     * {@link #setWindowAlignmentPreferKeyLineOverLowEdge(boolean)} to control whether you prefer
+     * to align the items to key line or low edge. Default is preferring low edge.
      */
     public final static int WINDOW_ALIGN_LOW_EDGE = 1;
 
     /**
      * The last item is aligned with the high edge of the viewport when
      * navigating to the end of list. When navigating away from the end, the
-     * focus maintains a middle location.
+     * focus item is aligned to a key line location.
      * <p>
-     * For HorizontalGridView, high edge refers to right edge when RTL is false or
-     * left edge when RTL is true.
-     * For VerticalGridView, high edge refers to bottom edge.
+     * For HorizontalGridView, high edge refers to getWidth() - getPaddingRight() when RTL is false
+     * or getPaddingLeft() when RTL is true.
+     * For VerticalGridView, high edge refers to getHeight() - getPaddingBottom().
      * <p>
-     * The middle location is calculated by "windowAlignOffset" and
+     * The key line location is calculated by "windowAlignOffset" and
      * "windowAlignOffsetPercent"; if neither of these two is defined, the
      * default value is 1/2 of the size.
+     * <p>
+     * Note if there are very few items between high edge and key line, use
+     * {@link #setWindowAlignmentPreferKeyLineOverHighEdge(boolean)} to control whether you prefer
+     * to align the items to key line or high edge. Default is preferring key line.
      */
     public final static int WINDOW_ALIGN_HIGH_EDGE = 1 << 1;
 
     /**
      * The first item and last item are aligned with the two edges of the
      * viewport. When navigating in the middle of list, the focus maintains a
-     * middle location.
+     * key line location.
      * <p>
-     * The middle location is calculated by "windowAlignOffset" and
+     * The key line location is calculated by "windowAlignOffset" and
      * "windowAlignOffsetPercent"; if neither of these two is defined, the
      * default value is 1/2 of the size.
      */
@@ -105,9 +112,9 @@ public abstract class BaseGridView extends RecyclerView {
             WINDOW_ALIGN_LOW_EDGE | WINDOW_ALIGN_HIGH_EDGE;
 
     /**
-     * The focused item always stays in a middle location.
+     * The focused item always stays in a key line location.
      * <p>
-     * The middle location is calculated by "windowAlignOffset" and
+     * The key line location is calculated by "windowAlignOffset" and
      * "windowAlignOffsetPercent"; if neither of these two is defined, the
      * default value is 1/2 of the size.
      */
@@ -307,7 +314,62 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Sets the offset in pixels for window alignment.
+     * Sets whether prefer key line over low edge when {@link #WINDOW_ALIGN_LOW_EDGE} is used.
+     * When true, if there are very few items between low edge and key line, align items to key
+     * line instead of align items to low edge.
+     * Default value is false (aka prefer align to low edge).
+     *
+     * @param preferKeyLineOverLowEdge True to prefer key line over low edge, false otherwise.
+     */
+    public void setWindowAlignmentPreferKeyLineOverLowEdge(boolean preferKeyLineOverLowEdge) {
+        mLayoutManager.mWindowAlignment.mainAxis()
+                .setPreferKeylineOverLowEdge(preferKeyLineOverLowEdge);
+        requestLayout();
+    }
+
+
+    /**
+     * Returns whether prefer key line over high edge when {@link #WINDOW_ALIGN_HIGH_EDGE} is used.
+     * When true, if there are very few items between high edge and key line, align items to key
+     * line instead of align items to high edge.
+     * Default value is true (aka prefer align to key line).
+     *
+     * @param preferKeyLineOverHighEdge True to prefer key line over high edge, false otherwise.
+     */
+    public void setWindowAlignmentPreferKeyLineOverHighEdge(boolean preferKeyLineOverHighEdge) {
+        mLayoutManager.mWindowAlignment.mainAxis()
+                .setPreferKeylineOverHighEdge(preferKeyLineOverHighEdge);
+        requestLayout();
+    }
+
+    /**
+     * Returns whether prefer key line over low edge when {@link #WINDOW_ALIGN_LOW_EDGE} is used.
+     * When true, if there are very few items between low edge and key line, align items to key
+     * line instead of align items to low edge.
+     * Default value is false (aka prefer align to low edge).
+     *
+     * @return True to prefer key line over low edge, false otherwise.
+     */
+    public boolean isWindowAlignmentPreferKeyLineOverLowEdge() {
+        return mLayoutManager.mWindowAlignment.mainAxis().isPreferKeylineOverLowEdge();
+    }
+
+
+    /**
+     * Returns whether prefer key line over high edge when {@link #WINDOW_ALIGN_HIGH_EDGE} is used.
+     * When true, if there are very few items between high edge and key line, align items to key
+     * line instead of align items to high edge.
+     * Default value is true (aka prefer align to key line).
+     *
+     * @return True to prefer key line over high edge, false otherwise.
+     */
+    public boolean isWindowAlignmentPreferKeyLineOverHighEdge() {
+        return mLayoutManager.mWindowAlignment.mainAxis().isPreferKeylineOverHighEdge();
+    }
+
+
+    /**
+     * Sets the offset in pixels for window alignment key line.
      *
      * @param offset The number of pixels to offset.  If the offset is positive,
      *        it is distance from low edge (see {@link #WINDOW_ALIGN_LOW_EDGE});
@@ -321,7 +383,7 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Returns the offset in pixels for window alignment.
+     * Returns the offset in pixels for window alignment key line.
      *
      * @return The number of pixels to offset.  If the offset is positive,
      *        it is distance from low edge (see {@link #WINDOW_ALIGN_LOW_EDGE});
@@ -334,7 +396,7 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Sets the offset percent for window alignment in addition to {@link
+     * Sets the offset percent for window alignment key line in addition to {@link
      * #getWindowAlignmentOffset()}.
      *
      * @param offsetPercent Percentage to offset. E.g., 40 means 40% of the
@@ -348,7 +410,7 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Returns the offset percent for window alignment in addition to
+     * Returns the offset percent for window alignment key line in addition to
      * {@link #getWindowAlignmentOffset()}.
      *
      * @return Percentage to offset. E.g., 40 means 40% of the width from the
