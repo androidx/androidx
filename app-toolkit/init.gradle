@@ -84,6 +84,7 @@ if (ext.inAppToolkitProject) {
     init.configureSubProjects()
     init.setupRelease()
     init.enableDoclavaAndJDiff(this)
+    rootProject.tasks["generateDocs"].exclude '**/R.java'
 }
 
 
