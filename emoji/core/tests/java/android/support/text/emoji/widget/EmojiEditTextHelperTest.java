@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -101,7 +100,7 @@ public class EmojiEditTextHelperTest {
 
     @Test
     public void testAttachesTextWatcher() {
-        mEditText = spy(new EditText(InstrumentationRegistry.getTargetContext()));
+        mEditText = mock(EditText.class);
         mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
 
         final ArgumentCaptor<TextWatcher> argumentCaptor = ArgumentCaptor.forClass(
@@ -113,7 +112,7 @@ public class EmojiEditTextHelperTest {
 
     @Test
     public void testSetMaxCount() {
-        mEditText = spy(new EditText(InstrumentationRegistry.getTargetContext()));
+        mEditText = mock(EditText.class);
         mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
         // capture TextWatcher
         final ArgumentCaptor<TextWatcher> argumentCaptor = ArgumentCaptor.forClass(
