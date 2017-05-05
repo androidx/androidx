@@ -87,7 +87,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     @Test
-    public void defaultAlignment() throws InterruptedException {
+    public void defaultAlignment() throws Throwable {
         SingleSupportFragmentTestActivity activity = launchAndWaitActivity(F_defaultAlignment.class, 1000);
 
         final Rect rect = new Rect();
@@ -100,6 +100,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         assertEquals("First row is initially aligned to top of screen", 0, rect.top);
 
         sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
+        waitForScrollIdle(gridView);
         View row1 = gridView.findViewHolderForAdapterPosition(1).itemView;
         PollingCheck.waitFor(new PollingCheck.ViewStableOnScreen(row1));
 
