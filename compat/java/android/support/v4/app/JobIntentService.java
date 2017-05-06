@@ -275,9 +275,11 @@ public abstract class JobIntentService extends Service {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            synchronized (mCompatQueue) {
-                mCurProcessor = null;
-                checkForMoreCompatWorkLocked();
+            if (mCompatQueue != null) {
+                synchronized (mCompatQueue) {
+                    mCurProcessor = null;
+                    checkForMoreCompatWorkLocked();
+                }
             }
         }
     }
