@@ -1372,8 +1372,6 @@ public class Preference implements Comparable<Preference> {
      *
      * @param dependent The dependent Preference that will be enabled/disabled
      *            according to the state of this Preference.
-     * @return Returns the same Preference object, for chaining multiple calls
-     *         into a single statement.
      */
     private void unregisterDependent(Preference dependent) {
         if (mDependents != null) {
@@ -1563,7 +1561,7 @@ public class Preference implements Comparable<Preference> {
         }
 
         // Shouldn't store null
-        if (value == getPersistedString(null)) {
+        if (TextUtils.equals(value, getPersistedString(null))) {
             // It's already there, so the same as persisting
             return true;
         }
@@ -1830,7 +1828,7 @@ public class Preference implements Comparable<Preference> {
      * Returns the text that will be used to filter this Preference depending on
      * user input.
      * <p>
-     * If overridding and calling through to the superclass, make sure to prepend
+     * If overriding and calling through to the superclass, make sure to prepend
      * your additions with a space.
      *
      * @return Text as a {@link StringBuilder} that will be used to filter this
