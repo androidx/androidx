@@ -51,7 +51,14 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 @Override
                 public void onBackStackChanged() {
                     int newCount = mFragmentManager.getBackStackEntryCount();
-                    boolean isPopOperation = newCount < mBackStackCount;
+                    @BackStackEffect int backStackEffect;
+                    if (newCount < mBackStackCount) {
+                        backStackEffect = BACK_STACK_DESTINATION_POPPED;
+                    } else if (newCount > mBackStackCount) {
+                        backStackEffect = BACK_STACK_DESTINATION_ADDED;
+                    } else {
+                        backStackEffect = BACK_STACK_UNCHANGED;
+                    }
                     mBackStackCount = newCount;
 
                     int destId = 0;
@@ -59,7 +66,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                     if (state != null) {
                         destId = state.mCurrentDestId;
                     }
-                    dispatchOnNavigatorNavigated(destId, isPopOperation);
+                    dispatchOnNavigatorNavigated(destId, backStackEffect);
                 }
             };
 
@@ -138,11 +145,13 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 && oldState.mCurrentDestId == destId;
         if (!initialNavigation && !isSingleTopReplacement) {
             ft.addToBackStack(getBackStackName(destId));
-        } else if (!isSingleTopReplacement) {
+        } else {
             ft.runOnCommit(new Runnable() {
                 @Override
                 public void run() {
-                    dispatchOnNavigatorNavigated(destId, false);
+                    dispatchOnNavigatorNavigated(destId, isSingleTopReplacement
+                            ? BACK_STACK_UNCHANGED
+                            : BACK_STACK_DESTINATION_ADDED);
                 }
             });
         }

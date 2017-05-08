@@ -65,7 +65,7 @@ public class NavigationActivity extends AppCompatActivity {
                     Toast.makeText(NavigationActivity.this, "Navigated to "
                             + dest,
                             Toast.LENGTH_SHORT).show();
-                    Log.d("NavigationActivity", "Navigated to " + dest, new Throwable());
+                    Log.d("NavigationActivity", "Navigated to " + dest);
                 }
             });
         }

@@ -68,7 +68,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                 destId = intent.getIntExtra(EXTRA_NAV_SOURCE, 0);
             }
             mHostActivity.finish();
-            dispatchOnNavigatorNavigated(destId, true);
+            dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
             return true;
         }
         return false;
@@ -133,7 +133,10 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                 mHostActivity.overridePendingTransition(enterAnim, exitAnim);
             }
         }
-        dispatchOnNavigatorNavigated(destId, false);
+
+        // You can't pop the back stack from the caller of a new Activity,
+        // so we don't add this navigator to the controller's back stack
+        dispatchOnNavigatorNavigated(destId, BACK_STACK_UNCHANGED);
     }
 
     /**

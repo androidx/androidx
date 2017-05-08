@@ -18,11 +18,13 @@ package android.support.navigation.app.nav;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -64,6 +66,35 @@ public abstract class Navigator<D extends NavDestination> {
         String value();
     }
 
+    @Retention(SOURCE)
+    @IntDef({BACK_STACK_UNCHANGED, BACK_STACK_DESTINATION_ADDED, BACK_STACK_DESTINATION_POPPED})
+    @interface BackStackEffect {}
+
+    /**
+     * Indicator that the navigation event should not change the {@link NavController}'s back stack.
+     *
+     * <p>For example, a {@link NavOptions#shouldLaunchSingleTop() single top} navigation event may
+     * not result in a back stack change if the existing destination is on the top of the stack.</p>
+     *
+     * @see #dispatchOnNavigatorNavigated
+     */
+    public static final int BACK_STACK_UNCHANGED = 0;
+
+    /**
+     * Indicator that the navigation event has added a new entry to the back stack. Only
+     * destinations added with this flag will be handled by {@link NavController#navigateUp()}.
+     *
+     * @see #dispatchOnNavigatorNavigated
+     */
+    public static final int BACK_STACK_DESTINATION_ADDED = 1;
+
+    /**
+     * Indicator that the navigation event has popped an entry off the back stack.
+     *
+     * @see #dispatchOnNavigatorNavigated
+     */
+    public static final int BACK_STACK_DESTINATION_POPPED = 2;
+
     private final CopyOnWriteArrayList<OnNavigatorNavigatedListener> mOnNavigatedListeners =
             new CopyOnWriteArrayList<>();
 
@@ -83,7 +114,7 @@ public abstract class Navigator<D extends NavDestination> {
      * the navigation graph. This method generally should not be called directly;
      * {@link NavController} will delegate to it when appropriate.</p>
      *
-     * <p>Implementations should {@link #dispatchOnNavigatorNavigated(int, boolean)} to notify
+     * <p>Implementations should {@link #dispatchOnNavigatorNavigated} to notify
      * listeners of the resulting navigation destination.</p>
      *
      * @param destination destination node to navigate to
@@ -96,7 +127,7 @@ public abstract class Navigator<D extends NavDestination> {
     /**
      * Attempt to pop this navigator's back stack, performing the appropriate navigation.
      *
-     * <p>Implementations should {@link #dispatchOnNavigatorNavigated(int, boolean)} to notify
+     * <p>Implementations should {@link #dispatchOnNavigatorNavigated} to notify
      * listeners of the resulting navigation destination and return {@link true} if navigation
      * was successful. Implementations should return {@code false} if navigation could not
      * be performed, for example if the navigator's back stack was empty.</p>
@@ -133,11 +164,12 @@ public abstract class Navigator<D extends NavDestination> {
      * Utility for navigator implementations.
      *
      * @param destId id of the new destination
-     * @param isPopOperation true if this was the result of a pop operation
+     * @param backStackEffect how the navigation event affects the back stack
      */
-    public final void dispatchOnNavigatorNavigated(@IdRes int destId, boolean isPopOperation) {
+    public final void dispatchOnNavigatorNavigated(@IdRes int destId,
+            @BackStackEffect int backStackEffect) {
         for (OnNavigatorNavigatedListener listener : mOnNavigatedListeners) {
-            listener.onNavigatorNavigated(this, destId, isPopOperation);
+            listener.onNavigatorNavigated(this, destId, backStackEffect);
         }
     }
 
@@ -151,8 +183,9 @@ public abstract class Navigator<D extends NavDestination> {
          *
          * @param navigator
          * @param destId
-         * @param isPopOperation
+         * @param backStackEffect
          */
-        void onNavigatorNavigated(Navigator navigator, @IdRes int destId, boolean isPopOperation);
+        void onNavigatorNavigated(Navigator navigator, @IdRes int destId,
+                @BackStackEffect int backStackEffect);
     }
 }

@@ -63,7 +63,7 @@ public class NavController implements NavigatorProvider {
             new Navigator.OnNavigatorNavigatedListener() {
                 @Override
                 public void onNavigatorNavigated(Navigator navigator, @IdRes int destId,
-                                                 boolean isPopOperation) {
+                        @Navigator.BackStackEffect int backStackEffect) {
                     if (destId != 0) {
                         NavDestination newDest = mGraph.findNode(destId);
                         if (newDest == null) {
@@ -71,13 +71,19 @@ public class NavController implements NavigatorProvider {
                                     + " reported navigation to unknown destination id "
                                     + mContext.getResources().getResourceName(destId));
                         }
-                        if (isPopOperation) {
-                            while (!mBackStack.isEmpty()
-                                    && mBackStack.peekLast().getId() != destId) {
-                                mBackStack.removeLast();
-                            }
-                        } else {
-                            mBackStack.add(newDest);
+                        switch (backStackEffect) {
+                            case Navigator.BACK_STACK_DESTINATION_POPPED:
+                                while (!mBackStack.isEmpty()
+                                        && mBackStack.peekLast().getId() != destId) {
+                                    mBackStack.removeLast();
+                                }
+                                break;
+                            case Navigator.BACK_STACK_DESTINATION_ADDED:
+                                mBackStack.add(newDest);
+                                break;
+                            case Navigator.BACK_STACK_UNCHANGED:
+                                // Don't update the back stack and don't dispatchOnNavigated
+                                return;
                         }
                         dispatchOnNavigated(newDest);
                     }

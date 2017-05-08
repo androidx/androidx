@@ -63,7 +63,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is not a direct child of this NavGraph");
         }
-        dispatchOnNavigatorNavigated(destination.getId(), false);
+        dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
         startDestination.navigate(args, navOptions);
     }
 
