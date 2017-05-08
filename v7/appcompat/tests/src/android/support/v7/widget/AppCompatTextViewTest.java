@@ -21,10 +21,12 @@ import static android.support.v7.testutils.TestUtilsActions.setEnabled;
 import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
@@ -138,10 +140,17 @@ public class AppCompatTextViewTest
     public void testFontResources_setInStringFamilyName() {
         TextView textView =
                 mContainer.findViewById(R.id.textview_fontresource_fontfamily_string_resource);
-        assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
-
+        assertNotNull(textView.getTypeface());
+        // Pre-L, Typeface always resorts to native for a Typeface object, hence giving you a
+        // different one each call.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
+        }
         textView = mContainer.findViewById(R.id.textview_fontresource_fontfamily_string_direct);
-        assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
+        assertNotNull(textView.getTypeface());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            assertEquals(Typeface.SANS_SERIF, textView.getTypeface());
+        }
     }
 
     @Test
