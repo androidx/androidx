@@ -16,13 +16,10 @@
 package android.support.v4.content.res;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -32,9 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
-import android.support.v4.graphics.TypefaceCompat.TypefaceHolder;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
@@ -299,19 +294,18 @@ public class ResourcesCompatTest {
 
     @Test
     public void testGetFont_fontFile() {
-        TypefaceHolder font = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
 
         assertNotNull(font);
-        assertNotSame(Typeface.DEFAULT, font.getTypeface());
+        assertNotSame(Typeface.DEFAULT, font);
     }
 
     @Test
     public void testGetFont_xmlFile() {
-        TypefaceHolder font =
-                ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
 
         assertNotNull(font);
-        assertNotSame(Typeface.DEFAULT, font.getTypeface());
+        assertNotSame(Typeface.DEFAULT, font);
     }
 
     @Test
@@ -331,56 +325,18 @@ public class ResourcesCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 24)
     public void testGetFont_fontFileIsCached() {
-        TypefaceHolder font = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
-        TypefaceHolder font2 =
-                ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
+        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
 
         assertSame(font, font2);
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 24)
     public void testGetFont_xmlFileIsCached() {
-        TypefaceHolder font =
-                ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
-        TypefaceHolder font2 =
-                ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
+        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
 
         assertSame(font, font2);
-    }
-
-    @Test
-    public void testFont_selectBestFont() {
-        TypefaceHolder normal =
-                ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
-        assertEquals(400, normal.getWeight());
-        assertFalse(normal.isItalic());
-
-        TypefaceHolder bold =
-                ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.BOLD);
-        assertEquals(700, bold.getWeight());
-        assertFalse(bold.isItalic());
-
-        TypefaceHolder italic =
-                ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.ITALIC);
-        assertEquals(400, italic.getWeight());
-        assertTrue(italic.isItalic());
-
-        TypefaceHolder boldItalic =
-                ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.BOLD_ITALIC);
-        assertEquals(700, boldItalic.getWeight());
-        assertTrue(boldItalic.isItalic());
-
-        // The created typeface must be different each other since we have separate fonts for all
-        // styles.
-        assertNotEquals(normal.getTypeface(), bold.getTypeface());
-        assertNotEquals(normal.getTypeface(), italic.getTypeface());
-        assertNotEquals(normal.getTypeface(), boldItalic.getTypeface());
-        assertNotEquals(normal.getTypeface(), bold.getTypeface());
-        assertNotEquals(bold.getTypeface(), italic.getTypeface());
-        assertNotEquals(bold.getTypeface(), boldItalic.getTypeface());
-        assertNotEquals(italic.getTypeface(), boldItalic.getTypeface());
     }
 }
