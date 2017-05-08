@@ -20,6 +20,7 @@ import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Matchers.anyInt;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -39,6 +41,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceDataStore;
 import android.support.v7.preference.PreferenceManager;
@@ -56,6 +59,7 @@ import org.mockito.Mockito;
 @RunWith(AndroidJUnit4.class)
 public class PreferenceDataStoreTest {
 
+    private Context mContext;
     private PreferenceWrapper mPreference;
     private PreferenceDataStore mDataStore;
     private PreferenceScreen mScreen;
@@ -70,18 +74,54 @@ public class PreferenceDataStoreTest {
     @Before
     @UiThreadTest
     public void setup() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        mContext = InstrumentationRegistry.getTargetContext();
         mDataStore = mock(PreferenceDataStore.class);
 
-        mManager = new PreferenceManager(context);
+        mManager = new PreferenceManager(mContext);
         mSharedPref = mManager.getSharedPreferences();
-        mScreen = mManager.createPreferenceScreen(context);
-        mPreference = new PreferenceWrapper(context);
+        mScreen = mManager.createPreferenceScreen(mContext);
+        mPreference = new PreferenceWrapper(mContext);
         mPreference.setKey(KEY);
 
         // Make sure that the key is not present in SharedPreferences to ensure test
         // correctness.
         mManager.getSharedPreferences().edit().remove(KEY).commit();
+    }
+
+    /**
+     * Test that the initial value is taken from the data store (before the preference gets assigned
+     * to the preference hierarchy).
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIsTakenFromDSOnPref() {
+        when(mDataStore.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+
+        CheckBoxPreference pref = new CheckBoxPreference(mContext);
+        pref.setKey("CheckboxTestPref");
+        pref.setPreferenceDataStore(mDataStore);
+
+        mScreen.addPreference(pref);
+
+        assertTrue(pref.isChecked());
+    }
+
+    /**
+     * Test that the initial value is taken from the data store (before the preference gets assigned
+     * to the preference hierarchy).
+     */
+    @Test
+    @UiThreadTest
+    public void testInitialValueIsTakenFromDSOnMgr() {
+        when(mDataStore.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+        mManager.setPreferenceDataStore(mDataStore);
+
+        CheckBoxPreference pref = new CheckBoxPreference(mContext);
+        pref.setKey("CheckboxTestPref");
+
+        mScreen.addPreference(pref);
+
+        assertTrue(pref.isChecked());
     }
 
     @Test
