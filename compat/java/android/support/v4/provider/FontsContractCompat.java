@@ -541,7 +541,7 @@ public class FontsContractCompat {
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts) {
         final Map<Uri, ByteBuffer> uriBuffer =
                 prepareFontData(context, fonts, cancellationSignal);
-        return TypefaceCompat.createTypeface(context, fonts, uriBuffer).getTypeface();
+        return TypefaceCompat.createTypeface(context, fonts, uriBuffer);
     }
 
     /**
