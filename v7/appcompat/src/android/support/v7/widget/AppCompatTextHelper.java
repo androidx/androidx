@@ -117,6 +117,13 @@ class AppCompatTextHelper {
                     } catch (UnsupportedOperationException | Resources.NotFoundException e) {
                         // Expected if it is not a font resource.
                     }
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
+                            && fontTypeface == null) {
+                        // Try with String. This is done by TextView JB+, but fails in ICS
+                        String fontFamilyName =
+                                a.getString(R.styleable.TextAppearance_android_fontFamily);
+                        fontTypeface = Typeface.create(fontFamilyName, style);
+                    }
                 }
             }
             if (Build.VERSION.SDK_INT < 23) {
@@ -168,6 +175,13 @@ class AppCompatTextHelper {
                     fontTypeface = a.getFont(R.styleable.TextAppearance_android_fontFamily, style);
                 } catch (UnsupportedOperationException | Resources.NotFoundException e) {
                     // Expected if it is not a font resource.
+                }
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
+                        && fontTypeface == null) {
+                    // Try with String. This is done by TextView JB+, but fails in ICS
+                    String fontFamilyName =
+                            a.getString(R.styleable.TextAppearance_android_fontFamily);
+                    fontTypeface = Typeface.create(fontFamilyName, style);
                 }
             }
         }
