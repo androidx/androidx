@@ -36,6 +36,7 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 /**
  * Base class for derived classes that want to have common fields for preview programs.
@@ -546,6 +547,10 @@ public abstract class BasePreviewProgram extends BaseProgram {
     public abstract static class Builder<T extends Builder> extends BaseProgram.Builder<T> {
         private static final SimpleDateFormat sFormat =
                 new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        static {
+            sFormat.setTimeZone(TimeZone.getTimeZone("GMT-0"));
+        }
 
         private String mExternalId;
         private Uri mPreviewVideoUri;
