@@ -18,23 +18,15 @@ package android.support.v4.graphics;
 
 import static android.content.res.AssetManager.ACCESS_BUFFER;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.app.TestSupportActivity;
-import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontResult;
-import android.support.v4.provider.FontRequest;
-import android.support.v4.provider.FontsContractCompat;
 import android.util.Base64;
 
 import org.junit.Before;
@@ -45,7 +37,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -75,90 +66,6 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
     public void setup() {
         mCompat = new TypefaceCompatBaseImpl(mActivityTestRule.getActivity());
         TypefaceCompatBaseImpl.putInCache(PROVIDER, QUERY_CACHED, Typeface.MONOSPACE);
-    }
-
-    @Test
-    public void testReceiveResult_cachedResult() {
-        FontRequestCallback callback = mock(FontRequestCallback.class);
-
-        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY_CACHED, CERTS),
-                callback, 0, null);
-
-        verify(callback).onTypefaceRetrieved(Typeface.MONOSPACE);
-    }
-
-    @Test
-    public void testReceiveResult_resultCodeProviderNotFound() {
-        FontRequestCallback callback = mock(FontRequestCallback.class);
-
-        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContractCompat.RESULT_CODE_PROVIDER_NOT_FOUND, null);
-
-        verify(callback).onTypefaceRequestFailed(
-                FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND);
-    }
-
-    @Test
-    public void testReceiveResult_resultCodeFontNotFound() {
-        FontRequestCallback callback = mock(FontRequestCallback.class);
-
-        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND, null);
-
-        verify(callback).onTypefaceRequestFailed(
-                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-    }
-
-    @Test
-    public void testReceiveResult_nullBundle() {
-        FontRequestCallback callback = mock(FontRequestCallback.class);
-
-        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContractCompat.Columns.RESULT_CODE_OK, null);
-
-        verify(callback).onTypefaceRequestFailed(
-                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-    }
-
-    @Test
-    public void testReceiveResult_nullResult() {
-        FontRequestCallback callback = mock(FontRequestCallback.class);
-
-        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContractCompat.Columns.RESULT_CODE_OK, new Bundle());
-
-        verify(callback).onTypefaceRequestFailed(
-                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-    }
-
-    @Test
-    public void testReceiveResult_emptyResult() {
-        FontRequestCallback callback = mock(FontRequestCallback.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(
-                FontsContractCompat.PARCEL_FONT_RESULTS, new ArrayList<FontResult>());
-
-        mCompat.receiveResult(new FontRequest(PROVIDER, PACKAGE, QUERY, CERTS), callback,
-                FontsContractCompat.Columns.RESULT_CODE_OK, bundle);
-
-        verify(callback).onTypefaceRequestFailed(
-                FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-    }
-
-    @Test
-    public void testTypefaceRequestFailureConstantsAreInSync() {
-        // Error codes from the provider are positive numbers and are in sync
-        assertEquals(FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND,
-                TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-        assertEquals(FontsContractCompat.Columns.RESULT_CODE_FONT_UNAVAILABLE,
-                TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_UNAVAILABLE);
-        assertEquals(FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY,
-                TypefaceCompat.FontRequestCallback.FAIL_REASON_MALFORMED_QUERY);
-
-        // Internal errors are negative
-        assertTrue(0 > TypefaceCompat.FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND);
-        assertTrue(0 > TypefaceCompat.FontRequestCallback.FAIL_REASON_WRONG_CERTIFICATES);
-        assertTrue(0 > TypefaceCompat.FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR);
     }
 
     private File loadFont() {
@@ -194,6 +101,7 @@ public class TypefaceCompatTest extends BaseInstrumentationTestCase<TestSupportA
         }
     }
 
+    // TODO(nona): Remove once EmojiCompat stop using Typeface.createTypeface.
     @Test
     public void testCreateTypeface() throws IOException, InterruptedException {
         File file = loadFont();

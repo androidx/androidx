@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.os.Process;
 import android.provider.BaseColumns;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
@@ -42,6 +43,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.FontResourcesParserCompat;
 import android.support.v4.graphics.TypefaceCompat;
+import android.support.v4.util.LruCache;
 import android.support.v4.util.Preconditions;
 
 import java.io.FileInputStream;
@@ -57,6 +59,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Utility class to deal with Font ContentProviders.
@@ -162,6 +165,41 @@ public class FontsContractCompat {
     @RestrictTo(LIBRARY_GROUP)
     public static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
     // Note -3 is used by Typeface to indicate the font failed to load.
+
+    private static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
+
+    private static final int BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS = 10000;
+    private static final SelfDestructiveThread sBackgroundThread =
+            new SelfDestructiveThread("fonts", Process.THREAD_PRIORITY_BACKGROUND,
+                    BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS);
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    public static Typeface getFontSync(final Context context, final FontRequest request) {
+        final String id = request.getIdentifier();
+        Typeface cached = sTypefaceCache.get(id);
+        if (cached != null) {
+            return cached;
+        }
+
+        try {
+            return sBackgroundThread.postAndWait(new Callable<Typeface>() {
+                public Typeface call() throws Exception {
+                    FontFamilyResult result = fetchFonts(context, null, request);
+                    if (result.getStatusCode() == FontFamilyResult.STATUS_OK) {
+                        Typeface typeface = buildTypeface(context, null, result.getFonts());
+                        if (typeface != null) {
+                            sTypefaceCache.put(id, typeface);
+                        }
+                        return typeface;
+                    }
+                    return null;
+                }
+            }, 500);
+        } catch (InterruptedException e) {
+            return null;
+        }
+    }
 
     /**
      * Object represent a font entry in the family returned from {@link #fetchFonts}.

@@ -24,11 +24,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.graphics.TypefaceCompat;
-import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
+import android.support.v4.provider.FontsContractCompat.FontRequestCallback;
 import android.support.v4.provider.FontsContractInternal;
 import android.support.v4.util.Preconditions;
 
