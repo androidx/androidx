@@ -68,10 +68,10 @@ public class ProductFragment extends LifecycleFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ProductViewModel.Creator creator = new ProductViewModel.Creator(
+        ProductViewModel.Factory factory = new ProductViewModel.Factory(
                 getActivity().getApplication(), getArguments().getInt(KEY_PRODUCT_ID));
 
-        final ProductViewModel model = ViewModelProviders.of(this, creator)
+        final ProductViewModel model = ViewModelProviders.of(this, factory)
                 .get(ProductViewModel.class);
 
         mBinding.setProductViewModel(model);

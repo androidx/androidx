@@ -34,7 +34,7 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 @TypeConverters(DateConverter.class)
 public interface BookDao {
 
-    @Query("select * from Book where id = ?")
+    @Query("select * from Book where id = :id")
     User loadUserById(int id);
 
     @Query("SELECT * FROM Book " +

@@ -40,7 +40,7 @@
       <option name="SHOW_OPTIMIZED_WARNING" value="true" />
     </Native>
     <Profilers>
-      <option name="ENABLE_ADVANCED_PROFILING" value="true" />
+      <option name="ENABLE_ADVANCED_PROFILING" value="false" />
       <option name="SUPPORT_LIB_ENABLED" value="true" />
       <option name="INSTRUMENTATION_ENABLED" value="true" />
     </Profilers>

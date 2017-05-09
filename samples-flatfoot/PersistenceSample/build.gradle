@@ -32,7 +32,7 @@ allprojects {
     repositories {
         jcenter()
         maven {
-            url "../../prebuilts2804"
+            url "../../prebuilts0905"
         }
     }
 }

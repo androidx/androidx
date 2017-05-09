@@ -34,9 +34,9 @@ public interface ProductDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<ProductEntity> products);
 
-    @Query("select * from products where id = ?")
+    @Query("select * from products where id = :productId")
     LiveData<ProductEntity> loadProduct(int productId);
 
-    @Query("select * from products where id = ?")
+    @Query("select * from products where id = :productId")
     ProductEntity loadProductSync(int productId);
 }

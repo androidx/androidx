@@ -113,14 +113,14 @@ public class ProductViewModel extends AndroidViewModel {
      * This creator is to showcase how to inject dependencies into ViewModels. It's not
      * actually necessary in this case, as the product ID can be passed in a public method.
      */
-    public static class Creator extends ViewModelProvider.NewInstanceCreator {
+    public static class Factory extends ViewModelProvider.NewInstanceFactory {
 
         @NonNull
         private final Application mApplication;
 
         private final int mProductId;
 
-        public Creator(@NonNull Application application, int productId) {
+        public Factory(@NonNull Application application, int productId) {
             mApplication = application;
             mProductId = productId;
         }

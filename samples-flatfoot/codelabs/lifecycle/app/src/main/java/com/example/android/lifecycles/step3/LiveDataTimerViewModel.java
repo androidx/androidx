@@ -16,6 +16,7 @@
 
 package com.example.android.lifecycles.step3;
 
+import android.arch.lifecycle.MutableLiveData;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -33,7 +34,7 @@ public class LiveDataTimerViewModel extends ViewModel {
 
     private static final int ONE_SECOND = 1000;
 
-    private LiveData<Long> elapsedTime = new LiveData<>();
+    private MutableLiveData<Long> elapsedTime = new MutableLiveData<>();
 
     private long mInitialTime;
 

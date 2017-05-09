@@ -29,10 +29,10 @@ import java.util.List;
 
 @Dao
 public interface CommentDao {
-    @Query("SELECT * FROM comments where productId = ?")
+    @Query("SELECT * FROM comments where productId = :productId")
     LiveData<List<CommentEntity>> loadComments(int productId);
 
-    @Query("SELECT * FROM comments where productId = ?")
+    @Query("SELECT * FROM comments where productId = :productId")
     List<CommentEntity> loadCommentsSync(int productId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

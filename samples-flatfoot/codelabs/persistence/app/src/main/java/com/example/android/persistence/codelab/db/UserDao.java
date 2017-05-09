@@ -30,7 +30,7 @@ public interface UserDao {
     @Query("select * from user")
     List<User> loadAllUsers();
 
-    @Query("select * from user where id = ?")
+    @Query("select * from user where id = :id")
     User loadUserById(int id);
 
     @Query("select * from user where name = :firstName and lastName = :lastName")
