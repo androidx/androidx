@@ -16,13 +16,12 @@
 
 package android.arch.lifecycle;
 
+import android.arch.core.internal.SafeIterableMap;
 import android.support.annotation.CallSuper;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * {@link LiveData} subclass which may observer other {@code LiveData} objects and react on
@@ -35,13 +34,15 @@ import java.util.Set;
  */
 @SuppressWarnings("WeakerAccess")
 public class MediatorLiveData<T> extends MutableLiveData<T> {
-    private Set<Source<?>> mSources = new HashSet<>();
+    private SafeIterableMap<LiveData<?>, Source<?>> mSources = new SafeIterableMap<>();
 
     /**
      * Starts to listen the given {@code source} LiveData, {@code onChanged} observer will be called
      * when {@code source} value was changed.
      * <p>
      * {@code onChanged} callback will be called only when this {@code MediatorLiveData} is active.
+     * <p> If the given LiveData is already added as a source but with a different Observer,
+     * {@link IllegalArgumentException} will be thrown.
      *
      * @param source    the {@code LiveData} to listen to
      * @param onChanged The observer that will receive the events
@@ -50,7 +51,14 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
     @MainThread
     public <S> void addSource(LiveData<S> source, Observer<S> onChanged) {
         Source<S> e = new Source<>(source, onChanged);
-        mSources.add(e);
+        Source<?> existing = mSources.putIfAbsent(source, e);
+        if (existing != null && existing.mObserver != onChanged) {
+            throw new IllegalArgumentException(
+                    "This source was already added with the different observer");
+        }
+        if (existing != null) {
+            return;
+        }
         if (hasActiveObservers()) {
             e.plug();
         }
@@ -64,29 +72,25 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
      */
     @MainThread
     public <S> void removeSource(LiveData<S> toRemote) {
-        for (Iterator<Source<?>> iterator = mSources.iterator(); iterator.hasNext(); ) {
-            Source<?> source = iterator.next();
-            if (source.mLiveData == toRemote) {
-                source.unplug();
-                iterator.remove();
-                break;
-            }
+        Source<?> source = mSources.remove(toRemote);
+        if (source != null) {
+            source.unplug();
         }
     }
 
     @CallSuper
     @Override
     protected void onActive() {
-        for (Source<?> source : mSources) {
-            source.plug();
+        for (Map.Entry<LiveData<?>, Source<?>> source : mSources) {
+            source.getValue().plug();
         }
     }
 
     @CallSuper
     @Override
     protected void onInactive() {
-        for (Source<?> source : mSources) {
-            source.unplug();
+        for (Map.Entry<LiveData<?>, Source<?>> source : mSources) {
+            source.getValue().unplug();
         }
     }
 

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
+import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -177,4 +178,56 @@ public class MediatorLiveDataTest {
         verify(observer1, never()).onChanged(any());
         verify(observer2, never()).onChanged(any());
     }
+
+    @Test
+    public void removeSourceDuringOnActive() {
+        // to trigger ConcurrentModificationException,
+        // we have to call remove from a collection during "for" loop.
+        // ConcurrentModificationException is thrown from next() method of an iterator
+        // so this modification shouldn't be at the last iteration,
+        // because if it is a last iteration, then next() wouldn't be called.
+        // And the last: an order of an iteration over sources is not defined,
+        // so I have to call it remove operation  from all observers.
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        Observer<String> removingObserver = new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                mMediator.removeSource(mSource);
+            }
+        };
+        mMediator.addSource(mSource, removingObserver);
+        MutableLiveData<String> source2 = new MutableLiveData<>();
+        source2.setValue("nana");
+        mMediator.addSource(source2, removingObserver);
+        mSource.setValue("petjack");
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void reAddSameSourceWithDifferentObserver() {
+        mMediator.addSource(mSource, mock(Observer.class));
+        mMediator.addSource(mSource, mock(Observer.class));
+    }
+
+    @Test
+    public void addSourceDuringOnActive() {
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mSource.setValue("a");
+        mMediator.addSource(mSource, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                MutableLiveData<String> source = new MutableLiveData<>();
+                source.setValue("b");
+                mMediator.addSource(source, new Observer<String>() {
+                    @Override
+                    public void onChanged(@Nullable String s) {
+                        mMediator.setValue("c");
+                    }
+                });
+            }
+        });
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        assertThat(mMediator.getValue(), is("c"));
+    }
+
 }
