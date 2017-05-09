@@ -31,8 +31,8 @@ limitations under the License.
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"‏העברה קדימה של %1$dX"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"הרץ אחורה"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"‏העברה לאחור של %1$dX"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"דלג אל הפריט הבא"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"דלג אל הפריט הקודם"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"ברצוני לדלג אל הפריט הבא"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"ברצוני לדלג אל הפריט הקודם"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"עוד פעולות"</string>
     <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"בטל בחירה באגודל כלפי מעלה"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"בחר באגודל כלפי מעלה"</string>
