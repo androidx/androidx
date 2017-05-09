@@ -161,7 +161,7 @@ public class PreviewProgramTest extends TestCase {
                 .setAvailability(PreviewPrograms.AVAILABILITY_FREE_WITH_SUBSCRIPTION)
                 .setStartingPrice("9.99 USD")
                 .setOfferPrice("3.99 USD")
-                .setReleaseDate(new Date(97, 2, 8, 9, 30, 59))
+                .setReleaseDate(new Date(Date.UTC(97, 2, 8, 9, 30, 59)))
                 .setLive(false)
                 .setInteractionType(PreviewPrograms.INTERACTION_TYPE_VIEWS)
                 .setInteractionCount(99200)
