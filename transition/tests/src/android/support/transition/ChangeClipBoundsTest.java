@@ -107,7 +107,7 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                assertNotNull(ViewCompat.getClipBounds(redSquare));
+                assertNull(ViewCompat.getClipBounds(redSquare));
             }
         });
 
