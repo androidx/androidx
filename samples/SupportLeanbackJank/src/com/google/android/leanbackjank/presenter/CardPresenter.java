@@ -16,12 +16,16 @@
 
 package com.google.android.leanbackjank.presenter;
 
+import android.net.Uri;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.leanbackjank.R;
 import com.google.android.leanbackjank.model.VideoInfo;
 
@@ -46,37 +50,44 @@ public class CardPresenter extends Presenter {
         ImageCardView cardView = new ImageCardView(parent.getContext()) {
             @Override
             public void setSelected(boolean selected) {
-                updateCardBackgroundColor(this, selected);
+                findViewById(R.id.info_field).setBackgroundColor(
+                        selected ? mSelectedBackgroundColor : mDefaultBackgroundColor);
                 super.setSelected(selected);
             }
         };
 
         cardView.setFocusable(true);
         cardView.setFocusableInTouchMode(true);
-        updateCardBackgroundColor(cardView, false);
         return new ViewHolder(cardView);
-    }
-
-    private void updateCardBackgroundColor(ImageCardView view, boolean selected) {
-        int color = selected ? mSelectedBackgroundColor : mDefaultBackgroundColor;
-
-        // Both background colors should be set because the view's
-        // background is temporarily visible during animations.
-        view.setBackgroundColor(color);
-        view.findViewById(R.id.info_field).setBackgroundColor(color);
     }
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         VideoInfo videoInfo = (VideoInfo) item;
 
-        ImageCardView cardView = (ImageCardView) viewHolder.view;
+        final ImageCardView cardView = (ImageCardView) viewHolder.view;
         cardView.setTitleText(videoInfo.getTitle());
         cardView.setContentText(videoInfo.getStudio());
         cardView.setMainImageDimensions(mCardWidth, mCardHeight);
+        cardView.setBackgroundColor(mDefaultBackgroundColor);
 
         Glide.with(cardView.getContext())
                 .load(videoInfo.getImageUri())
+                .listener(new RequestListener<Uri, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, Uri uri, Target<GlideDrawable> target,
+                            boolean b) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable glideDrawable, Uri uri,
+                            Target<GlideDrawable> target, boolean b, boolean b1) {
+                        // Remove the background color to reduce overdraw.
+                        cardView.setBackground(null);
+                        return false;
+                    }
+                })
                 .into(cardView.getMainImageView());
     }
 
