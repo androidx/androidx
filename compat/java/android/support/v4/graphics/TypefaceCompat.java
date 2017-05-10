@@ -30,12 +30,10 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
-import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,19 +45,6 @@ public class TypefaceCompat {
     @GuardedBy("sLock")
     private static TypefaceCompatImpl sTypefaceCompatImpl;
     private static final Object sLock = new Object();
-
-    /**
-     * Create a Typeface from a given FontResult list.
-     *
-     * @param resultList a list of results, guaranteed to be non-null and non empty.
-     *
-     * TODO(nona): Remove once EmojiCompat stop using this method.
-     */
-    public static Typeface createTypeface(
-            Context context, @NonNull List<FontResult> resultList) {
-        maybeInitImpl(context);
-        return sTypefaceCompatImpl.createTypeface(resultList);
-    }
 
     interface TypefaceCompatImpl {
         // Create Typeface from font file in res/font directory.
@@ -73,9 +58,6 @@ public class TypefaceCompat {
         Typeface findFromCache(Resources resources, int id, int style);
 
         Typeface createTypeface(@NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer);
-
-        // TODO(nona): Remove once EmojiCompat stop using this method.
-        Typeface createTypeface(@NonNull List<FontResult> resultList);
     }
 
     /**
