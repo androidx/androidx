@@ -198,6 +198,7 @@ public class TransitionInflater {
             synchronized (CONSTRUCTORS) {
                 Constructor constructor = CONSTRUCTORS.get(className);
                 if (constructor == null) {
+                    @SuppressWarnings("unchecked")
                     Class<?> c = mContext.getClassLoader().loadClass(className)
                             .asSubclass(expectedType);
                     if (c != null) {
