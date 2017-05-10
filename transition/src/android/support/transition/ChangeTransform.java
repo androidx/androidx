@@ -455,6 +455,20 @@ public class ChangeTransform extends Transition {
                     && thatTransform.mRotationY == mRotationY
                     && thatTransform.mRotationZ == mRotationZ;
         }
+
+        @Override
+        public int hashCode() {
+            int code = mTranslationX != +0.0f ? Float.floatToIntBits(mTranslationX) : 0;
+            code = 31 * code + (mTranslationY != +0.0f ? Float.floatToIntBits(mTranslationY) : 0);
+            code = 31 * code + (mTranslationZ != +0.0f ? Float.floatToIntBits(mTranslationZ) : 0);
+            code = 31 * code + (mScaleX != +0.0f ? Float.floatToIntBits(mScaleX) : 0);
+            code = 31 * code + (mScaleY != +0.0f ? Float.floatToIntBits(mScaleY) : 0);
+            code = 31 * code + (mRotationX != +0.0f ? Float.floatToIntBits(mRotationX) : 0);
+            code = 31 * code + (mRotationY != +0.0f ? Float.floatToIntBits(mRotationY) : 0);
+            code = 31 * code + (mRotationZ != +0.0f ? Float.floatToIntBits(mRotationZ) : 0);
+            return code;
+        }
+
     }
 
     private static class GhostListener extends Transition.TransitionListenerAdapter {
