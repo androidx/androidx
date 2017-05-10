@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import org.gradle.internal.os.OperatingSystem
+
 def root = ext.supportRootFolder
 ext.usePrebuilts = "true" // for doclava
 ext.inAppToolkitProject = rootProject.name == "app-toolkit"
@@ -153,7 +153,38 @@ subprojects {
                 task.enabled = false
             }
         }
+    } else {
+        // setup pom
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof Upload) {
+                project.afterEvaluate {
+                    task.repositories.withType(MavenDeployer.class).each {
+                        it.pom.project {
+                            url "https://developer.android.com/topic/libraries/architecture/index.html"
+                            inceptionYear 2017
+                            licenses {
+                                license {
+                                    name 'The Apache Software License, Version 2.0'
+                                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                                    distribution 'repo'
+                                }
+                            }
+                            scm {
+                                url "http://source.android.com"
+                                connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
+                            }
+                            developers {
+                                developer {
+                                    name 'The Android Open Source Project'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+
 
     project.plugins.whenPluginAdded { plugin ->
         def isAndroidLibrary = "com.android.build.gradle.LibraryPlugin"
