@@ -24,18 +24,16 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.annotation.GuardedBy;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
+import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
+import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
 import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
-import android.support.v4.provider.FontsContractInternal;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +52,8 @@ public class TypefaceCompat {
      * Create a Typeface from a given FontResult list.
      *
      * @param resultList a list of results, guaranteed to be non-null and non empty.
+     *
+     * TODO(nona): Remove once EmojiCompat stop using this method.
      */
     public static Typeface createTypeface(
             Context context, @NonNull List<FontResult> resultList) {
@@ -66,20 +66,16 @@ public class TypefaceCompat {
         Typeface createFromResourcesFontFile(Resources resources, int id, int style);
 
         // Create Typeface from XML which root node is "font-family"
-        Typeface createFromResourcesFamilyXml(
-                FamilyResourceEntry entry, Resources resources, int id, int style);
+        Typeface createFromFontFamilyFilesResourceEntry(
+                FontFamilyFilesResourceEntry entry, Resources resources, int id, int style);
 
         // For finiding cache before parsing xml data.
         Typeface findFromCache(Resources resources, int id, int style);
 
-        /**
-         * Create a Typeface from a given FontResult list.
-         *
-         * @param resultList a list of results, guaranteed to be non-null and non empty.
-         */
-        // TODO: remove
-        Typeface createTypeface(@NonNull List<FontResult> resultList);
         Typeface createTypeface(@NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer);
+
+        // TODO(nona): Remove once EmojiCompat stop using this method.
+        Typeface createTypeface(@NonNull List<FontResult> resultList);
     }
 
     /**
@@ -96,72 +92,6 @@ public class TypefaceCompat {
                 }
             }
         }
-    }
-
-    /**
-     * Interface used to receive asynchronously fetched typefaces.
-     */
-    public abstract static class FontRequestCallback {
-        /**
-         * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
-         * provider was not found on the device.
-         */
-        public static final int FAIL_REASON_PROVIDER_NOT_FOUND =
-                FontsContractInternal.RESULT_CODE_PROVIDER_NOT_FOUND;
-        /**
-         * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
-         * provider must be authenticated and the given certificates do not match its signature.
-         */
-        public static final int FAIL_REASON_WRONG_CERTIFICATES =
-                FontsContractInternal.RESULT_CODE_WRONG_CERTIFICATES;
-        /**
-         * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the font
-         * returned by the provider was not loaded properly.
-         */
-        public static final int FAIL_REASON_FONT_LOAD_ERROR = -3;
-        /**
-         * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the font
-         * provider did not return any results for the given query.
-         */
-        public static final int FAIL_REASON_FONT_NOT_FOUND =
-                FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND;
-        /**
-         * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the font
-         * provider found the queried font, but it is currently unavailable.
-         */
-        public static final int FAIL_REASON_FONT_UNAVAILABLE =
-                FontsContractCompat.Columns.RESULT_CODE_FONT_UNAVAILABLE;
-        /**
-         * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
-         * query was not supported by the provider.
-         */
-        public static final int FAIL_REASON_MALFORMED_QUERY =
-                FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY;
-
-        @IntDef({ FAIL_REASON_PROVIDER_NOT_FOUND, FAIL_REASON_FONT_LOAD_ERROR,
-                FAIL_REASON_FONT_NOT_FOUND, FAIL_REASON_FONT_UNAVAILABLE,
-                FAIL_REASON_MALFORMED_QUERY })
-        @Retention(RetentionPolicy.SOURCE)
-        @interface FontRequestFailReason {}
-
-        /**
-         * Called then a Typeface request done via {@link TypefaceCompat#create(Context,
-         * FontRequest, FontRequestCallback)} is complete. Note that this method will not be called
-         * if {@link #onTypefaceRequestFailed(int)} is called instead.
-         * @param typeface  The Typeface object retrieved.
-         */
-        public abstract void onTypefaceRetrieved(Typeface typeface);
-
-        /**
-         * Called when a Typeface request done via {@link TypefaceCompat#create(Context,
-         * FontRequest, FontRequestCallback)} fails.
-         * @param reason One of {@link #FAIL_REASON_PROVIDER_NOT_FOUND},
-         *               {@link #FAIL_REASON_FONT_NOT_FOUND},
-         *               {@link #FAIL_REASON_FONT_LOAD_ERROR},
-         *               {@link #FAIL_REASON_FONT_UNAVAILABLE} or
-         *               {@link #FAIL_REASON_MALFORMED_QUERY}.
-         */
-        public abstract void onTypefaceRequestFailed(@FontRequestFailReason int reason);
     }
 
     private TypefaceCompat() {}
@@ -189,7 +119,13 @@ public class TypefaceCompat {
     public static Typeface createFromResourcesFamilyXml(
             Context context, FamilyResourceEntry entry, Resources resources, int id, int style) {
         maybeInitImpl(context);
-        return sTypefaceCompatImpl.createFromResourcesFamilyXml(entry, resources, id, style);
+        if (entry instanceof ProviderResourceEntry) {
+            return FontsContractCompat.getFontSync(context,
+                    ((ProviderResourceEntry) entry).getRequest());
+        } else {
+            return sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
+                    (FontFamilyFilesResourceEntry) entry, resources, id, style);
+        }
     }
 
     /**
