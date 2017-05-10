@@ -44,6 +44,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents the basic Preference UI building
@@ -1578,7 +1579,7 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
-     * Attempts to get a persisted {@link String} if this Preference is persistent.
+     * Attempts to get a persisted set of Strings if this Preference is persistent.
      *
      * @param defaultReturnValue The default value to return if either the
      *            Preference is not persistent or the Preference is not in the
@@ -1597,6 +1598,59 @@ public class Preference implements Comparable<Preference> {
         }
 
         return mPreferenceManager.getSharedPreferences().getString(mKey, defaultReturnValue);
+    }
+
+    /**
+     * Attempts to persist a set of Strings if this Preference is persistent.
+     *
+     * <p>The returned value doesn't reflect whether the given value was persisted, since we may not
+     * necessarily commit if there will be a batch commit later.
+     *
+     * @param values the values to persist
+     * @return {@code true} if the Preference is persistent, {@code false} otherwise
+     * @see #getPersistedStringSet(Set)
+     */
+    public boolean persistStringSet(Set<String> values) {
+        if (!shouldPersist()) {
+            return false;
+        }
+
+        // Shouldn't store null
+        if (values.equals(getPersistedStringSet(null))) {
+            // It's already there, so the same as persisting
+            return true;
+        }
+
+        PreferenceDataStore dataStore = getPreferenceDataStore();
+        if (dataStore != null) {
+            dataStore.putStringSet(mKey, values);
+        } else {
+            SharedPreferences.Editor editor = mPreferenceManager.getEditor();
+            editor.putStringSet(mKey, values);
+            tryCommit(editor);
+        }
+        return true;
+    }
+
+    /**
+     * Attempts to get a persisted set of Strings if this Preference is persistent.
+     *
+     * @param defaultReturnValue the default value to return if either this Preference is not
+     *                           persistent or this Preference is not present
+     * @return the value from the storage or the default return value
+     * @see #persistStringSet(Set)
+     */
+    public Set<String> getPersistedStringSet(Set<String> defaultReturnValue) {
+        if (!shouldPersist()) {
+            return defaultReturnValue;
+        }
+
+        PreferenceDataStore dataStore = getPreferenceDataStore();
+        if (dataStore != null) {
+            return dataStore.getStringSet(mKey, defaultReturnValue);
+        }
+
+        return mPreferenceManager.getSharedPreferences().getStringSet(mKey, defaultReturnValue);
     }
 
     /**
