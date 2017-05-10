@@ -86,6 +86,16 @@ class Styleable {
     }
 
     @StyleableRes
+    static final int[] CHANGE_BOUNDS = {
+            android.R.attr.resizeClip,
+    };
+
+    interface ChangeBounds {
+        @StyleableRes
+        int RESIZE_CLIP = 0;
+    }
+
+    @StyleableRes
     static final int[] VISIBILITY_TRANSITION = {
             android.R.attr.transitionVisibilityMode,
     };

@@ -2044,6 +2044,7 @@ package android.support.transition {
     ctor public ChangeBounds(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
+    method public boolean getResizeClip();
     method public void setResizeClip(boolean);
   }
 

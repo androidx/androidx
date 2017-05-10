@@ -32,6 +32,7 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under,api18) \
     $(call all-java-files-under,api19) \
     $(call all-java-files-under,api21) \
+    $(call all-java-files-under,api22) \
     $(call all-java-files-under,src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \

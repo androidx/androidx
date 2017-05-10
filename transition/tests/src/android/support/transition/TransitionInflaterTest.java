@@ -48,7 +48,7 @@ public class TransitionInflaterTest extends BaseTest {
         Transition transition = inflater.inflateTransition(R.transition.transition_constructors);
         assertTrue(transition instanceof TransitionSet);
         TransitionSet set = (TransitionSet) transition;
-        assertEquals(4, set.getTransitionCount());
+        assertEquals(9, set.getTransitionCount());
     }
 
     @Test
@@ -56,6 +56,7 @@ public class TransitionInflaterTest extends BaseTest {
         TransitionInflater inflater = TransitionInflater.from(rule.getActivity());
         // TODO: Add more Transition types
         verifyFadeProperties(inflater.inflateTransition(R.transition.fade));
+        verifyChangeBoundsProperties(inflater.inflateTransition(R.transition.change_bounds));
         verifySlideProperties(inflater.inflateTransition(R.transition.slide));
         verifyExplodeProperties(inflater.inflateTransition(R.transition.explode));
         verifyChangeImageTransformProperties(
@@ -81,6 +82,12 @@ public class TransitionInflaterTest extends BaseTest {
         assertTrue(transition instanceof Fade);
         Fade fade = (Fade) transition;
         assertEquals(Fade.OUT, fade.getMode());
+    }
+
+    private void verifyChangeBoundsProperties(Transition transition) {
+        assertTrue(transition instanceof ChangeBounds);
+        ChangeBounds changeBounds = (ChangeBounds) transition;
+        assertTrue(changeBounds.getResizeClip());
     }
 
     private void verifySlideProperties(Transition transition) {
@@ -226,14 +233,44 @@ public class TransitionInflaterTest extends BaseTest {
         }
     }
 
+    public static class InflationSlide extends Slide {
+        public InflationSlide(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+    }
+
     public static class InflationTransitionSet extends TransitionSet {
         public InflationTransitionSet(Context context, AttributeSet attrs) {
             super(context, attrs);
         }
     }
 
+    public static class InflationChangeImageTransform extends ChangeImageTransform {
+        public InflationChangeImageTransform(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+    }
+
+    public static class InflationChangeTransform extends ChangeTransform {
+        public InflationChangeTransform(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+    }
+
     public static class InflationAutoTransition extends AutoTransition {
         public InflationAutoTransition(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+    }
+
+    public static class InflationChangeClipBounds extends ChangeClipBounds {
+        public InflationChangeClipBounds(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+    }
+
+    public static class InflationExplode extends Explode {
+        public InflationExplode(Context context, AttributeSet attrs) {
             super(context, attrs);
         }
     }
