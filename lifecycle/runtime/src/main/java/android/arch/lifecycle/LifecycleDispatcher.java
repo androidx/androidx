@@ -139,7 +139,9 @@ class LifecycleDispatcher {
                 continue;
             }
             markStateIn(fragment, state);
-            markState(fragment.getChildFragmentManager(), state);
+            if (fragment.isAdded()) {
+                markState(fragment.getChildFragmentManager(), state);
+            }
         }
     }
 

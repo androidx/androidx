@@ -60,10 +60,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="android.arch.lifecycle.testapp.EmptyActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".NavigationTestActivitySecond" />
         <activity android:name=".NavigationDialogActivity"
             android:launchMode="singleTask"
             android:theme="@android:style/Theme.DeviceDefault.Dialog" />
-        <activity android:name=".LiveDataTestActivity"/>
     </application>
 </manifest>
