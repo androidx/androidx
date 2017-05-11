@@ -26,6 +26,7 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.text.Layout;
@@ -517,7 +518,15 @@ class AppCompatTextViewAutoSizeHelper {
 
             mNeedsAutoSizeText = true;
 
-            autoSizeText();
+            // If the build version is at least 26 there is no need to auto-size using this
+            // helper because the job has been delegated to the actual TextView but the
+            // configuration still needs to be done for the case where this function is called
+            // from {@link #loadFromAttributes}, in which case the auto-size configuration
+            // attributes set up in this function will be read by {@link AppCompatTextHelper}
+            // and after passed on to the actual TextView which will take care of auto-sizing.
+            if (!BuildCompat.isAtLeastO()) {
+                autoSizeText();
+            }
         }
     }
 
