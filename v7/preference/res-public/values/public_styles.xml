@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Definitions of styles to be exposed as public -->
+<resources>
+    <public type="style" name="Preference" />
+    <public type="style" name="Preference.Category" />
+    <public type="style" name="Preference.CheckBoxPreference" />
+    <public type="style" name="Preference.DialogPreference.EditTextPreference" />
+    <public type="style" name="Preference.DialogPreference" />
+    <public type="style" name="Preference.DropDown" />
+    <public type="style" name="Preference.Information" />
+    <public type="style" name="Preference.PreferenceScreen" />
+    <public type="style" name="Preference.SeekBarPreference" />
+    <public type="style" name="Preference.SwitchPreferenceCompat" />
+    <public type="style" name="PreferenceFragment" />
+    <public type="style" name="PreferenceFragmentList" />
+</resources>
