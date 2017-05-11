@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package android.arch.core.executor;
+package android.arch.core.executor.testing;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -130,7 +131,7 @@ public class CountingTaskExecutorRuleTest {
         try {
             mRule.drainTasks(300, TimeUnit.MILLISECONDS);
             throw new AssertionError("drain should fail");
-        } catch (TimeoutException timeout) {
+        } catch (TimeoutException ignored) {
         }
     }
 
@@ -142,7 +143,7 @@ public class CountingTaskExecutorRuleTest {
             public void run() {
                 try {
                     Thread.sleep(300);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
                 task.start();
             }
@@ -164,11 +165,11 @@ public class CountingTaskExecutorRuleTest {
             }
         }
 
-        public void await() throws InterruptedException {
+        void await() throws InterruptedException {
             mEnd.await(10, TimeUnit.SECONDS);
         }
 
-        public void start() {
+        void start() {
             mStart.countDown();
         }
 

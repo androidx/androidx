@@ -19,11 +19,16 @@ package android.arch.core.executor;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-class DefaultTaskExecutor extends TaskExecutor {
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class DefaultTaskExecutor extends TaskExecutor {
     private final Object mLock = new Object();
     private ExecutorService mDiskIO = Executors.newFixedThreadPool(2);
 

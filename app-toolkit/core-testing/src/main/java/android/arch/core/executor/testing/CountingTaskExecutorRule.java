@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package android.arch.core.executor;
+package android.arch.core.executor.testing;
 
+import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.DefaultTaskExecutor;
 import android.os.SystemClock;
 
 import org.junit.rules.TestWatcher;

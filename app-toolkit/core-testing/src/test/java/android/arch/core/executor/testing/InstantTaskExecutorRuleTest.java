@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package android.arch.core.executor;
+package android.arch.core.executor.testing;
 
 import static org.junit.Assert.assertTrue;
+
+import android.arch.core.executor.AppToolkitTaskExecutor;
 
 import org.junit.Rule;
 import org.junit.Test;
