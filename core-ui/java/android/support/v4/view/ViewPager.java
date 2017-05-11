@@ -2749,10 +2749,18 @@ public class ViewPager extends ViewGroup {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    handled = arrowScroll(FOCUS_LEFT);
+                    if (event.hasModifiers(KeyEvent.META_ALT_ON)) {
+                        handled = pageLeft();
+                    } else {
+                        handled = arrowScroll(FOCUS_LEFT);
+                    }
                     break;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    handled = arrowScroll(FOCUS_RIGHT);
+                    if (event.hasModifiers(KeyEvent.META_ALT_ON)) {
+                        handled = pageRight();
+                    } else {
+                        handled = arrowScroll(FOCUS_RIGHT);
+                    }
                     break;
                 case KeyEvent.KEYCODE_TAB:
                     if (event.hasNoModifiers()) {
