@@ -157,6 +157,11 @@ subprojects {
         // setup pom
         project.tasks.whenTaskAdded { task ->
             if (task instanceof Upload) {
+                task.repositories {
+                    mavenDeployer {
+                        repository(url: project.uri(project.rootProject.supportRepoOut))
+                    }
+                }
                 project.afterEvaluate {
                     task.repositories.withType(MavenDeployer.class).each {
                         it.pom.project {
