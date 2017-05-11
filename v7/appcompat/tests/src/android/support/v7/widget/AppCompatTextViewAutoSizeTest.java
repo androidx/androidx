@@ -34,7 +34,6 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,8 +48,8 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSize_notSupportedByEditText() throws Throwable {
-        final TextView autoSizeEditText = prepareAndRetrieveAutoSizeTestData(
-                R.id.edittext_autosize_uniform, true);
+        final AppCompatEditText autoSizeEditText = (AppCompatEditText) getActivity().findViewById(
+                R.id.edittext_autosize_uniform);
         // Do not force exact height only.
         final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 200,
@@ -76,7 +75,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setHeight() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, true);
         // Do not force exact height only.
         final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -103,7 +102,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setCompoundDrawables() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, false);
         final float initialTextSize = autoSizeTextView.getTextSize();
         final Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(),
@@ -123,7 +122,7 @@ public class AppCompatTextViewAutoSizeTest extends
     @Test
     public void testAutoSizeCallers_setCompoundDrawablesRelative() throws Throwable {
         if (Build.VERSION.SDK_INT >= 17) {
-            final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+            final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                     R.id.textview_autosize_uniform, false);
             final float initialTextSize = autoSizeTextView.getTextSize();
             final Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(),
@@ -147,7 +146,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setCompoundDrawablePadding() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, false);
         // Prepare a larger layout in order not to hit the min value easily.
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -186,7 +185,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setPadding() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, false);
         final float initialTextSize = autoSizeTextView.getTextSize();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -205,7 +204,7 @@ public class AppCompatTextViewAutoSizeTest extends
     @Test
     public void testAutoSizeCallers_setPaddingRelative() throws Throwable {
         if (Build.VERSION.SDK_INT >= 16) {
-            final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+            final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                     R.id.textview_autosize_uniform, false);
             final float initialTextSize = autoSizeTextView.getTextSize();
 
@@ -227,7 +226,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setTypeface() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, false);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -274,7 +273,7 @@ public class AppCompatTextViewAutoSizeTest extends
     @Test
     public void testAutoSizeCallers_setLetterSpacing() throws Throwable {
         if (Build.VERSION.SDK_INT >= 21) {
-            final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+            final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                     R.id.textview_autosize_uniform, false);
             final float initialTextSize = autoSizeTextView.getTextSize();
 
@@ -308,7 +307,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setMaxHeight() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, true);
         // Do not force exact height only.
         final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -336,7 +335,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setMaxWidth() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, true);
         // Do not force exact width only.
         final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -364,7 +363,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setWidth() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, true);
         // Do not force exact width only.
         final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -393,7 +392,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setTextSizeIsNoOp() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, false);
         final float initialTextSize = autoSizeTextView.getTextSize();
 
@@ -410,7 +409,7 @@ public class AppCompatTextViewAutoSizeTest extends
 
     @Test
     public void testAutoSizeCallers_setHorizontallyScrolling() throws Throwable {
-        final TextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
                 R.id.textview_autosize_uniform, false);
         // Horizontal scrolling is expected to be deactivated for this test.
         final float initialTextSize = autoSizeTextView.getTextSize();
@@ -853,6 +852,32 @@ public class AppCompatTextViewAutoSizeTest extends
         assertNotEquals(customTextSize, textView.getTextSize(), 0f);
     }
 
+    @Test
+    public void testAutoSizeCallers_setTextSizeChangesSizeWhenAutoSizeDisabled() throws Throwable {
+        final AppCompatTextView textView = (AppCompatTextView) prepareAndRetrieveAutoSizeTestData(
+                R.id.textview_autosize_uniform, false);
+        // Disable auto-size.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView.setAutoSizeTextTypeWithDefaults(TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+        final float newTextSizeInPx = 123f;
+        assertNotEquals(newTextSizeInPx, textView.getTextSize(), 0f);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newTextSizeInPx);
+            }
+        });
+        getInstrumentation().waitForIdleSync();
+
+        assertEquals(newTextSizeInPx, textView.getTextSize(), 0f);
+    }
+
     /**
      * Some TextView attributes require non-fixed width and/or layout height. This function removes
      * all other existing views from the layout leaving only one auto-size TextView (for exercising
@@ -863,21 +888,22 @@ public class AppCompatTextViewAutoSizeTest extends
      *
      * @return a TextView configured for auto size tests.
      */
-    private TextView prepareAndRetrieveAutoSizeTestData(final int viewId,
+    private AppCompatTextView prepareAndRetrieveAutoSizeTestData(final int viewId,
             final boolean shouldWrapLayoutContent) throws Throwable {
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 LinearLayout ll = (LinearLayout) getActivity().findViewById(
                         android.support.v7.appcompat.test.R.id.layout_textviewtest);
-                TextView targetedTextView = (TextView) getActivity().findViewById(viewId);
+                AppCompatTextView targetedTextView =
+                        (AppCompatTextView) getActivity().findViewById(viewId);
                 ll.removeAllViews();
                 ll.addView(targetedTextView);
             }
         });
         getInstrumentation().waitForIdleSync();
 
-        final TextView textView = (TextView) getActivity().findViewById(viewId);
+        final AppCompatTextView textView = (AppCompatTextView) getActivity().findViewById(viewId);
         if (shouldWrapLayoutContent) {
             // Do not force exact width or height.
             final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
