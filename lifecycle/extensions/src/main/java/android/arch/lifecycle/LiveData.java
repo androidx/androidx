@@ -407,8 +407,7 @@ public abstract class LiveData<T> {
     private void assertMainThread(String methodName) {
         if (!AppToolkitTaskExecutor.getInstance().isMainThread()) {
             throw new IllegalStateException("Cannot invoke " + methodName + " on a background"
-                    + " thread. You can easily move the call to main thread using"
-                    + " AppToolkitTaskExecutor.");
+                    + " thread");
         }
     }
 }
