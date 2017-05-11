@@ -17,7 +17,7 @@
 
 <resources>
     <style name="DrawerLayoutStyle" parent="@android:style/Theme.DeviceDefault">
-        <item name="android:layout_width">213dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">213dp</item>
     </style>
 </resources>
