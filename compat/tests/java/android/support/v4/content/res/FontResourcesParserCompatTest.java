@@ -32,6 +32,7 @@ import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.provider.FontRequest;
 import android.util.Base64;
 
 import org.junit.Before;
@@ -72,19 +73,19 @@ public class FontResourcesParserCompatTest {
         FontFileResourceEntry font1 = fileEntries[0];
         assertEquals(400, font1.getWeight());
         assertEquals(false, font1.isItalic());
-        assertEquals("res/font/samplefont.ttf", font1.getFileName());
+        assertEquals(R.font.samplefont, font1.getResourceId());
         FontFileResourceEntry font2 = fileEntries[1];
         assertEquals(400, font2.getWeight());
         assertEquals(true, font2.isItalic());
-        assertEquals("res/font/samplefont2.ttf", font2.getFileName());
+        assertEquals(R.font.samplefont2, font2.getResourceId());
         FontFileResourceEntry font3 = fileEntries[2];
         assertEquals(700, font3.getWeight());
         assertEquals(false, font3.isItalic());
-        assertEquals("res/font/samplefont3.ttf", font3.getFileName());
+        assertEquals(R.font.samplefont3, font3.getResourceId());
         FontFileResourceEntry font4 = fileEntries[3];
         assertEquals(700, font4.getWeight());
         assertEquals(true, font4.isItalic());
-        assertEquals("res/font/samplefont4.ttf", font4.getFileName());
+        assertEquals(R.font.samplefont4, font4.getResourceId());
     }
 
     @Test
@@ -96,9 +97,11 @@ public class FontResourcesParserCompatTest {
 
         assertNotNull(result);
         ProviderResourceEntry providerEntry = (ProviderResourceEntry) result;
-        assertEquals("com.example.test.fontprovider.authority", providerEntry.getAuthority());
-        assertEquals("com.example.test.fontprovider.package", providerEntry.getPackage());
-        assertEquals("MyRequestedFont", providerEntry.getQuery());
+        FontRequest request = providerEntry.getRequest();
+        assertEquals("com.example.test.fontprovider.authority",
+                request.getProviderAuthority());
+        assertEquals("com.example.test.fontprovider.package", request.getProviderPackage());
+        assertEquals("MyRequestedFont", request.getQuery());
     }
 
     @Test
