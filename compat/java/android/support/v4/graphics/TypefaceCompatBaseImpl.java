@@ -22,25 +22,14 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.GuardedBy;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.content.res.FontResourcesParserCompat;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
-import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
-import android.support.v4.graphics.TypefaceCompat.FontRequestCallback;
 import android.support.v4.graphics.fonts.FontResult;
-import android.support.v4.os.ResultReceiver;
-import android.support.v4.os.TraceCompat;
-import android.support.v4.provider.FontRequest;
-import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
-import android.support.v4.provider.FontsContractInternal;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -54,9 +43,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Implementation of the Typeface compat methods for API 14 and above.
@@ -76,44 +62,11 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
      */
     private static final LruCache<String, Typeface> sDynamicTypefaceCache =
             new LruCache<>(16);
-    private static final Object sLock = new Object();
-    @GuardedBy("sLock")
-    private static FontsContractInternal sFontsContract;
 
     private final Context mApplicationContext;
 
     TypefaceCompatBaseImpl(Context context) {
         mApplicationContext = context.getApplicationContext();
-    }
-
-    /**
-     * Create a typeface object given a font request. The font will be asynchronously fetched,
-     * therefore the result is delivered to the given callback. See {@link FontRequest}.
-     * Only one of the methods in callback will be invoked, depending on whether the request
-     * succeeds or fails. These calls will happen on the background thread.
-     * @param request A {@link FontRequest} object that identifies the provider and query for the
-     *                request. May not be null.
-     * @param callback A callback that will be triggered when results are obtained. May not be null.
-     */
-    public void create(@NonNull final FontRequest request,
-            @NonNull final FontRequestCallback callback) {
-        final Typeface cachedTypeface = findFromCache(
-                request.getProviderAuthority(), request.getQuery());
-        if (cachedTypeface != null) {
-            callback.onTypefaceRetrieved(cachedTypeface);
-        }
-        synchronized (sLock) {
-            if (sFontsContract == null) {
-                sFontsContract = new FontsContractInternal(mApplicationContext);
-            }
-            final ResultReceiver receiver = new ResultReceiver(null) {
-                @Override
-                public void onReceiveResult(final int resultCode, final Bundle resultData) {
-                    receiveResult(request, callback, resultCode, resultData);
-                }
-            };
-            sFontsContract.getFont(request, receiver);
-        }
     }
 
     private static Typeface findFromCache(String providerAuthority, String query) {
@@ -132,46 +85,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         synchronized (sDynamicTypefaceCache) {
             sDynamicTypefaceCache.put(key, typeface);
         }
-    }
-
-    @VisibleForTesting
-    void receiveResult(FontRequest request,
-            FontRequestCallback callback, int resultCode, Bundle resultData) {
-        Typeface cachedTypeface = findFromCache(
-                request.getProviderAuthority(), request.getQuery());
-        if (cachedTypeface != null) {
-            // We already know the result.
-            // Probably the requester requests the same font again in a short interval.
-            callback.onTypefaceRetrieved(cachedTypeface);
-            return;
-        }
-        if (resultCode != FontsContractCompat.Columns.RESULT_CODE_OK) {
-            callback.onTypefaceRequestFailed(resultCode);
-            return;
-        }
-        if (resultData == null) {
-            callback.onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-            return;
-        }
-        List<FontResult> resultList =
-                resultData.getParcelableArrayList(FontsContractInternal.PARCEL_FONT_RESULTS);
-        if (resultList == null || resultList.isEmpty()) {
-            callback.onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-            return;
-        }
-
-        Typeface typeface = createTypeface(resultList);
-
-        if (typeface == null) {
-            Log.e(TAG, "Error creating font " + request.getQuery());
-            callback.onTypefaceRequestFailed(
-                    FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR);
-            return;
-        }
-        putInCache(request.getProviderAuthority(), request.getQuery(), typeface);
-        callback.onTypefaceRetrieved(typeface);
     }
 
     /**
@@ -310,17 +223,8 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     }
 
     @Nullable
-    public Typeface createFromResourcesFamilyXml(
-            FontResourcesParserCompat.FamilyResourceEntry entry, Resources resources, int id,
-            int style) {
-        if (entry instanceof ProviderResourceEntry) {
-            final ProviderResourceEntry providerEntry = (ProviderResourceEntry) entry;
-            return createFromResources(providerEntry);
-        }
-
-        // family is FontFamilyFilesResourceEntry
-        final FontFamilyFilesResourceEntry filesEntry =
-                (FontFamilyFilesResourceEntry) entry;
+    public Typeface createFromFontFamilyFilesResourceEntry(
+            FontFamilyFilesResourceEntry filesEntry, Resources resources, int id, int style) {
         Typeface typeface = createFromResources(filesEntry, resources, id, style);
         if (typeface != null) {
             final String key = createAssetUid(resources, id, style);
@@ -370,108 +274,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         }
         return null;
     }
-
-    @Nullable
-    private Typeface createFromResources(ProviderResourceEntry entry) {
-        FontRequest request = entry.getRequest();
-        Typeface cached = findFromCache(request.getProviderAuthority(), request.getQuery());
-        if (cached != null) {
-            return cached;
-        }
-        WaitableCallback callback =
-                new WaitableCallback(request.getProviderAuthority() + "/" + request.getQuery());
-        create(request, callback);
-        return callback.waitWithTimeout(SYNC_FETCH_TIMEOUT_MS);
-    }
-
-    private static final class WaitableCallback extends FontRequestCallback {
-        private final ReentrantLock mLock = new ReentrantLock();
-        private final Condition mCond = mLock.newCondition();
-
-        private final String mFontTitle;  // For debugging message.
-
-        private static final int NOT_STARTED = 0;
-        private static final int WAITING = 1;
-        private static final int FINISHED = 2;
-        @GuardedBy("mLock")
-        private int mState = NOT_STARTED;
-
-        @GuardedBy("mLock")
-        private Typeface mTypeface;
-
-        WaitableCallback(String fontTitle) {
-            mFontTitle = fontTitle;
-        }
-
-        @Override
-        public void onTypefaceRetrieved(Typeface typeface) {
-            mLock.lock();
-            try {
-                if (mState == WAITING) {
-                    mTypeface = typeface;
-                    mState = FINISHED;
-                }
-                mCond.signal();
-            } finally {
-                mLock.unlock();
-            }
-        }
-
-        @Override
-        public void onTypefaceRequestFailed(@FontRequestFailReason int reason) {
-            Log.w(TAG, "Remote font fetch failed(" + reason + "): " + mFontTitle);
-            mLock.lock();
-            try {
-                if (mState == WAITING) {
-                    mTypeface = null;
-                    mState = FINISHED;
-                }
-                mCond.signal();
-            } finally {
-                mLock.unlock();
-            }
-        }
-
-        public Typeface waitWithTimeout(long timeoutMillis) {
-            if (VERBOSE_TRACING) {
-                TraceCompat.beginSection("Remote Font Fetch");
-            }
-            mLock.lock();
-            try {
-                if (mState == FINISHED) {
-                    return mTypeface;  // Already has a result.
-                }
-                if (mState != NOT_STARTED) {
-                    return null;  // Unexpected state. Reusing the same callback again?
-                }
-                mState = WAITING;
-                long remainingNanos = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
-                while (mState == WAITING) {
-                    try {
-                        remainingNanos = mCond.awaitNanos(remainingNanos);
-                    } catch (InterruptedException e) {
-                    }
-                    if (mState == FINISHED) {
-                        final long elapsedMillis =
-                                timeoutMillis - TimeUnit.NANOSECONDS.toMillis(remainingNanos);
-                        Log.w(TAG, "Remote font fetched in " + elapsedMillis + "ms :" + mFontTitle);
-                        return mTypeface;
-                    }
-                    if (remainingNanos < 0) {
-                        Log.w(TAG, "Remote font fetch timed out: " + mFontTitle);
-                        mState = FINISHED;
-                        return null;  // Timed out.
-                    }
-                }
-                return null;
-            } finally {
-                mLock.unlock();
-                if (VERBOSE_TRACING) {
-                    TraceCompat.endSection();
-                }
-            }
-        }
-    };
 
     @Override
     public Typeface findFromCache(Resources resources, int id, int style) {
