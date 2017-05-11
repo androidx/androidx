@@ -242,6 +242,7 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
                                         Callback callbacks = mCallbacks.get(i);
                                         callbacks.onDismissed(SwipeDismissFrameLayout.this);
                                     }
+                                    resetTranslationAndAlpha();
                                 }
                             });
         }

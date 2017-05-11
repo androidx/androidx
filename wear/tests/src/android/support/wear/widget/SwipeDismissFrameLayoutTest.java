@@ -21,9 +21,7 @@ import static android.support.test.espresso.action.ViewActions.swipeRight;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.wear.widget.util.AsyncViewActions.waitForMatchingView;
-import static android.support.wear.widget.util.MoreViewAssertions
-        .withPositiveVerticalScrollOffset;
-import static android.support.wear.widget.util.MoreViewAssertions.withTranslationX;
+import static android.support.wear.widget.util.MoreViewAssertions.withPositiveVerticalScrollOffset;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertFalse;
@@ -101,8 +99,7 @@ public class SwipeDismissFrameLayoutTest {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
         Activity activity = activityRule.getActivity();
-        final SwipeDismissFrameLayout testLayout =
-                (SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root);
+        final SwipeDismissFrameLayout testLayout = activity.findViewById(R.id.swipe_dismiss_root);
         // GIVEN the layout is invisible
         // Note: We have to run this on the main thread, because of thread checks in View.java.
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -161,8 +158,7 @@ public class SwipeDismissFrameLayoutTest {
         setUpSimpleLayout();
         // WHEN we perform a swipe to dismiss
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRight());
-        // THEN the layout is dismissed
-        assertDismissed(R.id.swipe_dismiss_root);
+        // AND hidden
         assertHidden(R.id.swipe_dismiss_root);
     }
 
@@ -177,9 +173,8 @@ public class SwipeDismissFrameLayoutTest {
         testLayout.setSwipeable(false);
         // WHEN we perform a swipe to dismiss
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRight());
-        // THEN the layout is not dismissed and not hidden
+        // THEN the layout is not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
-        assertNotDismissed(R.id.swipe_dismiss_root);
     }
 
     @Test
@@ -188,13 +183,11 @@ public class SwipeDismissFrameLayoutTest {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
         Activity activity = activityRule.getActivity();
-        SwipeDismissFrameLayout testLayout =
-                (SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root);
+        SwipeDismissFrameLayout testLayout = activity.findViewById(R.id.swipe_dismiss_root);
         // WHEN we remove the swipe callback
         testLayout.removeCallback(mDismissCallback);
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRight());
-        // THEN the layout is dismissed, but no hidden
-        assertDismissed(R.id.swipe_dismiss_root);
+        // THEN the layout is not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
     }
 
@@ -216,9 +209,8 @@ public class SwipeDismissFrameLayoutTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // WHEN we perform a swipe to dismiss from the center of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromCenter());
-        // THEN the layout is not dismissed and not hidden
+        // THEN the layout is not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
-        assertNotDismissed(R.id.swipe_dismiss_root);
     }
 
 
@@ -229,9 +221,8 @@ public class SwipeDismissFrameLayoutTest {
         setUpSwipeDismissWithHorizontalRecyclerView();
         // WHEN we perform a swipe to dismiss from the left edge of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftEdge());
-        // THEN the layout is dismissed and hidden
+        // THEN the layout is hidden
         assertHidden(R.id.swipe_dismiss_root);
-        assertDismissed(R.id.swipe_dismiss_root);
     }
 
     @Test
@@ -242,9 +233,8 @@ public class SwipeDismissFrameLayoutTest {
         setUpSwipeableRegion();
         // WHEN we perform a swipe to dismiss from the left edge of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftEdge());
-        // THEN the layout is not dismissed and not hidden
+        // THEN the layout is not not hidden
         assertNotHidden(R.id.swipe_dismiss_root);
-        assertNotDismissed(R.id.swipe_dismiss_root);
     }
 
     @Test
@@ -255,9 +245,8 @@ public class SwipeDismissFrameLayoutTest {
         setUpSwipeableRegion();
         // WHEN we perform a swipe to dismiss from the center of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromCenter());
-        // THEN the layout is dismissed and hidden
+        // THEN the layout is hidden
         assertHidden(R.id.swipe_dismiss_root);
-        assertDismissed(R.id.swipe_dismiss_root);
     }
 
     /**
@@ -400,27 +389,10 @@ public class SwipeDismissFrameLayoutTest {
 
     private void setCallback(SwipeDismissFrameLayout.Callback callback) {
         Activity activity = activityRule.getActivity();
-        SwipeDismissFrameLayout testLayout =
-                (SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root);
+        SwipeDismissFrameLayout testLayout = activity.findViewById(R.id.swipe_dismiss_root);
         mLayoutWidth = testLayout.getWidth();
         mLayoutHeight = testLayout.getHeight();
         testLayout.addCallback(callback);
-    }
-
-    private void assertDismissed(@IdRes int layoutId) {
-        onView(withId(layoutId))
-                .perform(
-                        waitForMatchingView(
-                                allOf(withId(layoutId), withTranslationX(mLayoutWidth)),
-                                MAX_WAIT_TIME));
-    }
-
-    private static void assertNotDismissed(@IdRes int layoutId) {
-        onView(withId(layoutId))
-                .perform(
-                        waitForMatchingView(
-                                allOf(withId(layoutId), withTranslationX(0)),
-                                MAX_WAIT_TIME));
     }
 
     /**
