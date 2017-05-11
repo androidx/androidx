@@ -26,6 +26,7 @@
         android:id="@+id/action_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/holo_blue_dark"
         app:drawerTitle="Action Drawer Title"
         app:actionMenu="@menu/action_drawer" />
 

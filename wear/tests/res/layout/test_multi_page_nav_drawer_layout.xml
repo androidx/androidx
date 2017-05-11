@@ -26,12 +26,14 @@
         android:id="@+id/navigation_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/holo_red_dark"
         app:navigationStyle="multiPage" />
 
     <android.support.wear.widget.drawer.WearableActionDrawerView
         android:id="@+id/action_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/holo_blue_dark"
         app:actionMenu="@menu/action_drawer" />
 
 </android.support.wear.widget.drawer.WearableDrawerLayout>
