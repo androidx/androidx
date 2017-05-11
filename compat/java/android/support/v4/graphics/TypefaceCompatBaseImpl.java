@@ -373,14 +373,13 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
 
     @Nullable
     private Typeface createFromResources(ProviderResourceEntry entry) {
-        Typeface cached = findFromCache(entry.getAuthority(), entry.getQuery());
+        FontRequest request = entry.getRequest();
+        Typeface cached = findFromCache(request.getProviderAuthority(), request.getQuery());
         if (cached != null) {
             return cached;
         }
-        FontRequest request = new FontRequest(entry.getAuthority(), entry.getPackage(),
-                entry.getQuery(), entry.getCerts());
         WaitableCallback callback =
-                new WaitableCallback(entry.getAuthority() + "/" + entry.getQuery());
+                new WaitableCallback(request.getProviderAuthority() + "/" + request.getQuery());
         create(request, callback);
         return callback.waitWithTimeout(SYNC_FETCH_TIMEOUT_MS);
     }
