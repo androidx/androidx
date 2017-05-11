@@ -17,18 +17,18 @@
 package android.support.text.emoji;
 
 import static android.content.res.AssetManager.ACCESS_BUFFER;
-import static android.support.v4.graphics.TypefaceCompat.FontRequestCallback
-        .FAIL_REASON_FONT_NOT_FOUND;
-import static android.support.v4.graphics.TypefaceCompat.FontRequestCallback
-        .FAIL_REASON_FONT_UNAVAILABLE;
-import static android.support.v4.graphics.TypefaceCompat.FontRequestCallback
-        .FAIL_REASON_MALFORMED_QUERY;
-import static android.support.v4.graphics.TypefaceCompat.FontRequestCallback
-        .FAIL_REASON_WRONG_CERTIFICATES;
 import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_FONT_NOT_FOUND;
 import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_FONT_UNAVAILABLE;
 import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_MALFORMED_QUERY;
 import static android.support.v4.provider.FontsContractCompat.Columns.RESULT_CODE_OK;
+import static android.support.v4.provider.FontsContractCompat.FontRequestCallback
+        .FAIL_REASON_FONT_NOT_FOUND;
+import static android.support.v4.provider.FontsContractCompat.FontRequestCallback
+        .FAIL_REASON_FONT_UNAVAILABLE;
+import static android.support.v4.provider.FontsContractCompat.FontRequestCallback
+        .FAIL_REASON_MALFORMED_QUERY;
+import static android.support.v4.provider.FontsContractCompat.FontRequestCallback
+        .FAIL_REASON_WRONG_CERTIFICATES;
 import static android.support.v4.provider.FontsContractCompat.RESULT_CODE_PROVIDER_NOT_FOUND;
 import static android.support.v4.provider.FontsContractCompat.RESULT_CODE_WRONG_CERTIFICATES;
 

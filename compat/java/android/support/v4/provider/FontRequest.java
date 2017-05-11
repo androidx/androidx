@@ -16,9 +16,12 @@
 
 package android.support.v4.provider;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.util.Preconditions;
 import android.util.Base64;
 
@@ -33,6 +36,9 @@ public final class FontRequest {
     private final String mQuery;
     private final List<List<byte[]>> mCertificates;
     private final int mCertificatesArray;
+
+    // Used for key of the cache
+    private final String mIdentifier;
 
     /**
      * @param providerAuthority The authority of the Font Provider to be used for the request.
@@ -52,6 +58,8 @@ public final class FontRequest {
         mQuery = Preconditions.checkNotNull(query);
         mCertificates = Preconditions.checkNotNull(certificates);
         mCertificatesArray = 0;
+        mIdentifier = new StringBuilder(mProviderAuthority).append("-").append(mProviderPackage)
+                .append("-").append(mQuery).toString();
     }
 
     /**
@@ -73,6 +81,8 @@ public final class FontRequest {
         mCertificates = null;
         Preconditions.checkArgument(certificates != 0);
         mCertificatesArray = certificates;
+        mIdentifier = new StringBuilder(mProviderAuthority).append("-").append(mProviderPackage)
+                .append("-").append(mQuery).toString();
     }
 
     /**
@@ -121,6 +131,12 @@ public final class FontRequest {
     @ArrayRes
     public int getCertificatesArrayResId() {
         return mCertificatesArray;
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    public String getIdentifier() {
+        return mIdentifier;
     }
 
     @Override
