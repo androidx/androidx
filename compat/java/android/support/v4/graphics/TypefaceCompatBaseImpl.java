@@ -28,20 +28,16 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
-import android.support.v4.graphics.fonts.FontResult;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,9 +50,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     private static final String TAG = "TypefaceCompatBaseImpl";
     private static final String CACHE_FILE_PREFIX = "cached_font_";
 
-    private static final boolean VERBOSE_TRACING = false;
-    private static final int SYNC_FETCH_TIMEOUT_MS = 500;
-
     /**
      * Cache for Typeface objects dynamically loaded from assets. Currently max size is 16.
      */
@@ -67,50 +60,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
 
     TypefaceCompatBaseImpl(Context context) {
         mApplicationContext = context.getApplicationContext();
-    }
-
-    private static Typeface findFromCache(String providerAuthority, String query) {
-        synchronized (sDynamicTypefaceCache) {
-            final String key = createProviderUid(providerAuthority, query);
-            Typeface typeface = sDynamicTypefaceCache.get(key);
-            if (typeface != null) {
-                return typeface;
-            }
-        }
-        return null;
-    }
-
-    static void putInCache(String providerAuthority, String query, Typeface typeface) {
-        String key = createProviderUid(providerAuthority, query);
-        synchronized (sDynamicTypefaceCache) {
-            sDynamicTypefaceCache.put(key, typeface);
-        }
-    }
-
-    /**
-     * To be overriden by other implementations according to available APIs.
-     * @param resultList a list of results, guaranteed to be non-null and non empty.
-     */
-    @Override
-    public Typeface createTypeface(List<FontResult> resultList) {
-        // When we load from file, we can only load one font so just take the first one.
-        Typeface typeface = null;
-        FontResult result = resultList.get(0);
-        FileDescriptor fd = result.getFileDescriptor().getFileDescriptor();
-        File tmpFile = copyToCacheFile(new FileInputStream(fd));
-        if (tmpFile != null) {
-            try {
-                typeface = Typeface.createFromFile(tmpFile.getPath());
-            } catch (RuntimeException e) {
-                // This was thrown from Typeface.createFromFile when a Typeface could not be loaded,
-                // such as due to an invalid ttf or unreadable file. We don't want to throw that
-                // exception anymore.
-                return null;
-            } finally {
-                tmpFile.delete();
-            }
-        }
-        return typeface;
     }
 
     @Override
@@ -193,13 +142,6 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
                 Log.e(TAG, "Error closing input stream", io);
             }
         }
-    }
-
-    /**
-     * Creates a unique id for a given font provider and query.
-     */
-    private static String createProviderUid(String authority, String query) {
-        return "provider:" + authority + "-" + query;
     }
 
     @Nullable

@@ -16,45 +16,41 @@
 
 package android.support.text.emoji;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
-import android.os.Bundle;
+import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.graphics.TypefaceCompat;
-import android.support.v4.graphics.fonts.FontResult;
-import android.support.v4.os.ResultReceiver;
 import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
-import android.support.v4.provider.FontsContractCompat.FontRequestCallback;
-import android.support.v4.provider.FontsContractInternal;
+import android.support.v4.provider.FontsContractCompat.FontFamilyResult;
+import android.support.v4.provider.FontsContractCompat.FontInfo;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Preconditions;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * {@link EmojiCompat.Config} implementation that asynchronously fetches the required font and the
  * metadata using a {@link FontRequest}. FontRequest should be constructed to fetch an EmojiCompat
  * compatible emoji font.
  * <p/>
- * See {@link FontsContractCompat.FontRequestCallback#onTypefaceRequestFailed(int)} for more
- * information about the cases where the font loading can fail.
  */
 public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
-
     /**
      * @param context Context instance, cannot be {@code null}
      * @param request {@link FontRequest} to fetch the font asynchronously, cannot be {@code null}
      */
     public FontRequestEmojiCompatConfig(@NonNull Context context, @NonNull FontRequest request) {
-        super(new FontRequestMetadataLoader(context, request));
+        super(new FontRequestMetadataLoader(context, request, DEFAULT_FONTS_CONTRACT));
     }
 
     /**
@@ -62,26 +58,22 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public FontRequestEmojiCompatConfig(@NonNull Context context, @NonNull FontRequest request,
-            @NonNull FontsContractInternal fontsContract) {
+            @NonNull FontsContractDelegate fontsContract) {
         super(new FontRequestMetadataLoader(context, request, fontsContract));
     }
 
 
     /**
-     * MetadataLoader implementation that uses FontsContractInternal and TypefaceCompat to load a
+     * MetadataLoader implementation that uses FontsContractCompat and TypefaceCompat to load a
      * given FontRequest.
      */
     private static class FontRequestMetadataLoader implements EmojiCompat.MetadataLoader {
         private final Context mContext;
         private final FontRequest mRequest;
-        private final FontsContractInternal mFontsContract;
-
-        FontRequestMetadataLoader(@NonNull Context context, @NonNull FontRequest request) {
-            this(context, request, new FontsContractInternal(context));
-        }
+        private final FontsContractDelegate mFontsContract;
 
         FontRequestMetadataLoader(@NonNull Context context, @NonNull FontRequest request,
-                @NonNull FontsContractInternal fontsContract) {
+                @NonNull FontsContractDelegate fontsContract) {
             Preconditions.checkNotNull(context, "Context cannot be null");
             Preconditions.checkNotNull(request, "FontRequest cannot be null");
             mContext = context.getApplicationContext();
@@ -93,45 +85,11 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         @RequiresApi(19)
         public void load(@NonNull final EmojiCompat.LoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
-            final ResultReceiver receiver = new ResultReceiver(null) {
-                @Override
-                public void onReceiveResult(final int resultCode, final Bundle resultData) {
-                    receiveResult(loaderCallback, resultCode, resultData);
-                }
-            };
-            try {
-                mFontsContract.getFont(mRequest, receiver);
-            } catch (Throwable throwable) {
-                loaderCallback.onFailed(throwable);
-            }
-        }
-
-        @RequiresApi(19)
-        private void receiveResult(final EmojiCompat.LoaderCallback loaderCallback,
-                final int resultCode, final Bundle resultData) {
-            try {
-                if (resultCode != FontsContractCompat.Columns.RESULT_CODE_OK) {
-                    throwException(resultCode);
-                }
-
-                if (resultData == null) {
-                    throwException(FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-                }
-
-                final List<FontResult> fontResults = resultData.getParcelableArrayList(
-                        FontsContractInternal.PARCEL_FONT_RESULTS);
-                if (fontResults == null || fontResults.isEmpty()) {
-                    throwException(FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND);
-                }
-
-                final InitRunnable runnable = new InitRunnable(mContext, fontResults.get(0),
-                        loaderCallback);
-                final Thread thread = new Thread(runnable);
-                thread.setDaemon(false);
-                thread.start();
-            } catch (Throwable t) {
-                loaderCallback.onFailed(t);
-            }
+            final InitRunnable runnable =
+                    new InitRunnable(mContext, mRequest, mFontsContract, loaderCallback);
+            final Thread thread = new Thread(runnable);
+            thread.setDaemon(false);
+            thread.start();
         }
     }
 
@@ -142,48 +100,85 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
     private static class InitRunnable implements Runnable {
         private final EmojiCompat.LoaderCallback mLoaderCallback;
         private final Context mContext;
-        private final FontResult mFontResult;
+        private final FontsContractDelegate mFontsContract;
+        private final FontRequest mFontRequest;
 
         private InitRunnable(final Context context,
-                final FontResult fontResult,
+                final FontRequest fontRequest,
+                final FontsContractDelegate fontsContract,
                 final EmojiCompat.LoaderCallback loaderCallback) {
             mContext = context;
-            mFontResult = fontResult;
+            mFontRequest = fontRequest;
+            mFontsContract = fontsContract;
             mLoaderCallback = loaderCallback;
         }
 
         @Override
         public void run() {
             try {
-                final ParcelFileDescriptor dupFd = mFontResult.getFileDescriptor().dup();
-                // this one will close fd that is in mFontResult
-                final Typeface typeface = TypefaceCompat.createTypeface(mContext,
-                        Arrays.asList(mFontResult));
-                if (typeface == null) {
-                    throwException(FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR);
+                FontFamilyResult result = null;
+                try {
+                    result = mFontsContract.fetchFonts(mContext, mFontRequest);
+                } catch (NameNotFoundException e) {
+                    throwException("provider not found");
                 }
-                // this one will close dupFd
-                final MetadataRepo metadataRepo = createMetadataRepo(typeface, dupFd);
-                mLoaderCallback.onLoaded(metadataRepo);
+                if (result.getStatusCode() != FontFamilyResult.STATUS_OK) {
+                    throwException("fetchFonts failed (" + result.getStatusCode() + ")");
+                }
+                final FontInfo[] fonts = result.getFonts();
+                if (fonts == null || fonts.length == 0) {
+                    throwException("fetchFonts failed (empty result)");
+                }
+                // Assuming the GMS Core provides only one font file.
+                final FontInfo font = fonts[0];
+                if (font.getResultCode() != FontsContractCompat.Columns.RESULT_CODE_OK) {
+                    throwException("fetchFonts result is not OK. (" + font.getResultCode() + ")");
+                }
+
+                final ContentResolver resolver = mContext.getContentResolver();
+                ByteBuffer buffer = null;
+                try (ParcelFileDescriptor fd = resolver.openFileDescriptor(font.getUri(), "r");
+                    FileInputStream inputStream = new FileInputStream(fd.getFileDescriptor())) {
+                    final FileChannel fileChannel = inputStream.getChannel();
+                    buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
+                } catch (FileNotFoundException e) {
+                    throwException("Unable to open file.");
+                }
+
+                // TypefaceCompat.buildTypeface opens file descriptor again, so bypass the
+                // FontsContract.prepareFontData and create FontInfo and ByteBuffer directly.
+                final ArrayMap<Uri, ByteBuffer> bufferMap = new ArrayMap<>();
+                bufferMap.put(font.getUri(), buffer.duplicate());
+                final Typeface typeface = TypefaceCompat.createTypeface(mContext,
+                        new FontInfo[] { font }, bufferMap);
+                if (typeface == null) {
+                    throwException("Failed to create Typeface.");
+                }
+
+                mLoaderCallback.onLoaded(MetadataRepo.create(typeface, buffer));
             } catch (Throwable t) {
                 mLoaderCallback.onFailed(t);
             }
         }
+    }
 
-        private MetadataRepo createMetadataRepo(final Typeface typeface,
-                final ParcelFileDescriptor parcelFileDescriptor) throws IOException {
-            try (ParcelFileDescriptor pfd = parcelFileDescriptor;
-                 FileInputStream inputStream = new FileInputStream(pfd.getFileDescriptor())) {
-                final FileChannel fileChannel = inputStream.getChannel();
-                final ByteBuffer buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0,
-                        fileChannel.size());
-                final MetadataRepo metadataRepo = MetadataRepo.create(typeface, buffer);
-                return metadataRepo;
-            }
+    private static void throwException(String msg) {
+        throw new RuntimeException("Cannot load metadata: " + msg);
+    }
+
+    /**
+     * Delegate class for mocking FontsContractCompat.fetchFonts.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class FontsContractDelegate {
+        /** Calls FontsContractCompat.fetchFonts. */
+        public FontFamilyResult fetchFonts(@NonNull Context context,
+                @NonNull FontRequest request) throws NameNotFoundException {
+            return FontsContractCompat.fetchFonts(context, null /* cancellation signal */, request);
         }
-    }
+    };
 
-    private static void throwException(int code) {
-        throw new RuntimeException("Cannot load metadata, error code:" + Integer.toString(code));
-    }
+    private static final FontsContractDelegate DEFAULT_FONTS_CONTRACT = new FontsContractDelegate();
+
 }
