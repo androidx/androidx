@@ -40,7 +40,10 @@ android {
     sourceSets {
         main.java.srcDir 'src'
         main.java.srcDir 'constants'
-        main.res.srcDir 'res'
+        main.res.srcDirs = [
+                'res',
+                'res-public'
+        ]
         main.assets.srcDir 'assets'
         main.resources.srcDir 'src'
     }
