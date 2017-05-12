@@ -159,6 +159,14 @@ public class GridWidgetTest {
         setSelectedPosition(position, 0);
     }
 
+    private void setSelectedPositionSmooth(final int position) throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(position);
+            }
+        });
+    }
     /**
      * Scrolls using given key.
      */
@@ -789,6 +797,101 @@ public class GridWidgetTest {
         scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
+    }
+
+    @Test
+    public void testScrollSecondaryCannotScroll() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+        final int topPadding = 2;
+        final int bottomPadding = 2;
+        final int height = mGridView.getHeight();
+        final int spacing = 2;
+        final int rowHeight = (height - topPadding - bottomPadding) / 4 - spacing;
+        final HorizontalGridView horizontalGridView = (HorizontalGridView) mGridView;
+
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                horizontalGridView.setPadding(0, topPadding, 0, bottomPadding);
+                horizontalGridView.setItemSpacing(spacing);
+                horizontalGridView.setNumRows(mNumRows);
+                horizontalGridView.setRowHeight(rowHeight);
+            }
+        });
+        waitForLayout();
+        // navigate vertically in first column, first row should always be aligned to top padding
+        for (int i = 0; i < 3; i++) {
+            setSelectedPosition(i);
+            assertEquals(topPadding, mGridView.findViewHolderForAdapterPosition(0).itemView
+                    .getTop());
+        }
+        // navigate vertically in 100th column, first row should always be aligned to top padding
+        for (int i = 300; i < 301; i++) {
+            setSelectedPosition(i);
+            assertEquals(topPadding, mGridView.findViewHolderForAdapterPosition(300).itemView
+                    .getTop());
+        }
+    }
+
+    @Test
+    public void testScrollSecondaryNeedScroll() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        // test a lot of rows so we have to scroll vertically to reach
+        mNumRows = 9;
+        final int topPadding = 2;
+        final int bottomPadding = 2;
+        final int height = mGridView.getHeight();
+        final int spacing = 2;
+        final int rowHeight = (height - topPadding - bottomPadding) / 4 - spacing;
+        final HorizontalGridView horizontalGridView = (HorizontalGridView) mGridView;
+
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                horizontalGridView.setPadding(0, topPadding, 0, bottomPadding);
+                horizontalGridView.setItemSpacing(spacing);
+                horizontalGridView.setNumRows(mNumRows);
+                horizontalGridView.setRowHeight(rowHeight);
+            }
+        });
+        waitForLayout();
+        View view;
+        // first row should be aligned to top padding
+        setSelectedPosition(0);
+        assertEquals(topPadding, mGridView.findViewHolderForAdapterPosition(0).itemView.getTop());
+        // middle row should be aligned to keyline (1/2 of screen height)
+        setSelectedPosition(4);
+        view = mGridView.findViewHolderForAdapterPosition(4).itemView;
+        assertEquals(height / 2, (view.getTop() + view.getBottom()) / 2);
+        // last row should be aligned to bottom padding.
+        setSelectedPosition(8);
+        view = mGridView.findViewHolderForAdapterPosition(8).itemView;
+        assertEquals(height, view.getTop() + rowHeight + bottomPadding);
+        setSelectedPositionSmooth(4);
+        waitForScrollIdle();
+        // middle row should be aligned to keyline (1/2 of screen height)
+        setSelectedPosition(4);
+        view = mGridView.findViewHolderForAdapterPosition(4).itemView;
+        assertEquals(height / 2, (view.getTop() + view.getBottom()) / 2);
+        // first row should be aligned to top padding
+        setSelectedPositionSmooth(0);
+        waitForScrollIdle();
+        assertEquals(topPadding, mGridView.findViewHolderForAdapterPosition(0).itemView.getTop());
     }
 
     @Test
@@ -4101,5 +4204,268 @@ public class GridWidgetTest {
         mGridView.offsetDescendantRectToMyCoords(textView, rect);
         assertEquals(windowAlignCenter, rect.right, DELTA);
     }
-}
 
+    enum ItemLocation {
+        ITEM_AT_LOW,
+        ITEM_AT_KEY_LINE,
+        ITEM_AT_HIGH
+    };
+
+    static class ItemAt {
+        final int mScrollPosition;
+        final int mPosition;
+        final ItemLocation mLocation;
+
+        ItemAt(int scrollPosition, int position, ItemLocation loc) {
+            mScrollPosition = scrollPosition;
+            mPosition = position;
+            mLocation = loc;
+        }
+
+        ItemAt(int position, ItemLocation loc) {
+            mScrollPosition = position;
+            mPosition = position;
+            mLocation = loc;
+        }
+    }
+
+    /**
+     * When scroll to position, item at position is expected at given location.
+     */
+    static ItemAt itemAt(int position, ItemLocation location) {
+        return new ItemAt(position, location);
+    }
+
+    /**
+     * When scroll to scrollPosition, item at position is expected at given location.
+     */
+    static ItemAt itemAt(int scrollPosition, int position, ItemLocation location) {
+        return new ItemAt(scrollPosition, position, location);
+    }
+
+    void prepareKeyLineTest(int numItems) throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        int[] items = new int[numItems];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 32;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+    }
+
+    public void testPreferKeyLine(final int windowAlignment,
+            final boolean preferKeyLineOverLow,
+            final boolean preferKeyLineOverHigh,
+            ItemLocation assertFirstItemLocation,
+            ItemLocation assertLastItemLocation) throws Throwable {
+        testPreferKeyLine(windowAlignment, preferKeyLineOverLow, preferKeyLineOverHigh,
+                itemAt(0, assertFirstItemLocation),
+                itemAt(mActivity.mNumItems - 1, assertLastItemLocation));
+    }
+
+    public void testPreferKeyLine(final int windowAlignment,
+            final boolean preferKeyLineOverLow,
+            final boolean preferKeyLineOverHigh,
+            ItemLocation assertFirstItemLocation,
+            ItemAt assertLastItemLocation) throws Throwable {
+        testPreferKeyLine(windowAlignment, preferKeyLineOverLow, preferKeyLineOverHigh,
+                itemAt(0, assertFirstItemLocation),
+                assertLastItemLocation);
+    }
+
+    public void testPreferKeyLine(final int windowAlignment,
+            final boolean preferKeyLineOverLow,
+            final boolean preferKeyLineOverHigh,
+            ItemAt assertFirstItemLocation,
+            ItemLocation assertLastItemLocation) throws Throwable {
+        testPreferKeyLine(windowAlignment, preferKeyLineOverLow, preferKeyLineOverHigh,
+                assertFirstItemLocation,
+                itemAt(mActivity.mNumItems - 1, assertLastItemLocation));
+    }
+
+    public void testPreferKeyLine(final int windowAlignment,
+            final boolean preferKeyLineOverLow,
+            final boolean preferKeyLineOverHigh,
+            ItemAt assertFirstItemLocation,
+            ItemAt assertLastItemLocation) throws Throwable {
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(windowAlignment);
+                mGridView.setWindowAlignmentOffsetPercent(50);
+                mGridView.setWindowAlignmentOffset(0);
+                mGridView.setWindowAlignmentPreferKeyLineOverLowEdge(preferKeyLineOverLow);
+                mGridView.setWindowAlignmentPreferKeyLineOverHighEdge(preferKeyLineOverHigh);
+            }
+        });
+        waitForLayout();
+
+        final int lowPadding = mGridView.getPaddingTop();
+        final int highPadding = mGridView.getHeight() - mGridView.getPaddingBottom();
+        final int windowAlignCenter = mGridView.getHeight() / 2;
+
+        setSelectedPosition(assertFirstItemLocation.mScrollPosition);
+        View view = mGridView.findViewHolderForAdapterPosition(assertFirstItemLocation.mPosition)
+                .itemView;
+        switch (assertFirstItemLocation.mLocation) {
+            case ITEM_AT_LOW:
+                assertEquals(lowPadding, view.getTop());
+                break;
+            case ITEM_AT_HIGH:
+                assertEquals(highPadding, view.getBottom());
+                break;
+            case ITEM_AT_KEY_LINE:
+                assertEquals(windowAlignCenter, view.getTop() + view.getHeight() / 2, DELTA);
+                break;
+        }
+
+        setSelectedPosition(assertLastItemLocation.mScrollPosition);
+        view = mGridView.findViewHolderForAdapterPosition(assertLastItemLocation.mPosition)
+                .itemView;
+        switch (assertLastItemLocation.mLocation) {
+            case ITEM_AT_LOW:
+                assertEquals(lowPadding, view.getTop());
+                break;
+            case ITEM_AT_HIGH:
+                assertEquals(highPadding, view.getBottom());
+                break;
+            case ITEM_AT_KEY_LINE:
+                assertEquals(windowAlignCenter, view.getTop() + view.getHeight() / 2, DELTA);
+                break;
+        }
+    }
+
+    @Test
+    public void testPreferKeyLine1() throws Throwable {
+        prepareKeyLineTest(1);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, false, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, false, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, true, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, true, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, false, false,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_LOW);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, false, true,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_LOW);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, true, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, true, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, false, false,
+                ItemLocation.ITEM_AT_HIGH, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, false, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, true, false,
+                ItemLocation.ITEM_AT_HIGH, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, true, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, false, false,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_LOW);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, false, true,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_LOW);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, true, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, true, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+    }
+
+    @Test
+    public void testPreferKeyLine2() throws Throwable {
+        prepareKeyLineTest(2);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, false, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, false, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, true, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, true, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, false, false,
+                ItemLocation.ITEM_AT_LOW, itemAt(1, 0, ItemLocation.ITEM_AT_LOW));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, false, true,
+                ItemLocation.ITEM_AT_LOW, itemAt(1, 0, ItemLocation.ITEM_AT_LOW));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, true, false,
+                itemAt(0, 1, ItemLocation.ITEM_AT_KEY_LINE),
+                itemAt(1, 1, ItemLocation.ITEM_AT_KEY_LINE));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, true, true,
+                itemAt(0, 1, ItemLocation.ITEM_AT_KEY_LINE),
+                itemAt(1, 1, ItemLocation.ITEM_AT_KEY_LINE));
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, false, false,
+                itemAt(0, 1, ItemLocation.ITEM_AT_HIGH),
+                itemAt(1, 1, ItemLocation.ITEM_AT_HIGH));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, false, true,
+                itemAt(0, 0, ItemLocation.ITEM_AT_KEY_LINE),
+                itemAt(1, 0, ItemLocation.ITEM_AT_KEY_LINE));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, true, false,
+                itemAt(0, 1, ItemLocation.ITEM_AT_HIGH),
+                itemAt(1, 1, ItemLocation.ITEM_AT_HIGH));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, true, true,
+                itemAt(0, 0, ItemLocation.ITEM_AT_KEY_LINE),
+                itemAt(1, 0, ItemLocation.ITEM_AT_KEY_LINE));
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, false, false,
+                ItemLocation.ITEM_AT_LOW, itemAt(1, 0, ItemLocation.ITEM_AT_LOW));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, false, true,
+                ItemLocation.ITEM_AT_LOW, itemAt(1, 0, ItemLocation.ITEM_AT_LOW));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, true, false,
+                itemAt(0, 1, ItemLocation.ITEM_AT_KEY_LINE),
+                itemAt(1, 1, ItemLocation.ITEM_AT_KEY_LINE));
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, true, true,
+                itemAt(0, 1, ItemLocation.ITEM_AT_KEY_LINE),
+                itemAt(1, 1, ItemLocation.ITEM_AT_KEY_LINE));
+    }
+
+    @Test
+    public void testPreferKeyLine10000() throws Throwable {
+        prepareKeyLineTest(10000);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, false, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, false, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, true, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_NO_EDGE, true, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_KEY_LINE);
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, false, false,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, false, true,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, true, false,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_KEY_LINE);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_LOW_EDGE, true, true,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_KEY_LINE);
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, false, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, false, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, true, false,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_HIGH_EDGE, true, true,
+                ItemLocation.ITEM_AT_KEY_LINE, ItemLocation.ITEM_AT_HIGH);
+
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, false, false,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, false, true,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, true, false,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_HIGH);
+        testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, true, true,
+                ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_HIGH);
+    }
+}
