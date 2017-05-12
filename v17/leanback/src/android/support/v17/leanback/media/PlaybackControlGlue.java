@@ -707,8 +707,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
         if (mPlayPauseAction != null) {
             int index = playbackSpeed == PLAYBACK_SPEED_PAUSED
-                    ? PlaybackControlsRow.PlayPauseAction.PLAY
-                    : PlaybackControlsRow.PlayPauseAction.PAUSE;
+                    ? PlaybackControlsRow.PlayPauseAction.INDEX_PLAY
+                    : PlaybackControlsRow.PlayPauseAction.INDEX_PAUSE;
             if (mPlayPauseAction.getIndex() != index) {
                 mPlayPauseAction.setIndex(index);
                 notifyItemChanged(primaryActionsAdapter, mPlayPauseAction);
