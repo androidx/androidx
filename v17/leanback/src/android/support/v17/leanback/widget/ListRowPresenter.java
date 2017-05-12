@@ -35,11 +35,11 @@ import java.util.HashMap;
  * display a view for the currently focused list item below the rendered
  * list. This view is known as a hover card.
  *
- * <h3>Selection animation</h3>
- * ListRowPresenter disables {@link RowPresenter}'s default dimming effect and draws
- * a dim overlay on each view individually.  A subclass may override and disable
- * {@link #isUsingDefaultListSelectEffect()} and write its own dim effect in
- * {@link #onSelectLevelChanged(RowPresenter.ViewHolder)}.
+ * <h3>Row selection animation</h3>
+ * ListRowPresenter disables {@link RowPresenter}'s default full row dimming effect and draws
+ * a dim overlay on each child individually.  A subclass may disable the overlay on each child
+ * by overriding {@link #isUsingDefaultListSelectEffect()} to return false and write its own child
+ * dim effect in {@link #applySelectLevelToChild(ViewHolder, View)}.
  *
  * <h3>Shadow</h3>
  * ListRowPresenter applies a default shadow to each child view.  Call
@@ -678,7 +678,8 @@ public class ListRowPresenter extends RowPresenter {
     /**
      * Returns true so that default select effect is applied to each individual
      * child of {@link HorizontalGridView}.  Subclass may return false to disable
-     * the default implementation.
+     * the default implementation and implement {@link #applySelectLevelToChild(ViewHolder, View)}.
+     * @see #applySelectLevelToChild(ViewHolder, View)
      * @see #onSelectLevelChanged(RowPresenter.ViewHolder)
      */
     public boolean isUsingDefaultListSelectEffect() {
