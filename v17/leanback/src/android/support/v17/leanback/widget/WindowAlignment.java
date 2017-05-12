@@ -30,27 +30,29 @@ class WindowAlignment {
      */
     public static class Axis {
         /**
-         * mScrollCenter is used to calculate dynamic transformation based on how far a view
-         * is from the mScrollCenter. For example, the views with center close to mScrollCenter
-         * will be scaled up.
-         */
-        private float mScrollCenter;
-        /**
          * Right or bottom edge of last child.
          */
         private int mMaxEdge;
         /**
-         * Left or top edge of first child, typically should be zero.
+         * Left or top edge of first child
          */
         private int mMinEdge;
         /**
-         * Max Scroll value
+         * Scroll distance to align last child, it defines limit of scroll.
          */
         private int mMaxScroll;
         /**
-         * Min Scroll value
+         * Scroll distance to align first child, it defines limit of scroll.
          */
         private int mMinScroll;
+
+        static final int PF_KEYLINE_OVER_LOW_EDGE = 1;
+        static final int PF_KEYLINE_OVER_HIGH_EDGE = 1 << 1;
+
+        /**
+         * By default we prefer low edge over keyline, prefer keyline over high edge.
+         */
+        private int mPreferredKeyLine = PF_KEYLINE_OVER_HIGH_EDGE;
 
         private int mWindowAlignment = WINDOW_ALIGN_BOTH_EDGE;
 
@@ -60,9 +62,15 @@ class WindowAlignment {
 
         private int mSize;
 
-        private int mPaddingLow;
+        /**
+         * Padding at the min edge, it is the left or top padding.
+         */
+        private int mPaddingMin;
 
-        private int mPaddingHigh;
+        /**
+         * Padding at the max edge, it is the right or bottom padding.
+         */
+        private int mPaddingMax;
 
         private boolean mReversedFlow;
 
@@ -73,23 +81,43 @@ class WindowAlignment {
             mName = name;
         }
 
-        final public int getWindowAlignment() {
+        public final int getWindowAlignment() {
             return mWindowAlignment;
         }
 
-        final public void setWindowAlignment(int windowAlignment) {
+        public final void setWindowAlignment(int windowAlignment) {
             mWindowAlignment = windowAlignment;
         }
 
-        final public int getWindowAlignmentOffset() {
+        final void setPreferKeylineOverLowEdge(boolean keylineOverLowEdge) {
+            mPreferredKeyLine = keylineOverLowEdge
+                    ? mPreferredKeyLine | PF_KEYLINE_OVER_LOW_EDGE
+                    : mPreferredKeyLine & ~PF_KEYLINE_OVER_LOW_EDGE;
+        }
+
+        final void setPreferKeylineOverHighEdge(boolean keylineOverHighEdge) {
+            mPreferredKeyLine = keylineOverHighEdge
+                    ? mPreferredKeyLine | PF_KEYLINE_OVER_HIGH_EDGE
+                    : mPreferredKeyLine & ~PF_KEYLINE_OVER_HIGH_EDGE;
+        }
+
+        final boolean isPreferKeylineOverHighEdge() {
+            return (mPreferredKeyLine & PF_KEYLINE_OVER_HIGH_EDGE) != 0;
+        }
+
+        final boolean isPreferKeylineOverLowEdge() {
+            return (mPreferredKeyLine & PF_KEYLINE_OVER_LOW_EDGE) != 0;
+        }
+
+        public final int getWindowAlignmentOffset() {
             return mWindowAlignmentOffset;
         }
 
-        final public void setWindowAlignmentOffset(int offset) {
+        public final void setWindowAlignmentOffset(int offset) {
             mWindowAlignmentOffset = offset;
         }
 
-        final public void setWindowAlignmentOffsetPercent(float percent) {
+        public final void setWindowAlignmentOffsetPercent(float percent) {
             if ((percent < 0 || percent > 100)
                     && percent != WINDOW_ALIGN_OFFSET_PERCENT_DISABLED) {
                 throw new IllegalArgumentException();
@@ -97,194 +125,233 @@ class WindowAlignment {
             mWindowAlignmentOffsetPercent = percent;
         }
 
-        final public float getWindowAlignmentOffsetPercent() {
+        public final float getWindowAlignmentOffsetPercent() {
             return mWindowAlignmentOffsetPercent;
         }
 
-        final public int getScrollCenter() {
-            return (int) mScrollCenter;
-        }
-
-        /** set minEdge,  Integer.MIN_VALUE means unknown*/
-        final public void setMinEdge(int minEdge) {
-            mMinEdge = minEdge;
-        }
-
-        final public int getMinEdge() {
-            return mMinEdge;
-        }
-
-        /** set minScroll,  Integer.MIN_VALUE means unknown*/
-        final public void setMinScroll(int minScroll) {
-            mMinScroll = minScroll;
-        }
-
-        final public int getMinScroll() {
+        /**
+         * Returns scroll distance to align min child.
+         */
+        public final int getMinScroll() {
             return mMinScroll;
         }
 
-        final public void invalidateScrollMin() {
+        public final void invalidateScrollMin() {
             mMinEdge = Integer.MIN_VALUE;
             mMinScroll = Integer.MIN_VALUE;
         }
 
-        /** update max edge,  Integer.MAX_VALUE means unknown*/
-        final public void setMaxEdge(int maxEdge) {
-            mMaxEdge = maxEdge;
-        }
-
-        final public int getMaxEdge() {
-            return mMaxEdge;
-        }
-
-        /** update max scroll,  Integer.MAX_VALUE means unknown*/
-        final public void setMaxScroll(int maxScroll) {
-            mMaxScroll = maxScroll;
-        }
-
-        final public int getMaxScroll() {
+        /**
+         * Returns scroll distance to align max child.
+         */
+        public final int getMaxScroll() {
             return mMaxScroll;
         }
 
-        final public void invalidateScrollMax() {
+        public final void invalidateScrollMax() {
             mMaxEdge = Integer.MAX_VALUE;
             mMaxScroll = Integer.MAX_VALUE;
         }
 
-        final public float updateScrollCenter(float scrollTarget) {
-            mScrollCenter = scrollTarget;
-            return scrollTarget;
-        }
-
         void reset() {
-            mScrollCenter = Integer.MIN_VALUE;
             mMinEdge = Integer.MIN_VALUE;
             mMaxEdge = Integer.MAX_VALUE;
         }
 
-        final public boolean isMinUnknown() {
+        public final boolean isMinUnknown() {
             return mMinEdge == Integer.MIN_VALUE;
         }
 
-        final public boolean isMaxUnknown() {
+        public final boolean isMaxUnknown() {
             return mMaxEdge == Integer.MAX_VALUE;
         }
 
-        final public void setSize(int size) {
+        public final void setSize(int size) {
             mSize = size;
         }
 
-        final public int getSize() {
+        public final int getSize() {
             return mSize;
         }
 
-        final public void setPadding(int paddingLow, int paddingHigh) {
-            mPaddingLow = paddingLow;
-            mPaddingHigh = paddingHigh;
+        public final void setPadding(int paddingMin, int paddingMax) {
+            mPaddingMin = paddingMin;
+            mPaddingMax = paddingMax;
         }
 
-        final public int getPaddingLow() {
-            return mPaddingLow;
+        public final int getPaddingMin() {
+            return mPaddingMin;
         }
 
-        final public int getPaddingHigh() {
-            return mPaddingHigh;
+        public final int getPaddingMax() {
+            return mPaddingMax;
         }
 
-        final public int getClientSize() {
-            return mSize - mPaddingLow - mPaddingHigh;
+        public final int getClientSize() {
+            return mSize - mPaddingMin - mPaddingMax;
         }
 
-        final public int getSystemScrollPos(boolean isAtMin, boolean isAtMax) {
-            return getSystemScrollPos((int) mScrollCenter, isAtMin, isAtMax);
-        }
-
-        final public int getSystemScrollPos(int scrollCenter, boolean isAtMin, boolean isAtMax) {
-            int middlePosition;
+        final int calculateKeyline() {
+            int keyLine;
             if (!mReversedFlow) {
                 if (mWindowAlignmentOffset >= 0) {
-                    middlePosition = mWindowAlignmentOffset - mPaddingLow;
+                    keyLine = mWindowAlignmentOffset;
                 } else {
-                    middlePosition = mSize + mWindowAlignmentOffset - mPaddingLow;
+                    keyLine = mSize + mWindowAlignmentOffset;
                 }
                 if (mWindowAlignmentOffsetPercent != WINDOW_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    middlePosition += (int) (mSize * mWindowAlignmentOffsetPercent / 100);
+                    keyLine += (int) (mSize * mWindowAlignmentOffsetPercent / 100);
                 }
             } else {
                 if (mWindowAlignmentOffset >= 0) {
-                    middlePosition = mSize - mWindowAlignmentOffset - mPaddingLow;
+                    keyLine = mSize - mWindowAlignmentOffset;
                 } else {
-                    middlePosition = - mWindowAlignmentOffset - mPaddingLow;
+                    keyLine = -mWindowAlignmentOffset;
                 }
                 if (mWindowAlignmentOffsetPercent != WINDOW_ALIGN_OFFSET_PERCENT_DISABLED) {
-                    middlePosition -= (int) (mSize * mWindowAlignmentOffsetPercent / 100);
+                    keyLine -= (int) (mSize * mWindowAlignmentOffsetPercent / 100);
                 }
             }
-            int clientSize = getClientSize();
-            int afterMiddlePosition = clientSize - middlePosition;
-            boolean isMinUnknown = isMinUnknown();
-            boolean isMaxUnknown = isMaxUnknown();
-            if (!isMinUnknown && !isMaxUnknown
-                    && (mWindowAlignment & WINDOW_ALIGN_BOTH_EDGE) == WINDOW_ALIGN_BOTH_EDGE) {
-                if (mMaxEdge - mMinEdge <= clientSize) {
-                    // total children size is less than view port and we want to align
-                    // both edge:  align first child to start edge of view port
-                    return mReversedFlow ? mMaxEdge - mPaddingLow - clientSize
-                            : mMinEdge - mPaddingLow;
-                }
-            }
+            return keyLine;
+        }
+
+        /**
+         * Returns scroll distance to move viewCenterPosition to keyLine.
+         */
+        final int calculateScrollToKeyLine(int viewCenterPosition, int keyLine) {
+            return viewCenterPosition - keyLine;
+        }
+
+        /**
+         * Update {@link #getMinScroll()} and {@link #getMaxScroll()}
+         */
+        public final void updateMinMax(int minEdge, int maxEdge,
+                int minChildViewCenter, int maxChildViewCenter) {
+            mMinEdge = minEdge;
+            mMaxEdge = maxEdge;
+            final int clientSize = getClientSize();
+            final int keyLine = calculateKeyline();
+            final boolean isMinUnknown = isMinUnknown();
+            final boolean isMaxUnknown = isMaxUnknown();
             if (!isMinUnknown) {
-                if ((!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0
-                     : (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0)
-                        && (isAtMin || scrollCenter - mMinEdge <= middlePosition)) {
-                    // scroll center is within half of view port size: align the start edge
-                    // of first child to the start edge of view port
-                    return mMinEdge - mPaddingLow;
+                if (!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0
+                        : (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0) {
+                    // calculate scroll distance to move current mMinEdge to padding at min edge
+                    mMinScroll = mMinEdge - mPaddingMin;
+                } else  {
+                    // calculate scroll distance to move min child center to key line
+                    mMinScroll = calculateScrollToKeyLine(minChildViewCenter, keyLine);
                 }
             }
             if (!isMaxUnknown) {
-                if ((!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0
-                        : (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0)
-                        && (isAtMax || mMaxEdge - scrollCenter <= afterMiddlePosition)) {
-                    // scroll center is very close to the end edge of view port : align the
-                    // end edge of last children (plus expanded size) to view port's end
-                    return mMaxEdge - mPaddingLow - clientSize;
+                if (!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0
+                        : (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0) {
+                    // calculate scroll distance to move current mMaxEdge to padding at max edge
+                    mMaxScroll = mMaxEdge - mPaddingMin - clientSize;
+                } else  {
+                    // calculate scroll distance to move max child center to key line
+                    mMaxScroll = calculateScrollToKeyLine(maxChildViewCenter, keyLine);
                 }
             }
-            // else put scroll center in middle of view port
-            return scrollCenter - middlePosition - mPaddingLow;
+            if (!isMaxUnknown && !isMinUnknown) {
+                if (!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0
+                        : (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0) {
+                    if (!mReversedFlow ? isPreferKeylineOverLowEdge()
+                            : isPreferKeylineOverHighEdge()) {
+                        // if we prefer key line, might align max child to key line for minScroll
+                        mMinScroll = Math.min(mMinScroll,
+                                calculateScrollToKeyLine(maxChildViewCenter, keyLine));
+                    } else {
+                        // don't over scroll max
+                        mMaxScroll = Math.max(mMinScroll, mMaxScroll);
+                    }
+                } else if (!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0
+                        : (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0) {
+                    if (!mReversedFlow ? isPreferKeylineOverHighEdge()
+                            : isPreferKeylineOverLowEdge()) {
+                        // if we prefer key line, might align min child to key line for maxScroll
+                        mMaxScroll = Math.max(mMaxScroll,
+                                calculateScrollToKeyLine(minChildViewCenter, keyLine));
+                    } else {
+                        // don't over scroll min
+                        mMinScroll = Math.min(mMinScroll, mMaxScroll);
+                    }
+                }
+            }
         }
 
-        final public void setReversedFlow(boolean reversedFlow) {
+        /**
+         * Get scroll distance of align an item (depends on ALIGN_LOW_EDGE, ALIGN_HIGH_EDGE or the
+         * item should be aligned to key line). The scroll distance will be capped by
+         * {@link #getMinScroll()} and {@link #getMaxScroll()}.
+         */
+        public final int getScroll(int viewCenter) {
+            final int size = getSize();
+            final int keyLine = calculateKeyline();
+            final boolean isMinUnknown = isMinUnknown();
+            final boolean isMaxUnknown = isMaxUnknown();
+            if (!isMinUnknown) {
+                final int keyLineToMinEdge = keyLine - mPaddingMin;
+                if ((!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0
+                     : (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0)
+                        && (viewCenter - mMinEdge <= keyLineToMinEdge)) {
+                    // view center is before key line: align the min edge (first child) to padding.
+                    int alignToMin = mMinEdge - mPaddingMin;
+                    // Also we need make sure don't over scroll
+                    if (!isMaxUnknown && alignToMin > mMaxScroll) {
+                        alignToMin = mMaxScroll;
+                    }
+                    return alignToMin;
+                }
+            }
+            if (!isMaxUnknown) {
+                final int keyLineToMaxEdge = size - keyLine - mPaddingMax;
+                if ((!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0
+                        : (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0)
+                        && (mMaxEdge - viewCenter <= keyLineToMaxEdge)) {
+                    // view center is after key line: align the max edge (last child) to padding.
+                    int alignToMax = mMaxEdge - (size - mPaddingMax);
+                    // Also we need make sure don't over scroll
+                    if (!isMinUnknown && alignToMax < mMinScroll) {
+                        alignToMax = mMinScroll;
+                    }
+                    return alignToMax;
+                }
+            }
+            // else put view center at key line.
+            return calculateScrollToKeyLine(viewCenter, keyLine);
+        }
+
+        public final void setReversedFlow(boolean reversedFlow) {
             mReversedFlow = reversedFlow;
         }
 
         @Override
         public String toString() {
-            return "center: " + mScrollCenter + " min:" + mMinEdge + " max:" + mMaxEdge;
+            return " min:" + mMinEdge + " " + mMinScroll + " max:" + mMaxEdge + " " + mMaxScroll;
         }
 
     }
 
     private int mOrientation = HORIZONTAL;
 
-    final public Axis vertical = new Axis("vertical");
+    public final Axis vertical = new Axis("vertical");
 
-    final public Axis horizontal = new Axis("horizontal");
+    public final Axis horizontal = new Axis("horizontal");
 
     private Axis mMainAxis = horizontal;
 
     private Axis mSecondAxis = vertical;
 
-    final public Axis mainAxis() {
+    public final Axis mainAxis() {
         return mMainAxis;
     }
 
-    final public Axis secondAxis() {
+    public final Axis secondAxis() {
         return mSecondAxis;
     }
 
-    final public void setOrientation(int orientation) {
+    public final void setOrientation(int orientation) {
         mOrientation = orientation;
         if (mOrientation == HORIZONTAL) {
             mMainAxis = horizontal;
@@ -295,11 +362,11 @@ class WindowAlignment {
         }
     }
 
-    final public int getOrientation() {
+    public final int getOrientation() {
         return mOrientation;
     }
 
-    final public void reset() {
+    public final void reset() {
         mainAxis().reset();
     }
 
