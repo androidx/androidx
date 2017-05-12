@@ -38,6 +38,7 @@ oneway interface IMediaControllerCallback {
     void onExtrasChanged(in Bundle extras);
     void onVolumeInfoChanged(in ParcelableVolumeInfo info);
     void onRepeatModeChanged(int repeatMode);
-    void onShuffleModeChanged(boolean enabled);
+    void onShuffleModeChangedDeprecated(boolean enabled);
     void onCaptioningEnabledChanged(boolean enabled);
+    void onShuffleModeChanged(int shuffleMode);
 }
