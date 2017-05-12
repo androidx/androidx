@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Definitions of attributes to be exposed as public -->
+<resources>
+    <public type="attr" name="adjustable" />
+    <public type="attr" name="allowDividerAbove" />
+    <public type="attr" name="allowDividerAfterLastItem" />
+    <public type="attr" name="allowDividerBelow" />
+    <public type="attr" name="checkBoxPreferenceStyle" />
+    <public type="attr" name="defaultValue" />
+    <public type="attr" name="dependency" />
+    <public type="attr" name="dialogIcon" />
+    <public type="attr" name="dialogLayout" />
+    <public type="attr" name="dialogMessage" />
+    <public type="attr" name="dialogPreferenceStyle" />
+    <public type="attr" name="dialogTitle" />
+    <public type="attr" name="disableDependentsState" />
+    <public type="attr" name="dropdownPreferenceStyle" />
+    <public type="attr" name="editTextPreferenceStyle" />
+    <public type="attr" name="enabled" />
+    <public type="attr" name="entries" />
+    <public type="attr" name="entryValues" />
+    <public type="attr" name="fragment" />
+    <public type="attr" name="icon" />
+    <public type="attr" name="iconSpaceReserved" />
+    <public type="attr" name="key" />
+    <public type="attr" name="layout" />
+    <public type="attr" name="maxHeight" />
+    <public type="attr" name="maxWidth" />
+    <public type="attr" name="min" />
+    <public type="attr" name="negativeButtonText" />
+    <public type="attr" name="order" />
+    <public type="attr" name="orderingFromXml" />
+    <public type="attr" name="persistent" />
+    <public type="attr" name="positiveButtonText" />
+    <public type="attr" name="preferenceActivityStyle" />
+    <public type="attr" name="preferenceCategoryStyle" />
+    <public type="attr" name="preferenceFragmentCompatStyle" />
+    <public type="attr" name="preferenceFragmentListStyle" />
+    <public type="attr" name="preferenceFragmentPaddingSide" />
+    <public type="attr" name="preferenceFragmentStyle" />
+    <public type="attr" name="preferenceHeaderPanelStyle" />
+    <public type="attr" name="preferenceInformationStyle" />
+    <public type="attr" name="preferenceLayoutChild" />
+    <public type="attr" name="preferenceListStyle" />
+    <public type="attr" name="preferencePanelStyle" />
+    <public type="attr" name="preferenceScreenStyle" />
+    <public type="attr" name="preferenceStyle" />
+    <public type="attr" name="preferenceTheme" />
+    <public type="attr" name="ringtonePreferenceStyle" />
+    <public type="attr" name="seekBarIncrement" />
+    <public type="attr" name="seekBarPreferenceStyle" />
+    <public type="attr" name="selectable" />
+    <public type="attr" name="selectableItemBackground" />
+    <public type="attr" name="shouldDisableView" />
+    <public type="attr" name="showSeekBarValue" />
+    <public type="attr" name="singleLineTitle" />
+    <public type="attr" name="summary" />
+    <public type="attr" name="summaryOff" />
+    <public type="attr" name="summaryOn" />
+    <public type="attr" name="switchPreferenceCompatStyle" />
+    <public type="attr" name="switchPreferenceStyle" />
+    <public type="attr" name="switchTextOff" />
+    <public type="attr" name="switchTextOn" />
+    <public type="attr" name="title" />
+    <public type="attr" name="widgetLayout" />
+    <public type="attr" name="yesNoPreferenceStyle" />
+</resources>
