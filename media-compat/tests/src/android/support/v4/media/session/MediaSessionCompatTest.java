@@ -420,9 +420,28 @@ public class MediaSessionCompatTest {
             mCallback.resetLocked();
             mSession.setShuffleModeEnabled(shuffleModeEnabled);
             mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mCallback.mOnShuffleModeChangedCalled);
+            assertTrue(mCallback.mOnShuffleModeChangedDeprecatedCalled);
             assertEquals(shuffleModeEnabled, mCallback.mShuffleModeEnabled);
             assertEquals(shuffleModeEnabled, controller.isShuffleModeEnabled());
+        }
+    }
+
+    /**
+     * Tests {@link MediaSessionCompat#setShuffleMode}.
+     */
+    @Test
+    @SmallTest
+    public void testSetShuffleMode() throws Exception {
+        final int shuffleMode = PlaybackStateCompat.SHUFFLE_MODE_ALL;
+        MediaControllerCompat controller = mSession.getController();
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
+            mCallback.resetLocked();
+            mSession.setShuffleMode(shuffleMode);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnShuffleModeChangedCalled);
+            assertEquals(shuffleMode, mCallback.mShuffleMode);
+            assertEquals(shuffleMode, controller.getShuffleMode());
         }
     }
 
@@ -699,6 +718,7 @@ public class MediaSessionCompatTest {
         private volatile boolean mOnSessionEventCalled;
         private volatile boolean mOnCaptioningEnabledChangedCalled;
         private volatile boolean mOnRepeatModeChangedCalled;
+        private volatile boolean mOnShuffleModeChangedDeprecatedCalled;
         private volatile boolean mOnShuffleModeChangedCalled;
 
         private volatile PlaybackStateCompat mPlaybackState;
@@ -711,6 +731,7 @@ public class MediaSessionCompatTest {
         private volatile boolean mCaptioningEnabled;
         private volatile int mRepeatMode;
         private volatile boolean mShuffleModeEnabled;
+        private volatile int mShuffleMode;
 
         public void resetLocked() {
             mOnPlaybackStateChangedCalled = false;
@@ -722,6 +743,7 @@ public class MediaSessionCompatTest {
             mOnSessionDestroyedCalled = false;
             mOnSessionEventCalled = false;
             mOnRepeatModeChangedCalled = false;
+            mOnShuffleModeChangedDeprecatedCalled = false;
             mOnShuffleModeChangedCalled = false;
 
             mPlaybackState = null;
@@ -733,6 +755,7 @@ public class MediaSessionCompatTest {
             mCaptioningEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
             mShuffleModeEnabled = false;
+            mShuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
         }
 
         @Override
@@ -828,8 +851,17 @@ public class MediaSessionCompatTest {
         @Override
         public void onShuffleModeChanged(boolean enabled) {
             synchronized (mWaitLock) {
-                mOnShuffleModeChangedCalled = true;
+                mOnShuffleModeChangedDeprecatedCalled = true;
                 mShuffleModeEnabled = enabled;
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onShuffleModeChanged(int shuffleMode) {
+            synchronized (mWaitLock) {
+                mOnShuffleModeChangedCalled = true;
+                mShuffleMode = shuffleMode;
                 mWaitLock.notify();
             }
         }
