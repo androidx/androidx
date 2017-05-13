@@ -852,6 +852,8 @@
         <attr name="autoSizeMinTextSize" format="dimension" />
         <!-- The maximum text size constraint to be used when auto-sizing text. -->
         <attr name="autoSizeMaxTextSize" format="dimension" />
+        <!-- The attribute for the font family. -->
+        <attr name="fontFamily" format="string" />
     </declare-styleable>
 
     <declare-styleable name="LinearLayoutCompat">
@@ -1113,6 +1115,7 @@
         <attr name="android:textStyle" />
         <attr name="android:typeface" />
         <attr name="android:fontFamily" />
+        <attr name="fontFamily" />
         <attr name="textAllCaps" />
         <attr name="android:shadowColor"/>
         <attr name="android:shadowDy"/>
