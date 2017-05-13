@@ -114,6 +114,7 @@
      <public type="attr" name="editTextColor"/>
      <public type="attr" name="editTextStyle"/>
      <public type="attr" name="elevation"/>
+     <public type="attr" name="fontFamily"/>
      <public type="attr" name="gapBetweenBars"/>
      <public type="attr" name="goIcon"/>
      <public type="attr" name="height"/>
