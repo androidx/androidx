@@ -111,18 +111,19 @@ class AppCompatTextHelper {
                 style = a.getInt(R.styleable.TextAppearance_android_textStyle, Typeface.NORMAL);
 
                 // If we're running on < API 26, we need to load font resources manually.
-                if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)) {
+                if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
+                        || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
+                    int fontFamilyId = a.hasValue(R.styleable.TextAppearance_android_fontFamily)
+                            ? R.styleable.TextAppearance_android_fontFamily
+                            : R.styleable.TextAppearance_fontFamily;
                     try {
-                        fontTypeface = a.getFont(
-                                R.styleable.TextAppearance_android_fontFamily, style);
+                        fontTypeface = a.getFont(fontFamilyId, style);
                     } catch (UnsupportedOperationException | Resources.NotFoundException e) {
                         // Expected if it is not a font resource.
                     }
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
-                            && fontTypeface == null) {
+                    if (fontTypeface == null) {
                         // Try with String. This is done by TextView JB+, but fails in ICS
-                        String fontFamilyName =
-                                a.getString(R.styleable.TextAppearance_android_fontFamily);
+                        String fontFamilyName = a.getString(fontFamilyId);
                         fontTypeface = Typeface.create(fontFamilyName, style);
                     }
                 }
@@ -170,18 +171,20 @@ class AppCompatTextHelper {
 
         if (shouldLoadFonts) {
             // If we're running on < API 26, we need to load font resources manually.
-            if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)) {
+            if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
+                    || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
+                int fontFamilyId = a.hasValue(R.styleable.TextAppearance_android_fontFamily)
+                        ? R.styleable.TextAppearance_android_fontFamily
+                        : R.styleable.TextAppearance_fontFamily;
                 style = a.getInt(R.styleable.TextAppearance_android_textStyle, Typeface.NORMAL);
                 try {
-                    fontTypeface = a.getFont(R.styleable.TextAppearance_android_fontFamily, style);
+                    fontTypeface = a.getFont(fontFamilyId, style);
                 } catch (UnsupportedOperationException | Resources.NotFoundException e) {
                     // Expected if it is not a font resource.
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
-                        && fontTypeface == null) {
+                if (fontTypeface == null) {
                     // Try with String. This is done by TextView JB+, but fails in ICS
-                    String fontFamilyName =
-                            a.getString(R.styleable.TextAppearance_android_fontFamily);
+                    String fontFamilyName = a.getString(fontFamilyId);
                     fontTypeface = Typeface.create(fontFamilyName, style);
                 }
             }
