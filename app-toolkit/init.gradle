@@ -154,17 +154,13 @@ subprojects {
             }
         }
     } else {
-        // setup pom
+        // add license to pom
         project.tasks.whenTaskAdded { task ->
             if (task instanceof Upload) {
                 task.repositories {
                     mavenDeployer {
                         repository(url: project.uri(project.rootProject.supportRepoOut))
-                    }
-                }
-                project.afterEvaluate {
-                    task.repositories.withType(MavenDeployer.class).each {
-                        it.pom.project {
+                        pom.project {
                             url "https://developer.android.com/topic/libraries/architecture/index.html"
                             inceptionYear 2017
                             licenses {
