@@ -165,6 +165,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     }
 
     @Nullable
+    @Override
     public Typeface createFromFontFamilyFilesResourceEntry(
             FontFamilyFilesResourceEntry filesEntry, Resources resources, int id, int style) {
         Typeface typeface = createFromResources(filesEntry, resources, id, style);

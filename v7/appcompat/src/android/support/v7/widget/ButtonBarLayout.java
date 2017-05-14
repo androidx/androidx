@@ -129,7 +129,7 @@ public class ButtonBarLayout extends LinearLayout {
                 final int secondVisible = getNextVisibleChildIndex(firstVisible + 1);
                 if (secondVisible >= 0) {
                     minHeight += getChildAt(secondVisible).getPaddingTop()
-                            + PEEK_BUTTON_DP * getResources().getDisplayMetrics().density;
+                            + (int) (PEEK_BUTTON_DP * getResources().getDisplayMetrics().density);
                 }
             } else {
                 minHeight += getPaddingBottom();

@@ -159,6 +159,7 @@ public class SimpleArrayMap<K, V> {
         return ~end;
     }
 
+    @SuppressWarnings("ArrayToString")
     private void allocArrays(final int size) {
         if (size == (BASE_SIZE*2)) {
             synchronized (ArrayMap.class) {
@@ -194,6 +195,7 @@ public class SimpleArrayMap<K, V> {
         mArray = new Object[size<<1];
     }
 
+    @SuppressWarnings("ArrayToString")
     private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
         if (hashes.length == (BASE_SIZE*2)) {
             synchronized (ArrayMap.class) {

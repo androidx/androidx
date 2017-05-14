@@ -168,7 +168,7 @@ public class SwitchCompat extends CompoundButton {
     /** Bottom bound for drawing the switch track and thumb. */
     private int mSwitchBottom;
 
-    private TextPaint mTextPaint;
+    private final TextPaint mTextPaint;
     private ColorStateList mTextColors;
     private Layout mOnLayout;
     private Layout mOffLayout;
@@ -386,9 +386,10 @@ public class SwitchCompat extends CompoundButton {
      * {@link #setSwitchTypeface(Typeface, int)} to get the appearance
      * that you actually want.
      */
-    public void setSwitchTypeface(Typeface tf) {
-        if (mTextPaint.getTypeface() != tf) {
-            mTextPaint.setTypeface(tf);
+    public void setSwitchTypeface(Typeface typeface) {
+        if ((mTextPaint.getTypeface() != null && !mTextPaint.getTypeface().equals(typeface))
+                || (mTextPaint.getTypeface() == null && typeface != null)) {
+            mTextPaint.setTypeface(typeface);
 
             requestLayout();
             invalidate();

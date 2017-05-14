@@ -539,7 +539,7 @@ public class ActivityChooserView extends ViewGroup implements
         // Default activity button.
         final int activityCount = mAdapter.getActivityCount();
         final int historySize = mAdapter.getHistorySize();
-        if (activityCount==1 || activityCount > 1 && historySize > 0) {
+        if (activityCount == 1 || (activityCount > 1 && historySize > 0)) {
             mDefaultActivityButton.setVisibility(VISIBLE);
             ResolveInfo activity = mAdapter.getDefaultActivity();
             PackageManager packageManager = getContext().getPackageManager();
