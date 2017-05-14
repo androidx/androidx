@@ -1273,8 +1273,9 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         }
         mScrimOpacity = scrimOpacity;
 
-        // "|" used on purpose; both need to run.
-        if (mLeftDragger.continueSettling(true) | mRightDragger.continueSettling(true)) {
+        boolean leftDraggerSettling = mLeftDragger.continueSettling(true);
+        boolean rightDraggerSettling = mRightDragger.continueSettling(true);
+        if (leftDraggerSettling || rightDraggerSettling) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -1430,6 +1431,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         return false;
     }
 
+    @SuppressWarnings("ShortCircuitBoolean")
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final int action = ev.getActionMasked();

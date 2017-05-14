@@ -292,6 +292,7 @@ public abstract class AppCompatDelegate {
      *
      * @return The view if found or null otherwise.
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @Nullable
     public abstract <T extends View> T findViewById(@IdRes int id);
 

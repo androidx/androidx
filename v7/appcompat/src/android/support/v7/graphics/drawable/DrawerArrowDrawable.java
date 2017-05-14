@@ -386,7 +386,7 @@ public class DrawerArrowDrawable extends Drawable {
         final float barThickness = mPaint.getStrokeWidth();
         final int remainingSpace = (int) (bounds.height() - barThickness * 3 - mBarGap * 2);
         float yOffset = (remainingSpace / 4) * 2; // making sure it is a multiple of 2.
-        yOffset += barThickness * 1.5 + mBarGap;
+        yOffset += barThickness * 1.5f + mBarGap;
 
         canvas.translate(bounds.centerX(), yOffset);
         if (mSpin) {

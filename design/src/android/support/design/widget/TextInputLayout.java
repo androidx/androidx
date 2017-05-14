@@ -291,7 +291,8 @@ public class TextInputLayout extends LinearLayout {
      * @param typeface typeface to use, or {@code null} to use the default.
      */
     public void setTypeface(@Nullable Typeface typeface) {
-        if (typeface != mTypeface) {
+        if ((mTypeface != null && !mTypeface.equals(typeface))
+                || (mTypeface == null && typeface != null)) {
             mTypeface = typeface;
 
             mCollapsingTextHelper.setTypefaces(typeface);

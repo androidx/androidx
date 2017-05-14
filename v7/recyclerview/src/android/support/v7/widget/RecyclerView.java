@@ -11758,6 +11758,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          *                   to
          *                   preserve cross functionality and avoid conflicts.
          */
+        @SuppressWarnings("TypeParameterUnusedInFormals")
         public <T> T get(int resourceId) {
             if (mData == null) {
                 return null;

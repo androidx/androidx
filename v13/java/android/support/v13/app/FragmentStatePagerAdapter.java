@@ -148,6 +148,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         mCurTransaction.remove(fragment);
     }
 
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
         Fragment fragment = (Fragment)object;

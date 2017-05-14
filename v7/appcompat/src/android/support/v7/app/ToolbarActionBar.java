@@ -257,7 +257,7 @@ class ToolbarActionBar extends ActionBar {
     @Override
     public void setDisplayOptions(@DisplayOptions int options, @DisplayOptions int mask) {
         final int currentOptions = mDecorToolbar.getDisplayOptions();
-        mDecorToolbar.setDisplayOptions(options & mask | currentOptions & ~mask);
+        mDecorToolbar.setDisplayOptions((options & mask) | (currentOptions & ~mask));
     }
 
     @Override
