@@ -184,6 +184,7 @@ public class FontsContractCompat {
 
         try {
             return sBackgroundThread.postAndWait(new Callable<Typeface>() {
+                @Override
                 public Typeface call() throws Exception {
                     FontFamilyResult result = fetchFonts(context, null, request);
                     if (result.getStatusCode() == FontFamilyResult.STATUS_OK) {

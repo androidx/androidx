@@ -226,6 +226,7 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
         invalidateOptionsMenu();
     }
 
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @Nullable
     @Override
     public <T extends View> T findViewById(@IdRes int id) {

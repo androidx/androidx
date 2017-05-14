@@ -539,7 +539,7 @@ public class SupportMenuInflater extends MenuInflater {
             return itemAdded;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
         private <T> T newInstance(String className, Class<?>[] constructorSignature,
                 Object[] arguments) {
             try {

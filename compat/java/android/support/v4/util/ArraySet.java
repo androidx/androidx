@@ -156,6 +156,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         return ~end;
     }
 
+    @SuppressWarnings("ArrayToString")
     private void allocArrays(final int size) {
         if (size == (BASE_SIZE * 2)) {
             synchronized (ArraySet.class) {
@@ -195,6 +196,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         mArray = new Object[size];
     }
 
+    @SuppressWarnings("ArrayToString")
     private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
         if (hashes.length == (BASE_SIZE * 2)) {
             synchronized (ArraySet.class) {

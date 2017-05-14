@@ -46,10 +46,13 @@ interface LocaleListInterface {
     @IntRange(from = -1)
     int indexOf(Locale locale);
 
-    boolean     equals(Object other);
+    @Override
+    boolean equals(Object other);
 
+    @Override
     int hashCode();
 
+    @Override
     String toString();
 
     String toLanguageTags();

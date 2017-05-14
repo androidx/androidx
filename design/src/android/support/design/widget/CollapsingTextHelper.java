@@ -271,14 +271,14 @@ final class CollapsingTextHelper {
     }
 
     void setCollapsedTypeface(Typeface typeface) {
-        if (mCollapsedTypeface != typeface) {
+        if (areTypefacesDifferent(mCollapsedTypeface, typeface)) {
             mCollapsedTypeface = typeface;
             recalculate();
         }
     }
 
     void setExpandedTypeface(Typeface typeface) {
-        if (mExpandedTypeface != typeface) {
+        if (areTypefacesDifferent(mExpandedTypeface, typeface)) {
             mExpandedTypeface = typeface;
             recalculate();
         }
@@ -542,6 +542,10 @@ final class CollapsingTextHelper {
         ViewCompat.postInvalidateOnAnimation(mView);
     }
 
+    private boolean areTypefacesDifferent(Typeface first, Typeface second) {
+        return (first != null && !first.equals(second)) || (first == null && second != null);
+    }
+
     private void calculateUsingTextSize(final float textSize) {
         if (mText == null) return;
 
@@ -555,14 +559,14 @@ final class CollapsingTextHelper {
         if (isClose(textSize, mCollapsedTextSize)) {
             newTextSize = mCollapsedTextSize;
             mScale = 1f;
-            if (mCurrentTypeface != mCollapsedTypeface) {
+            if (areTypefacesDifferent(mCurrentTypeface, mCollapsedTypeface)) {
                 mCurrentTypeface = mCollapsedTypeface;
                 updateDrawText = true;
             }
             availableWidth = collapsedWidth;
         } else {
             newTextSize = mExpandedTextSize;
-            if (mCurrentTypeface != mExpandedTypeface) {
+            if (areTypefacesDifferent(mCurrentTypeface, mExpandedTypeface)) {
                 mCurrentTypeface = mExpandedTypeface;
                 updateDrawText = true;
             }

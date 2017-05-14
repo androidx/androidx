@@ -849,7 +849,7 @@ class ActivityChooserModel extends DataSetObservable {
     /**
      * Represents an activity.
      */
-    public final class ActivityResolveInfo implements Comparable<ActivityResolveInfo> {
+    public static final class ActivityResolveInfo implements Comparable<ActivityResolveInfo> {
 
         /**
          * The {@link ResolveInfo} of the activity.
@@ -912,7 +912,7 @@ class ActivityChooserModel extends DataSetObservable {
     /**
      * Default activity sorter implementation.
      */
-    private final class DefaultSorter implements ActivitySorter {
+    private static final class DefaultSorter implements ActivitySorter {
         private static final float WEIGHT_DECAY_COEFFICIENT = 0.95f;
 
         private final Map<ComponentName, ActivityResolveInfo> mPackageNameToActivityMap =
