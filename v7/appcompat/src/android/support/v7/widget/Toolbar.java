@@ -1792,8 +1792,8 @@ public class Toolbar extends ViewGroup {
             final View bottomChild = layoutSubtitle ? mSubtitleTextView : mTitleTextView;
             final LayoutParams toplp = (LayoutParams) topChild.getLayoutParams();
             final LayoutParams bottomlp = (LayoutParams) bottomChild.getLayoutParams();
-            final boolean titleHasWidth = layoutTitle && mTitleTextView.getMeasuredWidth() > 0
-                    || layoutSubtitle && mSubtitleTextView.getMeasuredWidth() > 0;
+            final boolean titleHasWidth = (layoutTitle && (mTitleTextView.getMeasuredWidth() > 0))
+                    || (layoutSubtitle && mSubtitleTextView.getMeasuredWidth() > 0);
 
             switch (mGravity & Gravity.VERTICAL_GRAVITY_MASK) {
                 case Gravity.TOP:

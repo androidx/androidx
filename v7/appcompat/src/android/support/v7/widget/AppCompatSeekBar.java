@@ -49,7 +49,7 @@ public class AppCompatSeekBar extends SeekBar {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         mAppCompatSeekBarHelper.drawTickMarks(canvas);
     }
