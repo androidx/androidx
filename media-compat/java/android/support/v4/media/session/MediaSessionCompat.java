@@ -31,6 +31,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.Rating;
 import android.media.RemoteControlClient;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -1068,43 +1069,50 @@ public class MediaSessionCompat {
 
             @Override
             public void onCommand(String command, Bundle extras, ResultReceiver cb) {
-                if (command.equals(MediaControllerCompat.COMMAND_GET_EXTRA_BINDER)) {
-                    MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
-                    if (impl != null) {
-                        Bundle result = new Bundle();
-                        IMediaSession extraBinder = impl.getSessionToken().getExtraBinder();
-                        BundleCompat.putBinder(result, EXTRA_BINDER,
-                                extraBinder == null ? null : extraBinder.asBinder());
-                        cb.send(0, result);
-                    }
-                } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
-                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
-                    Callback.this.onAddQueueItem(
-                            (MediaDescriptionCompat) extras.getParcelable(
-                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
-                } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM_AT)) {
-                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
-                    Callback.this.onAddQueueItem(
-                            (MediaDescriptionCompat) extras.getParcelable(
-                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION),
-                            extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
-                } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM)) {
-                    extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
-                    Callback.this.onRemoveQueueItem(
-                            (MediaDescriptionCompat) extras.getParcelable(
-                                    MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
-                } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM_AT)) {
-                    MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
-                    if (impl != null && impl.mQueue != null) {
-                        int index = extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX, -1);
-                        QueueItem item = (index >= 0 && index < impl.mQueue.size())
-                                ? impl.mQueue.get(index) : null;
-                        if (item != null) {
-                            Callback.this.onRemoveQueueItem(item.getDescription());
+                try {
+                    if (command.equals(MediaControllerCompat.COMMAND_GET_EXTRA_BINDER)) {
+                        MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
+                        if (impl != null) {
+                            Bundle result = new Bundle();
+                            IMediaSession extraBinder = impl.getSessionToken().getExtraBinder();
+                            BundleCompat.putBinder(result, EXTRA_BINDER,
+                                    extraBinder == null ? null : extraBinder.asBinder());
+                            cb.send(0, result);
                         }
+                    } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
+                        extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                        Callback.this.onAddQueueItem(
+                                (MediaDescriptionCompat) extras.getParcelable(
+                                        MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
+                    } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM_AT)) {
+                        extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                        Callback.this.onAddQueueItem(
+                                (MediaDescriptionCompat) extras.getParcelable(
+                                        MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION),
+                                extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX));
+                    } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM)) {
+                        extras.setClassLoader(MediaDescriptionCompat.class.getClassLoader());
+                        Callback.this.onRemoveQueueItem(
+                                (MediaDescriptionCompat) extras.getParcelable(
+                                        MediaControllerCompat.COMMAND_ARGUMENT_MEDIA_DESCRIPTION));
+                    } else if (command.equals(MediaControllerCompat.COMMAND_REMOVE_QUEUE_ITEM_AT)) {
+                        MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
+                        if (impl != null && impl.mQueue != null) {
+                            int index =
+                                    extras.getInt(MediaControllerCompat.COMMAND_ARGUMENT_INDEX, -1);
+                            QueueItem item = (index >= 0 && index < impl.mQueue.size())
+                                    ? impl.mQueue.get(index) : null;
+                            if (item != null) {
+                                Callback.this.onRemoveQueueItem(item.getDescription());
+                            }
+                        }
+                    } else {
+                        Callback.this.onCommand(command, extras, cb);
                     }
-                } else {
-                    Callback.this.onCommand(command, extras, cb);
+                } catch (BadParcelableException e) {
+                    // Do not print the exception here, since it is already done by the Parcel
+                    // class.
+                    Log.e(TAG, "Could not unparcel the extra data.");
                 }
             }
 
