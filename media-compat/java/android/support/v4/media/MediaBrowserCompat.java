@@ -49,6 +49,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.BadParcelableException;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -1984,26 +1985,38 @@ public final class MediaBrowserCompat {
             }
             Bundle data = msg.getData();
             data.setClassLoader(MediaSessionCompat.class.getClassLoader());
-            switch (msg.what) {
-                case SERVICE_MSG_ON_CONNECT:
-                    mCallbackImplRef.get().onServiceConnected(mCallbacksMessengerRef.get(),
-                            data.getString(DATA_MEDIA_ITEM_ID),
-                            (MediaSessionCompat.Token) data.getParcelable(DATA_MEDIA_SESSION_TOKEN),
-                            data.getBundle(DATA_ROOT_HINTS));
-                    break;
-                case SERVICE_MSG_ON_CONNECT_FAILED:
-                    mCallbackImplRef.get().onConnectionFailed(mCallbacksMessengerRef.get());
-                    break;
-                case SERVICE_MSG_ON_LOAD_CHILDREN:
-                    mCallbackImplRef.get().onLoadChildren(mCallbacksMessengerRef.get(),
-                            data.getString(DATA_MEDIA_ITEM_ID),
-                            data.getParcelableArrayList(DATA_MEDIA_ITEM_LIST),
-                            data.getBundle(DATA_OPTIONS));
-                    break;
-                default:
-                    Log.w(TAG, "Unhandled message: " + msg
-                            + "\n  Client version: " + CLIENT_VERSION_CURRENT
-                            + "\n  Service version: " + msg.arg1);
+            MediaBrowserServiceCallbackImpl serviceCallback = mCallbackImplRef.get();
+            Messenger callbacksMessenger = mCallbacksMessengerRef.get();
+            try {
+                switch (msg.what) {
+                    case SERVICE_MSG_ON_CONNECT:
+                        serviceCallback.onServiceConnected(callbacksMessenger,
+                                data.getString(DATA_MEDIA_ITEM_ID),
+                                (MediaSessionCompat.Token) data.getParcelable(
+                                        DATA_MEDIA_SESSION_TOKEN),
+                                data.getBundle(DATA_ROOT_HINTS));
+                        break;
+                    case SERVICE_MSG_ON_CONNECT_FAILED:
+                        serviceCallback.onConnectionFailed(callbacksMessenger);
+                        break;
+                    case SERVICE_MSG_ON_LOAD_CHILDREN:
+                        serviceCallback.onLoadChildren(callbacksMessenger,
+                                data.getString(DATA_MEDIA_ITEM_ID),
+                                data.getParcelableArrayList(DATA_MEDIA_ITEM_LIST),
+                                data.getBundle(DATA_OPTIONS));
+                        break;
+                    default:
+                        Log.w(TAG, "Unhandled message: " + msg
+                                + "\n  Client version: " + CLIENT_VERSION_CURRENT
+                                + "\n  Service version: " + msg.arg1);
+                }
+            } catch (BadParcelableException e) {
+                // Do not print the exception here, since it is already done by the Parcel class.
+                Log.e(TAG, "Could not unparcel the data.");
+                // If an error happened while connecting, disconnect from the service.
+                if (msg.what == SERVICE_MSG_ON_CONNECT) {
+                    serviceCallback.onConnectionFailed(callbacksMessenger);
+                }
             }
         }
 
