@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.Suppress;
 import android.support.v7.recyclerview.test.R;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -319,16 +320,19 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         testFocusRecoveryBeforeLayout(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
     }
 
+    @Suppress
     @Test
     public void testFocusRecoveryDuringLayoutWithFocusBefore() throws Throwable {
         testFocusRecoveryDuringLayout(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
     }
 
+    @Suppress
     @Test
     public void testFocusRecoveryDuringLayoutWithFocusAfter() throws Throwable {
         testFocusRecoveryDuringLayout(ViewGroup.FOCUS_AFTER_DESCENDANTS);
     }
 
+    @Suppress
     @Test
     public void testFocusRecoveryDuringLayoutWithFocusBlocked() throws Throwable {
         testFocusRecoveryDuringLayout(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
