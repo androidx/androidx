@@ -29,7 +29,7 @@ class ViewGroupUtils {
 
     /**
      * This is a port of the common
-     * {@link ViewGroup#offsetDescendantRectToMyCoords(android.view.View, android.graphics.Rect)}
+     * {@link ViewGroup#offsetDescendantRectToMyCoords(View, Rect)}
      * from the framework, but adapted to take transformations into account. The result
      * will be the bounding rect of the real transformed rect.
      *

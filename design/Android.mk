@@ -38,7 +38,11 @@ LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-transition \
     android-support-v7-appcompat \
     android-support-v7-recyclerview \
-    android-support-v4 \
+    android-support-compat \
+    android-support-media-compat \
+    android-support-core-utils \
+    android-support-core-ui \
+    android-support-fragment \
     android-support-annotations
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := \

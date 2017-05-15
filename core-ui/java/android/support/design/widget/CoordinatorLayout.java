@@ -17,7 +17,6 @@
 package android.support.design.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.design.widget.ViewUtils.objectEquals;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -42,11 +41,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.design.R;
+import android.support.coreui.R;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.math.MathUtils;
 import android.support.v4.util.Pools;
+import android.support.v4.utils.ObjectUtils;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.NestedScrollingParent;
@@ -86,25 +86,25 @@ import java.util.Map;
  *     <li>As a container for a specific interaction with one or more child views</li>
  * </ol>
  *
- * <p>By specifying {@link CoordinatorLayout.Behavior Behaviors} for child views of a
+ * <p>By specifying {@link Behavior Behaviors} for child views of a
  * CoordinatorLayout you can provide many different interactions within a single parent and those
  * views can also interact with one another. View classes can specify a default behavior when
  * used as a child of a CoordinatorLayout using the
- * {@link CoordinatorLayout.DefaultBehavior DefaultBehavior} annotation.</p>
+ * {@link DefaultBehavior DefaultBehavior} annotation.</p>
  *
  * <p>Behaviors may be used to implement a variety of interactions and additional layout
  * modifications ranging from sliding drawers and panels to swipe-dismissable elements and buttons
  * that stick to other elements as they move and animate.</p>
  *
  * <p>Children of a CoordinatorLayout may have an
- * {@link CoordinatorLayout.LayoutParams#setAnchorId(int) anchor}. This view id must correspond
+ * {@link LayoutParams#setAnchorId(int) anchor}. This view id must correspond
  * to an arbitrary descendant of the CoordinatorLayout, but it may not be the anchored child itself
  * or a descendant of the anchored child. This can be used to place floating views relative to
  * other arbitrary content panes.</p>
  *
- * <p>Children can specify {@link CoordinatorLayout.LayoutParams#insetEdge} to describe how the
+ * <p>Children can specify {@link LayoutParams#insetEdge} to describe how the
  * view insets the CoordinatorLayout. Any child views which are set to dodge the same inset edges by
- * {@link CoordinatorLayout.LayoutParams#dodgeInsetEdges} will be moved appropriately so that the
+ * {@link LayoutParams#dodgeInsetEdges} will be moved appropriately so that the
  * views do not overlap.</p>
  */
 public class CoordinatorLayout extends ViewGroup implements NestedScrollingParent2 {
@@ -197,16 +197,17 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     public CoordinatorLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.coordinatorLayoutStyle);
     }
 
     public CoordinatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        ThemeUtils.checkAppCompatTheme(context);
-
-        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CoordinatorLayout,
-                defStyleAttr, R.style.Widget_Design_CoordinatorLayout);
+        final TypedArray a = (defStyleAttr == 0)
+                ? context.obtainStyledAttributes(attrs, R.styleable.CoordinatorLayout,
+                        0, R.style.Widget_Support_CoordinatorLayout)
+                : context.obtainStyledAttributes(attrs, R.styleable.CoordinatorLayout,
+                        defStyleAttr, 0);
         final int keylineArrayRes = a.getResourceId(R.styleable.CoordinatorLayout_keylines, 0);
         if (keylineArrayRes != 0) {
             final Resources res = context.getResources();
@@ -351,7 +352,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     final WindowInsetsCompat setWindowInsets(WindowInsetsCompat insets) {
-        if (!objectEquals(mLastInsets, insets)) {
+        if (!ObjectUtils.objectEquals(mLastInsets, insets)) {
             mLastInsets = insets;
             mDrawStatusBarBackground = insets != null && insets.getSystemWindowInsetTop() > 0;
             setWillNotDraw(!mDrawStatusBarBackground && getBackground() == null);
@@ -698,7 +699,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     /**
      * Called to measure each individual child view unless a
-     * {@link CoordinatorLayout.Behavior Behavior} is present. The Behavior may choose to delegate
+     * {@link Behavior Behavior} is present. The Behavior may choose to delegate
      * child measurement to this method.
      *
      * @param child the child to measure
@@ -829,7 +830,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     /**
      * Called to lay out each individual child view unless a
-     * {@link CoordinatorLayout.Behavior Behavior} is present. The Behavior may choose to
+     * {@link Behavior Behavior} is present. The Behavior may choose to
      * delegate child measurement to this method.
      *
      * @param child child view to lay out
@@ -894,7 +895,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      * Mark the last known child position rect for the given child view.
      * This will be used when checking if a child view's position has changed between frames.
      * The rect used here should be one returned by
-     * {@link #getChildRect(android.view.View, boolean, android.graphics.Rect)}, with translation
+     * {@link #getChildRect(View, boolean, Rect)}, with translation
      * disabled.
      *
      * @param child child view to set for
@@ -907,7 +908,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     /**
      * Get the last known child rect recorded by
-     * {@link #recordLastChildRect(android.view.View, android.graphics.Rect)}.
+     * {@link #recordLastChildRect(View, Rect)}.
      *
      * @param child child view to retrieve from
      * @param out rect to set to the outpur values
@@ -1464,9 +1465,9 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         if (dependents != null && !dependents.isEmpty()) {
             for (int i = 0; i < dependents.size(); i++) {
                 final View child = dependents.get(i);
-                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)
+                LayoutParams lp = (LayoutParams)
                         child.getLayoutParams();
-                CoordinatorLayout.Behavior b = lp.getBehavior();
+                Behavior b = lp.getBehavior();
                 if (b != null) {
                     b.onDependentViewChanged(this, child, view);
                 }
@@ -1998,7 +1999,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          *
          * @param params the LayoutParams instance that this Behavior has been attached to
          */
-        public void onAttachedToLayoutParams(@NonNull CoordinatorLayout.LayoutParams params) {
+        public void onAttachedToLayoutParams(@NonNull LayoutParams params) {
         }
 
         /**
@@ -2074,7 +2075,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * @param child the child view above the scrim
          * @return the desired scrim color in 0xAARRGGBB format. The default return value is
          *         {@link Color#BLACK}.
-         * @see #getScrimOpacity(CoordinatorLayout, android.view.View)
+         * @see #getScrimOpacity(CoordinatorLayout, View)
          */
         @ColorInt
         public int getScrimColor(CoordinatorLayout parent, V child) {
@@ -2104,11 +2105,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * should be blocked.
          *
          * <p>The default implementation returns true if
-         * {@link #getScrimOpacity(CoordinatorLayout, android.view.View)} would return > 0.0f.</p>
+         * {@link #getScrimOpacity(CoordinatorLayout, View)} would return > 0.0f.</p>
          *
          * @param parent the parent view of the given child
          * @param child the child view to test
-         * @return true if {@link #getScrimOpacity(CoordinatorLayout, android.view.View)} would
+         * @return true if {@link #getScrimOpacity(CoordinatorLayout, View)} would
          *         return > 0.0f.
          */
         public boolean blocksInteractionBelow(CoordinatorLayout parent, V child) {
@@ -2135,7 +2136,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * @return true if child's layout depends on the proposed dependency's layout,
          *         false otherwise
          *
-         * @see #onDependentViewChanged(CoordinatorLayout, android.view.View, android.view.View)
+         * @see #onDependentViewChanged(CoordinatorLayout, View, View)
          */
         public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
             return false;
@@ -2149,12 +2150,12 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * the child view in response.</p>
          *
          * <p>A view's dependency is determined by
-         * {@link #layoutDependsOn(CoordinatorLayout, android.view.View, android.view.View)} or
+         * {@link #layoutDependsOn(CoordinatorLayout, View, View)} or
          * if {@code child} has set another view as it's anchor.</p>
          *
          * <p>Note that if a Behavior changes the layout of a child via this method, it should
          * also be able to reconstruct the correct position in
-         * {@link #onLayoutChild(CoordinatorLayout, android.view.View, int) onLayoutChild}.
+         * {@link #onLayoutChild(CoordinatorLayout, View, int) onLayoutChild}.
          * <code>onDependentViewChanged</code> will not be called during normal layout since
          * the layout of each child view will always happen in dependency order.</p>
          *
@@ -2177,7 +2178,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * A Behavior may use this method to appropriately update the child view in response.</p>
          *
          * <p>A view's dependency is determined by
-         * {@link #layoutDependsOn(CoordinatorLayout, android.view.View, android.view.View)} or
+         * {@link #layoutDependsOn(CoordinatorLayout, View, View)} or
          * if {@code child} has set another view as it's anchor.</p>
          *
          * @param parent the parent view of the given child
@@ -2193,7 +2194,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * <p>This method can be used to perform custom or modified measurement of a child view
          * in place of the default child measurement behavior. The Behavior's implementation
          * can delegate to the standard CoordinatorLayout measurement behavior by calling
-         * {@link CoordinatorLayout#onMeasureChild(android.view.View, int, int, int, int)
+         * {@link CoordinatorLayout#onMeasureChild(View, int, int, int, int)
          * parent.onMeasureChild}.</p>
          *
          * @param parent the parent CoordinatorLayout
@@ -2219,11 +2220,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * <p>This method can be used to perform custom or modified layout of a child view
          * in place of the default child layout behavior. The Behavior's implementation can
          * delegate to the standard CoordinatorLayout measurement behavior by calling
-         * {@link CoordinatorLayout#onLayoutChild(android.view.View, int)
+         * {@link CoordinatorLayout#onLayoutChild(View, int)
          * parent.onLayoutChild}.</p>
          *
          * <p>If a Behavior implements
-         * {@link #onDependentViewChanged(CoordinatorLayout, android.view.View, android.view.View)}
+         * {@link #onDependentViewChanged(CoordinatorLayout, View, View)}
          * to change the position of a view in response to a dependent view changing, it
          * should also implement <code>onLayoutChild</code> in such a way that respects those
          * dependent views. <code>onLayoutChild</code> will always be called for a dependent view
@@ -2626,7 +2627,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * @return Returns a Parcelable object containing the behavior's current dynamic
          *         state.
          *
-         * @see #onRestoreInstanceState(android.os.Parcelable)
+         * @see #onRestoreInstanceState(Parcelable)
          * @see View#onSaveInstanceState()
          */
         public Parcelable onSaveInstanceState(CoordinatorLayout parent, V child) {
@@ -2655,7 +2656,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     /**
      * Parameters describing the desired layout for a child of a {@link CoordinatorLayout}.
      */
-    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+    public static class LayoutParams extends MarginLayoutParams {
         /**
          * A {@link Behavior} that the child view should obey.
          */
@@ -2812,7 +2813,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * a parent CoordinatorLayout.
          *
          * <p>Setting a new behavior will remove any currently associated
-         * {@link Behavior#setTag(android.view.View, Object) Behavior tag}.</p>
+         * {@link Behavior#setTag(View, Object) Behavior tag}.</p>
          *
          * @param behavior The behavior to set or null for no special behavior
          */
@@ -2863,7 +2864,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * below the associated child since the touch behavior tracking was last
          * {@link #resetTouchBehaviorTracking() reset}.
          *
-         * @see #isBlockingInteractionBelow(CoordinatorLayout, android.view.View)
+         * @see #isBlockingInteractionBelow(CoordinatorLayout, View)
          */
         boolean didBlockInteraction() {
             if (mBehavior == null) {
@@ -2897,7 +2898,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * Reset tracking of Behavior-specific touch interactions. This includes
          * interaction blocking.
          *
-         * @see #isBlockingInteractionBelow(CoordinatorLayout, android.view.View)
+         * @see #isBlockingInteractionBelow(CoordinatorLayout, View)
          * @see #didBlockInteraction()
          */
         void resetTouchBehaviorTracking() {
@@ -2958,7 +2959,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         /**
          * Invalidate the cached anchor view and direct child ancestor of that anchor.
          * The anchor will need to be
-         * {@link #findAnchorView(CoordinatorLayout, android.view.View) found} before
+         * {@link #findAnchorView(CoordinatorLayout, View) found} before
          * being used again.
          */
         void invalidateAnchor() {
@@ -3140,7 +3141,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     @Override
     public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
-        final CoordinatorLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         final Behavior behavior = lp.getBehavior();
 
         if (behavior != null
@@ -3220,7 +3221,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR =
+        public static final Creator<SavedState> CREATOR =
                 new ClassLoaderCreator<SavedState>() {
                     @Override
                     public SavedState createFromParcel(Parcel in, ClassLoader loader) {
