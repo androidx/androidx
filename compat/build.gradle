@@ -27,7 +27,6 @@ android {
                 'kitkat',
                 'api20',
                 'api21',
-                'api22',
                 'api23',
                 'api24',
                 'api26',
