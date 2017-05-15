@@ -96,6 +96,40 @@ public final class MediaDescriptionCompat implements Parcelable {
     public static final long BT_FOLDER_TYPE_YEARS = 6;
 
     /**
+     * Used as a long extra field to indicate the download status of the media item. The value
+     * should be one of the following:
+     * <ul>
+     * <li>{@link #STATUS_NOT_DOWNLOADED}</li>
+     * <li>{@link #STATUS_DOWNLOADING}</li>
+     * <li>{@link #STATUS_DOWNLOADED}</li>
+     * </ul>
+     *
+     * @see #getExtras()
+     */
+    public static final String EXTRA_DOWNLOAD_STATUS = "android.media.extra.DOWNLOAD_STATUS";
+
+    /**
+     * The status value to indicate the media item is not downloaded.
+     *
+     * @see #EXTRA_DOWNLOAD_STATUS
+     */
+    public static final long STATUS_NOT_DOWNLOADED = 0;
+
+    /**
+     * The status value to indicate the media item is being downloaded.
+     *
+     * @see #EXTRA_DOWNLOAD_STATUS
+     */
+    public static final long STATUS_DOWNLOADING = 1;
+
+    /**
+     * The status value to indicate the media item is downloaded for later offline playback.
+     *
+     * @see #EXTRA_DOWNLOAD_STATUS
+     */
+    public static final long STATUS_DOWNLOADED = 2;
+
+    /**
      * Custom key to store a media URI on API 21-22 devices (before it became part of the
      * framework class) when parceling/converting to and from framework objects.
      *
