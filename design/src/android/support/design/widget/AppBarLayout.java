@@ -17,7 +17,6 @@
 package android.support.design.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.design.widget.ViewUtils.objectEquals;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -35,6 +34,7 @@ import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
 import android.support.v4.math.MathUtils;
 import android.support.v4.os.BuildCompat;
+import android.support.v4.utils.ObjectUtils;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -603,7 +603,7 @@ public class AppBarLayout extends LinearLayout {
         }
 
         // If our insets have changed, keep them and invalidate the scroll ranges...
-        if (!objectEquals(mLastInsets, newInsets)) {
+        if (!ObjectUtils.objectEquals(mLastInsets, newInsets)) {
             mLastInsets = newInsets;
             invalidateScrollRanges();
         }
