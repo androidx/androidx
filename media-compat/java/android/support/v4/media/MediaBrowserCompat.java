@@ -120,6 +120,47 @@ public final class MediaBrowserCompat {
      */
     public static final String EXTRA_PAGE_SIZE = "android.media.browse.extra.PAGE_SIZE";
 
+    /**
+     * Used as a string extra field to denote the target {@link MediaItem}.
+     *
+     * @see #CUSTOM_ACTION_DOWNLOAD
+     * @see #CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE
+     */
+    public static final String EXTRA_MEDIA_ID = "android.media.browse.extra.MEDIA_ID";
+
+    /**
+     * Used as a float extra field to denote the current progress during download. The value of this
+     * field must be a float number within [0.0, 1.0].
+     *
+     * @see #CUSTOM_ACTION_DOWNLOAD
+     * @see CustomActionCallback#onProgressUpdate
+     */
+    public static final String EXTRA_DOWNLOAD_PROGRESS =
+            "android.media.browse.extra.DOWNLOAD_PROGRESS";
+
+    /**
+     * Predefined custom action to ask the connected service to download a specific
+     * {@link MediaItem} for offline playback. The id of the media item must be passed in an extra
+     * bundle. The download progress might be delivered to the browser via
+     * {@link CustomActionCallback#onProgressUpdate}.
+     *
+     * @see #EXTRA_MEDIA_ID
+     * @see #EXTRA_DOWNLOAD_PROGRESS
+     * @see #CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE
+     */
+    public static final String CUSTOM_ACTION_DOWNLOAD = "android.support.v4.media.action.DOWNLOAD";
+
+    /**
+     * Predefined custom action to ask the connected service to remove the downloaded file of
+     * {@link MediaItem} by the {@link #CUSTOM_ACTION_DOWNLOAD download} action. The id of the
+     * media item must be passed in an extra bundle.
+     *
+     * @see #EXTRA_MEDIA_ID
+     * @see #CUSTOM_ACTION_DOWNLOAD
+     */
+    public static final String CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE =
+            "android.support.v4.media.action.REMOVE_DOWNLOADED_FILE";
+
     private final MediaBrowserImpl mImpl;
 
     /**
@@ -371,6 +412,8 @@ public final class MediaBrowserCompat {
      *            empty string.
      * @param extras The bundle of service-specific arguments to send to the media browser service.
      * @param callback The callback to receive the result of the custom action.
+     * @see #CUSTOM_ACTION_DOWNLOAD
+     * @see #CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE
      */
     public void sendCustomAction(@NonNull String action, Bundle extras,
             @Nullable CustomActionCallback callback) {

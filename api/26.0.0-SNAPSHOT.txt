@@ -7222,6 +7222,10 @@ package android.support.v4.media {
     method public void subscribe(java.lang.String, android.os.Bundle, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
     method public void unsubscribe(java.lang.String);
     method public void unsubscribe(java.lang.String, android.support.v4.media.MediaBrowserCompat.SubscriptionCallback);
+    field public static final java.lang.String CUSTOM_ACTION_DOWNLOAD = "android.support.v4.media.action.DOWNLOAD";
+    field public static final java.lang.String CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE = "android.support.v4.media.action.REMOVE_DOWNLOADED_FILE";
+    field public static final java.lang.String EXTRA_DOWNLOAD_PROGRESS = "android.media.browse.extra.DOWNLOAD_PROGRESS";
+    field public static final java.lang.String EXTRA_MEDIA_ID = "android.media.browse.extra.MEDIA_ID";
     field public static final java.lang.String EXTRA_PAGE = "android.media.browse.extra.PAGE";
     field public static final java.lang.String EXTRA_PAGE_SIZE = "android.media.browse.extra.PAGE_SIZE";
   }
@@ -7333,6 +7337,10 @@ package android.support.v4.media {
     field public static final long BT_FOLDER_TYPE_YEARS = 6L; // 0x6L
     field public static final android.os.Parcelable.Creator<android.support.v4.media.MediaDescriptionCompat> CREATOR;
     field public static final java.lang.String EXTRA_BT_FOLDER_TYPE = "android.media.extra.BT_FOLDER_TYPE";
+    field public static final java.lang.String EXTRA_DOWNLOAD_STATUS = "android.media.extra.DOWNLOAD_STATUS";
+    field public static final long STATUS_DOWNLOADED = 2L; // 0x2L
+    field public static final long STATUS_DOWNLOADING = 1L; // 0x1L
+    field public static final long STATUS_NOT_DOWNLOADED = 0L; // 0x0L
   }
 
   public static final class MediaDescriptionCompat.Builder {
@@ -7383,6 +7391,7 @@ package android.support.v4.media {
     field public static final java.lang.String METADATA_KEY_DISPLAY_ICON_URI = "android.media.metadata.DISPLAY_ICON_URI";
     field public static final java.lang.String METADATA_KEY_DISPLAY_SUBTITLE = "android.media.metadata.DISPLAY_SUBTITLE";
     field public static final java.lang.String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
+    field public static final java.lang.String METADATA_KEY_DOWNLOAD_STATUS = "android.media.metadata.DOWNLOAD_STATUS";
     field public static final java.lang.String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
     field public static final java.lang.String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
     field public static final java.lang.String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
