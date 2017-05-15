@@ -30,10 +30,12 @@
 
     <style name="Theme.Design" parent="Theme.AppCompat">
         <item name="textColorError">?attr/colorError</item>
+        <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item>
     </style>
 
     <style name="Theme.Design.Light" parent="Theme.AppCompat.Light">
         <item name="textColorError">?attr/colorError</item>
+        <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item>
     </style>
 
     <style name="Theme.Design.NoActionBar">
