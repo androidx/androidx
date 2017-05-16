@@ -250,8 +250,8 @@
     <dimen name="lb_basic_card_info_badge_margin">4dp</dimen>
 
     <!-- z based shadow -->
-    <dimen name="lb_material_shadow_normal_z">6dp</dimen>
-    <dimen name="lb_material_shadow_focused_z">16dp</dimen>
+    <dimen name="lb_material_shadow_normal_z">0dp</dimen>
+    <dimen name="lb_material_shadow_focused_z">10dp</dimen>
     <dimen name="lb_material_shadow_details_z">8dp</dimen>
     <dimen name="lb_search_orb_unfocused_z">2dp</dimen>
     <dimen name="lb_search_orb_focused_z">8dp</dimen>
