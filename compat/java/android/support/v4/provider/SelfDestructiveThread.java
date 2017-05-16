@@ -40,7 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class SelfDestructiveThread {
-    private Object mLock = new Object();
+    private final Object mLock = new Object();
 
     @GuardedBy("mLock")
     private HandlerThread mThread;
