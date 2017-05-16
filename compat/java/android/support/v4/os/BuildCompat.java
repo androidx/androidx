@@ -55,16 +55,13 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android O or newer.
      * <p>
-     * <strong>Note:</strong> This method will return {@code false} on devices running release
-     * versions of Android. When Android O is finalized for release, this method will be deprecated
-     * and all calls should be replaced with {@code Build.SDK_INT >= Build.VERSION_CODES#O}.
-     *
      * @return {@code true} if O APIs are available for use, {@code false} otherwise
+     * @deprecated Android O is a finalized release and this method is no longer necessary. It will
+     *             be removed in a future release of the Support Library. Instead use
+     *             {@code Build.SDK_INT >= Build.VERSION_CODES#O}.
      */
     public static boolean isAtLeastO() {
-        return VERSION.CODENAME.equals("O")
-                || VERSION.CODENAME.startsWith("ODR")
-                || isAtLeastOMR1();
+        return VERSION.SDK_INT >= 26;
     }
 
     /**
