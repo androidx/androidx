@@ -520,8 +520,8 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
 
         if (mPlayPauseAction != null) {
             int index = !isPlaying
-                    ? PlaybackControlsRow.PlayPauseAction.PLAY
-                    : PlaybackControlsRow.PlayPauseAction.PAUSE;
+                    ? PlaybackControlsRow.PlayPauseAction.INDEX_PLAY
+                    : PlaybackControlsRow.PlayPauseAction.INDEX_PAUSE;
             if (mPlayPauseAction.getIndex() != index) {
                 mPlayPauseAction.setIndex(index);
                 notifyItemChanged((ArrayObjectAdapter) getControlsRow().getPrimaryActionsAdapter(),
