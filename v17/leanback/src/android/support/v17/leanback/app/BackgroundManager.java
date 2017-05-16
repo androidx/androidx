@@ -247,9 +247,11 @@ public final class BackgroundManager {
         DrawableWrapper[] mWrapper;
         int mAlpha = FULL_ALPHA;
         boolean mSuspendInvalidation;
+        WeakReference<BackgroundManager> mManagerWeakReference;
 
-        public TranslucentLayerDrawable(Drawable[] drawables) {
+        TranslucentLayerDrawable(BackgroundManager manager, Drawable[] drawables) {
             super(drawables);
+            mManagerWeakReference = new WeakReference(manager);
             int count = drawables.length;
             mWrapper = new DrawableWrapper[count];
             for (int i = 0; i < count; i++) {
@@ -259,8 +261,14 @@ public final class BackgroundManager {
 
         @Override
         public void setAlpha(int alpha) {
-            mAlpha = alpha;
-            invalidateSelf();
+            if (mAlpha != alpha) {
+                mAlpha = alpha;
+                invalidateSelf();
+                BackgroundManager manager = mManagerWeakReference.get();
+                if (manager != null) {
+                    manager.postChangeRunnable();
+                }
+            }
         }
 
         void setWrapperAlpha(int wrapperIndex, int alpha) {
@@ -388,7 +396,7 @@ public final class BackgroundManager {
         for (int i = 0; i < numChildren; i++) {
             drawables[i] = layerDrawable.getDrawable(i);
         }
-        TranslucentLayerDrawable result = new TranslucentLayerDrawable(drawables);
+        TranslucentLayerDrawable result = new TranslucentLayerDrawable(this, drawables);
         for (int i = 0; i < numChildren; i++) {
             result.setId(i, layerDrawable.getId(i));
         }
