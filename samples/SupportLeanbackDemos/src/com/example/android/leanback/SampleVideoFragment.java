@@ -94,7 +94,7 @@ public class SampleVideoFragment extends android.support.v17.leanback.app.VideoF
         mMediaPlayerGlue = new PlaybackTransportControlGlueSample(getActivity(),
                 new MediaPlayerAdapter(getActivity()));
         mMediaPlayerGlue.setHost(mHost);
-        mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.NONE);
+        mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.INDEX_NONE);
         mMediaPlayerGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             boolean mSecondCompleted = false;
             @Override
@@ -134,7 +134,7 @@ public class SampleVideoFragment extends android.support.v17.leanback.app.VideoF
     void switchAnotherGlue() {
         mMediaPlayerGlue = new PlaybackTransportControlGlueSample(getActivity(),
                 new MediaPlayerAdapter(getActivity()));
-        mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.ONE);
+        mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.INDEX_ONE);
         mMediaPlayerGlue.setSubtitle("A Googler");
         mMediaPlayerGlue.setTitle("Swimming with the fishes");
         mMediaPlayerGlue.getPlayerAdapter().setDataSource(

@@ -197,9 +197,9 @@ public class PlaybackOverlayTestFragment extends PlaybackOverlayFragment {
         PlaybackControlHelper(Context context, PlaybackOverlayFragment fragment) {
             super(context, fragment, sFastForwardSpeeds);
             mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(context);
-            mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.OUTLINE);
+            mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsUpAction.INDEX_OUTLINE);
             mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(context);
-            mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsDownAction.OUTLINE);
+            mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsDownAction.INDEX_OUTLINE);
             mRepeatAction = new PlaybackControlsRow.RepeatAction(context);
             mPipAction = new PlaybackControlsRow.PictureInPictureAction(context);
         }
@@ -363,7 +363,7 @@ public class PlaybackOverlayTestFragment extends PlaybackOverlayFragment {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (mRepeatAction.getIndex() == PlaybackControlsRow.RepeatAction.NONE) {
+                    if (mRepeatAction.getIndex() == PlaybackControlsRow.RepeatAction.INDEX_NONE) {
                         pausePlayback();
                     } else {
                         startPlayback(PlaybackControlGlue.PLAYBACK_SPEED_NORMAL);
