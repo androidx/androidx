@@ -655,4 +655,48 @@ public class BackgroundManagerTest {
         waitForBackgroundAnimationFinish(manager1);
         assertIsBitmapDrawable(manager1, bitmap);
     }
+
+    @Test
+    public void delayDrawableChangeUntilFullAlpha() throws Throwable {
+        final Bitmap bitmap = createBitmap(200, 100, Color.BLUE);
+        TestActivity.Provider provider1 = new TestActivity.Provider() {
+            @Override
+            public void onCreate(TestActivity activity, Bundle savedInstanceState) {
+                super.onCreate(activity, savedInstanceState);
+                BackgroundManager m = BackgroundManager.getInstance(activity);
+                m.setAutoReleaseOnStop(false);
+                m.attach(activity.getWindow());
+                m.setColor(Color.RED);
+            }
+
+        };
+        mRule = new TestActivity.TestActivityTestRule(provider1, generateProviderName("activity1"));
+        final TestActivity activity1 = mRule.launchActivity();
+        final BackgroundManager manager1 = BackgroundManager.getInstance(activity1);
+        assertIsColorDrawable(manager1, Color.RED);
+
+        // when set drawable, the change will be pending because alpha is 128
+        mRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertSame(manager1.mLayerDrawable,
+                        activity1.getWindow().getDecorView().getBackground());
+                activity1.getWindow().getDecorView().getBackground().setAlpha(128);
+                manager1.setBitmap(bitmap);
+            }
+        });
+        assertEquals(Color.RED,
+                ((ColorDrawable) manager1.mLayerDrawable.getDrawable(1)).getColor());
+
+        // Pending updates executed when set to FULL_ALPHA
+        mRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity1.getWindow().getDecorView().getBackground().setAlpha(
+                        BackgroundManager.FULL_ALPHA);
+            }
+        });
+        waitForBackgroundAnimationFinish(manager1);
+        assertIsBitmapDrawable(manager1, bitmap);
+    }
 }
