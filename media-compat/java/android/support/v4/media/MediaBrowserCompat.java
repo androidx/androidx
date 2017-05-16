@@ -999,63 +999,60 @@ public final class MediaBrowserCompat {
 
         @Override
         public void connect() {
-            if (mState != CONNECT_STATE_DISCONNECTED) {
-                throw new IllegalStateException("connect() called while not disconnected (state="
-                        + getStateLabel(mState) + ")");
-            }
-            // TODO: remove this extra check.
-            if (DEBUG) {
-                if (mServiceConnection != null) {
-                    throw new RuntimeException("mServiceConnection should be null. Instead it is "
-                            + mServiceConnection);
-                }
-            }
-            if (mServiceBinderWrapper != null) {
-                throw new RuntimeException("mServiceBinderWrapper should be null. Instead it is "
-                        + mServiceBinderWrapper);
-            }
-            if (mCallbacksMessenger != null) {
-                throw new RuntimeException("mCallbacksMessenger should be null. Instead it is "
-                        + mCallbacksMessenger);
+            if (mState != CONNECT_STATE_DISCONNECTING && mState != CONNECT_STATE_DISCONNECTED) {
+                throw new IllegalStateException("connect() called while neigther disconnecting nor "
+                        + "disconnected (state=" + getStateLabel(mState) + ")");
             }
 
             mState = CONNECT_STATE_CONNECTING;
-
-            final Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
-            intent.setComponent(mServiceComponent);
-
-            final ServiceConnection thisConnection = mServiceConnection =
-                    new MediaServiceConnection();
-
-            boolean bound = false;
-            try {
-                bound = mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
-            } catch (Exception ex) {
-                Log.e(TAG, "Failed binding to service " + mServiceComponent);
-            }
-
-            if (!bound) {
-                // Tell them that it didn't work. We are already on the main thread,
-                // but we don't want to do callbacks inside of connect(). So post it,
-                // and then check that we are on the same ServiceConnection. We know
-                // we won't also get an onServiceConnected or onServiceDisconnected,
-                // so we won't be doing double callbacks.
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Ensure that nobody else came in or tried to connect again.
-                        if (thisConnection == mServiceConnection) {
-                            forceCloseConnection();
-                            mCallback.onConnectionFailed();
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    // mState could be changed by the Runnable of disconnect()
+                    if (mState == CONNECT_STATE_DISCONNECTING) {
+                        return;
+                    }
+                    mState = CONNECT_STATE_CONNECTING;
+                    // TODO: remove this extra check.
+                    if (DEBUG) {
+                        if (mServiceConnection != null) {
+                            throw new RuntimeException("mServiceConnection should be null. Instead "
+                                    + "it is " + mServiceConnection);
                         }
                     }
-                });
-            }
+                    if (mServiceBinderWrapper != null) {
+                        throw new RuntimeException("mServiceBinderWrapper should be null. Instead "
+                                + "it is " + mServiceBinderWrapper);
+                    }
+                    if (mCallbacksMessenger != null) {
+                        throw new RuntimeException("mCallbacksMessenger should be null. Instead "
+                                + "it is " + mCallbacksMessenger);
+                    }
 
-            if (DEBUG) {
-                Log.d(TAG, "connect...");
-                dump();
-            }
+                    final Intent intent = new Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE);
+                    intent.setComponent(mServiceComponent);
+
+                    mServiceConnection = new MediaServiceConnection();
+                    boolean bound = false;
+                    try {
+                        bound = mContext.bindService(intent, mServiceConnection,
+                                Context.BIND_AUTO_CREATE);
+                    } catch (Exception ex) {
+                        Log.e(TAG, "Failed binding to service " + mServiceComponent);
+                    }
+
+                    if (!bound) {
+                        // Tell them that it didn't work.
+                        forceCloseConnection();
+                        mCallback.onConnectionFailed();
+                    }
+
+                    if (DEBUG) {
+                        Log.d(TAG, "connect...");
+                        dump();
+                    }
+                }
+            });
         }
 
         @Override
@@ -1067,6 +1064,7 @@ public final class MediaBrowserCompat {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    // connect() could be called before this. Then we will disconnect and reconnect.
                     if (mCallbacksMessenger != null) {
                         try {
                             mServiceBinderWrapper.disconnect(mCallbacksMessenger);
@@ -1076,7 +1074,13 @@ public final class MediaBrowserCompat {
                             Log.w(TAG, "RemoteException during connect for " + mServiceComponent);
                         }
                     }
+                    int state = mState;
                     forceCloseConnection();
+                    // If the state was not CONNECT_STATE_DISCONNECTING, keep the state so that
+                    // the operation came after disconnect() can be handled properly.
+                    if (state != CONNECT_STATE_DISCONNECTING) {
+                        mState = state;
+                    }
                     if (DEBUG) {
                         Log.d(TAG, "disconnect...");
                         dump();
@@ -1426,8 +1430,9 @@ public final class MediaBrowserCompat {
          */
         @SuppressWarnings("ReferenceEquality")
         private boolean isCurrent(Messenger callback, String funcName) {
-            if (mCallbacksMessenger != callback) {
-                if (mState != CONNECT_STATE_DISCONNECTED) {
+            if (mCallbacksMessenger != callback || mState == CONNECT_STATE_DISCONNECTING
+                    || mState == CONNECT_STATE_DISCONNECTED) {
+                if (mState != CONNECT_STATE_DISCONNECTING && mState != CONNECT_STATE_DISCONNECTED) {
                     Log.i(TAG, funcName + " for " + mServiceComponent + " with mCallbacksMessenger="
                             + mCallbacksMessenger + " this=" + this);
                 }
@@ -1551,8 +1556,10 @@ public final class MediaBrowserCompat {
              * Return true if this is the current ServiceConnection. Also logs if it's not.
              */
             boolean isCurrent(String funcName) {
-                if (mServiceConnection != this) {
-                    if (mState != CONNECT_STATE_DISCONNECTED) {
+                if (mServiceConnection != this || mState == CONNECT_STATE_DISCONNECTING
+                        || mState == CONNECT_STATE_DISCONNECTED) {
+                    if (mState != CONNECT_STATE_DISCONNECTING
+                            && mState != CONNECT_STATE_DISCONNECTED) {
                         // Check mState, because otherwise this log is noisy.
                         Log.i(TAG, funcName + " for " + mServiceComponent +
                                 " with mServiceConnection=" + mServiceConnection + " this=" + this);

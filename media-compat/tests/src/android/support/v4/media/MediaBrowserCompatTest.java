@@ -72,7 +72,6 @@ public class MediaBrowserCompatTest {
     private StubConnectionCallback mConnectionCallback;
     private StubSubscriptionCallback mSubscriptionCallback;
     private StubItemCallback mItemCallback;
-    private Object mWaitLock = new Object();
 
     @Before
     public void setUp() {
@@ -148,9 +147,9 @@ public class MediaBrowserCompatTest {
     public void testConnectionFailed() throws Exception {
         createMediaBrowser(TEST_INVALID_BROWSER_SERVICE);
 
-        synchronized (mWaitLock) {
+        synchronized (mConnectionCallback.mWaitLock) {
             mMediaBrowser.connect();
-            mWaitLock.wait(TIME_OUT_MS);
+            mConnectionCallback.mWaitLock.wait(TIME_OUT_MS);
         }
         assertTrue(mConnectionCallback.mConnectionFailedCount > 0);
         assertEquals(0, mConnectionCallback.mConnectedCount);
@@ -159,40 +158,67 @@ public class MediaBrowserCompatTest {
 
     @Test
     @SmallTest
-    public void testSecondConnection() throws Exception {
+    public void testReconnection() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
+
+        // Reconnect before the first connection was established.
+        mMediaBrowser.connect();
+        mMediaBrowser.disconnect();
+        resetCallbacks();
         connectMediaBrowserService();
 
+        synchronized (mSubscriptionCallback.mWaitLock) {
+            // Test subscribe.
+            resetCallbacks();
+            mMediaBrowser.subscribe(
+                    StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, mSubscriptionCallback);
+            mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mSubscriptionCallback.mChildrenLoadedCount > 0);
+            assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT,
+                    mSubscriptionCallback.mLastParentId);
+        }
+
+        synchronized (mItemCallback.mWaitLock) {
+            // Test getItem.
+            resetCallbacks();
+            mMediaBrowser.getItem(
+                    StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0], mItemCallback);
+            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0],
+                    mItemCallback.mLastMediaItem.getMediaId());
+        }
+
+        // Reconnect after connection was established.
         mMediaBrowser.disconnect();
-        // We need to sleep some time here, because the browser may not be ready to connect yet.
+        resetCallbacks();
+        connectMediaBrowserService();
+
+        synchronized (mItemCallback.mWaitLock) {
+            // Test getItem.
+            resetCallbacks();
+            mMediaBrowser.getItem(
+                    StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0], mItemCallback);
+            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0],
+                    mItemCallback.mLastMediaItem.getMediaId());
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testConnectionCallbackNotCalledAfterDisconnect() {
+        createMediaBrowser(TEST_BROWSER_SERVICE);
+        mMediaBrowser.connect();
+        mMediaBrowser.disconnect();
+        resetCallbacks();
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
             fail("Unexpected InterruptedException occurred.");
         }
-
-        // Connect to the service again.
-        resetCallbacks();
-        connectMediaBrowserService();
-
-        synchronized (mWaitLock) {
-            // Test subscribe.
-            resetCallbacks();
-            mMediaBrowser.subscribe(
-                    StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, mSubscriptionCallback);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(mSubscriptionCallback.mChildrenLoadedCount > 0);
-            assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT,
-                    mSubscriptionCallback.mLastParentId);
-
-            // Test getItem.
-            resetCallbacks();
-            mMediaBrowser.getItem(
-                    StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0], mItemCallback);
-            mWaitLock.wait(TIME_OUT_MS);
-            assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0],
-                    mItemCallback.mLastMediaItem.getMediaId());
-        }
+        assertEquals(0, mConnectionCallback.mConnectedCount);
+        assertEquals(0, mConnectionCallback.mConnectionFailedCount);
+        assertEquals(0, mConnectionCallback.mConnectionSuspendedCount);
     }
 
     @Test
@@ -213,10 +239,10 @@ public class MediaBrowserCompatTest {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
 
-        synchronized (mWaitLock) {
+        synchronized (mSubscriptionCallback.mWaitLock) {
             mMediaBrowser.subscribe(
                     StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, mSubscriptionCallback);
-            mWaitLock.wait(TIME_OUT_MS);
+            mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mSubscriptionCallback.mChildrenLoadedCount > 0);
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT,
                     mSubscriptionCallback.mLastParentId);
@@ -256,13 +282,13 @@ public class MediaBrowserCompatTest {
         Bundle options = new Bundle();
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
 
-        synchronized (mWaitLock) {
+        synchronized (mSubscriptionCallback.mWaitLock) {
             for (int page = 0; page <= lastPage; ++page) {
                 resetCallbacks();
                 options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
                 mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, options,
                         mSubscriptionCallback);
-                mWaitLock.wait(TIME_OUT_MS);
+                mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
                 assertTrue(mSubscriptionCallback.mChildrenLoadedWithOptionCount > 0);
                 assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT,
                         mSubscriptionCallback.mLastParentId);
@@ -307,10 +333,10 @@ public class MediaBrowserCompatTest {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
 
-        synchronized (mWaitLock) {
+        synchronized (mSubscriptionCallback.mWaitLock) {
             mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID,
                     mSubscriptionCallback);
-            mWaitLock.wait(TIME_OUT_MS);
+            mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID,
                     mSubscriptionCallback.mLastErrorId);
         }
@@ -328,10 +354,10 @@ public class MediaBrowserCompatTest {
         options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
         options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
 
-        synchronized (mWaitLock) {
+        synchronized (mSubscriptionCallback.mWaitLock) {
             mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID, options,
                     mSubscriptionCallback);
-            mWaitLock.wait(TIME_OUT_MS);
+            mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID,
                     mSubscriptionCallback.mLastErrorId);
             assertNotNull(mSubscriptionCallback.mLastOptions);
@@ -350,7 +376,7 @@ public class MediaBrowserCompatTest {
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
         final int pageSize = 1;
 
-        synchronized (mWaitLock) {
+        synchronized (mSubscriptionCallback.mWaitLock) {
             // Subscribe four pages, one item per page.
             for (int page = 0; page < 4; page++) {
                 final StubSubscriptionCallback callback = new StubSubscriptionCallback();
@@ -361,7 +387,7 @@ public class MediaBrowserCompatTest {
                 options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
                 mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, options,
                         callback);
-                mWaitLock.wait(TIME_OUT_MS);
+                mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
 
                 // Each onChildrenLoaded() must be called.
                 assertEquals(1, callback.mChildrenLoadedWithOptionCount);
@@ -398,7 +424,7 @@ public class MediaBrowserCompatTest {
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
         final int pageSize = 1;
 
-        synchronized (mWaitLock) {
+        synchronized (mSubscriptionCallback.mWaitLock) {
             // Subscribe four pages, one item per page.
             for (int page = 0; page < 4; page++) {
                 final StubSubscriptionCallback callback = new StubSubscriptionCallback();
@@ -409,7 +435,7 @@ public class MediaBrowserCompatTest {
                 options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
                 mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, options,
                         callback);
-                mWaitLock.wait(TIME_OUT_MS);
+                mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
 
                 // Each onChildrenLoaded() must be called.
                 assertEquals(1, callback.mChildrenLoadedWithOptionCount);
@@ -456,10 +482,10 @@ public class MediaBrowserCompatTest {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
 
-        synchronized (mWaitLock) {
+        synchronized (mItemCallback.mWaitLock) {
             mMediaBrowser.getItem(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0],
                     mItemCallback);
-            mWaitLock.wait(TIME_OUT_MS);
+            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
             assertNotNull(mItemCallback.mLastMediaItem);
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0],
                     mItemCallback.mLastMediaItem.getMediaId());
@@ -471,11 +497,11 @@ public class MediaBrowserCompatTest {
     public void testGetItemWhenOnLoadItemIsNotImplemented() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
-        synchronized (mWaitLock) {
+        synchronized (mItemCallback.mWaitLock) {
             mMediaBrowser.getItem(
                     StubMediaBrowserServiceCompat.MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED,
                     mItemCallback);
-            mWaitLock.wait(TIME_OUT_MS);
+            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
             assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED,
                     mItemCallback.mLastErrorId);
         }
@@ -489,9 +515,9 @@ public class MediaBrowserCompatTest {
 
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
-        synchronized (mWaitLock) {
+        synchronized (mItemCallback.mWaitLock) {
             mMediaBrowser.getItem(StubMediaBrowserServiceCompat.MEDIA_ID_INVALID, mItemCallback);
-            mWaitLock.wait(TIME_OUT_MS);
+            mItemCallback.mWaitLock.wait(TIME_OUT_MS);
             assertNull(mItemCallback.mLastMediaItem);
             assertNull(mItemCallback.mLastErrorId);
         }
@@ -508,9 +534,9 @@ public class MediaBrowserCompatTest {
     }
 
     private void connectMediaBrowserService() throws Exception {
-        synchronized (mWaitLock) {
+        synchronized (mConnectionCallback.mWaitLock) {
             mMediaBrowser.connect();
-            mWaitLock.wait(TIME_OUT_MS);
+            mConnectionCallback.mWaitLock.wait(TIME_OUT_MS);
         }
     }
 
@@ -521,6 +547,7 @@ public class MediaBrowserCompatTest {
     }
 
     private class StubConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
+        Object mWaitLock = new Object();
         volatile int mConnectedCount;
         volatile int mConnectionFailedCount;
         volatile int mConnectionSuspendedCount;
@@ -557,6 +584,7 @@ public class MediaBrowserCompatTest {
     }
 
     private class StubSubscriptionCallback extends MediaBrowserCompat.SubscriptionCallback {
+        Object mWaitLock = new Object();
         private volatile int mChildrenLoadedCount;
         private volatile int mChildrenLoadedWithOptionCount;
         private volatile String mLastErrorId;
@@ -613,6 +641,7 @@ public class MediaBrowserCompatTest {
     }
 
     private class StubItemCallback extends MediaBrowserCompat.ItemCallback {
+        Object mWaitLock = new Object();
         private volatile MediaItem mLastMediaItem;
         private volatile String mLastErrorId;
 
@@ -637,5 +666,4 @@ public class MediaBrowserCompatTest {
             }
         }
     }
-
 }
