@@ -124,8 +124,8 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
         mRepeatAction = new PlaybackControlsRow.RepeatAction(getContext());
         mThumbsDownAction = new PlaybackControlsRow.ThumbsDownAction(getContext());
         mThumbsUpAction = new PlaybackControlsRow.ThumbsUpAction(getContext());
-        mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
-        mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
+        mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_OUTLINE);
+        mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_OUTLINE);
     }
 
     @Override
@@ -215,20 +215,20 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
         // is incremented and the UI updated such that we can display the new state.
         super.onActionClicked(action);
         if (action instanceof PlaybackControlsRow.RepeatAction) {
-            mRepeatAction.nextIndex();
-        } else if (action instanceof PlaybackControlsRow.ThumbsUpAction) {
-            if (mThumbsUpAction.getIndex() == PlaybackControlsRow.ThumbsAction.SOLID) {
-                mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
+            ((PlaybackControlsRow.RepeatAction) action).nextIndex();
+        } else if (action == mThumbsUpAction) {
+            if (mThumbsUpAction.getIndex() == PlaybackControlsRow.ThumbsAction.INDEX_SOLID) {
+                mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_OUTLINE);
             } else {
-                mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.SOLID);
-                mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
+                mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_SOLID);
+                mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_OUTLINE);
             }
-        } else if (action instanceof PlaybackControlsRow.ThumbsDownAction) {
-            if (mThumbsDownAction.getIndex() == PlaybackControlsRow.ThumbsAction.SOLID) {
-                mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
+        } else if (action == mThumbsDownAction) {
+            if (mThumbsDownAction.getIndex() == PlaybackControlsRow.ThumbsAction.INDEX_SOLID) {
+                mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_OUTLINE);
             } else {
-                mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.SOLID);
-                mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.OUTLINE);
+                mThumbsDownAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_SOLID);
+                mThumbsUpAction.setIndex(PlaybackControlsRow.ThumbsAction.INDEX_OUTLINE);
             }
         }
         onMetadataChanged();
