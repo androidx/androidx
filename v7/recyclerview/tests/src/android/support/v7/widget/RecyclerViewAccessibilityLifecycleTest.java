@@ -21,7 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
@@ -30,7 +29,6 @@ import static org.mockito.Mockito.verify;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
@@ -161,7 +159,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
     }
 
     @Test
-    @RequiresApi(14)
     public void notClearCustomViewDelegate() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity()) {
             @Override
@@ -240,7 +237,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
     }
 
     @Test
-    @RequiresApi(14)
     public void clearItemDelegateWhenGoesToPool() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity()) {
             @Override
@@ -278,7 +274,9 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
             assertTrue(ViewCompat.hasAccessibilityDelegate(view));
             AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
-            assertNotNull(info.getCollectionItemInfo());
+            if (Build.VERSION.SDK_INT >= 19) {
+                assertNotNull(info.getCollectionItemInfo());
+            }
         }
 
         // let all items go to recycler pool
@@ -295,8 +293,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
             assertEquals(RecyclerView.NO_POSITION, recyclerView.getChildAdapterPosition(view));
             assertFalse(vh.hasAnyOfTheFlags(RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
             assertFalse(ViewCompat.hasAccessibilityDelegate(view));
-            AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
-            assertNull(info.getCollectionItemInfo());
         }
     }
 }
