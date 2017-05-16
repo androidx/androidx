@@ -4,7 +4,6 @@ archivesBaseName = 'support-core-ui'
 dependencies {
     compile project(':support-annotations')
     compile project(':support-compat')
-    compile project(':support-core-utils')
 
     androidTestCompile (libs.test_runner) {
         exclude module: 'support-annotations'
@@ -30,11 +29,6 @@ android {
                 'api21',
                 'java'
         ]
-        main.res.srcDirs = [
-                'res',
-                'res-public'
-        ]
-        test.java.srcDir 'jvm-tests/src'
     }
 
     buildTypes.all {
