@@ -30,6 +30,7 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleableRes;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -103,13 +104,17 @@ public class TintTypedArray {
      */
     @Nullable
     public Typeface getFont(@StyleableRes int index, int style) {
-        if (mWrapped.hasValue(index)) {
-            final int resourceId = mWrapped.getResourceId(index, 0);
-            if (resourceId != 0) {
-                return ResourcesCompat.getFont(mContext, resourceId, style);
-            }
+        if (BuildCompat.isAtLeastO()) {
+            return mWrapped.getFont(index);
         }
-        return null;
+        final int resourceId = mWrapped.getResourceId(index, 0);
+        if (resourceId == 0) {
+            return null;
+        }
+        if (mTypedValue == null) {
+            mTypedValue = new TypedValue();
+        }
+        return ResourcesCompat.getFont(mContext, resourceId, mTypedValue, style);
     }
 
     public int length() {
