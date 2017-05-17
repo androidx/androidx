@@ -41,6 +41,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class ListRowPresenterTest {
 
+    static final float DELTA = 1f;
     // default overlay color when setSelectLevel(0.5f)
     static final int HALF_OVERLAY_COLOR = 0x4C000000;
     static int sFocusedZ;
@@ -276,11 +277,12 @@ public class ListRowPresenterTest {
             assertEquals(this.mShadowOverlayContainer, shadowOverlayContainer);
             assertEquals(this.mShadowOverlayContainerOverlayColor,
                     shadowOverlayContainerOverlayColor);
-            assertEquals(this.mShadowOverlayContainerOverlayZ, shadowOverlayContainerOverlayZ);
+            assertEquals(this.mShadowOverlayContainerOverlayZ, shadowOverlayContainerOverlayZ,
+                    DELTA);
             assertEquals(this.mShadowOverlayContainerOpticalBounds,
                     shadowOverlayContainerOpticalBounds);
             assertEquals(this.mViewOverlayColor, viewOverlayColor);
-            assertEquals(this.mViewZ, viewZ);
+            assertEquals(this.mViewZ, viewZ, DELTA);
             assertEquals(this.mViewOpticalBounds, viewOpticalBounds);
         }
     }
