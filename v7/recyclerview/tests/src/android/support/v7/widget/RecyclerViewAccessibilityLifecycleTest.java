@@ -205,17 +205,24 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         layoutManager.waitForLayout(1);
 
         assertEquals(layoutCount, recyclerView.getChildCount());
-        ArrayList<View> children = new ArrayList();
-        for (int i = 0; i < recyclerView.getChildCount(); i++) {
-            View view = recyclerView.getChildAt(i);
-            assertEquals(layoutStart[0] + i, recyclerView.getChildAdapterPosition(view));
-            AccessibilityNodeInfo info = recyclerView.getChildAt(i).createAccessibilityNodeInfo();
-            assertTrue("custom delegate sets isChecked", info.isChecked());
-            assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
-                    RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-            assertTrue(ViewCompat.hasAccessibilityDelegate(view));
-            children.add(view);
-        }
+        final ArrayList<View> children = new ArrayList();
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                    View view = recyclerView.getChildAt(i);
+                    assertEquals(layoutStart[0] + i,
+                            recyclerView.getChildAdapterPosition(view));
+                    AccessibilityNodeInfo info = recyclerView.getChildAt(i)
+                            .createAccessibilityNodeInfo();
+                    assertTrue("custom delegate sets isChecked", info.isChecked());
+                    assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
+                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
+                    assertTrue(ViewCompat.hasAccessibilityDelegate(view));
+                    children.add(view);
+                }
+            }
+        });
 
         // invalidate and start layout at 50, all existing views will goes to recycler and
         // being reused.
@@ -224,16 +231,22 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         adapter.dispatchDataSetChanged();
         layoutManager.waitForLayout(1);
         assertEquals(layoutCount, recyclerView.getChildCount());
-        for (int i = 0; i < recyclerView.getChildCount(); i++) {
-            View view = recyclerView.getChildAt(i);
-            assertEquals(layoutStart[0] + i, recyclerView.getChildAdapterPosition(view));
-            assertTrue(children.contains(view));
-            AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
-            assertTrue("custom delegate sets isChecked", info.isChecked());
-            assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
-                    RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-            assertTrue(ViewCompat.hasAccessibilityDelegate(view));
-        }
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                    View view = recyclerView.getChildAt(i);
+                    assertEquals(layoutStart[0] + i,
+                            recyclerView.getChildAdapterPosition(view));
+                    assertTrue(children.contains(view));
+                    AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
+                    assertTrue("custom delegate sets isChecked", info.isChecked());
+                    assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
+                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
+                    assertTrue(ViewCompat.hasAccessibilityDelegate(view));
+                }
+            }
+        });
     }
 
     @Test
@@ -267,17 +280,22 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         layoutManager.waitForLayout(1);
 
         assertEquals(firstPassLayoutCount, recyclerView.getChildCount());
-        for (int i = 0; i < recyclerView.getChildCount(); i++) {
-            View view = recyclerView.getChildAt(i);
-            assertEquals(i, recyclerView.getChildAdapterPosition(view));
-            assertTrue(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
-                    RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-            assertTrue(ViewCompat.hasAccessibilityDelegate(view));
-            AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
-            if (Build.VERSION.SDK_INT >= 19) {
-                assertNotNull(info.getCollectionItemInfo());
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                    View view = recyclerView.getChildAt(i);
+                    assertEquals(i, recyclerView.getChildAdapterPosition(view));
+                    assertTrue(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
+                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
+                    assertTrue(ViewCompat.hasAccessibilityDelegate(view));
+                    AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
+                    if (Build.VERSION.SDK_INT >= 19) {
+                        assertNotNull(info.getCollectionItemInfo());
+                    }
+                }
             }
-        }
+        });
 
         // let all items go to recycler pool
         layoutManager.expectLayouts(1);
@@ -287,12 +305,21 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         assertEquals(0, recyclerView.getChildCount());
         assertEquals(firstPassLayoutCount, recyclerView.getRecycledViewPool()
                 .getRecycledViewCount(0));
-        for (int i = 0; i < firstPassLayoutCount; i++) {
-            RecyclerView.ViewHolder vh = recyclerView.getRecycledViewPool().getRecycledView(0);
-            View view = vh.itemView;
-            assertEquals(RecyclerView.NO_POSITION, recyclerView.getChildAdapterPosition(view));
-            assertFalse(vh.hasAnyOfTheFlags(RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-            assertFalse(ViewCompat.hasAccessibilityDelegate(view));
-        }
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < firstPassLayoutCount; i++) {
+                    RecyclerView.ViewHolder vh = recyclerView.getRecycledViewPool()
+                            .getRecycledView(0);
+                    View view = vh.itemView;
+                    assertEquals(RecyclerView.NO_POSITION,
+                            recyclerView.getChildAdapterPosition(view));
+                    assertFalse(vh.hasAnyOfTheFlags(
+                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
+                    assertFalse(ViewCompat.hasAccessibilityDelegate(view));
+                }
+            }
+        });
+
     }
 }
