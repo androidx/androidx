@@ -33,6 +33,7 @@ import java.util.ConcurrentModificationException;
 public class SimpleArrayMapTest {
     private static final String TAG = "SimpleArrayMapTest";
     SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+    private boolean mDone;
 
     /**
      * Attempt to generate a ConcurrentModificationException in ArrayMap.
@@ -41,11 +42,12 @@ public class SimpleArrayMapTest {
     public void testConcurrentModificationException() throws Exception {
         final int TEST_LEN_MS = 5000;
         Log.d(TAG, "Starting SimpleArrayMap concurrency test");
+        mDone = false;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int i = 0;
-                while (map != null) {
+                while (!mDone) {
                     try {
                         map.put(String.format("key %d", i++), "B_DONT_DO_THAT");
                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -75,7 +77,7 @@ public class SimpleArrayMapTest {
             } catch (ConcurrentModificationException e) {
             }
         }
-        map = null; // will stop other thread
+        mDone = true;
     }
 
     /**
