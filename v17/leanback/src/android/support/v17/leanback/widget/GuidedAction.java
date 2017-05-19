@@ -123,8 +123,10 @@ public class GuidedAction extends Action {
         private int mActionFlags;
 
         private int mEditable = EDITING_NONE;
-        private int mInputType = InputType.TYPE_CLASS_TEXT;
-        private int mDescriptionInputType = InputType.TYPE_CLASS_TEXT;
+        private int mInputType = InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+        private int mDescriptionInputType = InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
         private int mEditInputType = InputType.TYPE_CLASS_TEXT;
         private int mDescriptionEditInputType = InputType.TYPE_CLASS_TEXT;
         private int mCheckSetId = NO_CHECK_SET;
