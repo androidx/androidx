@@ -40,6 +40,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
+import android.widget.ListView;
 
 /**
  * The SwipeRefreshLayout should be used whenever the user can refresh the
@@ -656,6 +657,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     public boolean canChildScrollUp() {
         if (mChildScrollUpCallback != null) {
             return mChildScrollUpCallback.canChildScrollUp(this, mTarget);
+        }
+        if (mTarget instanceof ListView) {
+            return ListViewCompat.canScrollList((ListView) mTarget, -1);
         }
         return ViewCompat.canScrollVertically(mTarget, -1);
     }
