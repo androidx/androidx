@@ -9697,6 +9697,7 @@ package android.support.v4.widget {
   }
 
   public final class ListViewCompat {
+    method public static boolean canScrollList(android.widget.ListView, int);
     method public static void scrollListBy(android.widget.ListView, int);
   }
 
