@@ -65,6 +65,7 @@ public class ProgramTest extends TestCase {
     @Test
     public void testSampleProgram() {
         Program sampleProgram = new Program.Builder()
+                .setPackageName("My package")
                 .setTitle("Program Title")
                 .setDescription("This is a sample program")
                 .setEpisodeNumber(5)
@@ -193,6 +194,7 @@ public class ProgramTest extends TestCase {
         if (includeIdAndProtectedFields) {
             // Skip row ID since the one from system DB has the valid ID while the other does not.
             assertEquals(programA.getId(), programB.getId());
+            assertEquals(programA.getPackageName(), programB.getPackageName());
             assertEquals(programA.toContentValues(), programB.toContentValues());
             assertEquals(programA, programB);
         }
