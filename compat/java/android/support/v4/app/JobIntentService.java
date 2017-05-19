@@ -17,6 +17,11 @@
 package android.support.v4.app;
 
 import android.app.Service;
+import android.app.job.JobInfo;
+import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
+import android.app.job.JobServiceEngine;
+import android.app.job.JobWorkItem;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +30,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.os.BuildCompat;
 import android.util.Log;
 
@@ -219,6 +225,97 @@ public abstract class JobIntentService extends Service {
     }
 
     /**
+     * Implementation of a JobServiceEngine for interaction with JobIntentService.
+     */
+    @RequiresApi(26)
+    static final class JobServiceEngineImpl extends JobServiceEngine
+            implements JobIntentService.CompatJobEngine {
+        static final String TAG = "JobServiceEngineImpl";
+
+        static final boolean DEBUG = false;
+
+        final JobIntentService mService;
+        JobParameters mParams;
+
+        final class WrapperWorkItem implements JobIntentService.GenericWorkItem {
+            final JobWorkItem mJobWork;
+
+            WrapperWorkItem(JobWorkItem jobWork) {
+                mJobWork = jobWork;
+            }
+
+            @Override
+            public Intent getIntent() {
+                return mJobWork.getIntent();
+            }
+
+            @Override
+            public void complete() {
+                mParams.completeWork(mJobWork);
+            }
+        }
+
+        JobServiceEngineImpl(JobIntentService service) {
+            super(service);
+            mService = service;
+        }
+
+        @Override
+        public IBinder compatGetBinder() {
+            return getBinder();
+        }
+
+        @Override
+        public boolean onStartJob(JobParameters params) {
+            if (DEBUG) Log.d(TAG, "onStartJob: " + params);
+            mParams = params;
+            // We can now start dequeuing work!
+            mService.ensureProcessorRunningLocked();
+            return true;
+        }
+
+        @Override
+        public boolean onStopJob(JobParameters params) {
+            if (DEBUG) Log.d(TAG, "onStartJob: " + params);
+            return mService.onStopCurrentWork();
+        }
+
+        /**
+         * Dequeue some work.
+         */
+        @Override
+        public JobIntentService.GenericWorkItem dequeueWork() {
+            JobWorkItem work = mParams.dequeueWork();
+            if (work != null) {
+                return new WrapperWorkItem(work);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    @RequiresApi(26)
+    static final class JobWorkEnqueuer extends JobIntentService.WorkEnqueuer {
+        private final JobInfo mJobInfo;
+        private final JobScheduler mJobScheduler;
+
+        JobWorkEnqueuer(Context context, Class cls, int jobId) {
+            super(context, cls);
+            ensureJobId(jobId);
+            JobInfo.Builder b = new JobInfo.Builder(jobId, mComponentName);
+            mJobInfo = b.setOverrideDeadline(0).build();
+            mJobScheduler = (JobScheduler) context.getApplicationContext().getSystemService(
+                    Context.JOB_SCHEDULER_SERVICE);
+        }
+
+        @Override
+        void enqueueWork(Intent work) {
+            if (DEBUG) Log.d(TAG, "Enqueueing work: " + work);
+            mJobScheduler.enqueue(mJobInfo, new JobWorkItem(work));
+        }
+    }
+
+    /**
      * Abstract definition of an item of work that is being dispatched.
      */
     interface GenericWorkItem {
@@ -383,7 +480,7 @@ public abstract class JobIntentService extends Service {
                 if (!hasJobId) {
                     throw new IllegalArgumentException("Can't be here without a job id");
                 }
-                we = new JobServiceEngineImpl.JobWorkEnqueuer(context, cls, jobId);
+                we = new JobWorkEnqueuer(context, cls, jobId);
             } else {
                 we = new CompatWorkEnqueuer(context, cls);
             }
