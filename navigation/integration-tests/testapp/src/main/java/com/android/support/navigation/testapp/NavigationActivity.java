@@ -29,7 +29,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 /**
@@ -78,19 +77,18 @@ public class NavigationActivity extends AppCompatActivity {
                 (BottomNavigationView) findViewById(R.id.bottom_nav_view);
         // Only add secondary navigation elements to the menu if there is a BottomNavigationView
         if (bottomNavView != null) {
-            NavController navController =
+            final NavController navController =
                     Navigation.findController(this, R.id.my_nav_host_fragment);
-            NavHelper.addChildDestinationsToMenu(navController.getGraph(), menu,
-                    NavDestination.NAV_TYPE_SECONDARY);
+            NavHelper.setupMenu(navController, menu, NavDestination.NAV_TYPE_SECONDARY);
             return true;
         }
         return retValue;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return NavHelper.handleMenuItemSelected(
-                Navigation.findController(this, R.id.my_nav_host_fragment), item, mDrawerLayout)
-                || super.onOptionsItemSelected(item);
+    public boolean onSupportNavigateUp() {
+        return NavHelper.handleNavigateUp(
+                Navigation.findController(this, R.id.my_nav_host_fragment),
+                mDrawerLayout);
     }
 }

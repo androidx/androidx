@@ -71,12 +71,14 @@ public class NavHelper {
      * @param type The navigation type or types to filter the destinations. This must be one or
      *             more of {@link NavDestination#NAV_TYPE_PRIMARY} and
      *             {@link NavDestination#NAV_TYPE_SECONDARY}.
+     * @param menuItemClickListener The OnMenuItemClickListener that should be used to handle this
+     *                              menu item
      */
     public static void addChildDestinationsToMenu(NavGraph navGraph, Menu menu,
-            @MenuNavTypes int type) {
+            @MenuNavTypes int type, MenuItem.OnMenuItemClickListener menuItemClickListener) {
         for (NavDestination destination : navGraph) {
             if ((type & destination.getNavType()) != 0) {
-                NavHelper.addDestinationToMenu(destination, menu);
+                NavHelper.addDestinationToMenu(destination, menu, menuItemClickListener);
             }
         }
     }
@@ -92,12 +94,16 @@ public class NavHelper {
      *
      * @param destination The NavDestination to add to the Menu.
      * @param menu The menu to add this destination to.
+     * @param menuItemClickListener The OnMenuItemClickListener that should be used to handle this
+     *                              menu item
      */
-    public static void addDestinationToMenu(NavDestination destination, Menu menu) {
+    public static void addDestinationToMenu(NavDestination destination, Menu menu,
+            MenuItem.OnMenuItemClickListener menuItemClickListener) {
         int order = destination.getNavType() == NavDestination.NAV_TYPE_SECONDARY
                 ? Menu.CATEGORY_SECONDARY
                 : Menu.NONE;
-        addDestinationToMenu(destination, menu, destination.getNavType(), order);
+        addDestinationToMenu(destination, menu, destination.getNavType(), order,
+                menuItemClickListener);
     }
 
     /**
@@ -110,15 +116,20 @@ public class NavHelper {
      * @param groupId The {@link MenuItem#getGroupId() group identifier} of the added MenuItem
      * @param order The {@link MenuItem#getOrder() category and order within the category} of the
      *              added MenuItem
+     * @param menuItemClickListener The OnMenuItemClickListener that should be used to handle this
+     *                              menu item
      */
     public static void addDestinationToMenu(NavDestination destination, Menu menu,
-            int groupId, int order) {
+            int groupId, int order, MenuItem.OnMenuItemClickListener menuItemClickListener) {
         MenuItem item = menu.add(groupId, destination.getId(), order,
                 destination.getLabel());
         if (destination.getIconDrawable() != null) {
             item.setIcon(destination.getIconDrawable());
         } else {
             item.setIcon(destination.getIconResourceId());
+        }
+        if (menuItemClickListener != null) {
+            item.setOnMenuItemClickListener(menuItemClickListener);
         }
     }
 
@@ -136,34 +147,6 @@ public class NavHelper {
      */
     public static boolean handleMenuItemSelected(NavController navController,
             @NonNull MenuItem item) {
-        return handleMenuItemSelected(navController, item, null);
-    }
-
-    /**
-     * Attempt to navigate to the {@link NavDestination} associated with the given MenuItem. This
-     * MenuItem should have been added via one of the helper methods in this class.
-     *
-     * <p>Importantly, it assumes the {@link MenuItem#getItemId() menu item id} matches the
-     * {@link NavDestination#getId() destination id} to be navigated to.</p>
-     *
-     * @param navController The NavController that hosts the destination.
-     * @param item The selected MenuItem.
-     * @param drawerLayout The DrawerLayout that should be opened on home button presses if you
-     *                     are on the topmost level of the app.
-     * @return True if the {@link NavController} was able to navigate to the destination
-     * associated with the given MenuItem.
-     */
-    public static boolean handleMenuItemSelected(NavController navController,
-            @NonNull MenuItem item, DrawerLayout drawerLayout) {
-        if (item.getItemId() == android.R.id.home) {
-            if (drawerLayout != null && navController.getCurrentDestination().getId()
-                    == navController.getGraph().getStartDestination()) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            } else {
-                navController.navigateUp();
-            }
-            return true;
-        }
         try {
             navController.navigateTo(item.getItemId(), null,
                     new NavOptions.Builder()
@@ -179,6 +162,36 @@ public class NavHelper {
     }
 
     /**
+     * Handles the Up button by delegating its behavior to the given NavController. This should
+     * generally be called from {@link AppCompatActivity#onSupportNavigateUp()}.
+     *
+     * @param navController The NavController that hosts your content.
+     * @return True if the {@link NavController} was able to navigate up.
+     */
+    public static boolean handleNavigateUp(NavController navController) {
+        return handleNavigateUp(navController, null);
+    }
+
+    /**
+     * Handles the Up button by delegating its behavior to the given NavController. This should
+     * generally be called from {@link AppCompatActivity#onSupportNavigateUp()}.
+     *
+     * @param navController The NavController that hosts your content.
+     * @param drawerLayout The DrawerLayout that should be opened if you are on the topmost level
+     *                     of the app.
+     * @return True if the {@link NavController} was able to navigate up.
+     */
+    public static boolean handleNavigateUp(NavController navController, DrawerLayout drawerLayout) {
+        if (drawerLayout != null && navController.getCurrentDestination().getId()
+                == navController.getGraph().getStartDestination()) {
+            drawerLayout.openDrawer(GravityCompat.START);
+            return true;
+        } else {
+            return navController.navigateUp();
+        }
+    }
+
+    /**
      * Sets up the ActionBar returned by {@link AppCompatActivity#getSupportActionBar()} for use
      * with a {@link NavController}.
      *
@@ -186,8 +199,7 @@ public class NavHelper {
      * the destination changes (assuming there is a valid {@link NavDestination#getLabel label}).
      *
      * <p>The action bar will also display the Up button when you are on a non-root destination.
-     * Call {@link #handleMenuItemSelected(NavController, MenuItem)}
-     * to handle the Up button.
+     * Call {@link #handleNavigateUp(NavController, DrawerLayout)} to handle the Up button.
      *
      * @param navController The NavController that supplies the secondary menu. Navigation actions
      *                      on this NavController will be reflected in the title of the action bar.
@@ -208,11 +220,10 @@ public class NavHelper {
      *
      * <p>The action bar will also display the Up button when you are on a non-root destination and
      * the drawer icon when on the root destination, automatically animating between them.
-     * Call {@link #handleMenuItemSelected(NavController, MenuItem, DrawerLayout)}
-     * to handle the Up button.
+     * Call {@link #handleNavigateUp(NavController, DrawerLayout)} to handle the Up button.
      *
-     * @param navController The NavController that supplies the secondary menu. Navigation actions
-     *                      on this NavController will be reflected in the title of the action bar.
+     * @param navController The NavController whose navigation actions will be reflected
+     *                      in the title of the action bar.
      * @param activity The activity hosting the action bar that should be kept in sync with changes
      *                 to the NavController.
      * @param drawerLayout The DrawerLayout that should be toggled from the home button
@@ -222,6 +233,29 @@ public class NavHelper {
             final AppCompatActivity activity, final DrawerLayout drawerLayout) {
         navController.addOnNavigatedListener(
                 new ActionBarOnNavigatedListener(activity, drawerLayout));
+    }
+
+    /**
+     * Adds destinations from the given NavController to a menu.
+     *
+     * <p>Only {@link NavGraph#iterator() direct child destinations} of the
+     * {@link NavController#getGraph() NavController's graph} will be added to the menu.
+     *
+     * @param navController The NavController that supplies the primary and/or secondary menu items.
+     * @param menu The menu to add the destinations to.
+     * @param type The navigation type or types to filter the destinations. This must be one or
+     *             more of {@link NavDestination#NAV_TYPE_PRIMARY} and
+     *             {@link NavDestination#NAV_TYPE_SECONDARY}.
+     */
+    public static void setupMenu(final NavController navController, Menu menu,
+            @MenuNavTypes int type) {
+        addChildDestinationsToMenu(navController.getGraph(), menu, type,
+                new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        return handleMenuItemSelected(navController, item);
+                    }
+                });
     }
 
     /**
@@ -239,35 +273,14 @@ public class NavHelper {
      */
     public static void setupNavigationView(final NavController navController,
             final NavigationView navigationView) {
-        setupNavigationView(navController, navigationView, null);
-    }
-
-    /**
-     * Sets up a {@link NavigationView} for use with a {@link NavController}. This will add all
-     * {@link NavDestination#NAV_TYPE_PRIMARY primary} and
-     * {@link NavDestination#NAV_TYPE_SECONDARY secondary} destinations from the given NavController
-     * to the NavigationView. The selected item in the NavigationView will automatically be
-     * updated when the destination changes.
-     *
-     * @param navController The NavController that supplies the primary and secondary menu.
-     *                      Navigation actions on this NavController will be reflected in the
-     *                      selected item in the NavigationView.
-     * @param navigationView The NavigationView that should be kept in sync with changes to the
-     *                       NavController.
-     * @param listener The listener that should be called for other MenuItems in the NavigationView.
-     */
-    public static void setupNavigationView(final NavController navController,
-            final NavigationView navigationView,
-            final NavigationView.OnNavigationItemSelectedListener listener) {
         if (navigationView == null) {
             return;
         }
         addChildDestinationsToMenu(navController.getGraph(), navigationView.getMenu(),
-                NavDestination.NAV_TYPE_PRIMARY | NavDestination.NAV_TYPE_SECONDARY);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
+                NavDestination.NAV_TYPE_PRIMARY | NavDestination.NAV_TYPE_SECONDARY,
+                new MenuItem.OnMenuItemClickListener() {
                     @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    public boolean onMenuItemClick(MenuItem item) {
                         boolean handled = handleMenuItemSelected(navController, item);
                         if (handled) {
                             ViewParent parent = navigationView.getParent();
@@ -275,8 +288,7 @@ public class NavHelper {
                                 ((DrawerLayout) parent).closeDrawer(navigationView);
                             }
                         }
-                        return handled
-                                || (listener != null && listener.onNavigationItemSelected(item));
+                        return handled;
                     }
                 });
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
@@ -306,39 +318,10 @@ public class NavHelper {
      */
     public static void setupBottomNavigationView(final NavController navController,
             final BottomNavigationView bottomNavigationView) {
-        setupBottomNavigationView(navController, bottomNavigationView, null);
-    }
-
-    /**
-     * Sets up a {@link BottomNavigationView} for use with a {@link NavController}. This will add
-     * all {@link NavDestination#NAV_TYPE_PRIMARY primary} destinations from the given NavController
-     * to the BottomNavigationView. The selected item in the BottomNavigationView will
-     * automatically be updated when the destination changes.
-     *
-     * @param navController The NavController that supplies the primary menu.
-     *                      Navigation actions on this NavController will be reflected in the
-     *                      selected item in the BottomNavigationView.
-     * @param bottomNavigationView The BottomNavigationView that should be kept in sync with
-     *                             changes to the NavController.
-     * @param listener The listener that should be called for other MenuItems in the
-     *                 BottomNavigationView.
-     */
-    public static void setupBottomNavigationView(final NavController navController,
-            final BottomNavigationView bottomNavigationView,
-            final BottomNavigationView.OnNavigationItemSelectedListener listener) {
         if (bottomNavigationView == null) {
             return;
         }
-        addChildDestinationsToMenu(navController.getGraph(), bottomNavigationView.getMenu(),
-                NavDestination.NAV_TYPE_PRIMARY);
-        bottomNavigationView.setOnNavigationItemSelectedListener(
-                new BottomNavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        return handleMenuItemSelected(navController, item)
-                                || (listener != null && listener.onNavigationItemSelected(item));
-                    }
-                });
+        setupMenu(navController, bottomNavigationView.getMenu(), NavDestination.NAV_TYPE_PRIMARY);
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
             public void onNavigated(NavController controller, NavDestination destination) {
