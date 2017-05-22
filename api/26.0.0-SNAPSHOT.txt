@@ -11086,6 +11086,7 @@ package android.support.v7.preference {
     method protected int getPersistedInt(int);
     method protected long getPersistedLong(long);
     method protected java.lang.String getPersistedString(java.lang.String);
+    method public java.util.Set<java.lang.String> getPersistedStringSet(java.util.Set<java.lang.String>);
     method public android.support.v7.preference.PreferenceDataStore getPreferenceDataStore();
     method public android.support.v7.preference.PreferenceManager getPreferenceManager();
     method public android.content.SharedPreferences getSharedPreferences();
@@ -11122,6 +11123,7 @@ package android.support.v7.preference {
     method protected boolean persistInt(int);
     method protected boolean persistLong(long);
     method protected boolean persistString(java.lang.String);
+    method public boolean persistStringSet(java.util.Set<java.lang.String>);
     method public void restoreHierarchyState(android.os.Bundle);
     method public void saveHierarchyState(android.os.Bundle);
     method public void setDefaultValue(java.lang.Object);
@@ -11182,11 +11184,13 @@ package android.support.v7.preference {
     method public int getInt(java.lang.String, int);
     method public long getLong(java.lang.String, long);
     method public java.lang.String getString(java.lang.String, java.lang.String);
+    method public java.util.Set<java.lang.String> getStringSet(java.lang.String, java.util.Set<java.lang.String>);
     method public void putBoolean(java.lang.String, boolean);
     method public void putFloat(java.lang.String, float);
     method public void putInt(java.lang.String, int);
     method public void putLong(java.lang.String, long);
     method public void putString(java.lang.String, java.lang.String);
+    method public void putStringSet(java.lang.String, java.util.Set<java.lang.String>);
   }
 
   public abstract class PreferenceDialogFragmentCompat extends android.support.v4.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
