@@ -16,17 +16,12 @@
 
 package android.support.v14.preference;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ArrayRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.preference.internal.AbstractMultiSelectListPreference;
 import android.util.AttributeSet;
@@ -82,64 +77,6 @@ public class MultiSelectListPreference extends AbstractMultiSelectListPreference
 
     public MultiSelectListPreference(Context context) {
         this(context, null);
-    }
-
-    /**
-     * Attempts to persist a set of Strings to the {@link android.content.SharedPreferences}.
-     * <p>
-     * This will check if this Preference is persistent, get an editor from
-     * the {@link android.preference.PreferenceManager}, put in the strings, and check if we should
-     * commit (and commit if so).
-     *
-     * @param values The values to persist.
-     * @return True if the Preference is persistent. (This is not whether the
-     *         value was persisted, since we may not necessarily commit if there
-     *         will be a batch commit later.)
-     * @see #getPersistedString
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    protected boolean persistStringSet(Set<String> values) {
-        if (shouldPersist()) {
-            // Shouldn't store null
-            if (values.equals(getPersistedStringSet(null))) {
-                // It's already there, so the same as persisting
-                return true;
-            }
-
-            SharedPreferences.Editor editor = getPreferenceManager().getSharedPreferences().edit();
-            editor.putStringSet(getKey(), values);
-            SharedPreferencesCompat.EditorCompat.getInstance().apply(editor);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Attempts to get a persisted set of Strings from the
-     * {@link android.content.SharedPreferences}.
-     * <p>
-     * This will check if this Preference is persistent, get the SharedPreferences
-     * from the {@link android.preference.PreferenceManager}, and get the value.
-     *
-     * @param defaultReturnValue The default value to return if either the
-     *            Preference is not persistent or the Preference is not in the
-     *            shared preferences.
-     * @return The value from the SharedPreferences or the default return
-     *         value.
-     * @see #persistStringSet(Set)
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    protected Set<String> getPersistedStringSet(Set<String> defaultReturnValue) {
-        if (!shouldPersist()) {
-            return defaultReturnValue;
-        }
-
-        return getPreferenceManager().getSharedPreferences()
-                .getStringSet(getKey(), defaultReturnValue);
     }
 
     /**
