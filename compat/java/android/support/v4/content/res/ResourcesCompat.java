@@ -198,25 +198,21 @@ public final class ResourcesCompat {
             // Use framework support.
             return context.getResources().getFont(id);
         }
-        return loadFont(context, id, Typeface.NORMAL);
+        return loadFont(context, id, new TypedValue(), Typeface.NORMAL);
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public static Typeface getFont(@NonNull Context context, @FontRes int id, int style)
-            throws NotFoundException {
+    public static Typeface getFont(@NonNull Context context, @FontRes int id, TypedValue value,
+            int style) throws NotFoundException {
         if (context.isRestricted()) {
             return null;
         }
-        if (BuildCompat.isAtLeastO()) {
-            // Use framework support.
-            return context.getResources().getFont(id);
-        }
-        return loadFont(context, id, style);
+        return loadFont(context, id, value, style);
     }
 
-    private static Typeface loadFont(@NonNull Context context, int id, int style) {
-        final TypedValue value = new TypedValue();
+    private static Typeface loadFont(@NonNull Context context, int id, TypedValue value,
+            int style) {
         final Resources resources = context.getResources();
         resources.getValue(id, value, true);
         Typeface typeface = loadFont(context, resources, value, id, style);
@@ -234,12 +230,17 @@ public final class ResourcesCompat {
                     + Integer.toHexString(id) + ") is not a Font: " + value);
         }
 
+        final String file = value.string.toString();
+        if (!file.startsWith("res/")) {
+            // Early exit if the specified string is unlikely to the resource path.
+            return null;
+        }
+
         Typeface cached = TypefaceCompat.findFromCache(wrapper, id, style);
         if (cached != null) {
             return cached;
         }
 
-        final String file = value.string.toString();
         try {
             if (file.toLowerCase().endsWith(".xml")) {
                 final XmlResourceParser rp = wrapper.getXml(id);
