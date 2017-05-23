@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font app:fontStyle="normal" app:fontWeight="400" app:font="@font/large_a"
+          android:fontStyle="normal" android:fontWeight="400" android:font="@font/large_a" />
+    <font app:fontStyle="italic" app:fontWeight="400" app:font="@font/large_b"
+          android:fontStyle="italic" android:fontWeight="400" android:font="@font/large_b" />
+    <font app:fontStyle="normal" app:fontWeight="700" app:font="@font/large_c"
+          android:fontStyle="normal" android:fontWeight="700" android:font="@font/large_c" />
+    <font app:fontStyle="italic" app:fontWeight="700" app:font="@font/large_d"
+          android:fontStyle="italic" android:fontWeight="700" android:font="@font/large_d" />
+</font-family>
