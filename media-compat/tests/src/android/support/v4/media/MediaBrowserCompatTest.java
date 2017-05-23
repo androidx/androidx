@@ -27,6 +27,7 @@ import static junit.framework.Assert.fail;
 
 import android.content.ComponentName;
 import android.os.Bundle;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
@@ -369,7 +370,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testUnsubscribeForMultipleSubscriptions() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
@@ -417,7 +418,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testUnsubscribeWithSubscriptionCallbackForMultipleSubscriptions() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
