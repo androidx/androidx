@@ -309,9 +309,11 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 rootExtras = new Bundle();
                 rootExtras.putInt(EXTRA_SERVICE_VERSION, SERVICE_VERSION_CURRENT);
                 BundleCompat.putBinder(rootExtras, EXTRA_MESSENGER_BINDER, mMessenger.getBinder());
-                IMediaSession extraBinder = mSession.getExtraBinder();
-                BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
-                        extraBinder == null ? null : extraBinder.asBinder());
+                if (mSession != null) {
+                    IMediaSession extraBinder = mSession.getExtraBinder();
+                    BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
+                            extraBinder == null ? null : extraBinder.asBinder());
+                }
             }
             BrowserRoot root = MediaBrowserServiceCompat.this.onGetRoot(
                     clientPackageName, clientUid, rootHints);
