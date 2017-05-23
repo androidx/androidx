@@ -29,7 +29,6 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
-import android.support.v4.util.LruCache;
 import android.util.Log;
 
 import java.io.Closeable;
@@ -50,21 +49,9 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     private static final String TAG = "TypefaceCompatBaseImpl";
     private static final String CACHE_FILE_PREFIX = "cached_font_";
 
-    /**
-     * Cache for Typeface objects dynamically loaded from assets. Currently max size is 16.
-     */
-    private static final LruCache<String, Typeface> sDynamicTypefaceCache =
-            new LruCache<>(16);
-
-    private final Context mApplicationContext;
-
-    TypefaceCompatBaseImpl(Context context) {
-        mApplicationContext = context.getApplicationContext();
-    }
-
     @Override
-    public Typeface createTypeface(
-            @NonNull FontInfo[] fonts, Map<Uri, ByteBuffer> uriBuffer) {
+    public Typeface createTypeface(Context context, @NonNull FontInfo[] fonts,
+            Map<Uri, ByteBuffer> uriBuffer) {
         // When we load from file, we can only load one font so just take the first one.
         if (fonts.length < 1) {
             return null;
@@ -72,7 +59,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         Typeface typeface = null;
         FontInfo font = fonts[0];
         ByteBuffer buffer = uriBuffer.get(font.getUri());
-        File tmpFile = copyToCacheFile(buffer);
+        File tmpFile = copyToCacheFile(context, buffer);
         if (tmpFile != null) {
             try {
                 typeface = Typeface.createFromFile(tmpFile.getPath());
@@ -88,11 +75,11 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return typeface;
     }
 
-    private File copyToCacheFile(final InputStream is) {
+    private static File copyToCacheFile(Context context, final InputStream is) {
         FileOutputStream fos = null;
         File cacheFile;
         try {
-            cacheFile = new File(mApplicationContext.getCacheDir(),
+            cacheFile = new File(context.getCacheDir(),
                     CACHE_FILE_PREFIX + Thread.currentThread().getId());
             fos = new FileOutputStream(cacheFile, false);
 
@@ -111,11 +98,11 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return cacheFile;
     }
 
-    private File copyToCacheFile(final ByteBuffer is) {
+    private static File copyToCacheFile(Context context, final ByteBuffer is) {
         FileOutputStream fos = null;
         File cacheFile;
         try {
-            cacheFile = new File(mApplicationContext.getCacheDir(),
+            cacheFile = new File(context.getCacheDir(),
                     CACHE_FILE_PREFIX + Thread.currentThread().getId());
             fos = new FileOutputStream(cacheFile, false);
 
@@ -134,7 +121,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return cacheFile;
     }
 
-    static void closeQuietly(InputStream is) {
+    private static void closeQuietly(InputStream is) {
         if (is != null) {
             try {
                 is.close();
@@ -146,34 +133,17 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
 
     @Nullable
     @Override
-    public Typeface createFromResourcesFontFile(Resources resources, int id, int style) {
+    public Typeface createFromResourcesFontFile(Context context, Resources resources, int id,
+            int style) {
         InputStream is = null;
         try {
             is = resources.openRawResource(id);
-            Typeface typeface = createTypeface(resources, is);
-            if (typeface == null) {
-                return null;
-            }
-            final String key = createAssetUid(resources, id, style);
-            sDynamicTypefaceCache.put(key, typeface);
-            return typeface;
+            return createTypeface(context, resources, is);
         } catch (IOException e) {
             return null;
         } finally {
             closeQuietly(is);
         }
-    }
-
-    @Nullable
-    @Override
-    public Typeface createFromFontFamilyFilesResourceEntry(
-            FontFamilyFilesResourceEntry filesEntry, Resources resources, int id, int style) {
-        Typeface typeface = createFromResources(filesEntry, resources, id, style);
-        if (typeface != null) {
-            final String key = createAssetUid(resources, id, style);
-            sDynamicTypefaceCache.put(key, typeface);
-        }
-        return typeface;
     }
 
     private FontFileResourceEntry findBestEntry(FontFamilyFilesResourceEntry entry,
@@ -193,13 +163,10 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return bestEntry;
     }
 
-    /**
-     * Implementation of resources font retrieval for a file type xml resource. This should be
-     * overriden by other implementations.
-     */
     @Nullable
-    Typeface createFromResources(FontFamilyFilesResourceEntry entry, Resources resources,
-            int id, int style) {
+    @Override
+    public Typeface createFromFontFamilyFilesResourceEntry(Context context,
+            FontFamilyFilesResourceEntry entry, Resources resources, int id, int style) {
         FontFileResourceEntry best = findBestEntry(
                 entry, ((style & Typeface.BOLD) == 0) ? 400 : 700, (style & Typeface.ITALIC) != 0);
         if (best == null) {
@@ -209,7 +176,7 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         InputStream is = null;
         try {
             is = resources.openRawResource(best.getResourceId());
-            return createTypeface(resources, is);
+            return createTypeface(context, resources, is);
         } catch (IOException e) {
             // This is fine. The resource can be string type which indicates a name of Typeface.
         } finally {
@@ -218,29 +185,10 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         return null;
     }
 
-    @Override
-    public Typeface findFromCache(Resources resources, int id, int style) {
-        final String key = createAssetUid(resources, id, style);
-        synchronized (sDynamicTypefaceCache) {
-            return sDynamicTypefaceCache.get(key);
-        }
-    }
-
-    /**
-     * Creates a unique id for a given AssetManager and asset id
-     *
-     * @param resources Resources instance
-     * @param id a resource id
-     * @param style a style to be used for this resource, -1 if not avaialble.
-     * @return Unique id for a given AssetManager and id
-     */
-    private static String createAssetUid(final Resources resources, int id, int style) {
-        return resources.getResourcePackageName(id) + "-" + id + "-" + style;
-    }
-
     // Caller must close "is"
-    Typeface createTypeface(Resources resources, InputStream is) throws IOException {
-        File tmpFile = copyToCacheFile(is);
+    Typeface createTypeface(Context context, Resources resources, InputStream is)
+            throws IOException {
+        File tmpFile = copyToCacheFile(context, is);
         if (tmpFile != null) {
             try {
                 return Typeface.createFromFile(tmpFile.getPath());
