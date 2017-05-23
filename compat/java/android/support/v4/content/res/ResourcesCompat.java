@@ -27,6 +27,7 @@ import android.content.res.Resources.Theme;
 import android.content.res.XmlResourceParser;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
@@ -36,7 +37,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.graphics.TypefaceCompat;
-import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -194,7 +194,7 @@ public final class ResourcesCompat {
         if (context.isRestricted()) {
             return null;
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Use framework support.
             return context.getResources().getFont(id);
         }
