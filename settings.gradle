@@ -103,6 +103,9 @@ project(':support-emoji-bundled').projectDir = new File(rootDir, 'emoji/bundled'
 include ':support-emoji-appcompat'
 project(':support-emoji-appcompat').projectDir = new File(rootDir, 'emoji/appcompat')
 
+include ':support-content'
+project(':support-content').projectDir = new File(rootDir, 'content')
+
 /////////////////////////////
 //
 // Samples
@@ -110,6 +113,9 @@ project(':support-emoji-appcompat').projectDir = new File(rootDir, 'emoji/appcom
 /////////////////////////////
 
 File samplesRoot = new File(rootDir, 'samples')
+
+include ':support-content-demos'
+project(':support-content-demos').projectDir = new File(samplesRoot, 'SupportContentDemos')
 
 include ':support-design-demos'
 project(':support-design-demos').projectDir = new File(samplesRoot, 'SupportDesignDemos')
