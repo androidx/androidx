@@ -964,6 +964,52 @@ public class FragmentLifecycleTest {
     }
 
     /**
+     * Check that retained fragments in the backstack correctly restored after two "configChanges"
+     */
+    @Test
+    @UiThreadTest
+    public void retainedFragmentInBackstack() throws Throwable {
+        FragmentController fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        Fragment fragment1 = new StrictFragment();
+        fm.beginTransaction()
+                .add(fragment1, "1")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+        Fragment child = new StrictFragment();
+        child.setRetainInstance(true);
+        fragment1.getChildFragmentManager().beginTransaction()
+                .add(child, "child").commit();
+        fragment1.getChildFragmentManager().executePendingTransactions();
+
+        Fragment fragment2 = new StrictFragment();
+        fm.beginTransaction()
+                .remove(fragment1)
+                .add(fragment2, "2")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+        Pair<Parcelable, FragmentManagerNonConfig> savedState =
+                FragmentTestUtil.destroy(mActivityRule, fc);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+        savedState = FragmentTestUtil.destroy(mActivityRule, fc);
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+        fm = fc.getSupportFragmentManager();
+        fm.popBackStackImmediate();
+        Fragment retainedChild = fm.findFragmentByTag("1")
+                .getChildFragmentManager().findFragmentByTag("child");
+        assertEquals(child, retainedChild);
+    }
+
+    /**
      * When a fragment has been optimized out, it state should still be saved during
      * save and restore instance state.
      */
