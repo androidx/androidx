@@ -19,7 +19,7 @@ import static org.junit.Assert.assertSame;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.LargeTest;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +28,7 @@ import android.widget.FrameLayout;
 import org.junit.Before;
 import org.junit.Test;
 
-@SmallTest
+@LargeTest
 public class ProgressBarManagerTest {
 
     Context mContext;
