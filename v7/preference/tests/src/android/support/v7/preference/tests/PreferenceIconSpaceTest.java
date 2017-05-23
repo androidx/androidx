@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.preference.AndroidResources;
@@ -73,6 +74,7 @@ public class PreferenceIconSpaceTest {
         verify(mImageFrame).setVisibility(View.INVISIBLE);
     }
 
+    @LargeTest
     @Test
     @UiThreadTest
     public void bindViewHolder_iconSpaceNotReserved_shouldNotReserveIconSpace() {
