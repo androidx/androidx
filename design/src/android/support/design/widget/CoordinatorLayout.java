@@ -17,7 +17,7 @@
 package android.support.design.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.design.widget.ViewUtils.objectEquals;
+import static android.support.v4.utils.ObjectUtils.objectEquals;
 
 import android.content.Context;
 import android.content.res.Resources;

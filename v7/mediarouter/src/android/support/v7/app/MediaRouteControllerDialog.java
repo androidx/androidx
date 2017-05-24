@@ -20,6 +20,7 @@ import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
+import static android.support.v4.utils.ObjectUtils.objectEquals;
 
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -72,6 +73,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1438,7 +1440,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         protected void onPostExecute(Bitmap art) {
             mFetchArtTask = null;
-            if (mArtIconBitmap != mIconBitmap || mArtIconUri != mIconUri) {
+            if (!objectEquals(mArtIconBitmap, mIconBitmap)
+                    || !objectEquals(mArtIconUri, mIconUri)) {
                 mArtIconBitmap = mIconBitmap;
                 mArtIconLoadedBitmap = art;
                 mArtIconUri = mIconUri;

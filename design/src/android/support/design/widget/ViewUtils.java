@@ -19,10 +19,6 @@ package android.support.design.widget;
 import android.graphics.PorterDuff;
 
 class ViewUtils {
-    static boolean objectEquals(Object a, Object b) {
-        return (a == b) || (a != null && a.equals(b));
-    }
-
     static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {
         switch (value) {
             case 3:
