@@ -28,6 +28,7 @@ import android.content.res.Resources;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
@@ -88,11 +89,13 @@ public class AppCompatSpinnerTest
         onView(withText(itemText)).perform(click());
     }
 
+    @LargeTest
     @Test
     public void testPopupThemingFromXmlAttribute() {
         verifySpinnerPopupTheming(R.id.view_magenta_themed_popup, R.color.test_magenta, true);
     }
 
+    @LargeTest
     @Test
     public void testUnthemedPopupRuntimeTheming() {
         final AppCompatSpinner spinner =
@@ -106,6 +109,7 @@ public class AppCompatSpinnerTest
         verifySpinnerPopupTheming(R.id.view_unthemed_popup, R.color.test_green, false);
     }
 
+    @LargeTest
     @Test
     public void testThemedPopupRuntimeTheming() {
         final AppCompatSpinner spinner =
