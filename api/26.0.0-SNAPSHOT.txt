@@ -8290,6 +8290,14 @@ package android.support.v4.util {
 
 }
 
+package android.support.v4.utils {
+
+  public class ObjectUtils {
+    method public static boolean objectEquals(java.lang.Object, java.lang.Object);
+  }
+
+}
+
 package android.support.v4.view {
 
   public abstract class AbsSavedState implements android.os.Parcelable {
