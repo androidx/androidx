@@ -201,7 +201,12 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         recyclerView.setItemViewCacheSize(0); // no cache, directly goes to pool
         recyclerView.setLayoutManager(layoutManager);
         setRecyclerView(recyclerView);
-        recyclerView.setAdapter(adapter);
+         mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.setAdapter(adapter);
+            }
+        });
         layoutManager.waitForLayout(1);
 
         assertEquals(layoutCount, recyclerView.getChildCount());
@@ -276,7 +281,12 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         recyclerView.setItemViewCacheSize(0); // no cache, directly goes to pool
         recyclerView.setLayoutManager(layoutManager);
         setRecyclerView(recyclerView);
-        recyclerView.setAdapter(adapter);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.setAdapter(adapter);
+            }
+        });
         layoutManager.waitForLayout(1);
 
         assertEquals(firstPassLayoutCount, recyclerView.getChildCount());
