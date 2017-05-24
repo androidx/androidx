@@ -21,6 +21,7 @@ import static android.support.v7.testutils.TestUtilsActions.setEnabled;
 import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.content.res.ColorStateList;
@@ -170,6 +171,22 @@ public class AppCompatTextViewTest
     }
 
     @Test
+    public void testFontResourcesXml_setInXmlFamilyNameWithTextStyle() {
+        TextView textView =
+                mContainer.findViewById(R.id.textview_fontxmlresource_fontfamily_textstyle);
+
+        assertNotEquals(Typeface.DEFAULT, textView.getTypeface());
+    }
+
+    @Test
+    public void testFontResourcesXml_setInXmlFamilyNameWithTextStyle2() {
+        TextView textView =
+                mContainer.findViewById(R.id.textview_fontxmlresource_fontfamily_textstyle2);
+
+        assertNotEquals(Typeface.DEFAULT, textView.getTypeface());
+    }
+
+    @Test
     public void testFontResources_setInXmlStyle() {
         TextView textView = mContainer.findViewById(R.id.textview_fontresource_style);
         Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
@@ -199,5 +216,20 @@ public class AppCompatTextViewTest
         Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplexmlfont);
 
         assertEquals(expected, textView.getTypeface());
+    }
+
+    @Test
+    public void testTextStyle_setTextStyleInStyle() {
+        // TextView has a TextAppearance by default, but the textStyle can be overriden in style.
+        TextView textView = mContainer.findViewById(R.id.textview_textStyleOverride);
+
+        assertEquals(Typeface.ITALIC, textView.getTypeface().getStyle());
+    }
+
+    @Test
+    public void testTextStyle_setTextStyleDirectly() {
+        TextView textView = mContainer.findViewById(R.id.textview_textStyleDirect);
+
+        assertEquals(Typeface.ITALIC, textView.getTypeface().getStyle());
     }
 }

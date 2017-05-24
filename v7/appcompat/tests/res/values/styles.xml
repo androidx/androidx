@@ -61,4 +61,8 @@
     <style name="TextView_FontXmlResource">
         <item name="fontFamily">@font/samplexmlfont</item>
     </style>
+
+    <style name="TextView_TextStyleOverride">
+        <item name="android:textStyle">italic</item>
+    </style>
 </resources>
