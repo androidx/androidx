@@ -146,6 +146,22 @@
             android:layout_height="wrap_content"
             app:fontFamily="@font/samplexmlfont" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_fontfamily_textstyle"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            app:fontFamily="@font/samplexmlfont" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_fontxmlresource_fontfamily_textstyle2"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:fontFamily="@font/samplexmlfont" />
+
         <!-- This is here to test that the TextView constructor ignores references to
          non Font resource types in the fontFamily attribute.-->
         <android.support.v7.widget.AppCompatTextView
@@ -182,6 +198,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextView_FontXmlResource" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_textStyleOverride"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_TextStyleOverride" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_textStyleDirect"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic" />
 
     </LinearLayout>
 
