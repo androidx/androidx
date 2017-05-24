@@ -51,8 +51,13 @@ dependencies {
     compile libs.support.fragments
 
     testCompile libs.junit
-    testCompile libs.mockito.all
+    testCompile libs.mockito_core
+
     testCompile(libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+
+    androidTestCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
     androidTestCompile(libs.espresso_core, {
