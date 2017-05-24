@@ -10139,10 +10139,6 @@ package android.support.v7.app {
     method public abstract void onTabUnselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
   }
 
-  public deprecated class ActionBarActivity extends android.support.v7.app.AppCompatActivity {
-    ctor public ActionBarActivity();
-  }
-
   public class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
     ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, int, int);
     ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, android.support.v7.widget.Toolbar, int, int);
