@@ -65,7 +65,7 @@ public class NavController implements NavigatorProvider {
                 public void onNavigatorNavigated(Navigator navigator, @IdRes int destId,
                         @Navigator.BackStackEffect int backStackEffect) {
                     if (destId != 0) {
-                        NavDestination newDest = mGraph.findNode(destId);
+                        NavDestination newDest = findDestination(destId);
                         if (newDest == null) {
                             throw new IllegalArgumentException("Navigator " + navigator
                                     + " reported navigation to unknown destination id "
@@ -412,6 +412,20 @@ public class NavController implements NavigatorProvider {
         return mBackStack.peekLast();
     }
 
+    private NavDestination findDestination(@IdRes int destinationId) {
+        if (mGraph == null) {
+            return null;
+        }
+        if (mGraph.getId() == destinationId) {
+            return mGraph;
+        }
+        NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
+        NavGraph currentGraph = currentNode instanceof NavGraph
+                ? (NavGraph) currentNode
+                : currentNode.getParent();
+        return currentGraph.findNode(destinationId);
+    }
+
     /**
      * Navigate directly to a destination.
      *
@@ -448,7 +462,7 @@ public class NavController implements NavigatorProvider {
      * @param navOptions special options for this navigation operation
      */
     public void navigateTo(@IdRes int resid, Bundle args, NavOptions navOptions) {
-        NavDestination node = mGraph.findNode(resid);
+        NavDestination node = findDestination(resid);
         if (node == null) {
             final String dest = mContext.getResources().getResourceName(resid);
             throw new IllegalArgumentException("navigation destination " + dest
@@ -570,7 +584,7 @@ public class NavController implements NavigatorProvider {
         final int[] backStack = navState.getIntArray(KEY_BACK_STACK_IDS);
         if (backStack != null) {
             for (int destinationId : backStack) {
-                NavDestination node = mGraph.findNode(destinationId);
+                NavDestination node = findDestination(destinationId);
                 if (node == null) {
                     throw new IllegalStateException("unknown destination during restore: "
                             + mContext.getResources().getResourceName(destinationId));

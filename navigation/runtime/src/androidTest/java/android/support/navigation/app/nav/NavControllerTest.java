@@ -38,4 +38,14 @@ public class NavControllerTest {
         navController.setGraph(R.xml.nav_start_destination);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
     }
+
+    @Test
+    public void testNestedStartDestination() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        NavController navController = new NavController(context);
+        TestNavigator navigator = new TestNavigator();
+        navController.addNavigator(navigator);
+        navController.setGraph(R.xml.nav_nested_start_destination);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.nested_test));
+    }
 }
