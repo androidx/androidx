@@ -54,6 +54,9 @@ class AppCompatTextHelper {
 
     private final @NonNull AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
 
+    private int mStyle = Typeface.NORMAL;
+    private Typeface mFontTypeface;
+
     AppCompatTextHelper(TextView view) {
         mView = view;
         mAutoSizeTextHelper = new AppCompatTextViewAutoSizeHelper(mView);
@@ -62,7 +65,6 @@ class AppCompatTextHelper {
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
         final Context context = mView.getContext();
         final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
-        final boolean shouldLoadFonts = shouldLoadFontResources(context);
 
         // First read the TextAppearance style id
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
@@ -97,8 +99,6 @@ class AppCompatTextHelper {
         ColorStateList textColor = null;
         ColorStateList textColorHint = null;
         ColorStateList textColorLink = null;
-        Typeface fontTypeface = null;
-        int style = Typeface.NORMAL;
 
         // First check TextAppearance's textAllCaps value
         if (ap != -1) {
@@ -107,27 +107,8 @@ class AppCompatTextHelper {
                 allCapsSet = true;
                 allCaps = a.getBoolean(R.styleable.TextAppearance_textAllCaps, false);
             }
-            if (shouldLoadFonts) {
-                style = a.getInt(R.styleable.TextAppearance_android_textStyle, Typeface.NORMAL);
 
-                // If we're running on < API 26, we need to load font resources manually.
-                if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
-                        || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
-                    int fontFamilyId = a.hasValue(R.styleable.TextAppearance_android_fontFamily)
-                            ? R.styleable.TextAppearance_android_fontFamily
-                            : R.styleable.TextAppearance_fontFamily;
-                    try {
-                        fontTypeface = a.getFont(fontFamilyId, style);
-                    } catch (UnsupportedOperationException | Resources.NotFoundException e) {
-                        // Expected if it is not a font resource.
-                    }
-                    if (fontTypeface == null) {
-                        // Try with String. This is done by TextView JB+, but fails in ICS
-                        String fontFamilyName = a.getString(fontFamilyId);
-                        fontTypeface = Typeface.create(fontFamilyName, style);
-                    }
-                }
-            }
+            updateTypefaceAndStyle(context, a);
             if (Build.VERSION.SDK_INT < 23) {
                 // If we're running on < API 23, the text color may contain theme references
                 // so let's re-set using our own inflater
@@ -169,26 +150,7 @@ class AppCompatTextHelper {
             }
         }
 
-        if (shouldLoadFonts) {
-            // If we're running on < API 26, we need to load font resources manually.
-            if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
-                    || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
-                int fontFamilyId = a.hasValue(R.styleable.TextAppearance_android_fontFamily)
-                        ? R.styleable.TextAppearance_android_fontFamily
-                        : R.styleable.TextAppearance_fontFamily;
-                style = a.getInt(R.styleable.TextAppearance_android_textStyle, Typeface.NORMAL);
-                try {
-                    fontTypeface = a.getFont(fontFamilyId, style);
-                } catch (UnsupportedOperationException | Resources.NotFoundException e) {
-                    // Expected if it is not a font resource.
-                }
-                if (fontTypeface == null) {
-                    // Try with String. This is done by TextView JB+, but fails in ICS
-                    String fontFamilyName = a.getString(fontFamilyId);
-                    fontTypeface = Typeface.create(fontFamilyName, style);
-                }
-            }
-        }
+        updateTypefaceAndStyle(context, a);
         a.recycle();
 
         if (textColor != null) {
@@ -203,8 +165,8 @@ class AppCompatTextHelper {
         if (!hasPwdTm && allCapsSet) {
             setAllCaps(allCaps);
         }
-        if (fontTypeface != null) {
-            mView.setTypeface(fontTypeface, style);
+        if (mFontTypeface != null) {
+            mView.setTypeface(mFontTypeface, mStyle);
         }
 
         mAutoSizeTextHelper.loadFromAttributes(attrs, defStyleAttr);
@@ -233,9 +195,27 @@ class AppCompatTextHelper {
         }
     }
 
-    private boolean shouldLoadFontResources(Context context) {
-        // We do not load fonts on restricted contexts for security reasons.
-        return !context.isRestricted();
+    private void updateTypefaceAndStyle(Context context, TintTypedArray a) {
+        mStyle = a.getInt(R.styleable.TextAppearance_android_textStyle, mStyle);
+
+        if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
+                || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
+            int fontFamilyId = a.hasValue(R.styleable.TextAppearance_android_fontFamily)
+                    ? R.styleable.TextAppearance_android_fontFamily
+                    : R.styleable.TextAppearance_fontFamily;
+            if (!context.isRestricted()) {
+                try {
+                    mFontTypeface = a.getFont(fontFamilyId, mStyle);
+                } catch (UnsupportedOperationException | Resources.NotFoundException e) {
+                    // Expected if it is not a font resource.
+                }
+            }
+            if (mFontTypeface == null) {
+                // Try with String. This is done by TextView JB+, but fails in ICS
+                String fontFamilyName = a.getString(fontFamilyId);
+                mFontTypeface = Typeface.create(fontFamilyName, mStyle);
+            }
+        }
     }
 
     void onSetTextAppearance(Context context, int resId) {
