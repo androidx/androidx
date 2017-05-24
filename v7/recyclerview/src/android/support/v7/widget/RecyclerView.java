@@ -1738,6 +1738,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             eatRequestLayout();
             onEnterLayoutOrScroll();
             TraceCompat.beginSection(TRACE_SCROLL_TAG);
+            fillRemainingScrollValues(mState);
             if (x != 0) {
                 consumedX = mLayout.scrollHorizontallyBy(x, mRecycler, mState);
                 unconsumedX = x - consumedX;
@@ -3548,6 +3549,17 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         return lastKnownId;
     }
 
+    final void fillRemainingScrollValues(State state) {
+        if (getScrollState() == SCROLL_STATE_SETTLING) {
+            final OverScroller scroller = mViewFlinger.mScroller;
+            state.mRemainingScrollHorizontal = scroller.getFinalX() - scroller.getCurrX();
+            state.mRemainingScrollVertical = scroller.getFinalY() - scroller.getCurrY();
+        } else {
+            state.mRemainingScrollHorizontal = 0;
+            state.mRemainingScrollVertical = 0;
+        }
+    }
+
     /**
      * The first step of a layout where we;
      * - process adapter updates
@@ -3557,6 +3569,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private void dispatchLayoutStep1() {
         mState.assertLayoutStep(State.STEP_START);
+        fillRemainingScrollValues(mState);
         mState.mIsMeasuring = false;
         eatRequestLayout();
         mViewInfoStore.clear();
@@ -4793,6 +4806,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     eatRequestLayout();
                     onEnterLayoutOrScroll();
                     TraceCompat.beginSection(TRACE_SCROLL_TAG);
+                    fillRemainingScrollValues(mState);
                     if (dx != 0) {
                         hresult = mLayout.scrollHorizontallyBy(dx, mRecycler, mState);
                         overscrollX = dx - hresult;
@@ -11584,6 +11598,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             }
         };
     }
+
     /**
      * <p>Contains useful information about the current RecyclerView state like target scroll
      * position or view focus. State object can also keep arbitrary data, identified by resource
@@ -11672,6 +11687,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // when a sub child has focus, record its id and see if we can directly request focus on
         // that one instead
         int mFocusedSubChildId;
+
+        int mRemainingScrollHorizontal;
+        int mRemainingScrollVertical;
 
         ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -11848,6 +11866,28 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             return mInPreLayout
                     ? (mPreviousLayoutItemCount - mDeletedInvisibleItemCountSincePreviousLayout)
                     : mItemCount;
+        }
+
+        /**
+         * Returns remaining horizontal scroll distance of an ongoing scroll animation(fling/
+         * smoothScrollTo/SmoothScroller) in pixels. Returns zero if {@link #getScrollState()} is
+         * other than {@link #SCROLL_STATE_SETTLING}.
+         *
+         * @return Remaining horizontal scroll distance
+         */
+        public int getRemainingScrollHorizontal() {
+            return mRemainingScrollHorizontal;
+        }
+
+        /**
+         * Returns remaining vertical scroll distance of an ongoing scroll animation(fling/
+         * smoothScrollTo/SmoothScroller) in pixels. Returns zero if {@link #getScrollState()} is
+         * other than {@link #SCROLL_STATE_SETTLING}.
+         *
+         * @return Remaining vertical scroll distance
+         */
+        public int getRemainingScrollVertical() {
+            return mRemainingScrollVertical;
         }
 
         @Override
