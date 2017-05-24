@@ -605,8 +605,6 @@ public class MediaSessionCompatTest {
             sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(sessionCallback.mOnFastForwardCalled);
-
-            sessionCallback.reset();
             sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_REWIND);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(sessionCallback.mOnRewindCalled);
@@ -627,6 +625,13 @@ public class MediaSessionCompatTest {
             sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(sessionCallback.mOnPauseCalled);
+
+            // Double tap of PLAY_PAUSE is the next track.
+            sessionCallback.reset();
+            sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+            sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(sessionCallback.mOnSkipToNextCalled);
         }
     }
 
