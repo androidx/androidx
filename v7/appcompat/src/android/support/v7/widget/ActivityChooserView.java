@@ -25,6 +25,8 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ActionProvider;
@@ -393,6 +395,7 @@ public class ActivityChooserView extends ViewGroup implements
             }
             popupWindow.getListView().setContentDescription(getContext().getString(
                     R.string.abc_activitychooserview_choose_application));
+            popupWindow.getListView().setSelector(new ColorDrawable(Color.TRANSPARENT));
         }
     }
 
