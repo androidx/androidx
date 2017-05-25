@@ -170,7 +170,7 @@ public class NavHostFragment extends Fragment {
             mNavController.restoreState(navState);
         } else {
             final Bundle args = getArguments();
-            final int graphId = args.getInt(KEY_GRAPH_ID);
+            final int graphId = args != null ? args.getInt(KEY_GRAPH_ID) : 0;
             if (graphId != 0) {
                 mNavController.setGraph(graphId);
             } else {

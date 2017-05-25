@@ -338,7 +338,7 @@ public class NavController implements NavigatorProvider {
      * @see #getGraph
      */
     public void setMetadataGraph() {
-        setGraph(mInflater.inflateMetadataGraph());
+        setGraph(getNavInflater().inflateMetadataGraph());
     }
 
     /**
