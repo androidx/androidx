@@ -80,6 +80,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     private final Rect mLastBaseContentInsets = new Rect();
     private final Rect mContentInsets = new Rect();
     private final Rect mBaseInnerInsets = new Rect();
+    private final Rect mLastBaseInnerInsets = new Rect();
     private final Rect mInnerInsets = new Rect();
     private final Rect mLastInnerInsets = new Rect();
 
@@ -293,6 +294,10 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
         mBaseInnerInsets.set(systemInsets);
         ViewUtils.computeFitSystemWindows(this, mBaseInnerInsets, mBaseContentInsets);
+        if (!mLastBaseInnerInsets.equals(mBaseInnerInsets)) {
+            changed = true;
+            mLastBaseInnerInsets.set(mBaseInnerInsets);
+        }
         if (!mLastBaseContentInsets.equals(mBaseContentInsets)) {
             changed = true;
             mLastBaseContentInsets.set(mBaseContentInsets);
