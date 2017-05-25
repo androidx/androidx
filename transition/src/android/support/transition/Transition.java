@@ -1963,6 +1963,27 @@ public abstract class Transition implements Cloneable {
     }
 
     /**
+     * Force the transition to move to its end state, ending all the animators.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    void forceToEnd(ViewGroup sceneRoot) {
+        ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
+        int numOldAnims = runningAnimators.size();
+        if (sceneRoot != null) {
+            WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
+            for (int i = numOldAnims - 1; i >= 0; i--) {
+                AnimationInfo info = runningAnimators.valueAt(i);
+                if (info.mView != null && windowId != null && windowId.equals(info.mWindowId)) {
+                    Animator anim = runningAnimators.keyAt(i);
+                    anim.end();
+                }
+            }
+        }
+    }
+
+    /**
      * This method cancels a transition that is currently running.
      *
      * @hide
