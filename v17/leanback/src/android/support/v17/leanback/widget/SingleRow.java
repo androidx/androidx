@@ -76,7 +76,8 @@ class SingleRow extends Grid {
             return false;
         }
         boolean filledOne = false;
-        for (int index = getStartIndexForPrepend(); index >= 0; index--) {
+        int minIndex = mProvider.getMinIndex();
+        for (int index = getStartIndexForPrepend(); index >= minIndex; index--) {
             int size = mProvider.createItem(index, false, mTmpItem);
             int edge;
             if (mFirstVisibleIndex < 0 || mLastVisibleIndex < 0) {

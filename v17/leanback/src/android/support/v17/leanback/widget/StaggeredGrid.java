@@ -141,8 +141,6 @@ abstract class StaggeredGrid extends Grid {
         if (mLocations.size() == 0) {
             return false;
         }
-        final int count = mProvider.getCount();
-        final int firstIndex = getFirstIndex();
         int itemIndex;
         int edge;
         int offset;
@@ -165,7 +163,8 @@ abstract class StaggeredGrid extends Grid {
                 return false;
             }
         }
-        for (; itemIndex >= mFirstIndex; itemIndex--) {
+        int firstIndex = Math.max(mProvider.getMinIndex(), mFirstIndex);
+        for (; itemIndex >= firstIndex; itemIndex--) {
             Location loc = getLocation(itemIndex);
             int rowIndex = loc.row;
             int size = mProvider.createItem(itemIndex, false, mTmpItem);

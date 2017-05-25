@@ -33,6 +33,11 @@ public abstract class GridTest {
         }
 
         @Override
+        public int getMinIndex() {
+            return 0;
+        }
+
+        @Override
         public int getCount() {
             return mCount;
         }
