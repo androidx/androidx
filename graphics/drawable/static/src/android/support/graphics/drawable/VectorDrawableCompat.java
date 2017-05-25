@@ -518,7 +518,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      */
     @RestrictTo(LIBRARY_GROUP)
     public float getPixelSize() {
-        if ((mVectorState == null && mVectorState.mVPathRenderer == null)
+        if (mVectorState == null || mVectorState.mVPathRenderer == null
                 || mVectorState.mVPathRenderer.mBaseWidth == 0
                 || mVectorState.mVPathRenderer.mBaseHeight == 0
                 || mVectorState.mVPathRenderer.mViewportHeight == 0
