@@ -51,7 +51,17 @@ abstract class Grid {
         /**
          * Return how many items (are in the adapter).
          */
-        public abstract int getCount();
+        int getCount();
+
+        /**
+         * @return Min index to prepend, usually it's 0; but in the preLayout case,
+         * when grid was showing 5,6,7.  Removing 3,4,5 will make the layoutPosition to
+         * be 3(deleted),4,5 in prelayout pass; Grid's index is still 5,6,7 in prelayout.
+         * When we prepend in prelayout, we can call createItem(4), createItem(3), createItem(2),
+         * the minimal index is 2, which is also the delta to mapping to layoutPosition in
+         * prelayout pass.
+         */
+        int getMinIndex();
 
         /**
          * Create visible item and where the provider should measure it.
@@ -62,7 +72,7 @@ abstract class Grid {
          * @param item    item[0] returns created item that will be passed in addItem() call.
          * @return length of the item.
          */
-        public abstract int createItem(int index, boolean append, Object[] item);
+        int createItem(int index, boolean append, Object[] item);
 
         /**
          * add item to given row and given edge.  The call is always after createItem().
@@ -72,26 +82,26 @@ abstract class Grid {
          * @param rowIndex  Row index to put the item
          * @param edge      min_edge if not reversed or max_edge if reversed.
          */
-        public abstract void addItem(Object item, int index, int length, int rowIndex, int edge);
+        void addItem(Object item, int index, int length, int rowIndex, int edge);
 
         /**
          * Remove visible item at index.
          * @param index     0-based index of the item in provider
          */
-        public abstract void removeItem(int index);
+        void removeItem(int index);
 
         /**
          * Get edge of an existing visible item. edge will be the min_edge
          * if not reversed or the max_edge if reversed.
          * @param index     0-based index of the item in provider
          */
-        public abstract int getEdge(int index);
+        int getEdge(int index);
 
         /**
          * Get size of an existing visible item.
          * @param index     0-based index of the item in provider
          */
-        public abstract int getSize(int index);
+        int getSize(int index);
     }
 
     /**
