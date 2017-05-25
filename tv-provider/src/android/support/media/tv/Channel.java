@@ -28,8 +28,6 @@ import android.support.media.tv.TvContractCompat.Channels;
 import android.support.media.tv.TvContractCompat.Channels.ServiceType;
 import android.support.media.tv.TvContractCompat.Channels.Type;
 import android.support.media.tv.TvContractCompat.Channels.VideoFormat;
-import android.support.v4.os.BuildCompat;
-import android.text.TextUtils;
 
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -62,6 +60,21 @@ import java.nio.charset.Charset;
  *     }
  * }
  * </pre>
+ *
+ * <p>Usage example when updating an existing channel:
+ * <pre>
+ * Channel updatedChannel = new Channel.Builder(channel)
+ *         .setDescription("New channel description")
+ *         .build();
+ * getContentResolver().update(TvContractCompat.buildChannelUri(updatedChannel.getId()),
+ *         updatedChannel.toContentValues(), null, null);
+ * </pre>
+ *
+ * <p>Usage example when deleting a channel:
+ * <pre>
+ * getContentResolver().delete(
+ *         TvContractCompat.buildChannelUri(existingChannel.getId()), null, null);
+ * </pre>
  */
 @TargetApi(21)
 public final class Channel {
@@ -72,213 +85,167 @@ public final class Channel {
     public static final String[] PROJECTION = getProjection();
 
     private static final long INVALID_CHANNEL_ID = -1;
-    private static final int INVALID_INTEGER_VALUE = -1;
+    private static final int INVALID_INT_VALUE = -1;
     private static final int IS_SEARCHABLE = 1;
     private static final int IS_TRANSIENT = 1;
     private static final int IS_BROWSABLE = 1;
     private static final int IS_SYSTEM_APPROVED = 1;
     private static final int IS_LOCKED = 1;
 
-    private final long mId;
-    private final String mPackageName;
-    private final String mInputId;
-    private final String mType;
-    private final String mDisplayNumber;
-    private final String mDisplayName;
-    private final String mDescription;
-    private final String mVideoFormat;
-    private final int mOriginalNetworkId;
-    private final int mTransportStreamId;
-    private final int mServiceId;
-    private final String mAppLinkText;
-    private final int mAppLinkColor;
-    private final Uri mAppLinkIconUri;
-    private final Uri mAppLinkPosterArtUri;
-    private final Uri mAppLinkIntentUri;
-    private final byte[] mInternalProviderData;
-    private final String mNetworkAffiliation;
-    private final int mSearchable;
-    private final String mServiceType;
-    private final Long mInternalProviderFlag1;
-    private final Long mInternalProviderFlag2;
-    private final Long mInternalProviderFlag3;
-    private final Long mInternalProviderFlag4;
-    private final String mInternalProviderId;
-    private final int mTransient;
-    private final int mBrowsable;
-    private final int mSystemApproved;
-    private final int mLocked;
+    private ContentValues mValues;
 
     private Channel(Builder builder) {
-        mId = builder.mId;
-        mPackageName = builder.mPackageName;
-        mInputId = builder.mInputId;
-        mType = builder.mType;
-        mDisplayNumber = builder.mDisplayNumber;
-        mDisplayName = builder.mDisplayName;
-        mDescription = builder.mDescription;
-        mVideoFormat = builder.mVideoFormat;
-        mOriginalNetworkId = builder.mOriginalNetworkId;
-        mTransportStreamId = builder.mTransportStreamId;
-        mServiceId = builder.mServiceId;
-        mAppLinkText = builder.mAppLinkText;
-        mAppLinkColor = builder.mAppLinkColor;
-        mAppLinkIconUri = builder.mAppLinkIconUri;
-        mAppLinkPosterArtUri = builder.mAppLinkPosterArtUri;
-        mAppLinkIntentUri = builder.mAppLinkIntentUri;
-        mInternalProviderData = builder.mInternalProviderData;
-        mNetworkAffiliation = builder.mNetworkAffiliation;
-        mSearchable = builder.mSearchable;
-        mServiceType = builder.mServiceType;
-        mInternalProviderFlag1 = builder.mInternalProviderFlag1;
-        mInternalProviderFlag2 = builder.mInternalProviderFlag2;
-        mInternalProviderFlag3 = builder.mInternalProviderFlag3;
-        mInternalProviderFlag4 = builder.mInternalProviderFlag4;
-        mInternalProviderId = builder.mInternalProviderId;
-        mTransient = builder.mTransient;
-        mBrowsable = builder.mBrowsable;
-        mSystemApproved = builder.mSystemApproved;
-        mLocked = builder.mLocked;
+        mValues = builder.mValues;
     }
 
     /**
      * @return The value of {@link Channels#_ID} for the channel.
      */
     public long getId() {
-        return mId;
+        Long l = mValues.getAsLong(Channels._ID);
+        return l == null ? INVALID_CHANNEL_ID : l;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_PACKAGE_NAME} for the channel.
      */
     public String getPackageName() {
-        return mPackageName;
+        return mValues.getAsString(Channels.COLUMN_PACKAGE_NAME);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_INPUT_ID} for the channel.
      */
     public String getInputId() {
-        return mInputId;
+        return mValues.getAsString(Channels.COLUMN_INPUT_ID);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_TYPE} for the channel.
      */
     public @Type String getType() {
-        return mType;
+        return mValues.getAsString(Channels.COLUMN_TYPE);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_DISPLAY_NUMBER} for the channel.
      */
     public String getDisplayNumber() {
-        return mDisplayNumber;
+        return mValues.getAsString(Channels.COLUMN_DISPLAY_NUMBER);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_DISPLAY_NAME} for the channel.
      */
     public String getDisplayName() {
-        return mDisplayName;
+        return mValues.getAsString(Channels.COLUMN_DISPLAY_NAME);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_DESCRIPTION} for the channel.
      */
     public String getDescription() {
-        return mDescription;
+        return mValues.getAsString(Channels.COLUMN_DESCRIPTION);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_VIDEO_FORMAT} for the channel.
      */
     public @VideoFormat String getVideoFormat() {
-        return mVideoFormat;
+        return mValues.getAsString(Channels.COLUMN_VIDEO_FORMAT);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_ORIGINAL_NETWORK_ID} for the channel.
      */
     public int getOriginalNetworkId() {
-        return mOriginalNetworkId;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_ORIGINAL_NETWORK_ID);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_TRANSPORT_STREAM_ID} for the channel.
      */
     public int getTransportStreamId() {
-        return mTransportStreamId;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_TRANSPORT_STREAM_ID);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_SERVICE_ID} for the channel.
      */
     public int getServiceId() {
-        return mServiceId;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_SERVICE_ID);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_APP_LINK_TEXT} for the channel.
      */
     public String getAppLinkText() {
-        return mAppLinkText;
+        return mValues.getAsString(Channels.COLUMN_APP_LINK_TEXT);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_APP_LINK_COLOR} for the channel.
      */
     public int getAppLinkColor() {
-        return mAppLinkColor;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_APP_LINK_COLOR);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_APP_LINK_ICON_URI} for the channel.
      */
     public Uri getAppLinkIconUri() {
-        return mAppLinkIconUri;
+        String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_ICON_URI);
+        return uri == null ? null : Uri.parse(uri);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_APP_LINK_POSTER_ART_URI} for the channel.
      */
     public Uri getAppLinkPosterArtUri() {
-        return mAppLinkPosterArtUri;
+        String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_POSTER_ART_URI);
+        return uri == null ? null : Uri.parse(uri);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the channel.
      */
     public Uri getAppLinkIntentUri() {
-        return mAppLinkIntentUri;
+        String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_INTENT_URI);
+        return uri == null ? null : Uri.parse(uri);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_APP_LINK_INTENT_URI} for the program.
      */
     public Intent getAppLinkIntent() throws URISyntaxException {
-        return Intent.parseUri(mAppLinkIntentUri.toString(), Intent.URI_INTENT_SCHEME);
+        String uri = mValues.getAsString(Channels.COLUMN_APP_LINK_INTENT_URI);
+        return uri == null ? null : Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_NETWORK_AFFILIATION} for the channel.
      */
     public String getNetworkAffiliation() {
-        return mNetworkAffiliation;
+        return mValues.getAsString(Channels.COLUMN_NETWORK_AFFILIATION);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_SEARCHABLE} for the channel.
      */
     public boolean isSearchable() {
-        return mSearchable == IS_SEARCHABLE;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_SEARCHABLE);
+        return i == null || i == IS_SEARCHABLE;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_DATA} for the channel.
      */
     public byte[] getInternalProviderDataByteArray() {
-        return mInternalProviderData;
+        return mValues.getAsByteArray(Channels.COLUMN_INTERNAL_PROVIDER_DATA);
     }
 
     /**
@@ -288,56 +255,58 @@ public final class Channel {
      * {@link Channels#SERVICE_TYPE_OTHER}.
      */
     public @ServiceType String getServiceType() {
-        return mServiceType;
+        return mValues.getAsString(Channels.COLUMN_SERVICE_TYPE);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG1} for the channel.
      */
     public Long getInternalProviderFlag1() {
-        return mInternalProviderFlag1;
+        return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG1);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG2} for the channel.
      */
     public Long getInternalProviderFlag2() {
-        return mInternalProviderFlag2;
+        return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG2);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG3} for the channel.
      */
     public Long getInternalProviderFlag3() {
-        return mInternalProviderFlag3;
+        return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG3);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_FLAG4} for the channel.
      */
     public Long getInternalProviderFlag4() {
-        return mInternalProviderFlag4;
+        return mValues.getAsLong(Channels.COLUMN_INTERNAL_PROVIDER_FLAG4);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_INTERNAL_PROVIDER_ID} for the channel.
      */
     public String getInternalProviderId() {
-        return mInternalProviderId;
+        return mValues.getAsString(Channels.COLUMN_INTERNAL_PROVIDER_ID);
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_TRANSIENT} for the channel.
      */
     public boolean isTransient() {
-        return mTransient == IS_TRANSIENT;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_TRANSIENT);
+        return i != null && i == IS_TRANSIENT;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_BROWSABLE} for the channel.
      */
     public boolean isBrowsable() {
-        return mBrowsable == IS_BROWSABLE;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_BROWSABLE);
+        return i != null && i == IS_BROWSABLE;
     }
 
     /**
@@ -346,28 +315,33 @@ public final class Channel {
      */
     @RestrictTo(LIBRARY_GROUP)
     public boolean isSystemApproved() {
-        return mSystemApproved == IS_SYSTEM_APPROVED;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_SYSTEM_APPROVED);
+        return i != null && i == IS_SYSTEM_APPROVED;
     }
 
     /**
      * @return The value of {@link Channels#COLUMN_LOCKED} for the channel.
      */
     public boolean isLocked() {
-        return mLocked == IS_LOCKED;
+        Integer i = mValues.getAsInteger(Channels.COLUMN_LOCKED);
+        return i != null && i == IS_LOCKED;
     }
 
     @Override
+    public int hashCode() {
+        return mValues.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Channel)) {
+            return false;
+        }
+        return mValues.equals(((Channel) other).mValues);
+    }
+    @Override
     public String toString() {
-        return "Channel{"
-                + "id=" + mId
-                + ", packageName=" + mPackageName
-                + ", inputId=" + mInputId
-                + ", originalNetworkId=" + mOriginalNetworkId
-                + ", type=" + mType
-                + ", displayNumber=" + mDisplayNumber
-                + ", displayName=" + mDisplayName
-                + ", description=" + mDescription
-                + ", videoFormat=" + mVideoFormat + "}";
+        return "Channel{" + mValues.toString() + "}";
     }
 
     /**
@@ -387,105 +361,29 @@ public final class Channel {
      */
     @RestrictTo(LIBRARY_GROUP)
     public ContentValues toContentValues(boolean includeProtectedFields) {
-        ContentValues values = new ContentValues();
-        if (mId != INVALID_CHANNEL_ID) {
-            values.put(Channels._ID, mId);
+        ContentValues values = new ContentValues(mValues);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            values.remove(Channels.COLUMN_APP_LINK_COLOR);
+            values.remove(Channels.COLUMN_APP_LINK_TEXT);
+            values.remove(Channels.COLUMN_APP_LINK_ICON_URI);
+            values.remove(Channels.COLUMN_APP_LINK_POSTER_ART_URI);
+            values.remove(Channels.COLUMN_APP_LINK_INTENT_URI);
+            values.remove(Channels.COLUMN_INTERNAL_PROVIDER_FLAG1);
+            values.remove(Channels.COLUMN_INTERNAL_PROVIDER_FLAG2);
+            values.remove(Channels.COLUMN_INTERNAL_PROVIDER_FLAG3);
+            values.remove(Channels.COLUMN_INTERNAL_PROVIDER_FLAG4);
         }
-        if (!TextUtils.isEmpty(mPackageName)) {
-            values.put(Channels.COLUMN_PACKAGE_NAME, mPackageName);
-        } else {
-            values.putNull(Channels.COLUMN_PACKAGE_NAME);
-        }
-        if (!TextUtils.isEmpty(mInputId)) {
-            values.put(Channels.COLUMN_INPUT_ID, mInputId);
-        } else {
-            values.putNull(Channels.COLUMN_INPUT_ID);
-        }
-        if (!TextUtils.isEmpty(mType)) {
-            values.put(Channels.COLUMN_TYPE, mType);
-        } else {
-            values.putNull(Channels.COLUMN_TYPE);
-        }
-        if (!TextUtils.isEmpty(mDisplayNumber)) {
-            values.put(Channels.COLUMN_DISPLAY_NUMBER, mDisplayNumber);
-        } else {
-            values.putNull(Channels.COLUMN_DISPLAY_NUMBER);
-        }
-        if (!TextUtils.isEmpty(mDisplayName)) {
-            values.put(Channels.COLUMN_DISPLAY_NAME, mDisplayName);
-        } else {
-            values.putNull(Channels.COLUMN_DISPLAY_NAME);
-        }
-        if (!TextUtils.isEmpty(mDescription)) {
-            values.put(Channels.COLUMN_DESCRIPTION, mDescription);
-        } else {
-            values.putNull(Channels.COLUMN_DESCRIPTION);
-        }
-        if (!TextUtils.isEmpty(mVideoFormat)) {
-            values.put(Channels.COLUMN_VIDEO_FORMAT, mVideoFormat);
-        } else {
-            values.putNull(Channels.COLUMN_VIDEO_FORMAT);
-        }
-        if (mInternalProviderData != null && mInternalProviderData.length > 0) {
-            values.put(Channels.COLUMN_INTERNAL_PROVIDER_DATA,
-                    mInternalProviderData);
-        } else {
-            values.putNull(Channels.COLUMN_INTERNAL_PROVIDER_DATA);
-        }
-        values.put(Channels.COLUMN_ORIGINAL_NETWORK_ID, mOriginalNetworkId);
-        values.put(Channels.COLUMN_TRANSPORT_STREAM_ID, mTransportStreamId);
-        values.put(Channels.COLUMN_SERVICE_ID, mServiceId);
-        values.put(Channels.COLUMN_NETWORK_AFFILIATION, mNetworkAffiliation);
-        values.put(Channels.COLUMN_SEARCHABLE, mSearchable);
-        values.put(Channels.COLUMN_SERVICE_TYPE, mServiceType);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            values.put(Channels.COLUMN_APP_LINK_COLOR, mAppLinkColor);
-            if (!TextUtils.isEmpty(mAppLinkText)) {
-                values.put(Channels.COLUMN_APP_LINK_TEXT, mAppLinkText);
-            } else {
-                values.putNull(Channels.COLUMN_APP_LINK_TEXT);
-            }
-            if (mAppLinkIconUri != null) {
-                values.put(Channels.COLUMN_APP_LINK_ICON_URI, mAppLinkIconUri.toString());
-            } else {
-                values.putNull(Channels.COLUMN_APP_LINK_ICON_URI);
-            }
-            if (mAppLinkPosterArtUri != null) {
-                values.put(Channels.COLUMN_APP_LINK_POSTER_ART_URI,
-                        mAppLinkPosterArtUri.toString());
-            } else {
-                values.putNull(Channels.COLUMN_APP_LINK_POSTER_ART_URI);
-            }
-            if (mAppLinkIntentUri != null) {
-                values.put(Channels.COLUMN_APP_LINK_INTENT_URI, mAppLinkIntentUri.toString());
-            } else {
-                values.putNull(Channels.COLUMN_APP_LINK_INTENT_URI);
-            }
-            if (mInternalProviderFlag1 != null) {
-                values.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG1, mInternalProviderFlag1);
-            }
-            if (mInternalProviderFlag2 != null) {
-                values.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG2, mInternalProviderFlag2);
-            }
-            if (mInternalProviderFlag3 != null) {
-                values.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG3, mInternalProviderFlag3);
-            }
-            if (mInternalProviderFlag4 != null) {
-                values.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG4, mInternalProviderFlag4);
-            }
-        }
-        if (BuildCompat.isAtLeastO()) {
-            values.put(Channels.COLUMN_INTERNAL_PROVIDER_ID, mInternalProviderId);
-            values.put(Channels.COLUMN_TRANSIENT, mTransient);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            values.remove(Channels.COLUMN_INTERNAL_PROVIDER_ID);
+            values.remove(Channels.COLUMN_TRANSIENT);
         }
 
-        if (includeProtectedFields) {
-            values.put(Channels.COLUMN_BROWSABLE, mBrowsable);
-            values.put(Channels.COLUMN_LOCKED, mLocked);
-            if (BuildCompat.isAtLeastO()) {
-                values.put(Channels.COLUMN_SYSTEM_APPROVED, mSystemApproved);
-            }
+        if (!includeProtectedFields) {
+            values.remove(Channels.COLUMN_BROWSABLE);
+            values.remove(Channels.COLUMN_LOCKED);
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !includeProtectedFields) {
+            values.remove(Channels.COLUMN_SYSTEM_APPROVED);
         }
         return values;
     }
@@ -604,7 +502,7 @@ public final class Channel {
                 builder.setInternalProviderFlag4(cursor.getLong(index));
             }
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if ((index = cursor.getColumnIndex(Channels.COLUMN_INTERNAL_PROVIDER_ID)) >= 0
                     && !cursor.isNull(index)) {
                 builder.setInternalProviderId(cursor.getString(index));
@@ -657,7 +555,7 @@ public final class Channel {
                 Channels.COLUMN_TRANSIENT,
                 Channels.COLUMN_SYSTEM_APPROVED,
         };
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, oReleaseColumns);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -670,69 +568,14 @@ public final class Channel {
      * The builder class that makes it easy to chain setters to create a {@link Channel} object.
      */
     public static final class Builder {
-        private long mId = INVALID_CHANNEL_ID;
-        private String mPackageName;
-        private String mInputId;
-        private String mType;
-        private String mDisplayNumber;
-        private String mDisplayName;
-        private String mDescription;
-        private String mVideoFormat;
-        private int mOriginalNetworkId = INVALID_INTEGER_VALUE;
-        private int mTransportStreamId;
-        private int mServiceId;
-        private String mAppLinkText;
-        private int mAppLinkColor;
-        private Uri mAppLinkIconUri;
-        private Uri mAppLinkPosterArtUri;
-        private Uri mAppLinkIntentUri;
-        private byte[] mInternalProviderData;
-        private String mNetworkAffiliation;
-        private int mSearchable;
-        private String mServiceType = Channels.SERVICE_TYPE_AUDIO_VIDEO;
-        private Long mInternalProviderFlag1;
-        private Long mInternalProviderFlag2;
-        private Long mInternalProviderFlag3;
-        private Long mInternalProviderFlag4;
-        private String mInternalProviderId;
-        private int mTransient;
-        private int mBrowsable;
-        private int mSystemApproved;
-        private int mLocked;
+        private ContentValues mValues;
 
         public Builder() {
+            mValues = new ContentValues();
         }
 
         public Builder(Channel other) {
-            mId = other.mId;
-            mPackageName = other.mPackageName;
-            mInputId = other.mInputId;
-            mType = other.mType;
-            mDisplayNumber = other.mDisplayNumber;
-            mDisplayName = other.mDisplayName;
-            mDescription = other.mDescription;
-            mVideoFormat = other.mVideoFormat;
-            mOriginalNetworkId = other.mOriginalNetworkId;
-            mTransportStreamId = other.mTransportStreamId;
-            mServiceId = other.mServiceId;
-            mAppLinkText = other.mAppLinkText;
-            mAppLinkColor = other.mAppLinkColor;
-            mAppLinkIconUri = other.mAppLinkIconUri;
-            mAppLinkPosterArtUri = other.mAppLinkPosterArtUri;
-            mAppLinkIntentUri = other.mAppLinkIntentUri;
-            mInternalProviderData = other.mInternalProviderData;
-            mNetworkAffiliation = other.mNetworkAffiliation;
-            mSearchable = other.mSearchable;
-            mServiceType = other.mServiceType;
-            mInternalProviderFlag1 = other.mInternalProviderFlag1;
-            mInternalProviderFlag2 = other.mInternalProviderFlag2;
-            mInternalProviderFlag3 = other.mInternalProviderFlag3;
-            mInternalProviderFlag4 = other.mInternalProviderFlag4;
-            mInternalProviderId = other.mInternalProviderId;
-            mTransient = other.mTransient;
-            mBrowsable = other.mBrowsable;
-            mSystemApproved = other.mSystemApproved;
-            mLocked = other.mLocked;
+            mValues = new ContentValues(other.mValues);
         }
 
         /**
@@ -742,7 +585,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         private Builder setId(long id) {
-            mId = id;
+            mValues.put(Channels._ID, id);
             return this;
         }
 
@@ -755,7 +598,7 @@ public final class Channel {
          */
         @RestrictTo(LIBRARY_GROUP)
         Builder setPackageName(String packageName) {
-            mPackageName = packageName;
+            mValues.put(Channels.COLUMN_PACKAGE_NAME, packageName);
             return this;
         }
 
@@ -766,7 +609,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInputId(String inputId) {
-            mInputId = inputId;
+            mValues.put(Channels.COLUMN_INPUT_ID, inputId);
             return this;
         }
 
@@ -777,7 +620,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setType(@Type String type) {
-            mType = type;
+            mValues.put(Channels.COLUMN_TYPE, type);
             return this;
         }
 
@@ -788,7 +631,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setDisplayNumber(String displayNumber) {
-            mDisplayNumber = displayNumber;
+            mValues.put(Channels.COLUMN_DISPLAY_NUMBER, displayNumber);
             return this;
         }
 
@@ -799,7 +642,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setDisplayName(String displayName) {
-            mDisplayName = displayName;
+            mValues.put(Channels.COLUMN_DISPLAY_NAME, displayName);
             return this;
         }
 
@@ -810,7 +653,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setDescription(String description) {
-            mDescription = description;
+            mValues.put(Channels.COLUMN_DESCRIPTION, description);
             return this;
         }
 
@@ -821,7 +664,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setVideoFormat(@VideoFormat String videoFormat) {
-            mVideoFormat = videoFormat;
+            mValues.put(Channels.COLUMN_VIDEO_FORMAT, videoFormat);
             return this;
         }
 
@@ -833,7 +676,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setOriginalNetworkId(int originalNetworkId) {
-            mOriginalNetworkId = originalNetworkId;
+            mValues.put(Channels.COLUMN_ORIGINAL_NETWORK_ID, originalNetworkId);
             return this;
         }
 
@@ -845,7 +688,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setTransportStreamId(int transportStreamId) {
-            mTransportStreamId = transportStreamId;
+            mValues.put(Channels.COLUMN_TRANSPORT_STREAM_ID, transportStreamId);
             return this;
         }
 
@@ -856,7 +699,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setServiceId(int serviceId) {
-            mServiceId = serviceId;
+            mValues.put(Channels.COLUMN_SERVICE_ID, serviceId);
             return this;
         }
 
@@ -868,7 +711,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderData(byte[] internalProviderData) {
-            mInternalProviderData = internalProviderData;
+            mValues.put(Channels.COLUMN_INTERNAL_PROVIDER_DATA, internalProviderData);
             return this;
         }
 
@@ -880,7 +723,8 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderData(String internalProviderData) {
-            mInternalProviderData = internalProviderData.getBytes(Charset.defaultCharset());
+            mValues.put(Channels.COLUMN_INTERNAL_PROVIDER_DATA,
+                    internalProviderData.getBytes(Charset.defaultCharset()));
             return this;
         }
 
@@ -891,7 +735,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setAppLinkText(String appLinkText) {
-            mAppLinkText = appLinkText;
+            mValues.put(Channels.COLUMN_APP_LINK_TEXT, appLinkText);
             return this;
         }
 
@@ -902,7 +746,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setAppLinkColor(int appLinkColor) {
-            mAppLinkColor = appLinkColor;
+            mValues.put(Channels.COLUMN_APP_LINK_COLOR, appLinkColor);
             return this;
         }
 
@@ -914,7 +758,8 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setAppLinkIconUri(Uri appLinkIconUri) {
-            mAppLinkIconUri = appLinkIconUri;
+            mValues.put(Channels.COLUMN_APP_LINK_ICON_URI,
+                    appLinkIconUri == null ? null : appLinkIconUri.toString());
             return this;
         }
 
@@ -926,7 +771,8 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setAppLinkPosterArtUri(Uri appLinkPosterArtUri) {
-            mAppLinkPosterArtUri = appLinkPosterArtUri;
+            mValues.put(Channels.COLUMN_APP_LINK_POSTER_ART_URI,
+                    appLinkPosterArtUri == null ? null : appLinkPosterArtUri.toString());
             return this;
         }
 
@@ -950,7 +796,8 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setAppLinkIntentUri(Uri appLinkIntentUri) {
-            mAppLinkIntentUri = appLinkIntentUri;
+            mValues.put(Channels.COLUMN_APP_LINK_INTENT_URI,
+                    appLinkIntentUri == null ? null : appLinkIntentUri.toString());
             return this;
         }
 
@@ -962,7 +809,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setNetworkAffiliation(String networkAffiliation) {
-            mNetworkAffiliation = networkAffiliation;
+            mValues.put(Channels.COLUMN_NETWORK_AFFILIATION, networkAffiliation);
             return this;
         }
 
@@ -973,7 +820,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setSearchable(boolean searchable) {
-            mSearchable = searchable ? IS_SEARCHABLE : 0;
+            mValues.put(Channels.COLUMN_SEARCHABLE, searchable ? IS_SEARCHABLE : 0);
             return this;
         }
 
@@ -986,7 +833,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setServiceType(@ServiceType String serviceType) {
-            mServiceType = serviceType;
+            mValues.put(Channels.COLUMN_SERVICE_TYPE, serviceType);
             return this;
         }
 
@@ -997,7 +844,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderFlag1(long flag) {
-            mInternalProviderFlag1 = flag;
+            mValues.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG1, flag);
             return this;
         }
 
@@ -1008,7 +855,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderFlag2(long flag) {
-            mInternalProviderFlag2 = flag;
+            mValues.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG2, flag);
             return this;
         }
 
@@ -1019,7 +866,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderFlag3(long flag) {
-            mInternalProviderFlag3 = flag;
+            mValues.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG3, flag);
             return this;
         }
 
@@ -1030,7 +877,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderFlag4(long flag) {
-            mInternalProviderFlag4 = flag;
+            mValues.put(Channels.COLUMN_INTERNAL_PROVIDER_FLAG4, flag);
             return this;
         }
 
@@ -1042,7 +889,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setInternalProviderId(String internalProviderId) {
-            mInternalProviderId = internalProviderId;
+            mValues.put(Channels.COLUMN_INTERNAL_PROVIDER_ID, internalProviderId);
             return this;
         }
 
@@ -1053,7 +900,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setTransient(boolean value) {
-            mTransient = value ? IS_TRANSIENT : 0;
+            mValues.put(Channels.COLUMN_TRANSIENT, value ? IS_TRANSIENT : 0);
             return this;
         }
 
@@ -1066,7 +913,7 @@ public final class Channel {
          */
         @RestrictTo(LIBRARY_GROUP)
         public Builder setBrowsable(boolean value) {
-            mBrowsable = value ? IS_BROWSABLE : 0;
+            mValues.put(Channels.COLUMN_BROWSABLE, value ? IS_BROWSABLE : 0);
             return this;
         }
 
@@ -1079,7 +926,7 @@ public final class Channel {
          */
         @RestrictTo(LIBRARY_GROUP)
         public Builder setSystemApproved(boolean value) {
-            mSystemApproved = value ? IS_SYSTEM_APPROVED : 0;
+            mValues.put(Channels.COLUMN_SYSTEM_APPROVED, value ? IS_SYSTEM_APPROVED : 0);
             return this;
         }
 
@@ -1092,7 +939,7 @@ public final class Channel {
          */
         @RestrictTo(LIBRARY_GROUP)
         public Builder setLocked(boolean value) {
-            mLocked = value ? IS_LOCKED : 0;
+            mValues.put(Channels.COLUMN_LOCKED, value ? IS_LOCKED : 0);
             return this;
         }
 
