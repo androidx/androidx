@@ -17,10 +17,14 @@
 package android.support.navigation.app.nav;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.XmlRes;
 import android.text.TextUtils;
 
@@ -50,8 +54,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class NavController implements NavigatorProvider {
     private static final String KEY_GRAPH_ID = "android-support-nav:controller:graphId";
     private static final String KEY_BACK_STACK_IDS = "android-support-nav:controller:backStackIds";
+    private static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
+    private static final String KEY_DEEP_LINK_EXTRAS =
+            "android-support-nav:controller:deepLinkExtras";
 
     private Context mContext;
+    private Activity mActivity;
     private NavInflater mInflater;
     private NavGraph mGraph;
     private int mGraphId;
@@ -130,24 +138,15 @@ public class NavController implements NavigatorProvider {
      */
     public NavController(Context context) {
         mContext = context;
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                mActivity = (Activity) context;
+                break;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
         addNavigator(new NavGraphNavigator(mContext));
         addNavigator(new ActivityNavigator(mContext));
-    }
-
-    /**
-     * Constructs a new controller for a given {@link Activity}.
-     *
-     * <p>Apps should generally not construct controllers, instead obtain a relevant controller
-     * directly from a navigation host such as
-     * {@link NavHostFragment#getNavController() NavHostFragment} or by using one of
-     * the utility methods on the {@link Navigation} class.</p>
-     *
-     * @param activity activity for this controller
-     */
-    public NavController(Activity activity) {
-        mContext = activity;
-        addNavigator(new NavGraphNavigator(mContext));
-        addNavigator(new ActivityNavigator(activity));
     }
 
     /**
@@ -388,10 +387,56 @@ public class NavController implements NavigatorProvider {
     }
 
     private void onGraphCreated() {
-        // Navigate to the first destination in the graph
         if (mGraph != null && mBackStack.isEmpty()) {
-            mGraph.navigate(null, null);
+            boolean deepLinked = mActivity != null && onHandleDeepLink(mActivity.getIntent());
+            if (!deepLinked) {
+                // Navigate to the first destination in the graph
+                // if we haven't deep linked to a destination
+                mGraph.navigate(null, null);
+            }
         }
+    }
+
+    /**
+     * Checks the given Intent for a Navigation deep link created by
+     * {@link #createDeepLink(int, Bundle)} or {@link #createDeepLinkIntent(int, Bundle)} and
+     * navigates to the deep link if present. This is called automatically for you the first time
+     * you set the graph, but should be manually called if your Activity receives new Intents in
+     * {@link Activity#onNewIntent(Intent)}.
+     *
+     * <p>The {@link #getGraph() navigation graph} should be set before calling this method.</p>
+     * @param intent The Intent that may contain
+     * @return True if the navigation controller found a valid deep link and navigated to it.
+     */
+    public boolean onHandleDeepLink(Intent intent) {
+        if (intent == null || intent.getExtras() == null) {
+            return false;
+        }
+        Bundle extras = intent.getExtras();
+        final int[] deepLink = extras.getIntArray(KEY_DEEP_LINK_IDS);
+        if (deepLink == null || deepLink.length == 0) {
+            return false;
+        }
+        NavGraph graph = mGraph;
+        for (int i = 0; i < deepLink.length; i++) {
+            int destinationId = deepLink[i];
+            NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
+            if (node == null) {
+                throw new IllegalStateException("unknown destination during deep link: "
+                        + mContext.getResources().getResourceName(destinationId));
+            }
+            if (i != deepLink.length - 1) {
+                // We're not at the final NavDestination yet, so keep going through the chain
+                graph = (NavGraph) node;
+            } else {
+                // Clear the back stack, then navigate to the last NavDestination
+                while (!mBackStack.isEmpty()) {
+                    mBackStack.peekLast().getNavigator().popBackStack();
+                }
+                node.navigate(extras.getBundle(KEY_DEEP_LINK_EXTRAS), null);
+            }
+        }
+        return true;
     }
 
     /**
@@ -529,6 +574,110 @@ public class NavController implements NavigatorProvider {
         } else {
             navigateTo(navAction.getDestinationId(), args, options);
         }
+    }
+
+    /**
+     * Construct a PendingIntent that will deep link to the given destination.
+     *
+     * <p>When this deep link is triggered:
+     * <ol>
+     *     <li>The task is cleared.</li>
+     *     <li>The only entry on the back stack is the given destination.</li>
+     *     <li>Calling {@link #navigateUp()} will navigate to the parent of the destination.</li>
+     * </ol></p>
+     *
+     * The parent of the destination is the {@link NavGraph#getStartDestination() start destination}
+     * of the containing {@link NavGraph navigation graph}. In the cases where the destination is
+     * the start destination of its containing navigation graph, the start destination of its
+     * grandparent is used.
+     *
+     * @param destId destination id to deep link to
+     * @return a PendingIntent constructed with
+     * {@link PendingIntent#getActivity(Context, int, Intent, int)} to deep link to the
+     * given destination
+     */
+    public PendingIntent createDeepLink(@IdRes int destId) {
+        return createDeepLink(destId, null);
+    }
+
+
+    /**
+     * Construct a PendingIntent that will deep link to the given destination.
+     *
+     * <p>When this deep link is triggered:
+     * <ol>
+     *     <li>The task is cleared.</li>
+     *     <li>The only entry on the back stack is the given destination.</li>
+     *     <li>Calling {@link #navigateUp()} will navigate to the parent of the destination.</li>
+     * </ol></p>
+     *
+     * The parent of the destination is the {@link NavGraph#getStartDestination() start destination}
+     * of the containing {@link NavGraph navigation graph}. In the cases where the destination is
+     * the start destination of its containing navigation graph, the start destination of its
+     * grandparent is used.
+     *
+     * @param destId destination id to deep link to
+     * @param args arguments to pass to the destination
+     * @return a PendingIntent constructed with
+     * {@link PendingIntent#getActivity(Context, int, Intent, int)} to deep link to the
+     * given destination
+     */
+    public PendingIntent createDeepLink(@IdRes int destId, @Nullable Bundle args) {
+        Intent intent = createDeepLinkIntent(destId, args);
+        return PendingIntent.getActivity(mContext, destId, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+    /**
+     * Construct an Intent that will deep link to the given destination.
+     *
+     * <p>When this deep link is triggered:
+     * <ol>
+     *     <li>The task is cleared.</li>
+     *     <li>The only entry on the back stack is the given destination.</li>
+     *     <li>Calling {@link #navigateUp()} will navigate to the parent of the destination.</li>
+     * </ol></p>
+     *
+     * The parent of the destination is the {@link NavGraph#getStartDestination() start destination}
+     * of the containing {@link NavGraph navigation graph}. In the cases where the destination is
+     * the start destination of its containing navigation graph, the start destination of its
+     * grandparent is used.
+     *
+     * @param destId destination id to deep link to
+     * @param args arguments to pass to the destination
+     * @return an Intent which can be used with {@link Context#startActivity(Intent)} or
+     * {@link android.app.PendingIntent#getActivity(Context, int, Intent, int)} to deep link to
+     * the given destination.
+     */
+    public Intent createDeepLinkIntent(@IdRes int destId, @Nullable Bundle args) {
+        Intent intent = new Intent();
+        if (mActivity != null) {
+            intent.setClassName(mContext, mActivity.getClass().getName());
+        } else {
+            intent = mContext.getPackageManager().getLaunchIntentForPackage(
+                    mContext.getPackageName());
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        NavDestination node = findDestination(destId);
+        if (node == null) {
+            final String dest = mContext.getResources().getResourceName(destId);
+            throw new IllegalArgumentException("navigation destination " + dest
+                    + " is unknown to this NavController");
+        }
+        ArrayDeque<NavDestination> hierarchy = new ArrayDeque<>();
+        hierarchy.add(node);
+        while (hierarchy.peekFirst().getParent() != null) {
+            hierarchy.addFirst(hierarchy.peekFirst().getParent());
+        }
+        int[] deepLinkIds = new int[hierarchy.size()];
+        int index = 0;
+        for (NavDestination destination : hierarchy) {
+            deepLinkIds[index++] = destination.getId();
+        }
+        intent.putExtra(KEY_DEEP_LINK_IDS, deepLinkIds);
+        if (args != null) {
+            intent.putExtra(KEY_DEEP_LINK_EXTRAS, args);
+        }
+        return intent;
     }
 
     /**

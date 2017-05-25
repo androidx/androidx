@@ -16,7 +16,6 @@
 
 package android.support.navigation.app.nav;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -146,13 +145,8 @@ public class NavHostFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final Context context = getContext();
-        final Activity activity = getActivity();
 
-        if (activity != null) {
-            mNavController = new NavController(activity);
-        } else {
-            mNavController = new NavController(context);
-        }
+        mNavController = new NavController(context);
         mNavController.addNavigator(
                 new FragmentNavigator(context, getChildFragmentManager(), getId()));
 

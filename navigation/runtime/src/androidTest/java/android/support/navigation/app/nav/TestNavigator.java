@@ -18,6 +18,7 @@ package android.support.navigation.app.nav;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.util.Pair;
 
 import java.util.ArrayDeque;
 
@@ -27,7 +28,7 @@ import java.util.ArrayDeque;
 @Navigator.Name("test")
 public class TestNavigator extends Navigator<TestNavigator.Destination> {
 
-    private final ArrayDeque<Destination> mBackStack = new ArrayDeque<>();
+    public final ArrayDeque<Pair<Destination, Bundle>> mBackStack = new ArrayDeque<>();
 
     @Override
     public Destination createDestination() {
@@ -37,14 +38,14 @@ public class TestNavigator extends Navigator<TestNavigator.Destination> {
     @Override
     public void navigate(Destination destination, Bundle args,
             NavOptions navOptions) {
-        mBackStack.add(destination);
+        mBackStack.add(new Pair<>(destination, args));
         dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
     }
 
     @Override
     public boolean popBackStack() {
         mBackStack.pop();
-        dispatchOnNavigatorNavigated(mBackStack.isEmpty() ? 0 : mBackStack.peekLast().getId(),
+        dispatchOnNavigatorNavigated(mBackStack.isEmpty() ? 0 : mBackStack.peekLast().first.getId(),
                 BACK_STACK_DESTINATION_POPPED);
         return true;
     }

@@ -26,7 +26,7 @@
               android:icon="@drawable/ic_android"
               android:label="@string/android"
               app:navType="primary"
-              android:name="com.android.support.navigation.testapp.MainFragment">
+              android:name="com.android.support.navigation.testapp.AndroidFragment">
         <default-argument app:argname="myarg" app:argvalue="Android!" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>

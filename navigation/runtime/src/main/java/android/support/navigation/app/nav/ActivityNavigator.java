@@ -19,6 +19,7 @@ package android.support.navigation.app.nav;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.net.Uri;
@@ -48,10 +49,13 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
 
     public ActivityNavigator(Context context) {
         mContext = context;
-    }
-
-    public ActivityNavigator(Activity hostActivity) {
-        mContext = mHostActivity = hostActivity;
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                mHostActivity = (Activity) context;
+                break;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
     }
 
     @Override
