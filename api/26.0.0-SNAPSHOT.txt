@@ -2165,6 +2165,7 @@ package android.support.transition {
     method public java.util.List<android.view.View> getTargets();
     method public java.lang.String[] getTransitionProperties();
     method public android.support.transition.TransitionValues getTransitionValues(android.view.View, boolean);
+    method public boolean isTransitionRequired(android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     method public android.support.transition.Transition removeListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition removeTarget(android.view.View);
     method public android.support.transition.Transition removeTarget(int);
