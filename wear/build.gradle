@@ -19,7 +19,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 24
     }
 
     sourceSets {
