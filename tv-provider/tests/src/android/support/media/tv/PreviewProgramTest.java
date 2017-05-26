@@ -15,6 +15,7 @@
  */
 package android.support.media.tv;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -26,8 +27,8 @@ import android.net.Uri;
 import android.support.media.tv.TvContractCompat.Channels;
 import android.support.media.tv.TvContractCompat.PreviewPrograms;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
-import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
 
@@ -42,14 +43,12 @@ import java.util.Objects;
  * values from them.
  */
 @SmallTest
+@SdkSuppress(minSdkVersion = 26)
+@TargetApi(26)
 public class PreviewProgramTest extends TestCase {
 
     @Override
     protected void tearDown() {
-        // TODO: Use @SdkSuppress once Build.VERSION_CODES.O has a right value.
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }
@@ -59,9 +58,6 @@ public class PreviewProgramTest extends TestCase {
 
     @Test
     public void testEmptyPreviewProgram() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         PreviewProgram emptyProgram = new PreviewProgram.Builder().build();
         ContentValues contentValues = emptyProgram.toContentValues();
         compareProgram(emptyProgram,
@@ -71,9 +67,6 @@ public class PreviewProgramTest extends TestCase {
 
     @Test
     public void testSampleProgram() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         PreviewProgram sampleProgram = new PreviewProgram.Builder()
                 .setPackageName("My package")
                 .setTitle("Program Title")
@@ -94,10 +87,7 @@ public class PreviewProgramTest extends TestCase {
     }
 
     @Test
-    public void testFullyPopulatedProgram() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
+    public void testFullyPopulatedPreviewProgram() {
         PreviewProgram fullyPopulatedProgram = createFullyPopulatedPreviewProgram(3);
         ContentValues contentValues = fullyPopulatedProgram.toContentValues(true);
         compareProgram(fullyPopulatedProgram,
@@ -110,10 +100,7 @@ public class PreviewProgramTest extends TestCase {
     }
 
     @Test
-    public void testChannelWithSystemContentProvider() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
+    public void testPreviewProgramWithSystemContentProvider() {
         if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }
@@ -130,21 +117,77 @@ public class PreviewProgramTest extends TestCase {
         Uri previewProgramUri = resolver.insert(PreviewPrograms.CONTENT_URI,
                 fullyPopulatedProgram.toContentValues());
 
-        PreviewProgram programFromSystemDb;
-        try (Cursor cursor = resolver.query(previewProgramUri, null, null, null, null)) {
-            assertNotNull(cursor);
-            assertEquals(1, cursor.getCount());
-            cursor.moveToNext();
-            programFromSystemDb = PreviewProgram.fromCursor(cursor);
-        }
+        PreviewProgram programFromSystemDb =
+                loadPreviewProgramFromContentProvider(resolver, previewProgramUri);
         compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
     }
 
     @Test
-    public void testPreviewProgramWithPartialData() {
-        if (!BuildCompat.isAtLeastO()) {
+    public void testPreviewProgramUpdateWithContentProvider() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }
+        Channel channel = new Channel.Builder()
+                .setInputId("TestInputService")
+                .setType(TvContractCompat.Channels.TYPE_PREVIEW)
+                .build();
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        Uri channelUri = resolver.insert(Channels.CONTENT_URI, channel.toContentValues());
+        assertNotNull(channelUri);
+
+        PreviewProgram fullyPopulatedProgram = createFullyPopulatedPreviewProgram(
+                ContentUris.parseId(channelUri));
+        Uri previewProgramUri = resolver.insert(PreviewPrograms.CONTENT_URI,
+                fullyPopulatedProgram.toContentValues());
+
+        PreviewProgram programFromSystemDb = loadPreviewProgramFromContentProvider(
+                resolver, previewProgramUri);
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
+
+        // Update a field from a fully loaded preview program.
+        PreviewProgram updatedProgram = new PreviewProgram.Builder(programFromSystemDb)
+                .setInteractionCount(programFromSystemDb.getInteractionCount() + 1).build();
+        assertEquals(1, resolver.update(
+                previewProgramUri, updatedProgram.toContentValues(), null, null));
+        programFromSystemDb = loadPreviewProgramFromContentProvider(resolver, previewProgramUri);
+        compareProgram(updatedProgram, programFromSystemDb, false);
+
+        // Update a field with null from a fully loaded preview program.
+        updatedProgram = new PreviewProgram.Builder(updatedProgram)
+                .setLongDescription(null).build();
+        assertEquals(1, resolver.update(
+                previewProgramUri, updatedProgram.toContentValues(), null, null));
+        programFromSystemDb = loadPreviewProgramFromContentProvider(resolver, previewProgramUri);
+        compareProgram(updatedProgram, programFromSystemDb, false);
+
+        // Update a field without referencing fully loaded preview program.
+        ContentValues values = new PreviewProgram.Builder().setInteractionCount(1).build()
+                .toContentValues();
+        assertEquals(1, values.size());
+        assertEquals(1, resolver.update(previewProgramUri, values, null, null));
+        programFromSystemDb = loadPreviewProgramFromContentProvider(resolver, previewProgramUri);
+        PreviewProgram expectedProgram = new PreviewProgram.Builder(programFromSystemDb)
+                .setInteractionCount(1).build();
+        compareProgram(expectedProgram, programFromSystemDb, false);
+    }
+
+    @Test
+    public void testPreviewProgramEquals() {
+        assertEquals(createFullyPopulatedPreviewProgram(1), createFullyPopulatedPreviewProgram(1));
+    }
+
+    private static PreviewProgram loadPreviewProgramFromContentProvider(
+            ContentResolver resolver, Uri previewProgramUri) {
+        try (Cursor cursor = resolver.query(previewProgramUri, null, null, null, null)) {
+            assertNotNull(cursor);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToNext();
+            return PreviewProgram.fromCursor(cursor);
+        }
+    }
+
+    @Test
+    public void testPreviewProgramWithPartialData() {
         PreviewProgram previewProgram = new PreviewProgram.Builder()
                 .setChannelId(3)
                 .setWeight(100)
@@ -314,7 +357,6 @@ public class PreviewProgramTest extends TestCase {
         assertEquals(programA.getReviewRatingStyle(), programB.getReviewRatingStyle());
         assertEquals(programA.getReviewRating(), programB.getReviewRating());
         assertEquals(programA.getContentId(), programB.getContentId());
-        assertEquals(programA.toString(), programB.toString());
         if (includeIdAndProtectedFields) {
             // Skip row ID since the one from system DB has the valid ID while the other does not.
             assertEquals(programA.getId(), programB.getId());

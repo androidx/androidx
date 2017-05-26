@@ -16,6 +16,7 @@
 
 package android.support.media.tv;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -25,8 +26,8 @@ import android.media.tv.TvContentRating;
 import android.net.Uri;
 import android.support.media.tv.TvContractCompat.WatchNextPrograms;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
-import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
 
@@ -41,14 +42,12 @@ import java.util.Objects;
  * values from them.
  */
 @SmallTest
+@SdkSuppress(minSdkVersion = 26)
+@TargetApi(26)
 public class WatchNextProgramTest extends TestCase {
 
     @Override
     protected void tearDown() {
-        // TODO: Use @SdkSuppress once Build.VERSION_CODES.O has a right value.
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }
@@ -58,9 +57,6 @@ public class WatchNextProgramTest extends TestCase {
 
     @Test
     public void testEmptyPreviewProgram() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         WatchNextProgram emptyProgram = new WatchNextProgram.Builder().build();
         ContentValues contentValues = emptyProgram.toContentValues(true);
         compareProgram(emptyProgram,
@@ -70,9 +66,6 @@ public class WatchNextProgramTest extends TestCase {
 
     @Test
     public void testSampleProgram() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         WatchNextProgram sampleProgram = new WatchNextProgram.Builder()
                 .setTitle("Program Title")
                 .setDescription("This is a sample program")
@@ -91,9 +84,6 @@ public class WatchNextProgramTest extends TestCase {
 
     @Test
     public void testFullyPopulatedProgram() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         WatchNextProgram fullyPopulatedProgram = createFullyPopulatedWatchNextProgram();
         ContentValues contentValues = fullyPopulatedProgram.toContentValues(true);
         compareProgram(fullyPopulatedProgram,
@@ -107,9 +97,6 @@ public class WatchNextProgramTest extends TestCase {
 
     @Test
     public void testChannelWithSystemContentProvider() {
-        if (!BuildCompat.isAtLeastO()) {
-            return;
-        }
         if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }
@@ -118,21 +105,74 @@ public class WatchNextProgramTest extends TestCase {
         Uri watchNextProgramUri = resolver.insert(WatchNextPrograms.CONTENT_URI,
                 fullyPopulatedProgram.toContentValues());
 
-        WatchNextProgram programFromSystemDb;
-        try (Cursor cursor = resolver.query(watchNextProgramUri, null, null, null, null)) {
-            assertNotNull(cursor);
-            assertEquals(1, cursor.getCount());
-            cursor.moveToNext();
-            programFromSystemDb = WatchNextProgram.fromCursor(cursor);
-        }
+        WatchNextProgram programFromSystemDb =
+                loadWatchNextProgramFromContentProvider(resolver, watchNextProgramUri);
         compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
     }
 
     @Test
-    public void testWatchNextProgramWithPartialData() {
-        if (!BuildCompat.isAtLeastO()) {
+    public void testWatchNextProgramUpdateWithContentProvider() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
             return;
         }
+
+        WatchNextProgram fullyPopulatedProgram = createFullyPopulatedWatchNextProgram();
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        Uri watchNextProgramUri = resolver.insert(WatchNextPrograms.CONTENT_URI,
+                fullyPopulatedProgram.toContentValues());
+
+        WatchNextProgram programFromSystemDb =
+                loadWatchNextProgramFromContentProvider(resolver, watchNextProgramUri);
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
+
+        // Update a field from a fully loaded watch-next program.
+        WatchNextProgram updatedProgram = new WatchNextProgram.Builder(programFromSystemDb)
+                .setInteractionCount(programFromSystemDb.getInteractionCount() + 1).build();
+        assertEquals(1, resolver.update(
+                watchNextProgramUri, updatedProgram.toContentValues(), null, null));
+        programFromSystemDb =
+                loadWatchNextProgramFromContentProvider(resolver, watchNextProgramUri);
+        compareProgram(updatedProgram, programFromSystemDb, false);
+
+        // Update a field with null from a fully loaded watch-next program.
+        updatedProgram = new WatchNextProgram.Builder(updatedProgram)
+                .setPreviewVideoUri(null).build();
+        assertEquals(1, resolver.update(
+                watchNextProgramUri, updatedProgram.toContentValues(), null, null));
+        programFromSystemDb = loadWatchNextProgramFromContentProvider(
+                resolver, watchNextProgramUri);
+        compareProgram(updatedProgram, programFromSystemDb, false);
+
+        // Update a field without referencing fully watch-next program.
+        ContentValues values = new PreviewProgram.Builder().setInteractionCount(1).build()
+                .toContentValues();
+        assertEquals(1, values.size());
+        assertEquals(1, resolver.update(watchNextProgramUri, values, null, null));
+        programFromSystemDb = loadWatchNextProgramFromContentProvider(
+                resolver, watchNextProgramUri);
+        WatchNextProgram expectedProgram = new WatchNextProgram.Builder(programFromSystemDb)
+                .setInteractionCount(1).build();
+        compareProgram(expectedProgram, programFromSystemDb, false);
+    }
+
+    @Test
+    public void testWatchNextProgramEquals() {
+        assertEquals(createFullyPopulatedWatchNextProgram(),
+                createFullyPopulatedWatchNextProgram());
+    }
+
+    private static WatchNextProgram loadWatchNextProgramFromContentProvider(
+            ContentResolver resolver, Uri watchNextProgramUri) {
+        try (Cursor cursor = resolver.query(watchNextProgramUri, null, null, null, null)) {
+            assertNotNull(cursor);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToNext();
+            return WatchNextProgram.fromCursor(cursor);
+        }
+    }
+
+    @Test
+    public void testWatchNextProgramWithPartialData() {
         WatchNextProgram previewProgram = new WatchNextProgram.Builder()
                 .setInternalProviderId("ID-4321")
                 .setPreviewVideoUri(Uri.parse("http://example.com/preview-video.mpg"))
@@ -296,7 +336,6 @@ public class WatchNextProgramTest extends TestCase {
         assertEquals(programA.getReviewRatingStyle(), programB.getReviewRatingStyle());
         assertEquals(programA.getReviewRating(), programB.getReviewRating());
         assertEquals(programA.getContentId(), programB.getContentId());
-        assertEquals(programA.toString(), programB.toString());
         if (includeIdAndProtectedFields) {
             // Skip row ID since the one from system DB has the valid ID while the other does not.
             assertEquals(programA.getId(), programB.getId());
