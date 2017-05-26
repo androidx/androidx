@@ -925,8 +925,8 @@ public class MediaSessionCompat {
                     if (keyEvent.getRepeatCount() > 0) {
                         mCallbackHandler.removeMessages(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
-                        if (keyEvent.getRepeatCount() == 1 && !mMediaPlayPauseKeyHandled) {
-                            handleMediaPlayPauseKeySingleTap();
+                        if (keyEvent.getRepeatCount() == 1) {
+                            handleMediaPlayPauseKeySingleTapIfUnhandled();
                         }
                     } else if (mCallbackHandler.hasMessages(
                             CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT)) {
@@ -938,6 +938,7 @@ public class MediaSessionCompat {
                         if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
                             onSkipToNext();
                         }
+                        mMediaPlayPauseKeyHandled = true;
                     } else {
                         mMediaPlayPauseKeyHandled = false;
                         mCallbackHandler.sendEmptyMessageDelayed(
@@ -949,7 +950,7 @@ public class MediaSessionCompat {
             return false;
         }
 
-        private void handleMediaPlayPauseKeySingleTap() {
+        private void handleMediaPlayPauseKeySingleTapIfUnhandled() {
             if (mMediaPlayPauseKeyHandled) {
                 return;
             }
@@ -1228,7 +1229,7 @@ public class MediaSessionCompat {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT) {
-                    handleMediaPlayPauseKeySingleTap();
+                    handleMediaPlayPauseKeySingleTapIfUnhandled();
                 }
             }
         }
