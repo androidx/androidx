@@ -21,7 +21,8 @@
               android:paddingLeft="16dip"
               android:paddingRight="16dip"
               android:minWidth="196dip"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:background="?attr/selectableItemBackground"  >
 
     <LinearLayout
             android:layout_width="wrap_content"
