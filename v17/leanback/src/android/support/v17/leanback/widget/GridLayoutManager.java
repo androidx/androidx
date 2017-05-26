@@ -38,6 +38,7 @@ import android.support.v7.widget.RecyclerView.Recycler;
 import android.support.v7.widget.RecyclerView.State;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.FocusFinder;
 import android.view.Gravity;
 import android.view.View;
@@ -49,6 +50,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 final class GridLayoutManager extends RecyclerView.LayoutManager {
 
@@ -433,10 +436,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     // appends and prepends due to the fact leanback is doing mario scrolling: removing items to
     // the left of focused item might need extra layout on the right.
     int mExtraLayoutSpaceInPreLayout;
-    // mRetainedFirstPosInPostLayout and mRetainedLastPosInPostLayout are used in post layout pass
-    // to add those item even they are out side visible area.
-    int mRetainedFirstPosInPostLayout;
-    int mRetainedLastPosInPostLayout;
+    // mPositionToRowInPostLayout and mDisappearingPositions are temp variables in post layout.
+    final SparseIntArray mPositionToRowInPostLayout = new SparseIntArray();
+    int[] mDisappearingPositions;
+
     RecyclerView.Recycler mRecycler;
 
     private static final Rect sTempRect = new Rect();
@@ -1121,8 +1124,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mState = state;
         mPositionDeltaInPreLayout = 0;
         mExtraLayoutSpaceInPreLayout = 0;
-        mRetainedFirstPosInPostLayout = Integer.MAX_VALUE;
-        mRetainedLastPosInPostLayout = Integer.MIN_VALUE;
     }
 
     /**
@@ -1133,8 +1134,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mState = null;
         mPositionDeltaInPreLayout = 0;
         mExtraLayoutSpaceInPreLayout = 0;
-        mRetainedFirstPosInPostLayout = Integer.MAX_VALUE;
-        mRetainedLastPosInPostLayout = Integer.MIN_VALUE;
     }
 
     /**
@@ -1522,7 +1521,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         @Override
-        public int createItem(int index, boolean append, Object[] item) {
+        public int createItem(int index, boolean append, Object[] item, boolean disappearingItem) {
             if (TRACE) TraceCompat.beginSection("createItem");
             if (TRACE) TraceCompat.beginSection("getview");
             View v = getViewForPosition(index - mPositionDeltaInPreLayout);
@@ -1533,10 +1532,18 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // See recyclerView docs:  we don't need re-add scraped view if it was removed.
             if (!lp.isItemRemoved()) {
                 if (TRACE) TraceCompat.beginSection("addView");
-                if (append) {
-                    addView(v);
+                if (disappearingItem) {
+                    if (append) {
+                        addDisappearingView(v);
+                    } else {
+                        addDisappearingView(v, 0);
+                    }
                 } else {
-                    addView(v, 0);
+                    if (append) {
+                        addView(v);
+                    } else {
+                        addView(v, 0);
+                    }
                 }
                 if (TRACE) TraceCompat.endSection();
                 if (mChildVisibility != -1) {
@@ -1731,16 +1738,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     private void removeInvisibleViewsAtEnd() {
         if (mPruneChild && !mIsSlidingChildViews) {
-            int retainedLastPos = Math.max(mRetainedLastPosInPostLayout, mFocusPosition);
-            mGrid.removeInvisibleItemsAtEnd(retainedLastPos,
+            mGrid.removeInvisibleItemsAtEnd(mFocusPosition,
                     mReverseFlowPrimary ? -mExtraLayoutSpace : mSizePrimary + mExtraLayoutSpace);
         }
     }
 
     private void removeInvisibleViewsAtFront() {
         if (mPruneChild && !mIsSlidingChildViews) {
-            int retainedFirstPos = Math.min(mRetainedFirstPosInPostLayout, mFocusPosition);
-            mGrid.removeInvisibleItemsAtFront(retainedFirstPos,
+            mGrid.removeInvisibleItemsAtFront(mFocusPosition,
                     mReverseFlowPrimary ? mSizePrimary + mExtraLayoutSpace: -mExtraLayoutSpace);
         }
     }
@@ -1979,6 +1984,48 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return true;
     }
 
+    void updatePositionToRowMapInPostLayout() {
+        mPositionToRowInPostLayout.clear();
+        final int childCount = getChildCount();
+        for (int i = 0;  i < childCount; i++) {
+            int position = getAdapterPositionByIndex(i);
+            Grid.Location loc = mGrid.getLocation(position);
+            if (loc != null) {
+                mPositionToRowInPostLayout.put(position, loc.row);
+            }
+        }
+    }
+
+    void fillScrapViewsInPostLayout() {
+        List<RecyclerView.ViewHolder> scrapList = mRecycler.getScrapList();
+        final int scrapSize = scrapList.size();
+        if (scrapSize == 0) {
+            return;
+        }
+        // initialize the int array or re-allocate the array.
+        if (mDisappearingPositions == null  || scrapSize > mDisappearingPositions.length) {
+            int length = mDisappearingPositions == null ? 16 : mDisappearingPositions.length;
+            while (length < scrapSize) {
+                length = length << 1;
+            }
+            mDisappearingPositions = new int[length];
+        }
+        int totalItems = 0;
+        for (int i = 0; i < scrapSize; i++) {
+            int pos = scrapList.get(i).getAdapterPosition();
+            if (pos >= 0) {
+                mDisappearingPositions[totalItems++] = pos;
+            }
+        }
+        // totalItems now has the length of disappearing items
+        if (totalItems > 0) {
+            Arrays.sort(mDisappearingPositions, 0, totalItems);
+            mGrid.fillDisappearingItems(mDisappearingPositions, totalItems,
+                    mPositionToRowInPostLayout);
+        }
+        mPositionToRowInPostLayout.clear();
+    }
+
     // Lays out items based on the current scroll position
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -2020,6 +2067,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             if (mGrid != null && childCount > 0) {
                 int minChangedEdge = Integer.MAX_VALUE;
                 int maxChangeEdge = Integer.MIN_VALUE;
+                int minOldAdapterPosition = mBaseGridView.getChildViewHolder(
+                        getChildAt(0)).getOldPosition();
+                int maxOldAdapterPosition = mBaseGridView.getChildViewHolder(
+                        getChildAt(childCount - 1)).getOldPosition();
                 for (int i = 0; i < childCount; i++) {
                     View view = getChildAt(i);
                     LayoutParams lp = (LayoutParams) view.getLayoutParams();
@@ -2029,13 +2080,17 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                         mPositionDeltaInPreLayout = mGrid.getFirstVisibleIndex()
                                 - lp.getViewLayoutPosition();
                     }
+                    int newAdapterPosition = mBaseGridView.getChildAdapterPosition(view);
                     // if either of following happening
                     // 1. item itself has changed or layout parameter changed
                     // 2. item is losing focus
                     // 3. item is gaining focus
+                    // 4. item is moved out of old adapter position range.
                     if (lp.isItemChanged() || lp.isItemRemoved() || view.isLayoutRequested()
                             || (!view.hasFocus() && mFocusPosition == lp.getViewAdapterPosition())
-                            || (view.hasFocus() && mFocusPosition != lp.getViewAdapterPosition())) {
+                            || (view.hasFocus() && mFocusPosition != lp.getViewAdapterPosition())
+                            || newAdapterPosition < minOldAdapterPosition
+                            || newAdapterPosition > maxOldAdapterPosition) {
                         minChangedEdge = Math.min(minChangedEdge, getViewMin(view));
                         maxChangeEdge = Math.max(maxChangeEdge, getViewMax(view));
                     }
@@ -2053,25 +2108,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
-        // figure out the child positions that needs to be retained in post layout pass, e.g.
-        // When a child is pushed out, they needs to be added in post layout pass.
-        if (state.willRunPredictiveAnimations() && getChildCount() > 0) {
-            for (int i = 0; i < getChildCount(); i++) {
-                View child = getChildAt(i);
-                int pos = mBaseGridView.getChildViewHolder(child).getAdapterPosition();
-                if (pos >= 0) {
-                    mRetainedFirstPosInPostLayout = pos;
-                    break;
-                }
-            }
-            for (int i = getChildCount() - 1; i >= 0; i--) {
-                View child = getChildAt(i);
-                int pos = mBaseGridView.getChildViewHolder(child).getAdapterPosition();
-                if (pos >= 0) {
-                    mRetainedLastPosInPostLayout = pos;
-                    break;
-                }
-            }
+        // save all view's row information before detach all views
+        if (state.willRunPredictiveAnimations()) {
+            updatePositionToRowMapInPostLayout();
         }
         // check if we need align to mFocusPosition, this is usually true unless in smoothScrolling
         final boolean scrollToFocus = !isSmoothScrolling()
@@ -2149,11 +2188,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 removeInvisibleViewsAtEnd();
             }
         }
-        while (mGrid.getLastVisibleIndex() < mRetainedLastPosInPostLayout) {
-            appendOneColumnVisibleItems();
-        }
-        while (mGrid.getFirstVisibleIndex() > mRetainedFirstPosInPostLayout) {
-            prependOneColumnVisibleItems();
+        if (state.willRunPredictiveAnimations()) {
+            fillScrapViewsInPostLayout();
         }
 
         if (DEBUG) {
