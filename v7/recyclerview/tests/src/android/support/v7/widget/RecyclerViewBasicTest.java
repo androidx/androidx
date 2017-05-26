@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.os.Build;
@@ -57,7 +58,6 @@ import java.util.UUID;
 public class RecyclerViewBasicTest {
 
     RecyclerView mRecyclerView;
-
 
     @Before
     public void setUp() throws Exception {
@@ -457,6 +457,36 @@ public class RecyclerViewBasicTest {
         holder.mNestedRecyclerView = new WeakReference<>(recyclerView);
         RecyclerView.clearNestedRecyclerViewIfNotNested(holder);
         assertEquals(recyclerView, holder.mNestedRecyclerView.get());
+    }
+
+    @Test
+    public void toStringContainsClasses() {
+        RecyclerView recyclerView = new RecyclerView(getContext());
+        recyclerView.setAdapter(new MockAdapter(10));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        String string = recyclerView.toString();
+        assertTrue("must contain RV class", string.contains(RecyclerView.class.getName()));
+        assertTrue("must contain Adapter class", string.contains(MockAdapter.class.getName()));
+        assertTrue("must contain LM class", string.contains(LinearLayoutManager.class.getName()));
+        assertTrue("must contain ctx class", string.contains(getContext().getClass().getName()));
+    }
+
+    @Test
+    public void exceptionContainsClasses() {
+        RecyclerView recyclerView = new RecyclerView(getContext());
+        recyclerView.setAdapter(new MockAdapter(10));
+
+        try {
+            recyclerView.generateDefaultLayoutParams();
+            fail("exception expected");
+        } catch (IllegalStateException e) {
+            String message = e.getMessage();
+            assertTrue("must contain RV class",
+                    message.contains(RecyclerView.class.getName()));
+            assertTrue("must contain Adapter class",
+                    message.contains(MockAdapter.class.getName()));
+        }
     }
 
     static class MockLayoutManager extends RecyclerView.LayoutManager {
