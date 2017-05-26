@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
@@ -928,6 +929,194 @@ public class GridWidgetTest {
         assertEquals(50, mGridView.getSelectedPosition());
         scrollToBegin(mVerifyLayout);
         verifyBeginAligned();
+    }
+
+    void waitOneUiCycle() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
+    }
+
+    @Test
+    public void testDontPruneMovingItem() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setMoveDuration(2000);
+                mGridView.setSelectedPosition(50);
+            }
+        });
+        waitForScrollIdle();
+        final ArrayList<RecyclerView.ViewHolder> moveViewHolders = new ArrayList();
+        for (int i = 51;; i++) {
+            RecyclerView.ViewHolder vh = mGridView.findViewHolderForAdapterPosition(i);
+            if (vh == null) {
+                break;
+            }
+            moveViewHolders.add(vh);
+        }
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // add a lot of items, so we will push everything to right of 51 out side window
+                int[] lots_items = new int[1000];
+                for (int i = 0; i < lots_items.length; i++) {
+                    lots_items[i] = 300;
+                }
+                mActivity.addItems(51, lots_items);
+            }
+        });
+        waitOneUiCycle();
+        // run a scroll pass, the scroll pass should not remove the animating views even they are
+        // outside visible areas.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.scrollBy(-3, 0);
+            }
+        });
+        waitOneUiCycle();
+        for (int i = 0; i < moveViewHolders.size(); i++) {
+            assertSame(mGridView, moveViewHolders.get(i).itemView.getParent());
+        }
+    }
+
+    @Test
+    public void testMoveItemToTheRight() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setAddDuration(2000);
+                mGridView.getItemAnimator().setMoveDuration(2000);
+                mGridView.setSelectedPosition(50);
+            }
+        });
+        waitForScrollIdle();
+        RecyclerView.ViewHolder moveViewHolder = mGridView.findViewHolderForAdapterPosition(51);
+
+        int lastPos = mGridView.getChildAdapterPosition(mGridView.getChildAt(
+                mGridView.getChildCount() - 1));
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.moveItem(51, 1000, true);
+            }
+        });
+        final ArrayList<View> moveInViewHolders = new ArrayList();
+        waitForItemAnimationStart();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < mGridView.getLayoutManager().getChildCount(); i++) {
+                    View v = mGridView.getLayoutManager().getChildAt(i);
+                    if (Math.abs(v.getTranslationX()) > 5) {
+                        moveInViewHolders.add(v);
+                    }
+                }
+            }
+        });
+        waitOneUiCycle();
+        assertTrue("prelayout should layout extra items to slide in",
+                moveInViewHolders.size() > lastPos - 51);
+        // run a scroll pass, the scroll pass should not remove the animating views even they are
+        // outside visible areas.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.scrollBy(-3, 0);
+            }
+        });
+        waitOneUiCycle();
+        for (int i = 0; i < moveInViewHolders.size(); i++) {
+            assertSame(mGridView, moveInViewHolders.get(i).getParent());
+        }
+        assertSame(mGridView, moveViewHolder.itemView.getParent());
+        assertFalse(moveViewHolder.isRecyclable());
+        waitForItemAnimation();
+        assertNull(moveViewHolder.itemView.getParent());
+        assertTrue(moveViewHolder.isRecyclable());
+    }
+
+    @Test
+    public void testMoveItemToTheLeft() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setAddDuration(2000);
+                mGridView.getItemAnimator().setMoveDuration(2000);
+                mGridView.setSelectedPosition(1500);
+            }
+        });
+        waitForScrollIdle();
+        RecyclerView.ViewHolder moveViewHolder = mGridView.findViewHolderForAdapterPosition(1499);
+
+        int firstPos = mGridView.getChildAdapterPosition(mGridView.getChildAt(0));
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.moveItem(1499, 1, true);
+            }
+        });
+        final ArrayList<View> moveInViewHolders = new ArrayList();
+        waitForItemAnimationStart();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < mGridView.getLayoutManager().getChildCount(); i++) {
+                    View v = mGridView.getLayoutManager().getChildAt(i);
+                    if (Math.abs(v.getTranslationX()) > 5) {
+                        moveInViewHolders.add(v);
+                    }
+                }
+            }
+        });
+        waitOneUiCycle();
+        assertTrue("prelayout should layout extra items to slide in ",
+                moveInViewHolders.size() > 1499 - firstPos);
+        // run a scroll pass, the scroll pass should not remove the animating views even they are
+        // outside visible areas.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.scrollBy(3, 0);
+            }
+        });
+        waitOneUiCycle();
+        for (int i = 0; i < moveInViewHolders.size(); i++) {
+            assertSame(mGridView, moveInViewHolders.get(i).getParent());
+        }
+        assertSame(mGridView, moveViewHolder.itemView.getParent());
+        assertFalse(moveViewHolder.isRecyclable());
+        waitForItemAnimation();
+        assertNull(moveViewHolder.itemView.getParent());
+        assertTrue(moveViewHolder.isRecyclable());
     }
 
     @Test
