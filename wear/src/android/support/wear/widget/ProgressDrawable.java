@@ -75,7 +75,7 @@ class ProgressDrawable extends Drawable {
      */
     private static final float GROW_SHRINK_RATIO = 0.5f;
     // TODO: replace this with BakedBezierInterpolator when its available in support library.
-    private static final TimeInterpolator sInterpolator = Gusterpolator.INSTANCE;
+    private static final TimeInterpolator sInterpolator = BezierSCurveInterpolator.INSTANCE;
 
     private final RectF mInnerCircleBounds = new RectF();
     private final Paint mPaint = new Paint();
