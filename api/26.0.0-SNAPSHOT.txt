@@ -3634,6 +3634,64 @@ package android.support.v17.leanback.media {
     method public boolean setDataSource(android.net.Uri);
   }
 
+  public class PlaybackBannerControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackBaseControlGlue {
+    ctor public PlaybackBannerControlGlue(android.content.Context, int[], T);
+    ctor public PlaybackBannerControlGlue(android.content.Context, int[], int[], T);
+    method public int[] getFastForwardSpeeds();
+    method public int[] getRewindSpeeds();
+    method public long getSupportedActions();
+    method public void onActionClicked(android.support.v17.leanback.widget.Action);
+    method protected android.support.v17.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
+    method public boolean onKey(android.view.View, int, android.view.KeyEvent);
+    field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
+    field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
+    field public static final int ACTION_FAST_FORWARD = 128; // 0x80
+    field public static final int ACTION_PLAY_PAUSE = 64; // 0x40
+    field public static final int ACTION_REWIND = 32; // 0x20
+    field public static final int ACTION_SKIP_TO_NEXT = 256; // 0x100
+    field public static final int ACTION_SKIP_TO_PREVIOUS = 16; // 0x10
+    field public static final int PLAYBACK_SPEED_FAST_L0 = 10; // 0xa
+    field public static final int PLAYBACK_SPEED_FAST_L1 = 11; // 0xb
+    field public static final int PLAYBACK_SPEED_FAST_L2 = 12; // 0xc
+    field public static final int PLAYBACK_SPEED_FAST_L3 = 13; // 0xd
+    field public static final int PLAYBACK_SPEED_FAST_L4 = 14; // 0xe
+    field public static final int PLAYBACK_SPEED_INVALID = -1; // 0xffffffff
+    field public static final int PLAYBACK_SPEED_NORMAL = 1; // 0x1
+    field public static final int PLAYBACK_SPEED_PAUSED = 0; // 0x0
+  }
+
+  public abstract class PlaybackBaseControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
+    ctor public PlaybackBaseControlGlue(android.content.Context, T);
+    method public android.graphics.drawable.Drawable getArt();
+    method public final long getBufferedPosition();
+    method public android.support.v17.leanback.widget.PlaybackControlsRow getControlsRow();
+    method public long getCurrentPosition();
+    method public final long getDuration();
+    method public android.support.v17.leanback.widget.PlaybackRowPresenter getPlaybackRowPresenter();
+    method public final T getPlayerAdapter();
+    method public java.lang.CharSequence getSubtitle();
+    method public java.lang.CharSequence getTitle();
+    method public boolean isControlsOverlayAutoHideEnabled();
+    method public final boolean isPlaying();
+    method public final boolean isPrepared();
+    method protected static void notifyItemChanged(android.support.v17.leanback.widget.ArrayObjectAdapter, java.lang.Object);
+    method public abstract void onActionClicked(android.support.v17.leanback.widget.Action);
+    method protected void onCreatePrimaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
+    method protected abstract android.support.v17.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
+    method protected void onCreateSecondaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
+    method public abstract boolean onKey(android.view.View, int, android.view.KeyEvent);
+    method protected void onPlayCompleted();
+    method protected void onPlayStateChanged();
+    method protected void onPreparedStateChanged();
+    method public final void seekTo(long);
+    method public void setArt(android.graphics.drawable.Drawable);
+    method public void setControlsOverlayAutoHideEnabled(boolean);
+    method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
+    method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
+    method public void setSubtitle(java.lang.CharSequence);
+    method public void setTitle(java.lang.CharSequence);
+  }
+
   public abstract class PlaybackControlGlue extends android.support.v17.leanback.media.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
     ctor public PlaybackControlGlue(android.content.Context, int[]);
     ctor public PlaybackControlGlue(android.content.Context, int[], int[]);
@@ -3751,39 +3809,15 @@ package android.support.v17.leanback.media {
     method public void onVideoSizeChanged(int, int);
   }
 
-  public class PlaybackTransportControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
+  public class PlaybackTransportControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackBaseControlGlue {
     ctor public PlaybackTransportControlGlue(android.content.Context, T);
-    method public android.graphics.drawable.Drawable getArt();
-    method public final long getBufferedPosition();
-    method public android.support.v17.leanback.widget.PlaybackControlsRow getControlsRow();
-    method public final long getCurrentPosition();
-    method public final long getDuration();
-    method public android.support.v17.leanback.widget.PlaybackRowPresenter getPlaybackRowPresenter();
-    method public final T getPlayerAdapter();
     method public final android.support.v17.leanback.widget.PlaybackSeekDataProvider getSeekProvider();
-    method public java.lang.CharSequence getSubtitle();
-    method public java.lang.CharSequence getTitle();
-    method public boolean isControlsOverlayAutoHideEnabled();
-    method public final boolean isPlaying();
-    method public final boolean isPrepared();
     method public final boolean isSeekEnabled();
     method public void onActionClicked(android.support.v17.leanback.widget.Action);
-    method protected void onCreatePrimaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
-    method protected void onCreateSecondaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
+    method protected android.support.v17.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
     method public boolean onKey(android.view.View, int, android.view.KeyEvent);
-    method protected void onPlayCompleted();
-    method protected void onPlayStateChanged();
-    method protected void onPreparedStateChanged();
-    method public final void play();
-    method public final void seekTo(long);
-    method public void setArt(android.graphics.drawable.Drawable);
-    method public void setControlsOverlayAutoHideEnabled(boolean);
-    method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
-    method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
     method public final void setSeekEnabled(boolean);
     method public final void setSeekProvider(android.support.v17.leanback.widget.PlaybackSeekDataProvider);
-    method public void setSubtitle(java.lang.CharSequence);
-    method public void setTitle(java.lang.CharSequence);
   }
 
   public abstract class PlayerAdapter {
