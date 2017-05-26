@@ -17,29 +17,23 @@
 package android.support.v17.leanback.media;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.CallSuper;
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v17.leanback.widget.ControlButtonPresenterSelector;
 import android.support.v17.leanback.widget.ObjectAdapter;
-import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.PlaybackRowPresenter;
 import android.support.v17.leanback.widget.PlaybackSeekDataProvider;
 import android.support.v17.leanback.widget.PlaybackSeekUi;
 import android.support.v17.leanback.widget.PlaybackTransportRowPresenter;
-import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * A helper class for managing a {@link PlaybackControlsRow} being displayed in
@@ -96,35 +90,17 @@ import java.util.List;
  * </code></pre>
  * @param <T> Type of {@link PlayerAdapter} passed in constructor.
  */
-public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends PlaybackGlue
-        implements OnActionClickedListener, View.OnKeyListener {
+public class PlaybackTransportControlGlue<T extends PlayerAdapter>
+        extends PlaybackBaseControlGlue<T> {
 
     static final String TAG = "PlaybackTransportGlue";
     static final boolean DEBUG = false;
 
     static final int MSG_UPDATE_PLAYBACK_STATE = 100;
-    private static final int UPDATE_PLAYBACK_STATE_DELAY_MS = 2000;
-
-    final T mPlayerAdapter;
-    PlaybackControlsRow mControlsRow;
-    PlaybackRowPresenter mControlsRowPresenter;
-    PlaybackControlsRow.PlayPauseAction mPlayPauseAction;
-    boolean mIsPlaying = true;
-    boolean mFadeWhenPlaying = true;
-
-    CharSequence mSubtitle;
-    CharSequence mTitle;
-    Drawable mCover;
+    static final int UPDATE_PLAYBACK_STATE_DELAY_MS = 2000;
 
     PlaybackSeekDataProvider mSeekProvider;
     boolean mSeekEnabled;
-    PlaybackGlueHost.PlayerCallback mPlayerCallback;
-    boolean mBuffering = false;
-    int mVideoWidth = 0;
-    int mVideoHeight = 0;
-    boolean mErrorSet = false;
-    int mErrorCode;
-    String mErrorMessage;
 
     static class UpdatePlaybackStateHandler extends Handler {
         @Override
@@ -133,7 +109,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
                 PlaybackTransportControlGlue glue =
                         ((WeakReference<PlaybackTransportControlGlue>) msg.obj).get();
                 if (glue != null) {
-                    glue.updatePlaybackState();
+                    glue.onUpdatePlaybackState();
                 }
             }
         }
@@ -141,74 +117,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
 
     static final Handler sHandler = new UpdatePlaybackStateHandler();
 
-    final WeakReference<PlaybackTransportControlGlue> mGlueWeakReference =  new WeakReference(this);
-
-    final PlayerAdapter.Callback mAdapterCallback = new PlayerAdapter
-            .Callback() {
-
-        @Override
-        public void onPlayStateChanged(PlayerAdapter wrapper) {
-            if (DEBUG) Log.v(TAG, "onPlayStateChanged");
-            PlaybackTransportControlGlue.this.onPlayStateChanged();
-        }
-
-        @Override
-        public void onCurrentPositionChanged(PlayerAdapter wrapper) {
-            if (DEBUG) Log.v(TAG, "onCurrentPositionChanged");
-            PlaybackTransportControlGlue.this.onUpdateProgress();
-        }
-
-        @Override
-        public void onBufferedPositionChanged(PlayerAdapter wrapper) {
-            if (DEBUG) Log.v(TAG, "onBufferedPositionChanged");
-            PlaybackTransportControlGlue.this.onUpdateBufferedProgress();
-        }
-
-        @Override
-        public void onDurationChanged(PlayerAdapter wrapper) {
-            if (DEBUG) Log.v(TAG, "onDurationChanged");
-            PlaybackTransportControlGlue.this.onUpdateDuration();
-        }
-
-        @Override
-        public void onPlayCompleted(PlayerAdapter wrapper) {
-            if (DEBUG) Log.v(TAG, "onPlayCompleted");
-            PlaybackTransportControlGlue.this.onPlayCompleted();
-        }
-
-        @Override
-        public void onPreparedStateChanged(PlayerAdapter wrapper) {
-            if (DEBUG) Log.v(TAG, "onPreparedStateChanged");
-            PlaybackTransportControlGlue.this.onPreparedStateChanged();
-        }
-
-        @Override
-        public void onVideoSizeChanged(PlayerAdapter wrapper, int width, int height) {
-            mVideoWidth = width;
-            mVideoHeight = height;
-            if (mPlayerCallback != null) {
-                mPlayerCallback.onVideoSizeChanged(width, height);
-            }
-        }
-
-        @Override
-        public void onError(PlayerAdapter wrapper, int errorCode, String errorMessage) {
-            mErrorSet = true;
-            mErrorCode = errorCode;
-            mErrorMessage = errorMessage;
-            if (mPlayerCallback != null) {
-                mPlayerCallback.onError(errorCode, errorMessage);
-            }
-        }
-
-        @Override
-        public void onBufferingStateChanged(PlayerAdapter wrapper, boolean start) {
-            mBuffering = start;
-            if (mPlayerCallback != null) {
-                mPlayerCallback.onBufferingStateChanged(start);
-            }
-        }
-    };
+    final WeakReference<PlaybackBaseControlGlue> mGlueWeakReference =  new WeakReference(this);
 
     /**
      * Constructor for the glue.
@@ -217,198 +126,82 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
      * @param impl Implementation to underlying media player.
      */
     public PlaybackTransportControlGlue(Context context, T impl) {
-        super(context);
-        mPlayerAdapter = impl;
-        mPlayerAdapter.setCallback(mAdapterCallback);
+        super(context, impl);
     }
 
-    public final T getPlayerAdapter() {
-        return mPlayerAdapter;
+    @Override
+    public void setControlsRow(PlaybackControlsRow controlsRow) {
+        super.setControlsRow(controlsRow);
+        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
+        onUpdatePlaybackState();
+    }
+
+    @Override
+    protected void onCreatePrimaryActions(ArrayObjectAdapter primaryActionsAdapter) {
+        primaryActionsAdapter.add(mPlayPauseAction =
+                new PlaybackControlsRow.PlayPauseAction(getContext()));
+    }
+
+    @Override
+    protected PlaybackRowPresenter onCreateRowPresenter() {
+        final AbstractDetailsDescriptionPresenter detailsPresenter =
+                new AbstractDetailsDescriptionPresenter() {
+                    @Override
+                    protected void onBindDescription(ViewHolder
+                            viewHolder, Object obj) {
+                        PlaybackBaseControlGlue glue = (PlaybackBaseControlGlue) obj;
+                        viewHolder.getTitle().setText(glue.getTitle());
+                        viewHolder.getSubtitle().setText(glue.getSubtitle());
+                    }
+                };
+
+        PlaybackTransportRowPresenter rowPresenter = new PlaybackTransportRowPresenter() {
+            @Override
+            protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+                super.onBindRowViewHolder(vh, item);
+                vh.setOnKeyListener(PlaybackTransportControlGlue.this);
+            }
+            @Override
+            protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
+                super.onUnbindRowViewHolder(vh);
+                vh.setOnKeyListener(null);
+            }
+        };
+        rowPresenter.setDescriptionPresenter(detailsPresenter);
+        return rowPresenter;
     }
 
     @Override
     protected void onAttachedToHost(PlaybackGlueHost host) {
         super.onAttachedToHost(host);
-        host.setOnKeyInterceptListener(this);
-        host.setOnActionClickedListener(this);
-        onCreateDefaultControlsRow();
-        onCreateDefaultRowPresenter();
-        host.setPlaybackRowPresenter(getPlaybackRowPresenter());
-        host.setPlaybackRow(getControlsRow());
+
         if (host instanceof PlaybackSeekUi) {
             ((PlaybackSeekUi) host).setPlaybackSeekUiClient(mPlaybackSeekUiClient);
         }
-        mPlayerCallback = host.getPlayerCallback();
-        onAttachHostCallback();
-        mPlayerAdapter.onAttachedToHost(host);
-    }
-
-    void onAttachHostCallback() {
-        if (mPlayerCallback != null) {
-            if (mVideoWidth != 0 && mVideoHeight != 0) {
-                mPlayerCallback.onVideoSizeChanged(mVideoWidth, mVideoHeight);
-            }
-            if (mErrorSet) {
-                mPlayerCallback.onError(mErrorCode, mErrorMessage);
-            }
-            mPlayerCallback.onBufferingStateChanged(mBuffering);
-        }
-    }
-
-    void onDetachHostCallback() {
-        mErrorSet = false;
-        mErrorCode = 0;
-        mErrorMessage = null;
-        if (mPlayerCallback != null) {
-            mPlayerCallback.onBufferingStateChanged(false);
-        }
-    }
-
-    @Override
-    protected void onHostStart() {
-        mPlayerAdapter.setProgressUpdatingEnabled(true);
-    }
-
-    @Override
-    protected void onHostStop() {
-        mPlayerAdapter.setProgressUpdatingEnabled(false);
     }
 
     @Override
     protected void onDetachedFromHost() {
+        super.onDetachedFromHost();
+
         if (getHost() instanceof PlaybackSeekUi) {
             ((PlaybackSeekUi) getHost()).setPlaybackSeekUiClient(null);
         }
-        onDetachHostCallback();
-        mPlayerCallback = null;
-        mPlayerAdapter.onDetachedFromHost();
-        mPlayerAdapter.setProgressUpdatingEnabled(false);
-        super.onDetachedFromHost();
     }
 
-    void onCreateDefaultControlsRow() {
-        if (mControlsRow == null) {
-            PlaybackControlsRow controlsRow = new PlaybackControlsRow(this);
-            setControlsRow(controlsRow);
+    @Override
+    void onUpdateProgress() {
+        if (mControlsRow != null && !mPlaybackSeekUiClient.mIsSeek) {
+            mControlsRow.setCurrentPosition(mPlayerAdapter.isPrepared()
+                    ? mPlayerAdapter.getCurrentPosition() : -1);
         }
     }
 
-    void onCreateDefaultRowPresenter() {
-        if (mControlsRowPresenter == null) {
-            final AbstractDetailsDescriptionPresenter detailsPresenter =
-                    new AbstractDetailsDescriptionPresenter() {
-                        @Override
-                        protected void onBindDescription(ViewHolder
-                                viewHolder, Object obj) {
-                            PlaybackTransportControlGlue glue = (PlaybackTransportControlGlue) obj;
-                            viewHolder.getTitle().setText(glue.getTitle());
-                            viewHolder.getSubtitle().setText(glue.getSubtitle());
-                        }
-                    };
-
-            PlaybackTransportRowPresenter rowPresenter = new PlaybackTransportRowPresenter() {
-                @Override
-                protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
-                    super.onBindRowViewHolder(vh, item);
-                    vh.setOnKeyListener(PlaybackTransportControlGlue.this);
-                }
-                @Override
-                protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
-                    super.onUnbindRowViewHolder(vh);
-                    vh.setOnKeyListener(null);
-                }
-            };
-            rowPresenter.setDescriptionPresenter(detailsPresenter);
-            setPlaybackRowPresenter(rowPresenter);
-        }
-    }
-
-    /**
-     * Sets the controls to auto hide after a timeout when media is playing.
-     * @param enable True to enable auto hide after a timeout when media is playing.
-     * @see PlaybackGlueHost#setControlsOverlayAutoHideEnabled(boolean)
-     */
-    public void setControlsOverlayAutoHideEnabled(boolean enable) {
-        mFadeWhenPlaying = enable;
-        if (!mFadeWhenPlaying && getHost() != null) {
-            getHost().setControlsOverlayAutoHideEnabled(false);
-        }
-    }
-
-    /**
-     * Returns true if the controls auto hides after a timeout when media is playing.
-     * @return true if the controls auto hides after a timeout when media is playing.
-     * @see PlaybackGlueHost#isControlsOverlayAutoHideEnabled()
-     */
-    public boolean isControlsOverlayAutoHideEnabled() {
-        return mFadeWhenPlaying;
-    }
-
-    /**
-     * Sets the controls row to be managed by the glue layer. If
-     * {@link PlaybackControlsRow#getPrimaryActionsAdapter()} is not provided, a default
-     * {@link ArrayObjectAdapter} will be created and initialized in
-     * {@link #onCreatePrimaryActions(ArrayObjectAdapter)}. If
-     * {@link PlaybackControlsRow#getSecondaryActionsAdapter()} is not provided, a default
-     * {@link ArrayObjectAdapter} will be created and initialized in
-     * {@link #onCreateSecondaryActions(ArrayObjectAdapter)}.
-     * The primary actions and playback state related aspects of the row
-     * are updated by the glue.
-     */
-    public void setControlsRow(PlaybackControlsRow controlsRow) {
-        mControlsRow = controlsRow;
-        mControlsRow.setCurrentPosition(-1);
-        mControlsRow.setDuration(-1);
-        mControlsRow.setBufferedPosition(-1);
-        if (mControlsRow.getPrimaryActionsAdapter() == null) {
-            ArrayObjectAdapter adapter = new ArrayObjectAdapter(
-                    new ControlButtonPresenterSelector());
-            onCreatePrimaryActions(adapter);
-            mControlsRow.setPrimaryActionsAdapter(adapter);
-        }
-        // Add secondary actions
-        if (mControlsRow.getSecondaryActionsAdapter() == null) {
-            ArrayObjectAdapter secondaryActions = new ArrayObjectAdapter(
-                    new ControlButtonPresenterSelector());
-            onCreateSecondaryActions(secondaryActions);
-            getControlsRow().setSecondaryActionsAdapter(secondaryActions);
-        }
-        updateControlsRow();
-    }
-
-    /**
-     * Sets the controls row Presenter to be managed by the glue layer.
-     */
-    public void setPlaybackRowPresenter(PlaybackRowPresenter presenter) {
-        mControlsRowPresenter = presenter;
-    }
-
-    /**
-     * Returns the playback controls row managed by the glue layer.
-     */
-    public PlaybackControlsRow getControlsRow() {
-        return mControlsRow;
-    }
-
-    /**
-     * Returns the playback controls row Presenter managed by the glue layer.
-     */
-    public PlaybackRowPresenter getPlaybackRowPresenter() {
-        return mControlsRowPresenter;
-    }
-
-    /**
-     * Handles action clicks.  A subclass may override this add support for additional actions.
-     */
     @Override
     public void onActionClicked(Action action) {
         dispatchAction(action, null);
     }
 
-    /**
-     * Handles key events and returns true if handled.  A subclass may override this to provide
-     * additional support.
-     */
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -420,6 +213,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
             case KeyEvent.KEYCODE_ESCAPE:
                 return false;
         }
+
         final ObjectAdapter primaryActionsAdapter = mControlsRow.getPrimaryActionsAdapter();
         Action action = mControlsRow.getActionForKeyCode(primaryActionsAdapter, keyCode);
         if (action == null) {
@@ -434,6 +228,15 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
             return true;
         }
         return false;
+    }
+
+    void onUpdatePlaybackStatusAfterUserAction() {
+        updatePlaybackState(mIsPlaying);
+
+        // Sync playback state after a delay
+        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
+        sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
+                mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
     }
 
     /**
@@ -454,14 +257,14 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
             // ff/rw      playing       playing   paused
             if (canPause
                     && (canPlay ? mIsPlaying :
-                        !mIsPlaying)) {
+                    !mIsPlaying)) {
                 mIsPlaying = false;
                 pause();
             } else if (canPlay && !mIsPlaying) {
                 mIsPlaying = true;
                 play();
             }
-            updatePlaybackStatusAfterUserAction();
+            onUpdatePlaybackStatusAfterUserAction();
             handled = true;
         } else if (action instanceof PlaybackControlsRow.SkipNextAction) {
             next();
@@ -473,33 +276,30 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
         return handled;
     }
 
-    private void updateControlsRow() {
-        onMetadataChanged();
-        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
-        updatePlaybackState();
+    @Override
+    protected void onPlayStateChanged() {
+        if (DEBUG) Log.v(TAG, "onStateChanged");
+
+        if (sHandler.hasMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference)) {
+            sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
+            if (mPlayerAdapter.isPlaying() != mIsPlaying) {
+                if (DEBUG) Log.v(TAG, "Status expectation mismatch, delaying update");
+                sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
+                        mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
+            } else {
+                if (DEBUG) Log.v(TAG, "Update state matches expectation");
+                onUpdatePlaybackState();
+            }
+        } else {
+            onUpdatePlaybackState();
+        }
+
+        super.onPlayStateChanged();
     }
 
-    private void updatePlaybackStatusAfterUserAction() {
+    void onUpdatePlaybackState() {
+        mIsPlaying = mPlayerAdapter.isPlaying();
         updatePlaybackState(mIsPlaying);
-        // Sync playback state after a delay
-        sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
-        sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
-                mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
-    }
-
-    @Override
-    public final boolean isPlaying() {
-        return mPlayerAdapter.isPlaying();
-    }
-
-    @Override
-    public final void play() {
-        mPlayerAdapter.play();
-    }
-
-    @Override
-    public void pause() {
-        mPlayerAdapter.pause();
     }
 
     private void updatePlaybackState(boolean isPlaying) {
@@ -526,222 +326,6 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
                 mPlayPauseAction.setIndex(index);
                 notifyItemChanged((ArrayObjectAdapter) getControlsRow().getPrimaryActionsAdapter(),
                         mPlayPauseAction);
-            }
-        }
-    }
-
-    private static void notifyItemChanged(ArrayObjectAdapter adapter, Object object) {
-        int index = adapter.indexOf(object);
-        if (index >= 0) {
-            adapter.notifyArrayItemRangeChanged(index, 1);
-        }
-    }
-
-    /**
-     * May be overridden to add primary actions to the adapter. Default implementation add
-     * {@link PlaybackControlsRow.PlayPauseAction}.
-     *
-     * @param primaryActionsAdapter The adapter to add primary {@link Action}s.
-     */
-    protected void onCreatePrimaryActions(ArrayObjectAdapter primaryActionsAdapter) {
-        primaryActionsAdapter.add(mPlayPauseAction =
-                new PlaybackControlsRow.PlayPauseAction(getContext()));
-    }
-
-    /**
-     * May be overridden to add secondary actions to the adapter.
-     *
-     * @param secondaryActionsAdapter The adapter you need to add the {@link Action}s to.
-     */
-    protected void onCreateSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
-    }
-
-    void onUpdateProgress() {
-        if (mControlsRow != null && !mPlaybackSeekUiClient.mIsSeek) {
-            mControlsRow.setCurrentPosition(mPlayerAdapter.isPrepared()
-                    ? mPlayerAdapter.getCurrentPosition() : -1);
-        }
-    }
-
-    void onUpdateBufferedProgress() {
-        if (mControlsRow != null) {
-            mControlsRow.setBufferedPosition(mPlayerAdapter.getBufferedPosition());
-        }
-    }
-
-    void onUpdateDuration() {
-        if (mControlsRow != null) {
-            mControlsRow.setDuration(
-                    mPlayerAdapter.isPrepared() ? mPlayerAdapter.getDuration() : -1);
-        }
-    }
-
-    /**
-     * @return The duration of the media item in milliseconds.
-     */
-    public final long getDuration() {
-        return mPlayerAdapter.getDuration();
-    }
-
-    /**
-     * @return The current position of the media item in milliseconds.
-     */
-    public final long getCurrentPosition() {
-        return mPlayerAdapter.getCurrentPosition();
-    }
-
-    /**
-     * @return The current buffered position of the media item in milliseconds.
-     */
-    public final long getBufferedPosition() {
-        return mPlayerAdapter.getBufferedPosition();
-    }
-
-    @Override
-    public final boolean isPrepared() {
-        return mPlayerAdapter.isPrepared();
-    }
-
-    /**
-     * Event when ready state for play changes.
-     */
-    @CallSuper
-    protected void onPreparedStateChanged() {
-        onUpdateDuration();
-        List<PlayerCallback> callbacks = getPlayerCallbacks();
-        if (callbacks != null) {
-            for (int i = 0, size = callbacks.size(); i < size; i++) {
-                callbacks.get(i).onPreparedStateChanged(this);
-            }
-        }
-    }
-
-    /**
-     * Sets the drawable representing cover image. The drawable will be rendered by default
-     * description presenter in
-     * {@link PlaybackTransportRowPresenter#setDescriptionPresenter(Presenter)}.
-     * @param cover The drawable representing cover image.
-     */
-    public void setArt(Drawable cover) {
-        if (mCover == cover) {
-            return;
-        }
-        this.mCover = cover;
-        mControlsRow.setImageDrawable(mCover);
-        if (getHost() != null) {
-            getHost().notifyPlaybackRowChanged();
-        }
-    }
-
-    /**
-     * @return The drawable representing cover image.
-     */
-    public Drawable getArt() {
-        return mCover;
-    }
-
-    /**
-     * Sets the media subtitle. The subtitle will be rendered by default description presenter
-     * {@link PlaybackTransportRowPresenter#setDescriptionPresenter(Presenter)}.
-     * @param subtitle Subtitle to set.
-     */
-    public void setSubtitle(CharSequence subtitle) {
-        if (subtitle == null ? mSubtitle == null : subtitle.equals(mSubtitle)) {
-            return;
-        }
-        mSubtitle = subtitle;
-        if (getHost() != null) {
-            getHost().notifyPlaybackRowChanged();
-        }
-    }
-
-    /**
-     * Return The media subtitle.
-     */
-    public CharSequence getSubtitle() {
-        return mSubtitle;
-    }
-
-    /**
-     * Sets the media title. The title will be rendered by default description presenter
-     * {@link PlaybackTransportRowPresenter#setDescriptionPresenter(Presenter)}.
-     */
-    public void setTitle(CharSequence title) {
-        if (title == null ? mTitle == null : title.equals(mTitle)) {
-            return;
-        }
-        mTitle = title;
-        if (getHost() != null) {
-            getHost().notifyPlaybackRowChanged();
-        }
-    }
-
-    /**
-     * Returns the title of the media item.
-     */
-    public CharSequence getTitle() {
-        return mTitle;
-    }
-
-    /**
-     * Event when metadata changed
-     */
-    void onMetadataChanged() {
-        if (mControlsRow == null) {
-            return;
-        }
-
-        if (DEBUG) Log.v(TAG, "updateRowMetadata");
-
-        mControlsRow.setImageDrawable(getArt());
-        mControlsRow.setDuration(mPlayerAdapter.getDuration());
-        mControlsRow.setCurrentPosition(mPlayerAdapter.getCurrentPosition());
-
-        if (getHost() != null) {
-            getHost().notifyPlaybackRowChanged();
-        }
-    }
-
-    void updatePlaybackState() {
-        mIsPlaying = mPlayerAdapter.isPlaying();
-        updatePlaybackState(mIsPlaying);
-    }
-
-    /**
-     * Event when play state changed.
-     */
-    @CallSuper
-    protected void onPlayStateChanged() {
-        if (sHandler.hasMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference)) {
-            sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
-            if (mPlayerAdapter.isPlaying() != mIsPlaying) {
-                if (DEBUG) Log.v(TAG, "Status expectation mismatch, delaying update");
-                sHandler.sendMessageDelayed(sHandler.obtainMessage(MSG_UPDATE_PLAYBACK_STATE,
-                        mGlueWeakReference), UPDATE_PLAYBACK_STATE_DELAY_MS);
-            } else {
-                if (DEBUG) Log.v(TAG, "Update state matches expectation");
-                updatePlaybackState();
-            }
-        } else {
-            updatePlaybackState();
-        }
-        List<PlayerCallback> callbacks = getPlayerCallbacks();
-        if (callbacks != null) {
-            for (int i = 0, size = callbacks.size(); i < size; i++) {
-                callbacks.get(i).onPlayStateChanged(this);
-            }
-        }
-    }
-
-    /**
-     * Event when play finishes, subclass may handling repeat mode here.
-     */
-    @CallSuper
-    protected void onPlayCompleted() {
-        List<PlayerCallback> callbacks = getPlayerCallbacks();
-        if (callbacks != null) {
-            for (int i = 0, size = callbacks.size(); i < size; i++) {
-                callbacks.get(i).onPlayCompleted(this);
             }
         }
     }
@@ -843,13 +427,4 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter> extends Playb
     public final boolean isSeekEnabled() {
         return mSeekEnabled;
     }
-
-    /**
-     * Seek media to a new position.
-     * @param position New position.
-     */
-    public final void seekTo(long position) {
-        mPlayerAdapter.seekTo(position);
-    }
-
 }
