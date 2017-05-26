@@ -238,7 +238,12 @@ class AppCompatTextHelper {
                 mView.setTextColor(textColor);
             }
         }
+
+        updateTypefaceAndStyle(context, a);
         a.recycle();
+        if (mFontTypeface != null) {
+            mView.setTypeface(mFontTypeface, mStyle);
+        }
     }
 
     void setAllCaps(boolean allCaps) {
