@@ -43,7 +43,7 @@ public abstract class GridTest {
         }
 
         @Override
-        public int createItem(int index, boolean append, Object[] item) {
+        public int createItem(int index, boolean append, Object[] item, boolean disappearingItem) {
             return mItems[index];
         }
 
