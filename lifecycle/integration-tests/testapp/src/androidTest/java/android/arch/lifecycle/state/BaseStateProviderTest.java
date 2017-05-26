@@ -18,12 +18,11 @@ package android.arch.lifecycle.state;
 
 import static android.arch.lifecycle.TestUtils.recreateActivity;
 
-import android.support.test.rule.ActivityTestRule;
-import android.support.v4.app.Fragment;
-
 import android.arch.lifecycle.HolderFragment;
 import android.arch.lifecycle.testapp.MainActivity;
 import android.arch.lifecycle.testapp.R;
+import android.support.test.rule.ActivityTestRule;
+import android.support.v4.app.Fragment;
 
 import org.junit.Rule;
 
@@ -38,8 +37,8 @@ abstract class BaseStateProviderTest<T> {
     }
 
     public static List<Object[]> paramsNames = Arrays.asList(
-            new Object[] {TestVariant.ACTIVITY.name()},
-            new Object[] {TestVariant.FRAGMENT.name()});
+            new Object[]{TestVariant.ACTIVITY.name()},
+            new Object[]{TestVariant.FRAGMENT.name()});
 
     @Rule
     public ActivityTestRule<MainActivity> activityTestRule =
@@ -73,7 +72,7 @@ abstract class BaseStateProviderTest<T> {
         holderFragment.setRetainInstance(false);
     }
 
-    @SafeVarargs
+    @SuppressWarnings("unchecked")
     final void testRecreation(Action<T>... actions) throws Throwable {
         MainActivity currentActivity = getActivity();
         for (int i = 0; i < actions.length; i++) {
