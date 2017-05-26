@@ -28,7 +28,6 @@ import android.support.media.tv.TvContractCompat.Programs;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
-import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
 
@@ -113,14 +112,71 @@ public class ProgramTest extends TestCase {
         Uri programUri = resolver.insert(Programs.CONTENT_URI,
                 fullyPopulatedProgram.toContentValues());
 
-        Program programFromSystemDb;
+        Program programFromSystemDb = loadProgramFromContentProvider(resolver, programUri);
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
+    }
+
+    @Test
+    public void testProgramUpdateWithContentProvider() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
+        Channel channel = new Channel.Builder()
+                .setInputId("TestInputService")
+                .setType(TvContractCompat.Channels.TYPE_OTHER)
+                .build();
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        Uri channelUri = resolver.insert(Channels.CONTENT_URI, channel.toContentValues());
+        assertNotNull(channelUri);
+
+        Program fullyPopulatedProgram =
+                createFullyPopulatedProgram(ContentUris.parseId(channelUri));
+        Uri programUri = resolver.insert(Programs.CONTENT_URI,
+                fullyPopulatedProgram.toContentValues());
+
+        Program programFromSystemDb = loadProgramFromContentProvider(resolver, programUri);
+        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
+
+        // Update a field from a fully loaded program.
+        Program updatedProgram = new Program.Builder(programFromSystemDb)
+                .setDescription("description1").build();
+        assertEquals(1, resolver.update(
+                programUri, updatedProgram.toContentValues(), null, null));
+        programFromSystemDb = loadProgramFromContentProvider(resolver, programUri);
+        compareProgram(updatedProgram, programFromSystemDb, false);
+
+        // Update a field with null from a fully loaded program.
+        updatedProgram = new Program.Builder(updatedProgram)
+                .setLongDescription(null).build();
+        assertEquals(1, resolver.update(
+                programUri, updatedProgram.toContentValues(), null, null));
+        programFromSystemDb = loadProgramFromContentProvider(resolver, programUri);
+        compareProgram(updatedProgram, programFromSystemDb, false);
+
+        // Update a field without referencing fully loaded program.
+        ContentValues values = new Program.Builder().setDescription("description2").build()
+                .toContentValues();
+        assertEquals(1, values.size());
+        assertEquals(1, resolver.update(programUri, values, null, null));
+        programFromSystemDb = loadProgramFromContentProvider(resolver, programUri);
+        Program expectedProgram = new Program.Builder(programFromSystemDb)
+                .setDescription("description2").build();
+        compareProgram(expectedProgram, programFromSystemDb, false);
+    }
+
+    @Test
+    public void testProgramEquals() {
+        assertEquals(createFullyPopulatedProgram(1), createFullyPopulatedProgram(1));
+    }
+
+    private static Program loadProgramFromContentProvider(
+            ContentResolver resolver, Uri programUri) {
         try (Cursor cursor = resolver.query(programUri, null, null, null, null)) {
             assertNotNull(cursor);
             assertEquals(1, cursor.getCount());
             cursor.moveToNext();
-            programFromSystemDb = Program.fromCursor(cursor);
+            return Program.fromCursor(cursor);
         }
-        compareProgram(fullyPopulatedProgram, programFromSystemDb, false);
     }
 
     private static Program createFullyPopulatedProgram(long channelId) {
@@ -186,17 +242,15 @@ public class ProgramTest extends TestCase {
             assertTrue(Objects.equals(programA.isRecordingProhibited(),
                     programB.isRecordingProhibited()));
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             assertEquals(programA.getReviewRatingStyle(), programB.getReviewRatingStyle());
             assertEquals(programA.getReviewRating(), programB.getReviewRating());
         }
-        assertEquals(programA.toString(), programB.toString());
         if (includeIdAndProtectedFields) {
             // Skip row ID since the one from system DB has the valid ID while the other does not.
             assertEquals(programA.getId(), programB.getId());
             assertEquals(programA.getPackageName(), programB.getPackageName());
             assertEquals(programA.toContentValues(), programB.toContentValues());
-            assertEquals(programA, programB);
         }
     }
 

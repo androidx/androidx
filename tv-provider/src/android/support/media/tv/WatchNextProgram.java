@@ -20,11 +20,10 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.WatchNextPrograms;
 import android.support.media.tv.TvContractCompat.WatchNextPrograms.WatchNextType;
-
-import java.util.Objects;
 
 /**
  * A convenience class to access {@link WatchNextPrograms} entries in the system content
@@ -57,6 +56,21 @@ import java.util.Objects;
  *     }
  * }
  * </pre>
+ *
+ * <p>Usage example when updating an existing "watch next" program:
+ * <pre>
+ * WatchNextProgram updatedProgram = new WatchNextProgram.Builder(watchNextProgram)
+ *         .setLastEngagementTimeUtcMillis(System.currentTimeMillis())
+ *         .build();
+ * getContentResolver().update(TvContractCompat.buildWatchNextProgramUri(updatedProgram.getId()),
+ *         updatedProgram.toContentValues(), null, null);
+ * </pre>
+ *
+ * <p>Usage example when deleting a "watch next" program:
+ * <pre>
+ * getContentResolver().delete(TvContractCompat.buildWatchNextProgramUri(existingProgram.getId()),
+ *         null, null);
+ * </pre>
  */
 @TargetApi(26)
 public final class WatchNextProgram extends BasePreviewProgram {
@@ -69,20 +83,16 @@ public final class WatchNextProgram extends BasePreviewProgram {
     private static final long INVALID_LONG_VALUE = -1;
     private static final int INVALID_INT_VALUE = -1;
 
-    private final int mWatchNextType;
-    private final long mLastEngagementTimeUtcMillis;
-
     private WatchNextProgram(Builder builder) {
         super(builder);
-        mWatchNextType = builder.mWatchNextType;
-        mLastEngagementTimeUtcMillis = builder.mLastEngagementTimeUtcMillis;
     }
 
     /**
      * @return The value of {@link WatchNextPrograms#COLUMN_WATCH_NEXT_TYPE} for the program.
      */
     public @WatchNextType int getWatchNextType() {
-        return mWatchNextType;
+        Integer i = mValues.getAsInteger(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
@@ -90,7 +100,8 @@ public final class WatchNextProgram extends BasePreviewProgram {
      * program.
      */
     public long getLastEngagementTimeUtcMillis() {
-        return mLastEngagementTimeUtcMillis;
+        Long l = mValues.getAsLong(WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS);
+        return l == null ? INVALID_LONG_VALUE : l;
     }
 
     @Override
@@ -98,20 +109,12 @@ public final class WatchNextProgram extends BasePreviewProgram {
         if (!(other instanceof WatchNextProgram)) {
             return false;
         }
-        if (!super.equals(other)) {
-            return false;
-        }
-        WatchNextProgram program = (WatchNextProgram) other;
-        return Objects.equals(mWatchNextType, program.mWatchNextType)
-                && mLastEngagementTimeUtcMillis == program.mLastEngagementTimeUtcMillis;
+        return mValues.equals(((WatchNextProgram) other).mValues);
     }
 
     @Override
     public String toString() {
-        return "Program{"
-                + ", watchNextType=" + mWatchNextType
-                + ", lastEngagementTimeUtcMillis=" + mLastEngagementTimeUtcMillis
-                + "}";
+        return "WatchNextProgram{" + mValues.toString() + "}";
     }
 
     /**
@@ -134,12 +137,9 @@ public final class WatchNextProgram extends BasePreviewProgram {
     @Override
     public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = super.toContentValues(includeProtectedFields);
-        if (mWatchNextType != INVALID_INT_VALUE) {
-            values.put(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE, mWatchNextType);
-        }
-        if (mLastEngagementTimeUtcMillis != INVALID_LONG_VALUE) {
-            values.put(WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS,
-                    mLastEngagementTimeUtcMillis);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            values.remove(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE);
+            values.remove(WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS);
         }
         return values;
     }
@@ -180,8 +180,6 @@ public final class WatchNextProgram extends BasePreviewProgram {
      * This Builder class simplifies the creation of a {@link WatchNextProgram} object.
      */
     public static final class Builder extends BasePreviewProgram.Builder<Builder> {
-        private int mWatchNextType = INVALID_INT_VALUE;
-        private long mLastEngagementTimeUtcMillis = INVALID_LONG_VALUE;
 
         /**
          * Creates a new Builder object.
@@ -194,9 +192,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
          * @param other The Program you're copying from.
          */
         public Builder(WatchNextProgram other) {
-            super(other);
-            mWatchNextType = other.mWatchNextType;
-            mLastEngagementTimeUtcMillis = other.mLastEngagementTimeUtcMillis;
+            mValues = new ContentValues(other.mValues);
         }
 
         /**
@@ -212,7 +208,7 @@ public final class WatchNextProgram extends BasePreviewProgram {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setWatchNextType(@WatchNextType int watchNextType) {
-            mWatchNextType = watchNextType;
+            mValues.put(WatchNextPrograms.COLUMN_WATCH_NEXT_TYPE, watchNextType);
             return this;
         }
 
@@ -224,7 +220,8 @@ public final class WatchNextProgram extends BasePreviewProgram {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setLastEngagementTimeUtcMillis(long lastEngagementTimeUtcMillis) {
-            mLastEngagementTimeUtcMillis = lastEngagementTimeUtcMillis;
+            mValues.put(WatchNextPrograms.COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS,
+                    lastEngagementTimeUtcMillis);
             return this;
         }
 

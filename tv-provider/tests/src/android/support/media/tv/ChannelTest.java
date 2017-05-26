@@ -26,7 +26,6 @@ import android.support.media.tv.TvContractCompat.Channels;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
-import android.support.v4.os.BuildCompat;
 
 import junit.framework.TestCase;
 
@@ -102,14 +101,65 @@ public class ChannelTest extends TestCase {
         Uri channelUri = resolver.insert(Channels.CONTENT_URI, contentValues);
         assertNotNull(channelUri);
 
-        Channel channelFromSystemDb;
-        try (Cursor cursor = resolver.query(channelUri, Channel.PROJECTION, null, null, null)) {
+        Channel channelFromSystemDb = loadChannelFromContentProvider(resolver, channelUri);
+        compareChannel(fullyPopulatedChannel, channelFromSystemDb, false);
+    }
+
+    @Test
+    public void testChannelUpdateWithContentProvider() {
+        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+            return;
+        }
+
+        Channel fullyPopulatedChannel = createFullyPopulatedChannel();
+        ContentValues contentValues = fullyPopulatedChannel.toContentValues();
+        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        Uri channelUri = resolver.insert(Channels.CONTENT_URI, contentValues);
+        assertNotNull(channelUri);
+
+        Channel channelFromSystemDb = loadChannelFromContentProvider(resolver, channelUri);
+        compareChannel(fullyPopulatedChannel, channelFromSystemDb, false);
+
+        // Update a field from a fully loaded channel.
+        Channel updatedChannel = new Channel.Builder(channelFromSystemDb)
+                .setDescription("new description").build();
+        assertEquals(1, resolver.update(channelUri, updatedChannel.toContentValues(), null, null));
+        channelFromSystemDb = loadChannelFromContentProvider(resolver, channelUri);
+        compareChannel(updatedChannel, channelFromSystemDb, false);
+
+        // Update a field with null from a fully loaded channel.
+        updatedChannel = new Channel.Builder(updatedChannel)
+                .setAppLinkText(null).build();
+        assertEquals(1, resolver.update(
+                channelUri, updatedChannel.toContentValues(), null, null));
+        channelFromSystemDb = loadChannelFromContentProvider(resolver, channelUri);
+        compareChannel(updatedChannel, channelFromSystemDb, false);
+
+        // Update a field without referencing fully channel.
+        ContentValues values = new Channel.Builder().setDisplayName("abc").build()
+                .toContentValues();
+        assertEquals(1, values.size());
+        assertEquals(1, resolver.update(channelUri, values, null, null));
+        channelFromSystemDb = loadChannelFromContentProvider(resolver, channelUri);
+        Channel expectedChannel = new Channel.Builder(channelFromSystemDb)
+                .setDisplayName("abc").build();
+        compareChannel(expectedChannel, channelFromSystemDb, false);
+    }
+
+    @Test
+    public void testChannelEquals() {
+        assertEquals(createFullyPopulatedChannel(), createFullyPopulatedChannel());
+    }
+
+
+    private static Channel loadChannelFromContentProvider(
+            ContentResolver resolver, Uri channelUri) {
+        try (Cursor cursor = resolver.query(channelUri, null, null, null, null)) {
             assertNotNull(cursor);
             assertEquals(1, cursor.getCount());
             cursor.moveToNext();
-            channelFromSystemDb = Channel.fromCursor(cursor);
+            return Channel.fromCursor(cursor);
         }
-        compareChannel(fullyPopulatedChannel, channelFromSystemDb, false);
     }
 
     private static Channel createFullyPopulatedChannel() {
@@ -166,7 +216,7 @@ public class ChannelTest extends TestCase {
             assertEquals(channelA.getAppLinkPosterArtUri(), channelB.getAppLinkPosterArtUri());
             assertEquals(channelA.getAppLinkText(), channelB.getAppLinkText());
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             assertEquals(channelA.getInternalProviderId(), channelB.getInternalProviderId());
             assertEquals(channelA.isTransient(), channelB.isTransient());
         }
@@ -177,11 +227,10 @@ public class ChannelTest extends TestCase {
             // protected fields since they only can be modified by system apps.
             assertEquals(channelA.isBrowsable(), channelB.isBrowsable());
             assertEquals(channelA.isLocked(), channelB.isLocked());
-            if (BuildCompat.isAtLeastO()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 assertEquals(channelA.isSystemApproved(), channelB.isSystemApproved());
             }
             assertEquals(channelA.toContentValues(), channelB.toContentValues());
-            assertEquals(channelA.toString(), channelB.toString());
         }
     }
 

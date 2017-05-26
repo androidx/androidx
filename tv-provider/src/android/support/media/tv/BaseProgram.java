@@ -28,11 +28,6 @@ import android.support.media.tv.TvContractCompat.ProgramColumns;
 import android.support.media.tv.TvContractCompat.ProgramColumns.ReviewRatingStyle;
 import android.support.media.tv.TvContractCompat.Programs;
 import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
-import android.support.v4.os.BuildCompat;
-import android.text.TextUtils;
-
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * Base class for derived classes that want to have common fields for programs defined in
@@ -49,57 +44,13 @@ public abstract class BaseProgram {
     private static final int INVALID_INT_VALUE = -1;
     private static final int IS_SEARCHABLE = 1;
 
-    private final long mId;
-    private final String mPackageName;
-    private final String mTitle;
-    private final String mEpisodeTitle;
-    private final String mSeasonNumber;
-    private final String mEpisodeNumber;
-    private final String mDescription;
-    private final String mLongDescription;
-    private final int mVideoWidth;
-    private final int mVideoHeight;
-    private final Uri mPosterArtUri;
-    private final Uri mThumbnailUri;
-    private final String[] mCanonicalGenres;
-    private final TvContentRating[] mContentRatings;
-    private final byte[] mInternalProviderData;
-    private final String[] mAudioLanguages;
-    private final int mSearchable;
-    private final Long mInternalProviderFlag1;
-    private final Long mInternalProviderFlag2;
-    private final Long mInternalProviderFlag3;
-    private final Long mInternalProviderFlag4;
-    private final int mReviewRatingStyle;
-    private final String mReviewRating;
-    private final String mSeasonTitle;
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    protected ContentValues mValues;
 
     /* package-private */
     BaseProgram(Builder builder) {
-        mId = builder.mId;
-        mPackageName = builder.mPackageName;
-        mTitle = builder.mTitle;
-        mEpisodeTitle = builder.mEpisodeTitle;
-        mSeasonNumber = builder.mSeasonNumber;
-        mEpisodeNumber = builder.mEpisodeNumber;
-        mDescription = builder.mDescription;
-        mLongDescription = builder.mLongDescription;
-        mVideoWidth = builder.mVideoWidth;
-        mVideoHeight = builder.mVideoHeight;
-        mPosterArtUri = builder.mPosterArtUri;
-        mThumbnailUri = builder.mThumbnailUri;
-        mCanonicalGenres = builder.mCanonicalGenres;
-        mContentRatings = builder.mContentRatings;
-        mInternalProviderData = builder.mInternalProviderData;
-        mAudioLanguages = builder.mAudioLanguages;
-        mSearchable = builder.mSearchable;
-        mInternalProviderFlag1 = builder.mInternalProviderFlag1;
-        mInternalProviderFlag2 = builder.mInternalProviderFlag2;
-        mInternalProviderFlag3 = builder.mInternalProviderFlag3;
-        mInternalProviderFlag4 = builder.mInternalProviderFlag4;
-        mReviewRatingStyle = builder.mReviewRatingStyle;
-        mReviewRating = builder.mReviewRating;
-        mSeasonTitle = builder.mSeasonTitle;
+        mValues = builder.mValues;
     }
 
     /**
@@ -107,7 +58,8 @@ public abstract class BaseProgram {
      * @see BaseTvColumns#_ID
      */
     public long getId() {
-        return mId;
+        Long l = mValues.getAsLong(BaseTvColumns._ID);
+        return l == null ? INVALID_LONG_VALUE : l;
     }
 
     /**
@@ -117,7 +69,7 @@ public abstract class BaseProgram {
      */
     @RestrictTo(LIBRARY_GROUP)
     public String getPackageName() {
-        return mPackageName;
+        return mValues.getAsString(BaseTvColumns.COLUMN_PACKAGE_NAME);
     }
 
     /**
@@ -125,7 +77,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_TITLE
      */
     public String getTitle() {
-        return mTitle;
+        return mValues.getAsString(Programs.COLUMN_TITLE);
     }
 
     /**
@@ -133,7 +85,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_EPISODE_TITLE
      */
     public String getEpisodeTitle() {
-        return mEpisodeTitle;
+        return mValues.getAsString(Programs.COLUMN_EPISODE_TITLE);
     }
 
     /**
@@ -141,7 +93,11 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
      */
     public String getSeasonNumber() {
-        return mSeasonNumber;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return mValues.getAsString(Programs.COLUMN_SEASON_DISPLAY_NUMBER);
+        } else {
+            return mValues.getAsString(Programs.COLUMN_SEASON_NUMBER);
+        }
     }
 
     /**
@@ -149,7 +105,11 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
      */
     public String getEpisodeNumber() {
-        return mEpisodeNumber;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return mValues.getAsString(Programs.COLUMN_EPISODE_DISPLAY_NUMBER);
+        } else {
+            return mValues.getAsString(Programs.COLUMN_EPISODE_NUMBER);
+        }
     }
 
     /**
@@ -157,7 +117,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_SHORT_DESCRIPTION
      */
     public String getDescription() {
-        return mDescription;
+        return mValues.getAsString(Programs.COLUMN_SHORT_DESCRIPTION);
     }
 
     /**
@@ -165,7 +125,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_LONG_DESCRIPTION
      */
     public String getLongDescription() {
-        return mLongDescription;
+        return mValues.getAsString(Programs.COLUMN_LONG_DESCRIPTION);
     }
 
     /**
@@ -173,7 +133,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_VIDEO_WIDTH
      */
     public int getVideoWidth() {
-        return mVideoWidth;
+        Integer i = mValues.getAsInteger(Programs.COLUMN_VIDEO_WIDTH);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
@@ -181,7 +142,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_VIDEO_HEIGHT
      */
     public int getVideoHeight() {
-        return mVideoHeight;
+        Integer i = mValues.getAsInteger(Programs.COLUMN_VIDEO_HEIGHT);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
@@ -189,7 +151,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_CANONICAL_GENRE
      */
     public @Genre String[] getCanonicalGenres() {
-        return mCanonicalGenres;
+        return Programs.Genres.decode(mValues.getAsString(Programs.COLUMN_CANONICAL_GENRE));
     }
 
     /**
@@ -197,7 +159,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_CONTENT_RATING
      */
     public TvContentRating[] getContentRatings() {
-        return mContentRatings;
+        return TvContractUtils.stringToContentRatings(mValues.getAsString(
+                Programs.COLUMN_CONTENT_RATING));
     }
 
     /**
@@ -205,7 +168,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_POSTER_ART_URI
      */
     public Uri getPosterArtUri() {
-        return mPosterArtUri;
+        String uri = mValues.getAsString(Programs.COLUMN_POSTER_ART_URI);
+        return uri == null ? null : Uri.parse(uri);
     }
 
     /**
@@ -213,7 +177,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_THUMBNAIL_URI
      */
     public Uri getThumbnailUri() {
-        return mThumbnailUri;
+        String uri = mValues.getAsString(Programs.COLUMN_POSTER_ART_URI);
+        return uri == null ? null : Uri.parse(uri);
     }
 
     /**
@@ -221,7 +186,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_INTERNAL_PROVIDER_DATA
      */
     public byte[] getInternalProviderDataByteArray() {
-        return mInternalProviderData;
+        return mValues.getAsByteArray(Programs.COLUMN_INTERNAL_PROVIDER_DATA);
     }
 
     /**
@@ -229,7 +194,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_AUDIO_LANGUAGE
      */
     public String[] getAudioLanguages() {
-        return mAudioLanguages;
+        return TvContractUtils.stringToAudioLanguages(mValues.getAsString(
+                Programs.COLUMN_AUDIO_LANGUAGE));
     }
 
     /**
@@ -237,7 +203,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_SEARCHABLE
      */
     public boolean isSearchable() {
-        return mSearchable == IS_SEARCHABLE || mSearchable == INVALID_INT_VALUE;
+        Integer i = mValues.getAsInteger(Programs.COLUMN_SEARCHABLE);
+        return i == null || i == IS_SEARCHABLE;
     }
 
     /**
@@ -245,7 +212,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
      */
     public Long getInternalProviderFlag1() {
-        return mInternalProviderFlag1;
+        return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG1);
     }
 
     /**
@@ -253,7 +220,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
      */
     public Long getInternalProviderFlag2() {
-        return mInternalProviderFlag2;
+        return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG2);
     }
 
     /**
@@ -261,7 +228,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
      */
     public Long getInternalProviderFlag3() {
-        return mInternalProviderFlag3;
+        return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG3);
     }
 
     /**
@@ -269,7 +236,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
      */
     public Long getInternalProviderFlag4() {
-        return mInternalProviderFlag4;
+        return mValues.getAsLong(Programs.COLUMN_INTERNAL_PROVIDER_FLAG4);
     }
 
     /**
@@ -277,7 +244,7 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_SEASON_TITLE
      */
     public String getSeasonTitle() {
-        return mSeasonTitle;
+        return mValues.getAsString(Programs.COLUMN_SEASON_TITLE);
     }
 
     /**
@@ -285,7 +252,8 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_REVIEW_RATING_STYLE
      */
     public @ReviewRatingStyle int getReviewRatingStyle() {
-        return mReviewRatingStyle;
+        Integer i = mValues.getAsInteger(Programs.COLUMN_REVIEW_RATING_STYLE);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     /**
@@ -293,15 +261,12 @@ public abstract class BaseProgram {
      * @see Programs#COLUMN_REVIEW_RATING
      */
     public String getReviewRating() {
-        return mReviewRating;
+        return mValues.getAsString(Programs.COLUMN_REVIEW_RATING);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                mTitle, mEpisodeTitle, mDescription, mLongDescription, mVideoWidth, mVideoHeight,
-                mPosterArtUri, mThumbnailUri, Arrays.hashCode(mContentRatings),
-                Arrays.hashCode(mCanonicalGenres), mSeasonNumber, mEpisodeNumber);
+        return mValues.hashCode();
     }
 
     @Override
@@ -309,51 +274,12 @@ public abstract class BaseProgram {
         if (!(other instanceof BaseProgram)) {
             return false;
         }
-        BaseProgram program = (BaseProgram) other;
-        return Objects.equals(mTitle, program.mTitle)
-                && Objects.equals(mEpisodeTitle, program.mEpisodeTitle)
-                && Objects.equals(mSeasonNumber, program.mSeasonNumber)
-                && Objects.equals(mEpisodeNumber, program.mEpisodeNumber)
-                && Objects.equals(mDescription, program.mDescription)
-                && Objects.equals(mLongDescription, program.mLongDescription)
-                && mVideoWidth == program.mVideoWidth
-                && mVideoHeight == program.mVideoHeight
-                && Objects.equals(mPosterArtUri, program.mPosterArtUri)
-                && Objects.equals(mThumbnailUri, program.mThumbnailUri)
-                && Arrays.equals(mInternalProviderData, program.mInternalProviderData)
-                && Arrays.equals(mCanonicalGenres, program.mCanonicalGenres)
-                && Arrays.equals(mContentRatings, program.mContentRatings)
-                && Arrays.equals(mAudioLanguages, program.mAudioLanguages)
-                && (Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-                        || (Objects.equals(mSearchable, program.mSearchable)
-                        && Objects.equals(mInternalProviderFlag1, program.mInternalProviderFlag1)
-                        && Objects.equals(mInternalProviderFlag2, program.mInternalProviderFlag2)
-                        && Objects.equals(mInternalProviderFlag3, program.mInternalProviderFlag3)
-                        && Objects.equals(mInternalProviderFlag4, program.mInternalProviderFlag4)))
-                && (Build.VERSION.SDK_INT < Build.VERSION_CODES.N
-                        || Objects.equals(mSeasonTitle, program.mSeasonTitle))
-                && (!BuildCompat.isAtLeastO()
-                        || (Objects.equals(mReviewRatingStyle, program.mReviewRatingStyle)
-                        && Objects.equals(mReviewRating, program.mReviewRating)));
+        return mValues.equals(((BaseProgram) other).mValues);
     }
 
     @Override
     public String toString() {
-        return "BaseProgram{"
-                + "id=" + mId
-                + ", packageName=" + mPackageName
-                + ", title=" + mTitle
-                + ", episodeTitle=" + mEpisodeTitle
-                + ", seasonNumber=" + mSeasonNumber
-                + ", episodeNumber=" + mEpisodeNumber
-                + ", videoWidth=" + mVideoWidth
-                + ", videoHeight=" + mVideoHeight
-                + ", contentRatings=" + Arrays.toString(mContentRatings)
-                + ", posterArtUri=" + mPosterArtUri
-                + ", thumbnailUri=" + mThumbnailUri
-                + ", contentRatings=" + Arrays.toString(mContentRatings)
-                + ", genres=" + Arrays.toString(mCanonicalGenres)
-                + "}";
+        return "BaseProgram{" + mValues.toString() + "}";
     }
 
     /**
@@ -361,129 +287,20 @@ public abstract class BaseProgram {
      * into the TV Input Framework database.
      */
     public ContentValues toContentValues() {
-        ContentValues values = new ContentValues();
-        if (mId != INVALID_LONG_VALUE) {
-            values.put(BaseTvColumns._ID, mId);
+        ContentValues values = new ContentValues(mValues);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            values.remove(ProgramColumns.COLUMN_SEARCHABLE);
+            values.remove(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1);
+            values.remove(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2);
+            values.remove(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3);
+            values.remove(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4);
         }
-        if (!TextUtils.isEmpty(mPackageName)) {
-            values.put(BaseTvColumns.COLUMN_PACKAGE_NAME, mPackageName);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            values.remove(ProgramColumns.COLUMN_SEASON_TITLE);
         }
-        if (!TextUtils.isEmpty(mTitle)) {
-            values.put(ProgramColumns.COLUMN_TITLE, mTitle);
-        } else {
-            values.putNull(ProgramColumns.COLUMN_TITLE);
-        }
-        if (!TextUtils.isEmpty(mEpisodeTitle)) {
-            values.put(ProgramColumns.COLUMN_EPISODE_TITLE, mEpisodeTitle);
-        } else {
-            values.putNull(ProgramColumns.COLUMN_EPISODE_TITLE);
-        }
-        if (!TextUtils.isEmpty(mSeasonNumber) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            values.put(ProgramColumns.COLUMN_SEASON_DISPLAY_NUMBER, mSeasonNumber);
-        } else if (!TextUtils.isEmpty(mSeasonNumber)
-                && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            values.put(Programs.COLUMN_SEASON_NUMBER,
-                    Integer.parseInt(mSeasonNumber));
-        } else {
-            values.putNull(TvContractCompat.Programs.COLUMN_SEASON_NUMBER);
-        }
-        if (!TextUtils.isEmpty(mEpisodeNumber) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            values.put(ProgramColumns.COLUMN_EPISODE_DISPLAY_NUMBER, mEpisodeNumber);
-        } else if (!TextUtils.isEmpty(mEpisodeNumber)
-                && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            values.put(Programs.COLUMN_EPISODE_NUMBER,
-                    Integer.parseInt(mEpisodeNumber));
-        } else {
-            values.putNull(Programs.COLUMN_EPISODE_NUMBER);
-        }
-        if (!TextUtils.isEmpty(mDescription)) {
-            values.put(ProgramColumns.COLUMN_SHORT_DESCRIPTION, mDescription);
-        } else {
-            values.putNull(ProgramColumns.COLUMN_SHORT_DESCRIPTION);
-        }
-        if (!TextUtils.isEmpty(mLongDescription)) {
-            values.put(ProgramColumns.COLUMN_LONG_DESCRIPTION, mLongDescription);
-        } else {
-            values.putNull(ProgramColumns.COLUMN_LONG_DESCRIPTION);
-        }
-        if (mPosterArtUri != null) {
-            values.put(ProgramColumns.COLUMN_POSTER_ART_URI, mPosterArtUri.toString());
-        } else {
-            values.putNull(ProgramColumns.COLUMN_POSTER_ART_URI);
-        }
-        if (mThumbnailUri != null) {
-            values.put(ProgramColumns.COLUMN_THUMBNAIL_URI, mThumbnailUri.toString());
-        } else {
-            values.putNull(ProgramColumns.COLUMN_THUMBNAIL_URI);
-        }
-        if (mAudioLanguages != null && mAudioLanguages.length > 0) {
-            values.put(ProgramColumns.COLUMN_AUDIO_LANGUAGE,
-                    TvContractUtils.audioLanguagesToString(mAudioLanguages));
-        } else {
-            values.putNull(ProgramColumns.COLUMN_AUDIO_LANGUAGE);
-        }
-        if (mCanonicalGenres != null && mCanonicalGenres.length > 0) {
-            values.put(ProgramColumns.COLUMN_CANONICAL_GENRE,
-                    Programs.Genres.encode(mCanonicalGenres));
-        } else {
-            values.putNull(ProgramColumns.COLUMN_CANONICAL_GENRE);
-        }
-        if (mContentRatings != null && mContentRatings.length > 0) {
-            values.put(ProgramColumns.COLUMN_CONTENT_RATING,
-                    TvContractUtils.contentRatingsToString(mContentRatings));
-        } else {
-            values.putNull(ProgramColumns.COLUMN_CONTENT_RATING);
-        }
-        if (mVideoWidth != INVALID_INT_VALUE) {
-            values.put(ProgramColumns.COLUMN_VIDEO_WIDTH, mVideoWidth);
-        } else {
-            values.putNull(ProgramColumns.COLUMN_VIDEO_WIDTH);
-        }
-        if (mVideoHeight != INVALID_INT_VALUE) {
-            values.put(ProgramColumns.COLUMN_VIDEO_HEIGHT, mVideoHeight);
-        } else {
-            values.putNull(ProgramColumns.COLUMN_VIDEO_HEIGHT);
-        }
-        if (mInternalProviderData != null && mInternalProviderData.length > 0) {
-            values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA,
-                    mInternalProviderData);
-        } else {
-            values.putNull(ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (mSearchable != INVALID_INT_VALUE) {
-                values.put(ProgramColumns.COLUMN_SEARCHABLE, mSearchable);
-            }
-            if (mInternalProviderFlag1 != null) {
-                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1,
-                        mInternalProviderFlag1);
-            }
-            if (mInternalProviderFlag2 != null) {
-                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2,
-                        mInternalProviderFlag2);
-            }
-            if (mInternalProviderFlag3 != null) {
-                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3,
-                        mInternalProviderFlag3);
-            }
-            if (mInternalProviderFlag4 != null) {
-                values.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4,
-                        mInternalProviderFlag4);
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (!TextUtils.isEmpty(mSeasonTitle)) {
-                values.put(ProgramColumns.COLUMN_SEASON_TITLE, mSeasonTitle);
-            }
-        }
-        if (BuildCompat.isAtLeastO()) {
-            if (mReviewRatingStyle != INVALID_INT_VALUE) {
-                values.put(ProgramColumns.COLUMN_REVIEW_RATING_STYLE,
-                        mReviewRatingStyle);
-            }
-            if (!TextUtils.isEmpty(mReviewRating)) {
-                values.put(ProgramColumns.COLUMN_REVIEW_RATING, mReviewRating);
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            values.remove(ProgramColumns.COLUMN_REVIEW_RATING_STYLE);
+            values.remove(ProgramColumns.COLUMN_REVIEW_RATING);
         }
         return values;
     }
@@ -611,7 +428,7 @@ public abstract class BaseProgram {
                 builder.setSeasonTitle(cursor.getString(index));
             }
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if ((index = cursor.getColumnIndex(
                     ProgramColumns.COLUMN_REVIEW_RATING_STYLE)) >= 0
                     && !cursor.isNull(index)) {
@@ -661,7 +478,7 @@ public abstract class BaseProgram {
                 ProgramColumns.COLUMN_REVIEW_RATING,
                 ProgramColumns.COLUMN_REVIEW_RATING_STYLE,
         };
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return CollectionUtils.concatAll(baseColumns, marshmallowColumns, nougatColumns,
                 oColumns);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -679,35 +496,15 @@ public abstract class BaseProgram {
      * @param <T> The Builder of the derived classe.
      */
     public abstract static class Builder<T extends Builder> {
-        private long mId = INVALID_LONG_VALUE;
-        private String mPackageName;
-        private String mTitle;
-        private String mEpisodeTitle;
-        private String mSeasonNumber;
-        private String mEpisodeNumber;
-        private String mDescription;
-        private String mLongDescription;
-        private int mVideoWidth = INVALID_INT_VALUE;
-        private int mVideoHeight = INVALID_INT_VALUE;
-        private Uri mPosterArtUri;
-        private Uri mThumbnailUri;
-        private String[] mCanonicalGenres;
-        private TvContentRating[] mContentRatings;
-        private byte[] mInternalProviderData;
-        private String[] mAudioLanguages;
-        private int mSearchable = INVALID_INT_VALUE;
-        private Long mInternalProviderFlag1;
-        private Long mInternalProviderFlag2;
-        private Long mInternalProviderFlag3;
-        private Long mInternalProviderFlag4;
-        private int mReviewRatingStyle = INVALID_INT_VALUE;
-        private String mReviewRating;
-        private String mSeasonTitle;
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP)
+        protected ContentValues mValues;
 
         /**
          * Creates a new Builder object.
          */
         public Builder() {
+            mValues = new ContentValues();
         }
 
         /**
@@ -715,30 +512,7 @@ public abstract class BaseProgram {
          * @param other The Program you're copying from.
          */
         public Builder(BaseProgram other) {
-            mId = other.mId;
-            mPackageName = other.mPackageName;
-            mTitle = other.mTitle;
-            mEpisodeTitle = other.mEpisodeTitle;
-            mSeasonNumber = other.mSeasonNumber;
-            mEpisodeNumber = other.mEpisodeNumber;
-            mDescription = other.mDescription;
-            mLongDescription = other.mLongDescription;
-            mVideoWidth = other.mVideoWidth;
-            mVideoHeight = other.mVideoHeight;
-            mPosterArtUri = other.mPosterArtUri;
-            mThumbnailUri = other.mThumbnailUri;
-            mCanonicalGenres = other.mCanonicalGenres;
-            mContentRatings = other.mContentRatings;
-            mInternalProviderData = other.mInternalProviderData;
-            mAudioLanguages = other.mAudioLanguages;
-            mSearchable = other.mSearchable;
-            mInternalProviderFlag1 = other.mInternalProviderFlag1;
-            mInternalProviderFlag2 = other.mInternalProviderFlag2;
-            mInternalProviderFlag3 = other.mInternalProviderFlag3;
-            mInternalProviderFlag4 = other.mInternalProviderFlag4;
-            mReviewRatingStyle = other.mReviewRatingStyle;
-            mReviewRating = other.mReviewRating;
-            mSeasonTitle = other.mSeasonTitle;
+            mValues = new ContentValues(other.mValues);
         }
 
         /**
@@ -749,7 +523,7 @@ public abstract class BaseProgram {
          * @see BaseTvColumns#_ID
          */
         public T setId(long programId) {
-            mId = programId;
+            mValues.put(BaseTvColumns._ID, programId);
             return (T) this;
         }
 
@@ -763,7 +537,7 @@ public abstract class BaseProgram {
          */
         @RestrictTo(LIBRARY_GROUP)
         public T setPackageName(String packageName) {
-            mPackageName = packageName;
+            mValues.put(BaseTvColumns.COLUMN_PACKAGE_NAME, packageName);
             return (T) this;
         }
 
@@ -775,7 +549,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_TITLE
          */
         public T setTitle(String title) {
-            mTitle = title;
+            mValues.put(Programs.COLUMN_TITLE, title);
             return (T) this;
         }
 
@@ -787,7 +561,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_EPISODE_TITLE
          */
         public T setEpisodeTitle(String episodeTitle) {
-            mEpisodeTitle = episodeTitle;
+            mValues.put(Programs.COLUMN_EPISODE_TITLE, episodeTitle);
             return (T) this;
         }
 
@@ -799,7 +573,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_SEASON_DISPLAY_NUMBER
          */
         public T setSeasonNumber(int seasonNumber) {
-            mSeasonNumber = String.valueOf(seasonNumber);
+            setSeasonNumber(String.valueOf(seasonNumber), seasonNumber);
             return (T) this;
         }
 
@@ -815,9 +589,9 @@ public abstract class BaseProgram {
          */
         public T setSeasonNumber(String seasonNumber, int numericalSeasonNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                mSeasonNumber = seasonNumber;
+                mValues.put(Programs.COLUMN_SEASON_DISPLAY_NUMBER, seasonNumber);
             } else {
-                mSeasonNumber = String.valueOf(numericalSeasonNumber);
+                mValues.put(Programs.COLUMN_SEASON_NUMBER, numericalSeasonNumber);
             }
             return (T) this;
         }
@@ -830,7 +604,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_EPISODE_DISPLAY_NUMBER
          */
         public T setEpisodeNumber(int episodeNumber) {
-            mEpisodeNumber = String.valueOf(episodeNumber);
+            setEpisodeNumber(String.valueOf(episodeNumber), episodeNumber);
             return (T) this;
         }
 
@@ -846,9 +620,9 @@ public abstract class BaseProgram {
          */
         public T setEpisodeNumber(String episodeNumber, int numericalEpisodeNumber) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                mEpisodeNumber = episodeNumber;
+                mValues.put(Programs.COLUMN_EPISODE_DISPLAY_NUMBER, episodeNumber);
             } else {
-                mEpisodeNumber = String.valueOf(numericalEpisodeNumber);
+                mValues.put(Programs.COLUMN_EPISODE_NUMBER, numericalEpisodeNumber);
             }
             return (T) this;
         }
@@ -862,7 +636,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_SHORT_DESCRIPTION
          */
         public T setDescription(String description) {
-            mDescription = description;
+            mValues.put(Programs.COLUMN_SHORT_DESCRIPTION, description);
             return (T) this;
         }
 
@@ -874,7 +648,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_LONG_DESCRIPTION
          */
         public T setLongDescription(String longDescription) {
-            mLongDescription = longDescription;
+            mValues.put(Programs.COLUMN_LONG_DESCRIPTION, longDescription);
             return (T) this;
         }
 
@@ -886,7 +660,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_VIDEO_WIDTH
          */
         public T setVideoWidth(int width) {
-            mVideoWidth = width;
+            mValues.put(Programs.COLUMN_VIDEO_WIDTH, width);
             return (T) this;
         }
 
@@ -898,7 +672,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_VIDEO_HEIGHT
          */
         public T setVideoHeight(int height) {
-            mVideoHeight = height;
+            mValues.put(Programs.COLUMN_VIDEO_HEIGHT, height);
             return (T) this;
         }
 
@@ -911,7 +685,8 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_CONTENT_RATING
          */
         public T setContentRatings(TvContentRating[] contentRatings) {
-            mContentRatings = contentRatings;
+            mValues.put(Programs.COLUMN_CONTENT_RATING,
+                    TvContractUtils.contentRatingsToString(contentRatings));
             return (T) this;
         }
 
@@ -923,7 +698,8 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_POSTER_ART_URI
          */
         public T setPosterArtUri(Uri posterArtUri) {
-            mPosterArtUri = posterArtUri;
+            mValues.put(Programs.COLUMN_POSTER_ART_URI,
+                    posterArtUri == null ? null : posterArtUri.toString());
             return (T) this;
         }
 
@@ -935,7 +711,8 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_THUMBNAIL_URI
          */
         public T setThumbnailUri(Uri thumbnailUri) {
-            mThumbnailUri = thumbnailUri;
+            mValues.put(Programs.COLUMN_THUMBNAIL_URI,
+                    thumbnailUri == null ? null : thumbnailUri.toString());
             return (T) this;
         }
 
@@ -948,7 +725,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_CANONICAL_GENRE
          */
         public T setCanonicalGenres(@Genre String[] genres) {
-            mCanonicalGenres = genres;
+            mValues.put(Programs.COLUMN_CANONICAL_GENRE, Programs.Genres.encode(genres));
             return (T) this;
         }
 
@@ -960,7 +737,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_INTERNAL_PROVIDER_DATA
          */
         public T setInternalProviderData(byte[] data) {
-            mInternalProviderData = data;
+            mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_DATA, data);
             return (T) this;
         }
 
@@ -972,7 +749,8 @@ public abstract class BaseProgram {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public T setAudioLanguages(String[] audioLanguages) {
-            mAudioLanguages = audioLanguages;
+            mValues.put(ProgramColumns.COLUMN_AUDIO_LANGUAGE,
+                    TvContractUtils.audioLanguagesToString(audioLanguages));
             return (T) this;
         }
 
@@ -984,7 +762,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_SEARCHABLE
          */
         public T setSearchable(boolean searchable) {
-            mSearchable = searchable ? IS_SEARCHABLE : 0;
+            mValues.put(Programs.COLUMN_SEARCHABLE, searchable ? IS_SEARCHABLE : 0);
             return (T) this;
         }
 
@@ -996,7 +774,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG1
          */
         public T setInternalProviderFlag1(long flag) {
-            mInternalProviderFlag1 = flag;
+            mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG1, flag);
             return (T) this;
         }
 
@@ -1008,7 +786,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG2
          */
         public T setInternalProviderFlag2(long flag) {
-            mInternalProviderFlag2 = flag;
+            mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG2, flag);
             return (T) this;
         }
 
@@ -1020,7 +798,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG3
          */
         public T setInternalProviderFlag3(long flag) {
-            mInternalProviderFlag3 = flag;
+            mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG3, flag);
             return (T) this;
         }
 
@@ -1032,7 +810,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_INTERNAL_PROVIDER_FLAG4
          */
         public T setInternalProviderFlag4(long flag) {
-            mInternalProviderFlag4 = flag;
+            mValues.put(ProgramColumns.COLUMN_INTERNAL_PROVIDER_FLAG4, flag);
             return (T) this;
         }
 
@@ -1048,7 +826,7 @@ public abstract class BaseProgram {
          * @see Programs#REVIEW_RATING_STYLE_PERCENTAGE
          */
         public T setReviewRatingStyle(@ReviewRatingStyle int reviewRatingStyle) {
-            mReviewRatingStyle = reviewRatingStyle;
+            mValues.put(ProgramColumns.COLUMN_REVIEW_RATING_STYLE, reviewRatingStyle);
             return (T) this;
         }
 
@@ -1072,7 +850,7 @@ public abstract class BaseProgram {
          * @see Programs#REVIEW_RATING_STYLE_PERCENTAGE
          */
         public T setReviewRating(String reviewRating) {
-            mReviewRating = reviewRating;
+            mValues.put(ProgramColumns.COLUMN_REVIEW_RATING, reviewRating);
             return (T) this;
         }
 
@@ -1084,7 +862,7 @@ public abstract class BaseProgram {
          * @see Programs#COLUMN_SEASON_TITLE
          */
         public T setSeasonTitle(String seasonTitle) {
-            mSeasonTitle = seasonTitle;
+            mValues.put(ProgramColumns.COLUMN_SEASON_TITLE, seasonTitle);
             return (T) this;
         }
     }

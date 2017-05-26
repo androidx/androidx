@@ -20,10 +20,9 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.PreviewPrograms;
-
-import java.util.Objects;
 
 /**
  * A convenience class to access {@link PreviewPrograms} entries in the system content
@@ -56,6 +55,21 @@ import java.util.Objects;
  *     }
  * }
  * </pre>
+ *
+ * <p>Usage example when updating an existing preview program:
+ * <pre>
+ * PreviewProgram updatedProgram = new PreviewProgram.Builder(previewProgram)
+ *         .setWeight(20)
+ *         .build();
+ * getContentResolver().update(TvContractCompat.buildPreviewProgramUri(updatedProgram.getId()),
+ *         updatedProgram.toContentValues(), null, null);
+ * </pre>
+ *
+ * <p>Usage example when deleting a preview program:
+ * <pre>
+ * getContentResolver().delete(TvContractCompat.buildPreviewProgramUri(existingProgram.getId()),
+ *         null, null);
+ * </pre>
  */
 @TargetApi(26)
 public final class PreviewProgram extends BasePreviewProgram {
@@ -68,27 +82,24 @@ public final class PreviewProgram extends BasePreviewProgram {
     private static final long INVALID_LONG_VALUE = -1;
     private static final int INVALID_INT_VALUE = -1;
 
-    private final long mChannelId;
-    private final int mWeight;
-
     private PreviewProgram(Builder builder) {
         super(builder);
-        mChannelId = builder.mChannelId;
-        mWeight = builder.mWeight;
     }
 
     /**
      * @return The value of {@link PreviewPrograms#COLUMN_CHANNEL_ID} for the program.
      */
     public long getChannelId() {
-        return mChannelId;
+        Long l = mValues.getAsLong(PreviewPrograms.COLUMN_CHANNEL_ID);
+        return l == null ? INVALID_LONG_VALUE : l;
     }
 
     /**
      * @return The value of {@link PreviewPrograms#COLUMN_WEIGHT} for the program.
      */
     public int getWeight() {
-        return mWeight;
+        Integer i = mValues.getAsInteger(PreviewPrograms.COLUMN_WEIGHT);
+        return i == null ? INVALID_INT_VALUE : i;
     }
 
     @Override
@@ -96,19 +107,12 @@ public final class PreviewProgram extends BasePreviewProgram {
         if (!(other instanceof PreviewProgram)) {
             return false;
         }
-        if (!super.equals(other)) {
-            return false;
-        }
-        PreviewProgram program = (PreviewProgram) other;
-        return mChannelId == program.mChannelId && Objects.equals(mWeight, program.mWeight);
+        return mValues.equals(((PreviewProgram) other).mValues);
     }
 
     @Override
     public String toString() {
-        return "Program{"
-                + ", channelId=" + mChannelId
-                + ", weight=" + mWeight
-                + "}";
+        return "PreviewProgram{" + mValues.toString() + "}";
     }
 
     /**
@@ -131,13 +135,9 @@ public final class PreviewProgram extends BasePreviewProgram {
     @Override
     public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = super.toContentValues(includeProtectedFields);
-        if (mChannelId != INVALID_LONG_VALUE) {
-            values.put(PreviewPrograms.COLUMN_CHANNEL_ID, mChannelId);
-        } else {
-            values.putNull(PreviewPrograms.COLUMN_CHANNEL_ID);
-        }
-        if (mWeight != INVALID_INT_VALUE) {
-            values.put(PreviewPrograms.COLUMN_WEIGHT, mWeight);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            values.remove(PreviewPrograms.COLUMN_CHANNEL_ID);
+            values.remove(PreviewPrograms.COLUMN_WEIGHT);
         }
         return values;
     }
@@ -177,8 +177,6 @@ public final class PreviewProgram extends BasePreviewProgram {
      * This Builder class simplifies the creation of a {@link PreviewProgram} object.
      */
     public static final class Builder extends BasePreviewProgram.Builder<Builder> {
-        private long mChannelId = INVALID_LONG_VALUE;
-        private int mWeight = INVALID_INT_VALUE;
 
         /**
          * Creates a new Builder object.
@@ -191,9 +189,7 @@ public final class PreviewProgram extends BasePreviewProgram {
          * @param other The Program you're copying from.
          */
         public Builder(PreviewProgram other) {
-            super(other);
-            mChannelId = other.mChannelId;
-            mWeight = other.mWeight;
+            mValues = new ContentValues(other.mValues);
         }
 
         /**
@@ -203,7 +199,7 @@ public final class PreviewProgram extends BasePreviewProgram {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setChannelId(long channelId) {
-            mChannelId = channelId;
+            mValues.put(PreviewPrograms.COLUMN_CHANNEL_ID, channelId);
             return this;
         }
 
@@ -214,7 +210,7 @@ public final class PreviewProgram extends BasePreviewProgram {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setWeight(int weight) {
-            mWeight = weight;
+            mValues.put(PreviewPrograms.COLUMN_WEIGHT, weight);
             return this;
         }
 
