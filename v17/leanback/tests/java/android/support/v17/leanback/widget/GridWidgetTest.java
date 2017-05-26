@@ -1202,6 +1202,53 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testSwapAfterScroll() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setMoveDuration(1000);
+                mGridView.setSelectedPositionSmooth(150);
+            }
+        });
+        waitForScrollIdle();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(151);
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // we want to swap and select new target which is at 150 before swap
+                mGridView.setSelectedPositionSmooth(150);
+                mActivity.swap(150, 151);
+            }
+        });
+        waitForItemAnimation();
+        waitForScrollIdle();
+        assertEquals(151, mGridView.getSelectedPosition());
+        // check if ItemAnimation finishes at aligned positions:
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(151).getLeft();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForScrollIdle();
+        assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(151).getLeft());
+    }
+
+    @Test
     public void testItemMovedHorizontal() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
@@ -1600,6 +1647,7 @@ public class GridWidgetTest {
             }
         });
 
+        waitOneUiCycle();
         waitForScrollIdle();
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
