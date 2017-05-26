@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 import android.content.ComponentName;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
@@ -48,6 +49,11 @@ public class MediaBrowserServiceCompatTest {
     private static final ComponentName TEST_BROWSER_SERVICE = new ComponentName(
             "android.support.mediacompat.test",
             "android.support.v4.media.StubMediaBrowserServiceCompat");
+    private static final ComponentName TEST_BROWSER_SERVICE_DELAYED_MEDIA_SESSION =
+            new ComponentName(
+                    "android.support.mediacompat.test",
+                    "android.support.v4.media"
+                            + ".StubMediaBrowserServiceCompatWithDelayedMediaSession");
     private static final String TEST_KEY_1 = "key_1";
     private static final String TEST_VALUE_1 = "value_1";
     private static final String TEST_KEY_2 = "key_2";
@@ -64,6 +70,7 @@ public class MediaBrowserServiceCompatTest {
     private final SearchCallback mSearchCallback = new SearchCallback();
 
     private MediaBrowserCompat mMediaBrowser;
+    private MediaBrowserCompat mMediaBrowserForDelayedMediaSession;
     private StubMediaBrowserServiceCompat mMediaBrowserService;
     private Bundle mRootHints;
 
@@ -371,6 +378,35 @@ public class MediaBrowserServiceCompatTest {
         assertEquals(val, browserRoot.getExtras().getString(key));
     }
 
+    @Test
+    @SmallTest
+    public void testDelayedSetSessionToken() throws Exception {
+        if (Build.VERSION.SDK_INT == 21) {
+            return;
+        }
+        final ConnectionCallbackForDelayedMediaSession callback =
+                new ConnectionCallbackForDelayedMediaSession();
+
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mMediaBrowserForDelayedMediaSession =
+                        new MediaBrowserCompat(getInstrumentation().getTargetContext(),
+                                TEST_BROWSER_SERVICE_DELAYED_MEDIA_SESSION, callback, null);
+            }
+        });
+
+        synchronized (mWaitLock) {
+            mMediaBrowserForDelayedMediaSession.connect();
+            mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
+            assertEquals(0, callback.mConnectedCount);
+
+            StubMediaBrowserServiceCompatWithDelayedMediaSession.sInstance.callSetSessionToken();
+            mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(1, callback.mConnectedCount);
+        }
+    }
+
     private void assertRootHints(MediaItem item) {
         Bundle rootHints = item.getDescription().getExtras();
         assertNotNull(rootHints);
@@ -527,4 +563,18 @@ public class MediaBrowserServiceCompatTest {
             mData = null;
         }
     }
+
+    private class ConnectionCallbackForDelayedMediaSession extends
+            MediaBrowserCompat.ConnectionCallback {
+        private int mConnectedCount = 0;
+
+        @Override
+        public void onConnected() {
+            synchronized (mWaitLock) {
+                mConnectedCount++;
+                mWaitLock.notify();
+            }
+        }
+    };
+
 }
