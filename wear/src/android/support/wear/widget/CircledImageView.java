@@ -45,8 +45,6 @@ import java.util.Objects;
 /**
  * An image view surrounded by a circle.
  *
- * <p>TODO: remove this once {@code DelayedConfirmationView} is available.
- *
  * @hide
  */
 @TargetApi(Build.VERSION_CODES.M)
