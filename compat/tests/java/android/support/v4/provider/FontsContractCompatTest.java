@@ -63,7 +63,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class FontsContractCompatTest {
-    private static final String AUTHORITY = "android.provider.fonts.font";
+    private static final String AUTHORITY = "android.support.provider.fonts.font";
     private static final String PACKAGE = "android.support.compat.test";
 
     // Signature to be used for authentication to access content provider.
