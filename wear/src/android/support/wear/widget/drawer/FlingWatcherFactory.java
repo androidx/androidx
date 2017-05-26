@@ -30,8 +30,6 @@ import java.util.WeakHashMap;
 
 /**
  * Creates a {@link FlingWatcher} based on the type of {@link View}.
- * <p>
- * <p>TODO(b/32606972): This class should be deprecated when the nestedPostFling callback is added.
  *
  * @hide
  */

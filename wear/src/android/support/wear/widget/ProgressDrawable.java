@@ -35,8 +35,6 @@ import android.view.animation.LinearInterpolator;
 /**
  * Drawable for showing an indeterminate progress indicator.
  *
- * <p>TODO: remove this once {@link CircledImageView} is removed.
- *
  * @hide
  */
 @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
