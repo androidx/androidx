@@ -74,7 +74,7 @@ public class GridWidgetTest {
     private static final boolean HUMAN_DELAY = false;
     private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
     private static final int WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS = 2000;
-    private static final int WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS = 2000;
+    private static final int WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS = 6000;
 
     protected ActivityTestRule<GridActivity> mActivityTestRule;
     protected GridActivity mActivity;
@@ -810,7 +810,7 @@ public class GridWidgetTest {
             }
         });
         waitForItemAnimationStart();
-        waitForItemAnimation(5000);
+        waitForItemAnimation();
         assertEquals(50, mGridView.getSelectedPosition());
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
     }
@@ -825,7 +825,7 @@ public class GridWidgetTest {
             }
         });
         waitForItemAnimationStart();
-        waitForItemAnimation(5000);
+        waitForItemAnimation();
         assertEquals(54, mGridView.getSelectedPosition());
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
     }
@@ -840,7 +840,7 @@ public class GridWidgetTest {
             }
         });
         waitForItemAnimationStart();
-        waitForItemAnimation(5000);
+        waitForItemAnimation();
         assertEquals(50, mGridView.getSelectedPosition());
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
     }
@@ -855,7 +855,7 @@ public class GridWidgetTest {
             }
         });
         waitForItemAnimationStart();
-        waitForItemAnimation(5000);
+        waitForItemAnimation();
         assertEquals(47, mGridView.getSelectedPosition());
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
     }
@@ -870,7 +870,7 @@ public class GridWidgetTest {
             }
         });
         waitForItemAnimationStart();
-        waitForItemAnimation(5000);
+        waitForItemAnimation();
         assertEquals(0, mGridView.getSelectedPosition());
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
     }
@@ -4275,7 +4275,7 @@ public class GridWidgetTest {
                 mActivity.addItems(lastPos - numItemsToPushOut + 1, newItems);
             }
         });
-        waitForItemAnimation(6000);
+        waitForItemAnimation();
     }
 
     /**
