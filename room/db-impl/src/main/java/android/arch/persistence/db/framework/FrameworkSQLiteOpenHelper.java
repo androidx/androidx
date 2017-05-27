@@ -28,17 +28,16 @@ import android.support.annotation.RequiresApi;
 class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
     private final OpenHelper mDelegate;
 
-    FrameworkSQLiteOpenHelper(Context context, String name,
-            SQLiteDatabase.CursorFactory factory, int version,
+    FrameworkSQLiteOpenHelper(Context context, String name, int version,
             DatabaseErrorHandler errorHandler,
             SupportSQLiteOpenHelper.Callback callback) {
-        mDelegate = createDelegate(context, name, factory, version, errorHandler, callback);
+        mDelegate = createDelegate(context, name, version, errorHandler, callback);
     }
 
     private OpenHelper createDelegate(Context context, String name,
-            SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler,
+            int version, DatabaseErrorHandler errorHandler,
             final Callback callback) {
-        return new OpenHelper(context, name, factory, version, errorHandler) {
+        return new OpenHelper(context, name, null, version, errorHandler) {
             @Override
             public void onCreate(SQLiteDatabase sqLiteDatabase) {
                 mWrappedDb = new FrameworkSQLiteDatabase(sqLiteDatabase);

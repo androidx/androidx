@@ -92,7 +92,7 @@ public class InvalidationTracker {
     @VisibleForTesting
     long[] mTableVersions;
 
-    private String[] mQueryArgs = new String[1];
+    private Object[] mQueryArgs = new Object[1];
 
     // max id in the last syc
     private long mMaxVersion = -1;
@@ -347,7 +347,7 @@ public class InvalidationTracker {
             boolean hasUpdatedTable = false;
             try {
                 mCleanupStatement.executeUpdateDelete();
-                mQueryArgs[0] = Long.toString(mMaxVersion);
+                mQueryArgs[0] = mMaxVersion;
                 Cursor cursor = mDatabase.query(SELECT_UPDATED_TABLES_SQL, mQueryArgs);
                 //noinspection TryFinallyCanBeTryWithResources
                 try {

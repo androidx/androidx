@@ -18,12 +18,11 @@ package android.arch.persistence.db.framework;
 
 import android.arch.persistence.db.SupportSQLiteStatement;
 import android.database.sqlite.SQLiteStatement;
-import android.os.ParcelFileDescriptor;
 
 /**
  * Delegates all calls to a {@link SQLiteStatement}.
  */
-public class FrameworkSQLiteStatement implements SupportSQLiteStatement {
+class FrameworkSQLiteStatement implements SupportSQLiteStatement {
     private final SQLiteStatement mDelegate;
 
     /**
@@ -89,10 +88,5 @@ public class FrameworkSQLiteStatement implements SupportSQLiteStatement {
     @Override
     public String simpleQueryForString() {
         return mDelegate.simpleQueryForString();
-    }
-
-    @Override
-    public ParcelFileDescriptor simpleQueryForBlobFileDescriptor() {
-        return mDelegate.simpleQueryForBlobFileDescriptor();
     }
 }

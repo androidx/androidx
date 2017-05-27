@@ -16,6 +16,7 @@
 
 package android.arch.persistence.db.framework;
 
+import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteStatement;
@@ -29,8 +30,6 @@ import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.os.Build;
 import android.os.CancellationSignal;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.Pair;
 
@@ -42,7 +41,9 @@ import java.util.Locale;
  * Delegates all calls to an implementation of {@link SQLiteDatabase}.
  */
 @SuppressWarnings("unused")
-public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
+class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
+    private static final String[] CONFLICT_VALUES = new String[]
+            {"", " OR ROLLBACK ", " OR ABORT ", " OR FAIL ", " OR IGNORE ", " OR REPLACE "};
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private final SQLiteDatabase mDelegate;
@@ -144,81 +145,19 @@ public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    public Cursor query(boolean distinct, String table, String[] columns, String selection,
-            String[] selectionArgs, String groupBy, String having, String orderBy, String limit) {
-        return mDelegate.query(distinct, table, columns, selection, selectionArgs, groupBy,
-                having, orderBy, limit);
+    public Cursor query(String query) {
+        return query(new SimpleSQLiteQuery(query));
     }
 
     @Override
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-    public Cursor query(boolean distinct, String table, String[] columns, String selection,
-            String[] selectionArgs, String groupBy, String having, String orderBy, String limit,
-            CancellationSignal cancellationSignal) {
-        return mDelegate.query(distinct, table, columns, selection, selectionArgs, groupBy,
-                having, orderBy, limit, cancellationSignal);
+    public Cursor query(String query, Object[] bindArgs) {
+        return query(new SimpleSQLiteQuery(query, bindArgs));
     }
 
-    @Override
-    public Cursor queryWithFactory(SQLiteDatabase.CursorFactory cursorFactory, boolean distinct,
-            String table, String[] columns, String selection, String[] selectionArgs,
-            String groupBy, String having, String orderBy, String limit) {
-        return mDelegate.queryWithFactory(cursorFactory, distinct, table, columns, selection,
-                selectionArgs, groupBy, having, orderBy, limit);
-    }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public Cursor queryWithFactory(SQLiteDatabase.CursorFactory cursorFactory, boolean distinct,
-            String table, String[] columns, String selection, String[] selectionArgs,
-            String groupBy, String having, String orderBy, String limit,
-            CancellationSignal cancellationSignal) {
-        return mDelegate.queryWithFactory(cursorFactory, distinct, table, columns, selection,
-                selectionArgs, groupBy, having, orderBy, limit, cancellationSignal);
-    }
-
-    @Override
-    public Cursor query(String table, String[] columns, String selection, String[] selectionArgs,
-            String groupBy, String having, String orderBy) {
-        return mDelegate.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
-    }
-
-    @Override
-    public Cursor query(String table, String[] columns, String selection, String[] selectionArgs,
-            String groupBy, String having, String orderBy, String limit) {
-        return mDelegate.query(table, columns, selection, selectionArgs, groupBy, having,
-                orderBy, limit);
-    }
-
-    @Override
-    public Cursor rawQuery(String sql, String[] selectionArgs) {
-        return mDelegate.rawQuery(sql, selectionArgs);
-    }
-
-    @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public Cursor rawQuery(String sql, String[] selectionArgs,
-            CancellationSignal cancellationSignal) {
-        return mDelegate.rawQuery(sql, selectionArgs, cancellationSignal);
-    }
-
-    @Override
-    public Cursor rawQueryWithFactory(SQLiteDatabase.CursorFactory cursorFactory, String sql,
-            String[] selectionArgs, String editTable) {
-        return mDelegate.rawQueryWithFactory(cursorFactory, sql, selectionArgs, editTable);
-    }
-
-    @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public Cursor rawQueryWithFactory(SQLiteDatabase.CursorFactory cursorFactory, String sql,
-            String[] selectionArgs, String editTable, CancellationSignal cancellationSignal) {
-        return mDelegate.rawQueryWithFactory(cursorFactory, sql, selectionArgs, editTable,
-                cancellationSignal);
-    }
-
-    @Override
-    public Cursor rawQuery(final SupportSQLiteQuery supportQuery) {
-        return rawQueryWithFactory(new SQLiteDatabase.CursorFactory() {
+    public Cursor query(final SupportSQLiteQuery supportQuery) {
+        return mDelegate.rawQueryWithFactory(new SQLiteDatabase.CursorFactory() {
             @Override
             public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
                     String editTable, SQLiteQuery query) {
@@ -229,49 +168,72 @@ public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     }
 
     @Override
-    public long insert(String table, String nullColumnHack, ContentValues values) {
-        return mDelegate.insert(table, nullColumnHack, values);
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public Cursor query(final SupportSQLiteQuery supportQuery,
+            CancellationSignal cancellationSignal) {
+        return mDelegate.rawQueryWithFactory(new SQLiteDatabase.CursorFactory() {
+            @Override
+            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
+                    String editTable, SQLiteQuery query) {
+                supportQuery.bindTo(new FrameworkSQLiteProgram(query));
+                return new SQLiteCursor(masterQuery, editTable, query);
+            }
+        }, supportQuery.getSql(), EMPTY_STRING_ARRAY, null, cancellationSignal);
     }
 
     @Override
-    public long insertOrThrow(String table, String nullColumnHack, ContentValues values)
+    public long insert(String table, int conflictAlgorithm, ContentValues values)
             throws SQLException {
-        return mDelegate.insertOrThrow(table, nullColumnHack, values);
-    }
-
-    @Override
-    public long replace(String table, String nullColumnHack, ContentValues initialValues) {
-        return mDelegate.replace(table, nullColumnHack, initialValues);
-    }
-
-    @Override
-    public long replaceOrThrow(String table, String nullColumnHack, ContentValues initialValues)
-            throws SQLException {
-        return mDelegate.replaceOrThrow(table, nullColumnHack, initialValues);
-    }
-
-    @Override
-    public long insertWithOnConflict(String table, String nullColumnHack,
-            ContentValues initialValues, int conflictAlgorithm) {
-        return mDelegate.insertWithOnConflict(table, nullColumnHack, initialValues,
+        return mDelegate.insertWithOnConflict(table, null, values,
                 conflictAlgorithm);
     }
 
     @Override
-    public int delete(String table, String whereClause, String[] whereArgs) {
-        return mDelegate.delete(table, whereClause, whereArgs);
+    public int delete(String table, String whereClause, Object[] whereArgs) {
+        String query = "DELETE FROM " + table
+                + (isEmpty(whereClause) ? "" : " WHERE " + whereClause);
+        SupportSQLiteStatement statement = compileStatement(query);
+        SimpleSQLiteQuery.bind(statement, whereArgs);
+        return statement.executeUpdateDelete();
     }
 
-    @Override
-    public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
-        return mDelegate.update(table, values, whereClause, whereArgs);
-    }
 
     @Override
-    public int updateWithOnConflict(String table, ContentValues values, String whereClause,
-            String[] whereArgs, int conflictAlgorithm) {
-        return mDelegate.updateWithOnConflict(table, values, whereClause, whereArgs,
-                conflictAlgorithm);
+    public int update(String table, int conflictAlgorithm, ContentValues values, String whereClause,
+            Object[] whereArgs) {
+        // taken from SQLiteDatabase class.
+        if (values == null || values.size() == 0) {
+            throw new IllegalArgumentException("Empty values");
+        }
+        StringBuilder sql = new StringBuilder(120);
+        sql.append("UPDATE ");
+        sql.append(CONFLICT_VALUES[conflictAlgorithm]);
+        sql.append(table);
+        sql.append(" SET ");
+
+        // move all bind args to one array
+        int setValuesSize = values.size();
+        int bindArgsSize = (whereArgs == null) ? setValuesSize : (setValuesSize + whereArgs.length);
+        Object[] bindArgs = new Object[bindArgsSize];
+        int i = 0;
+        for (String colName : values.keySet()) {
+            sql.append((i > 0) ? "," : "");
+            sql.append(colName);
+            bindArgs[i++] = values.get(colName);
+            sql.append("=?");
+        }
+        if (whereArgs != null) {
+            for (i = setValuesSize; i < bindArgsSize; i++) {
+                bindArgs[i] = whereArgs[i - setValuesSize];
+            }
+        }
+        if (!isEmpty(whereClause)) {
+            sql.append(" WHERE ");
+            sql.append(whereClause);
+        }
+        SupportSQLiteStatement stmt = compileStatement(sql.toString());
+        SimpleSQLiteQuery.bind(stmt, bindArgs);
+        return stmt.executeUpdateDelete();
     }
 
     @Override
@@ -282,12 +244,6 @@ public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     @Override
     public void execSQL(String sql, Object[] bindArgs) throws SQLException {
         mDelegate.execSQL(sql, bindArgs);
-    }
-
-    @Override
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void validateSql(@NonNull String sql, @Nullable CancellationSignal cancellationSignal) {
-        mDelegate.validateSql(sql, cancellationSignal);
     }
 
     @Override
@@ -356,5 +312,9 @@ public class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     @Override
     public void close() throws IOException {
         mDelegate.close();
+    }
+
+    private static boolean isEmpty(String input) {
+        return input == null || input.length() == 0;
     }
 }

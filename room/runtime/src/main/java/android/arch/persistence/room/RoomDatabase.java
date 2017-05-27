@@ -17,6 +17,7 @@
 package android.arch.persistence.room;
 
 import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteQuery;
@@ -144,26 +145,26 @@ public abstract class RoomDatabase {
     // all SQLite database methods.
 
     /**
-     * Wrapper for {@link SupportSQLiteDatabase#rawQuery(String, String[])}.
+     * Convenience method to query the database with arguments.
      *
-     * @param sql           Sql query to run.
-     * @param selectionArgs Selection arguments.
-     * @return Result of the query.
+     * @param query The sql query
+     * @param args The bind arguments for the placeholders in the query
+     *
+     * @return A Cursor obtained by running the given query in the Room database.
      */
-    public Cursor query(String sql, String[] selectionArgs) {
-        assertNotMainThread();
-        return mOpenHelper.getWritableDatabase().rawQuery(sql, selectionArgs);
+    public Cursor query(String query, @Nullable Object[] args) {
+        return mOpenHelper.getWritableDatabase().query(new SimpleSQLiteQuery(query, args));
     }
 
     /**
-     * Wrapper for {@link SupportSQLiteDatabase#rawQuery(SupportSQLiteQuery)}.
+     * Wrapper for {@link SupportSQLiteDatabase#query(SupportSQLiteQuery)}.
      *
      * @param query The Query which includes the SQL and a bind callback for bind arguments.
      * @return Result of the query.
      */
     public Cursor query(SupportSQLiteQuery query) {
         assertNotMainThread();
-        return mOpenHelper.getWritableDatabase().rawQuery(query);
+        return mOpenHelper.getWritableDatabase().query(query);
     }
 
     /**

@@ -29,13 +29,12 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
-
 import android.arch.core.executor.JunitTaskExecutorRule;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteStatement;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -142,7 +141,7 @@ public class InvalidationTrackerTest {
 
     @Test
     public void refreshCheckTasks() throws Exception {
-        when(mRoomDatabase.query(anyString(), any(String[].class)))
+        when(mRoomDatabase.query(anyString(), any(Object[].class)))
                 .thenReturn(mock(Cursor.class));
         mTracker.refreshVersionsAsync();
         mTracker.refreshVersionsAsync();
@@ -217,7 +216,7 @@ public class InvalidationTrackerTest {
         mTracker.mRefreshRunnable.run();
         doThrow(new SQLiteException("foo")).when(mRoomDatabase).query(
                 Mockito.eq(InvalidationTracker.SELECT_UPDATED_TABLES_SQL),
-                any(String[].class));
+                any(Object[].class));
         mTracker.mPendingRefresh.set(true);
         mTracker.mRefreshRunnable.run();
     }
@@ -232,7 +231,7 @@ public class InvalidationTrackerTest {
         Cursor cursor = createCursorWithValues(keyValuePairs);
         doReturn(cursor).when(mRoomDatabase).query(
                 Mockito.eq(InvalidationTracker.SELECT_UPDATED_TABLES_SQL),
-                any(String[].class)
+                any(Object[].class)
         );
     }
 

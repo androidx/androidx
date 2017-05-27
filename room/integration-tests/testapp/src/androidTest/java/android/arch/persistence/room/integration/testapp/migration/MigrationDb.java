@@ -16,8 +16,6 @@
 
 package android.arch.persistence.room.integration.testapp.migration;
 
-import android.content.ContentValues;
-
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Database;
@@ -29,6 +27,8 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RoomDatabase;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
@@ -107,7 +107,8 @@ public abstract class MigrationDb extends RoomDatabase {
             ContentValues values = new ContentValues();
             values.put("id", id);
             values.put("name", name);
-            long insertionId = mDb.insert(Entity1.TABLE_NAME, null, values);
+            long insertionId = mDb.insert(Entity1.TABLE_NAME,
+                    SQLiteDatabase.CONFLICT_REPLACE, values);
             if (insertionId == -1) {
                 throw new RuntimeException("test sanity failure");
             }
@@ -128,7 +129,8 @@ public abstract class MigrationDb extends RoomDatabase {
             ContentValues values = new ContentValues();
             values.put("id", id);
             values.put("name", name);
-            long insertionId = mDb.insert(Entity2.TABLE_NAME, null, values);
+            long insertionId = mDb.insert(Entity2.TABLE_NAME,
+                    SQLiteDatabase.CONFLICT_REPLACE, values);
             if (insertionId == -1) {
                 throw new RuntimeException("test sanity failure");
             }

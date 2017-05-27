@@ -81,8 +81,7 @@ public class TableInfo {
             String tableName) {
         Set<ForeignKey> foreignKeys = new HashSet<>();
         // this seems to return everything in order but it is not documented so better be safe
-        Cursor cursor = database.rawQuery("PRAGMA foreign_key_list(`" + tableName + "`)",
-                StringUtil.EMPTY_STRING_ARRAY);
+        Cursor cursor = database.query("PRAGMA foreign_key_list(`" + tableName + "`)");
         try {
             final int idColumnIndex = cursor.getColumnIndex("id");
             final int seqColumnIndex = cursor.getColumnIndex("seq");
@@ -143,8 +142,8 @@ public class TableInfo {
 
     private static Map<String, Column> readColumns(SupportSQLiteDatabase database,
             String tableName) {
-        Cursor cursor = database.rawQuery("PRAGMA table_info(`" + tableName + "`)",
-                StringUtil.EMPTY_STRING_ARRAY);
+        Cursor cursor = database
+                .query("PRAGMA table_info(`" + tableName + "`)");
         //noinspection TryFinallyCanBeTryWithResources
         Map<String, Column> columns = new HashMap<>();
         try {

@@ -20,12 +20,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.os.Build;
 import android.os.CancellationSignal;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.os.OperationCanceledException;
 import android.support.annotation.RequiresApi;
 import android.util.Pair;
 
@@ -39,8 +37,6 @@ import java.util.Locale;
  */
 @SuppressWarnings("unused")
 public interface SupportSQLiteDatabase extends Closeable {
-    // TODO override all methods
-
     /**
      * Compiles the given SQL statement.
      *
@@ -259,295 +255,29 @@ public interface SupportSQLiteDatabase extends Closeable {
     void setPageSize(long numBytes);
 
     /**
-     * Query the given URL, returning a {@link Cursor} over the result set.
+     * Runs the given query on the database. If you would like to have typed bind arguments,
+     * use {@link #query(SupportSQLiteQuery)}.
      *
-     * @param distinct      true if you want each row to be unique, false otherwise.
-     * @param table         The table name to compile the query against.
-     * @param columns       A list of which columns to return. Passing null will
-     *                      return all columns, which is discouraged to prevent reading
-     *                      data from storage that isn't going to be used.
-     * @param selection     A filter declaring which rows to return, formatted as an
-     *                      SQL WHERE clause (excluding the WHERE itself). Passing null
-     *                      will return all rows for the given table.
-     * @param selectionArgs You may include ?s in selection, which will be
-     *                      replaced by the values from selectionArgs, in order that they
-     *                      appear in the selection. The values will be bound as Strings.
-     * @param groupBy       A filter declaring how to group rows, formatted as an SQL
-     *                      GROUP BY clause (excluding the GROUP BY itself). Passing null
-     *                      will cause the rows to not be grouped.
-     * @param having        A filter declare which row groups to include in the cursor,
-     *                      if row grouping is being used, formatted as an SQL HAVING
-     *                      clause (excluding the HAVING itself). Passing null will cause
-     *                      all row groups to be included, and is required when row
-     *                      grouping is not being used.
-     * @param orderBy       How to order the rows, formatted as an SQL ORDER BY clause
-     *                      (excluding the ORDER BY itself). Passing null will use the
-     *                      default sort order, which may be unordered.
-     * @param limit         Limits the number of rows returned by the query,
-     *                      formatted as LIMIT clause. Passing null denotes no LIMIT clause.
+     * @param query The SQL query that includes the query and can bind into a given compiled
+     *              program.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
+     * @see #query(SupportSQLiteQuery)
      */
-    Cursor query(boolean distinct, String table, String[] columns,
-            String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit);
+    Cursor query(String query);
 
     /**
-     * Query the given URL, returning a {@link Cursor} over the result set.
+     * Runs the given query on the database. If you would like to have bind arguments,
+     * use {@link #query(SupportSQLiteQuery)}.
      *
-     * @param distinct           true if you want each row to be unique, false otherwise.
-     * @param table              The table name to compile the query against.
-     * @param columns            A list of which columns to return. Passing null will
-     *                           return all columns, which is discouraged to prevent reading
-     *                           data from storage that isn't going to be used.
-     * @param selection          A filter declaring which rows to return, formatted as an
-     *                           SQL WHERE clause (excluding the WHERE itself). Passing null
-     *                           will return all rows for the given table.
-     * @param selectionArgs      You may include ?s in selection, which will be
-     *                           replaced by the values from selectionArgs, in order that they
-     *                           appear in the selection. The values will be bound as Strings.
-     * @param groupBy            A filter declaring how to group rows, formatted as an SQL
-     *                           GROUP BY clause (excluding the GROUP BY itself). Passing null
-     *                           will cause the rows to not be grouped.
-     * @param having             A filter declare which row groups to include in the cursor,
-     *                           if row grouping is being used, formatted as an SQL HAVING
-     *                           clause (excluding the HAVING itself). Passing null will cause
-     *                           all row groups to be included, and is required when row
-     *                           grouping is not being used.
-     * @param orderBy            How to order the rows, formatted as an SQL ORDER BY clause
-     *                           (excluding the ORDER BY itself). Passing null will use the
-     *                           default sort order, which may be unordered.
-     * @param limit              Limits the number of rows returned by the query,
-     *                           formatted as LIMIT clause. Passing null denotes no LIMIT clause.
-     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *                           If the operation is canceled, then
-     *                           {@link
-     *                           android.os.OperationCanceledException OperationCanceledException}
-     *                           will be thrown
-     *                           when the query is executed.
+     * @param query The SQL query that includes the query and can bind into a given compiled
+     *              program.
+     * @param bindArgs The query arguments to bind.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
+     * @see #query(SupportSQLiteQuery)
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    Cursor query(boolean distinct, String table, String[] columns,
-            String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit, CancellationSignal cancellationSignal);
-
-    /**
-     * Query the given URL, returning a {@link Cursor} over the result set.
-     *
-     * @param cursorFactory the cursor factory to use, or null for the default factory
-     * @param distinct      true if you want each row to be unique, false otherwise.
-     * @param table         The table name to compile the query against.
-     * @param columns       A list of which columns to return. Passing null will
-     *                      return all columns, which is discouraged to prevent reading
-     *                      data from storage that isn't going to be used.
-     * @param selection     A filter declaring which rows to return, formatted as an
-     *                      SQL WHERE clause (excluding the WHERE itself). Passing null
-     *                      will return all rows for the given table.
-     * @param selectionArgs You may include ?s in selection, which will be
-     *                      replaced by the values from selectionArgs, in order that they
-     *                      appear in the selection. The values will be bound as Strings.
-     * @param groupBy       A filter declaring how to group rows, formatted as an SQL
-     *                      GROUP BY clause (excluding the GROUP BY itself). Passing null
-     *                      will cause the rows to not be grouped.
-     * @param having        A filter declare which row groups to include in the cursor,
-     *                      if row grouping is being used, formatted as an SQL HAVING
-     *                      clause (excluding the HAVING itself). Passing null will cause
-     *                      all row groups to be included, and is required when row
-     *                      grouping is not being used.
-     * @param orderBy       How to order the rows, formatted as an SQL ORDER BY clause
-     *                      (excluding the ORDER BY itself). Passing null will use the
-     *                      default sort order, which may be unordered.
-     * @param limit         Limits the number of rows returned by the query,
-     *                      formatted as LIMIT clause. Passing null denotes no LIMIT clause.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
-     */
-    Cursor queryWithFactory(SQLiteDatabase.CursorFactory cursorFactory,
-            boolean distinct, String table, String[] columns,
-            String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit);
-
-    /**
-     * Query the given URL, returning a {@link Cursor} over the result set.
-     *
-     * @param cursorFactory      the cursor factory to use, or null for the default factory
-     * @param distinct           true if you want each row to be unique, false otherwise.
-     * @param table              The table name to compile the query against.
-     * @param columns            A list of which columns to return. Passing null will
-     *                           return all columns, which is discouraged to prevent reading
-     *                           data from storage that isn't going to be used.
-     * @param selection          A filter declaring which rows to return, formatted as an
-     *                           SQL WHERE clause (excluding the WHERE itself). Passing null
-     *                           will return all rows for the given table.
-     * @param selectionArgs      You may include ?s in selection, which will be
-     *                           replaced by the values from selectionArgs, in order that they
-     *                           appear in the selection. The values will be bound as Strings.
-     * @param groupBy            A filter declaring how to group rows, formatted as an SQL
-     *                           GROUP BY clause (excluding the GROUP BY itself). Passing null
-     *                           will cause the rows to not be grouped.
-     * @param having             A filter declare which row groups to include in the cursor,
-     *                           if row grouping is being used, formatted as an SQL HAVING
-     *                           clause (excluding the HAVING itself). Passing null will cause
-     *                           all row groups to be included, and is required when row
-     *                           grouping is not being used.
-     * @param orderBy            How to order the rows, formatted as an SQL ORDER BY clause
-     *                           (excluding the ORDER BY itself). Passing null will use the
-     *                           default sort order, which may be unordered.
-     * @param limit              Limits the number of rows returned by the query,
-     *                           formatted as LIMIT clause. Passing null denotes no LIMIT clause.
-     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *                           If the operation is canceled, then
-     *                           {@link
-     *                           android.os.OperationCanceledException OperationCanceledException}
-     *                           will be thrown when the query is executed.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
-     */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    Cursor queryWithFactory(SQLiteDatabase.CursorFactory cursorFactory,
-            boolean distinct, String table, String[] columns,
-            String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit, CancellationSignal cancellationSignal);
-
-    /**
-     * Query the given table, returning a {@link Cursor} over the result set.
-     *
-     * @param table         The table name to compile the query against.
-     * @param columns       A list of which columns to return. Passing null will
-     *                      return all columns, which is discouraged to prevent reading
-     *                      data from storage that isn't going to be used.
-     * @param selection     A filter declaring which rows to return, formatted as an
-     *                      SQL WHERE clause (excluding the WHERE itself). Passing null
-     *                      will return all rows for the given table.
-     * @param selectionArgs You may include ?s in selection, which will be
-     *                      replaced by the values from selectionArgs, in order that they
-     *                      appear in the selection. The values will be bound as Strings.
-     * @param groupBy       A filter declaring how to group rows, formatted as an SQL
-     *                      GROUP BY clause (excluding the GROUP BY itself). Passing null
-     *                      will cause the rows to not be grouped.
-     * @param having        A filter declare which row groups to include in the cursor,
-     *                      if row grouping is being used, formatted as an SQL HAVING
-     *                      clause (excluding the HAVING itself). Passing null will cause
-     *                      all row groups to be included, and is required when row
-     *                      grouping is not being used.
-     * @param orderBy       How to order the rows, formatted as an SQL ORDER BY clause
-     *                      (excluding the ORDER BY itself). Passing null will use the
-     *                      default sort order, which may be unordered.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
-     */
-    Cursor query(String table, String[] columns, String selection,
-            String[] selectionArgs, String groupBy, String having,
-            String orderBy);
-
-    /**
-     * Query the given table, returning a {@link Cursor} over the result set.
-     *
-     * @param table         The table name to compile the query against.
-     * @param columns       A list of which columns to return. Passing null will
-     *                      return all columns, which is discouraged to prevent reading
-     *                      data from storage that isn't going to be used.
-     * @param selection     A filter declaring which rows to return, formatted as an
-     *                      SQL WHERE clause (excluding the WHERE itself). Passing null
-     *                      will return all rows for the given table.
-     * @param selectionArgs You may include ?s in selection, which will be
-     *                      replaced by the values from selectionArgs, in order that they
-     *                      appear in the selection. The values will be bound as Strings.
-     * @param groupBy       A filter declaring how to group rows, formatted as an SQL
-     *                      GROUP BY clause (excluding the GROUP BY itself). Passing null
-     *                      will cause the rows to not be grouped.
-     * @param having        A filter declare which row groups to include in the cursor,
-     *                      if row grouping is being used, formatted as an SQL HAVING
-     *                      clause (excluding the HAVING itself). Passing null will cause
-     *                      all row groups to be included, and is required when row
-     *                      grouping is not being used.
-     * @param orderBy       How to order the rows, formatted as an SQL ORDER BY clause
-     *                      (excluding the ORDER BY itself). Passing null will use the
-     *                      default sort order, which may be unordered.
-     * @param limit         Limits the number of rows returned by the query,
-     *                      formatted as LIMIT clause. Passing null denotes no LIMIT clause.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     * @see Cursor
-     */
-    Cursor query(String table, String[] columns, String selection,
-            String[] selectionArgs, String groupBy, String having,
-            String orderBy, String limit);
-
-    /**
-     * Runs the provided SQL and returns a {@link Cursor} over the result set.
-     *
-     * @param sql           the SQL query. The SQL string must not be ; terminated
-     * @param selectionArgs You may include ?s in where clause in the query,
-     *                      which will be replaced by the values from selectionArgs. The
-     *                      values will be bound as Strings.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     */
-    Cursor rawQuery(String sql, String[] selectionArgs);
-
-    /**
-     * Runs the provided SQL and returns a {@link Cursor} over the result set.
-     *
-     * @param sql                the SQL query. The SQL string must not be ; terminated
-     * @param selectionArgs      You may include ?s in where clause in the query,
-     *                           which will be replaced by the values from selectionArgs. The
-     *                           values will be bound as Strings.
-     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *                           If the operation is canceled, then
-     *                           {@link
-     *                           android.os.OperationCanceledException OperationCanceledException}
-     *                           will be thrown when the query is executed.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    Cursor rawQuery(String sql, String[] selectionArgs, CancellationSignal cancellationSignal);
-
-    /**
-     * Runs the provided SQL and returns a cursor over the result set.
-     *
-     * @param cursorFactory the cursor factory to use, or null for the default factory
-     * @param sql           the SQL query. The SQL string must not be ; terminated
-     * @param selectionArgs You may include ?s in where clause in the query,
-     *                      which will be replaced by the values from selectionArgs. The
-     *                      values will be bound as Strings.
-     * @param editTable     the name of the first table, which is editable
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     */
-    Cursor rawQueryWithFactory(
-            SQLiteDatabase.CursorFactory cursorFactory, String sql, String[] selectionArgs,
-            String editTable);
-
-    /**
-     * Runs the provided SQL and returns a cursor over the result set.
-     *
-     * @param cursorFactory      the cursor factory to use, or null for the default factory
-     * @param sql                the SQL query. The SQL string must not be ; terminated
-     * @param selectionArgs      You may include ?s in where clause in the query,
-     *                           which will be replaced by the values from selectionArgs. The
-     *                           values will be bound as Strings.
-     * @param editTable          the name of the first table, which is editable
-     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *                           If the operation is canceled, then
-     *                           {@link
-     *                           android.os.OperationCanceledException OperationCanceledException}
-     *                           will be thrown when the query is executed.
-     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
-     * {@link Cursor}s are not synchronized, see the documentation for more details.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    Cursor rawQueryWithFactory(
-            SQLiteDatabase.CursorFactory cursorFactory, String sql, String[] selectionArgs,
-            String editTable, CancellationSignal cancellationSignal);
+    Cursor query(String query, Object[] bindArgs);
 
     /**
      * Runs the given query on the database.
@@ -558,120 +288,41 @@ public interface SupportSQLiteDatabase extends Closeable {
      *              program.
      * @return A {@link Cursor} object, which is positioned before the first entry. Note that
      * {@link Cursor}s are not synchronized, see the documentation for more details.
+     * @see SimpleSQLiteQuery
      */
-    Cursor rawQuery(SupportSQLiteQuery query);
+    Cursor query(SupportSQLiteQuery query);
+
+    /**
+     * Runs the given query on the database.
+     * <p>
+     * This class allows using type safe sql program bindings while running queries.
+     *
+     * @param query The SQL query that includes the query and can bind into a given compiled
+     *              program.
+     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
+     * If the operation is canceled, then {@link OperationCanceledException} will be thrown
+     * when the query is executed.
+     * @return A {@link Cursor} object, which is positioned before the first entry. Note that
+     * {@link Cursor}s are not synchronized, see the documentation for more details.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    Cursor query(SupportSQLiteQuery query, CancellationSignal cancellationSignal);
 
     /**
      * Convenience method for inserting a row into the database.
      *
      * @param table          the table to insert the row into
-     * @param nullColumnHack optional; may be <code>null</code>.
-     *                       SQL doesn't allow inserting a completely empty row without
-     *                       naming at least one column name.  If your provided <code>values</code>
-     *                       is
-     *                       empty, no column names are known and an empty row can't be inserted.
-     *                       If not set to null, the <code>nullColumnHack</code> parameter
-     *                       provides the name of nullable column name to explicitly insert a NULL
-     *                       into
-     *                       in the case where your <code>values</code> is empty.
      * @param values         this map contains the initial column values for the
      *                       row. The keys should be the column names and the values the
      *                       column values
-     * @return the row ID of the newly inserted row, or -1 if an error occurred
-     */
-    long insert(String table, String nullColumnHack, ContentValues values);
-
-    /**
-     * Convenience method for inserting a row into the database.
-     *
-     * @param table          the table to insert the row into
-     * @param nullColumnHack optional; may be <code>null</code>.
-     *                       SQL doesn't allow inserting a completely empty row without
-     *                       naming at least one column name.  If your provided <code>values</code>
-     *                       is
-     *                       empty, no column names are known and an empty row can't be inserted.
-     *                       If not set to null, the <code>nullColumnHack</code> parameter
-     *                       provides the name of nullable column name to explicitly insert a NULL
-     *                       into
-     *                       in the case where your <code>values</code> is empty.
-     * @param values         this map contains the initial column values for the
-     *                       row. The keys should be the column names and the values the
-     *                       column values
+     * @param conflictAlgorithm for insert conflict resolver. One of
+     * {@link SQLiteDatabase#CONFLICT_NONE}, {@link SQLiteDatabase#CONFLICT_ROLLBACK},
+     * {@link SQLiteDatabase#CONFLICT_ABORT}, {@link SQLiteDatabase#CONFLICT_FAIL},
+     * {@link SQLiteDatabase#CONFLICT_IGNORE}, {@link SQLiteDatabase#CONFLICT_REPLACE}.
      * @return the row ID of the newly inserted row, or -1 if an error occurred
      * @throws SQLException If the insert fails
      */
-    long insertOrThrow(String table, String nullColumnHack, ContentValues values)
-            throws SQLException;
-
-    /**
-     * Convenience method for replacing a row in the database.
-     * Inserts a new row if a row does not already exist.
-     *
-     * @param table          the table in which to replace the row
-     * @param nullColumnHack optional; may be <code>null</code>.
-     *                       SQL doesn't allow inserting a completely empty row without
-     *                       naming at least one column name.  If your provided
-     *                       <code>initialValues</code> is
-     *                       empty, no column names are known and an empty row can't be inserted.
-     *                       If not set to null, the <code>nullColumnHack</code> parameter
-     *                       provides the name of nullable column name to explicitly insert a NULL
-     *                       into
-     *                       in the case where your <code>initialValues</code> is empty.
-     * @param initialValues  this map contains the initial column values for
-     *                       the row. The keys should be the column names and the values the column
-     *                       values.
-     * @return the row ID of the newly inserted row, or -1 if an error occurred
-     */
-    long replace(String table, String nullColumnHack, ContentValues initialValues);
-
-    /**
-     * Convenience method for replacing a row in the database.
-     * Inserts a new row if a row does not already exist.
-     *
-     * @param table          the table in which to replace the row
-     * @param nullColumnHack optional; may be <code>null</code>.
-     *                       SQL doesn't allow inserting a completely empty row without
-     *                       naming at least one column name.  If your provided
-     *                       <code>initialValues</code> is
-     *                       empty, no column names are known and an empty row can't be inserted.
-     *                       If not set to null, the <code>nullColumnHack</code> parameter
-     *                       provides the name of nullable column name to explicitly insert a NULL
-     *                       into
-     *                       in the case where your <code>initialValues</code> is empty.
-     * @param initialValues  this map contains the initial column values for
-     *                       the row. The keys should be the column names and the values the column
-     *                       values.
-     * @return the row ID of the newly inserted row, or -1 if an error occurred
-     * @throws SQLException If the replace fails
-     */
-    long replaceOrThrow(String table, String nullColumnHack,
-            ContentValues initialValues) throws SQLException;
-
-    /**
-     * General method for inserting a row into the database.
-     *
-     * @param table             the table to insert the row into
-     * @param nullColumnHack    optional; may be <code>null</code>.
-     *                          SQL doesn't allow inserting a completely empty row without
-     *                          naming at least one column name.  If your provided
-     *                          <code>initialValues</code> is
-     *                          empty, no column names are known and an empty row can't be
-     *                          inserted.
-     *                          If not set to null, the <code>nullColumnHack</code> parameter
-     *                          provides the name of nullable column name to explicitly insert a
-     *                          NULL into
-     *                          in the case where your <code>initialValues</code> is empty.
-     * @param initialValues     this map contains the initial column values for the
-     *                          row. The keys should be the column names and the values the
-     *                          column values
-     * @param conflictAlgorithm for insert conflict resolver
-     * @return the row ID of the newly inserted row OR <code>-1</code> if either the
-     * input parameter <code>conflictAlgorithm</code> =
-     * {@link SQLiteDatabase#CONFLICT_IGNORE}
-     * or an error occurred.
-     */
-    long insertWithOnConflict(String table, String nullColumnHack,
-            ContentValues initialValues, int conflictAlgorithm);
+    long insert(String table, int conflictAlgorithm, ContentValues values) throws SQLException;
 
     /**
      * Convenience method for deleting rows in the database.
@@ -686,12 +337,16 @@ public interface SupportSQLiteDatabase extends Closeable {
      * otherwise. To remove all rows and get a count pass "1" as the
      * whereClause.
      */
-    int delete(String table, String whereClause, String[] whereArgs);
+    int delete(String table, String whereClause, Object[] whereArgs);
 
     /**
      * Convenience method for updating rows in the database.
      *
      * @param table       the table to update in
+     * @param conflictAlgorithm for update conflict resolver. One of
+     * {@link SQLiteDatabase#CONFLICT_NONE}, {@link SQLiteDatabase#CONFLICT_ROLLBACK},
+     * {@link SQLiteDatabase#CONFLICT_ABORT}, {@link SQLiteDatabase#CONFLICT_FAIL},
+     * {@link SQLiteDatabase#CONFLICT_IGNORE}, {@link SQLiteDatabase#CONFLICT_REPLACE}.
      * @param values      a map from column names to new column values. null is a
      *                    valid value that will be translated to NULL.
      * @param whereClause the optional WHERE clause to apply when updating.
@@ -701,33 +356,11 @@ public interface SupportSQLiteDatabase extends Closeable {
      *                    will be bound as Strings.
      * @return the number of rows affected
      */
-    int update(String table, ContentValues values, String whereClause, String[] whereArgs);
+    int update(String table, int conflictAlgorithm,
+            ContentValues values, String whereClause, Object[] whereArgs);
 
     /**
-     * Convenience method for updating rows in the database.
-     *
-     * @param table             the table to update in
-     * @param values            a map from column names to new column values. null is a
-     *                          valid value that will be translated to NULL.
-     * @param whereClause       the optional WHERE clause to apply when updating.
-     *                          Passing null will update all rows.
-     * @param whereArgs         You may include ?s in the where clause, which
-     *                          will be replaced by the values from whereArgs. The values
-     *                          will be bound as Strings.
-     * @param conflictAlgorithm for update conflict resolver
-     * @return the number of rows affected
-     */
-    int updateWithOnConflict(String table, ContentValues values,
-            String whereClause, String[] whereArgs, int conflictAlgorithm);
-
-    /**
-     * Execute a single SQL statement that is NOT a SELECT
-     * or any other SQL statement that returns data.
-     * <p>
-     * It has no means to return any data (such as the number of affected rows).
-     * Instead, you're encouraged to use {@link #insert(String, String, ContentValues)},
-     * {@link #update(String, ContentValues, String, String[])}, et al, when possible.
-     * </p>
+     * Execute a single SQL statement that does not return any data.
      * <p>
      * When using {@link #enableWriteAheadLogging()}, journal_mode is
      * automatically managed by this class. So, do not set journal_mode
@@ -738,40 +371,12 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @param sql the SQL statement to be executed. Multiple statements separated by semicolons are
      *            not supported.
      * @throws SQLException if the SQL string is invalid
+     * @see #query(SupportSQLiteQuery)
      */
     void execSQL(String sql) throws SQLException;
 
     /**
-     * Execute a single SQL statement that is NOT a SELECT/INSERT/UPDATE/DELETE.
-     * <p>
-     * For INSERT statements, use any of the following instead.
-     * <ul>
-     * <li>{@link #insert(String, String, ContentValues)}</li>
-     * <li>{@link #insertOrThrow(String, String, ContentValues)}</li>
-     * <li>{@link #insertWithOnConflict(String, String, ContentValues, int)}</li>
-     * </ul>
-     * <p>
-     * For UPDATE statements, use any of the following instead.
-     * <ul>
-     * <li>{@link #update(String, ContentValues, String, String[])}</li>
-     * <li>{@link #updateWithOnConflict(String, ContentValues, String, String[], int)}</li>
-     * </ul>
-     * <p>
-     * For DELETE statements, use any of the following instead.
-     * <ul>
-     * <li>{@link #delete(String, String, String[])}</li>
-     * </ul>
-     * <p>
-     * For example, the following are good candidates for using this method:
-     * <ul>
-     * <li>ALTER TABLE</li>
-     * <li>CREATE or DROP table / trigger / view / index / virtual table</li>
-     * <li>REINDEX</li>
-     * <li>RELEASE</li>
-     * <li>SAVEPOINT</li>
-     * <li>PRAGMA that returns no data</li>
-     * </ul>
-     * </p>
+     * Execute a single SQL statement that does not return any data.
      * <p>
      * When using {@link #enableWriteAheadLogging()}, journal_mode is
      * automatically managed by this class. So, do not set journal_mode
@@ -782,25 +387,11 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @param sql      the SQL statement to be executed. Multiple statements separated by semicolons
      *                 are
      *                 not supported.
-     * @param bindArgs only byte[], String, Long and Double are supported in bindArgs.
+     * @param bindArgs only byte[], String, Long and Double are supported in selectionArgs.
      * @throws SQLException if the SQL string is invalid
+     * @see #query(SupportSQLiteQuery)
      */
     void execSQL(String sql, Object[] bindArgs) throws SQLException;
-
-    /**
-     * Verifies that a SQL SELECT statement is valid by compiling it.
-     * If the SQL statement is not valid, this method will throw a {@link SQLiteException}.
-     *
-     * @param sql                SQL to be validated
-     * @param cancellationSignal A signal to cancel the operation in progress, or null if none.
-     *                           If the operation is canceled, then
-     *                           {@link
-     *                           android.os.OperationCanceledException OperationCanceledException}
-     *                           will be thrown when the query is executed.
-     * @throws SQLiteException if {@code sql} is invalid
-     */
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    void validateSql(@NonNull String sql, @Nullable CancellationSignal cancellationSignal);
 
     /**
      * Returns true if the database is opened as read only.

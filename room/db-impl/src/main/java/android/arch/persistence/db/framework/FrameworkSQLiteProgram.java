@@ -23,7 +23,7 @@ import android.database.sqlite.SQLiteProgram;
  * An wrapper around {@link SQLiteProgram} to implement {@link SupportSQLiteProgram} API.
  */
 class FrameworkSQLiteProgram implements SupportSQLiteProgram {
-    final SQLiteProgram mDelegate;
+    private final SQLiteProgram mDelegate;
 
     FrameworkSQLiteProgram(SQLiteProgram delegate) {
         mDelegate = delegate;

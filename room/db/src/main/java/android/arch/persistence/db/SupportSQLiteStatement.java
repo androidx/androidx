@@ -16,8 +16,6 @@
 
 package android.arch.persistence.db;
 
-import android.os.ParcelFileDescriptor;
-
 /**
  * An interface to map the behavior of {@link android.database.sqlite.SQLiteStatement}.
  */
@@ -71,14 +69,4 @@ public interface SupportSQLiteStatement extends SupportSQLiteProgram {
      * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
     String simpleQueryForString();
-
-    /**
-     * Executes a statement that returns a 1 by 1 table with a blob value.
-     *
-     * @return A read-only file descriptor for a copy of the blob value, or {@code null}
-     *         if the value is null or could not be read for some reason.
-     *
-     * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
-     */
-    ParcelFileDescriptor simpleQueryForBlobFileDescriptor();
 }

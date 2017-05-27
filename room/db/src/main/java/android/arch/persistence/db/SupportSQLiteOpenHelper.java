@@ -19,7 +19,6 @@ package android.arch.persistence.db;
 import android.content.Context;
 import android.database.DatabaseErrorHandler;
 import android.database.DefaultDatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -212,12 +211,6 @@ public interface SupportSQLiteOpenHelper {
         @Nullable
         public final String name;
         /**
-         * Factory to use for creating cursor objects, or null for the default.
-         */
-        @Nullable
-        public final SQLiteDatabase.CursorFactory factory;
-
-        /**
          * Version number of the database (starting at 1); if the database is older,
          * {@link SupportSQLiteOpenHelper.Callback#onUpgrade(SupportSQLiteDatabase, int, int)}
          * will be used to upgrade the database; if the database is newer,
@@ -238,12 +231,10 @@ public interface SupportSQLiteOpenHelper {
         public final DatabaseErrorHandler errorHandler;
 
         Configuration(@NonNull Context context, @Nullable String name,
-                @Nullable SQLiteDatabase.CursorFactory factory,
                 int version, @Nullable DatabaseErrorHandler errorHandler,
                 @NonNull Callback callback) {
             this.context = context;
             this.name = name;
-            this.factory = factory;
             this.version = version;
             this.callback = callback;
             this.errorHandler = errorHandler;
@@ -264,7 +255,6 @@ public interface SupportSQLiteOpenHelper {
         public static class Builder {
             Context mContext;
             String mName;
-            SQLiteDatabase.CursorFactory mFactory;
             int mVersion = 1;
             SupportSQLiteOpenHelper.Callback mCallback;
             DatabaseErrorHandler mErrorHandler;
@@ -281,7 +271,7 @@ public interface SupportSQLiteOpenHelper {
                 if (mErrorHandler == null) {
                     mErrorHandler = new DefaultDatabaseErrorHandler();
                 }
-                return new Configuration(mContext, mName, mFactory, mVersion, mErrorHandler,
+                return new Configuration(mContext, mName, mVersion, mErrorHandler,
                         mCallback);
             }
 
@@ -306,15 +296,6 @@ public interface SupportSQLiteOpenHelper {
              */
             public Builder name(@Nullable String name) {
                 mName = name;
-                return this;
-            }
-
-            /**
-             * @param factory Factory to use for creating cursor objects, or null for the default.
-             * @return this
-             */
-            public Builder factory(@Nullable SQLiteDatabase.CursorFactory factory) {
-                mFactory = factory;
                 return this;
             }
 

@@ -16,10 +16,10 @@
 
 package android.arch.persistence.room;
 
+import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.room.migration.Migration;
-import android.arch.persistence.room.util.StringUtil;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -98,7 +98,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     private void checkIdentity(SupportSQLiteDatabase db) {
         createMasterTableIfNotExists(db);
         String identityHash = "";
-        Cursor cursor = db.rawQuery(RoomMasterTable.READ_QUERY, StringUtil.EMPTY_STRING_ARRAY);
+        Cursor cursor = db.query(new SimpleSQLiteQuery(RoomMasterTable.READ_QUERY));
         //noinspection TryFinallyCanBeTryWithResources
         try {
             if (cursor.moveToFirst()) {
