@@ -851,7 +851,7 @@ public class GridWidgetTest {
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mActivity.removeItems(46, 3);
+                mActivity.removeItems(47, 3);
             }
         });
         waitForItemAnimationStart();
@@ -1028,7 +1028,7 @@ public class GridWidgetTest {
             public void run() {
                 for (int i = 0; i < mGridView.getLayoutManager().getChildCount(); i++) {
                     View v = mGridView.getLayoutManager().getChildAt(i);
-                    if (Math.abs(v.getTranslationX()) > 5) {
+                    if (mGridView.getChildAdapterPosition(v) >= 51) {
                         moveInViewHolders.add(v);
                     }
                 }
@@ -1091,7 +1091,7 @@ public class GridWidgetTest {
             public void run() {
                 for (int i = 0; i < mGridView.getLayoutManager().getChildCount(); i++) {
                     View v = mGridView.getLayoutManager().getChildAt(i);
-                    if (Math.abs(v.getTranslationX()) > 5) {
+                    if (mGridView.getChildAdapterPosition(v) <= 1499) {
                         moveInViewHolders.add(v);
                     }
                 }
