@@ -25,7 +25,8 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
-import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol
+        .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLING_UID;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
@@ -67,7 +68,6 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Pair;
@@ -376,64 +376,6 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 }
             };
             MediaBrowserServiceCompat.this.onLoadItem(itemId, result);
-        }
-    }
-
-    // TODO: Rename to MediaBrowserServiceImplApi26 once O is released
-    class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi23 implements
-            MediaBrowserServiceCompatApi24.ServiceCompatProxy {
-        @Override
-        public void onCreate() {
-            mServiceObj = MediaBrowserServiceCompatApi24.createService(
-                    MediaBrowserServiceCompat.this, this);
-            MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
-        }
-
-        @Override
-        public void notifyChildrenChanged(final String parentId, final Bundle options) {
-            if (options == null) {
-                MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
-            } else {
-                MediaBrowserServiceCompatApi24.notifyChildrenChanged(mServiceObj, parentId,
-                        options);
-            }
-        }
-
-        @Override
-        public void onLoadChildren(String parentId,
-                final MediaBrowserServiceCompatApi24.ResultWrapper resultWrapper, Bundle options) {
-            final Result<List<MediaBrowserCompat.MediaItem>> result
-                    = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
-                @Override
-                void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
-                    List<Parcel> parcelList = null;
-                    if (list != null) {
-                        parcelList = new ArrayList<>();
-                        for (MediaBrowserCompat.MediaItem item : list) {
-                            Parcel parcel = Parcel.obtain();
-                            item.writeToParcel(parcel, 0);
-                            parcelList.add(parcel);
-                        }
-                    }
-                    resultWrapper.sendResult(parcelList, getFlags());
-                }
-
-                @Override
-                public void detach() {
-                    resultWrapper.detach();
-                }
-            };
-            MediaBrowserServiceCompat.this.onLoadChildren(parentId, result, options);
-        }
-
-        @Override
-        public Bundle getBrowserRootHints() {
-            // If EXTRA_MESSENGER_BINDER is used, mCurConnection is not null.
-            if (mCurConnection != null) {
-                return mCurConnection.rootHints == null ? null
-                        : new Bundle(mCurConnection.rootHints);
-            }
-            return MediaBrowserServiceCompatApi24.getBrowserRootHints(mServiceObj);
         }
     }
 
@@ -931,9 +873,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
-            mImpl = new MediaBrowserServiceImplApi24();
-        } else if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
         } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserServiceImplApi21();
