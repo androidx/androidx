@@ -48,7 +48,6 @@ import android.arch.persistence.room.solver.query.result.SingleColumnRowAdapter
 import android.arch.persistence.room.solver.query.result.SingleEntityQueryResultAdapter
 import android.arch.persistence.room.solver.types.BoxedBooleanToBoxedIntConverter
 import android.arch.persistence.room.solver.types.BoxedPrimitiveColumnTypeAdapter
-import android.arch.persistence.room.solver.types.BoxedPrimitiveToStringConverter
 import android.arch.persistence.room.solver.types.ByteArrayColumnTypeAdapter
 import android.arch.persistence.room.solver.types.ColumnTypeAdapter
 import android.arch.persistence.room.solver.types.CompositeAdapter
@@ -57,7 +56,6 @@ import android.arch.persistence.room.solver.types.CursorValueReader
 import android.arch.persistence.room.solver.types.NoOpConverter
 import android.arch.persistence.room.solver.types.PrimitiveBooleanToIntConverter
 import android.arch.persistence.room.solver.types.PrimitiveColumnTypeAdapter
-import android.arch.persistence.room.solver.types.PrimitiveToStringConverter
 import android.arch.persistence.room.solver.types.StatementValueBinder
 import android.arch.persistence.room.solver.types.StringColumnTypeAdapter
 import android.arch.persistence.room.solver.types.TypeConverter
@@ -126,12 +124,6 @@ class TypeAdapterStore private constructor(val context: Context,
             addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
             addColumnAdapter(ByteArrayColumnTypeAdapter(context.processingEnv))
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
-            PrimitiveToStringConverter
-                    .createPrimitives(context)
-                    .forEach(::addTypeConverter)
-            BoxedPrimitiveToStringConverter
-                    .createBoxedPrimitives(context)
-                    .forEach(::addTypeConverter)
             BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
                     .forEach(::addTypeConverter)
             return TypeAdapterStore(context = context, columnTypeAdapters = adapters,

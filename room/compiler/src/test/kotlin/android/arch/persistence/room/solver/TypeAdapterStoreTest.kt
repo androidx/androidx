@@ -24,6 +24,7 @@ import android.arch.persistence.room.ext.ReactiveStreamsTypeNames
 import android.arch.persistence.room.ext.RoomTypeNames.STRING_UTIL
 import android.arch.persistence.room.ext.RxJava2TypeNames
 import android.arch.persistence.room.ext.T
+import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.types.CompositeAdapter
@@ -122,6 +123,29 @@ class TypeAdapterStoreTest {
                     ${tmp(1)} = ${tmp(0)} != 0;
                     res = foo.bar.Point.fromBoolean(${tmp(1)});
                     """.trimIndent()))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testDate() {
+        singleRun { (processingEnv) ->
+            val store = TypeAdapterStore.create(Context(processingEnv),
+                    dateTypeConverters(processingEnv))
+            val tDate = processingEnv.elementUtils.getTypeElement("java.util.Date").asType()
+            val adapter = store.findCursorValueReader(tDate, SQLTypeAffinity.INTEGER)
+            assertThat(adapter, notNullValue())
+            assertThat(adapter?.typeMirror(), `is`(tDate))
+            val bindScope = testCodeGenScope()
+            adapter!!.readFromCursor("outDate", "curs", "0", bindScope)
+            assertThat(bindScope.generate().trim(), `is`("""
+                final java.lang.Long _tmp;
+                if (curs.isNull(0)) {
+                  _tmp = null;
+                } else {
+                  _tmp = curs.getLong(0);
+                }
+                // convert Long to Date;
+            """.trimIndent()))
         }.compilesWithoutError()
     }
 
@@ -309,6 +333,30 @@ class TypeAdapterStoreTest {
                         scope.builder().apply {
                             addStatement("$L = $T.fromBoolean($L)", outputVarName, tPoint,
                                     inputVarName)
+                        }
+                    }
+                }
+        )
+    }
+
+    fun dateTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
+        val tDate = env.elementUtils.getTypeElement("java.util.Date").asType()
+        val tLong = env.elementUtils.getTypeElement("java.lang.Long").asType()
+        return listOf(
+                object : TypeConverter(tDate, tLong) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().apply {
+                            addStatement("// convert Date to Long")
+                        }
+                    }
+
+                },
+                object : TypeConverter(tLong, tDate) {
+                    override fun convert(inputVarName: String, outputVarName: String,
+                                         scope: CodeGenScope) {
+                        scope.builder().apply {
+                            addStatement("// convert Long to Date")
                         }
                     }
                 }

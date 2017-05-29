@@ -22,17 +22,16 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.persistence.room.Room;
+import android.arch.persistence.room.integration.testapp.TestDatabase;
+import android.arch.persistence.room.integration.testapp.dao.UserDao;
+import android.arch.persistence.room.integration.testapp.vo.User;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.integration.testapp.TestDatabase;
-import android.arch.persistence.room.integration.testapp.dao.UserDao;
-import android.arch.persistence.room.integration.testapp.vo.User;
 
 import junit.framework.AssertionFailedError;
 
@@ -41,6 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -283,5 +283,20 @@ public class SimpleEntityReadWriteTest {
         } finally {
             cursor.close();
         }
+    }
+
+    @Test
+    public void readDirectWithTypeAdapter() {
+        User user = TestUtil.createUser(3);
+        user.setBirthday(null);
+        mUserDao.insert(user);
+        assertThat(mUserDao.getBirthday(3), is(nullValue()));
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.YEAR, 3);
+        Date birthday = calendar.getTime();
+        user.setBirthday(birthday);
+
+        mUserDao.update(user);
+        assertThat(mUserDao.getBirthday(3), is(birthday));
     }
 }

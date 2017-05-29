@@ -120,4 +120,7 @@ public interface UserDao {
 
     @Query("select COUNT(*) from user")
     Publisher<Integer> publisherCountUsers();
+
+    @Query("SELECT mBirthday from User where mId = :id")
+    Date getBirthday(int id);
 }

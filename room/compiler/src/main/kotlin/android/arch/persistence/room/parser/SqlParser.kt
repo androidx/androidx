@@ -169,19 +169,23 @@ enum class SQLTypeAffinity {
         val typeUtils = env.typeUtils
         return when(this) {
             TEXT -> listOf(env.elementUtils.getTypeElement("java.lang.String").asType())
-            INTEGER -> listOf(typeUtils.getPrimitiveType(TypeKind.INT),
-                    typeUtils.getPrimitiveType(TypeKind.BYTE),
-                    typeUtils.getPrimitiveType(TypeKind.CHAR),
-                    typeUtils.getPrimitiveType(TypeKind.BOOLEAN),
-                    typeUtils.getPrimitiveType(TypeKind.LONG),
-                    typeUtils.getPrimitiveType(TypeKind.SHORT))
-            REAL -> listOf(typeUtils.getPrimitiveType(TypeKind.DOUBLE),
-                    typeUtils.getPrimitiveType(TypeKind.FLOAT))
+            INTEGER -> withBoxedTypes(env, TypeKind.INT, TypeKind.BYTE, TypeKind.CHAR,
+                    TypeKind.BOOLEAN, TypeKind.LONG, TypeKind.SHORT)
+            REAL -> withBoxedTypes(env, TypeKind.DOUBLE, TypeKind.FLOAT)
             BLOB -> listOf(typeUtils.getArrayType(
                     typeUtils.getPrimitiveType(TypeKind.BYTE)))
             else -> emptyList()
         }
     }
+
+    private fun withBoxedTypes(env : ProcessingEnvironment, vararg primitives : TypeKind) :
+            List<TypeMirror> {
+        return primitives.flatMap {
+            val primitiveType = env.typeUtils.getPrimitiveType(it)
+            listOf(primitiveType, env.typeUtils.boxedClass(primitiveType).asType())
+        }
+    }
+
     companion object {
         // converts from ColumnInfo#SQLiteTypeAffinity
         fun fromAnnotationValue(value : Int) : SQLTypeAffinity? {
