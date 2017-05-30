@@ -29,6 +29,7 @@ import android.arch.lifecycle.testapp.LifecycleTestActivity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.UiThreadTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -145,9 +146,15 @@ public class SynchronousActivityLifecycleTest {
 
     private static void performStop(Activity activity) {
         try {
-            Method m = Activity.class.getDeclaredMethod("performStop", boolean.class);
-            m.setAccessible(true);
-            m.invoke(activity, false);
+            if (Build.VERSION.SDK_INT >= 24) {
+                Method m = Activity.class.getDeclaredMethod("performStop", boolean.class);
+                m.setAccessible(true);
+                m.invoke(activity, false);
+            } else {
+                Method m = Activity.class.getDeclaredMethod("performStop");
+                m.setAccessible(true);
+                m.invoke(activity);
+            }
         } catch (Exception e) {
             throw new Error(e);
         }
