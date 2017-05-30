@@ -130,7 +130,8 @@ public class ProcessOwnerTest {
         assertThat(events.toArray(), is(new Event[]{ON_PAUSE, ON_STOP}));
         events.clear();
         Context context = InstrumentationRegistry.getContext();
-        context.startActivity(new Intent(activity, NavigationDialogActivity.class));
+        context.startActivity(new Intent(activity, NavigationDialogActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         waitTillResumed(dialogActivity, activityTestRule);
         assertThat(events.toArray(), is(new Event[]{ON_START, ON_RESUME}));
         removeProcessObserver(collectingObserver);
