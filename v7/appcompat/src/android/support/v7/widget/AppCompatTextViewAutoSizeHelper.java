@@ -62,7 +62,7 @@ class AppCompatTextViewAutoSizeHelper {
     // Default value for the step size in pixels.
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
     // Use this to specify that any of the auto-size configuration int values have not been set.
-    static final int UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1;
+    static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
     // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when
     // horizontal scrolling is activated.
     private static final int VERY_WIDE = 1024 * 1024;
@@ -71,11 +71,11 @@ class AppCompatTextViewAutoSizeHelper {
     // Specify if auto-size text is needed.
     private boolean mNeedsAutoSizeText = false;
     // Step size for auto-sizing in pixels.
-    private int mAutoSizeStepGranularityInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+    private float mAutoSizeStepGranularityInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
     // Minimum text size for auto-sizing in pixels.
-    private int mAutoSizeMinTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+    private float mAutoSizeMinTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
     // Maximum text size for auto-sizing in pixels.
-    private int mAutoSizeMaxTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+    private float mAutoSizeMaxTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
     // Contains a (specified or computed) distinct sorted set of text sizes in pixels to pick from
     // when auto-sizing text.
     private int[] mAutoSizeTextSizesInPx = new int[0];
@@ -96,9 +96,9 @@ class AppCompatTextViewAutoSizeHelper {
     }
 
     void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
-        int autoSizeMinTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
-        int autoSizeMaxTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
-        int autoSizeStepGranularityInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+        float autoSizeMinTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+        float autoSizeMaxTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
+        float autoSizeStepGranularityInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
 
         TypedArray a = mContext.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView,
                 defStyleAttr, 0);
@@ -107,17 +107,17 @@ class AppCompatTextViewAutoSizeHelper {
                     TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
         }
         if (a.hasValue(R.styleable.AppCompatTextView_autoSizeStepGranularity)) {
-            autoSizeStepGranularityInPx = a.getDimensionPixelSize(
+            autoSizeStepGranularityInPx = a.getDimension(
                     R.styleable.AppCompatTextView_autoSizeStepGranularity,
                     UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE);
         }
         if (a.hasValue(R.styleable.AppCompatTextView_autoSizeMinTextSize)) {
-            autoSizeMinTextSizeInPx = a.getDimensionPixelSize(
+            autoSizeMinTextSizeInPx = a.getDimension(
                     R.styleable.AppCompatTextView_autoSizeMinTextSize,
                     UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE);
         }
         if (a.hasValue(R.styleable.AppCompatTextView_autoSizeMaxTextSize)) {
-            autoSizeMaxTextSizeInPx = a.getDimensionPixelSize(
+            autoSizeMaxTextSizeInPx = a.getDimension(
                     R.styleable.AppCompatTextView_autoSizeMaxTextSize,
                     UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE);
         }
@@ -143,14 +143,14 @@ class AppCompatTextViewAutoSizeHelper {
                             mContext.getResources().getDisplayMetrics();
 
                     if (autoSizeMinTextSizeInPx == UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE) {
-                        autoSizeMinTextSizeInPx = (int) TypedValue.applyDimension(
+                        autoSizeMinTextSizeInPx = TypedValue.applyDimension(
                                 TypedValue.COMPLEX_UNIT_SP,
                                 DEFAULT_AUTO_SIZE_MIN_TEXT_SIZE_IN_SP,
                                 displayMetrics);
                     }
 
                     if (autoSizeMaxTextSizeInPx == UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE) {
-                        autoSizeMaxTextSizeInPx = (int) TypedValue.applyDimension(
+                        autoSizeMaxTextSizeInPx = TypedValue.applyDimension(
                                 TypedValue.COMPLEX_UNIT_SP,
                                 DEFAULT_AUTO_SIZE_MAX_TEXT_SIZE_IN_SP,
                                 displayMetrics);
@@ -197,11 +197,11 @@ class AppCompatTextViewAutoSizeHelper {
                 case TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM:
                     final DisplayMetrics displayMetrics =
                             mContext.getResources().getDisplayMetrics();
-                    final int autoSizeMinTextSizeInPx = (int) TypedValue.applyDimension(
+                    final float autoSizeMinTextSizeInPx = TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_SP,
                             DEFAULT_AUTO_SIZE_MIN_TEXT_SIZE_IN_SP,
                             displayMetrics);
-                    final int autoSizeMaxTextSizeInPx = (int) TypedValue.applyDimension(
+                    final float autoSizeMaxTextSizeInPx = TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_SP,
                             DEFAULT_AUTO_SIZE_MAX_TEXT_SIZE_IN_SP,
                             displayMetrics);
@@ -256,11 +256,11 @@ class AppCompatTextViewAutoSizeHelper {
             int unit) throws IllegalArgumentException {
         if (supportsAutoSizeText()) {
             final DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
-            final int autoSizeMinTextSizeInPx = (int) TypedValue.applyDimension(
+            final float autoSizeMinTextSizeInPx = TypedValue.applyDimension(
                     unit, autoSizeMinTextSize, displayMetrics);
-            final int autoSizeMaxTextSizeInPx = (int) TypedValue.applyDimension(
+            final float autoSizeMaxTextSizeInPx = TypedValue.applyDimension(
                     unit, autoSizeMaxTextSize, displayMetrics);
-            final int autoSizeStepGranularityInPx = (int) TypedValue.applyDimension(
+            final float autoSizeStepGranularityInPx = TypedValue.applyDimension(
                     unit, autoSizeStepGranularity, displayMetrics);
 
             validateAndSetAutoSizeTextTypeUniformConfiguration(autoSizeMinTextSizeInPx,
@@ -307,8 +307,8 @@ class AppCompatTextViewAutoSizeHelper {
                             mContext.getResources().getDisplayMetrics();
                     // Convert all to sizes to pixels.
                     for (int i = 0; i < presetSizesLength; i++) {
-                        presetSizesInPx[i] = (int) TypedValue.applyDimension(unit, presetSizes[i],
-                                displayMetrics);
+                        presetSizesInPx[i] = Math.round(TypedValue.applyDimension(unit,
+                                presetSizes[i], displayMetrics));
                     }
                 }
 
@@ -356,7 +356,7 @@ class AppCompatTextViewAutoSizeHelper {
      */
     @RestrictTo(LIBRARY_GROUP)
     int getAutoSizeStepGranularity() {
-        return mAutoSizeStepGranularityInPx;
+        return Math.round(mAutoSizeStepGranularityInPx);
     }
 
     /**
@@ -372,7 +372,7 @@ class AppCompatTextViewAutoSizeHelper {
      */
     @RestrictTo(LIBRARY_GROUP)
     int getAutoSizeMinTextSize() {
-        return mAutoSizeMinTextSizeInPx;
+        return Math.round(mAutoSizeMinTextSizeInPx);
     }
 
     /**
@@ -388,7 +388,7 @@ class AppCompatTextViewAutoSizeHelper {
      */
     @RestrictTo(LIBRARY_GROUP)
     int getAutoSizeMaxTextSize() {
-        return mAutoSizeMaxTextSizeInPx;
+        return Math.round(mAutoSizeMaxTextSizeInPx);
     }
 
     /**
@@ -465,9 +465,9 @@ class AppCompatTextViewAutoSizeHelper {
      * @throws IllegalArgumentException if any of the params are invalid
      */
     private void validateAndSetAutoSizeTextTypeUniformConfiguration(
-            int autoSizeMinTextSizeInPx,
-            int autoSizeMaxTextSizeInPx,
-            int autoSizeStepGranularityInPx) throws IllegalArgumentException {
+            float autoSizeMinTextSizeInPx,
+            float autoSizeMaxTextSizeInPx,
+            float autoSizeStepGranularityInPx) throws IllegalArgumentException {
         // First validate.
         if (autoSizeMinTextSizeInPx <= 0) {
             throw new IllegalArgumentException("Minimum auto-size text size ("
@@ -502,18 +502,19 @@ class AppCompatTextViewAutoSizeHelper {
                 // Calculate sizes to choose from based on the current auto-size configuration.
                 int autoSizeValuesLength = (int) Math.ceil(
                         (mAutoSizeMaxTextSizeInPx - mAutoSizeMinTextSizeInPx)
-                                / (float) mAutoSizeStepGranularityInPx);
+                                / mAutoSizeStepGranularityInPx);
                 // Also reserve a slot for the max size if it fits.
                 if ((mAutoSizeMaxTextSizeInPx - mAutoSizeMinTextSizeInPx)
                         % mAutoSizeStepGranularityInPx == 0) {
                     autoSizeValuesLength++;
                 }
-                mAutoSizeTextSizesInPx = new int[autoSizeValuesLength];
-                int sizeToAdd = mAutoSizeMinTextSizeInPx;
+                int[] autoSizeTextSizesInPx = new int[autoSizeValuesLength];
+                float sizeToAdd = mAutoSizeMinTextSizeInPx;
                 for (int i = 0; i < autoSizeValuesLength; i++) {
-                    mAutoSizeTextSizesInPx[i] = sizeToAdd;
+                    autoSizeTextSizesInPx[i] = Math.round(sizeToAdd);
                     sizeToAdd += mAutoSizeStepGranularityInPx;
                 }
+                mAutoSizeTextSizesInPx = cleanupAutoSizePresetSizes(autoSizeTextSizesInPx);
             }
 
             mNeedsAutoSizeText = true;
