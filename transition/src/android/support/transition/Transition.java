@@ -2036,7 +2036,7 @@ public abstract class Transition implements Cloneable {
      * @see PatternPathMotion
      * @see android.transition.PathMotion
      */
-    public void setPathMotion(PathMotion pathMotion) {
+    public void setPathMotion(@Nullable PathMotion pathMotion) {
         if (pathMotion == null) {
             mPathMotion = STRAIGHT_PATH_MOTION;
         } else {
@@ -2053,6 +2053,7 @@ public abstract class Transition implements Cloneable {
      * @see PatternPathMotion
      * @see android.transition.PathMotion
      */
+    @Nullable
     public PathMotion getPathMotion() {
         return mPathMotion;
     }
@@ -2114,7 +2115,7 @@ public abstract class Transition implements Cloneable {
      *                              Animators created by this Transition. A null value
      *                              indicates that no delay should be used.
      */
-    public void setPropagation(TransitionPropagation transitionPropagation) {
+    public void setPropagation(@Nullable TransitionPropagation transitionPropagation) {
         mPropagation = transitionPropagation;
     }
 
@@ -2130,6 +2131,7 @@ public abstract class Transition implements Cloneable {
      * @return the {@link android.transition.TransitionPropagation} used to calculate Animator start
      * delays. This is null by default.
      */
+    @Nullable
     public TransitionPropagation getPropagation() {
         return mPropagation;
     }
@@ -2425,7 +2427,7 @@ public abstract class Transition implements Cloneable {
          * @return The Rect region of the epicenter of <code>transition</code> or null if
          * there is no epicenter.
          */
-        public abstract Rect onGetEpicenter(Transition transition);
+        public abstract Rect onGetEpicenter(@NonNull Transition transition);
     }
 
 }
