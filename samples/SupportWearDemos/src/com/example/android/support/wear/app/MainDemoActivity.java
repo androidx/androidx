@@ -50,9 +50,10 @@ public class MainDemoActivity extends Activity {
 
     private Map<String, Intent> createContentMap() {
         Map<String, Intent> contentMap = new HashMap<>();
-        Intent intent = new Intent();
-        intent.setClass(MainDemoActivity.this, SimpleWearableRecyclerViewDemo.class);
-        contentMap.put("Wearable Recycler View", intent);
+        contentMap.put("Wearable Recycler View", new Intent(
+                this, SimpleWearableRecyclerViewDemo.class));
+        contentMap.put("Wearable Switch", new Intent(
+                this, WearableSwitchDemo.class));
 
         return contentMap;
     }
