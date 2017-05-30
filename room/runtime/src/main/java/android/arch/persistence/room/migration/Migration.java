@@ -24,12 +24,14 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
  * Each migration can move between 2 versions that are defined by {@link #startVersion} and
  * {@link #endVersion}.
  * <p>
- * Usually, you would need 1 Migration class for each version change but you can also provide
- * Migrations that can handle multiple version changes.
+ * A migration can handle more than 1 version (e.g. if you have a faster path to choose when
+ * going version 3 to 5 without going to version 4). If Room opens a database at version
+ * 3 and latest version is &gt;= 5, Room will use the migration object that can migrate from
+ * 3 to 5 instead of 3 to 4 and 4 to 5.
  * <p>
- * Room expects the migrated table to have the exact same structure as if it is created from
- * scratch. This means the order of columns in the table must also be modified during the migration
- * if necessary.
+ * If there are not enough migrations provided to move from the current version to the latest
+ * version, Room will clear the database and recreate so even if you have no changes between 2
+ * versions, you should still provide a Migration object to the builder.
  */
 public abstract class Migration {
     public final int startVersion;
