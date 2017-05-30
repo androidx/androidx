@@ -84,6 +84,71 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testNavigateTo() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_simple);
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.navigateTo(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+    }
+
+    @Test
+    public void testNavigateToThenPop() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_simple);
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.navigateTo(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        navController.popBackStack();
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
+    public void testNavigateToThenNavigateUp() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_simple);
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.navigateTo(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        // This should function identically to popBackStack()
+        navController.navigateUp();
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
+    public void testNavigate() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_simple);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(1));
+
+        navController.navigate(R.id.second);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+    }
+
+    @Test
     public void testDeeplink() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
@@ -98,6 +163,8 @@ public class NavControllerTest {
         navController.setGraph(R.xml.nav_deep_link);
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(1));
     }
 
     @Test
@@ -118,9 +185,9 @@ public class NavControllerTest {
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(1));
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
     }
-
 
     private NavigationActivity launchActivity() throws Throwable {
         return launchActivity(new Intent(mInstrumentation.getTargetContext(),

@@ -44,10 +44,14 @@ public class TestNavigator extends Navigator<TestNavigator.Destination> {
 
     @Override
     public boolean popBackStack() {
-        mBackStack.pop();
-        dispatchOnNavigatorNavigated(mBackStack.isEmpty() ? 0 : mBackStack.peekLast().first.getId(),
-                BACK_STACK_DESTINATION_POPPED);
-        return true;
+        boolean popped = mBackStack.pollLast() != null;
+        if (popped) {
+            dispatchOnNavigatorNavigated(mBackStack.isEmpty()
+                            ? 0
+                            : mBackStack.peekLast().first.getId(),
+                    BACK_STACK_DESTINATION_POPPED);
+        }
+        return popped;
     }
 
     static class Destination extends NavDestination {
