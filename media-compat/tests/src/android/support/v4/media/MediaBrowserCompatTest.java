@@ -158,7 +158,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testReconnection() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
 
@@ -206,7 +206,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testConnectionCallbackNotCalledAfterDisconnect() {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         mMediaBrowser.connect();
@@ -494,7 +494,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testGetItemWhenOnLoadItemIsNotImplemented() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
