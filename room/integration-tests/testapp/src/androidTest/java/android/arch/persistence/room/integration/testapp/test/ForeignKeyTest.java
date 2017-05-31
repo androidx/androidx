@@ -16,12 +16,15 @@
 
 package android.arch.persistence.room.integration.testapp.test;
 
+import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Database;
@@ -40,6 +43,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -214,7 +218,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), is(foreignKeyErrorMessage()));
     }
 
     @Test
@@ -226,7 +230,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), is(foreignKeyErrorMessage()));
     }
 
     @Test
@@ -273,7 +277,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), is(foreignKeyErrorMessage()));
     }
 
     @Test
@@ -289,7 +293,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), is(foreignKeyErrorMessage()));
     }
 
     @Test
@@ -304,7 +308,7 @@ public class ForeignKeyTest {
             }
         });
         assertThat(t, instanceOf(SQLiteException.class));
-        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), is(foreignKeyErrorMessage()));
     }
 
     @Test
@@ -349,7 +353,7 @@ public class ForeignKeyTest {
                 mDao.insert(new E("a1", "dsa"));
             }
         });
-        assertThat(t.getMessage().toUpperCase(Locale.US), containsString("FOREIGN KEY"));
+        assertThat(t.getMessage().toUpperCase(Locale.US), is(foreignKeyErrorMessage()));
     }
 
     @Test
@@ -375,6 +379,11 @@ public class ForeignKeyTest {
         assertThat(mDao.loadE(1), notNullValue());
         assertThat(mDao.loadE(1).aName, equalTo("foo"));
         assertThat(mDao.loadE(1).aLastName, equalTo("a2"));
+    }
+
+    private static Matcher<String> foreignKeyErrorMessage() {
+        return either(containsString("FOREIGN KEY"))
+                .or(both(containsString("CODE 19")).and(containsString("CONSTRAINT FAILED")));
     }
 
     @SuppressWarnings("Duplicates")
