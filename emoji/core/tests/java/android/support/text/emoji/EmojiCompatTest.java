@@ -54,10 +54,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -479,6 +484,50 @@ public class EmojiCompatTest {
                         original.length()));
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_withReplaceNonExistent_callsGlyphChecker() {
+        final Config config = TestConfigBuilder.config().setReplaceAll(true);
+        EmojiCompat.reset(config);
+
+        final EmojiProcessor.GlyphChecker glyphChecker = mock(EmojiProcessor.GlyphChecker.class);
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt())).thenReturn(true);
+        EmojiCompat.get().setGlyphChecker(glyphChecker);
+
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
+
+        CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
+                Integer.MAX_VALUE /*maxEmojiCount*/, EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT);
+
+        // when function overrides config level replaceAll, a call to GlyphChecker is expected.
+        verify(glyphChecker, times(1)).hasGlyph(any(CharSequence.class), anyInt(), anyInt());
+
+        // since replaceAll is false, there should be no EmojiSpans
+        assertThat(processed, not(hasEmoji()));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_withReplaceDefault_doesNotCallGlyphChecker() {
+        final Config config = TestConfigBuilder.config().setReplaceAll(true);
+        EmojiCompat.reset(config);
+
+        final EmojiProcessor.GlyphChecker glyphChecker = mock(EmojiProcessor.GlyphChecker.class);
+        when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt())).thenReturn(true);
+        EmojiCompat.get().setGlyphChecker(glyphChecker);
+
+        final String original = new TestString(EMOJI_SINGLE_CODEPOINT).toString();
+        // call without replaceAll, config value (true) should be used
+        final CharSequence processed = EmojiCompat.get().process(original, 0, original.length(),
+                Integer.MAX_VALUE /*maxEmojiCount*/, EmojiCompat.REPLACE_STRATEGY_DEFAULT);
+
+        // replaceAll=true should not call hasGlyph
+        verify(glyphChecker, times(0)).hasGlyph(any(CharSequence.class), anyInt(), anyInt());
+
+        assertThat(processed, hasEmojiCount(1));
+        assertThat(processed, hasEmoji(EMOJI_SINGLE_CODEPOINT));
+    }
+
     @Test(expected = NullPointerException.class)
     public void testHasEmojiGlyph_withNullCharSequence() {
         EmojiCompat.get().hasEmojiGlyph(null);
@@ -682,6 +731,4 @@ public class EmojiCompatTest {
         charSequence = EmojiCompat.get().process(string.toString());
         assertThat(charSequence, not(hasEmoji()));
     }
-
-    //FAILS: CHAR_DIGIT, CHAR_VS_EMOJI, CHAR_VS_TEXT
 }

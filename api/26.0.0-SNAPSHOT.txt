@@ -1895,6 +1895,7 @@ package android.support.text.emoji {
     method public java.lang.CharSequence process(java.lang.CharSequence);
     method public java.lang.CharSequence process(java.lang.CharSequence, int, int);
     method public java.lang.CharSequence process(java.lang.CharSequence, int, int, int);
+    method public java.lang.CharSequence process(java.lang.CharSequence, int, int, int, int);
     method public void registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     method public void unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     field public static final java.lang.String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
@@ -1902,6 +1903,9 @@ package android.support.text.emoji {
     field public static final int LOAD_STATE_FAILURE = 2; // 0x2
     field public static final int LOAD_STATE_LOADING = 0; // 0x0
     field public static final int LOAD_STATE_SUCCESS = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_ALL = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_DEFAULT = 0; // 0x0
+    field public static final int REPLACE_STRATEGY_NON_EXISTENT = 2; // 0x2
   }
 
   public static abstract class EmojiCompat.Config {

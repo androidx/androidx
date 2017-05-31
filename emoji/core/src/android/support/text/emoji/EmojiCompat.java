@@ -118,6 +118,30 @@ public class EmojiCompat {
     public @interface LoadState {
     }
 
+    /**
+     * Replace strategy that uses the value given in {@link EmojiCompat.Config}.
+     */
+    public static final int REPLACE_STRATEGY_DEFAULT = 0;
+
+    /**
+     * Replace strategy to add {@link EmojiSpan}s for all emoji that were found.
+     */
+    public static final int REPLACE_STRATEGY_ALL = 1;
+
+    /**
+     * Replace strategy to add {@link EmojiSpan}s only for emoji that do not exist in the system.
+     */
+    public static final int REPLACE_STRATEGY_NON_EXISTENT = 2;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({REPLACE_STRATEGY_DEFAULT, REPLACE_STRATEGY_NON_EXISTENT, REPLACE_STRATEGY_ALL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ReplaceStrategy {
+    }
+
     private static final Object sInstanceLock = new Object();
 
     @GuardedBy("sInstanceLock")
@@ -228,6 +252,17 @@ public class EmojiCompat {
             sInstance = emojiCompat;
         }
         return sInstance;
+    }
+
+    /**
+     * Used by the tests to set GlyphChecker for EmojiProcessor.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @VisibleForTesting
+    void setGlyphChecker(@NonNull final EmojiProcessor.GlyphChecker glyphChecker) {
+        mHelper.setGlyphChecker(glyphChecker);
     }
 
     /**
@@ -543,6 +578,45 @@ public class EmojiCompat {
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
             @IntRange(from = 0) final int maxEmojiCount) {
+        return process(charSequence, start, end, maxEmojiCount, REPLACE_STRATEGY_DEFAULT);
+    }
+
+    /**
+     * Checks a given CharSequence for emojis, and adds EmojiSpans if any emojis are found.
+     * <p>
+     * <ul>
+     * <li>If no emojis are found, {@code charSequence} given as the input is returned without
+     * any changes. i.e. charSequence is a String, and no emojis are found, the same String is
+     * returned.</li>
+     * <li>If the given input is not a Spannable (such as String), and at least one emoji is found
+     * a new {@link android.text.Spannable} instance is returned. </li>
+     * <li>If the given input is a Spannable, the same instance is returned. </li>
+     * </ul>
+     * When used on devices running API 18 or below, returns the given {@code charSequence} without
+     * processing it.
+     *
+     * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
+     * @param start start index in the charSequence to look for emojis, should be greater than or
+     *              equal to {@code 0}, also less than {@code charSequence.length()}
+     * @param end end index in the charSequence to look for emojis, should be greater than or
+     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
+     *                      than or equal to {@code 0}
+     * @param replaceStrategy whether to replace all emoji with {@link EmojiSpan}s, should be one of
+     *                        {@link #REPLACE_STRATEGY_DEFAULT},
+     *                        {@link #REPLACE_STRATEGY_NON_EXISTENT},
+     *                        {@link #REPLACE_STRATEGY_ALL}
+     *
+     * @throws IllegalStateException if not initialized yet
+     * @throws IllegalArgumentException in the following cases:
+     *                                  {@code start < 0}, {@code end < 0}, {@code end < start},
+     *                                  {@code start > charSequence.length()},
+     *                                  {@code end > charSequence.length()}
+     *                                  {@code maxEmojiCount < 0}
+     */
+    public CharSequence process(@NonNull final CharSequence charSequence,
+            @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
+            @IntRange(from = 0) final int maxEmojiCount, @ReplaceStrategy int replaceStrategy) {
         Preconditions.checkState(isInitialized(), "Not initialized yet");
         Preconditions.checkArgumentNonnegative(start, "start cannot be negative");
         Preconditions.checkArgumentNonnegative(end, "end cannot be negative");
@@ -564,7 +638,21 @@ public class EmojiCompat {
             return charSequence;
         }
 
-        return mHelper.process(charSequence, start, end, maxEmojiCount);
+        final boolean replaceAll;
+        switch (replaceStrategy) {
+            case REPLACE_STRATEGY_ALL:
+                replaceAll = true;
+                break;
+            case REPLACE_STRATEGY_NON_EXISTENT:
+                replaceAll = false;
+                break;
+            case REPLACE_STRATEGY_DEFAULT:
+            default:
+                replaceAll = mReplaceAll;
+                break;
+        }
+
+        return mHelper.process(charSequence, start, end, maxEmojiCount, replaceAll);
     }
 
     /**
@@ -838,13 +926,17 @@ public class EmojiCompat {
 
         CharSequence process(@NonNull final CharSequence charSequence,
                 @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
-                @IntRange(from = 0) final int maxEmojiCount) {
+                @IntRange(from = 0) final int maxEmojiCount, boolean replaceAll) {
             // Returns the given charSequence as it is.
             return charSequence;
         }
 
         void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
             // Does not add any EditorInfo attributes.
+        }
+
+        void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
+            // intentionally empty
         }
     }
 
@@ -893,8 +985,7 @@ public class EmojiCompat {
             }
 
             mMetadataRepo = metadataRepo;
-            mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory(),
-                    mEmojiCompat.mReplaceAll);
+            mProcessor = new EmojiProcessor(mMetadataRepo, new SpanFactory());
 
             mEmojiCompat.onMetadataLoadSuccess();
         }
@@ -912,14 +1003,19 @@ public class EmojiCompat {
 
         @Override
         CharSequence process(@NonNull CharSequence charSequence, int start, int end,
-                int maxEmojiCount) {
-            return mProcessor.process(charSequence, start, end, maxEmojiCount);
+                int maxEmojiCount, boolean replaceAll) {
+            return mProcessor.process(charSequence, start, end, maxEmojiCount, replaceAll);
         }
 
         @Override
         void updateEditorInfoAttrs(@NonNull EditorInfo outAttrs) {
             outAttrs.extras.putInt(EDITOR_INFO_METAVERSION_KEY, mMetadataRepo.getMetadataVersion());
             outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mEmojiCompat.mReplaceAll);
+        }
+
+        @Override
+        void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
+            mProcessor.setGlyphChecker(glyphChecker);
         }
     }
 }

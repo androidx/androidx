@@ -26,6 +26,7 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.widget.SpannableBuilder;
 import android.support.v4.graphics.PaintCompat;
+import android.support.v4.util.Preconditions;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -75,17 +76,6 @@ final class EmojiProcessor {
     private static final int ACTION_FLUSH = 3;
 
     /**
-     * Default text size for {@link #mTextPaint}.
-     */
-    private static final int PAINT_TEXT_SIZE = 10;
-
-    /**
-     * Used to create strings required by
-     * {@link PaintCompat#hasGlyph(android.graphics.Paint, String)}.
-     */
-    private static final ThreadLocal<StringBuilder> sStringBuilder = new ThreadLocal<>();
-
-    /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -97,28 +87,19 @@ final class EmojiProcessor {
     private final EmojiCompat.SpanFactory mSpanFactory;
 
     /**
-     * @see EmojiCompat.Config#setReplaceAll(boolean)
-     */
-    private final boolean mReplaceAll;
-
-    /**
      * Emoji metadata repository.
      */
     private final MetadataRepo mMetadataRepo;
 
     /**
-     * TextPaint used during {@link PaintCompat#hasGlyph(android.graphics.Paint, String)} check.
+     * Utility class that checks if the system can render a given glyph.
      */
-    private final TextPaint mTextPaint;
+    private GlyphChecker mGlyphChecker = new GlyphChecker();
 
     EmojiProcessor(@NonNull final MetadataRepo metadataRepo,
-            @NonNull final EmojiCompat.SpanFactory spanFactory,
-            final boolean replaceAll) {
+            @NonNull final EmojiCompat.SpanFactory spanFactory) {
         mSpanFactory = spanFactory;
         mMetadataRepo = metadataRepo;
-        mReplaceAll = replaceAll;
-        mTextPaint = new TextPaint();
-        mTextPaint.setTextSize(PAINT_TEXT_SIZE);
     }
 
     EmojiMetadata getEmojiMetadata(@NonNull final CharSequence charSequence) {
@@ -161,9 +142,11 @@ final class EmojiProcessor {
      *            equal to {@code start} parameter, also less than {@code charSequence.length()}
      * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
      *                      than or equal to {@code 0}
+     * @param replaceAll whether to replace all emoji with {@link EmojiSpan}s
      */
     CharSequence process(@NonNull final CharSequence charSequence, @IntRange(from = 0) int start,
-            @IntRange(from = 0) int end, @IntRange(from = 0) int maxEmojiCount) {
+            @IntRange(from = 0) int end, @IntRange(from = 0) int maxEmojiCount,
+            final boolean replaceAll) {
         final boolean isSpannableBuilder = charSequence instanceof SpannableBuilder;
         if (isSpannableBuilder) {
             ((SpannableBuilder) charSequence).beginBatchEdit();
@@ -235,7 +218,7 @@ final class EmojiProcessor {
                         }
                         break;
                     case ACTION_FLUSH:
-                        if (mReplaceAll || !hasGlyph(charSequence, start, currentOffset,
+                        if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                                 sm.getFlushMetadata())) {
                             if (spannable == null) {
                                 spannable = new SpannableString(charSequence);
@@ -253,7 +236,7 @@ final class EmojiProcessor {
             // state machine is waiting to see if there is an emoji sequence (i.e. ZWJ).
             // Need to check if it is in such a state.
             if (sm.isInFlushableState() && addedCount < maxEmojiCount) {
-                if (mReplaceAll || !hasGlyph(charSequence, start, currentOffset,
+                if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                         sm.getCurrentMetadata())) {
                     if (spannable == null) {
                         spannable = new SpannableString(charSequence);
@@ -454,26 +437,19 @@ final class EmojiProcessor {
 
         // if the existence is not calculated yet
         if (metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_UNKNOWN) {
-            final StringBuilder builder = getStringBuilder();
-            builder.setLength(0);
-
-            while (start < end) {
-                builder.append(charSequence.charAt(start));
-                start++;
-            }
-
-            final boolean hasGlyph = PaintCompat.hasGlyph(mTextPaint, builder.toString());
+            final boolean hasGlyph = mGlyphChecker.hasGlyph(charSequence, start, end);
             metadata.setHasGlyph(hasGlyph);
         }
 
         return metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_EXISTS;
     }
 
-    private static StringBuilder getStringBuilder() {
-        if (sStringBuilder.get() == null) {
-            sStringBuilder.set(new StringBuilder());
-        }
-        return sStringBuilder.get();
+    /**
+     * Set the GlyphChecker instance used by EmojiProcessor. Used for testing.
+     */
+    void setGlyphChecker(@NonNull final GlyphChecker glyphChecker) {
+        Preconditions.checkNotNull(glyphChecker);
+        mGlyphChecker = glyphChecker;
     }
 
     /**
@@ -742,5 +718,64 @@ final class EmojiProcessor {
                 ++currentIndex;
             }
         }
+    }
+
+    /**
+     * Utility class that checks if the system can render a given glyph.
+     *
+     * @hide
+     */
+    @AnyThread
+    @RestrictTo(LIBRARY_GROUP)
+    public static class GlyphChecker {
+        /**
+         * Default text size for {@link #mTextPaint}.
+         */
+        private static final int PAINT_TEXT_SIZE = 10;
+
+        /**
+         * Used to create strings required by
+         * {@link PaintCompat#hasGlyph(android.graphics.Paint, String)}.
+         */
+        private static final ThreadLocal<StringBuilder> sStringBuilder = new ThreadLocal<>();
+
+        /**
+         * TextPaint used during {@link PaintCompat#hasGlyph(android.graphics.Paint, String)} check.
+         */
+        private final TextPaint mTextPaint;
+
+        GlyphChecker() {
+            mTextPaint = new TextPaint();
+            mTextPaint.setTextSize(PAINT_TEXT_SIZE);
+        }
+
+        /**
+         * Returns whether the system can render an emoji.
+         *
+         * @param charSequence the CharSequence that the emoji is in
+         * @param start start index of the emoji in the CharSequence
+         * @param end end index of the emoji in the CharSequence
+         *
+         * @return {@code true} if the OS can render emoji, {@code false} otherwise
+         */
+        public boolean hasGlyph(final CharSequence charSequence, int start, final int end) {
+            final StringBuilder builder = getStringBuilder();
+            builder.setLength(0);
+
+            while (start < end) {
+                builder.append(charSequence.charAt(start));
+                start++;
+            }
+
+            return PaintCompat.hasGlyph(mTextPaint, builder.toString());
+        }
+
+        private static StringBuilder getStringBuilder() {
+            if (sStringBuilder.get() == null) {
+                sStringBuilder.set(new StringBuilder());
+            }
+            return sStringBuilder.get();
+        }
+
     }
 }
