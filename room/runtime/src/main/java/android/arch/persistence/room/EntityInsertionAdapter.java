@@ -167,6 +167,50 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * @param entities Entities to insert
      * @return The SQLite row ids
      */
+    public final Long[] insertAndReturnIdsArrayBox(Collection<T> entities) {
+        final SupportSQLiteStatement stmt = acquire();
+        try {
+            final Long[] result = new Long[entities.size()];
+            int index = 0;
+            for (T entity : entities) {
+                bind(stmt, entity);
+                result[index] = stmt.executeInsert();
+                index++;
+            }
+            return result;
+        } finally {
+            release(stmt);
+        }
+    }
+
+    /**
+     * Inserts the given entities into the database and returns the row ids.
+     *
+     * @param entities Entities to insert
+     * @return The SQLite row ids
+     */
+    public final Long[] insertAndReturnIdsArrayBox(T[] entities) {
+        final SupportSQLiteStatement stmt = acquire();
+        try {
+            final Long[] result = new Long[entities.length];
+            int index = 0;
+            for (T entity : entities) {
+                bind(stmt, entity);
+                result[index] = stmt.executeInsert();
+                index++;
+            }
+            return result;
+        } finally {
+            release(stmt);
+        }
+    }
+
+    /**
+     * Inserts the given entities into the database and returns the row ids.
+     *
+     * @param entities Entities to insert
+     * @return The SQLite row ids
+     */
     public final List<Long> insertAndReturnIdsList(T[] entities) {
         final SupportSQLiteStatement stmt = acquire();
         try {

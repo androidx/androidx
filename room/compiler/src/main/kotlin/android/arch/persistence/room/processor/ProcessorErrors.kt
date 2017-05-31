@@ -37,7 +37,7 @@ object ProcessorErrors {
     val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
     val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
-            " void, long, long[] or List<Long>."
+            " void, long, Long, long[], Long[] or List<Long>."
 
     fun insertionMethodReturnTypeMismatch(definedReturn : TypeName,
                                           expectedReturnTypes : List<TypeName>) : String {

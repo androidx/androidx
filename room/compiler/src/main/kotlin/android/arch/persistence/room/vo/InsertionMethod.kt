@@ -46,6 +46,8 @@ data class InsertionMethod(val element: ExecutableElement, val name: String,
         INSERT_SINGLE_ID("insertAndReturnId", TypeName.LONG), // return long
         INSERT_ID_ARRAY("insertAndReturnIdsArray",
                 ArrayTypeName.of(TypeName.LONG)), // return long[]
+        INSERT_ID_ARRAY_BOX("insertAndReturnIdsArrayBox",
+                ArrayTypeName.of(TypeName.LONG.box())), // return Long[]
         INSERT_ID_LIST("insertAndReturnIdsList", // return List<Long>
                 ParameterizedTypeName.get(List::class.typeName(), TypeName.LONG.box()))
     }

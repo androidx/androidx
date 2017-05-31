@@ -89,17 +89,24 @@ class InsertionMethodProcessor(baseContext: Context,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun getInsertionType(returnType: TypeMirror): InsertionMethod.Type? {
         // TODO we need to support more types here.
-        fun isLongType(typeMirror: TypeMirror) : Boolean {
-            return typeMirror.kind == LONG || (MoreTypes.isType(typeMirror) &&
-                    MoreTypes.isTypeOf(java.lang.Long::class.java, typeMirror))
-        }
+        fun isLongPrimitiveType(typeMirror: TypeMirror) = typeMirror.kind == LONG
+
+        fun isLongBoxType(typeMirror: TypeMirror) =
+                MoreTypes.isType(typeMirror) &&
+                        MoreTypes.isTypeOf(java.lang.Long::class.java, typeMirror)
+
+        fun isLongType(typeMirror: TypeMirror) =
+                isLongPrimitiveType(typeMirror) || isLongBoxType(typeMirror)
+
         return if (returnType.kind == VOID) {
             Type.INSERT_VOID
         } else if (returnType.kind == TypeKind.ARRAY) {
             val arrayType = MoreTypes.asArray(returnType)
             val param = arrayType.componentType
-            if (isLongType(param)) {
+            if (isLongPrimitiveType(param)) {
                 Type.INSERT_ID_ARRAY
+            } else if (isLongBoxType(param)) {
+                Type.INSERT_ID_ARRAY_BOX
             } else {
                 null
             }
@@ -107,7 +114,7 @@ class InsertionMethodProcessor(baseContext: Context,
                 && MoreTypes.isTypeOf(List::class.java, returnType)) {
             val declared = MoreTypes.asDeclared(returnType)
             val param = declared.typeArguments.first()
-            if (isLongType(param)) {
+            if (isLongBoxType(param)) {
                 Type.INSERT_ID_LIST
             } else {
                 null
@@ -126,7 +133,8 @@ class InsertionMethodProcessor(baseContext: Context,
         val SINGLE_ITEM_SET by lazy { setOf(Type.INSERT_VOID, Type.INSERT_SINGLE_ID) }
         @VisibleForTesting
         val MULTIPLE_ITEM_SET by lazy {
-            setOf(Type.INSERT_VOID, Type.INSERT_ID_ARRAY, Type.INSERT_ID_LIST)
+            setOf(Type.INSERT_VOID, Type.INSERT_ID_ARRAY, Type.INSERT_ID_ARRAY_BOX,
+                    Type.INSERT_ID_LIST)
         }
         fun acceptableTypes(params : List<ShortcutQueryParameter>) : Set<InsertionMethod.Type> {
             if (params.isEmpty()) {

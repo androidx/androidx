@@ -305,9 +305,11 @@ class InsertionMethodProcessorTest {
                 Pair("void", Type.INSERT_VOID),
                 Pair("long", Type.INSERT_SINGLE_ID),
                 Pair("long[]", Type.INSERT_ID_ARRAY),
+                Pair("Long[]", Type.INSERT_ID_ARRAY_BOX),
                 Pair("List<Long>", Type.INSERT_ID_LIST)
         ).forEach { pair ->
-            val dots = if (pair.second in setOf(Type.INSERT_ID_LIST, Type.INSERT_ID_ARRAY)) {
+            val dots = if (pair.second in setOf(Type.INSERT_ID_LIST, Type.INSERT_ID_ARRAY,
+                    Type.INSERT_ID_ARRAY_BOX)) {
                 "..."
             } else {
                 ""
