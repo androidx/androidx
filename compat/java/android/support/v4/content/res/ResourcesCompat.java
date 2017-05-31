@@ -39,6 +39,7 @@ import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEn
 import android.support.v4.graphics.TypefaceCompat;
 import android.util.Log;
 import android.util.TypedValue;
+import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -198,24 +199,24 @@ public final class ResourcesCompat {
             // Use framework support.
             return context.getResources().getFont(id);
         }
-        return loadFont(context, id, new TypedValue(), Typeface.NORMAL);
+        return loadFont(context, id, new TypedValue(), Typeface.NORMAL, null);
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     public static Typeface getFont(@NonNull Context context, @FontRes int id, TypedValue value,
-            int style) throws NotFoundException {
+            int style, @Nullable TextView targetView) throws NotFoundException {
         if (context.isRestricted()) {
             return null;
         }
-        return loadFont(context, id, value, style);
+        return loadFont(context, id, value, style, targetView);
     }
 
     private static Typeface loadFont(@NonNull Context context, int id, TypedValue value,
-            int style) {
+            int style, @Nullable TextView targetView) {
         final Resources resources = context.getResources();
         resources.getValue(id, value, true);
-        Typeface typeface = loadFont(context, resources, value, id, style);
+        Typeface typeface = loadFont(context, resources, value, id, style, targetView);
         if (typeface != null) {
             return typeface;
         }
@@ -224,7 +225,8 @@ public final class ResourcesCompat {
     }
 
     private static Typeface loadFont(
-            @NonNull Context context, Resources wrapper, TypedValue value, int id, int style) {
+            @NonNull Context context, Resources wrapper, TypedValue value, int id, int style,
+            @Nullable TextView targetView) {
         if (value.string == null) {
             throw new NotFoundException("Resource \"" + wrapper.getResourceName(id) + "\" ("
                     + Integer.toHexString(id) + ") is not a Font: " + value);
@@ -251,7 +253,7 @@ public final class ResourcesCompat {
                     return null;
                 }
                 return TypefaceCompat.createFromResourcesFamilyXml(
-                        context, familyEntry, wrapper, id, style);
+                        context, familyEntry, wrapper, id, style, targetView);
             }
             return TypefaceCompat.createFromResourcesFontFile(context, wrapper, id, style);
         } catch (XmlPullParserException e) {

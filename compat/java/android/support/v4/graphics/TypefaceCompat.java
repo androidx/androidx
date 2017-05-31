@@ -31,6 +31,7 @@ import android.support.v4.content.res.FontResourcesParserCompat.ProviderResource
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.util.LruCache;
+import android.widget.TextView;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -92,11 +93,14 @@ public class TypefaceCompat {
      * @return null if failed to create.
      */
     public static Typeface createFromResourcesFamilyXml(
-            Context context, FamilyResourceEntry entry, Resources resources, int id, int style) {
+            Context context, FamilyResourceEntry entry, Resources resources, int id, int style,
+            @Nullable TextView targetView) {
         Typeface typeface;
         if (entry instanceof ProviderResourceEntry) {
+            ProviderResourceEntry providerEntry = (ProviderResourceEntry) entry;
             typeface = FontsContractCompat.getFontSync(context,
-                    ((ProviderResourceEntry) entry).getRequest());
+                    providerEntry.getRequest(), targetView, providerEntry.getFetchStrategy(),
+                    providerEntry.getTimeout(), style);
         } else {
             typeface = sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
                     context, (FontFamilyFilesResourceEntry) entry, resources, id, style);
