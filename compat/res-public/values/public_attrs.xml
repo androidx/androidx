@@ -21,6 +21,8 @@
      <public type="attr" name="fontProviderPackage"/>
      <public type="attr" name="fontProviderQuery"/>
      <public type="attr" name="fontProviderCerts"/>
+     <public type="attr" name="fontProviderStrategy"/>
+     <public type="attr" name="fontProviderTimeout"/>
      <public type="attr" name="fontStyle"/>
      <public type="attr" name="font"/>
      <public type="attr" name="fontWeight"/>

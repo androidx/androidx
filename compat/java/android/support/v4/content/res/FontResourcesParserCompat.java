@@ -21,6 +21,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.annotation.ArrayRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -34,6 +35,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +50,18 @@ public class FontResourcesParserCompat {
     private static final int NORMAL_WEIGHT = 400;
     private static final int ITALIC = 1;
 
+    @IntDef({FETCH_STRATEGY_BLOCKING, FETCH_STRATEGY_ASYNC})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface FetchStrategy {}
+
+    public static final int FETCH_STRATEGY_BLOCKING = 0;
+    public static final int FETCH_STRATEGY_ASYNC = 1;
+
+    // A special timeout value for infinite blocking.
+    public static final int INFINITE_TIMEOUT_VALUE = -1;
+
+    private static final int DEFAULT_TIMEOUT_MILLIS = 500;
+
     /**
      * A class that represents a single entry of font-family in an xml file.
      */
@@ -57,13 +72,26 @@ public class FontResourcesParserCompat {
      */
     public static final class ProviderResourceEntry implements FamilyResourceEntry {
         private final @NonNull FontRequest mRequest;
+        private final int mTimeoutMs;
+        private final @FetchStrategy int mStrategy;
 
-        public ProviderResourceEntry(@NonNull FontRequest request) {
+        public ProviderResourceEntry(@NonNull FontRequest request, @FetchStrategy int strategy,
+                int timeoutMs) {
             mRequest = request;
+            mStrategy = strategy;
+            mTimeoutMs = timeoutMs;
         }
 
         public @NonNull FontRequest getRequest() {
             return mRequest;
+        }
+
+        public @FetchStrategy int getFetchStrategy() {
+            return mStrategy;
+        }
+
+        public int getTimeout() {
+            return mTimeoutMs;
         }
     }
 
@@ -146,6 +174,10 @@ public class FontResourcesParserCompat {
         String providerPackage = array.getString(R.styleable.FontFamily_fontProviderPackage);
         String query = array.getString(R.styleable.FontFamily_fontProviderQuery);
         int certsId = array.getResourceId(R.styleable.FontFamily_fontProviderCerts, 0);
+        int strategy = array.getInteger(R.styleable.FontFamily_fontProviderFetchStrategy,
+                FETCH_STRATEGY_ASYNC);
+        int timeoutMs = array.getInteger(R.styleable.FontFamily_fontProviderFetchTimeout,
+                DEFAULT_TIMEOUT_MILLIS);
         array.recycle();
         if (authority != null && providerPackage != null && query != null) {
             while (parser.next() != XmlPullParser.END_TAG) {
@@ -153,7 +185,7 @@ public class FontResourcesParserCompat {
             }
             List<List<byte[]>> certs = readCerts(resources, certsId);
             return new ProviderResourceEntry(
-                    new FontRequest(authority, providerPackage, query, certs));
+                    new FontRequest(authority, providerPackage, query, certs), strategy, timeoutMs);
         }
         List<FontFileResourceEntry> fonts = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
