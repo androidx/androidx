@@ -16,6 +16,8 @@
 
 package android.support.v4.provider;
 
+import static android.support.v4.provider.SelfDestructiveThread.ReplyCallback;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -23,6 +25,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import android.os.Process;
+import android.support.annotation.GuardedBy;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -31,6 +35,8 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Tests for {@link SelfDestructiveThread}
@@ -183,5 +189,86 @@ public class SelfDestructiveThreadTest {
         } catch (InterruptedException e) {
              // pass
         }
+    }
+
+    private class WaitableReplyCallback implements ReplyCallback<Integer> {
+        private final ReentrantLock mLock = new ReentrantLock();
+        private final Condition mCond = mLock.newCondition();
+
+        @GuardedBy("mLock")
+        private Integer mValue;
+
+        private static final int NOT_STARTED = 0;
+        private static final int WAITING = 1;
+        private static final int FINISHED = 2;
+        private static final int TIMEOUT = 3;
+        @GuardedBy("mLock")
+        int mState = NOT_STARTED;
+
+        @Override
+        public void onReply(Integer value) {
+            mLock.lock();
+            try {
+                if (mState != TIMEOUT) {
+                    mValue = value;
+                    mState = FINISHED;
+                }
+                mCond.signalAll();
+            } finally {
+                mLock.unlock();
+            }
+        }
+
+        public Integer waitUntil(long timeoutMillis) {
+            mLock.lock();
+            try {
+                if (mState == FINISHED) {
+                    return mValue;
+                }
+                mState = WAITING;
+                long remaining = TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+                while (mState == WAITING) {
+                    try {
+                        remaining = mCond.awaitNanos(remaining);
+                    } catch (InterruptedException e) {
+                        // Ignore.
+                    }
+                    if (mState == FINISHED) {
+                        return mValue;
+                    }
+                    if (remaining <= 0) {
+                        mState = TIMEOUT;
+                        fail("Timeout");
+                    }
+                }
+                throw new IllegalStateException("mState becomes unexpected state");
+            } finally {
+                mLock.unlock();
+            }
+        }
+    }
+
+    @Test
+    public void testPostAndReply() {
+        final int destructAfterLastActivityInMs = 300;
+        final Integer expectedResult = 123;
+
+        final Callable<Integer> callable = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return expectedResult;
+            }
+        };
+        final WaitableReplyCallback reply = new WaitableReplyCallback();
+        final SelfDestructiveThread thread = new SelfDestructiveThread(
+                "test", Process.THREAD_PRIORITY_BACKGROUND, destructAfterLastActivityInMs);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                thread.postAndReply(callable, reply);
+            }
+        });
+
+        assertEquals(expectedResult, reply.waitUntil(DEFAULT_TIMEOUT));
     }
 }
