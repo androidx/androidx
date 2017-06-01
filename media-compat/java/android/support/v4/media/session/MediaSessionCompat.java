@@ -426,7 +426,8 @@ public class MediaSessionCompat {
 
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (android.os.Build.VERSION.SDK_INT >= 21
+                && !MediaSessionCompatApi21.hasCallback(impl.getMediaSession())) {
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
         }
