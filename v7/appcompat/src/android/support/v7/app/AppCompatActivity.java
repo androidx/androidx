@@ -524,9 +524,6 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (getDelegate().checkActionBarFocusKey(event)) {
-            return true;
-        }
         // Let support action bars open menus in response to the menu key prioritized over
         // the window handling it
         final int keyCode = event.getKeyCode();
