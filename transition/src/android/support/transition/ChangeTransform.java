@@ -471,7 +471,7 @@ public class ChangeTransform extends Transition {
 
     }
 
-    private static class GhostListener extends Transition.TransitionListenerAdapter {
+    private static class GhostListener extends TransitionListenerAdapter {
 
         private View mView;
         private GhostViewImpl mGhostView;
