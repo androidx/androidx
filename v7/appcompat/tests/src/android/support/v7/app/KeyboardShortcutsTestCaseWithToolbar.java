@@ -20,12 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
 import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
-import android.support.v4.os.BuildCompat;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,6 +41,10 @@ public class KeyboardShortcutsTestCaseWithToolbar
     @Test
     @SmallTest
     public void testAccessActionBar() throws Throwable {
+        // Since O, we rely on keyboard navigation clusters for jumping to actionbar
+        if (Build.VERSION.SDK_INT <= 25) {
+            return;
+        }
         final BaseTestActivity activity = getActivity();
 
         final View editText = activity.findViewById(android.support.v7.appcompat.test.R.id.editText);
@@ -53,15 +56,9 @@ public class KeyboardShortcutsTestCaseWithToolbar
         });
 
         getInstrumentation().waitForIdleSync();
-        if (BuildCompat.isAtLeastO()) {
-            // Since O, we rely on keyboard navigation clusters for jumping to actionbar
-            sendMetaKey(KeyEvent.KEYCODE_TAB);
-        } else {
-            sendControlChar('<');
-        }
+        sendMetaKey(KeyEvent.KEYCODE_TAB);
         getInstrumentation().waitForIdleSync();
 
-        // Should jump to the action bar after control-<
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -70,13 +67,10 @@ public class KeyboardShortcutsTestCaseWithToolbar
                 assertTrue(toolbar.hasFocus());
             }
         });
-        if (BuildCompat.isAtLeastO()) {
-            // Since O, we rely on keyboard navigation clusters for jumping out of actionbar since
-            // normal navigation no-longer leaves it.
-            sendMetaKey(KeyEvent.KEYCODE_TAB);
-        } else {
-            getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN);
-        }
+        // We rely on keyboard navigation clusters for jumping out of actionbar since normal
+        // navigation won't leaves it.
+        sendMetaKey(KeyEvent.KEYCODE_TAB);
+
         getInstrumentation().waitForIdleSync();
 
         // Should jump to the first view again.
@@ -145,19 +139,6 @@ public class KeyboardShortcutsTestCaseWithToolbar
         assertEquals(1, activity.mKeyShortcutCount);
         assertEquals(0, activity.mPrepareMenuCount);
         assertEquals(0, activity.mCreateMenuCount);
-    }
-
-    private void sendControlChar(char key) throws Throwable {
-        KeyEvent tempEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A);
-        KeyCharacterMap map = tempEvent.getKeyCharacterMap();
-        KeyEvent[] events = map.getEvents(new char[] {key});
-        for (int i = 0; i < events.length; i++) {
-            long time = SystemClock.uptimeMillis();
-            KeyEvent event = events[i];
-            KeyEvent controlKey = new KeyEvent(time, time, event.getAction(), event.getKeyCode(),
-                    event.getRepeatCount(), event.getMetaState() | KeyEvent.META_CTRL_ON);
-            getInstrumentation().sendKeySync(controlKey);
-        }
     }
 
     private void sendMetaKey(int keyCode) throws Throwable {
