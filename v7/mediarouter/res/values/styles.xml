@@ -17,11 +17,13 @@
 <resources>
     <style name="Widget.MediaRouter.MediaRouteButton"
             parent="Widget.AppCompat.ActionButton">
+        <item name="externalRouteEnabledDrawableStatic">@drawable/mr_button_dark_static</item>
         <item name="externalRouteEnabledDrawable">@drawable/mr_button_dark</item>
     </style>
 
     <style name="Widget.MediaRouter.Light.MediaRouteButton"
             parent="Widget.AppCompat.Light.ActionButton">
+        <item name="externalRouteEnabledDrawableStatic">@drawable/mr_button_light_static</item>
         <item name="externalRouteEnabledDrawable">@drawable/mr_button_light</item>
     </style>
 
