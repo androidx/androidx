@@ -10311,7 +10311,6 @@ package android.support.v7.app {
   public abstract class AppCompatDelegate {
     method public abstract void addContentView(android.view.View, android.view.ViewGroup.LayoutParams);
     method public abstract boolean applyDayNight();
-    method public abstract boolean checkActionBarFocusKey(android.view.KeyEvent);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Activity, android.support.v7.app.AppCompatCallback);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Dialog, android.support.v7.app.AppCompatCallback);
     method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
