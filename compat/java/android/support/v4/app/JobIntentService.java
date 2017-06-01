@@ -26,6 +26,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
@@ -93,9 +94,10 @@ public abstract class JobIntentService extends Service {
     static final boolean DEBUG = false;
 
     CompatJobEngine mJobImpl;
-    ArrayList<CompatWorkItem> mCompatQueue;
     WorkEnqueuer mCompatWorkEnqueuer;
     CommandProcessor mCurProcessor;
+
+    final ArrayList<CompatWorkItem> mCompatQueue;
 
     static final Object sLock = new Object();
     static final HashMap<Class, WorkEnqueuer> sClassWorkEnqueuer = new HashMap<>();
@@ -385,19 +387,22 @@ public abstract class JobIntentService extends Service {
      * Default empty constructor.
      */
     public JobIntentService() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            mCompatQueue = null;
+        } else {
+            mCompatQueue = new ArrayList<>();
+        }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         if (DEBUG) Log.d(TAG, "CREATING: " + this);
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             mJobImpl = new JobServiceEngineImpl(this);
-            mCompatQueue = null;
             mCompatWorkEnqueuer = null;
         } else {
             mJobImpl = null;
-            mCompatQueue = new ArrayList<>();
             mCompatWorkEnqueuer = getWorkEnqueuer(this, this.getClass(), false, 0);
             mCompatWorkEnqueuer.serviceCreated();
         }
