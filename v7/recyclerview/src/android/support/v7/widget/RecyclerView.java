@@ -1494,11 +1494,35 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @return the ItemDecoration at index position, or null if invalid index.
      */
     public ItemDecoration getItemDecorationAt(int index) {
-        if (index < 0 || index >= mItemDecorations.size()) {
-            return null;
+        final int size = getItemDecorationCount();
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException(index + " is an invalid index for size " + size);
         }
 
         return mItemDecorations.get(index);
+    }
+
+    /**
+     * Returns the number of {@link ItemDecoration} currently added to this RecyclerView.
+     *
+     * @return number of ItemDecorations currently added added to this RecyclerView.
+     */
+    public int getItemDecorationCount() {
+        return mItemDecorations.size();
+    }
+
+    /**
+     * Removes the {@link ItemDecoration} associated with the supplied index position.
+     *
+     * @param index The index position of the ItemDecoration to be removed.
+     */
+    public void removeItemDecorationAt(int index) {
+        final int size = getItemDecorationCount();
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException(index + " is an invalid index for size " + size);
+        }
+
+        removeItemDecoration(getItemDecorationAt(index));
     }
 
     /**

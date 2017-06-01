@@ -12103,6 +12103,7 @@ package android.support.v7.widget {
     method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
     method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
     method public android.support.v7.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
+    method public int getItemDecorationCount();
     method public android.support.v7.widget.RecyclerView.LayoutManager getLayoutManager();
     method public int getMaxFlingVelocity();
     method public int getMinFlingVelocity();
@@ -12126,6 +12127,7 @@ package android.support.v7.widget {
     method public void onScrollStateChanged(int);
     method public void onScrolled(int, int);
     method public void removeItemDecoration(android.support.v7.widget.RecyclerView.ItemDecoration);
+    method public void removeItemDecorationAt(int);
     method public void removeOnChildAttachStateChangeListener(android.support.v7.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void removeOnItemTouchListener(android.support.v7.widget.RecyclerView.OnItemTouchListener);
     method public void removeOnScrollListener(android.support.v7.widget.RecyclerView.OnScrollListener);
