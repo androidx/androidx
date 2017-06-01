@@ -44,17 +44,15 @@ public class TransitionInflaterTest extends BaseTest {
     @Test
     public void testInflationConstructors() throws Throwable {
         TransitionInflater inflater = TransitionInflater.from(rule.getActivity());
-        // TODO: Add more Transition types
         Transition transition = inflater.inflateTransition(R.transition.transition_constructors);
         assertTrue(transition instanceof TransitionSet);
         TransitionSet set = (TransitionSet) transition;
-        assertEquals(9, set.getTransitionCount());
+        assertEquals(10, set.getTransitionCount());
     }
 
     @Test
     public void testInflation() {
         TransitionInflater inflater = TransitionInflater.from(rule.getActivity());
-        // TODO: Add more Transition types
         verifyFadeProperties(inflater.inflateTransition(R.transition.fade));
         verifyChangeBoundsProperties(inflater.inflateTransition(R.transition.change_bounds));
         verifySlideProperties(inflater.inflateTransition(R.transition.slide));
@@ -65,6 +63,7 @@ public class TransitionInflaterTest extends BaseTest {
         verifyChangeClipBoundsProperties(
                 inflater.inflateTransition(R.transition.change_clip_bounds));
         verifyAutoTransitionProperties(inflater.inflateTransition(R.transition.auto_transition));
+        verifyChangeScrollProperties(inflater.inflateTransition(R.transition.change_scroll));
         verifyTransitionSetProperties(inflater.inflateTransition(R.transition.transition_set));
         verifyCustomTransitionProperties(
                 inflater.inflateTransition(R.transition.custom_transition));
@@ -119,6 +118,10 @@ public class TransitionInflaterTest extends BaseTest {
 
     private void verifyAutoTransitionProperties(Transition transition) {
         assertTrue(transition instanceof AutoTransition);
+    }
+
+    private void verifyChangeScrollProperties(Transition transition) {
+        assertTrue(transition instanceof ChangeScroll);
     }
 
     private void verifyTransitionSetProperties(Transition transition) {
@@ -265,6 +268,12 @@ public class TransitionInflaterTest extends BaseTest {
 
     public static class InflationChangeClipBounds extends ChangeClipBounds {
         public InflationChangeClipBounds(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+    }
+
+    public static class InflationChangeScroll extends ChangeScroll {
+        public InflationChangeScroll(Context context, AttributeSet attrs) {
             super(context, attrs);
         }
     }
