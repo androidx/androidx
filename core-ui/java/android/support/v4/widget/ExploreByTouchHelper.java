@@ -877,11 +877,13 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         if (mHost.getLocalVisibleRect(mTempVisibleRect)) {
             mTempVisibleRect.offset(mTempGlobalRect[0] - mHost.getScrollX(),
                     mTempGlobalRect[1] - mHost.getScrollY());
-            mTempScreenRect.intersect(mTempVisibleRect);
-            node.setBoundsInScreen(mTempScreenRect);
+            final boolean intersects = mTempScreenRect.intersect(mTempVisibleRect);
+            if (intersects) {
+                node.setBoundsInScreen(mTempScreenRect);
 
-            if (isVisibleToUser(mTempScreenRect)) {
-                node.setVisibleToUser(true);
+                if (isVisibleToUser(mTempScreenRect)) {
+                    node.setVisibleToUser(true);
+                }
             }
         }
 
