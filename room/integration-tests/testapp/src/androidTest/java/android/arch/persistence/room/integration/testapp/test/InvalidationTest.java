@@ -16,15 +16,10 @@
 
 package android.arch.persistence.room.integration.testapp.test;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
@@ -33,12 +28,20 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
 import android.arch.persistence.room.integration.testapp.vo.User;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -68,6 +71,7 @@ public class InvalidationTest {
         AppToolkitTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             ExecutorService mIOExecutor = Executors.newSingleThreadExecutor();
             Handler mHandler = new Handler(Looper.getMainLooper());
+
             @Override
             public void executeOnDiskIO(Runnable runnable) {
                 mIOExecutor.execute(runnable);
@@ -117,6 +121,8 @@ public class InvalidationTest {
         mUserDao.updateById(3, "foo2");
         waitUntilIOThreadIsIdle();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables(), hasSize(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("User"));
     }
 
     @Test
@@ -128,6 +134,8 @@ public class InvalidationTest {
         mUserDao.delete(user);
         waitUntilIOThreadIsIdle();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables(), hasSize(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("User"));
     }
 
     @Test
@@ -137,6 +145,8 @@ public class InvalidationTest {
         mUserDao.insert(TestUtil.createUser(3));
         waitUntilIOThreadIsIdle();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables(), hasSize(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("User"));
     }
 
     @Test
@@ -152,6 +162,8 @@ public class InvalidationTest {
     private static class LatchObserver extends InvalidationTracker.Observer {
         CountDownLatch mLatch;
 
+        private Set<String> mInvalidatedTables;
+
         LatchObserver(int permits, String... tables) {
             super(tables);
             mLatch = new CountDownLatch(permits);
@@ -162,8 +174,13 @@ public class InvalidationTest {
         }
 
         @Override
-        public void onInvalidated() {
+        public void onInvalidated(@NonNull Set<String> tables) {
+            mInvalidatedTables = tables;
             mLatch.countDown();
+        }
+
+        Set<String> getInvalidatedTables() {
+            return mInvalidatedTables;
         }
     }
 }

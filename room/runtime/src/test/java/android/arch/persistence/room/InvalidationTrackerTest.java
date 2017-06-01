@@ -18,6 +18,8 @@ package android.arch.persistence.room;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -35,6 +37,7 @@ import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteStatement;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.support.annotation.NonNull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,6 +50,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -160,6 +164,8 @@ public class InvalidationTrackerTest {
         setVersions(1, 0, 2, 1);
         refreshSync();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("a"));
 
         setVersions(3, 1);
         observer.reset(1);
@@ -169,6 +175,8 @@ public class InvalidationTrackerTest {
         setVersions(4, 0);
         refreshSync();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("a"));
     }
 
     @Test
@@ -178,16 +186,22 @@ public class InvalidationTrackerTest {
         setVersions(1, 0, 2, 1);
         refreshSync();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(2));
+        assertThat(observer.getInvalidatedTables(), hasItems("A", "B"));
 
         setVersions(3, 1);
         observer.reset(1);
         refreshSync();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("B"));
 
         setVersions(4, 0);
         observer.reset(1);
         refreshSync();
         assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("A"));
 
         observer.reset(1);
         refreshSync();
@@ -257,6 +271,7 @@ public class InvalidationTrackerTest {
 
     static class LatchObserver extends InvalidationTracker.Observer {
         private CountDownLatch mLatch;
+        private Set<String> mInvalidatedTables;
 
         LatchObserver(int count, String... tableNames) {
             super(tableNames);
@@ -268,12 +283,18 @@ public class InvalidationTrackerTest {
         }
 
         @Override
-        public void onInvalidated() {
+        public void onInvalidated(@NonNull Set<String> tables) {
+            mInvalidatedTables = tables;
             mLatch.countDown();
         }
 
         void reset(@SuppressWarnings("SameParameterValue") int count) {
+            mInvalidatedTables = null;
             mLatch = new CountDownLatch(count);
+        }
+
+        Set<String> getInvalidatedTables() {
+            return mInvalidatedTables;
         }
     }
 }

@@ -37,7 +37,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -94,25 +97,29 @@ public class RxRoomTest {
 
     @Test
     public void basicNotify() throws InterruptedException {
-        Flowable<Object> flowable = RxRoom.createFlowable(mDatabase, "a", "b");
+        String[] tables = {"a", "b"};
+        Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
+        Flowable<Object> flowable = RxRoom.createFlowable(mDatabase, tables);
         CountingConsumer consumer = new CountingConsumer();
         Disposable disposable = flowable.subscribe(consumer);
         assertThat(mAddedObservers.size(), CoreMatchers.is(1));
         InvalidationTracker.Observer observer = mAddedObservers.get(0);
         assertThat(consumer.mCount, CoreMatchers.is(1));
-        observer.onInvalidated();
+        observer.onInvalidated(tableSet);
         assertThat(consumer.mCount, CoreMatchers.is(2));
-        observer.onInvalidated();
+        observer.onInvalidated(tableSet);
         assertThat(consumer.mCount, CoreMatchers.is(3));
         disposable.dispose();
-        observer.onInvalidated();
+        observer.onInvalidated(tableSet);
         assertThat(consumer.mCount, CoreMatchers.is(3));
     }
 
     @Test
     public void internalCallable() throws InterruptedException {
         final AtomicReference<String> value = new AtomicReference<>(null);
-        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, new String[]{"a", "b"},
+        String[] tables = {"a", "b"};
+        Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
+        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, tables,
                 new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -126,16 +133,16 @@ public class RxRoomTest {
         // no value because it is null
         assertThat(consumer.mCount, CoreMatchers.is(0));
         value.set("bla");
-        observer.onInvalidated();
+        observer.onInvalidated(tableSet);
         drain();
         // get value
         assertThat(consumer.mCount, CoreMatchers.is(1));
-        observer.onInvalidated();
+        observer.onInvalidated(tableSet);
         drain();
         // get value
         assertThat(consumer.mCount, CoreMatchers.is(2));
         value.set(null);
-        observer.onInvalidated();
+        observer.onInvalidated(tableSet);
         drain();
         // no value
         assertThat(consumer.mCount, CoreMatchers.is(2));

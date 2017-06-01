@@ -27,12 +27,15 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.util.ArraySet;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -227,7 +230,7 @@ public class InvalidationTracker {
             tableIds[i] = tableId;
             versions[i] = mMaxVersion;
         }
-        ObserverWrapper wrapper = new ObserverWrapper(observer, tableIds, versions);
+        ObserverWrapper wrapper = new ObserverWrapper(observer, tableIds, tableNames, versions);
         ObserverWrapper currentObserver;
         synchronized (mObserverMap) {
             currentObserver = mObserverMap.putIfAbsent(observer, wrapper);
@@ -414,17 +417,27 @@ public class InvalidationTracker {
     @SuppressWarnings("WeakerAccess")
     static class ObserverWrapper {
         final int[] mTableIds;
+        private final String[] mTableNames;
         private final long[] mVersions;
         final Observer mObserver;
+        private final Set<String> mSingleTableSet;
 
-        ObserverWrapper(Observer observer, int[] tableIds, long[] versions) {
+        ObserverWrapper(Observer observer, int[] tableIds, String[] tableNames, long[] versions) {
             mObserver = observer;
             mTableIds = tableIds;
+            mTableNames = tableNames;
             mVersions = versions;
+            if (tableIds.length == 1) {
+                ArraySet<String> set = new ArraySet<>();
+                set.add(mTableNames[0]);
+                mSingleTableSet = Collections.unmodifiableSet(set);
+            } else {
+                mSingleTableSet = null;
+            }
         }
 
         void checkForInvalidation(long[] versions) {
-            boolean invalid = false;
+            Set<String> invalidatedTables = null;
             final int size = mTableIds.length;
             for (int index = 0; index < size; index++) {
                 final int tableId = mTableIds[index];
@@ -432,11 +445,19 @@ public class InvalidationTracker {
                 final long currentVersion = mVersions[index];
                 if (currentVersion < newVersion) {
                     mVersions[index] = newVersion;
-                    invalid = true;
+                    if (size == 1) {
+                        // Optimization for a single-table observer
+                        invalidatedTables = mSingleTableSet;
+                    } else {
+                        if (invalidatedTables == null) {
+                            invalidatedTables = new ArraySet<>(size);
+                        }
+                        invalidatedTables.add(mTableNames[index]);
+                    }
                 }
             }
-            if (invalid) {
-                mObserver.onInvalidated();
+            if (invalidatedTables != null) {
+                mObserver.onInvalidated(invalidatedTables);
             }
         }
     }
@@ -471,8 +492,11 @@ public class InvalidationTracker {
 
         /**
          * Called when one of the observed tables is invalidated in the database.
+         *
+         * @param tables A set of invalidated tables. This is useful when the observer targets
+         *               multiple tables and want to know which table is invalidated.
          */
-        public abstract void onInvalidated();
+        public abstract void onInvalidated(@NonNull Set<String> tables);
     }
 
 
@@ -603,12 +627,12 @@ public class InvalidationTracker {
         }
 
         @Override
-        public void onInvalidated() {
+        public void onInvalidated(@NonNull Set<String> tables) {
             final Observer observer = mDelegateRef.get();
             if (observer == null) {
                 mTracker.removeObserver(this);
             } else {
-                observer.onInvalidated();
+                observer.onInvalidated(tables);
             }
         }
     }

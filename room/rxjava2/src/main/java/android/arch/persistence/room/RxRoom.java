@@ -20,6 +20,7 @@ import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -69,7 +70,8 @@ public class RxRoom {
                 final InvalidationTracker.Observer observer = new InvalidationTracker.Observer(
                         tableNames) {
                     @Override
-                    public void onInvalidated() {
+                    public void onInvalidated(
+                            @android.support.annotation.NonNull Set<String> tables) {
                         if (!emitter.isCancelled()) {
                             emitter.onNext(NOTHING);
                         }

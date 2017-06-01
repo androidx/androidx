@@ -16,18 +16,17 @@
 
 package android.arch.persistence.room.solver.query.result
 
-import android.arch.persistence.room.ext.AndroidTypeNames
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.LifecyclesTypeNames
 import android.arch.persistence.room.ext.N
 import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.ext.RoomTypeNames.INVALIDATION_OBSERVER
-import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.solver.CodeGenScope
-import android.arch.persistence.room.writer.DaoWriter
+import android.support.annotation.NonNull
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -92,6 +91,10 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
             addMethod(MethodSpec.methodBuilder("onInvalidated").apply {
                 returns(TypeName.VOID)
                 addAnnotation(Override::class.java)
+                addParameter(ParameterSpec.builder(
+                        ParameterizedTypeName.get(Set::class.java, String::class.java), "tables")
+                        .addAnnotation(NonNull::class.java)
+                        .build())
                 addModifiers(Modifier.PUBLIC)
                 addStatement("invalidate()")
             }.build())

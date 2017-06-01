@@ -7,12 +7,14 @@ import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RoomSQLiteQuery;
 import android.arch.persistence.room.util.StringUtil;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ComplexDao_Impl extends ComplexDao {
     private final RoomDatabase __db;
@@ -263,7 +265,7 @@ public class ComplexDao_Impl extends ComplexDao {
                 if (_observer == null) {
                     _observer = new Observer("user") {
                         @Override
-                        public void onInvalidated() {
+                        public void onInvalidated(@NonNull Set<String> tables) {
                             invalidate();
                         }
                     };
@@ -323,7 +325,7 @@ public class ComplexDao_Impl extends ComplexDao {
                 if (_observer == null) {
                     _observer = new Observer("user") {
                         @Override
-                        public void onInvalidated() {
+                        public void onInvalidated(@NonNull Set<String> tables) {
                             invalidate();
                         }
                     };
