@@ -17,9 +17,11 @@
 package android.support.transition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
 import android.view.View;
@@ -58,7 +60,7 @@ public class PropagationTest extends BaseTransitionTest {
 
         mTransition.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(Transition transition) {
+            public Rect onGetEpicenter(@NonNull Transition transition) {
                 return new Rect(0, 0, redValues.view.getWidth(), redValues.view.getHeight());
             }
         });
@@ -83,14 +85,17 @@ public class PropagationTest extends BaseTransitionTest {
     private TransitionValues capturePropagationValues(int viewId) {
         TransitionValues transitionValues = new TransitionValues();
         transitionValues.view = mRoot.findViewById(viewId);
-        mTransition.getPropagation().captureValues(transitionValues);
+        TransitionPropagation propagation = mTransition.getPropagation();
+        assertNotNull(propagation);
+        propagation.captureValues(transitionValues);
         return transitionValues;
     }
 
     private long getDelay(int viewId) {
         TransitionValues transitionValues = capturePropagationValues(viewId);
-        return mTransition.getPropagation()
-                .getStartDelay(mRoot, mTransition, transitionValues, null);
+        TransitionPropagation propagation = mTransition.getPropagation();
+        assertNotNull(propagation);
+        return propagation.getStartDelay(mRoot, mTransition, transitionValues, null);
     }
 
 }
