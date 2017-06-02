@@ -409,4 +409,22 @@ public class TransitionManager {
         }
     }
 
+    /**
+     * Ends all pending and ongoing transitions on the specified scene root.
+     *
+     * @param sceneRoot The root of the View hierarchy to end transitions on.
+     */
+    public static void endTransitions(final ViewGroup sceneRoot) {
+        sPendingTransitions.remove(sceneRoot);
+        final ArrayList<Transition> runningTransitions = getRunningTransitions().get(sceneRoot);
+        if (runningTransitions != null && !runningTransitions.isEmpty()) {
+            // Make a copy in case this is called by an onTransitionEnd listener
+            ArrayList<Transition> copy = new ArrayList<>(runningTransitions);
+            for (int i = copy.size() - 1; i >= 0; i--) {
+                final Transition transition = copy.get(i);
+                transition.forceToEnd(sceneRoot);
+            }
+        }
+    }
+
 }
