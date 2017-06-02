@@ -18,16 +18,11 @@ package android.support.transition;
 
 import android.animation.ObjectAnimator;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.util.Property;
 
 interface ObjectAnimatorUtilsImpl {
 
-    <T> ObjectAnimator ofInt(T target, String xPropertyName, String yPropertyName, Path path);
-
-    <T> ObjectAnimator ofInt(T target, Property<T, Integer> xProperty,
-            Property<T, Integer> yProperty, Path path);
-
-    <T> ObjectAnimator ofFloat(T target, Property<T, Float> xProperty,
-            Property<T, Float> yProperty, Path path);
+    <T> ObjectAnimator ofPointF(T target, Property<T, PointF> property, Path path);
 
 }

@@ -19,74 +19,16 @@ package android.support.transition;
 import android.animation.ObjectAnimator;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
+import android.graphics.PointF;
 import android.support.annotation.RequiresApi;
 import android.util.Property;
 
 @RequiresApi(14)
 class ObjectAnimatorUtilsApi14 implements ObjectAnimatorUtilsImpl {
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> ObjectAnimator ofInt(T target, String xPropertyName, String yPropertyName,
-            Path path) {
-        Class<?> hostType = target.getClass();
-        Property<T, Integer> px = (Property<T, Integer>) Property.of(hostType, Integer.class,
-                xPropertyName);
-        Property<T, Integer> py = (Property<T, Integer>) Property.of(hostType, Integer.class,
-                yPropertyName);
-        return ObjectAnimator.ofFloat(target,
-                new PathProperty<>(
-                        new CastIntegerProperty<>(px),
-                        new CastIntegerProperty<>(py),
-                        path),
-                0f, 1f);
-    }
-
-    @Override
-    public <T> ObjectAnimator ofInt(T target, Property<T, Integer> xProperty,
-            Property<T, Integer> yProperty, Path path) {
-        return ObjectAnimator.ofFloat(target,
-                new PathProperty<>(
-                        new CastIntegerProperty<>(xProperty),
-                        new CastIntegerProperty<>(yProperty),
-                        path),
-                0f, 1f);
-    }
-
-    @Override
-    public <T> ObjectAnimator ofFloat(T target, Property<T, Float> xProperty,
-            Property<T, Float> yProperty, Path path) {
-        return ObjectAnimator.ofFloat(target,
-                new PathProperty<>(xProperty, yProperty, path));
-    }
-
-    /**
-     * Converts a {@link Property} with Integer value type to a {@link Property} with a Float
-     * value type.
-     *
-     * @param <T> The target type
-     */
-    private static class CastIntegerProperty<T> extends Property<T, Float> {
-
-        private final Property<T, Integer> mProperty;
-
-        CastIntegerProperty(Property<T, Integer> property) {
-            super(Float.class, property.getName());
-            mProperty = property;
-        }
-
-        @Override
-        public Float get(T object) {
-            return (float) mProperty.get(object);
-        }
-
-        @Override
-        public void set(T object, Float value) {
-            mProperty.set(object,
-                    // This cannot be a simple cast to make animations pixel perfect.
-                    Math.round(value));
-        }
-
+    public <T> ObjectAnimator ofPointF(T target, Property<T, PointF> property, Path path) {
+        return ObjectAnimator.ofFloat(target, new PathProperty<>(property, path), 0f, 1f);
     }
 
     /**
@@ -102,32 +44,32 @@ class ObjectAnimatorUtilsApi14 implements ObjectAnimatorUtilsImpl {
      */
     private static class PathProperty<T> extends Property<T, Float> {
 
+        private final Property<T, PointF> mProperty;
         private final PathMeasure mPathMeasure;
         private final float mPathLength;
         private final float[] mPosition = new float[2];
-        private final Property<T, Float> mXProperty;
-        private final Property<T, Float> mYProperty;
+        private final PointF mPointF = new PointF();
         private float mCurrentFraction;
 
-        PathProperty(Property<T, Float> xProperty, Property<T, Float> yProperty, Path path) {
-            super(Float.class, xProperty.getName() + "/" + yProperty.getName());
-            mXProperty = xProperty;
-            mYProperty = yProperty;
+        PathProperty(Property<T, PointF> property, Path path) {
+            super(Float.class, property.getName());
+            mProperty = property;
             mPathMeasure = new PathMeasure(path, false);
             mPathLength = mPathMeasure.getLength();
         }
 
         @Override
-        public Float get(T t) {
+        public Float get(T object) {
             return mCurrentFraction;
         }
 
         @Override
-        public void set(T view, Float fraction) {
+        public void set(T target, Float fraction) {
             mCurrentFraction = fraction;
             mPathMeasure.getPosTan(mPathLength * fraction, mPosition, null);
-            mXProperty.set(view, mPosition[0]);
-            mYProperty.set(view, mPosition[1]);
+            mPointF.x = mPosition[0];
+            mPointF.y = mPosition[1];
+            mProperty.set(target, mPointF);
         }
 
     }
