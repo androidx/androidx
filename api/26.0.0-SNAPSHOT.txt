@@ -2044,6 +2044,7 @@ package android.support.transition {
     ctor public ChangeBounds(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
+    method public boolean getResizeClip();
     method public void setResizeClip(boolean);
   }
 
@@ -2057,6 +2058,13 @@ package android.support.transition {
   public class ChangeImageTransform extends android.support.transition.Transition {
     ctor public ChangeImageTransform();
     ctor public ChangeImageTransform(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+  }
+
+  public class ChangeScroll extends android.support.transition.Transition {
+    ctor public ChangeScroll();
+    ctor public ChangeScroll(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
   }

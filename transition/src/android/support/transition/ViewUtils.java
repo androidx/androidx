@@ -40,7 +40,9 @@ class ViewUtils {
     private static final int VISIBILITY_MASK = 0x0000000C;
 
     static {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 22) {
+            IMPL = new ViewUtilsApi22();
+        } else if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new ViewUtilsApi21();
         } else if (Build.VERSION.SDK_INT >= 19) {
             IMPL = new ViewUtilsApi19();
@@ -188,6 +190,18 @@ class ViewUtils {
      */
     static void setAnimationMatrix(@NonNull View v, @NonNull Matrix m) {
         IMPL.setAnimationMatrix(v, m);
+    }
+
+    /**
+     * Assign a size and position to this view.
+     *
+     * @param left   Left position, relative to parent
+     * @param top    Top position, relative to parent
+     * @param right  Right position, relative to parent
+     * @param bottom Bottom position, relative to parent
+     */
+    static void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
+        IMPL.setLeftTopRightBottom(v, left, top, right, bottom);
     }
 
     private static void fetchViewFlagsField() {

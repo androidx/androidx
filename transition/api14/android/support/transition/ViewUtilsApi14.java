@@ -140,4 +140,12 @@ class ViewUtilsApi14 implements ViewUtilsImpl {
         }
     }
 
+    @Override
+    public void setLeftTopRightBottom(View v, int left, int top, int right, int bottom) {
+        v.setLeft(left);
+        v.setTop(top);
+        v.setRight(right);
+        v.setBottom(bottom);
+    }
+
 }

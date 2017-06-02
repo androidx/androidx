@@ -128,7 +128,6 @@ public class TransitionInflater {
                 continue;
             }
 
-            // TODO: Add more Transition types
             String name = parser.getName();
             if ("fade".equals(name)) {
                 transition = new Fade(mContext, attrs);
@@ -146,6 +145,8 @@ public class TransitionInflater {
                 transition = new ChangeClipBounds(mContext, attrs);
             } else if ("autoTransition".equals(name)) {
                 transition = new AutoTransition(mContext, attrs);
+            } else if ("changeScroll".equals(name)) {
+                transition = new ChangeScroll(mContext, attrs);
             } else if ("transitionSet".equals(name)) {
                 transition = new TransitionSet(mContext, attrs);
             } else if ("transition".equals(name)) {
