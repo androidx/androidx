@@ -36,4 +36,7 @@ framework_docs_LOCAL_DROIDDOC_OPTIONS += \
     -since $(SUPPORT_PATH)/api/25.1.0.txt 25.1.0 \
     -since $(SUPPORT_PATH)/api/25.2.0.txt 25.2.0 \
     -since $(SUPPORT_PATH)/api/25.3.0.txt 25.3.0 \
-    -since $(SUPPORT_PATH)/api/26.0.0-alpha1.txt 26.0.0-alpha1
+    -since $(SUPPORT_PATH)/api/25.3.0.txt 25.4.0 \
+    -since $(SUPPORT_PATH)/api/26.0.0-alpha1.txt 26.0.0-alpha1 \
+    -since $(SUPPORT_PATH)/api/26.0.0-beta1.txt 26.0.0-beta1 \
+    -since $(SUPPORT_PATH)/api/26.0.0-beta2.txt 26.0.0-beta2
