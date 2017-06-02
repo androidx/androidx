@@ -627,7 +627,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             }
             if (defaultBehavior != null) {
                 try {
-                    result.setBehavior(defaultBehavior.value().newInstance());
+                    result.setBehavior(
+                            defaultBehavior.value().getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
                     Log.e(TAG, "Default behavior class " + defaultBehavior.value().getName() +
                             " could not be instantiated. Did you forget a default constructor?", e);
