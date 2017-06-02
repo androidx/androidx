@@ -22,18 +22,23 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.text.TextUtils;
+import android.text.method.SingleLineTransformationMethod;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -971,7 +976,7 @@ public class AppCompatTextViewAutoSizeTest extends
         });
         getInstrumentation().waitForIdleSync();
 
-        final AppCompatTextView textView = (AppCompatTextView) getActivity().findViewById(viewId);
+        final AppCompatTextView textView = getActivity().findViewById(viewId);
         if (shouldWrapLayoutContent) {
             // Do not force exact width or height.
             final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -987,5 +992,39 @@ public class AppCompatTextViewAutoSizeTest extends
         }
 
         return textView;
+    }
+
+    @Test
+    public void testAutosizeWithMaxLines_shouldNotThrowException() throws Throwable {
+        // the layout contains an instance of CustomTextViewWithTransformationMethod
+        final AppCompatTextView textView = (AppCompatTextView) mActivityTestRule.getActivity()
+                .getLayoutInflater().inflate(R.layout.textview_autosize_maxlines, null);
+        assertTrue(textView instanceof CustomTextViewWithTransformationMethod);
+        assertEquals(1, textView.getMaxLines());
+        assertEquals(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM, textView.getAutoSizeTextType());
+        assertTrue(textView.getTransformationMethod() instanceof SingleLineTransformationMethod);
+    }
+
+    public static class CustomTextViewWithTransformationMethod extends AppCompatTextView {
+        public CustomTextViewWithTransformationMethod(Context context) {
+            super(context);
+            init();
+        }
+
+        public CustomTextViewWithTransformationMethod(Context context,
+                @Nullable AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        public CustomTextViewWithTransformationMethod(Context context,
+                @Nullable AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+            init();
+        }
+
+        private void init() {
+            setTransformationMethod(new SingleLineTransformationMethod());
+        }
     }
 }
