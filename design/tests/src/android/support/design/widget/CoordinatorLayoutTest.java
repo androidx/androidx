@@ -39,11 +39,14 @@ import static org.mockito.Mockito.verify;
 
 import android.annotation.TargetApi;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.design.test.R;
 import android.support.design.testutils.CoordinatorLayoutUtils;
 import android.support.design.testutils.CoordinatorLayoutUtils.DependentBehavior;
 import android.support.design.widget.CoordinatorLayout.Behavior;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.GravityCompat;
@@ -58,6 +61,7 @@ import android.widget.ImageView;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -734,5 +738,39 @@ public class CoordinatorLayoutTest extends BaseInstrumentationTestCase<Coordinat
             rect.set(child.getLeft(), child.getTop(), child.getRight(), child.getBottom());
             return true;
         }
+    }
+
+    @UiThreadTest
+    @Test
+    public void testAnchorDependencyGraph() throws Throwable {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+
+        // Override hashcode because of implementation of SimpleArrayMap used in
+        // DirectedAcyclicGraph used for sorting dependencies. Hashcode of anchored view has to be
+        // greater than of the one it is anchored to in order to reproduce the error.
+        final View anchor = createViewWithHashCode(col.getContext(), 2);
+        anchor.setId(R.id.anchor);
+
+        final View ship = createViewWithHashCode(col.getContext(), 3);
+        final CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();
+        lp.setAnchorId(R.id.anchor);
+
+        col.addView(anchor);
+        col.addView(ship, lp);
+
+        // Get dependencies immediately to avoid possible call to onMeasure(), since error
+        // only happens on first computing of sorted dependencies.
+        List<View> dependencySortedChildren = col.getDependencySortedChildren();
+        assertThat(dependencySortedChildren, is(Arrays.asList(anchor, ship)));
+    }
+
+    @NonNull
+    private View createViewWithHashCode(final Context context, final int hashCode) {
+        return new View(context) {
+            @Override
+            public int hashCode() {
+                return hashCode;
+            }
+        };
     }
 }
