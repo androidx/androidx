@@ -299,7 +299,7 @@ public class TransitionTest extends BaseTest {
             private Rect mRect = new Rect();
 
             @Override
-            public Rect onGetEpicenter(Transition t) {
+            public Rect onGetEpicenter(@NonNull Transition t) {
                 assertThat(t, is(sameInstance(transition)));
                 mRect.set(1, 2, 3, 4);
                 return mRect;

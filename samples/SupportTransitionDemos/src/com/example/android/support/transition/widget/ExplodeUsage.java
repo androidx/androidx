@@ -18,6 +18,7 @@ package com.example.android.support.transition.widget;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.transition.Explode;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
@@ -49,7 +50,7 @@ public class ExplodeUsage extends TransitionUsageBase {
         super.onCreate(savedInstanceState);
         mExplode.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(Transition transition) {
+            public Rect onGetEpicenter(@NonNull Transition transition) {
                 return mRect;
             }
         });
