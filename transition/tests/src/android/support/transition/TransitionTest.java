@@ -325,6 +325,20 @@ public class TransitionTest extends BaseTest {
         assertThat(propagation, is(sameInstance(propagation)));
     }
 
+    @Test
+    public void testIsTransitionRequired() throws Throwable {
+        final EmptyTransition transition = new EmptyTransition();
+        assertThat(transition.isTransitionRequired(null, null), is(false));
+        final TransitionValues start = new TransitionValues();
+        final String propname = "android:transition:dummy";
+        start.values.put(propname, 1);
+        final TransitionValues end = new TransitionValues();
+        end.values.put(propname, 1);
+        assertThat(transition.isTransitionRequired(start, end), is(false));
+        end.values.put(propname, 2);
+        assertThat(transition.isTransitionRequired(start, end), is(true));
+    }
+
     private void showInitialScene() throws Throwable {
         SyncRunnable enter0 = new SyncRunnable();
         mScenes[0].setEnterAction(enter0);
