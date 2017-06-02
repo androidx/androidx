@@ -538,6 +538,10 @@ class AppCompatTextViewAutoSizeHelper {
      */
     @RestrictTo(LIBRARY_GROUP)
     void autoSizeText() {
+        if (mTextView.getMeasuredHeight() <= 0 || mTextView.getMeasuredWidth() <= 0) {
+            return;
+        }
+
         final int maxWidth = mTextView.getWidth() - mTextView.getTotalPaddingLeft()
                 - mTextView.getTotalPaddingRight();
         final int maxHeight = Build.VERSION.SDK_INT >= 21
