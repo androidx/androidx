@@ -42,5 +42,6 @@ interface ViewUtilsImpl {
 
     void setAnimationMatrix(@NonNull View view, Matrix matrix);
 
+    void setLeftTopRightBottom(View v, int left, int top, int right, int bottom);
 
 }
