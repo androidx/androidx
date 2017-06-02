@@ -26,4 +26,5 @@
     <item name="page_9" type="id"/>
     <item name="textinputlayout" type="id"/>
     <item name="textinputedittext" type="id"/>
+    <item name="anchor" type="id"/>
 </resources>
