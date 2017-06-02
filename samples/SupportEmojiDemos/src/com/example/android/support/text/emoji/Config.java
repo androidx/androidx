@@ -84,8 +84,8 @@ class Config {
         mIndicator = indicator;
         mSharedPref.edit().putBoolean(KEY_ENABLED, mCompatEnabled).apply();
         mSharedPref.edit().putBoolean(KEY_REPLACE_ALL, mReplaceAll).apply();
-        mSharedPref.edit().putBoolean(KEY_DOWNLOADABLE, mReplaceAll).apply();
-        mSharedPref.edit().putBoolean(KEY_INDICATOR, mReplaceAll).apply();
+        mSharedPref.edit().putBoolean(KEY_DOWNLOADABLE, mDownloadable).apply();
+        mSharedPref.edit().putBoolean(KEY_INDICATOR, mIndicator).apply();
         resetEmojiCompat();
         for (Listener listener : mListeners) {
             listener.onEmojiCompatUpdated();
