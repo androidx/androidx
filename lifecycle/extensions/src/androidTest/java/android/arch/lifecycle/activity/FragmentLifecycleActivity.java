@@ -21,7 +21,7 @@ import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
-import android.arch.lifecycle.test.R;
+import android.arch.lifecycle.extensions.test.R;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;

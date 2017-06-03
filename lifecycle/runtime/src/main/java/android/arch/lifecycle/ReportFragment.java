@@ -16,6 +16,7 @@
 
 package android.arch.lifecycle;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.RestrictTo;
@@ -27,6 +28,25 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ReportFragment extends Fragment {
+
+    private static final String REPORT_FRAGMENT_TAG = "android.arch.lifecycle"
+            + ".LifecycleDispatcher.report_fragment_tag";
+
+    public static void injectIfNeededIn(Activity activity) {
+        // ProcessLifecycleOwner should always correctly work and some activities may not extend
+        // FragmentActivity from support lib, so we use framework fragments for activities
+        android.app.FragmentManager manager = activity.getFragmentManager();
+        if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
+            manager.beginTransaction().add(new ReportFragment(), REPORT_FRAGMENT_TAG).commit();
+            // Hopefully, we are the first to make a transaction.
+            manager.executePendingTransactions();
+        }
+    }
+
+    static ReportFragment get(Activity activity) {
+        return (ReportFragment) activity.getFragmentManager().findFragmentByTag(
+                REPORT_FRAGMENT_TAG);
+    }
 
     private ActivityInitializationListener mProcessListener;
 

@@ -23,6 +23,10 @@
                   android:theme="@style/Base.Theme.AppCompat">
         </activity>
         <activity android:name="android.arch.lifecycle.EmptyActivity"/>
+        <activity android:name="android.arch.lifecycle.activity.FragmentLifecycleActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
+        <activity android:name="android.arch.lifecycle.activity.EmptyActivity"/>
+        <service android:name="android.arch.lifecycle.service.TestService"/>
     </application>
 
 </manifest>

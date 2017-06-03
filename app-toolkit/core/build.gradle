@@ -48,7 +48,6 @@ android {
 
 dependencies {
     compile libs.support.annotations
-    compile libs.support.core_utils
     testCompile libs.junit
     testCompile libs.mockito.all
     testCompile(libs.test_runner) {

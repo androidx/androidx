@@ -29,9 +29,6 @@ android {
 dependencies {
     compile project(":lifecycle:common")
     compile project(":arch:core")
-    compile libs.support.core_utils
-    // using classes like Pair from support core allows Lifecycle to be compatible w/ junit tests
-    compile libs.support.fragments
     // necessary for IJ to resolve dependencies.
     compile libs.support.annotations
 
@@ -41,14 +38,6 @@ dependencies {
     testCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
-
-    androidTestCompile(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile libs.support.app_compat
-    androidTestCompile(libs.espresso_core, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
 }
 
 createAndroidCheckstyle(project)

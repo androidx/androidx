@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import android.arch.lifecycle.LifecycleActivity;
-import android.arch.lifecycle.test.R;
+import android.arch.lifecycle.extensions.test.R;
 
 public class EmptyActivity extends LifecycleActivity {
     @Override

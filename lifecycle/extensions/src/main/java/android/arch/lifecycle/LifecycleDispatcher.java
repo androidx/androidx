@@ -59,11 +59,6 @@ class LifecycleDispatcher {
                 .registerActivityLifecycleCallbacks(new DispatcherActivityCallback());
     }
 
-    static ReportFragment get(Activity activity) {
-        return (ReportFragment) activity.getFragmentManager().findFragmentByTag(
-                REPORT_FRAGMENT_TAG);
-    }
-
     @SuppressWarnings("WeakerAccess")
     @VisibleForTesting
     static class DispatcherActivityCallback extends EmptyActivityLifecycleCallbacks {
@@ -79,14 +74,7 @@ class LifecycleDispatcher {
                 ((FragmentActivity) activity).getSupportFragmentManager()
                         .registerFragmentLifecycleCallbacks(mFragmentCallback, true);
             }
-            // ProcessLifecycleOwner should always correctly work and some activities may not extend
-            // FragmentActivity from support lib, so we use framework fragments for activities
-            android.app.FragmentManager manager = activity.getFragmentManager();
-            if (manager.findFragmentByTag(REPORT_FRAGMENT_TAG) == null) {
-                manager.beginTransaction().add(new ReportFragment(), REPORT_FRAGMENT_TAG).commit();
-                // Hopefully, we are the first to make a transaction.
-                manager.executePendingTransactions();
-            }
+            ReportFragment.injectIfNeededIn(activity);
         }
 
         @Override

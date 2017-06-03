@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.is;
 import static java.util.Arrays.asList;
 
 import android.arch.lifecycle.activity.EmptyActivity;
-import android.arch.lifecycle.test.R;
+import android.arch.lifecycle.extensions.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;

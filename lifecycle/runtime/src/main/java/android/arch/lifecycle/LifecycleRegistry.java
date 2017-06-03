@@ -16,6 +16,11 @@
 
 package android.arch.lifecycle;
 
+import android.arch.core.internal.SafeIterableMap;
+import android.support.annotation.NonNull;
+
+import java.util.Map;
+
 import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
 import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
 import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
@@ -27,11 +32,6 @@ import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
 import static android.arch.lifecycle.Lifecycle.State.INITIALIZED;
 import static android.arch.lifecycle.Lifecycle.State.RESUMED;
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
-
-import android.arch.core.internal.SafeIterableMap;
-import android.support.annotation.NonNull;
-
-import java.util.Map;
 
 /**
  * An implementation of {@link Lifecycle} that can handle multiple observers.
