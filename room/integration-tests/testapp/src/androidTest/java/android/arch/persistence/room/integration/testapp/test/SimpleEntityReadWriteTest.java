@@ -299,4 +299,10 @@ public class SimpleEntityReadWriteTest {
         mUserDao.update(user);
         assertThat(mUserDao.getBirthday(3), is(birthday));
     }
+
+    @Test
+    public void emptyInQuery() {
+        User[] users = mUserDao.loadByIds();
+        assertThat(users, is(new User[0]));
+    }
 }
