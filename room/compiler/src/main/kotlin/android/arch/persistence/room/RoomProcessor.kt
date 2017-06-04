@@ -57,7 +57,7 @@ class RoomProcessor : BasicAnnotationProcessor() {
             allDaoMethods?.let {
                 prepareDaosForWriting(databases!!, it)
                 it.forEach {
-                    DaoWriter(it.dao).write(context.processingEnv)
+                    DaoWriter(it.dao, context.processingEnv).write(context.processingEnv)
                 }
             }
 

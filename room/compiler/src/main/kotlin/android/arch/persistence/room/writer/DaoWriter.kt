@@ -30,6 +30,8 @@ import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.InsertionMethod
 import android.arch.persistence.room.vo.QueryMethod
 import android.arch.persistence.room.vo.ShortcutMethod
+import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -38,16 +40,20 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
+import javax.lang.model.type.DeclaredType
 
 /**
  * Creates the implementation for a class annotated with Dao.
  */
-class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
+class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
+    : ClassWriter(dao.typeName) {
+    val declaredDao = MoreTypes.asDeclared(dao.element.asType())
     companion object {
         // TODO nothing prevents this from conflicting, we should fix.
         val dbField: FieldSpec = FieldSpec
@@ -123,7 +129,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
                                                     preparedStmtField: FieldSpec,
                                                     queryWriter: QueryWriter): MethodSpec {
         val scope = CodeGenScope(this)
-        val methodBuilder = overrideWithoutAnnotations(method.element).apply {
+        val methodBuilder = overrideWithoutAnnotations(method.element, declaredDao).apply {
             val stmtName = scope.getTmpVar("_stmt")
             addStatement("final $T $L = $N.acquire()",
                     SupportDbTypeNames.SQLITE_STMT, stmtName, preparedStmtField)
@@ -171,13 +177,13 @@ class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
     }
 
     private fun createSelectMethod(method: QueryMethod): MethodSpec {
-        return overrideWithoutAnnotations(method.element).apply {
+        return overrideWithoutAnnotations(method.element, declaredDao).apply {
             addCode(createQueryMethodBody(method))
         }.build()
     }
 
     private fun createDeleteOrUpdateQueryMethod(method: QueryMethod): MethodSpec {
-        return overrideWithoutAnnotations(method.element).apply {
+        return overrideWithoutAnnotations(method.element, declaredDao).apply {
             addCode(createDeleteOrUpdateQueryMethodBody(method))
         }.build()
     }
@@ -199,7 +205,8 @@ class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
                                 InsertionMethodField(entity, onConflict))
                         val implSpec = EntityInsertionAdapterWriter(entity, onConflict)
                                 .createAnonymous(this@DaoWriter, dbField.name)
-                        val methodImpl = overrideWithoutAnnotations(insertionMethod.element).apply {
+                        val methodImpl = overrideWithoutAnnotations(insertionMethod.element,
+                                declaredDao).apply {
                             addCode(createInsertionMethodBody(insertionMethod, fieldSpec))
                         }.build()
                         PreparedStmtQuery(fieldSpec, implSpec, methodImpl)
@@ -284,7 +291,7 @@ class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
             } else {
                 val fieldSpec = getOrCreateField(DeleteOrUpdateAdapterField(entity, methodPrefix))
                 val implSpec = implCallback(method, entity)
-                val methodSpec = overrideWithoutAnnotations(method.element).apply {
+                val methodSpec = overrideWithoutAnnotations(method.element, declaredDao).apply {
                     addCode(createDeleteOrUpdateMethodBody(method, fieldSpec))
                 }.build()
                 PreparedStmtQuery(fieldSpec, implSpec, methodSpec)
@@ -372,8 +379,9 @@ class DaoWriter(val dao: Dao) : ClassWriter(dao.typeName) {
         return scope.builder().build()
     }
 
-    private fun overrideWithoutAnnotations(elm: ExecutableElement): MethodSpec.Builder {
-        val baseSpec = MethodSpec.overriding(elm).build()
+    private fun overrideWithoutAnnotations(elm: ExecutableElement,
+                                           owner : DeclaredType): MethodSpec.Builder {
+        val baseSpec = MethodSpec.overriding(elm, owner, processingEnv.typeUtils).build()
         return MethodSpec.methodBuilder(baseSpec.name).apply {
             addAnnotation(Override::class.java)
             addModifiers(baseSpec.modifiers)

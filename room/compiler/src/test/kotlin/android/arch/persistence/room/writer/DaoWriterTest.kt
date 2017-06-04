@@ -84,7 +84,8 @@ class DaoWriterTest {
                                     element = MoreElements.asType(dao),
                                     dbVerifier = createVerifierFromEntities(invocation))
                             val parsedDao = parser.process()
-                            DaoWriter(parsedDao).write(invocation.processingEnv)
+                            DaoWriter(parsedDao, invocation.processingEnv)
+                                    .write(invocation.processingEnv)
                             true
                         }
                         .build())
