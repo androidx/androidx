@@ -31,6 +31,9 @@ import java.lang.annotation.Target;
  * time, Room will generate an implementation of this class when it is referenced by a
  * {@link Database}.
  * <p>
+ * An abstract {@code @Dao} class can optionally have a constructor that takes a {@link Database}
+ * as its only parameter.
+ * <p>
  * It is recommended to have multiple {@code Dao} classes in your codebase depending on the tables
  * they touch.
  *

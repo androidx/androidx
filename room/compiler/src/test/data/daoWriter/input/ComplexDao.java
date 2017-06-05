@@ -25,6 +25,13 @@ abstract class ComplexDao {
         public int id;
         public String fullName;
     }
+
+    private final ComplexDatabase mDb;
+
+    public ComplexDao(ComplexDatabase db) {
+        mDb = db;
+    }
+
     @Query("SELECT name || lastName as fullName, uid as id FROM user where uid = :id")
     abstract public List<FullName> fullNames(int id);
 

@@ -1,8 +1,10 @@
 package android.arch.persistence.room.processor
 
 import COMMON
+import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.vo.Dao
 import android.arch.persistence.room.writer.DaoWriter
+import com.google.auto.common.MoreTypes
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -157,7 +159,9 @@ class BaseDaoTest {
         """.toJFO("foo.bar.MyDao")
         simpleRun(baseClass, extension, COMMON.USER) { invocation ->
             val daoElm = invocation.processingEnv.elementUtils.getTypeElement("foo.bar.MyDao")
-            val processedDao = DaoProcessor(invocation.context, daoElm, null).process()
+            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
+                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
+            val processedDao = DaoProcessor(invocation.context, daoElm, dbType, null).process()
             handler(processedDao)
             DaoWriter(processedDao, invocation.processingEnv).write(invocation.processingEnv)
         }.compilesWithoutError()

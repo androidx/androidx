@@ -17,6 +17,7 @@
 package android.arch.persistence.room.processor
 
 import COMMON
+import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
 import android.arch.persistence.room.vo.Dao
@@ -147,7 +148,9 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            val daoProcessor = DaoProcessor(invocation.context, dao.element, null)
+            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
+                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
+            val daoProcessor = DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(daoProcessor.context.logger
                     .suppressedWarnings, `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
 
@@ -172,7 +175,9 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                 abstract User users();
             }
             """) { dao, invocation ->
-            val daoProcessor = DaoProcessor(invocation.context, dao.element, null)
+            val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
+                    .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
+            val daoProcessor = DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(daoProcessor.context.logger
                     .suppressedWarnings, `is`(setOf(Warning.CURSOR_MISMATCH)))
 
@@ -206,8 +211,12 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                             } else {
                                 null
                             }
+                            val dbType = MoreTypes.asDeclared(
+                                    invocation.context.processingEnv.elementUtils
+                                            .getTypeElement(RoomTypeNames.ROOM_DB.toString())
+                                            .asType())
                             val parser = DaoProcessor(invocation.context,
-                                    MoreElements.asType(dao), dbVerifier)
+                                    MoreElements.asType(dao), dbType, dbVerifier)
 
                             val parsedDao = parser.process()
                             handler(parsedDao, invocation)

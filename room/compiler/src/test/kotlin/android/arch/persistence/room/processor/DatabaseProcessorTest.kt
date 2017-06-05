@@ -48,6 +48,29 @@ class DatabaseProcessorTest {
             package foo.bar;
             import android.arch.persistence.room.*;
             """
+        val DB1: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.Db1",
+                """
+                $DATABASE_PREFIX
+                @Database(entities = {Book.class}, version = 42)
+                public abstract class Db1 extends RoomDatabase {
+                    abstract BookDao bookDao();
+                }
+                """)
+        val DB2: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.Db2",
+                """
+                $DATABASE_PREFIX
+                @Database(entities = {Book.class}, version = 42)
+                public abstract class Db2 extends RoomDatabase {
+                    abstract BookDao bookDao();
+                }
+                """)
+        val DB3: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.Db3",
+                """
+                $DATABASE_PREFIX
+                @Database(entities = {Book.class}, version = 42)
+                public abstract class Db3 extends RoomDatabase {
+                }
+                """)
         val USER: JavaFileObject = JavaFileObjects.forSourceString("foo.bar.User",
                 """
                 package foo.bar;
@@ -231,22 +254,6 @@ class DatabaseProcessorTest {
 
     @Test
     fun multipleDatabases() {
-        val db1 = JavaFileObjects.forSourceString("foo.bar.Db1",
-                """
-                $DATABASE_PREFIX
-                @Database(entities = {Book.class}, version = 42)
-                public abstract class Db1 extends RoomDatabase {
-                    abstract BookDao bookDao();
-                }
-                """)
-        val db2 = JavaFileObjects.forSourceString("foo.bar.Db2",
-                """
-                $DATABASE_PREFIX
-                @Database(entities = {Book.class}, version = 42)
-                public abstract class Db2 extends RoomDatabase {
-                    abstract BookDao bookDao();
-                }
-                """)
         val db1_2 = JavaFileObjects.forSourceString("foo.barx.Db1",
                 """
                 package foo.barx;
@@ -258,7 +265,7 @@ class DatabaseProcessorTest {
                 }
                 """)
         Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(BOOK, BOOK_DAO, db1, db2, db1_2))
+                .that(listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2))
                 .processedWith(RoomProcessor())
                 .compilesWithoutError()
                 .and()
@@ -613,6 +620,75 @@ class DatabaseProcessorTest {
             assertThat(convAdapterPojo, notNullValue())
             assertThat(convAdapterPojo, not(sameInstance(adapterPojo)))
         }.compilesWithoutError()
+    }
+
+    @Test
+    fun daoConstructor_RoomDatabase() {
+        assertConstructor(listOf(DB1), "BookDao(RoomDatabase db) {}")
+                .compilesWithoutError()
+    }
+
+    @Test
+    fun daoConstructor_specificDatabase() {
+        assertConstructor(listOf(DB1), "BookDao(Db1 db) {}")
+                .compilesWithoutError()
+    }
+
+    @Test
+    fun daoConstructor_wrongDatabase() {
+        assertConstructor(listOf(DB1, DB3), "BookDao(Db3 db) {}")
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors
+                        .daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db1"))
+    }
+
+    @Test
+    fun daoConstructor_multipleDatabases_RoomDatabase() {
+        assertConstructor(listOf(DB1, DB2), "BookDao(RoomDatabase db) {}")
+                .compilesWithoutError()
+    }
+
+    @Test
+    fun daoConstructor_multipleDatabases_specificDatabases() {
+        assertConstructor(listOf(DB1, DB2), """
+                    BookDao(Db1 db) {}
+                    BookDao(Db2 db) {}
+                """)
+                .compilesWithoutError()
+    }
+
+    @Test
+    fun daoConstructor_multipleDatabases_empty() {
+        assertConstructor(listOf(DB1, DB2), """
+                    BookDao(Db1 db) {}
+                    BookDao() {} // Db2 uses this
+                """)
+                .compilesWithoutError()
+    }
+
+    @Test
+    fun daoConstructor_multipleDatabases_noMatch() {
+        assertConstructor(listOf(DB1, DB2), """
+                    BookDao(Db1 db) {}
+                """)
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors
+                        .daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db2"))
+    }
+
+    fun assertConstructor(dbs: List<JavaFileObject>, constructor: String): CompileTester {
+        val bookDao = JavaFileObjects.forSourceString("foo.bar.BookDao",
+                """
+                package foo.bar;
+                import android.arch.persistence.room.*;
+                @Dao
+                public abstract class BookDao {
+                    $constructor
+                }
+                """)
+        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+                .that(listOf(BOOK, bookDao) + dbs)
+                .processedWith(RoomProcessor())
     }
 
     fun singleDb(input: String, vararg otherFiles: JavaFileObject,

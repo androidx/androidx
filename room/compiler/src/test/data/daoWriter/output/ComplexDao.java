@@ -19,7 +19,8 @@ import java.util.Set;
 public class ComplexDao_Impl extends ComplexDao {
     private final RoomDatabase __db;
 
-    public ComplexDao_Impl(RoomDatabase __db) {
+    public ComplexDao_Impl(ComplexDatabase __db) {
+        super(__db);
         this.__db = __db;
     }
 

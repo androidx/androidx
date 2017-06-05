@@ -95,9 +95,10 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                 superclass(dao.typeName)
             }
             addField(dbField)
-            val dbParam = ParameterSpec.builder(dbField.type, dbField.name).build()
+            val dbParam = ParameterSpec
+                    .builder(dao.constructorParamType ?: dbField.type, dbField.name).build()
 
-            addMethod(createConstructor(dbParam, shortcutMethods))
+            addMethod(createConstructor(dbParam, shortcutMethods, dao.constructorParamType != null))
 
             shortcutMethods.forEach {
                 addMethod(it.methodImpl)
@@ -159,10 +160,14 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
     }
 
     private fun createConstructor(dbParam: ParameterSpec,
-                                  shortcutMethods: List<PreparedStmtQuery>): MethodSpec {
+                                  shortcutMethods: List<PreparedStmtQuery>,
+                                  callSuper: Boolean): MethodSpec {
         return MethodSpec.constructorBuilder().apply {
             addParameter(dbParam)
             addModifiers(PUBLIC)
+            if (callSuper) {
+                addStatement("super($N)", dbParam)
+            }
             addStatement("this.$N = $N", dbField, dbParam)
             shortcutMethods.filterNot {
                 it.field == null || it.fieldImpl == null

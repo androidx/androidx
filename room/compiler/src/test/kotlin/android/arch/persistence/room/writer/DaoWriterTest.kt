@@ -17,9 +17,11 @@
 package android.arch.persistence.room.writer
 
 import COMMON
+import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.processor.DaoProcessor
 import android.arch.persistence.room.testing.TestProcessor
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
@@ -35,6 +37,8 @@ class DaoWriterTest {
     @Test
     fun complexDao() {
         singleDao(
+                loadJavaCode("databasewriter/input/ComplexDatabase.java",
+                        "foo.bar.ComplexDatabase"),
                 loadJavaCode("daoWriter/input/ComplexDao.java", "foo.bar.ComplexDao")
         ).compilesWithoutError().and().generatesSources(
                 loadJavaCode("daoWriter/output/ComplexDao.java", "foo.bar.ComplexDao_Impl")
@@ -79,9 +83,20 @@ class DaoWriterTest {
                                     .getElementsAnnotatedWith(
                                             android.arch.persistence.room.Dao::class.java)
                                     .first()
+                            val db = invocation.roundEnv
+                                    .getElementsAnnotatedWith(
+                                            android.arch.persistence.room.Database::class.java)
+                                    .firstOrNull()
+                            val dbType = MoreTypes.asDeclared(if (db != null) {
+                                db.asType()
+                            } else {
+                                invocation.context.processingEnv.elementUtils
+                                        .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType()
+                            })
                             val parser = DaoProcessor(
                                     baseContext = invocation.context,
                                     element = MoreElements.asType(dao),
+                                    dbType = dbType,
                                     dbVerifier = createVerifierFromEntities(invocation))
                             val parsedDao = parser.process()
                             DaoWriter(parsedDao, invocation.processingEnv)

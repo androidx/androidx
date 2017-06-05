@@ -70,6 +70,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         }
         context.databaseVerifier = dbVerifier
 
+        val declaredType = MoreTypes.asDeclared(element.asType())
         val daoMethods = allMembers.filter {
             it.hasAnyOf(Modifier.ABSTRACT) && it.kind == ElementKind.METHOD
         }.filterNot {
@@ -81,8 +82,8 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             val executable = MoreElements.asExecutable(it)
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
-            val dao = DaoProcessor(context, MoreTypes.asTypeElement(executable.returnType),
-                    dbVerifier).process()
+            val daoType = MoreTypes.asTypeElement(executable.returnType)
+            val dao = DaoProcessor(context, daoType, declaredType, dbVerifier).process()
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
         validateUniqueDaoClasses(element, daoMethods, entities)

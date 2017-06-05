@@ -23,16 +23,19 @@ import android.arch.persistence.room.SkipQueryVerification
 import android.arch.persistence.room.Update
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.hasAnyOf
+import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.verifier.DatabaseVerifier
 import android.arch.persistence.room.vo.Dao
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
 
-class DaoProcessor(baseContext : Context, val element: TypeElement,
+class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: DeclaredType,
                    val dbVerifier : DatabaseVerifier?) {
     val context = baseContext.fork(element)
 
@@ -48,7 +51,8 @@ class DaoProcessor(baseContext : Context, val element: TypeElement,
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = MoreTypes.asDeclared(element.asType())
-        val methods = context.processingEnv.elementUtils.getAllMembers(element)
+        val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
+        val methods = allMembers
             .filter {
                 it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
             }.map {
@@ -105,6 +109,23 @@ class DaoProcessor(baseContext : Context, val element: TypeElement,
                     executableElement = it).process()
         } ?: emptyList()
 
+        val constructors = allMembers
+                .filter { it.kind == ElementKind.CONSTRUCTOR }
+                .map { MoreElements.asExecutable(it) }
+        val typeUtils = context.processingEnv.typeUtils
+        val goodConstructor = constructors
+                .filter {
+                    it.parameters.size == 1
+                            && typeUtils.isAssignable(dbType, it.parameters[0].asType())
+                }
+                .firstOrNull()
+        val constructorParamType = if (goodConstructor != null) {
+            goodConstructor.parameters[0].asType().typeName()
+        } else {
+            validateEmptyConstructor(constructors)
+            null
+        }
+
         context.checker.check(methods[Any::class] == null, element,
                 ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
 
@@ -117,6 +138,15 @@ class DaoProcessor(baseContext : Context, val element: TypeElement,
                 queryMethods = queryMethods,
                 insertionMethods = insertionMethods,
                 deletionMethods = deletionMethods,
-                updateMethods = updateMethods)
+                updateMethods = updateMethods,
+                constructorParamType = constructorParamType)
     }
+
+    private fun validateEmptyConstructor(constructors: List<ExecutableElement>) {
+        if (constructors.isNotEmpty() && constructors.all { it.parameters.isNotEmpty() }) {
+            context.logger.e(element, ProcessorErrors.daoMustHaveMatchingConstructor(
+                    element.toString(), dbType.toString()))
+        }
+    }
+
 }

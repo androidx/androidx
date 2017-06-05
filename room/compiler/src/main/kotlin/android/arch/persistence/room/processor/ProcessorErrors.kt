@@ -86,6 +86,14 @@ object ProcessorErrors {
             " an interface"
     val DATABASE_MUST_BE_ANNOTATED_WITH_DATABASE = "Database must be annotated with @Database"
     val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annotated with @Dao"
+
+    fun daoMustHaveMatchingConstructor(daoName: String, dbName: String): String {
+        return """
+                $daoName needs to have either an empty constructor or a constructor that takes
+                $dbName as its only parameter.
+                """.trim()
+    }
+
     val ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY = "Entity class must be annotated with @Entity"
     val DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES = "@Database annotation must specify list" +
             " of entities"
