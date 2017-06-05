@@ -192,6 +192,14 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
         }
     }
 
+    @Override
+    protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
+        super.onTextChanged(text, start, lengthBefore, lengthAfter);
+        if (mTextHelper != null && Build.VERSION.SDK_INT < 26 && mTextHelper.isAutoSizeEnabled()) {
+            mTextHelper.autoSizeText();
+        }
+    }
+
     /**
      * This should be accessed via
      * {@link android.support.v4.widget.TextViewCompat#setAutoSizeTextTypeWithDefaults(
