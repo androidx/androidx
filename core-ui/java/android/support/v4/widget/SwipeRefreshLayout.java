@@ -527,7 +527,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * @deprecated Use {@link #setColorSchemeResources(int...)}
      */
     @Deprecated
-    public void setColorScheme(@ColorInt int... colors) {
+    public void setColorScheme(@ColorRes int... colors) {
         setColorSchemeResources(colors);
     }
 
