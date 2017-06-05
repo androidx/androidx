@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class MockFontProvider extends ContentProvider {
     static final String[] FONT_FILES = {
-            "samplefont1.ttf",
+            "samplefont.ttf",
     };
     private static final int SAMPLE_FONT_FILE_0_ID = 0;
 

@@ -45,7 +45,7 @@
         <activity android:name="android.support.v4.app.TestSupportActivity" />
 
         <provider android:name="android.support.v4.provider.MockFontProvider"
-                  android:authorities="android.provider.fonts.font"
+                  android:authorities="android.support.provider.fonts.font"
                   android:exported="false"
                   android:multiprocess="true" />
 
