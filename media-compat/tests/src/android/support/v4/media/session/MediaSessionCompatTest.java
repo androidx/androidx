@@ -124,6 +124,29 @@ public class MediaSessionCompatTest {
     }
 
     /**
+     * Tests that a session can be created from the framework session object and the callback
+     * set on the framework session object before fromSession() is called works properly.
+     */
+    @Test
+    @SmallTest
+    public void testFromSession() throws Exception {
+        if (android.os.Build.VERSION.SDK_INT < 21) {
+            // MediaSession was introduced from API level 21.
+            return;
+        }
+        MediaSessionCallback callback = new MediaSessionCallback();
+        mSession.setCallback(callback, new Handler(Looper.getMainLooper()));
+        MediaSessionCompat session = MediaSessionCompat.fromMediaSession(
+                getContext(), mSession.getMediaSession());
+        assertEquals(session.getSessionToken(), mSession.getSessionToken());
+        synchronized (mWaitLock) {
+            session.getController().getTransportControls().play();
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(callback.mOnPlayCalled);
+        }
+    }
+
+    /**
      * Tests MediaSessionCompat.Token created in the constructor of MediaSessionCompat.
      */
     @Test
