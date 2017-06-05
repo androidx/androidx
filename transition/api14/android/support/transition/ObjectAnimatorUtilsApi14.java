@@ -18,7 +18,6 @@ package android.support.transition;
 
 import android.animation.ObjectAnimator;
 import android.graphics.Path;
-import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.support.annotation.RequiresApi;
 import android.util.Property;
@@ -29,49 +28,6 @@ class ObjectAnimatorUtilsApi14 implements ObjectAnimatorUtilsImpl {
     @Override
     public <T> ObjectAnimator ofPointF(T target, Property<T, PointF> property, Path path) {
         return ObjectAnimator.ofFloat(target, new PathProperty<>(property, path), 0f, 1f);
-    }
-
-    /**
-     * A special {@link Property} that can animate a pair of properties bi-dimensionally along the
-     * specified path.
-     * <p>
-     * This property should always be used with Animator that sets float fractions between
-     * {@code 0.f} and {@code 1.f}. For example, setting {@code 0.5f} to this property sets the
-     * values right in the middle of the specified path to the underlying properties.
-     * <p>
-     * Unlike many of the platform built-in properties, instances of this class cannot be reused
-     * for later animations.
-     */
-    private static class PathProperty<T> extends Property<T, Float> {
-
-        private final Property<T, PointF> mProperty;
-        private final PathMeasure mPathMeasure;
-        private final float mPathLength;
-        private final float[] mPosition = new float[2];
-        private final PointF mPointF = new PointF();
-        private float mCurrentFraction;
-
-        PathProperty(Property<T, PointF> property, Path path) {
-            super(Float.class, property.getName());
-            mProperty = property;
-            mPathMeasure = new PathMeasure(path, false);
-            mPathLength = mPathMeasure.getLength();
-        }
-
-        @Override
-        public Float get(T object) {
-            return mCurrentFraction;
-        }
-
-        @Override
-        public void set(T target, Float fraction) {
-            mCurrentFraction = fraction;
-            mPathMeasure.getPosTan(mPathLength * fraction, mPosition, null);
-            mPointF.x = mPosition[0];
-            mPointF.y = mPosition[1];
-            mProperty.set(target, mPointF);
-        }
-
     }
 
 }
