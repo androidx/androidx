@@ -135,6 +135,7 @@ public class MediaSessionCompatTest {
             return;
         }
         MediaSessionCallback callback = new MediaSessionCallback();
+        callback.reset(1);
         mSession.setCallback(callback, new Handler(Looper.getMainLooper()));
         MediaSessionCompat session = MediaSessionCompat.fromMediaSession(
                 getContext(), mSession.getMediaSession());
@@ -142,7 +143,7 @@ public class MediaSessionCompatTest {
         synchronized (mWaitLock) {
             session.getController().getTransportControls().play();
             mWaitLock.wait(TIME_OUT_MS);
-            assertTrue(callback.mOnPlayCalled);
+            assertEquals(1, callback.mOnPlayCalledCount);
         }
     }
 
