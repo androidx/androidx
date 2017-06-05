@@ -3159,11 +3159,13 @@ public class MediaSessionCompat {
                         metadata.getLong(MediaMetadataCompat.METADATA_KEY_YEAR));
             }
             if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_RATING)) {
-                editor.putObject(MediaMetadataEditor.RATING_KEY_BY_OTHERS,
+                // Do not remove casting here. Without this, a crash will happen in API 19.
+                ((MediaMetadataEditor) editor).putObject(MediaMetadataEditor.RATING_KEY_BY_OTHERS,
                         metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_RATING));
             }
             if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_USER_RATING)) {
-                editor.putObject(MediaMetadataEditor.RATING_KEY_BY_USER,
+                // Do not remove casting here. Without this, a crash will happen in API 19.
+                ((MediaMetadataEditor) editor).putObject(MediaMetadataEditor.RATING_KEY_BY_USER,
                         metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_USER_RATING));
             }
             return editor;
