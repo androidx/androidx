@@ -29,6 +29,14 @@ import android.util.AttributeSet;
  * have these motions move in a curve can change how Views interpolate in two dimensions
  * by extending PathMotion and implementing {@link #getPath(float, float, float, float)}.
  * </p>
+ * <p>This may be used in XML as an element inside a transition.</p>
+ * <pre>
+ * {@code
+ * <changeBounds>
+ *     <pathMotion class="my.app.transition.MyPathMotion"/>
+ * </changeBounds>
+ * }
+ * </pre>
  */
 public abstract class PathMotion {
 
