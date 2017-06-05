@@ -39,8 +39,8 @@
     </declare-styleable>
 
     <declare-styleable name="NavArgument">
-        <attr name="argname" format="string" />
-        <attr name="argvalue" format="string|dimension|integer|float|reference" />
+        <attr name="name" format="string" />
+        <attr name="defaultValue" format="string|dimension|integer|float|reference" />
     </declare-styleable>
 
     <declare-styleable name="NavAction">

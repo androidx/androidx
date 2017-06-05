@@ -54,7 +54,7 @@ public class NavInflater {
      */
     public static final String METADATA_KEY_GRAPH = "android.nav.graph";
 
-    private static final String TAG_ARGUMENT = "default-argument";
+    private static final String TAG_ARGUMENT = "argument";
     private static final String TAG_ACTION = "action";
     private static final String TAG_INCLUDE = "include";
 
@@ -184,35 +184,36 @@ public class NavInflater {
     private void inflateArgument(Resources res, NavDestination dest, AttributeSet attrs)
             throws XmlPullParserException {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavArgument);
-        String name = a.getString(R.styleable.NavArgument_argname);
+        String name = a.getString(R.styleable.NavArgument_name);
 
         TypedValue value = sTmpValue.get();
         if (value == null) {
             value = new TypedValue();
             sTmpValue.set(value);
         }
-        a.getValue(R.styleable.NavArgument_argvalue, value);
-        switch (value.type) {
-            case TypedValue.TYPE_STRING:
-                dest.getDefaultArguments().putString(name, value.string.toString());
-                break;
-            case TypedValue.TYPE_DIMENSION:
-                dest.getDefaultArguments().putInt(name,
-                        (int) value.getDimension(res.getDisplayMetrics()));
-                break;
-            case TypedValue.TYPE_FLOAT:
-                dest.getDefaultArguments().putFloat(name, value.getFloat());
-                break;
-            case TypedValue.TYPE_REFERENCE:
-                dest.getDefaultArguments().putInt(name, value.data);
-                break;
-            default:
-                if (value.type >= TypedValue.TYPE_FIRST_INT
-                        && value.type <= TypedValue.TYPE_LAST_INT) {
+        if (a.getValue(R.styleable.NavArgument_defaultValue, value)) {
+            switch (value.type) {
+                case TypedValue.TYPE_STRING:
+                    dest.getDefaultArguments().putString(name, value.string.toString());
+                    break;
+                case TypedValue.TYPE_DIMENSION:
+                    dest.getDefaultArguments().putInt(name,
+                            (int) value.getDimension(res.getDisplayMetrics()));
+                    break;
+                case TypedValue.TYPE_FLOAT:
+                    dest.getDefaultArguments().putFloat(name, value.getFloat());
+                    break;
+                case TypedValue.TYPE_REFERENCE:
                     dest.getDefaultArguments().putInt(name, value.data);
-                } else {
-                    throw new XmlPullParserException("unsupported argument type " + value.type);
-                }
+                    break;
+                default:
+                    if (value.type >= TypedValue.TYPE_FIRST_INT
+                            && value.type <= TypedValue.TYPE_LAST_INT) {
+                        dest.getDefaultArguments().putInt(name, value.data);
+                    } else {
+                        throw new XmlPullParserException("unsupported argument type " + value.type);
+                    }
+            }
         }
         a.recycle();
     }

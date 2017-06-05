@@ -19,7 +19,7 @@
               android:label="@string/home"
               app:navType="primary"
               android:name="com.android.support.navigation.testapp.MainFragment">
-        <default-argument app:argname="myarg" app:argvalue="Home" />
+        <argument app:name="myarg" app:defaultValue="Home" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <fragment android:id="@+id/android"
@@ -27,17 +27,17 @@
               android:label="@string/android"
               app:navType="primary"
               android:name="com.android.support.navigation.testapp.AndroidFragment">
-        <default-argument app:argname="myarg" app:argvalue="Android!" />
+        <argument app:name="myarg" app:defaultValue="Android!" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <fragment android:id="@+id/first_screen"
         android:name="com.android.support.navigation.testapp.MainFragment">
-        <default-argument app:argname="myarg" app:argvalue="one" />
+        <argument app:name="myarg" app:defaultValue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
     </fragment>
     <fragment android:id="@+id/next_fragment"
         android:name="com.android.support.navigation.testapp.MainFragment">
-        <default-argument app:argname="myarg" app:argvalue="two" />
+        <argument app:name="myarg" app:defaultValue="two" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <activity android:id="@+id/settings_activity"
@@ -52,6 +52,6 @@
               app:navType="secondary"
               android:name="com.android.support.navigation.testapp.HelpActivity"
               app:dataPattern="http://www.example.com/{topic}">
-        <default-argument app:argname="topic" app:argvalue="help_topic"/>
+        <argument app:name="topic" app:defaultValue="help_topic"/>
     </activity>
 </navigation>

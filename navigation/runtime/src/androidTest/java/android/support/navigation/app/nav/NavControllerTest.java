@@ -40,6 +40,8 @@ import org.junit.Test;
 public class NavControllerTest {
     private static final String TEST_ARG = "test";
     private static final String TEST_ARG_VALUE = "value";
+    private static final String TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value";
+    private static final String TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override";
 
     @Rule
     public ActivityTestRule<NavigationActivity> mActivityRule =
@@ -98,6 +100,57 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testNavigateToWithNoDefaultValue() throws Throwable {
+        Bundle returnedArgs = navigateToWithArgs(null);
+
+        // Test that arguments without a default value aren't passed through at all
+        assertThat(returnedArgs.containsKey("test_no_default_value"), is(false));
+    }
+
+    @Test
+    public void testNavigateToWithDefaultArgs() throws Throwable {
+        Bundle returnedArgs = navigateToWithArgs(null);
+
+        // Test that default values are passed through
+        assertThat(returnedArgs.getString("test_default_value"), is("default"));
+    }
+
+    @Test
+    public void testNavigateToWithArgs() throws Throwable {
+        Bundle args = new Bundle();
+        args.putString(TEST_ARG, TEST_ARG_VALUE);
+        Bundle returnedArgs = navigateToWithArgs(args);
+
+        // Test that programmatically constructed arguments are passed through
+        assertThat(returnedArgs.getString(TEST_ARG), is(TEST_ARG_VALUE));
+    }
+
+    @Test
+    public void testNavigateToWithOverriddenDefaultArgs() throws Throwable {
+        Bundle args = new Bundle();
+        args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE);
+        Bundle returnedArgs = navigateToWithArgs(args);
+
+        // Test that default values can be overridden by programmatic values
+        assertThat(returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG),
+                is(TEST_OVERRIDDEN_VALUE_ARG_VALUE));
+    }
+
+    private Bundle navigateToWithArgs(Bundle args) throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_arguments);
+
+        navController.navigateTo(R.id.second_test, args);
+
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        args = navigator.mBackStack.peekLast().second;
+        assertThat(args, is(notNullValue(Bundle.class)));
+
+        return args;
+    }
+
+    @Test
     public void testNavigateToThenPop() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
@@ -146,6 +199,32 @@ public class NavControllerTest {
         navController.navigate(R.id.second);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         assertThat(navigator.mBackStack.size(), is(2));
+    }
+
+    @Test
+    public void testNavigateWithArgs() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_arguments);
+
+        Bundle args = new Bundle();
+        args.putString(TEST_ARG, TEST_ARG_VALUE);
+        args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE);
+        navController.navigate(R.id.second, args);
+
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        Bundle returnedArgs = navigator.mBackStack.peekLast().second;
+        assertThat(returnedArgs, is(notNullValue(Bundle.class)));
+
+        // Test that arguments without a default value aren't passed through at all
+        assertThat(returnedArgs.containsKey("test_no_default_value"), is(false));
+        // Test that default values are passed through
+        assertThat(returnedArgs.getString("test_default_value"), is("default"));
+        // Test that programmatically constructed arguments are passed through
+        assertThat(returnedArgs.getString(TEST_ARG), is(TEST_ARG_VALUE));
+        // Test that default values can be overridden by programmatic values
+        assertThat(returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG),
+                is(TEST_OVERRIDDEN_VALUE_ARG_VALUE));
     }
 
     @Test
