@@ -28,6 +28,11 @@ import android.widget.Button;
  */
 public class EmojiButton extends Button {
     private EmojiTextViewHelper mEmojiTextViewHelper;
+
+    /**
+     * Prevent calling {@link #init()} multiple times in case super() constructors
+     * call other constructors.
+     */
     private boolean mInitialized;
 
     public EmojiButton(Context context) {
