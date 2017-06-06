@@ -105,9 +105,7 @@ public class EmojiCompat {
     public static final int LOAD_STATE_SUCCEEDED = 1;
 
     /**
-     * Use {@link #LOAD_STATE_SUCCEEDED} instead.
-     *
-     * @deprecated
+     * @deprecated Use {@link #LOAD_STATE_SUCCEEDED} instead.
      */
     @Deprecated
     public static final int LOAD_STATE_SUCCESS = 1;
@@ -119,9 +117,7 @@ public class EmojiCompat {
     public static final int LOAD_STATE_FAILED = 2;
 
     /**
-     * Use {@link #LOAD_STATE_FAILED} instead.
-     *
-     * @deprecated
+     * @deprecated Use {@link #LOAD_STATE_FAILED} instead.
      */
     @Deprecated
     public static final int LOAD_STATE_FAILURE = 2;
