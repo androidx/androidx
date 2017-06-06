@@ -101,19 +101,35 @@ public class EmojiCompat {
     /**
      * EmojiCompat successfully initialized.
      */
+    public static final int LOAD_STATE_SUCCEEDED = 1;
+
+    /**
+     * Use {@link #LOAD_STATE_SUCCEEDED} instead.
+     *
+     * @deprecated
+     */
+    @Deprecated
     public static final int LOAD_STATE_SUCCESS = 1;
 
     /**
      * An unrecoverable error occurred during initialization of EmojiCompat. Calls to functions
      * such as {@link #process(CharSequence)} will fail.
      */
+    public static final int LOAD_STATE_FAILED = 2;
+
+    /**
+     * Use {@link #LOAD_STATE_FAILED} instead.
+     *
+     * @deprecated
+     */
+    @Deprecated
     public static final int LOAD_STATE_FAILURE = 2;
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef({LOAD_STATE_LOADING, LOAD_STATE_SUCCESS, LOAD_STATE_FAILURE})
+    @IntDef({LOAD_STATE_LOADING, LOAD_STATE_SUCCEEDED, LOAD_STATE_FAILED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface LoadState {
     }
@@ -209,8 +225,8 @@ public class EmojiCompat {
 
     /**
      * Initialize the singleton instance with a configuration. When used on devices running API 18
-     * or below, the singleton instance is immediately moved into {@link #LOAD_STATE_SUCCESS} state
-     * without loading any metadata.
+     * or below, the singleton instance is immediately moved into {@link #LOAD_STATE_SUCCEEDED}
+     * state without loading any metadata.
      *
      * @see EmojiCompat.Config
      */
@@ -296,7 +312,7 @@ public class EmojiCompat {
         final Collection<InitCallback> initCallbacks = new ArrayList<>();
         mInitLock.writeLock().lock();
         try {
-            mLoadState = LOAD_STATE_SUCCESS;
+            mLoadState = LOAD_STATE_SUCCEEDED;
             initCallbacks.addAll(mInitCallbacks);
             mInitCallbacks.clear();
         } finally {
@@ -310,7 +326,7 @@ public class EmojiCompat {
         final Collection<InitCallback> initCallbacks = new ArrayList<>();
         mInitLock.writeLock().lock();
         try {
-            mLoadState = LOAD_STATE_FAILURE;
+            mLoadState = LOAD_STATE_FAILED;
             initCallbacks.addAll(mInitCallbacks);
             mInitCallbacks.clear();
         } finally {
@@ -337,7 +353,7 @@ public class EmojiCompat {
 
         mInitLock.writeLock().lock();
         try {
-            if (mLoadState == LOAD_STATE_SUCCESS || mLoadState == LOAD_STATE_FAILURE) {
+            if (mLoadState == LOAD_STATE_SUCCEEDED || mLoadState == LOAD_STATE_FAILED) {
                 mMainHandler.post(new ListenerDispatcher(initCallback, mLoadState));
             } else {
                 mInitCallbacks.add(initCallback);
@@ -364,10 +380,10 @@ public class EmojiCompat {
 
     /**
      * Returns loading state of the EmojiCompat instance. When used on devices running API 18 or
-     * below always returns {@link #LOAD_STATE_SUCCESS}.
+     * below always returns {@link #LOAD_STATE_SUCCEEDED}.
      *
-     * @return one of {@link #LOAD_STATE_LOADING}, {@link #LOAD_STATE_SUCCESS},
-     * {@link #LOAD_STATE_FAILURE}
+     * @return one of {@link #LOAD_STATE_LOADING}, {@link #LOAD_STATE_SUCCEEDED},
+     * {@link #LOAD_STATE_FAILED}
      */
     public @LoadState int getLoadState() {
         mInitLock.readLock().lock();
@@ -382,7 +398,7 @@ public class EmojiCompat {
      * @return {@code true} if EmojiCompat is successfully initialized
      */
     private boolean isInitialized() {
-        return getLoadState() == LOAD_STATE_SUCCESS;
+        return getLoadState() == LOAD_STATE_SUCCEEDED;
     }
 
     /**
@@ -884,12 +900,12 @@ public class EmojiCompat {
         public void run() {
             final int size = mInitCallbacks.size();
             switch (mLoadState) {
-                case LOAD_STATE_SUCCESS:
+                case LOAD_STATE_SUCCEEDED:
                     for (int i = 0; i < size; i++) {
                         mInitCallbacks.get(i).onInitialized();
                     }
                     break;
-                case LOAD_STATE_FAILURE:
+                case LOAD_STATE_FAILED:
                 default:
                     for (int i = 0; i < size; i++) {
                         mInitCallbacks.get(i).onFailed(mThrowable);
