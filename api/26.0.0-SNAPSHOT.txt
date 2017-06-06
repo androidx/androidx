@@ -12656,7 +12656,8 @@ package android.support.v7.widget {
     method public void attachToRecyclerView(android.support.v7.widget.RecyclerView) throws java.lang.IllegalStateException;
     method public abstract int[] calculateDistanceToFinalSnap(android.support.v7.widget.RecyclerView.LayoutManager, android.view.View);
     method public int[] calculateScrollDistance(int, int);
-    method protected android.support.v7.widget.LinearSmoothScroller createSnapScroller(android.support.v7.widget.RecyclerView.LayoutManager);
+    method protected android.support.v7.widget.RecyclerView.SmoothScroller createScroller(android.support.v7.widget.RecyclerView.LayoutManager);
+    method protected deprecated android.support.v7.widget.LinearSmoothScroller createSnapScroller(android.support.v7.widget.RecyclerView.LayoutManager);
     method public abstract android.view.View findSnapView(android.support.v7.widget.RecyclerView.LayoutManager);
     method public abstract int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
     method public boolean onFling(int, int);
