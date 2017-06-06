@@ -13,6 +13,6 @@
 # limitations under the License.
 
 # Prevent Parcelable objects from being removed or renamed.
--keep class * implements android.os.Parcelable {
+-keep class android.support.v4.media.** implements android.os.Parcelable {
     public static final android.os.Parcelable$Creator *;
 }
