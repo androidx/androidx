@@ -34,7 +34,6 @@ import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.os.BuildCompat;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Icon}
@@ -186,7 +185,7 @@ public class IconCompat {
             case TYPE_BITMAP:
                 return Icon.createWithBitmap((Bitmap) mObj1);
             case TYPE_ADAPTIVE_BITMAP:
-                if (BuildCompat.isAtLeastO()) {
+                if (Build.VERSION.SDK_INT >= 26) {
                     return Icon.createWithAdaptiveBitmap((Bitmap) mObj1);
                 } else {
                     return Icon.createWithBitmap(createLegacyIconFromAdaptiveIcon((Bitmap) mObj1));

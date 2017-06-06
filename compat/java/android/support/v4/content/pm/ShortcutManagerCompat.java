@@ -24,11 +24,11 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.os.BuildCompat;
 import android.text.TextUtils;
 
 /**
@@ -51,7 +51,7 @@ public class ShortcutManagerCompat {
      * {@code false} otherwise
      */
     public static boolean isRequestPinShortcutSupported(@NonNull Context context) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return context.getSystemService(ShortcutManager.class).isRequestPinShortcutSupported();
         }
 
@@ -88,7 +88,7 @@ public class ShortcutManagerCompat {
      */
     public static boolean requestPinShortcut(@NonNull final Context context,
             @NonNull ShortcutInfoCompat shortcut, @Nullable final IntentSender callback) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return context.getSystemService(ShortcutManager.class).requestPinShortcut(
                     shortcut.toShortcutInfo(), callback);
         }
@@ -132,7 +132,7 @@ public class ShortcutManagerCompat {
     public static Intent createShortcutResultIntent(@NonNull Context context,
             @NonNull ShortcutInfoCompat shortcut) {
         Intent result = null;
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             result = context.getSystemService(ShortcutManager.class)
                     .createShortcutResultIntent(shortcut.toShortcutInfo());
         }

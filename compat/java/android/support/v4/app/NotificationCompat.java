@@ -36,7 +36,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
 import android.view.Gravity;
 import android.widget.RemoteViews;
@@ -946,7 +945,7 @@ public class NotificationCompat {
     }
 
     static {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new NotificationCompatApi26Impl();
         } else if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new NotificationCompatApi24Impl();
@@ -4410,7 +4409,7 @@ public class NotificationCompat {
      * @return the ID of the channel this notification posts to.
      */
     public static String getChannelId(Notification notification) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return notification.getChannelId();
         } else {
             return null;
@@ -4428,7 +4427,7 @@ public class NotificationCompat {
      * canceled already.
      */
     public static long getTimeoutAfter(Notification notification) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return notification.getTimeoutAfter();
         } else {
             return 0;
@@ -4447,7 +4446,7 @@ public class NotificationCompat {
      * {@link #BADGE_ICON_SMALL}, or {@link #BADGE_ICON_LARGE}.
      */
     public static int getBadgeIconType(Notification notification) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return notification.getBadgeIconType();
         } else {
             return BADGE_ICON_NONE;
@@ -4459,7 +4458,7 @@ public class NotificationCompat {
      * notification supersedes, if any.
      */
     public static String getShortcutId(Notification notification) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return notification.getShortcutId();
         } else {
             return null;
@@ -4472,7 +4471,7 @@ public class NotificationCompat {
      * {@link #GROUP_ALERT_SUMMARY}.
      */
     public static int getGroupAlertBehavior(Notification notification) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return notification.getGroupAlertBehavior();
         } else {
             return GROUP_ALERT_ALL;

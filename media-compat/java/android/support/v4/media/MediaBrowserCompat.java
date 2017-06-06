@@ -24,7 +24,8 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
-import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol
+        .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_VERSION_CURRENT;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
@@ -69,7 +70,6 @@ import android.support.v4.app.BundleCompat;
 import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.os.ResultReceiver;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
@@ -181,7 +181,7 @@ public final class MediaBrowserCompat {
             ConnectionCallback callback, Bundle rootHints) {
         // To workaround an issue of {@link #unsubscribe(String, SubscriptionCallback)} on API 24
         // and 25 devices, use the support library version of implementation on those devices.
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
@@ -676,7 +676,7 @@ public final class MediaBrowserCompat {
         WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
-            if (BuildCompat.isAtLeastO()) {
+            if (Build.VERSION.SDK_INT >= 26) {
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
                 mToken = null;
