@@ -64,7 +64,7 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
         //before > after --> a deletion occured
         if (before <= after && charSequence instanceof Spannable) {
             switch (EmojiCompat.get().getLoadState()){
-                case EmojiCompat.LOAD_STATE_SUCCESS:
+                case EmojiCompat.LOAD_STATE_SUCCEEDED:
                     final Spannable s = (Spannable) charSequence;
                     EmojiCompat.get().process(s, start, start + after, mMaxEmojiCount);
                     break;
