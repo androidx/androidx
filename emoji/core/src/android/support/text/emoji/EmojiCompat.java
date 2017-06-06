@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.AnyThread;
+import android.support.annotation.CheckResult;
 import android.support.annotation.ColorInt;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.IntDef;
@@ -523,6 +524,7 @@ public class EmojiCompat {
      * @throws IllegalStateException if not initialized yet
      * @see #process(CharSequence, int, int)
      */
+    @CheckResult
     public CharSequence process(@NonNull final CharSequence charSequence) {
         // since charSequence might be null here we have to check it. Passing through here to the
         // main function so that it can do all the checks including isInitialized. It will also
@@ -557,6 +559,7 @@ public class EmojiCompat {
      *                                  {@code start > charSequence.length()},
      *                                  {@code end > charSequence.length()}
      */
+    @CheckResult
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end) {
         return process(charSequence, start, end, EmojiProcessor.EMOJI_COUNT_UNLIMITED);
@@ -591,6 +594,7 @@ public class EmojiCompat {
      *                                  {@code end > charSequence.length()}
      *                                  {@code maxEmojiCount < 0}
      */
+    @CheckResult
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
             @IntRange(from = 0) final int maxEmojiCount) {
@@ -630,6 +634,7 @@ public class EmojiCompat {
      *                                  {@code end > charSequence.length()}
      *                                  {@code maxEmojiCount < 0}
      */
+    @CheckResult
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
             @IntRange(from = 0) final int maxEmojiCount, @ReplaceStrategy int replaceStrategy) {
