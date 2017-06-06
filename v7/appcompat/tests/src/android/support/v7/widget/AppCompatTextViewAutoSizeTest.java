@@ -995,12 +995,15 @@ public class AppCompatTextViewAutoSizeTest extends
     }
 
     @Test
-    public void testAutosizeWithMaxLines_shouldNotThrowException() throws Throwable {
+    public void testAutoSizeWithMaxLines_shouldNotThrowException() throws Throwable {
         // the layout contains an instance of CustomTextViewWithTransformationMethod
         final AppCompatTextView textView = (AppCompatTextView) mActivityTestRule.getActivity()
                 .getLayoutInflater().inflate(R.layout.textview_autosize_maxlines, null);
         assertTrue(textView instanceof CustomTextViewWithTransformationMethod);
-        assertEquals(1, textView.getMaxLines());
+        // Method added in API 16.
+        if (Build.VERSION.SDK_INT >= 16) {
+            assertEquals(1, textView.getMaxLines());
+        }
         assertEquals(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM, textView.getAutoSizeTextType());
         assertTrue(textView.getTransformationMethod() instanceof SingleLineTransformationMethod);
     }
