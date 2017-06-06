@@ -54,7 +54,7 @@ public class EmojiInputFilterTest {
         final TextView textView = mock(TextView.class);
         mEmojiCompat = mock(EmojiCompat.class);
         EmojiCompat.reset(mEmojiCompat);
-        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCESS);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
         mInputFilter = new EmojiInputFilter(textView);
     }
 
@@ -106,7 +106,7 @@ public class EmojiInputFilterTest {
     @Test
     public void testFilter_whenEmojiCompatLoadFailed() {
         final Spannable testString = new SpannableString("abc");
-        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_FAILURE);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_FAILED);
 
         final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);
 

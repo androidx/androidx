@@ -58,7 +58,7 @@ final class EmojiInputFilter implements android.text.InputFilter {
 
 
         switch (EmojiCompat.get().getLoadState()){
-            case EmojiCompat.LOAD_STATE_SUCCESS:
+            case EmojiCompat.LOAD_STATE_SUCCEEDED:
                 boolean process = true;
                 if (destEnd == 0 && destStart == 0 && dest.length() == 0) {
                     final CharSequence oldText = mTextView.getText();

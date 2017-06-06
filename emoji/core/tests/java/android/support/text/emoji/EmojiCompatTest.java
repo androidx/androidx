@@ -589,7 +589,7 @@ public class EmojiCompatTest {
     @Test
     @SdkSuppress(maxSdkVersion = 18)
     public void testGetLoadState_returnsSuccess_pre19() {
-        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_SUCCESS);
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_SUCCEEDED);
     }
 
     @Test
@@ -605,7 +605,7 @@ public class EmojiCompatTest {
         metadataLoader.getTestLatch().await();
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_SUCCESS);
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_SUCCEEDED);
     }
 
     @Test
@@ -621,7 +621,7 @@ public class EmojiCompatTest {
         metadataLoader.getTestLatch().await();
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_FAILURE);
+        assertEquals(EmojiCompat.get().getLoadState(), EmojiCompat.LOAD_STATE_FAILED);
     }
 
     @Test
