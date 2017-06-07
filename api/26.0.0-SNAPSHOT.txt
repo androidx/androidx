@@ -9560,6 +9560,42 @@ package android.support.v4.widget {
     field public static final float RELATIVE_UNSPECIFIED = 0.0f;
   }
 
+  public class CircularProgressDrawable extends android.graphics.drawable.Drawable {
+    ctor public CircularProgressDrawable(android.content.Context);
+    method public void draw(android.graphics.Canvas);
+    method public boolean getArrowEnabled();
+    method public float getArrowHeight();
+    method public float getArrowScale();
+    method public float getArrowWidth();
+    method public int getBackgroundColor();
+    method public float getCenterRadius();
+    method public int[] getColorSchemeColors();
+    method public float getEndTrim();
+    method public int getOpacity();
+    method public float getProgressRotation();
+    method public float getStartTrim();
+    method public android.graphics.Paint.Cap getStrokeCap();
+    method public float getStrokeWidth();
+    method public boolean isRunning();
+    method public void setAlpha(int);
+    method public void setArrowDimensions(float, float);
+    method public void setArrowEnabled(boolean);
+    method public void setArrowScale(float);
+    method public void setBackgroundColor(int);
+    method public void setCenterRadius(float);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setColorSchemeColors(int...);
+    method public void setProgressRotation(float);
+    method public void setStartEndTrim(float, float);
+    method public void setStrokeCap(android.graphics.Paint.Cap);
+    method public void setStrokeWidth(float);
+    method public void setStyle(int);
+    method public void start();
+    method public void stop();
+    field public static final int DEFAULT = 1; // 0x1
+    field public static final int LARGE = 0; // 0x0
+  }
+
   public final class CompoundButtonCompat {
     method public static android.graphics.drawable.Drawable getButtonDrawable(android.widget.CompoundButton);
     method public static android.content.res.ColorStateList getButtonTintList(android.widget.CompoundButton);
