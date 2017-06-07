@@ -285,7 +285,7 @@ public final class LocaleListCompat {
      */
     @NonNull
     public static LocaleListCompat forLanguageTags(@Nullable String list) {
-        if (list == null || list.equals("")) {
+        if (list == null || list.isEmpty()) {
             return getEmptyLocaleList();
         } else {
             final String[] tags = list.split(",");

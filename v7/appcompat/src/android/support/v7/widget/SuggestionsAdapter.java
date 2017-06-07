@@ -503,7 +503,7 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * @return a Drawable, or null if none found
      */
     private Drawable getDrawableFromResourceValue(String drawableId) {
-        if (drawableId == null || drawableId.length() == 0 || "0".equals(drawableId)) {
+        if (drawableId == null || drawableId.isEmpty() || "0".equals(drawableId)) {
             return null;
         }
         try {
