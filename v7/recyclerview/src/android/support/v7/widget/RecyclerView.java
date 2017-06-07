@@ -677,7 +677,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             int defStyleAttr, int defStyleRes) {
         if (className != null) {
             className = className.trim();
-            if (className.length() != 0) {  // Can't use isEmpty since it was added in API 9.
+            if (!className.isEmpty()) {
                 className = getFullClassName(context, className);
                 try {
                     ClassLoader classLoader;
