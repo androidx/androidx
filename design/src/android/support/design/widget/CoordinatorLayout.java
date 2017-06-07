@@ -17,7 +17,7 @@
 package android.support.design.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.design.widget.ViewUtils.objectEquals;
+import static android.support.v4.utils.ObjectUtils.objectEquals;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -627,7 +627,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             }
             if (defaultBehavior != null) {
                 try {
-                    result.setBehavior(defaultBehavior.value().newInstance());
+                    result.setBehavior(
+                            defaultBehavior.value().getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
                     Log.e(TAG, "Default behavior class " + defaultBehavior.value().getName() +
                             " could not be instantiated. Did you forget a default constructor?", e);
@@ -656,14 +657,13 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                     continue;
                 }
                 final View other = getChildAt(j);
-                final LayoutParams otherLp = getResolvedLayoutParams(other);
-                if (otherLp.dependsOn(this, other, view)) {
+                if (lp.dependsOn(this, view, other)) {
                     if (!mChildDag.contains(other)) {
                         // Make sure that the other node is added
                         mChildDag.addNode(other);
                     }
                     // Now add the dependency to the graph
-                    mChildDag.addEdge(view, other);
+                    mChildDag.addEdge(other, view);
                 }
             }
         }

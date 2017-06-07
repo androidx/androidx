@@ -27,6 +27,7 @@ import android.content.res.Resources.Theme;
 import android.content.res.XmlResourceParser;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
@@ -36,9 +37,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.graphics.TypefaceCompat;
-import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.util.TypedValue;
+import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -194,32 +195,28 @@ public final class ResourcesCompat {
         if (context.isRestricted()) {
             return null;
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Use framework support.
             return context.getResources().getFont(id);
         }
-        return loadFont(context, id, Typeface.NORMAL);
+        return loadFont(context, id, new TypedValue(), Typeface.NORMAL, null);
     }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public static Typeface getFont(@NonNull Context context, @FontRes int id, int style)
-            throws NotFoundException {
+    public static Typeface getFont(@NonNull Context context, @FontRes int id, TypedValue value,
+            int style, @Nullable TextView targetView) throws NotFoundException {
         if (context.isRestricted()) {
             return null;
         }
-        if (BuildCompat.isAtLeastO()) {
-            // Use framework support.
-            return context.getResources().getFont(id);
-        }
-        return loadFont(context, id, style);
+        return loadFont(context, id, value, style, targetView);
     }
 
-    private static Typeface loadFont(@NonNull Context context, int id, int style) {
-        final TypedValue value = new TypedValue();
+    private static Typeface loadFont(@NonNull Context context, int id, TypedValue value,
+            int style, @Nullable TextView targetView) {
         final Resources resources = context.getResources();
         resources.getValue(id, value, true);
-        Typeface typeface = loadFont(context, resources, value, id, style);
+        Typeface typeface = loadFont(context, resources, value, id, style, targetView);
         if (typeface != null) {
             return typeface;
         }
@@ -228,10 +225,17 @@ public final class ResourcesCompat {
     }
 
     private static Typeface loadFont(
-            @NonNull Context context, Resources wrapper, TypedValue value, int id, int style) {
+            @NonNull Context context, Resources wrapper, TypedValue value, int id, int style,
+            @Nullable TextView targetView) {
         if (value.string == null) {
             throw new NotFoundException("Resource \"" + wrapper.getResourceName(id) + "\" ("
                     + Integer.toHexString(id) + ") is not a Font: " + value);
+        }
+
+        final String file = value.string.toString();
+        if (!file.startsWith("res/")) {
+            // Early exit if the specified string is unlikely to the resource path.
+            return null;
         }
 
         Typeface cached = TypefaceCompat.findFromCache(wrapper, id, style);
@@ -239,7 +243,6 @@ public final class ResourcesCompat {
             return cached;
         }
 
-        final String file = value.string.toString();
         try {
             if (file.toLowerCase().endsWith(".xml")) {
                 final XmlResourceParser rp = wrapper.getXml(id);
@@ -250,7 +253,7 @@ public final class ResourcesCompat {
                     return null;
                 }
                 return TypefaceCompat.createFromResourcesFamilyXml(
-                        context, familyEntry, wrapper, id, style);
+                        context, familyEntry, wrapper, id, style, targetView);
             }
             return TypefaceCompat.createFromResourcesFontFile(context, wrapper, id, style);
         } catch (XmlPullParserException e) {

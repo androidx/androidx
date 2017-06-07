@@ -18,6 +18,8 @@ package android.support.v7.preference;
 
 import android.support.annotation.Nullable;
 
+import java.util.Set;
+
 /**
  * A data store interface to be implemented and provided to the Preferences framework. This can be
  * used to replace the default {@link android.content.SharedPreferences}, if needed.
@@ -50,6 +52,19 @@ public abstract class PreferenceDataStore {
      * @see #getString(String, String)
      */
     public void putString(String key, @Nullable String value) {
+        throw new UnsupportedOperationException("Not implemented on this data store");
+    }
+
+    /**
+     * Sets a set of Strings to the data store.
+     *
+     * <p>Once the value is set the data store is responsible for holding it.
+     *
+     * @param key the name of the preference to modify
+     * @param values the set of new values for the preference
+     * @see #getStringSet(String, Set<String>)
+     */
+    public void putStringSet(String key, @Nullable Set<String> values) {
         throw new UnsupportedOperationException("Not implemented on this data store");
     }
 
@@ -109,7 +124,7 @@ public abstract class PreferenceDataStore {
      * Retrieves a {@link String} value from the data store.
      *
      * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist
+     * @param defValue value to return if this preference does not exist in the storage
      * @return the value from the data store or the default return value
      * @see #putString(String, String)
      */
@@ -119,10 +134,23 @@ public abstract class PreferenceDataStore {
     }
 
     /**
+     * Retrieves a set of Strings from the data store.
+     *
+     * @param key the name of the preference to retrieve
+     * @param defValues values to return if this preference does not exist in the storage
+     * @return the values from the data store or the default return values
+     * @see #putStringSet(String, Set<String>)
+     */
+    @Nullable
+    public Set<String> getStringSet(String key, @Nullable Set<String> defValues) {
+        return defValues;
+    }
+
+    /**
      * Retrieves an {@link Integer} value from the data store.
      *
      * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist
+     * @param defValue value to return if this preference does not exist in the storage
      * @return the value from the data store or the default return value
      * @see #putInt(String, int)
      */
@@ -134,7 +162,7 @@ public abstract class PreferenceDataStore {
      * Retrieves a {@link Long} value from the data store.
      *
      * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist
+     * @param defValue value to return if this preference does not exist in the storage
      * @return the value from the data store or the default return value
      * @see #putLong(String, long)
      */
@@ -146,7 +174,7 @@ public abstract class PreferenceDataStore {
      * Retrieves a {@link Float} value from the data store.
      *
      * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist
+     * @param defValue value to return if this preference does not exist in the storage
      * @return the value from the data store or the default return value
      * @see #putFloat(String, float)
      */
@@ -158,7 +186,7 @@ public abstract class PreferenceDataStore {
      * Retrieves a {@link Boolean} value from the data store.
      *
      * @param key the name of the preference to retrieve
-     * @param defValue value to return if this preference does not exist
+     * @param defValue value to return if this preference does not exist in the storage
      * @return the value from the data store or the default return value
      * @see #getBoolean(String, boolean)
      */

@@ -263,6 +263,17 @@ public class GridActivity extends Activity {
         mGridView.getAdapter().notifyItemMoved(index2 - 1, index1);
     }
 
+    void moveItem(int index1, int index2, boolean notify) {
+        if (index1 == index2) {
+            return;
+        }
+        int[] items = removeItems(index1, 1, false);
+        addItems(index2, items, false);
+        if (notify) {
+            mGridView.getAdapter().notifyItemMoved(index1, index2);
+        }
+    }
+
     void changeArraySize(int length) {
         mNumItems = length;
         mGridView.getAdapter().notifyDataSetChanged();
@@ -299,6 +310,10 @@ public class GridActivity extends Activity {
     }
 
     void addItems(int index, int[] items) {
+        addItems(index, items, true);
+    }
+
+    void addItems(int index, int[] items, boolean notify) {
         int length = items.length;
         if (mItemLengths.length < mNumItems + length) {
             int[] array = new int[mNumItems + length];
@@ -308,7 +323,7 @@ public class GridActivity extends Activity {
         System.arraycopy(mItemLengths, index, mItemLengths, index + length, mNumItems - index);
         System.arraycopy(items, 0, mItemLengths, index, length);
         mNumItems += length;
-        if (mGridView.getAdapter() != null) {
+        if (notify && mGridView.getAdapter() != null) {
             mGridView.getAdapter().notifyItemRangeInserted(index, length);
         }
     }

@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.support.v4.utils;
 
-package android.support.v7.app;
-
-import android.content.Context;
-import android.support.annotation.RequiresApi;
-import android.view.KeyEvent;
-import android.view.Window;
-
-@RequiresApi(26)
-class AppCompatDelegateImplO extends AppCompatDelegateImplN {
-
-    AppCompatDelegateImplO(Context context, Window window, AppCompatCallback callback) {
-        super(context, window, callback);
+/**
+ * This class consists of static utility methods for operating on objects.
+ */
+public class ObjectUtils {
+    /**
+     * Returns true if the arguments are equal to each other and false otherwise.
+     * @param a an object
+     * @param b an object to be compared with <code>a</code> for equality
+     * @return <code>true</code> if the arguments are equal to each other and
+     *         <code>false</code> otherwise.
+     */
+    public static boolean objectEquals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 
-    @Override
-    public boolean checkActionBarFocusKey(KeyEvent event) {
-        // In O+, ActionBar's make use of cluster navigation instead of a specific hotkey
-        return false;
+    private ObjectUtils() {
     }
 }

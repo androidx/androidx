@@ -55,7 +55,7 @@ public class EmojiTextWatcherTest {
     @Test
     public void testOnTextChanged_callsProcess() {
         final Spannable testString = new SpannableString("abc");
-        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCESS);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 
@@ -78,7 +78,7 @@ public class EmojiTextWatcherTest {
     @Test
     public void testOnTextChanged_whenEmojiCompatLoadFailed() {
         final Spannable testString = new SpannableString("abc");
-        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_FAILURE);
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_FAILED);
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 

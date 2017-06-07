@@ -17,6 +17,7 @@
 package android.support.v7.media;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static android.support.v4.utils.ObjectUtils.objectEquals;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -150,8 +151,7 @@ public abstract class MediaRouteProvider {
     public final void setDiscoveryRequest(MediaRouteDiscoveryRequest request) {
         MediaRouter.checkCallingThread();
 
-        if (mDiscoveryRequest == request
-                || (mDiscoveryRequest != null && mDiscoveryRequest.equals(request))) {
+        if (objectEquals(mDiscoveryRequest, request)) {
             return;
         }
 

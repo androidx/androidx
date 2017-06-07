@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 class SingleRow extends Grid {
 
     private final Location mTmpLocation = new Location(0);
-    private Object[] mTmpItem = new Object[1];
 
     SingleRow() {
         setNumRows(1);
@@ -76,8 +75,9 @@ class SingleRow extends Grid {
             return false;
         }
         boolean filledOne = false;
-        for (int index = getStartIndexForPrepend(); index >= 0; index--) {
-            int size = mProvider.createItem(index, false, mTmpItem);
+        int minIndex = mProvider.getMinIndex();
+        for (int index = getStartIndexForPrepend(); index >= minIndex; index--) {
+            int size = mProvider.createItem(index, false, mTmpItem, false);
             int edge;
             if (mFirstVisibleIndex < 0 || mLastVisibleIndex < 0) {
                 edge = mReversedFlow ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -110,7 +110,7 @@ class SingleRow extends Grid {
         }
         boolean filledOne = false;
         for (int index = getStartIndexForAppend(); index < mProvider.getCount(); index++) {
-            int size = mProvider.createItem(index, true, mTmpItem);
+            int size = mProvider.createItem(index, true, mTmpItem, false);
             int edge;
             if (mFirstVisibleIndex < 0 || mLastVisibleIndex< 0) {
                 edge = mReversedFlow ? Integer.MAX_VALUE : Integer.MIN_VALUE;

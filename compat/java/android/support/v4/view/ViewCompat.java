@@ -2446,7 +2446,7 @@ public class ViewCompat {
     /**
      * Returns the minimum width of the view.
      *
-     * <p>Prior to API 16 this will return 0.</p>
+     * <p>Prior to API 16, this method may return 0 on some platforms.</p>
      *
      * @return the minimum width the view will try to be.
      */
@@ -2457,7 +2457,7 @@ public class ViewCompat {
     /**
      * Returns the minimum height of the view.
      *
-     * <p>Prior to API 16 this will return 0.</p>
+     * <p>Prior to API 16, this method may return 0 on some platforms.</p>
      *
      * @return the minimum height the view will try to be.
      */
@@ -2468,8 +2468,6 @@ public class ViewCompat {
     /**
      * This method returns a ViewPropertyAnimator object, which can be used to animate
      * specific properties on this View.
-     *
-     * <p>Prior to API 14, this method will do nothing.</p>
      *
      * @return ViewPropertyAnimator The ViewPropertyAnimator associated with this View.
      */

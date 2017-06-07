@@ -33,12 +33,17 @@ public abstract class GridTest {
         }
 
         @Override
+        public int getMinIndex() {
+            return 0;
+        }
+
+        @Override
         public int getCount() {
             return mCount;
         }
 
         @Override
-        public int createItem(int index, boolean append, Object[] item) {
+        public int createItem(int index, boolean append, Object[] item, boolean disappearingItem) {
             return mItems[index];
         }
 

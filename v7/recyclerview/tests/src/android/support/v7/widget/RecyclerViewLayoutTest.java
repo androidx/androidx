@@ -4571,4 +4571,74 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         }
     }
 
+    @Test
+    public void testRemainingScrollInLayout() throws Throwable {
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        final TestAdapter adapter = new TestAdapter(100);
+
+        final CountDownLatch firstScrollDone = new CountDownLatch(1);
+        final CountDownLatch scrollFinished = new CountDownLatch(1);
+        final int[] totalScrollDistance = new int[] {0};
+        recyclerView.setLayoutManager(new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                if (firstScrollDone.getCount() < 1 && scrollFinished.getCount() == 1) {
+                    try {
+                        assertTrue("layout pass has remaining scroll",
+                                state.getRemainingScrollVertical() != 0);
+                        assertEquals("layout pass has remaining scroll",
+                                1000 - totalScrollDistance[0], state.getRemainingScrollVertical());
+                    } catch (Throwable throwable) {
+                        postExceptionToInstrumentation(throwable);
+                    }
+                }
+                super.onLayoutChildren(recycler, state);
+            }
+
+            @Override
+            public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
+                    RecyclerView.State state) {
+                firstScrollDone.countDown();
+                totalScrollDistance[0] += dy;
+                if (state.getRemainingScrollVertical() == 0) {
+                    // the last scroll pass will have remaining 0
+                    scrollFinished.countDown();
+                }
+                return super.scrollVerticallyBy(dy, recycler, state);
+            }
+
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+        });
+        recyclerView.setAdapter(adapter);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    setRecyclerView(recyclerView);
+                    recyclerView.smoothScrollBy(0, 1000);
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+            }
+        });
+
+        firstScrollDone.await(1, TimeUnit.SECONDS);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    recyclerView.requestLayout();
+                } catch (Throwable throwable) {
+                    postExceptionToInstrumentation(throwable);
+                }
+            }
+        });
+        waitForIdleScroll(recyclerView);
+        assertTrue(scrollFinished.getCount() < 1);
+        assertEquals(totalScrollDistance[0], 1000);
+    }
+
 }

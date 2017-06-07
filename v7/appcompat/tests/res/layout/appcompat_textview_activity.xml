@@ -213,6 +213,12 @@
             android:layout_height="wrap_content"
             android:textStyle="italic" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_simple"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 </ScrollView>

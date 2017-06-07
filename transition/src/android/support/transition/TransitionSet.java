@@ -530,6 +530,17 @@ public class TransitionSet extends Transition {
         }
     }
 
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    void forceToEnd(ViewGroup sceneRoot) {
+        super.forceToEnd(sceneRoot);
+        int numTransitions = mTransitions.size();
+        for (int i = 0; i < numTransitions; ++i) {
+            mTransitions.get(i).forceToEnd(sceneRoot);
+        }
+    }
+
     @Override
     TransitionSet setSceneRoot(ViewGroup sceneRoot) {
         super.setSceneRoot(sceneRoot);

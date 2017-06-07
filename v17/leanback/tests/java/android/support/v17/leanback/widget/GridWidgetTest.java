@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
@@ -73,7 +74,7 @@ public class GridWidgetTest {
     private static final boolean HUMAN_DELAY = false;
     private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
     private static final int WAIT_FOR_LAYOUT_PASS_TIMEOUT_MS = 2000;
-    private static final int WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS = 2000;
+    private static final int WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS = 6000;
 
     protected ActivityTestRule<GridActivity> mActivityTestRule;
     protected GridActivity mActivity;
@@ -442,16 +443,19 @@ public class GridWidgetTest {
      * To wait the ItemAnimator start, you can use waitForLayout() to make sure layout pass has
      * processed adapter change.
      */
-    protected void waitForItemAnimation(int timeoutMs) {
-        RecyclerView.ItemAnimator.ItemAnimatorFinishedListener listener = mock(
+    protected void waitForItemAnimation(int timeoutMs) throws Throwable {
+        final RecyclerView.ItemAnimator.ItemAnimatorFinishedListener listener = mock(
                 RecyclerView.ItemAnimator.ItemAnimatorFinishedListener.class);
-        if (mGridView.getItemAnimator().isRunning(listener)) {
-            verify(listener, timeout(timeoutMs).atLeastOnce())
-                    .onAnimationsFinished();
-        }
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().isRunning(listener);
+            }
+        });
+        verify(listener, timeout(timeoutMs).atLeastOnce()).onAnimationsFinished();
     }
 
-    protected void waitForItemAnimation() {
+    protected void waitForItemAnimation() throws Throwable {
         waitForItemAnimation(WAIT_FOR_ITEM_ANIMATION_FINISH_TIMEOUT_MS);
     }
 
@@ -774,6 +778,476 @@ public class GridWidgetTest {
         verifyEdgesSame(endEdges, endEdges2);
     }
 
+    void preparePredictiveLayout() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setAddDuration(1000);
+                mGridView.getItemAnimator().setRemoveDuration(1000);
+                mGridView.getItemAnimator().setMoveDuration(1000);
+                mGridView.getItemAnimator().setChangeDuration(1000);
+                mGridView.setSelectedPositionSmooth(50);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+    }
+
+    @Test
+    public void testPredictiveLayoutAdd1() throws Throwable {
+        preparePredictiveLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(51, new int[]{300, 300, 300, 300});
+            }
+        });
+        waitForItemAnimationStart();
+        waitForItemAnimation();
+        assertEquals(50, mGridView.getSelectedPosition());
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
+    }
+
+    @Test
+    public void testPredictiveLayoutAdd2() throws Throwable {
+        preparePredictiveLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(50, new int[]{300, 300, 300, 300});
+            }
+        });
+        waitForItemAnimationStart();
+        waitForItemAnimation();
+        assertEquals(54, mGridView.getSelectedPosition());
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
+    }
+
+    @Test
+    public void testPredictiveLayoutRemove1() throws Throwable {
+        preparePredictiveLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(51, 3);
+            }
+        });
+        waitForItemAnimationStart();
+        waitForItemAnimation();
+        assertEquals(50, mGridView.getSelectedPosition());
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
+    }
+
+    @Test
+    public void testPredictiveLayoutRemove2() throws Throwable {
+        preparePredictiveLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(47, 3);
+            }
+        });
+        waitForItemAnimationStart();
+        waitForItemAnimation();
+        assertEquals(47, mGridView.getSelectedPosition());
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
+    }
+
+    @Test
+    public void testPredictiveLayoutRemove3() throws Throwable {
+        preparePredictiveLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(0, 51);
+            }
+        });
+        waitForItemAnimationStart();
+        waitForItemAnimation();
+        assertEquals(0, mGridView.getSelectedPosition());
+        assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
+    }
+
+    @Test
+    public void testPredictiveLayoutRemove4() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(50);
+            }
+        });
+        waitForScrollIdle();
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(0, 49);
+            }
+        });
+        assertEquals(1, mGridView.getSelectedPosition());
+    }
+
+    @Test
+    public void testPredictiveLayoutRemove5() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, true);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 3;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(50);
+            }
+        });
+        waitForScrollIdle();
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(50, 40);
+            }
+        });
+        assertEquals(50, mGridView.getSelectedPosition());
+        scrollToBegin(mVerifyLayout);
+        verifyBeginAligned();
+    }
+
+    void waitOneUiCycle() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
+    }
+
+    @Test
+    public void testDontPruneMovingItem() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setMoveDuration(2000);
+                mGridView.setSelectedPosition(50);
+            }
+        });
+        waitForScrollIdle();
+        final ArrayList<RecyclerView.ViewHolder> moveViewHolders = new ArrayList();
+        for (int i = 51;; i++) {
+            RecyclerView.ViewHolder vh = mGridView.findViewHolderForAdapterPosition(i);
+            if (vh == null) {
+                break;
+            }
+            moveViewHolders.add(vh);
+        }
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // add a lot of items, so we will push everything to right of 51 out side window
+                int[] lots_items = new int[1000];
+                for (int i = 0; i < lots_items.length; i++) {
+                    lots_items[i] = 300;
+                }
+                mActivity.addItems(51, lots_items);
+            }
+        });
+        waitOneUiCycle();
+        // run a scroll pass, the scroll pass should not remove the animating views even they are
+        // outside visible areas.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.scrollBy(-3, 0);
+            }
+        });
+        waitOneUiCycle();
+        for (int i = 0; i < moveViewHolders.size(); i++) {
+            assertSame(mGridView, moveViewHolders.get(i).itemView.getParent());
+        }
+    }
+
+    @Test
+    public void testMoveItemToTheRight() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setAddDuration(2000);
+                mGridView.getItemAnimator().setMoveDuration(2000);
+                mGridView.setSelectedPosition(50);
+            }
+        });
+        waitForScrollIdle();
+        RecyclerView.ViewHolder moveViewHolder = mGridView.findViewHolderForAdapterPosition(51);
+
+        int lastPos = mGridView.getChildAdapterPosition(mGridView.getChildAt(
+                mGridView.getChildCount() - 1));
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.moveItem(51, 1000, true);
+            }
+        });
+        final ArrayList<View> moveInViewHolders = new ArrayList();
+        waitForItemAnimationStart();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < mGridView.getLayoutManager().getChildCount(); i++) {
+                    View v = mGridView.getLayoutManager().getChildAt(i);
+                    if (mGridView.getChildAdapterPosition(v) >= 51) {
+                        moveInViewHolders.add(v);
+                    }
+                }
+            }
+        });
+        waitOneUiCycle();
+        assertTrue("prelayout should layout extra items to slide in",
+                moveInViewHolders.size() > lastPos - 51);
+        // run a scroll pass, the scroll pass should not remove the animating views even they are
+        // outside visible areas.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.scrollBy(-3, 0);
+            }
+        });
+        waitOneUiCycle();
+        for (int i = 0; i < moveInViewHolders.size(); i++) {
+            assertSame(mGridView, moveInViewHolders.get(i).getParent());
+        }
+        assertSame(mGridView, moveViewHolder.itemView.getParent());
+        assertFalse(moveViewHolder.isRecyclable());
+        waitForItemAnimation();
+        assertNull(moveViewHolder.itemView.getParent());
+        assertTrue(moveViewHolder.isRecyclable());
+    }
+
+    @Test
+    public void testMoveItemToTheLeft() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2000);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setAddDuration(2000);
+                mGridView.getItemAnimator().setMoveDuration(2000);
+                mGridView.setSelectedPosition(1500);
+            }
+        });
+        waitForScrollIdle();
+        RecyclerView.ViewHolder moveViewHolder = mGridView.findViewHolderForAdapterPosition(1499);
+
+        int firstPos = mGridView.getChildAdapterPosition(mGridView.getChildAt(0));
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.moveItem(1499, 1, true);
+            }
+        });
+        final ArrayList<View> moveInViewHolders = new ArrayList();
+        waitForItemAnimationStart();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < mGridView.getLayoutManager().getChildCount(); i++) {
+                    View v = mGridView.getLayoutManager().getChildAt(i);
+                    if (mGridView.getChildAdapterPosition(v) <= 1499) {
+                        moveInViewHolders.add(v);
+                    }
+                }
+            }
+        });
+        waitOneUiCycle();
+        assertTrue("prelayout should layout extra items to slide in ",
+                moveInViewHolders.size() > 1499 - firstPos);
+        // run a scroll pass, the scroll pass should not remove the animating views even they are
+        // outside visible areas.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.scrollBy(3, 0);
+            }
+        });
+        waitOneUiCycle();
+        for (int i = 0; i < moveInViewHolders.size(); i++) {
+            assertSame(mGridView, moveInViewHolders.get(i).getParent());
+        }
+        assertSame(mGridView, moveViewHolder.itemView.getParent());
+        assertFalse(moveViewHolder.isRecyclable());
+        waitForItemAnimation();
+        assertNull(moveViewHolder.itemView.getParent());
+        assertTrue(moveViewHolder.isRecyclable());
+    }
+
+    @Test
+    public void testContinuousSwapForward() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(150);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        for (int i = 150; i < 199; i++) {
+            final int swapIndex = i;
+            mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mActivity.swap(swapIndex, swapIndex + 1);
+                }
+            });
+            Thread.sleep(10);
+        }
+        waitForItemAnimation();
+        assertEquals(199, mGridView.getSelectedPosition());
+        // check if ItemAnimation finishes at aligned positions:
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(199).getLeft();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForScrollIdle();
+        assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(199).getLeft());
+    }
+
+    @Test
+    public void testContinuousSwapBackward() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(50);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        for (int i = 50; i > 0; i--) {
+            final int swapIndex = i;
+            mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mActivity.swap(swapIndex, swapIndex - 1);
+                }
+            });
+            Thread.sleep(10);
+        }
+        waitForItemAnimation();
+        assertEquals(0, mGridView.getSelectedPosition());
+        // check if ItemAnimation finishes at aligned positions:
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(0).getLeft();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForScrollIdle();
+        assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(0).getLeft());
+    }
+
+    @Test
+    public void testSwapAfterScroll() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 200);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setMoveDuration(1000);
+                mGridView.setSelectedPositionSmooth(150);
+            }
+        });
+        waitForScrollIdle();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(151);
+            }
+        });
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // we want to swap and select new target which is at 150 before swap
+                mGridView.setSelectedPositionSmooth(150);
+                mActivity.swap(150, 151);
+            }
+        });
+        waitForItemAnimation();
+        waitForScrollIdle();
+        assertEquals(151, mGridView.getSelectedPosition());
+        // check if ItemAnimation finishes at aligned positions:
+        int leftEdge = mGridView.getLayoutManager().findViewByPosition(151).getLeft();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForScrollIdle();
+        assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(151).getLeft());
+    }
+
     @Test
     public void testItemMovedHorizontal() throws Throwable {
         Intent intent = new Intent();
@@ -784,7 +1258,12 @@ public class GridWidgetTest {
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 3;
 
-        mGridView.setSelectedPositionSmooth(150);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionSmooth(150);
+            }
+        });
         waitForScrollIdle(mVerifyLayout);
         performAndWaitForAnimation(new Runnable() {
             @Override
@@ -1168,6 +1647,7 @@ public class GridWidgetTest {
             }
         });
 
+        waitOneUiCycle();
         waitForScrollIdle();
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
@@ -1216,13 +1696,24 @@ public class GridWidgetTest {
             }
         });
 
-        performAndWaitForAnimation(new Runnable() {
+        mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 int[] newItems = new int[]{300, 300, 300};
                 mActivity.addItems(0, newItems);
             }
         });
+        waitForScrollIdle();
+        int topEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getTop();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForScrollIdle();
+        assertEquals(topEdge,
+                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getTop());
     }
 
     @Test
@@ -1274,12 +1765,12 @@ public class GridWidgetTest {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.horizontal_linear);
-        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 300);
         initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
 
-        final int focusToIndex = 40;
+        final int focusToIndex = 200;
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1316,12 +1807,12 @@ public class GridWidgetTest {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.horizontal_linear);
-        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 300);
         initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
 
-        final int focusToIndex = 40;
+        final int focusToIndex = 200;
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1340,9 +1831,10 @@ public class GridWidgetTest {
         });
         waitForLayout();
 
-        assertFalse("removing the index of attached child should kill smooth scroller",
+        assertTrue("removing the index of attached child should not kill smooth scroller",
                 mGridView.getLayoutManager().isSmoothScrolling());
         waitForItemAnimation();
+        waitForScrollIdle();
         int leftEdge = mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft();
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -1378,7 +1870,8 @@ public class GridWidgetTest {
         assertTrue(mGridView.getChildAt(0).hasFocus());
 
         // Pressing lots of key to make sure smooth scroller is running
-        for (int i = 0; i < 20; i++) {
+        mGridView.mLayoutManager.mMaxPendingMoves = 100;
+        for (int i = 0; i < 100; i++) {
             sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
         }
 
@@ -1394,10 +1887,11 @@ public class GridWidgetTest {
         });
         waitForLayout();
 
-        assertFalse("removing the index of attached child should kill smooth scroller",
+        assertTrue("removing the index of attached child should not kill smooth scroller",
                 mGridView.getLayoutManager().isSmoothScrolling());
 
         waitForItemAnimation();
+        waitForScrollIdle();
         int focusIndex = mGridView.getSelectedPosition();
         int topEdge = mGridView.getLayoutManager().findViewByPosition(focusIndex).getTop();
 
@@ -2349,7 +2843,8 @@ public class GridWidgetTest {
                 mGridView.stopScroll();
             }
         });
-        Thread.sleep(100);
+        waitForScrollIdle();
+        waitForItemAnimation();
         assertEquals(mGridView.getSelectedPosition(), targetPosition);
         assertSame(mGridView.getLayoutManager().findViewByPosition(targetPosition),
                 mGridView.findFocus());
@@ -3780,7 +4275,7 @@ public class GridWidgetTest {
                 mActivity.addItems(lastPos - numItemsToPushOut + 1, newItems);
             }
         });
-        waitForItemAnimation(6000);
+        waitForItemAnimation();
     }
 
     /**
@@ -3797,7 +4292,7 @@ public class GridWidgetTest {
 
         initActivity(intent);
 
-        final HashSet<View> removeAnimationFinishedViews = new HashSet();
+        final HashSet<View> moveAnimationViews = new HashSet();
         mActivity.mImportantForAccessibilityListener =
                 new GridActivity.ImportantForAccessibilityListener() {
             RecyclerView.LayoutManager mLM = mGridView.getLayoutManager();
@@ -3805,7 +4300,7 @@ public class GridWidgetTest {
             public void onImportantForAccessibilityChanged(View view, int newValue) {
                 // simulates talkack, having setImportantForAccessibility to call
                 // onInitializeAccessibilityNodeInfoForItem() for the DISAPPEARING items.
-                if (removeAnimationFinishedViews.contains(view)) {
+                if (moveAnimationViews.contains(view)) {
                     AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
                     mLM.onInitializeAccessibilityNodeInfoForItem(
                             null, null, view, info);
@@ -3814,19 +4309,23 @@ public class GridWidgetTest {
         };
         final int lastPos = mGridView.getChildAdapterPosition(
                 mGridView.getChildAt(mGridView.getChildCount() - 1));
+        final int numItemsToPushOut = mNumRows;
+        for (int i = 0; i < numItemsToPushOut; i++) {
+            moveAnimationViews.add(
+                    mGridView.getChildAt(mGridView.getChildCount() - 1 - i));
+        }
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mGridView.setItemAnimator(new DefaultItemAnimator() {
                     @Override
-                    public void onRemoveFinished(RecyclerView.ViewHolder item) {
-                        removeAnimationFinishedViews.add(item.itemView);
+                    public void onMoveFinished(RecyclerView.ViewHolder item) {
+                        moveAnimationViews.remove(item.itemView);
                     }
                 });
                 mGridView.getLayoutManager().setItemPrefetchEnabled(false);
             }
         });
-        final int numItemsToPushOut = mNumRows;
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -3838,7 +4337,7 @@ public class GridWidgetTest {
                 mActivity.addItems(lastPos - numItemsToPushOut + 1, newItems);
             }
         });
-        while (removeAnimationFinishedViews.size() != numItemsToPushOut) {
+        while (moveAnimationViews.size() != 0) {
             Thread.sleep(100);
         }
     }

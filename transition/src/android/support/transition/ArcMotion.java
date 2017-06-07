@@ -37,6 +37,14 @@ import org.xmlpull.v1.XmlPullParser;
  * {@link #setMinimumVerticalAngle(float)} may be used to set the minimum angle of the
  * arc between two points.
  * </p>
+ * <p>This may be used in XML as an element inside a transition.</p>
+ * <pre>{@code
+ * <changeBounds>
+ *   <arcMotion android:minimumHorizontalAngle="15"
+ *              android:minimumVerticalAngle="0"
+ *              android:maximumAngle="90"/>
+ * </changeBounds>}
+ * </pre>
  */
 public class ArcMotion extends PathMotion {
 

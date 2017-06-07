@@ -184,12 +184,11 @@ class SupportLibraryPlugin implements Plugin<Project> {
                     libraryVariant.getJavaCompile().setToolChain(toolChain);
 
                     libraryVariant.getJavaCompile().options.compilerArgs += [
-                            // TODO(aurimas): remove this once all these warnings are fixed.
-                            '-Xep:RectIntersectReturnValueIgnored:WARN',
                             '-XDcompilePolicy=simple', // Workaround for b/36098770
 
                             // Enforce the following checks.
                             '-Xep:MissingOverride:ERROR',
+                            '-Xep:ClassNewInstance:ERROR',
                     ]
                 }
             }

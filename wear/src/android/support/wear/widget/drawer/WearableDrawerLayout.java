@@ -930,6 +930,30 @@ public class WearableDrawerLayout extends FrameLayout
         }
     }
 
+    private void allowAccessibilityFocusOnAllChildren() {
+        if (!mIsAccessibilityEnabled) {
+            return;
+        }
+
+        for (int i = 0; i < getChildCount(); i++) {
+            getChildAt(i).setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
+    }
+
+    private void allowAccessibilityFocusOnOnly(WearableDrawerView drawer) {
+        if (!mIsAccessibilityEnabled) {
+            return;
+        }
+
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child != drawer) {
+                child.setImportantForAccessibility(
+                        View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+            }
+        }
+    }
+
     /**
      * Base class for top and bottom drawer dragger callbacks.
      */
@@ -965,6 +989,7 @@ public class WearableDrawerLayout extends FrameLayout
                     if (drawerView.isOpened()) {
                         openedOrClosed = true;
                         drawerView.onDrawerOpened();
+                        allowAccessibilityFocusOnOnly(drawerView);
                         if (mDrawerStateCallback != null) {
                             mDrawerStateCallback
                                     .onDrawerOpened(WearableDrawerLayout.this, drawerView);
@@ -978,13 +1003,16 @@ public class WearableDrawerLayout extends FrameLayout
                     } else if (drawerView.isClosed()) {
                         openedOrClosed = true;
                         drawerView.onDrawerClosed();
+                        allowAccessibilityFocusOnAllChildren();
                         if (mDrawerStateCallback != null) {
                             mDrawerStateCallback
                                     .onDrawerClosed(WearableDrawerLayout.this, drawerView);
                         }
+                    } else { // drawerView is peeking
+                        allowAccessibilityFocusOnAllChildren();
                     }
 
-                    // If the drawer is fully opened or closed, change it to to non-peeking mode.
+                    // If the drawer is fully opened or closed, change it to non-peeking mode.
                     if (openedOrClosed && drawerView.isPeeking()) {
                         drawerView.setIsPeeking(false);
                         drawerView.getPeekContainer().setVisibility(INVISIBLE);

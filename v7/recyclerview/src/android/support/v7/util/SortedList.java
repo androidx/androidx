@@ -361,7 +361,7 @@ public class SortedList<T> {
      * {@link BatchedCallback#dispatchLastEvent()} right after you complete your data changes.
      * Failing to do so may create data inconsistencies with the Callback.
      * <p>
-     * If the current Callback in an instance of {@link BatchedCallback}, calling this method
+     * If the current Callback is an instance of {@link BatchedCallback}, calling this method
      * has no effect.
      */
     public void beginBatchedUpdates() {

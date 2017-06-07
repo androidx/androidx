@@ -16,7 +16,7 @@ package android.support.v4.util;
 
 import static org.junit.Assert.fail;
 
-import android.support.test.filters.SmallTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
@@ -29,7 +29,7 @@ import java.util.ConcurrentModificationException;
  * Unit tests for SimpleArrayMap
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class SimpleArrayMapTest {
     private static final String TAG = "SimpleArrayMapTest";
     SimpleArrayMap<String, String> map = new SimpleArrayMap<>();

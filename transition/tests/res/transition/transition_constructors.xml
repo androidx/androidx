@@ -17,6 +17,12 @@
 <transitionSet>
     <transition class="android.support.transition.TransitionInflaterTest$InflationFade"/>
     <transition class="android.support.transition.TransitionInflaterTest$InflationChangeBounds"/>
+    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeImageTransform"/>
+    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeTransform"/>
     <transition class="android.support.transition.TransitionInflaterTest$InflationAutoTransition"/>
+    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeClipBounds"/>
+    <transition class="android.support.transition.TransitionInflaterTest$InflationChangeScroll"/>
+    <transition class="android.support.transition.TransitionInflaterTest$InflationExplode"/>
+    <transition class="android.support.transition.TransitionInflaterTest$InflationSlide"/>
     <transition class="android.support.transition.TransitionInflaterTest$InflationTransitionSet"/>
 </transitionSet>

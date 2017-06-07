@@ -28,9 +28,11 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.test.R;
 import android.widget.TextView;
 
@@ -231,5 +233,15 @@ public class AppCompatTextViewTest
         TextView textView = mContainer.findViewById(R.id.textview_textStyleDirect);
 
         assertEquals(Typeface.ITALIC, textView.getTypeface().getStyle());
+    }
+
+    @Test
+    @UiThreadTest
+    public void testFontResources_setTextAppearance() {
+        TextView textView = mContainer.findViewById(R.id.textview_simple);
+
+        TextViewCompat.setTextAppearance(textView, R.style.TextView_FontResourceWithStyle);
+
+        assertNotEquals(Typeface.DEFAULT, textView.getTypeface());
     }
 }
