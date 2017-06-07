@@ -299,7 +299,7 @@ public class TransitionTest extends BaseTest {
             private Rect mRect = new Rect();
 
             @Override
-            public Rect onGetEpicenter(Transition t) {
+            public Rect onGetEpicenter(@NonNull Transition t) {
                 assertThat(t, is(sameInstance(transition)));
                 mRect.set(1, 2, 3, 4);
                 return mRect;
@@ -323,6 +323,20 @@ public class TransitionTest extends BaseTest {
         final TransitionPropagation propagation = new CircularPropagation();
         transition.setPropagation(propagation);
         assertThat(propagation, is(sameInstance(propagation)));
+    }
+
+    @Test
+    public void testIsTransitionRequired() throws Throwable {
+        final EmptyTransition transition = new EmptyTransition();
+        assertThat(transition.isTransitionRequired(null, null), is(false));
+        final TransitionValues start = new TransitionValues();
+        final String propname = "android:transition:dummy";
+        start.values.put(propname, 1);
+        final TransitionValues end = new TransitionValues();
+        end.values.put(propname, 1);
+        assertThat(transition.isTransitionRequired(start, end), is(false));
+        end.values.put(propname, 2);
+        assertThat(transition.isTransitionRequired(start, end), is(true));
     }
 
     private void showInitialScene() throws Throwable {

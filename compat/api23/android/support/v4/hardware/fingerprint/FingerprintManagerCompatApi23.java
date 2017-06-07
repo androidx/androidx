@@ -18,6 +18,7 @@ package android.support.v4.hardware.fingerprint;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
@@ -46,17 +47,26 @@ public final class FingerprintManagerCompatApi23 {
         }
     }
 
-    public static boolean hasEnrolledFingerprints(Context context) {
+    // We expect developers to add android.permission.USE_FINGERPRINT to their manifest if they
+    // use this API.
+    @SuppressLint("MissingPermission")
+    static boolean hasEnrolledFingerprints(Context context) {
         final FingerprintManager fp = getFingerprintManagerOrNull(context);
         return (fp != null) && fp.hasEnrolledFingerprints();
     }
 
-    public static boolean isHardwareDetected(Context context) {
+    // We expect developers to add android.permission.USE_FINGERPRINT to their manifest if they
+    // use this API.
+    @SuppressLint("MissingPermission")
+    static boolean isHardwareDetected(Context context) {
         final FingerprintManager fp = getFingerprintManagerOrNull(context);
         return (fp != null) && fp.isHardwareDetected();
     }
 
-    public static void authenticate(Context context, CryptoObject crypto, int flags, Object cancel,
+    // We expect developers to add android.permission.USE_FINGERPRINT to their manifest if they
+    // use this API.
+    @SuppressLint("MissingPermission")
+    static void authenticate(Context context, CryptoObject crypto, int flags, Object cancel,
             AuthenticationCallback callback, Handler handler) {
         final FingerprintManager fp = getFingerprintManagerOrNull(context);
         if (fp != null) {

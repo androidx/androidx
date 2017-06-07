@@ -1585,17 +1585,11 @@ public final class MediaBrowserCompat {
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
-            // Do not send the client version for API 26 and higher, since we don't need to use
-            // EXTRA_MESSENGER_BINDER for API 26 and higher.
-            if (Build.VERSION.SDK_INT <= 25) {
-                if (rootHints == null) {
-                    rootHints = new Bundle();
-                }
-                rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
-                mRootHints = new Bundle(rootHints);
-            } else {
-                mRootHints = rootHints == null ? null : new Bundle(rootHints);
+            if (rootHints == null) {
+                rootHints = new Bundle();
             }
+            rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
+            mRootHints = new Bundle(rootHints);
             callback.setInternalConnectionCallback(this);
             mBrowserObj = MediaBrowserCompatApi21.createBrowser(context, serviceComponent,
                     callback.mConnectionCallbackObj, mRootHints);

@@ -289,12 +289,12 @@ public class ResourcesCompatTest {
 
     @Test(expected = Resources.NotFoundException.class)
     public void testGetFont_invalidResourceId() {
-        ResourcesCompat.getFont(mContext, -1, Typeface.NORMAL);
+        ResourcesCompat.getFont(mContext, -1);
     }
 
     @Test
     public void testGetFont_fontFile() {
-        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont);
 
         assertNotNull(font);
         assertNotSame(Typeface.DEFAULT, font);
@@ -302,7 +302,7 @@ public class ResourcesCompatTest {
 
     @Test
     public void testGetFont_xmlFile() {
-        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont);
 
         assertNotNull(font);
         assertNotSame(Typeface.DEFAULT, font);
@@ -312,13 +312,13 @@ public class ResourcesCompatTest {
     public void testGetFont_invalidXmlFile() {
         try {
             assertNull(
-                    ResourcesCompat.getFont(mContext, R.font.invalid_xmlfamily, Typeface.NORMAL));
+                    ResourcesCompat.getFont(mContext, R.font.invalid_xmlfamily));
         } catch (Resources.NotFoundException e) {
             // pass
         }
 
         try {
-            assertNull(ResourcesCompat.getFont(mContext, R.font.invalid_xmlempty, Typeface.NORMAL));
+            assertNull(ResourcesCompat.getFont(mContext, R.font.invalid_xmlempty));
         } catch (Resources.NotFoundException e) {
             // pass
         }
@@ -326,16 +326,16 @@ public class ResourcesCompatTest {
 
     @Test
     public void testGetFont_fontFileIsCached() {
-        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
-        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplefont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont);
+        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplefont);
 
         assertSame(font, font2);
     }
 
     @Test
     public void testGetFont_xmlFileIsCached() {
-        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
-        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplexmlfont, Typeface.NORMAL);
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont);
+        Typeface font2 = ResourcesCompat.getFont(mContext, R.font.samplexmlfont);
 
         assertSame(font, font2);
     }

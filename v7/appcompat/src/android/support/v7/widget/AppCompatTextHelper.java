@@ -205,7 +205,7 @@ class AppCompatTextHelper {
                     : R.styleable.TextAppearance_fontFamily;
             if (!context.isRestricted()) {
                 try {
-                    mFontTypeface = a.getFont(fontFamilyId, mStyle);
+                    mFontTypeface = a.getFont(fontFamilyId, mStyle, mView);
                 } catch (UnsupportedOperationException | Resources.NotFoundException e) {
                     // Expected if it is not a font resource.
                 }
@@ -238,7 +238,12 @@ class AppCompatTextHelper {
                 mView.setTextColor(textColor);
             }
         }
+
+        updateTypefaceAndStyle(context, a);
         a.recycle();
+        if (mFontTypeface != null) {
+            mView.setTypeface(mFontTypeface, mStyle);
+        }
     }
 
     void setAllCaps(boolean allCaps) {

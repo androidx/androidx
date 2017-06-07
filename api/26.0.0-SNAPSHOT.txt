@@ -1895,13 +1895,19 @@ package android.support.text.emoji {
     method public java.lang.CharSequence process(java.lang.CharSequence);
     method public java.lang.CharSequence process(java.lang.CharSequence, int, int);
     method public java.lang.CharSequence process(java.lang.CharSequence, int, int, int);
+    method public java.lang.CharSequence process(java.lang.CharSequence, int, int, int, int);
     method public void registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     method public void unregisterInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     field public static final java.lang.String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
     field public static final java.lang.String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
-    field public static final int LOAD_STATE_FAILURE = 2; // 0x2
+    field public static final int LOAD_STATE_FAILED = 2; // 0x2
+    field public static final deprecated int LOAD_STATE_FAILURE = 2; // 0x2
     field public static final int LOAD_STATE_LOADING = 0; // 0x0
-    field public static final int LOAD_STATE_SUCCESS = 1; // 0x1
+    field public static final int LOAD_STATE_SUCCEEDED = 1; // 0x1
+    field public static final deprecated int LOAD_STATE_SUCCESS = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_ALL = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_DEFAULT = 0; // 0x0
+    field public static final int REPLACE_STRATEGY_NON_EXISTENT = 2; // 0x2
   }
 
   public static abstract class EmojiCompat.Config {
@@ -2040,6 +2046,7 @@ package android.support.transition {
     ctor public ChangeBounds(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
+    method public boolean getResizeClip();
     method public void setResizeClip(boolean);
   }
 
@@ -2053,6 +2060,13 @@ package android.support.transition {
   public class ChangeImageTransform extends android.support.transition.Transition {
     ctor public ChangeImageTransform();
     ctor public ChangeImageTransform(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+  }
+
+  public class ChangeScroll extends android.support.transition.Transition {
+    ctor public ChangeScroll();
+    ctor public ChangeScroll(android.content.Context, android.util.AttributeSet);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
   }
@@ -2161,6 +2175,7 @@ package android.support.transition {
     method public java.util.List<android.view.View> getTargets();
     method public java.lang.String[] getTransitionProperties();
     method public android.support.transition.TransitionValues getTransitionValues(android.view.View, boolean);
+    method public boolean isTransitionRequired(android.support.transition.TransitionValues, android.support.transition.TransitionValues);
     method public android.support.transition.Transition removeListener(android.support.transition.Transition.TransitionListener);
     method public android.support.transition.Transition removeTarget(android.view.View);
     method public android.support.transition.Transition removeTarget(int);
@@ -2198,10 +2213,20 @@ package android.support.transition {
     method public android.support.transition.TransitionManager inflateTransitionManager(int, android.view.ViewGroup);
   }
 
+  public class TransitionListenerAdapter implements android.support.transition.Transition.TransitionListener {
+    ctor public TransitionListenerAdapter();
+    method public void onTransitionCancel(android.support.transition.Transition);
+    method public void onTransitionEnd(android.support.transition.Transition);
+    method public void onTransitionPause(android.support.transition.Transition);
+    method public void onTransitionResume(android.support.transition.Transition);
+    method public void onTransitionStart(android.support.transition.Transition);
+  }
+
   public class TransitionManager {
     ctor public TransitionManager();
     method public static void beginDelayedTransition(android.view.ViewGroup);
     method public static void beginDelayedTransition(android.view.ViewGroup, android.support.transition.Transition);
+    method public static void endTransitions(android.view.ViewGroup);
     method public static void go(android.support.transition.Scene);
     method public static void go(android.support.transition.Scene, android.support.transition.Transition);
     method public void setTransition(android.support.transition.Scene, android.support.transition.Transition);
@@ -3634,6 +3659,64 @@ package android.support.v17.leanback.media {
     method public boolean setDataSource(android.net.Uri);
   }
 
+  public class PlaybackBannerControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackBaseControlGlue {
+    ctor public PlaybackBannerControlGlue(android.content.Context, int[], T);
+    ctor public PlaybackBannerControlGlue(android.content.Context, int[], int[], T);
+    method public int[] getFastForwardSpeeds();
+    method public int[] getRewindSpeeds();
+    method public long getSupportedActions();
+    method public void onActionClicked(android.support.v17.leanback.widget.Action);
+    method protected android.support.v17.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
+    method public boolean onKey(android.view.View, int, android.view.KeyEvent);
+    field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
+    field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
+    field public static final int ACTION_FAST_FORWARD = 128; // 0x80
+    field public static final int ACTION_PLAY_PAUSE = 64; // 0x40
+    field public static final int ACTION_REWIND = 32; // 0x20
+    field public static final int ACTION_SKIP_TO_NEXT = 256; // 0x100
+    field public static final int ACTION_SKIP_TO_PREVIOUS = 16; // 0x10
+    field public static final int PLAYBACK_SPEED_FAST_L0 = 10; // 0xa
+    field public static final int PLAYBACK_SPEED_FAST_L1 = 11; // 0xb
+    field public static final int PLAYBACK_SPEED_FAST_L2 = 12; // 0xc
+    field public static final int PLAYBACK_SPEED_FAST_L3 = 13; // 0xd
+    field public static final int PLAYBACK_SPEED_FAST_L4 = 14; // 0xe
+    field public static final int PLAYBACK_SPEED_INVALID = -1; // 0xffffffff
+    field public static final int PLAYBACK_SPEED_NORMAL = 1; // 0x1
+    field public static final int PLAYBACK_SPEED_PAUSED = 0; // 0x0
+  }
+
+  public abstract class PlaybackBaseControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
+    ctor public PlaybackBaseControlGlue(android.content.Context, T);
+    method public android.graphics.drawable.Drawable getArt();
+    method public final long getBufferedPosition();
+    method public android.support.v17.leanback.widget.PlaybackControlsRow getControlsRow();
+    method public long getCurrentPosition();
+    method public final long getDuration();
+    method public android.support.v17.leanback.widget.PlaybackRowPresenter getPlaybackRowPresenter();
+    method public final T getPlayerAdapter();
+    method public java.lang.CharSequence getSubtitle();
+    method public java.lang.CharSequence getTitle();
+    method public boolean isControlsOverlayAutoHideEnabled();
+    method public final boolean isPlaying();
+    method public final boolean isPrepared();
+    method protected static void notifyItemChanged(android.support.v17.leanback.widget.ArrayObjectAdapter, java.lang.Object);
+    method public abstract void onActionClicked(android.support.v17.leanback.widget.Action);
+    method protected void onCreatePrimaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
+    method protected abstract android.support.v17.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
+    method protected void onCreateSecondaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
+    method public abstract boolean onKey(android.view.View, int, android.view.KeyEvent);
+    method protected void onPlayCompleted();
+    method protected void onPlayStateChanged();
+    method protected void onPreparedStateChanged();
+    method public final void seekTo(long);
+    method public void setArt(android.graphics.drawable.Drawable);
+    method public void setControlsOverlayAutoHideEnabled(boolean);
+    method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
+    method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
+    method public void setSubtitle(java.lang.CharSequence);
+    method public void setTitle(java.lang.CharSequence);
+  }
+
   public abstract class PlaybackControlGlue extends android.support.v17.leanback.media.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
     ctor public PlaybackControlGlue(android.content.Context, int[]);
     ctor public PlaybackControlGlue(android.content.Context, int[], int[]);
@@ -3751,39 +3834,15 @@ package android.support.v17.leanback.media {
     method public void onVideoSizeChanged(int, int);
   }
 
-  public class PlaybackTransportControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackGlue implements android.support.v17.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
+  public class PlaybackTransportControlGlue<T extends android.support.v17.leanback.media.PlayerAdapter> extends android.support.v17.leanback.media.PlaybackBaseControlGlue {
     ctor public PlaybackTransportControlGlue(android.content.Context, T);
-    method public android.graphics.drawable.Drawable getArt();
-    method public final long getBufferedPosition();
-    method public android.support.v17.leanback.widget.PlaybackControlsRow getControlsRow();
-    method public final long getCurrentPosition();
-    method public final long getDuration();
-    method public android.support.v17.leanback.widget.PlaybackRowPresenter getPlaybackRowPresenter();
-    method public final T getPlayerAdapter();
     method public final android.support.v17.leanback.widget.PlaybackSeekDataProvider getSeekProvider();
-    method public java.lang.CharSequence getSubtitle();
-    method public java.lang.CharSequence getTitle();
-    method public boolean isControlsOverlayAutoHideEnabled();
-    method public final boolean isPlaying();
-    method public final boolean isPrepared();
     method public final boolean isSeekEnabled();
     method public void onActionClicked(android.support.v17.leanback.widget.Action);
-    method protected void onCreatePrimaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
-    method protected void onCreateSecondaryActions(android.support.v17.leanback.widget.ArrayObjectAdapter);
+    method protected android.support.v17.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
     method public boolean onKey(android.view.View, int, android.view.KeyEvent);
-    method protected void onPlayCompleted();
-    method protected void onPlayStateChanged();
-    method protected void onPreparedStateChanged();
-    method public final void play();
-    method public final void seekTo(long);
-    method public void setArt(android.graphics.drawable.Drawable);
-    method public void setControlsOverlayAutoHideEnabled(boolean);
-    method public void setControlsRow(android.support.v17.leanback.widget.PlaybackControlsRow);
-    method public void setPlaybackRowPresenter(android.support.v17.leanback.widget.PlaybackRowPresenter);
     method public final void setSeekEnabled(boolean);
     method public final void setSeekProvider(android.support.v17.leanback.widget.PlaybackSeekDataProvider);
-    method public void setSubtitle(java.lang.CharSequence);
-    method public void setTitle(java.lang.CharSequence);
   }
 
   public abstract class PlayerAdapter {
@@ -8290,6 +8349,14 @@ package android.support.v4.util {
 
 }
 
+package android.support.v4.utils {
+
+  public class ObjectUtils {
+    method public static boolean objectEquals(java.lang.Object, java.lang.Object);
+  }
+
+}
+
 package android.support.v4.view {
 
   public abstract class AbsSavedState implements android.os.Parcelable {
@@ -9697,6 +9764,7 @@ package android.support.v4.widget {
   }
 
   public final class ListViewCompat {
+    method public static boolean canScrollList(android.widget.ListView, int);
     method public static void scrollListBy(android.widget.ListView, int);
   }
 
@@ -10138,10 +10206,6 @@ package android.support.v7.app {
     method public abstract void onTabUnselected(android.support.v7.app.ActionBar.Tab, android.support.v4.app.FragmentTransaction);
   }
 
-  public deprecated class ActionBarActivity extends android.support.v7.app.AppCompatActivity {
-    ctor public ActionBarActivity();
-  }
-
   public class ActionBarDrawerToggle implements android.support.v4.widget.DrawerLayout.DrawerListener {
     ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, int, int);
     ctor public ActionBarDrawerToggle(android.app.Activity, android.support.v4.widget.DrawerLayout, android.support.v7.widget.Toolbar, int, int);
@@ -10268,7 +10332,6 @@ package android.support.v7.app {
   public abstract class AppCompatDelegate {
     method public abstract void addContentView(android.view.View, android.view.ViewGroup.LayoutParams);
     method public abstract boolean applyDayNight();
-    method public abstract boolean checkActionBarFocusKey(android.view.KeyEvent);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Activity, android.support.v7.app.AppCompatCallback);
     method public static android.support.v7.app.AppCompatDelegate create(android.app.Dialog, android.support.v7.app.AppCompatCallback);
     method public abstract android.view.View createView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
@@ -11085,6 +11148,7 @@ package android.support.v7.preference {
     method protected int getPersistedInt(int);
     method protected long getPersistedLong(long);
     method protected java.lang.String getPersistedString(java.lang.String);
+    method public java.util.Set<java.lang.String> getPersistedStringSet(java.util.Set<java.lang.String>);
     method public android.support.v7.preference.PreferenceDataStore getPreferenceDataStore();
     method public android.support.v7.preference.PreferenceManager getPreferenceManager();
     method public android.content.SharedPreferences getSharedPreferences();
@@ -11121,6 +11185,7 @@ package android.support.v7.preference {
     method protected boolean persistInt(int);
     method protected boolean persistLong(long);
     method protected boolean persistString(java.lang.String);
+    method public boolean persistStringSet(java.util.Set<java.lang.String>);
     method public void restoreHierarchyState(android.os.Bundle);
     method public void saveHierarchyState(android.os.Bundle);
     method public void setDefaultValue(java.lang.Object);
@@ -11181,11 +11246,13 @@ package android.support.v7.preference {
     method public int getInt(java.lang.String, int);
     method public long getLong(java.lang.String, long);
     method public java.lang.String getString(java.lang.String, java.lang.String);
+    method public java.util.Set<java.lang.String> getStringSet(java.lang.String, java.util.Set<java.lang.String>);
     method public void putBoolean(java.lang.String, boolean);
     method public void putFloat(java.lang.String, float);
     method public void putInt(java.lang.String, int);
     method public void putLong(java.lang.String, long);
     method public void putString(java.lang.String, java.lang.String);
+    method public void putStringSet(java.lang.String, java.util.Set<java.lang.String>);
   }
 
   public abstract class PreferenceDialogFragmentCompat extends android.support.v4.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
@@ -12499,6 +12566,8 @@ package android.support.v7.widget {
     method public boolean didStructureChange();
     method public <T> T get(int);
     method public int getItemCount();
+    method public int getRemainingScrollHorizontal();
+    method public int getRemainingScrollVertical();
     method public int getTargetScrollPosition();
     method public boolean hasTargetScrollPosition();
     method public boolean isMeasuring();

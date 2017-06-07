@@ -25,14 +25,17 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleableRes;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.widget.TextView;
 
 /**
  * A class that wraps a {@link android.content.res.TypedArray} and provides the same public API
@@ -95,6 +98,10 @@ public class TintTypedArray {
      * not a font.
      *
      * @param index Index of attribute to retrieve.
+     * @param style A style value used for selecting best match font from the list of family. Note
+     * that this value will be ignored if the platform supports font family(API 24 or later).
+     * @param targetView A text view to be applied this font. If async loading is specified in XML,
+     * this view will be refreshed with result typeface.
      *
      * @return Typeface for the attribute, or {@code null} if not defined.
      * @throws RuntimeException if the TypedArray has already been recycled.
@@ -102,14 +109,18 @@ public class TintTypedArray {
      *         not a font resource.
      */
     @Nullable
-    public Typeface getFont(@StyleableRes int index, int style) {
-        if (mWrapped.hasValue(index)) {
-            final int resourceId = mWrapped.getResourceId(index, 0);
-            if (resourceId != 0) {
-                return ResourcesCompat.getFont(mContext, resourceId, style);
-            }
+    public Typeface getFont(@StyleableRes int index, int style, @NonNull TextView targetView) {
+        if (BuildCompat.isAtLeastO()) {
+            return mWrapped.getFont(index);
         }
-        return null;
+        final int resourceId = mWrapped.getResourceId(index, 0);
+        if (resourceId == 0) {
+            return null;
+        }
+        if (mTypedValue == null) {
+            mTypedValue = new TypedValue();
+        }
+        return ResourcesCompat.getFont(mContext, resourceId, mTypedValue, style, targetView);
     }
 
     public int length() {

@@ -32,6 +32,8 @@
         android:id="@+id/container_1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginEnd="128dp"
+        android:layout_marginRight="128dp"
         android:layout_weight="1"
         android:background="#BBDEFB"/>
 
@@ -39,6 +41,8 @@
         android:id="@+id/container_2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginLeft="128dp"
+        android:layout_marginStart="128dp"
         android:layout_weight="1"
         android:background="#FFCC80"/>
 

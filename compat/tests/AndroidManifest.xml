@@ -30,6 +30,8 @@
     <application
             android:supportsRtl="true"
             android:theme="@style/TestActivityTheme">
+        <activity android:name="android.support.v4.widget.ListViewTestActivity"/>
+
         <activity android:name="android.support.v4.widget.TextViewTestActivity"/>
 
         <activity android:name="android.support.v4.view.VpaActivity"/>

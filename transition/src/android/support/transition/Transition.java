@@ -719,7 +719,7 @@ public abstract class Transition implements Cloneable {
                 continue;
             }
             // Only bother trying to animate with values that differ between start/end
-            boolean isChanged = start == null || end == null || areValuesChanged(start, end);
+            boolean isChanged = start == null || end == null || isTransitionRequired(start, end);
             if (isChanged) {
                 if (DBG) {
                     View view = (end != null) ? end.view : start.view;
@@ -1794,7 +1794,7 @@ public abstract class Transition implements Cloneable {
                     TransitionValues startValues = getTransitionValues(oldView, true);
                     TransitionValues endValues = getMatchedTransitionValues(oldView, true);
                     boolean cancel = (startValues != null || endValues != null)
-                            && oldInfo.mTransition.areValuesChanged(oldValues, endValues);
+                            && oldInfo.mTransition.isTransitionRequired(oldValues, endValues);
                     if (cancel) {
                         if (anim.isRunning() || anim.isStarted()) {
                             if (DBG) {
@@ -1816,23 +1816,36 @@ public abstract class Transition implements Cloneable {
         runAnimators();
     }
 
-    boolean areValuesChanged(TransitionValues oldValues, TransitionValues newValues) {
+    /**
+     * Returns whether or not the transition should create an Animator, based on the values
+     * captured during {@link #captureStartValues(TransitionValues)} and
+     * {@link #captureEndValues(TransitionValues)}. The default implementation compares the
+     * property values returned from {@link #getTransitionProperties()}, or all property values if
+     * {@code getTransitionProperties()} returns null. Subclasses may override this method to
+     * provide logic more specific to the transition implementation.
+     *
+     * @param startValues the values from captureStartValues, This may be {@code null} if the
+     *                    View did not exist in the start state.
+     * @param endValues   the values from captureEndValues. This may be {@code null} if the View
+     *                    did not exist in the end state.
+     */
+    public boolean isTransitionRequired(@Nullable TransitionValues startValues,
+            @Nullable TransitionValues endValues) {
         boolean valuesChanged = false;
-        // if oldValues null, then transition didn't care to stash values,
+        // if startValues null, then transition didn't care to stash values,
         // and won't get canceled
-        if (oldValues != null && newValues != null) {
+        if (startValues != null && endValues != null) {
             String[] properties = getTransitionProperties();
             if (properties != null) {
-                int count = properties.length;
-                for (int i = 0; i < count; i++) {
-                    if (isValueChanged(oldValues, newValues, properties[i])) {
+                for (String property : properties) {
+                    if (isValueChanged(startValues, endValues, property)) {
                         valuesChanged = true;
                         break;
                     }
                 }
             } else {
-                for (String key : oldValues.values.keySet()) {
-                    if (isValueChanged(oldValues, newValues, key)) {
+                for (String key : startValues.values.keySet()) {
+                    if (isValueChanged(startValues, endValues, key)) {
                         valuesChanged = true;
                         break;
                     }
@@ -1963,6 +1976,27 @@ public abstract class Transition implements Cloneable {
     }
 
     /**
+     * Force the transition to move to its end state, ending all the animators.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    void forceToEnd(ViewGroup sceneRoot) {
+        ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
+        int numOldAnims = runningAnimators.size();
+        if (sceneRoot != null) {
+            WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
+            for (int i = numOldAnims - 1; i >= 0; i--) {
+                AnimationInfo info = runningAnimators.valueAt(i);
+                if (info.mView != null && windowId != null && windowId.equals(info.mWindowId)) {
+                    Animator anim = runningAnimators.keyAt(i);
+                    anim.end();
+                }
+            }
+        }
+    }
+
+    /**
      * This method cancels a transition that is currently running.
      *
      * @hide
@@ -2036,7 +2070,7 @@ public abstract class Transition implements Cloneable {
      * @see PatternPathMotion
      * @see android.transition.PathMotion
      */
-    public void setPathMotion(PathMotion pathMotion) {
+    public void setPathMotion(@Nullable PathMotion pathMotion) {
         if (pathMotion == null) {
             mPathMotion = STRAIGHT_PATH_MOTION;
         } else {
@@ -2053,6 +2087,7 @@ public abstract class Transition implements Cloneable {
      * @see PatternPathMotion
      * @see android.transition.PathMotion
      */
+    @NonNull
     public PathMotion getPathMotion() {
         return mPathMotion;
     }
@@ -2114,7 +2149,7 @@ public abstract class Transition implements Cloneable {
      *                              Animators created by this Transition. A null value
      *                              indicates that no delay should be used.
      */
-    public void setPropagation(TransitionPropagation transitionPropagation) {
+    public void setPropagation(@Nullable TransitionPropagation transitionPropagation) {
         mPropagation = transitionPropagation;
     }
 
@@ -2130,6 +2165,7 @@ public abstract class Transition implements Cloneable {
      * @return the {@link android.transition.TransitionPropagation} used to calculate Animator start
      * delays. This is null by default.
      */
+    @Nullable
     public TransitionPropagation getPropagation() {
         return mPropagation;
     }
@@ -2299,36 +2335,6 @@ public abstract class Transition implements Cloneable {
     }
 
     /**
-     * Utility adapter class to avoid having to override all three methods
-     * whenever someone just wants to listen for a single event.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static class TransitionListenerAdapter implements TransitionListener {
-
-        @Override
-        public void onTransitionStart(@NonNull Transition transition) {
-        }
-
-        @Override
-        public void onTransitionEnd(@NonNull Transition transition) {
-        }
-
-        @Override
-        public void onTransitionCancel(@NonNull Transition transition) {
-        }
-
-        @Override
-        public void onTransitionPause(@NonNull Transition transition) {
-        }
-
-        @Override
-        public void onTransitionResume(@NonNull Transition transition) {
-        }
-    }
-
-    /**
      * Holds information about each animator used when a new transition starts
      * while other transitions are still running to determine whether a running
      * animation should be canceled or a new animation noop'd. The structure holds
@@ -2425,7 +2431,7 @@ public abstract class Transition implements Cloneable {
          * @return The Rect region of the epicenter of <code>transition</code> or null if
          * there is no epicenter.
          */
-        public abstract Rect onGetEpicenter(Transition transition);
+        public abstract Rect onGetEpicenter(@NonNull Transition transition);
     }
 
 }

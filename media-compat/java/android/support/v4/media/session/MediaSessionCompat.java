@@ -56,6 +56,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+import android.view.ViewConfiguration;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -425,7 +426,8 @@ public class MediaSessionCompat {
 
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (android.os.Build.VERSION.SDK_INT >= 21
+                && !MediaSessionCompatApi21.hasCallback(impl.getMediaSession())) {
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
         }
@@ -863,7 +865,9 @@ public class MediaSessionCompat {
      */
     public abstract static class Callback {
         final Object mCallbackObj;
-        WeakReference<MediaSessionImpl> mSessionImpl;
+        private WeakReference<MediaSessionImpl> mSessionImpl;
+        private CallbackHandler mCallbackHandler = null;
+        private boolean mMediaPlayPauseKeyHandled;
 
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 24) {
@@ -875,6 +879,14 @@ public class MediaSessionCompat {
             } else {
                 mCallbackObj = null;
             }
+        }
+
+        private void setSessionImpl(MediaSessionImpl impl, Handler handler) {
+            mSessionImpl = new WeakReference<MediaSessionImpl>(impl);
+            if (mCallbackHandler != null) {
+                mCallbackHandler.removeCallbacksAndMessages(null);
+            }
+            mCallbackHandler = new CallbackHandler(handler.getLooper());
         }
 
         /**
@@ -891,12 +903,76 @@ public class MediaSessionCompat {
 
         /**
          * Override to handle media button events.
+         * <p>
+         * The double tap of {@link KeyEvent#KEYCODE_MEDIA_PLAY_PAUSE} or {@link
+         * KeyEvent#KEYCODE_HEADSETHOOK} will call the {@link #onSkipToNext} by default.
          *
          * @param mediaButtonEvent The media button event intent.
          * @return True if the event was handled, false otherwise.
          */
         public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            MediaSessionImpl impl = mSessionImpl.get();
+            if (impl == null || mCallbackHandler == null) {
+                return false;
+            }
+            KeyEvent keyEvent = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
+                return false;
+            }
+            int keyCode = keyEvent.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                case KeyEvent.KEYCODE_HEADSETHOOK:
+                    if (keyEvent.getRepeatCount() > 0) {
+                        mCallbackHandler.removeMessages(
+                                CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
+                        if (keyEvent.getRepeatCount() == 1) {
+                            handleMediaPlayPauseKeySingleTapIfUnhandled();
+                        }
+                    } else if (mCallbackHandler.hasMessages(
+                            CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT)) {
+                        mCallbackHandler.removeMessages(
+                                CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
+                        PlaybackStateCompat state = impl.getPlaybackState();
+                        long validActions = state == null ? 0 : state.getActions();
+                        // Consider double tap as the next.
+                        if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
+                            onSkipToNext();
+                        }
+                        mMediaPlayPauseKeyHandled = true;
+                    } else {
+                        mMediaPlayPauseKeyHandled = false;
+                        mCallbackHandler.sendEmptyMessageDelayed(
+                                CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT,
+                                ViewConfiguration.getDoubleTapTimeout());
+                    }
+                    return true;
+            }
             return false;
+        }
+
+        private void handleMediaPlayPauseKeySingleTapIfUnhandled() {
+            if (mMediaPlayPauseKeyHandled) {
+                return;
+            }
+            MediaSessionImpl impl = mSessionImpl.get();
+            if (impl == null) {
+                return;
+            }
+            mMediaPlayPauseKeyHandled = true;
+            PlaybackStateCompat state = impl.getPlaybackState();
+            long validActions = state == null ? 0 : state.getActions();
+            boolean isPlaying = state != null
+                    && state.getState() == PlaybackStateCompat.STATE_PLAYING;
+            boolean canPlay = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
+                        | PlaybackStateCompat.ACTION_PLAY)) != 0;
+            boolean canPause = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
+                        | PlaybackStateCompat.ACTION_PAUSE)) != 0;
+            if (isPlaying && canPause) {
+                onPause();
+            } else if (!isPlaying && canPlay) {
+                onPlay();
+            }
         }
 
         /**
@@ -1142,6 +1218,21 @@ public class MediaSessionCompat {
          */
         @Deprecated
         public void onRemoveQueueItemAt(int index) {
+        }
+
+        private class CallbackHandler extends Handler {
+            private static final int MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT = 1;
+
+            CallbackHandler(Looper looper) {
+                super(looper);
+            }
+
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT) {
+                    handleMediaPlayPauseKeySingleTapIfUnhandled();
+                }
+            }
         }
 
         @RequiresApi(21)
@@ -1684,6 +1775,7 @@ public class MediaSessionCompat {
         void release();
         Token getSessionToken();
         void setPlaybackState(PlaybackStateCompat state);
+        PlaybackStateCompat getPlaybackState();
         void setMetadata(MediaMetadataCompat metadata);
 
         void setSessionActivity(PendingIntent pi);
@@ -1792,7 +1884,11 @@ public class MediaSessionCompat {
                     handler = new Handler();
                 }
                 synchronized (mLock) {
+                    if (mHandler != null) {
+                        mHandler.removeCallbacksAndMessages(null);
+                    }
                     mHandler = new MessageHandler(handler.getLooper());
+                    mCallback.setSessionImpl(this, handler);
                 }
             }
         }
@@ -1919,6 +2015,13 @@ public class MediaSessionCompat {
                 // Set transport control flags
                 mRcc.setTransportControlFlags(
                         getRccTransportControlFlagsFromActions(state.getActions()));
+            }
+        }
+
+        @Override
+        public PlaybackStateCompat getPlaybackState() {
+            synchronized (mLock) {
+                return mState;
             }
         }
 
@@ -2910,17 +3013,8 @@ public class MediaSessionCompat {
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     case KeyEvent.KEYCODE_HEADSETHOOK:
-                        boolean isPlaying = mState != null
-                                && mState.getState() == PlaybackStateCompat.STATE_PLAYING;
-                        boolean canPlay = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
-                                | PlaybackStateCompat.ACTION_PLAY)) != 0;
-                        boolean canPause = (validActions & (PlaybackStateCompat.ACTION_PLAY_PAUSE
-                                | PlaybackStateCompat.ACTION_PAUSE)) != 0;
-                        if (isPlaying && canPause) {
-                            cb.onPause();
-                        } else if (!isPlaying && canPlay) {
-                            cb.onPlay();
-                        }
+                        Log.w(TAG, "KEYCODE_MEDIA_PLAY_PAUSE and KEYCODE_HEADSETHOOK are handled"
+                                + " already");
                         break;
                 }
             }
@@ -3111,7 +3205,7 @@ public class MediaSessionCompat {
             MediaSessionCompatApi21.setCallback(mSessionObj,
                     callback == null ? null : callback.mCallbackObj, handler);
             if (callback != null) {
-                callback.mSessionImpl = new WeakReference<MediaSessionImpl>(this);
+                callback.setSessionImpl(this, handler);
             }
         }
 
@@ -3182,6 +3276,11 @@ public class MediaSessionCompat {
             mExtraControllerCallbacks.finishBroadcast();
             MediaSessionCompatApi21.setPlaybackState(mSessionObj,
                     state == null ? null : state.getPlaybackState());
+        }
+
+        @Override
+        public PlaybackStateCompat getPlaybackState() {
+            return mPlaybackState;
         }
 
         @Override

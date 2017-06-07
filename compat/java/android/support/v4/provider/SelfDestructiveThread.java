@@ -116,6 +116,44 @@ public class SelfDestructiveThread {
     }
 
     /**
+     * Reply callback for postAndReply
+     *
+     * @param <T> A type which will be received as the argument.
+     */
+    public interface ReplyCallback<T> {
+        /**
+         * Called when the task was finished.
+         */
+        void onReply(T value);
+    }
+
+    /**
+     * Execute the specific callable object on this thread and call the reply callback on the
+     * calling thread once it finishs.
+     */
+    public <T> void postAndReply(final Callable<T> callable, final ReplyCallback<T> reply) {
+        final Handler callingHandler = new Handler();
+        post(new Runnable() {
+            @Override
+            public void run() {
+                T t;
+                try {
+                    t = callable.call();
+                } catch (Exception e) {
+                    t = null;
+                }
+                final T result = t;
+                callingHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        reply.onReply(result);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
      * Execute the specified callable object on this thread and returns the returned value to the
      * caller.
      *

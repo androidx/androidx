@@ -67,8 +67,6 @@ abstract class StaggeredGrid extends Grid {
     //    <= mFirstIndex + mLocations.size() - 1
     protected int mFirstIndex = -1;
 
-    private Object[] mTmpItem = new Object[1];
-
     protected Object mPendingItem;
     protected int mPendingItemSize;
 
@@ -141,8 +139,6 @@ abstract class StaggeredGrid extends Grid {
         if (mLocations.size() == 0) {
             return false;
         }
-        final int count = mProvider.getCount();
-        final int firstIndex = getFirstIndex();
         int itemIndex;
         int edge;
         int offset;
@@ -165,10 +161,11 @@ abstract class StaggeredGrid extends Grid {
                 return false;
             }
         }
-        for (; itemIndex >= mFirstIndex; itemIndex--) {
+        int firstIndex = Math.max(mProvider.getMinIndex(), mFirstIndex);
+        for (; itemIndex >= firstIndex; itemIndex--) {
             Location loc = getLocation(itemIndex);
             int rowIndex = loc.row;
-            int size = mProvider.createItem(itemIndex, false, mTmpItem);
+            int size = mProvider.createItem(itemIndex, false, mTmpItem, false);
             if (size != loc.size) {
                 mLocations.removeFromStart(itemIndex + 1 - mFirstIndex);
                 mFirstIndex = mFirstVisibleIndex;
@@ -255,7 +252,7 @@ abstract class StaggeredGrid extends Grid {
             item = mPendingItem;
             mPendingItem = null;
         } else {
-            loc.size = mProvider.createItem(itemIndex, false, mTmpItem);
+            loc.size = mProvider.createItem(itemIndex, false, mTmpItem, false);
             item = mTmpItem[0];
         }
         mFirstIndex = mFirstVisibleIndex = itemIndex;
@@ -325,7 +322,7 @@ abstract class StaggeredGrid extends Grid {
                 edge = edge + loc.offset;
             }
             int rowIndex = loc.row;
-            int size = mProvider.createItem(itemIndex, true, mTmpItem);
+            int size = mProvider.createItem(itemIndex, true, mTmpItem, false);
             if (size != loc.size) {
                 loc.size = size;
                 mLocations.removeFromEnd(lastIndex - itemIndex);
@@ -389,7 +386,7 @@ abstract class StaggeredGrid extends Grid {
             item = mPendingItem;
             mPendingItem = null;
         } else {
-            loc.size = mProvider.createItem(itemIndex, true, mTmpItem);
+            loc.size = mProvider.createItem(itemIndex, true, mTmpItem, false);
             item = mTmpItem[0];
         }
         if (mLocations.size() == 1) {

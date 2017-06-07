@@ -22,8 +22,7 @@ import android.view.View;
 import android.widget.ListView;
 
 /**
- * Helper for accessing features in {@link ListView} introduced after API level
- * 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link ListView}
  */
 public final class ListViewCompat {
 
@@ -35,8 +34,10 @@ public final class ListViewCompat {
      */
     public static void scrollListBy(@NonNull ListView listView, int y) {
         if (Build.VERSION.SDK_INT >= 19) {
+            // Call the framework version directly
             listView.scrollListBy(y);
         } else {
+            // provide backport on earlier versions
             final int firstPosition = listView.getFirstVisiblePosition();
             if (firstPosition == ListView.INVALID_POSITION) {
                 return;
@@ -49,6 +50,39 @@ public final class ListViewCompat {
 
             final int newTop = firstView.getTop() - y;
             listView.setSelectionFromTop(firstPosition, newTop);
+        }
+    }
+
+    /**
+     * Check if the items in the list can be scrolled in a certain direction.
+     *
+     * @param direction Negative to check scrolling up, positive to check
+     *            scrolling down.
+     * @return true if the list can be scrolled in the specified direction,
+     *         false otherwise.
+     * @see #scrollListBy(ListView, int)
+     */
+    public static boolean canScrollList(@NonNull ListView listView, int direction) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            // Call the framework version directly
+            return listView.canScrollList(direction);
+        } else {
+            // provide backport on earlier versions
+            final int childCount = listView.getChildCount();
+            if (childCount == 0) {
+                return false;
+            }
+
+            final int firstPosition = listView.getFirstVisiblePosition();
+            if (direction > 0) {
+                final int lastBottom = listView.getChildAt(childCount - 1).getBottom();
+                final int lastPosition = firstPosition + childCount;
+                return lastPosition < listView.getCount()
+                        || (lastBottom > listView.getHeight() - listView.getListPaddingBottom());
+            } else {
+                final int firstTop = listView.getChildAt(0).getTop();
+                return firstPosition > 0 || firstTop < listView.getListPaddingTop();
+            }
         }
     }
 

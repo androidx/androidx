@@ -18,6 +18,7 @@ package android.support.transition;
 
 import android.animation.ObjectAnimator;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.support.annotation.RequiresApi;
 import android.util.Property;
 
@@ -25,21 +26,8 @@ import android.util.Property;
 class ObjectAnimatorUtilsApi21 implements ObjectAnimatorUtilsImpl {
 
     @Override
-    public <T> ObjectAnimator ofInt(T target, String xPropertyName, String yPropertyName,
-            Path path) {
-        return ObjectAnimator.ofInt(target, xPropertyName, yPropertyName, path);
-    }
-
-    @Override
-    public <T> ObjectAnimator ofInt(T target, Property<T, Integer> xProperty,
-            Property<T, Integer> yProperty, Path path) {
-        return ObjectAnimator.ofInt(target, xProperty, yProperty, path);
-    }
-
-    @Override
-    public <T> ObjectAnimator ofFloat(T target, Property<T, Float> xProperty,
-            Property<T, Float> yProperty, Path path) {
-        return ObjectAnimator.ofFloat(target, xProperty, yProperty, path);
+    public <T> ObjectAnimator ofPointF(T target, Property<T, PointF> property, Path path) {
+        return ObjectAnimator.ofObject(target, property, null, path);
     }
 
 }

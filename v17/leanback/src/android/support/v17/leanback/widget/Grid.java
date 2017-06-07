@@ -17,8 +17,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.CircularIntArray;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseIntArray;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 /**
  * A grid is representation of single or multiple rows layout data structure and algorithm.
@@ -42,6 +44,8 @@ abstract class Grid {
      */
     public static final int START_DEFAULT = -1;
 
+    Object[] mTmpItem = new Object[1];
+
     /**
      * When user uses Grid,  he should provide count of items and
      * the method to create item and remove item.
@@ -51,7 +55,17 @@ abstract class Grid {
         /**
          * Return how many items (are in the adapter).
          */
-        public abstract int getCount();
+        int getCount();
+
+        /**
+         * @return Min index to prepend, usually it's 0; but in the preLayout case,
+         * when grid was showing 5,6,7.  Removing 3,4,5 will make the layoutPosition to
+         * be 3(deleted),4,5 in prelayout pass; Grid's index is still 5,6,7 in prelayout.
+         * When we prepend in prelayout, we can call createItem(4), createItem(3), createItem(2),
+         * the minimal index is 2, which is also the delta to mapping to layoutPosition in
+         * prelayout pass.
+         */
+        int getMinIndex();
 
         /**
          * Create visible item and where the provider should measure it.
@@ -60,9 +74,12 @@ abstract class Grid {
          * @param append  True if new item is after last visible item, false if new item is
          *                before first visible item.
          * @param item    item[0] returns created item that will be passed in addItem() call.
+         * @param disappearingItem The item is a disappearing item added by
+         *                         {@link Grid#fillDisappearingItems(int[], int, SparseIntArray)}.
+         *
          * @return length of the item.
          */
-        public abstract int createItem(int index, boolean append, Object[] item);
+        int createItem(int index, boolean append, Object[] item, boolean disappearingItem);
 
         /**
          * add item to given row and given edge.  The call is always after createItem().
@@ -72,26 +89,26 @@ abstract class Grid {
          * @param rowIndex  Row index to put the item
          * @param edge      min_edge if not reversed or max_edge if reversed.
          */
-        public abstract void addItem(Object item, int index, int length, int rowIndex, int edge);
+        void addItem(Object item, int index, int length, int rowIndex, int edge);
 
         /**
          * Remove visible item at index.
          * @param index     0-based index of the item in provider
          */
-        public abstract void removeItem(int index);
+        void removeItem(int index);
 
         /**
          * Get edge of an existing visible item. edge will be the min_edge
          * if not reversed or the max_edge if reversed.
          * @param index     0-based index of the item in provider
          */
-        public abstract int getEdge(int index);
+        int getEdge(int index);
 
         /**
          * Get size of an existing visible item.
          * @param index     0-based index of the item in provider
          */
-        public abstract int getSize(int index);
+        int getSize(int index);
     }
 
     /**
@@ -389,6 +406,8 @@ abstract class Grid {
 
     /**
      * Removes invisible items from end until reaches item at aboveIndex or toLimit.
+     * @param aboveIndex Don't remove items whose index is equals or smaller than aboveIndex
+     * @param toLimit Don't remove items whose left edge is less than toLimit.
      */
     public void removeInvisibleItemsAtEnd(int aboveIndex, int toLimit) {
         while(mLastVisibleIndex >= mFirstVisibleIndex && mLastVisibleIndex > aboveIndex) {
@@ -406,13 +425,15 @@ abstract class Grid {
 
     /**
      * Removes invisible items from front until reaches item at belowIndex or toLimit.
+     * @param belowIndex Don't remove items whose index is equals or larger than belowIndex
+     * @param toLimit Don't remove items whose right edge is equals or greater than toLimit.
      */
     public void removeInvisibleItemsAtFront(int belowIndex, int toLimit) {
         while(mLastVisibleIndex >= mFirstVisibleIndex && mFirstVisibleIndex < belowIndex) {
-            boolean offFront = !mReversedFlow ? mProvider.getEdge(mFirstVisibleIndex)
-                    + mProvider.getSize(mFirstVisibleIndex) <= toLimit
-                    : mProvider.getEdge(mFirstVisibleIndex)
-                            - mProvider.getSize(mFirstVisibleIndex) >= toLimit;
+            final int size = mProvider.getSize(mFirstVisibleIndex);
+            boolean offFront = !mReversedFlow
+                    ? mProvider.getEdge(mFirstVisibleIndex) + size <= toLimit
+                    : mProvider.getEdge(mFirstVisibleIndex) - size >= toLimit;
             if (offFront) {
                 mProvider.removeItem(mFirstVisibleIndex);
                 mFirstVisibleIndex++;
@@ -426,6 +447,73 @@ abstract class Grid {
     private void resetVisibleIndexIfEmpty() {
         if (mLastVisibleIndex < mFirstVisibleIndex) {
             resetVisibleIndex();
+        }
+    }
+
+    /**
+     * Fill disappearing items, i.e. the items are moved out of window, we need give them final
+     * location so recyclerview will run a slide out animation. The positions that was greater than
+     * last visible index will be appended to end, the positions that was smaller than first visible
+     * index will be prepend to beginning.
+     * @param positions Sorted list of positions of disappearing items.
+     * @param positionToRow Which row we want to put the disappearing item.
+     */
+    public void fillDisappearingItems(int[] positions, int positionsLength,
+            SparseIntArray positionToRow) {
+        final int lastPos = getLastVisibleIndex();
+        final int resultSearchLast = lastPos >= 0
+                ? Arrays.binarySearch(positions, 0, positionsLength, lastPos) : 0;
+        if (resultSearchLast < 0) {
+            // we shouldn't find lastPos in disappearing position list.
+            int firstDisappearingIndex = -resultSearchLast - 1;
+            int edge;
+            if (mReversedFlow) {
+                edge = mProvider.getEdge(lastPos) - mProvider.getSize(lastPos) - mSpacing;
+            } else {
+                edge = mProvider.getEdge(lastPos) + mProvider.getSize(lastPos) + mSpacing;
+            }
+            for (int i = firstDisappearingIndex; i < positionsLength; i++) {
+                int disappearingIndex = positions[i];
+                int disappearingRow = positionToRow.get(disappearingIndex);
+                if (disappearingRow < 0) {
+                    disappearingRow = 0; // if not found put in row 0
+                }
+                int size = mProvider.createItem(disappearingIndex, true, mTmpItem, true);
+                mProvider.addItem(mTmpItem[0], disappearingIndex, size, disappearingRow, edge);
+                if (mReversedFlow) {
+                    edge = edge - size - mSpacing;
+                } else {
+                    edge = edge + size + mSpacing;
+                }
+            }
+        }
+
+        final int firstPos = getFirstVisibleIndex();
+        final int resultSearchFirst = firstPos >= 0
+                ? Arrays.binarySearch(positions, 0, positionsLength, firstPos) : 0;
+        if (resultSearchFirst < 0) {
+            // we shouldn't find firstPos in disappearing position list.
+            int firstDisappearingIndex = -resultSearchFirst - 2;
+            int edge;
+            if (mReversedFlow) {
+                edge = mProvider.getEdge(firstPos);
+            } else {
+                edge = mProvider.getEdge(firstPos);
+            }
+            for (int i = firstDisappearingIndex; i >= 0; i--) {
+                int disappearingIndex = positions[i];
+                int disappearingRow = positionToRow.get(disappearingIndex);
+                if (disappearingRow < 0) {
+                    disappearingRow = 0; // if not found put in row 0
+                }
+                int size = mProvider.createItem(disappearingIndex, false, mTmpItem, true);
+                if (mReversedFlow) {
+                    edge = edge + mSpacing + size;
+                } else {
+                    edge = edge - mSpacing - size;
+                }
+                mProvider.addItem(mTmpItem[0], disappearingIndex, size, disappearingRow, edge);
+            }
         }
     }
 

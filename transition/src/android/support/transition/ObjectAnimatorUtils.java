@@ -18,6 +18,7 @@ package android.support.transition;
 
 import android.animation.ObjectAnimator;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.os.Build;
 import android.util.Property;
 
@@ -33,19 +34,8 @@ class ObjectAnimatorUtils {
         }
     }
 
-    static <T> ObjectAnimator ofInt(T target, String xPropertyName, String yPropertyName,
-            Path path) {
-        return IMPL.ofInt(target, xPropertyName, yPropertyName, path);
-    }
-
-    static <T> ObjectAnimator ofInt(T target, Property<T, Integer> xProperty,
-            Property<T, Integer> yProperty, Path path) {
-        return IMPL.ofInt(target, xProperty, yProperty, path);
-    }
-
-    static <T> ObjectAnimator ofFloat(T target, Property<T, Float> xProperty,
-            Property<T, Float> yProperty, Path path) {
-        return IMPL.ofFloat(target, xProperty, yProperty, path);
+    static <T> ObjectAnimator ofPointF(T target, Property<T, PointF> property, Path path) {
+        return IMPL.ofPointF(target, property, path);
     }
 
 }

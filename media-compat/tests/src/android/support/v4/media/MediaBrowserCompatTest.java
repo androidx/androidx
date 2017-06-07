@@ -27,6 +27,8 @@ import static junit.framework.Assert.fail;
 
 import android.content.ComponentName;
 import android.os.Bundle;
+import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
@@ -161,11 +163,20 @@ public class MediaBrowserCompatTest {
     public void testReconnection() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
 
-        // Reconnect before the first connection was established.
-        mMediaBrowser.connect();
-        mMediaBrowser.disconnect();
-        resetCallbacks();
-        connectMediaBrowserService();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mMediaBrowser.connect();
+                // Reconnect before the first connection was established.
+                mMediaBrowser.disconnect();
+                mMediaBrowser.connect();
+            }
+        });
+
+        synchronized (mConnectionCallback.mWaitLock) {
+            mConnectionCallback.mWaitLock.wait(TIME_OUT_MS);
+            assertEquals(1, mConnectionCallback.mConnectedCount);
+        }
 
         synchronized (mSubscriptionCallback.mWaitLock) {
             // Test subscribe.
@@ -208,9 +219,16 @@ public class MediaBrowserCompatTest {
     @SmallTest
     public void testConnectionCallbackNotCalledAfterDisconnect() {
         createMediaBrowser(TEST_BROWSER_SERVICE);
-        mMediaBrowser.connect();
-        mMediaBrowser.disconnect();
-        resetCallbacks();
+
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mMediaBrowser.connect();
+                mMediaBrowser.disconnect();
+                resetCallbacks();
+            }
+        });
+
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -376,22 +394,21 @@ public class MediaBrowserCompatTest {
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
         final int pageSize = 1;
 
-        synchronized (mSubscriptionCallback.mWaitLock) {
-            // Subscribe four pages, one item per page.
-            for (int page = 0; page < 4; page++) {
-                final StubSubscriptionCallback callback = new StubSubscriptionCallback();
-                subscriptionCallbacks.add(callback);
+        // Subscribe four pages, one item per page.
+        for (int page = 0; page < 4; page++) {
+            final StubSubscriptionCallback callback = new StubSubscriptionCallback();
+            subscriptionCallbacks.add(callback);
 
-                Bundle options = new Bundle();
-                options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
-                options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
-                mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, options,
-                        callback);
-                mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
-
-                // Each onChildrenLoaded() must be called.
-                assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+            Bundle options = new Bundle();
+            options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
+            options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+            mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, options,
+                    callback);
+            synchronized (callback.mWaitLock) {
+                callback.mWaitLock.wait(TIME_OUT_MS);
             }
+            // Each onChildrenLoaded() must be called.
+            assertEquals(1, callback.mChildrenLoadedWithOptionCount);
         }
 
         // Reset callbacks and unsubscribe.
@@ -417,29 +434,28 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testUnsubscribeWithSubscriptionCallbackForMultipleSubscriptions() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
         final int pageSize = 1;
 
-        synchronized (mSubscriptionCallback.mWaitLock) {
-            // Subscribe four pages, one item per page.
-            for (int page = 0; page < 4; page++) {
-                final StubSubscriptionCallback callback = new StubSubscriptionCallback();
-                subscriptionCallbacks.add(callback);
+        // Subscribe four pages, one item per page.
+        for (int page = 0; page < 4; page++) {
+            final StubSubscriptionCallback callback = new StubSubscriptionCallback();
+            subscriptionCallbacks.add(callback);
 
-                Bundle options = new Bundle();
-                options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
-                options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
-                mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, options,
-                        callback);
-                mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
-
-                // Each onChildrenLoaded() must be called.
-                assertEquals(1, callback.mChildrenLoadedWithOptionCount);
+            Bundle options = new Bundle();
+            options.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
+            options.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+            mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, options,
+                    callback);
+            synchronized (callback.mWaitLock) {
+                callback.mWaitLock.wait(TIME_OUT_MS);
             }
+            // Each onChildrenLoaded() must be called.
+            assertEquals(1, callback.mChildrenLoadedWithOptionCount);
         }
 
         // Unsubscribe existing subscriptions one-by-one.
@@ -493,7 +509,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testGetItemWhenOnLoadItemIsNotImplemented() throws Exception {
         createMediaBrowser(TEST_BROWSER_SERVICE);
         connectMediaBrowserService();

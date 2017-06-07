@@ -29,6 +29,7 @@ android {
                 'api18',
                 'api19',
                 'api21',
+                'api22',
                 'src'
         ]
         main.res.srcDirs = [

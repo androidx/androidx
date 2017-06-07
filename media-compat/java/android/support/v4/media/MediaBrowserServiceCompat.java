@@ -240,6 +240,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     @RequiresApi(21)
     class MediaBrowserServiceImplApi21 implements MediaBrowserServiceImpl,
             MediaBrowserServiceCompatApi21.ServiceCompatProxy {
+        final List<Bundle> mRootExtrasList = new ArrayList<>();
         Object mServiceObj;
         Messenger mMessenger;
 
@@ -256,8 +257,23 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
 
         @Override
-        public void setSessionToken(MediaSessionCompat.Token token) {
-            MediaBrowserServiceCompatApi21.setSessionToken(mServiceObj, token.getToken());
+        public void setSessionToken(final MediaSessionCompat.Token token) {
+            mHandler.postOrRun(new Runnable() {
+                @Override
+                public void run() {
+                    if (!mRootExtrasList.isEmpty()) {
+                        IMediaSession extraBinder = token.getExtraBinder();
+                        if (extraBinder != null) {
+                            for (Bundle rootExtras : mRootExtrasList) {
+                                BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
+                                        extraBinder.asBinder());
+                            }
+                        }
+                        mRootExtrasList.clear();
+                    }
+                    MediaBrowserServiceCompatApi21.setSessionToken(mServiceObj, token.getToken());
+                }
+            });
         }
 
         @Override
@@ -313,6 +329,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
                     IMediaSession extraBinder = mSession.getExtraBinder();
                     BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
                             extraBinder == null ? null : extraBinder.asBinder());
+                } else {
+                    mRootExtrasList.add(rootExtras);
                 }
             }
             BrowserRoot root = MediaBrowserServiceCompat.this.onGetRoot(

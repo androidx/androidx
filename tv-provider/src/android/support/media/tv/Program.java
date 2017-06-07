@@ -25,9 +25,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.Programs;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 /**
  * A convenience class to access {@link TvContractCompat.Programs} entries in the system content
  * provider.
@@ -57,6 +54,21 @@ import java.util.Objects;
  *     }
  * }
  * </pre>
+ *
+ * <p>Usage example when updating an existing program:
+ * <pre>
+ * Program updatedProgram = new Program.Builder(program)
+ *         .setEndTimeUtcMillis(newProgramEndTime)
+ *         .build();
+ * getContentResolver().update(TvContractCompat.buildProgramUri(updatedProgram.getId()),
+ *         updatedProgram.toContentValues(), null, null);
+ * </pre>
+ *
+ * <p>Usage example when deleting a program:
+ * <pre>
+ * getContentResolver().delete(TvContractCompat.buildProgramUri(existingProgram.getId()),
+ *         null, null);
+ * </pre>
  */
 @TargetApi(21)
 public final class Program extends BaseProgram implements Comparable<Program> {
@@ -67,62 +79,54 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     public static final String[] PROJECTION = getProjection();
 
     private static final long INVALID_LONG_VALUE = -1;
-    private static final int INVALID_INT_VALUE = -1;
     private static final int IS_RECORDING_PROHIBITED = 1;
-
-    private final long mChannelId;
-    private final long mStartTimeUtcMillis;
-    private final long mEndTimeUtcMillis;
-    private final String[] mBroadcastGenres;
-    private final int mRecordingProhibited;
 
     private Program(Builder builder) {
         super(builder);
-        mChannelId = builder.mChannelId;
-        mStartTimeUtcMillis = builder.mStartTimeUtcMillis;
-        mEndTimeUtcMillis = builder.mEndTimeUtcMillis;
-        mBroadcastGenres = builder.mBroadcastGenres;
-        mRecordingProhibited = builder.mRecordingProhibited;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_CHANNEL_ID} for the program.
      */
     public long getChannelId() {
-        return mChannelId;
+        Long l = mValues.getAsLong(Programs.COLUMN_CHANNEL_ID);
+        return l == null ? INVALID_LONG_VALUE : l;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_START_TIME_UTC_MILLIS} for the program.
      */
     public long getStartTimeUtcMillis() {
-        return mStartTimeUtcMillis;
+        Long l = mValues.getAsLong(Programs.COLUMN_START_TIME_UTC_MILLIS);
+        return l == null ? INVALID_LONG_VALUE : l;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_END_TIME_UTC_MILLIS} for the program.
      */
     public long getEndTimeUtcMillis() {
-        return mEndTimeUtcMillis;
+        Long l = mValues.getAsLong(Programs.COLUMN_END_TIME_UTC_MILLIS);
+        return l == null ? INVALID_LONG_VALUE : l;
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_BROADCAST_GENRE} for the program.
      */
     public String[] getBroadcastGenres() {
-        return mBroadcastGenres;
+        return Programs.Genres.decode(mValues.getAsString(Programs.COLUMN_BROADCAST_GENRE));
     }
 
     /**
      * @return The value of {@link Programs#COLUMN_RECORDING_PROHIBITED} for the program.
      */
     public boolean isRecordingProhibited() {
-        return mRecordingProhibited == IS_RECORDING_PROHIBITED;
+        Integer i = mValues.getAsInteger(Programs.COLUMN_RECORDING_PROHIBITED);
+        return i != null && i == IS_RECORDING_PROHIBITED;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), mChannelId, mStartTimeUtcMillis, mEndTimeUtcMillis);
+        return mValues.hashCode();
     }
 
     @Override
@@ -130,16 +134,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
         if (!(other instanceof Program)) {
             return false;
         }
-        if (!super.equals(other)) {
-            return false;
-        }
-        Program program = (Program) other;
-        return mChannelId == program.mChannelId
-                && mStartTimeUtcMillis == program.mStartTimeUtcMillis
-                && mEndTimeUtcMillis == program.mEndTimeUtcMillis
-                && Arrays.equals(mBroadcastGenres, program.mBroadcastGenres)
-                && (Build.VERSION.SDK_INT < Build.VERSION_CODES.N
-                        || Objects.equals(mRecordingProhibited, program.mRecordingProhibited));
+        return mValues.equals(((Program) other).mValues);
     }
 
     /**
@@ -148,16 +143,13 @@ public final class Program extends BaseProgram implements Comparable<Program> {
      */
     @Override
     public int compareTo(@NonNull Program other) {
-        return Long.compare(mStartTimeUtcMillis, other.mStartTimeUtcMillis);
+        return Long.compare(mValues.getAsLong(Programs.COLUMN_START_TIME_UTC_MILLIS),
+                other.mValues.getAsLong(Programs.COLUMN_START_TIME_UTC_MILLIS));
     }
 
     @Override
     public String toString() {
-        return "Program{"
-                + "channelId=" + mChannelId
-                + ", startTimeUtcSec=" + mStartTimeUtcMillis
-                + ", endTimeUtcSec=" + mEndTimeUtcMillis
-                + "}";
+        return "Program{" + mValues.toString() + "}";
     }
 
     /**
@@ -167,31 +159,8 @@ public final class Program extends BaseProgram implements Comparable<Program> {
     @Override
     public ContentValues toContentValues() {
         ContentValues values = super.toContentValues();
-        if (mChannelId != INVALID_LONG_VALUE) {
-            values.put(Programs.COLUMN_CHANNEL_ID, mChannelId);
-        } else {
-            values.putNull(Programs.COLUMN_CHANNEL_ID);
-        }
-        if (mBroadcastGenres != null && mBroadcastGenres.length > 0) {
-            values.put(Programs.COLUMN_BROADCAST_GENRE,
-                    Programs.Genres.encode(mBroadcastGenres));
-        } else {
-            values.putNull(Programs.COLUMN_BROADCAST_GENRE);
-        }
-        if (mStartTimeUtcMillis != INVALID_LONG_VALUE) {
-            values.put(Programs.COLUMN_START_TIME_UTC_MILLIS, mStartTimeUtcMillis);
-        } else {
-            values.putNull(Programs.COLUMN_START_TIME_UTC_MILLIS);
-        }
-        if (mEndTimeUtcMillis != INVALID_LONG_VALUE) {
-            values.put(Programs.COLUMN_END_TIME_UTC_MILLIS, mEndTimeUtcMillis);
-        } else {
-            values.putNull(Programs.COLUMN_END_TIME_UTC_MILLIS);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (mRecordingProhibited != INVALID_INT_VALUE) {
-                values.put(Programs.COLUMN_RECORDING_PROHIBITED, mRecordingProhibited);
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            values.remove(Programs.COLUMN_RECORDING_PROHIBITED);
         }
         return values;
     }
@@ -254,11 +223,6 @@ public final class Program extends BaseProgram implements Comparable<Program> {
      * This Builder class simplifies the creation of a {@link Program} object.
      */
     public static class Builder extends BaseProgram.Builder<Builder> {
-        private long mChannelId = INVALID_LONG_VALUE;
-        private long mStartTimeUtcMillis = INVALID_LONG_VALUE;
-        private long mEndTimeUtcMillis = INVALID_LONG_VALUE;
-        private String[] mBroadcastGenres;
-        private int mRecordingProhibited = INVALID_INT_VALUE;
 
         /**
          * Creates a new Builder object.
@@ -271,12 +235,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
          * @param other The Program you're copying from.
          */
         public Builder(Program other) {
-            super(other);
-            mChannelId = other.mChannelId;
-            mStartTimeUtcMillis = other.mStartTimeUtcMillis;
-            mEndTimeUtcMillis = other.mEndTimeUtcMillis;
-            mBroadcastGenres = other.mBroadcastGenres;
-            mRecordingProhibited = other.mRecordingProhibited;
+            mValues = new ContentValues(other.mValues);
         }
 
         /**
@@ -286,7 +245,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setChannelId(long channelId) {
-            mChannelId = channelId;
+            mValues.put(Programs.COLUMN_CHANNEL_ID, channelId);
             return this;
         }
 
@@ -298,7 +257,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setStartTimeUtcMillis(long startTimeUtcMillis) {
-            mStartTimeUtcMillis = startTimeUtcMillis;
+            mValues.put(Programs.COLUMN_START_TIME_UTC_MILLIS, startTimeUtcMillis);
             return this;
         }
 
@@ -310,7 +269,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setEndTimeUtcMillis(long endTimeUtcMillis) {
-            mEndTimeUtcMillis = endTimeUtcMillis;
+            mValues.put(Programs.COLUMN_END_TIME_UTC_MILLIS, endTimeUtcMillis);
             return this;
         }
 
@@ -323,7 +282,7 @@ public final class Program extends BaseProgram implements Comparable<Program> {
          * @see Programs#COLUMN_BROADCAST_GENRE
          */
         public Builder setBroadcastGenres(String[] genres) {
-            mBroadcastGenres = genres;
+            mValues.put(Programs.COLUMN_BROADCAST_GENRE, Programs.Genres.encode(genres));
             return this;
         }
 
@@ -335,7 +294,8 @@ public final class Program extends BaseProgram implements Comparable<Program> {
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
         public Builder setRecordingProhibited(boolean prohibited) {
-            mRecordingProhibited = prohibited ? IS_RECORDING_PROHIBITED : 0;
+            mValues.put(Programs.COLUMN_RECORDING_PROHIBITED,
+                    prohibited ? IS_RECORDING_PROHIBITED : 0);
             return this;
         }
 

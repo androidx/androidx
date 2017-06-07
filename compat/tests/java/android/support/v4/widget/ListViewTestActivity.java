@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package android.support.v7.app;
+package android.support.v4.widget;
 
-/**
- * @deprecated Use {@link android.support.v7.app.AppCompatActivity} instead.
- */
-@Deprecated
-public class ActionBarActivity extends AppCompatActivity {
+import android.support.compat.test.R;
+import android.support.v4.BaseTestActivity;
+
+public class ListViewTestActivity extends BaseTestActivity {
+    @Override
+    protected int getContentViewLayoutResId() {
+        return R.layout.list_view_activity;
+    }
 }

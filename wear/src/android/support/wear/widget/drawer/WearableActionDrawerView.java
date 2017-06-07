@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -130,7 +131,9 @@ public class WearableActionDrawerView extends WearableDrawerView {
             }
         }
 
-        mShowOverflowInPeek = showOverflowInPeek;
+        AccessibilityManager accessibilityManager =
+                (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        mShowOverflowInPeek = showOverflowInPeek || accessibilityManager.isEnabled();
 
         if (!mShowOverflowInPeek) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
@@ -146,6 +149,8 @@ public class WearableActionDrawerView extends WearableDrawerView {
         } else {
             mPeekActionIcon = null;
             mPeekExpandIcon = null;
+            getPeekContainer().setContentDescription(
+                    context.getString(R.string.action_drawer_content_description));
         }
 
         if (menuRes != 0) {

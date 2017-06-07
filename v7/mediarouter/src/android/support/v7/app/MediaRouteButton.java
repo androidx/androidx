@@ -24,6 +24,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -34,6 +35,7 @@ import android.support.v7.mediarouter.R;
 import android.support.v7.widget.TooltipCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.SoundEffectConstants;
 import android.view.View;
 
@@ -127,7 +129,22 @@ public class MediaRouteButton extends View {
                 R.styleable.MediaRouteButton, defStyleAttr, 0);
         mButtonTint = a.getColorStateList(R.styleable.MediaRouteButton_mediaRouteButtonTint);
         setRemoteIndicatorDrawable(a.getDrawable(
-                R.styleable.MediaRouteButton_externalRouteEnabledDrawable));
+                R.styleable.MediaRouteButton_externalRouteEnabledDrawableStatic));
+        final TypedValue value = new TypedValue();
+        a.getValue(R.styleable.MediaRouteButton_externalRouteEnabledDrawable, value);
+        new AsyncTask<Void, Void, Drawable>() {
+            @Override
+            protected Drawable doInBackground(Void... params) {
+                return getContext().getResources().getDrawable(value.resourceId);
+            }
+
+            @Override
+            protected void onPostExecute(Drawable result) {
+                if (result != null) {
+                    setRemoteIndicatorDrawable(result);
+                }
+            }
+        }.execute();
         mMinWidth = a.getDimensionPixelSize(
                 R.styleable.MediaRouteButton_android_minWidth, 0);
         mMinHeight = a.getDimensionPixelSize(
@@ -472,7 +489,8 @@ public class MediaRouteButton extends View {
             setEnabled(mRouter.isRouteAvailable(mSelector,
                     MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
         }
-        if (mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+        if (mRemoteIndicator != null
+                && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
             AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
             if (mAttachedToWindow) {
                 if ((needsRefresh || isConnecting) && !curDrawable.isRunning()) {

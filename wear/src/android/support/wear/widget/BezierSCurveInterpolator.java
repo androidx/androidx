@@ -25,18 +25,16 @@ import android.support.annotation.RestrictTo.Scope;
 /**
  * Interpolator that uses a Bezier derived S shaped curve.
  *
- * <p>TODO: remove this once {@link CircledImageView} is removed.
- *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
-class Gusterpolator implements TimeInterpolator {
+class BezierSCurveInterpolator implements TimeInterpolator {
 
     /**
-     * An instance of {@link Gusterpolator}.
+     * An instance of {@link BezierSCurveInterpolator}.
      */
-    public static final Gusterpolator INSTANCE = new Gusterpolator();
+    public static final BezierSCurveInterpolator INSTANCE = new BezierSCurveInterpolator();
     /**
      * Lookup table values. Generated using a Bezier curve from (0,0) to (1,1) with control points:
      * P0 (0,0) P1 (0.4, 0) P2 (0.2, 1.0) P3 (1.0, 1.0)
@@ -62,7 +60,7 @@ class Gusterpolator implements TimeInterpolator {
      * To avoid users of this class creating multiple copies needlessly, the constructor is
      * private.
      */
-    private Gusterpolator() {
+    private BezierSCurveInterpolator() {
     }
 
     @Override
