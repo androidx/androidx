@@ -19,6 +19,7 @@ package android.support.v4.provider;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static android.support.v4.content.res.FontResourcesParserCompat.FetchStrategy;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -699,6 +700,8 @@ public class FontsContractCompat {
         }
 
         List<byte[]> signatures;
+        // We correctly check all signatures returned, as advised in the lint error.
+        @SuppressLint("PackageManagerGetSignatures")
         PackageInfo packageInfo = packageManager.getPackageInfo(info.packageName,
                 PackageManager.GET_SIGNATURES);
         signatures = convertToByteArrayList(packageInfo.signatures);
