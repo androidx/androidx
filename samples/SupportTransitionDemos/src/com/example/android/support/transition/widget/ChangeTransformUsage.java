@@ -17,8 +17,10 @@
 package com.example.android.support.transition.widget;
 
 import android.os.Bundle;
+import android.support.transition.ArcMotion;
 import android.support.transition.ChangeTransform;
 import android.support.transition.TransitionManager;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -45,6 +47,8 @@ public class ChangeTransformUsage extends TransitionUsageBase {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mChangeTransform = new ChangeTransform();
+        mChangeTransform.setInterpolator(new FastOutSlowInInterpolator());
+        mChangeTransform.setPathMotion(new ArcMotion());
         mRoot = findViewById(R.id.root);
         mContainer1 = findViewById(R.id.container_1);
         mContainer2 = findViewById(R.id.container_2);

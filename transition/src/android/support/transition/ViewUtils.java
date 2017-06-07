@@ -20,6 +20,7 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.util.Property;
@@ -188,7 +189,7 @@ class ViewUtils {
      * @param v The view
      * @param m The matrix
      */
-    static void setAnimationMatrix(@NonNull View v, @NonNull Matrix m) {
+    static void setAnimationMatrix(@NonNull View v, @Nullable Matrix m) {
         IMPL.setAnimationMatrix(v, m);
     }
 

@@ -2087,7 +2087,7 @@ public abstract class Transition implements Cloneable {
      * @see PatternPathMotion
      * @see android.transition.PathMotion
      */
-    @Nullable
+    @NonNull
     public PathMotion getPathMotion() {
         return mPathMotion;
     }
