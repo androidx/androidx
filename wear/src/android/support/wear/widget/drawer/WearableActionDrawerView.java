@@ -137,20 +137,20 @@ public class WearableActionDrawerView extends WearableDrawerView {
 
         if (!mShowOverflowInPeek) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
-            View peekView = layoutInflater.inflate(
-                    R.layout.action_drawer_peek_view, getPeekContainer(), false /* attachToRoot */);
+            View peekView = layoutInflater.inflate(R.layout.ws_action_drawer_peek_view,
+                    getPeekContainer(), false /* attachToRoot */);
             setPeekContent(peekView);
             mPeekActionIcon =
                     (ImageView) peekView
-                            .findViewById(R.id.wearable_support_action_drawer_peek_action_icon);
+                            .findViewById(R.id.ws_action_drawer_peek_action_icon);
             mPeekExpandIcon =
                     (ImageView) peekView
-                            .findViewById(R.id.wearable_support_action_drawer_expand_icon);
+                            .findViewById(R.id.ws_action_drawer_expand_icon);
         } else {
             mPeekActionIcon = null;
             mPeekExpandIcon = null;
             getPeekContainer().setContentDescription(
-                    context.getString(R.string.action_drawer_content_description));
+                    context.getString(R.string.ws_action_drawer_content_description));
         }
 
         if (menuRes != 0) {
@@ -164,26 +164,26 @@ public class WearableActionDrawerView extends WearableDrawerView {
         int screenHeightPx = ResourcesUtil.getScreenHeightPx(context);
 
         Resources res = getResources();
-        mTopPadding = res.getDimensionPixelOffset(R.dimen.action_drawer_item_top_padding);
-        mBottomPadding = res.getDimensionPixelOffset(R.dimen.action_drawer_item_bottom_padding);
+        mTopPadding = res.getDimensionPixelOffset(R.dimen.ws_action_drawer_item_top_padding);
+        mBottomPadding = res.getDimensionPixelOffset(R.dimen.ws_action_drawer_item_bottom_padding);
         mLeftPadding =
                 ResourcesUtil.getFractionOfScreenPx(
-                        context, screenWidthPx, R.fraction.action_drawer_item_left_padding);
+                        context, screenWidthPx, R.fraction.ws_action_drawer_item_left_padding);
         mRightPadding =
                 ResourcesUtil.getFractionOfScreenPx(
-                        context, screenWidthPx, R.fraction.action_drawer_item_right_padding);
+                        context, screenWidthPx, R.fraction.ws_action_drawer_item_right_padding);
 
         mFirstItemTopPadding =
                 ResourcesUtil.getFractionOfScreenPx(
                         context, screenHeightPx,
-                        R.fraction.action_drawer_item_first_item_top_padding);
+                        R.fraction.ws_action_drawer_item_first_item_top_padding);
         mLastItemBottomPadding =
                 ResourcesUtil.getFractionOfScreenPx(
                         context, screenHeightPx,
-                        R.fraction.action_drawer_item_last_item_bottom_padding);
+                        R.fraction.ws_action_drawer_item_last_item_bottom_padding);
 
         mIconRightMargin = res
-                .getDimensionPixelOffset(R.dimen.action_drawer_item_icon_right_margin);
+                .getDimensionPixelOffset(R.dimen.ws_action_drawer_item_icon_right_margin);
 
         mActionList = new RecyclerView(context);
         mActionList.setLayoutManager(new LinearLayoutManager(context));
@@ -359,7 +359,7 @@ public class WearableActionDrawerView extends WearableDrawerView {
         TitleViewHolder(View view) {
             super(view);
             this.view = view;
-            textView = (TextView) view.findViewById(R.id.wearable_support_action_drawer_title);
+            textView = (TextView) view.findViewById(R.id.ws_action_drawer_title);
         }
     }
 
@@ -425,14 +425,14 @@ public class WearableActionDrawerView extends WearableDrawerView {
                 case TYPE_TITLE:
                     View titleView =
                             LayoutInflater.from(parent.getContext())
-                                    .inflate(R.layout.action_drawer_title_view, parent, false);
+                                    .inflate(R.layout.ws_action_drawer_title_view, parent, false);
                     return new TitleViewHolder(titleView);
 
                 case TYPE_ACTION:
                 default:
                     View actionView =
                             LayoutInflater.from(parent.getContext())
-                                    .inflate(R.layout.action_drawer_item_view, parent, false);
+                                    .inflate(R.layout.ws_action_drawer_item_view, parent, false);
                     actionView.setOnClickListener(mItemClickListener);
                     return new ActionItemViewHolder(actionView);
             }
@@ -453,9 +453,9 @@ public class WearableActionDrawerView extends WearableDrawerView {
         ActionItemViewHolder(View view) {
             super(view);
             this.view = view;
-            iconView = (ImageView) view.findViewById(R.id.wearable_support_action_drawer_item_icon);
+            iconView = (ImageView) view.findViewById(R.id.ws_action_drawer_item_icon);
             ((LinearLayout.LayoutParams) iconView.getLayoutParams()).setMarginEnd(mIconRightMargin);
-            textView = (TextView) view.findViewById(R.id.wearable_support_action_drawer_item_text);
+            textView = (TextView) view.findViewById(R.id.ws_action_drawer_item_text);
         }
     }
 }

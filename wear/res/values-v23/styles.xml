@@ -20,7 +20,7 @@
         <item name="android:fontFamily">sans-serif-condensed-light</item>
         <item name="android:maxLines">3</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">@dimen/action_drawer_item_text_size</item>
+        <item name="android:textSize">@dimen/ws_action_drawer_item_text_size</item>
     </style>
     <style name="WearableActionDrawerTitleText" parent="android:TextAppearance.Material.Subhead">
         <item name="android:alpha">0.7</item>

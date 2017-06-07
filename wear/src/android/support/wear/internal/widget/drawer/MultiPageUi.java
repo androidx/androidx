@@ -59,16 +59,16 @@ public class MultiPageUi implements MultiPagePresenter.Ui {
         mPresenter = presenter;
 
         LayoutInflater inflater = LayoutInflater.from(drawer.getContext());
-        final View content =
-                inflater.inflate(R.layout.navigation_drawer_view, drawer, false /* attachToRoot */);
+        final View content = inflater.inflate(R.layout.ws_navigation_drawer_view, drawer,
+                false /* attachToRoot */);
 
         mNavigationPager =
                 (ViewPager) content
-                        .findViewById(R.id.wearable_support_navigation_drawer_view_pager);
+                        .findViewById(R.id.ws_navigation_drawer_view_pager);
         mPageIndicatorView =
                 (PageIndicatorView)
                         content.findViewById(
-                                R.id.wearable_support_navigation_drawer_page_indicator);
+                                R.id.ws_navigation_drawer_page_indicator);
 
         drawer.setDrawerContent(content);
     }
@@ -138,13 +138,13 @@ public class MultiPageUi implements MultiPagePresenter.Ui {
             // of this method. Attaching to root will cause view to point to container instead.
             final View view =
                     LayoutInflater.from(container.getContext())
-                            .inflate(R.layout.navigation_drawer_item_view, container, false);
+                            .inflate(R.layout.ws_navigation_drawer_item_view, container, false);
             container.addView(view);
             final ImageView iconView =
                     (ImageView) view
-                            .findViewById(R.id.wearable_support_navigation_drawer_item_icon);
+                            .findViewById(R.id.ws_navigation_drawer_item_icon);
             final TextView textView =
-                    (TextView) view.findViewById(R.id.wearable_support_navigation_drawer_item_text);
+                    (TextView) view.findViewById(R.id.ws_navigation_drawer_item_text);
             iconView.setImageDrawable(mAdapter.getItemDrawable(position));
             textView.setText(mAdapter.getItemText(position));
             return view;

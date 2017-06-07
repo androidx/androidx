@@ -19,16 +19,16 @@
 
     <!-- Layout gravity for peek is set in code by WearableDrawerView. -->
     <FrameLayout
-        android:id="@+id/wearable_support_drawer_view_peek_container"
+        android:id="@+id/ws_drawer_view_peek_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/wearable_support_drawer_view_peek_icon"
-            android:layout_width="@dimen/peek_view_icon_size"
-            android:layout_height="@dimen/peek_view_icon_size"
-            android:layout_marginTop="@dimen/peek_view_top_padding"
-            android:layout_marginBottom="@dimen/peek_view_bottom_padding"
+            android:id="@+id/ws_drawer_view_peek_icon"
+            android:layout_width="@dimen/ws_peek_view_icon_size"
+            android:layout_height="@dimen/ws_peek_view_icon_size"
+            android:layout_marginTop="@dimen/ws_peek_view_top_padding"
+            android:layout_marginBottom="@dimen/ws_peek_view_bottom_padding"
             android:layout_gravity="center"
             android:tint="?android:attr/colorForeground"
             tools:ignore="ContentDescription" />

@@ -53,7 +53,7 @@ public class CurvingLayoutCallback extends WearableLinearLayoutManager.LayoutCal
         mPathMeasure = new PathMeasure();
         mIsScreenRound = context.getResources().getConfiguration().isScreenRound();
         mXCurveOffset = context.getResources().getDimensionPixelSize(
-                R.dimen.wrv_curve_default_x_offset);
+                R.dimen.ws_wrv_curve_default_x_offset);
     }
 
     @Override

@@ -149,13 +149,14 @@ public class WearableDrawerView extends FrameLayout {
     public WearableDrawerView(
             Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        LayoutInflater.from(context).inflate(R.layout.wearable_drawer_view, this, true);
+        LayoutInflater.from(context).inflate(R.layout.ws_wearable_drawer_view, this, true);
 
         setClickable(true);
-        setElevation(context.getResources().getDimension(R.dimen.wearable_drawer_view_elevation));
+        setElevation(context.getResources()
+                .getDimension(R.dimen.ws_wearable_drawer_view_elevation));
 
-        mPeekContainer = (ViewGroup) findViewById(R.id.wearable_support_drawer_view_peek_container);
-        mPeekIcon = (ImageView) findViewById(R.id.wearable_support_drawer_view_peek_icon);
+        mPeekContainer = (ViewGroup) findViewById(R.id.ws_drawer_view_peek_container);
+        mPeekIcon = (ImageView) findViewById(R.id.ws_drawer_view_peek_icon);
 
         mPeekContainer.setOnClickListener(
                 new OnClickListener() {
@@ -215,10 +216,10 @@ public class WearableDrawerView extends FrameLayout {
                             == Gravity.TOP;
             if (isTopDrawer) {
                 peekParams.gravity = Gravity.BOTTOM;
-                mPeekIcon.setImageResource(R.drawable.ic_more_horiz_24dp_wht);
+                mPeekIcon.setImageResource(R.drawable.ws_ic_more_horiz_24dp_wht);
             } else {
                 peekParams.gravity = Gravity.TOP;
-                mPeekIcon.setImageResource(R.drawable.ic_more_vert_24dp_wht);
+                mPeekIcon.setImageResource(R.drawable.ws_ic_more_vert_24dp_wht);
             }
             mPeekContainer.setLayoutParams(peekParams);
         }
@@ -466,7 +467,7 @@ public class WearableDrawerView extends FrameLayout {
         TypedArray typedArray =
                 context.obtainStyledAttributes(
                         attrs, R.styleable.WearableDrawerView, defStyleAttr,
-                        R.style.Widget_Wearable_WearableDrawerView);
+                        R.style.Widget_Wear_WearableDrawerView);
 
         Drawable background =
                 getDrawable(context, typedArray, R.styleable.WearableDrawerView_android_background);
