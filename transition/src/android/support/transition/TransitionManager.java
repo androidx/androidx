@@ -273,7 +273,7 @@ public class TransitionManager {
                 previousRunningTransitions = new ArrayList<>(currentTransitions);
             }
             currentTransitions.add(mTransition);
-            mTransition.addListener(new Transition.TransitionListenerAdapter() {
+            mTransition.addListener(new TransitionListenerAdapter() {
                 @Override
                 public void onTransitionEnd(@NonNull Transition transition) {
                     ArrayList<Transition> currentTransitions = runningTransitions.get(mSceneRoot);
