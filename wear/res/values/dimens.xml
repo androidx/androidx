@@ -61,4 +61,7 @@
     <!-- Maximum distance from edge to consider an edge drag. This should be the sum of the peek
          view's top padding, bottom padding, and icon size. -->
     <dimen name="drawer_view_edge_size">38dp</dimen>
+
+    <!-- Dimensions for the wearable switch. -->
+    <dimen name="switch_size">40dp</dimen>
 </resources>
