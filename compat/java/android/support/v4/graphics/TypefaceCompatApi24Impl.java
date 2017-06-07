@@ -47,7 +47,7 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(24)
-class TypefaceCompatApi24Impl implements TypefaceCompat.TypefaceCompatImpl {
+class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
     private static final String TAG = "TypefaceCompatApi24Impl";
 
     private static final String FONT_FAMILY_CLASS = "android.graphics.FontFamily";
@@ -90,6 +90,10 @@ class TypefaceCompatApi24Impl implements TypefaceCompat.TypefaceCompatImpl {
      * Returns true if API24 implementation is usable.
      */
     public static boolean isUsable() {
+        if (sAddFontWeightStyle == null) {
+            Log.w(TAG, "Unable to collect necessary private methods."
+                    + "Fallback to legacy implementation.");
+        }
         return sAddFontWeightStyle != null;
     }
 

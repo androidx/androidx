@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<font-family xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-         android:fontProviderAuthority="android.support.provider.fonts.font"
-         android:fontProviderPackage="android.support.compat.test"
-         android:fontProviderQuery="styleTest"
-         app:fontProviderAuthority="android.support.provider.fonts.font"
-         app:fontProviderPackage="android.support.compat.test"
-         app:fontProviderQuery="styleTest"
-         app:fontProviderFetchStrategy="async">
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:fontProviderAuthority="android.support.provider.fonts.font"
+    app:fontProviderPackage="android.support.compat.test"
+    app:fontProviderQuery="styleTest"
+    app:fontProviderFetchStrategy="async">
 </font-family>
