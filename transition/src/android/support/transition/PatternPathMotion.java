@@ -31,6 +31,12 @@ import org.xmlpull.v1.XmlPullParser;
  * A PathMotion that takes a Path pattern and applies it to the separation between two points.
  * The starting point of the Path will be moved to the origin and the end point will be scaled
  * and rotated so that it matches with the target end point.
+ * <p>This may be used in XML as an element inside a transition.</p>
+ * <pre>{@code
+ * <changeBounds>
+ *     <patternPathMotion android:patternPathData="M0 0 L0 100 L100 100"/>
+ * </changeBounds>}
+ * </pre>
  */
 public class PatternPathMotion extends PathMotion {
 
