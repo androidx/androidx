@@ -489,7 +489,8 @@ public class MediaRouteButton extends View {
             setEnabled(mRouter.isRouteAvailable(mSelector,
                     MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
         }
-        if (mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+        if (mRemoteIndicator != null
+                && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
             AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
             if (mAttachedToWindow) {
                 if ((needsRefresh || isConnecting) && !curDrawable.isRunning()) {
