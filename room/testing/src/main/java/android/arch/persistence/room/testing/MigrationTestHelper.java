@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room.testing;
 
+import android.app.Instrumentation;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.room.DatabaseConfiguration;
@@ -37,6 +38,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -72,22 +74,23 @@ import java.util.Set;
  */
 public class MigrationTestHelper extends TestWatcher {
     private static final String TAG = "MigrationTestHelper";
-    private final Context mContext;
     private final String mAssetsFolder;
     private final SupportSQLiteOpenHelper.Factory mOpenFactory;
     private List<WeakReference<SupportSQLiteDatabase>> mManagedDatabases = new ArrayList<>();
     private List<WeakReference<RoomDatabase>> mManagedRoomDatabases = new ArrayList<>();
     private boolean mTestStarted;
+    private Instrumentation mInstrumentation;
 
     /**
-     * Creates a new migration helper with an asset folder and the context.
+     * Creates a new migration helper. It uses the Instrumentation context to load the schema
+     * (falls back to the app resources) and the target context to create the database.
      *
-     * @param context      The context to read assets and create the database.
-     * @param assetsFolder The asset folder in the assets directory.
+     * @param instrumentation The instrumentation instance.
+     * @param assetsFolder    The asset folder in the assets directory.
      */
-    public MigrationTestHelper(Context context, String assetsFolder,
+    public MigrationTestHelper(Instrumentation instrumentation, String assetsFolder,
             SupportSQLiteOpenHelper.Factory openFactory) {
-        mContext = context;
+        mInstrumentation = instrumentation;
         if (assetsFolder.endsWith("/")) {
             assetsFolder = assetsFolder.substring(0, assetsFolder.length() - 1);
         }
@@ -113,7 +116,7 @@ public class MigrationTestHelper extends TestWatcher {
      */
     @SuppressWarnings("SameParameterValue")
     public SupportSQLiteDatabase createDatabase(String name, int version) throws IOException {
-        File dbPath = mContext.getDatabasePath(name);
+        File dbPath = mInstrumentation.getTargetContext().getDatabasePath(name);
         if (dbPath.exists()) {
             Log.d(TAG, "deleting database file " + name);
             if (!dbPath.delete()) {
@@ -125,7 +128,7 @@ public class MigrationTestHelper extends TestWatcher {
         SchemaBundle schemaBundle = loadSchema(version);
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mContext, name, mOpenFactory, container, true);
+                mInstrumentation.getTargetContext(), name, mOpenFactory, container, true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash());
@@ -157,7 +160,7 @@ public class MigrationTestHelper extends TestWatcher {
      */
     public SupportSQLiteDatabase runMigrationsAndValidate(String name, int version,
             boolean validateDroppedTables, Migration... migrations) throws IOException {
-        File dbPath = mContext.getDatabasePath(name);
+        File dbPath = mInstrumentation.getTargetContext().getDatabasePath(name);
         if (!dbPath.exists()) {
             throw new IllegalStateException("Cannot find the database file for " + name + ". "
                     + "Before calling runMigrations, you must first create the database via "
@@ -167,7 +170,7 @@ public class MigrationTestHelper extends TestWatcher {
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         container.addMigrations(migrations);
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mContext, name, mOpenFactory, container, true);
+                mInstrumentation.getTargetContext(), name, mOpenFactory, container, true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 schemaBundle.getDatabase().getIdentityHash());
@@ -178,7 +181,7 @@ public class MigrationTestHelper extends TestWatcher {
             RoomOpenHelper roomOpenHelper) {
         SupportSQLiteOpenHelper.Configuration config =
                 SupportSQLiteOpenHelper.Configuration
-                        .builder(mContext)
+                        .builder(mInstrumentation.getTargetContext())
                         .callback(roomOpenHelper)
                         .name(name)
                         .version(version)
@@ -243,7 +246,27 @@ public class MigrationTestHelper extends TestWatcher {
     }
 
     private SchemaBundle loadSchema(int version) throws IOException {
-        InputStream input = mContext.getAssets().open(mAssetsFolder + "/" + version + ".json");
+        try {
+            return loadSchema(mInstrumentation.getContext(), version);
+        } catch (FileNotFoundException testAssetsIOExceptions) {
+            Log.w(TAG, "Could not find the schema file in the test assets. Checking the"
+                    + " application assets");
+            try {
+                return loadSchema(mInstrumentation.getTargetContext(), version);
+            } catch (FileNotFoundException appAssetsException) {
+                // throw the test assets exception instead
+                throw new FileNotFoundException("Cannot find the schema file in the assets folder. "
+                        + "Make sure to include the exported json schemas in your test assert "
+                        + "inputs. See "
+                        + "https://developer.android.com/topic/libraries/architecture/"
+                        + "room.html#db-migration-testing for details. Missing file: "
+                        + testAssetsIOExceptions.getMessage());
+            }
+        }
+    }
+
+    private SchemaBundle loadSchema(Context context, int version) throws IOException {
+        InputStream input = context.getAssets().open(mAssetsFolder + "/" + version + ".json");
         return SchemaBundle.deserialize(input);
     }
 

@@ -22,21 +22,21 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.migration.Migration;
 import android.arch.persistence.room.testing.MigrationTestHelper;
 import android.arch.persistence.room.util.TableInfo;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -51,8 +51,21 @@ public class MigrationTest {
     public MigrationTestHelper helper;
 
     public MigrationTest() {
-        helper = new MigrationTestHelper(InstrumentationRegistry.getContext(),
+        helper = new MigrationTestHelper(InstrumentationRegistry.getInstrumentation(),
                 MigrationDb.class.getCanonicalName(), new FrameworkSQLiteOpenHelperFactory());
+    }
+
+    @Test
+    public void giveBadResource() throws IOException {
+        MigrationTestHelper helper = new MigrationTestHelper(
+                InstrumentationRegistry.getInstrumentation(),
+                "foo", new FrameworkSQLiteOpenHelperFactory());
+        try {
+            helper.createDatabase(TEST_DB, 1);
+            throw new AssertionError("must have failed with missing file exception");
+        } catch (FileNotFoundException exception) {
+            assertThat(exception.getMessage(), containsString("Cannot find"));
+        }
     }
 
     @Test
