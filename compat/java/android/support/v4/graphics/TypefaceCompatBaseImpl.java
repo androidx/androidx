@@ -29,13 +29,8 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
-import android.util.Log;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -59,90 +54,22 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
         Typeface typeface = null;
         FontInfo font = fonts[0];
         ByteBuffer buffer = uriBuffer.get(font.getUri());
-        File tmpFile = copyToCacheFile(context, buffer);
-        if (tmpFile != null) {
-            try {
-                typeface = Typeface.createFromFile(tmpFile.getPath());
-            } catch (RuntimeException e) {
-                // This was thrown from Typeface.createFromFile when a Typeface could not be loaded,
-                // such as due to an invalid ttf or unreadable file. We don't want to throw that
-                // exception anymore.
+        final File tmpFile = TypefaceCompatUtil.getTempFile(context);
+        if (tmpFile == null) {
+            return null;
+        }
+        try {
+            if (!TypefaceCompatUtil.copyToFile(tmpFile, buffer)) {
                 return null;
-            } finally {
-                tmpFile.delete();
             }
-        }
-        return typeface;
-    }
-
-    private static File copyToCacheFile(Context context, final InputStream is) {
-        FileOutputStream fos = null;
-        File cacheFile;
-        try {
-            cacheFile = new File(context.getCacheDir(),
-                    CACHE_FILE_PREFIX + Thread.currentThread().getId());
-            fos = new FileOutputStream(cacheFile, false);
-
-            byte[] buffer = new byte[1024];
-            int readLen;
-            while ((readLen = is.read(buffer)) != -1) {
-                fos.write(buffer, 0, readLen);
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Error copying font file descriptor to temp local file.", e);
+            return Typeface.createFromFile(tmpFile.getPath());
+        } catch (RuntimeException e) {
+            // This was thrown from Typeface.createFromFile when a Typeface could not be loaded,
+            // such as due to an invalid ttf or unreadable file. We don't want to throw that
+            // exception anymore.
             return null;
         } finally {
-            closeQuietly(is);
-            closeQuietly(fos);
-        }
-        return cacheFile;
-    }
-
-    private static File copyToCacheFile(Context context, final ByteBuffer is) {
-        FileOutputStream fos = null;
-        File cacheFile;
-        try {
-            cacheFile = new File(context.getCacheDir(),
-                    CACHE_FILE_PREFIX + Thread.currentThread().getId());
-            fos = new FileOutputStream(cacheFile, false);
-
-            byte[] buffer = new byte[1024];
-            while (is.hasRemaining()) {
-                int len = Math.min(1024, is.remaining());
-                is.get(buffer, 0, len);
-                fos.write(buffer, 0, len);
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Error copying font file descriptor to temp local file.", e);
-            return null;
-        } finally {
-            closeQuietly(fos);
-        }
-        return cacheFile;
-    }
-
-    private static void closeQuietly(InputStream is) {
-        if (is != null) {
-            try {
-                is.close();
-            } catch (IOException io) {
-                Log.e(TAG, "Error closing input stream", io);
-            }
-        }
-    }
-
-    @Nullable
-    @Override
-    public Typeface createFromResourcesFontFile(Context context, Resources resources, int id,
-            int style) {
-        InputStream is = null;
-        try {
-            is = resources.openRawResource(id);
-            return createTypeface(context, resources, is);
-        } catch (IOException e) {
-            return null;
-        } finally {
-            closeQuietly(is);
+            tmpFile.delete();
         }
     }
 
@@ -166,52 +93,13 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
     @Nullable
     @Override
     public Typeface createFromFontFamilyFilesResourceEntry(Context context,
-            FontFamilyFilesResourceEntry entry, Resources resources, int id, int style) {
+            FontFamilyFilesResourceEntry entry, Resources resources, int style) {
         FontFileResourceEntry best = findBestEntry(
                 entry, ((style & Typeface.BOLD) == 0) ? 400 : 700, (style & Typeface.ITALIC) != 0);
         if (best == null) {
             return null;
         }
-
-        InputStream is = null;
-        try {
-            is = resources.openRawResource(best.getResourceId());
-            return createTypeface(context, resources, is);
-        } catch (IOException e) {
-            // This is fine. The resource can be string type which indicates a name of Typeface.
-        } finally {
-            closeQuietly(is);
-        }
-        return null;
-    }
-
-    // Caller must close "is"
-    Typeface createTypeface(Context context, Resources resources, InputStream is)
-            throws IOException {
-        File tmpFile = copyToCacheFile(context, is);
-        if (tmpFile != null) {
-            try {
-                return Typeface.createFromFile(tmpFile.getPath());
-            } catch (RuntimeException e) {
-                // This was thrown from Typeface.createFromFile when a Typeface could not be loaded,
-                // such as due to an invalid ttf or unreadable file. We don't want to throw that
-                // exception anymore.
-                android.util.Log.e(TAG, "Failed to create font", e);
-                return null;
-            } finally {
-                tmpFile.delete();
-            }
-        }
-        return null;
-    }
-
-    static void closeQuietly(Closeable stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException io) {
-                Log.e(TAG, "Error closing stream", io);
-            }
-        }
+        return TypefaceCompat.createFromResourcesFontFile(
+                context, resources, best.getResourceId(), style);
     }
 }
