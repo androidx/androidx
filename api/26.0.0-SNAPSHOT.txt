@@ -2213,6 +2213,15 @@ package android.support.transition {
     method public android.support.transition.TransitionManager inflateTransitionManager(int, android.view.ViewGroup);
   }
 
+  public class TransitionListenerAdapter implements android.support.transition.Transition.TransitionListener {
+    ctor public TransitionListenerAdapter();
+    method public void onTransitionCancel(android.support.transition.Transition);
+    method public void onTransitionEnd(android.support.transition.Transition);
+    method public void onTransitionPause(android.support.transition.Transition);
+    method public void onTransitionResume(android.support.transition.Transition);
+    method public void onTransitionStart(android.support.transition.Transition);
+  }
+
   public class TransitionManager {
     ctor public TransitionManager();
     method public static void beginDelayedTransition(android.view.ViewGroup);
