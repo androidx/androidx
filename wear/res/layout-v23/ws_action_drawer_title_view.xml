@@ -15,9 +15,9 @@
 -->
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/wearable_support_action_drawer_title"
+    android:id="@+id/ws_action_drawer_title"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/action_drawer_item_icon_size"
+    android:layout_height="@dimen/ws_action_drawer_item_icon_size"
     android:layout_gravity="center"
     android:gravity="center"
     style="@style/WearableActionDrawerTitleText" />

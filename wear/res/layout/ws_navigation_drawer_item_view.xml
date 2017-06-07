@@ -13,21 +13,24 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/peek_view_top_padding"
-    android:paddingBottom="@dimen/peek_view_bottom_padding">
-
+    android:layout_height="match_parent">
     <ImageView
-        android:layout_width="@dimen/peek_view_icon_size"
-        android:layout_height="@dimen/peek_view_icon_size"
-        android:src="@drawable/ic_expand_more_white_22"
-        android:tint="?android:attr/colorForeground"
-        tools:ignore="ContentDescription"/>
-
-</LinearLayout>
+        android:id="@+id/ws_navigation_drawer_item_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerInParent="true"
+        android:scaleType="fitCenter"
+        tools:ignore="ContentDescription" />
+    <TextView
+        android:id="@+id/ws_navigation_drawer_item_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ws_navigation_drawer_item_icon"
+        android:layout_marginTop="6dp"
+        android:gravity="center_horizontal"
+        android:textColor="?android:attr/textColorPrimary"/>
+</RelativeLayout>

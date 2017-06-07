@@ -163,7 +163,7 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
 
         getPeekContainer()
                 .setContentDescription(
-                        context.getString(R.string.navigation_drawer_content_description));
+                        context.getString(R.string.ws_navigation_drawer_content_description));
 
         setOpenOnlyAtTopEnabled(true);
     }

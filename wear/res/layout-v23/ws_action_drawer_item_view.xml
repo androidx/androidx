@@ -13,24 +13,29 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@drawable/ws_action_item_background"
+    android:orientation="horizontal">
+
     <ImageView
-        android:id="@+id/wearable_support_navigation_drawer_item_icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_centerInParent="true"
+        android:id="@+id/ws_action_drawer_item_icon"
+        android:layout_width="@dimen/ws_action_drawer_item_icon_size"
+        android:layout_height="@dimen/ws_action_drawer_item_icon_size"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/ws_action_item_icon_background"
+        android:tint="?android:attr/colorBackground"
+        android:padding="@dimen/ws_action_drawer_item_icon_padding"
         android:scaleType="fitCenter"
         tools:ignore="ContentDescription" />
+
     <TextView
-        android:id="@+id/wearable_support_navigation_drawer_item_text"
+        android:id="@+id/ws_action_drawer_item_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/wearable_support_navigation_drawer_item_icon"
-        android:layout_marginTop="6dp"
-        android:gravity="center_horizontal"
-        android:textColor="?android:attr/textColorPrimary"/>
-</RelativeLayout>
+        android:layout_height="wrap_content"
+        style="@style/WearableActionDrawerItemText"/>
+
+</LinearLayout>

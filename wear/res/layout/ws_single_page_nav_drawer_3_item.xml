@@ -14,20 +14,37 @@
      limitations under the License.
 -->
 <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false">
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_0"
+        android:id="@+id/ws_nav_drawer_icon_0"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        app:layout_marginStartPercent="@fraction/ws_nav_drawer_margin_3_items"
+        tools:ignore="ContentDescription"
+        style="@style/WsSinglePageNavDrawerIconStyle" />
+
+    <android.support.wear.widget.CircledImageView
+        android:id="@+id/ws_nav_drawer_icon_1"
         android:layout_centerInParent="true"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
+
+    <android.support.wear.widget.CircledImageView
+        android:id="@+id/ws_nav_drawer_icon_2"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        app:layout_marginEndPercent="@fraction/ws_nav_drawer_margin_3_items"
+        tools:ignore="ContentDescription"
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <TextView
-        android:id="@+id/wearable_support_nav_drawer_text"
-        android:layout_below="@id/wearable_support_nav_drawer_icon_0"
-        style="@style/SinglePageNavDrawerTextStyle"/>
+        android:id="@+id/ws_nav_drawer_text"
+        android:layout_below="@id/ws_nav_drawer_icon_2"
+        style="@style/WsSinglePageNavDrawerTextStyle"/>
 
 </android.support.percent.PercentRelativeLayout>

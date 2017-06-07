@@ -15,53 +15,52 @@
 -->
 <resources>
     <!-- Values for the WearableRecyclerView. -->
-    <dimen name="wrv_curve_default_x_offset">24dp</dimen>
+    <dimen name="ws_wrv_curve_default_x_offset">24dp</dimen>
 
     <!-- Values for WearableDrawerView. -->
-    <dimen name="wearable_drawer_view_elevation">12dp</dimen>
+    <dimen name="ws_wearable_drawer_view_elevation">12dp</dimen>
 
     <!-- Values for WearableActionDrawerView. -->
-    <item name="action_drawer_item_first_item_top_padding" type="fraction">15%</item>
-    <item name="action_drawer_item_last_item_bottom_padding" type="fraction">15%</item>
-    <item name="action_drawer_item_left_padding" type="fraction">15%</item>
-    <item name="action_drawer_item_right_padding" type="fraction">10%</item>
-    <dimen name="action_drawer_item_top_padding">8dp</dimen>
-    <dimen name="action_drawer_item_bottom_padding">8dp</dimen>
-    <dimen name="action_drawer_item_icon_right_margin">8dp</dimen>
-    <dimen name="action_drawer_item_icon_size">36dp</dimen>
-    <dimen name="action_drawer_item_icon_padding">7dp</dimen>
-    <dimen name="action_drawer_item_text_size">14sp</dimen>
-    <dimen name="action_drawer_peek_view_height">43dp</dimen>
-    <dimen name="action_drawer_peek_top_padding">2dp</dimen>
-    <dimen name="action_drawer_expand_icon_top_margin">-3dp</dimen>
+    <item name="ws_action_drawer_item_first_item_top_padding" type="fraction">15%</item>
+    <item name="ws_action_drawer_item_last_item_bottom_padding" type="fraction">15%</item>
+    <item name="ws_action_drawer_item_left_padding" type="fraction">15%</item>
+    <item name="ws_action_drawer_item_right_padding" type="fraction">10%</item>
+    <dimen name="ws_action_drawer_item_top_padding">8dp</dimen>
+    <dimen name="ws_action_drawer_item_bottom_padding">8dp</dimen>
+    <dimen name="ws_action_drawer_item_icon_right_margin">8dp</dimen>
+    <dimen name="ws_action_drawer_item_icon_size">36dp</dimen>
+    <dimen name="ws_action_drawer_item_icon_padding">7dp</dimen>
+    <dimen name="ws_action_drawer_item_text_size">14sp</dimen>
+    <dimen name="ws_action_drawer_peek_view_height">43dp</dimen>
+    <dimen name="ws_action_drawer_peek_top_padding">2dp</dimen>
+    <dimen name="ws_action_drawer_expand_icon_top_margin">-3dp</dimen>
 
     <!-- Dimensions for the single page WearableNavigationDrawerView. -->
-    <dimen name="nav_drawer_single_page_icon_size">28dp</dimen>
-    <dimen name="nav_drawer_single_page_icon_padding">6dp</dimen>
-    <dimen name="nav_drawer_single_page_circle_radius">24dp</dimen>
-    <dimen name="nav_drawer_text_size">12sp</dimen>
-    <fraction name="nav_drawer_text_margin">13%</fraction>
-    <fraction name="nav_drawer_margin_2_items">20%</fraction>
-    <fraction name="nav_drawer_margin_3_items">16%</fraction>
-    <fraction name="nav_drawer_margin_4_items_vertical">16.9%</fraction>
-    <fraction name="nav_drawer_margin_4_items_horizontal">13%</fraction>
-    <fraction name="nav_drawer_margin_5_items_horizontal_outer_rows">27.4%</fraction>
-    <fraction name="nav_drawer_margin_5_items_horizontal_middle_row">13%</fraction>
-    <fraction name="nav_drawer_margin_5_items_vertical">16.9%</fraction>
-    <fraction name="nav_drawer_margin_6_items_horizontal">16%</fraction>
-    <fraction name="nav_drawer_margin_6_items_vertical">26.8%</fraction>
-    <fraction name="nav_drawer_margin_7_items_horizontal_outer_rows">27.4%</fraction>
-    <fraction name="nav_drawer_margin_7_items_horizontal_middle_row">13%</fraction>
-    <fraction name="nav_drawer_margin_7_items_vertical">16.9%</fraction>
+    <dimen name="ws_nav_drawer_single_page_icon_size">28dp</dimen>
+    <dimen name="ws_nav_drawer_single_page_icon_padding">6dp</dimen>
+    <dimen name="ws_nav_drawer_single_page_circle_radius">24dp</dimen>
+    <dimen name="ws_nav_drawer_text_size">12sp</dimen>
+    <fraction name="ws_nav_drawer_text_margin">13%</fraction>
+    <fraction name="ws_nav_drawer_margin_2_items">20%</fraction>
+    <fraction name="ws_nav_drawer_margin_3_items">16%</fraction>
+    <fraction name="ws_nav_drawer_margin_4_items_vertical">16.9%</fraction>
+    <fraction name="ws_nav_drawer_margin_4_items_horizontal">13%</fraction>
+    <fraction name="ws_nav_drawer_margin_5_items_horizontal_outer_rows">27.4%</fraction>
+    <fraction name="ws_nav_drawer_margin_5_items_horizontal_middle_row">13%</fraction>
+    <fraction name="ws_nav_drawer_margin_5_items_vertical">16.9%</fraction>
+    <fraction name="ws_nav_drawer_margin_6_items_horizontal">16%</fraction>
+    <fraction name="ws_nav_drawer_margin_6_items_vertical">26.8%</fraction>
+    <fraction name="ws_nav_drawer_margin_7_items_horizontal_outer_rows">27.4%</fraction>
+    <fraction name="ws_nav_drawer_margin_7_items_horizontal_middle_row">13%</fraction>
+    <fraction name="ws_nav_drawer_margin_7_items_vertical">16.9%</fraction>
 
-    <dimen name="peek_view_top_padding">8dp</dimen>
-    <dimen name="peek_view_bottom_padding">8dp</dimen>
-    <dimen name="peek_view_icon_size">22dp</dimen>
+    <dimen name="ws_peek_view_top_padding">8dp</dimen>
+    <dimen name="ws_peek_view_bottom_padding">8dp</dimen>
+    <dimen name="ws_peek_view_icon_size">22dp</dimen>
 
     <!-- Maximum distance from edge to consider an edge drag. This should be the sum of the peek
          view's top padding, bottom padding, and icon size. -->
-    <dimen name="drawer_view_edge_size">38dp</dimen>
-
+    <dimen name="ws_drawer_view_edge_size">38dp</dimen>
     <!-- Dimensions for the wearable switch. -->
-    <dimen name="switch_size">40dp</dimen>
+    <dimen name="ws_switch_size">40dp</dimen>
 </resources>

@@ -21,61 +21,61 @@
     android:clipChildren="false">
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_0"
+        android:id="@+id/ws_nav_drawer_icon_0"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        app:layout_marginStartPercent="@fraction/nav_drawer_margin_7_items_horizontal_outer_rows"
-        app:layout_marginTopPercent="@fraction/nav_drawer_margin_7_items_vertical"
+        app:layout_marginStartPercent="@fraction/ws_nav_drawer_margin_7_items_horizontal_outer_rows"
+        app:layout_marginTopPercent="@fraction/ws_nav_drawer_margin_7_items_vertical"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_1"
+        android:id="@+id/ws_nav_drawer_icon_1"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        app:layout_marginEndPercent="@fraction/nav_drawer_margin_7_items_horizontal_outer_rows"
-        app:layout_marginTopPercent="@fraction/nav_drawer_margin_7_items_vertical"
+        app:layout_marginEndPercent="@fraction/ws_nav_drawer_margin_7_items_horizontal_outer_rows"
+        app:layout_marginTopPercent="@fraction/ws_nav_drawer_margin_7_items_vertical"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_2"
+        android:id="@+id/ws_nav_drawer_icon_2"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        app:layout_marginStartPercent="@fraction/nav_drawer_margin_7_items_horizontal_middle_row"
+        app:layout_marginStartPercent="@fraction/ws_nav_drawer_margin_7_items_horizontal_middle_row"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_3"
+        android:id="@+id/ws_nav_drawer_icon_3"
         android:layout_centerInParent="true"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_4"
+        android:id="@+id/ws_nav_drawer_icon_4"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        app:layout_marginEndPercent="@fraction/nav_drawer_margin_7_items_horizontal_middle_row"
+        app:layout_marginEndPercent="@fraction/ws_nav_drawer_margin_7_items_horizontal_middle_row"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_5"
+        android:id="@+id/ws_nav_drawer_icon_5"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        app:layout_marginStartPercent="@fraction/nav_drawer_margin_7_items_horizontal_outer_rows"
-        app:layout_marginBottomPercent="@fraction/nav_drawer_margin_7_items_vertical"
+        app:layout_marginStartPercent="@fraction/ws_nav_drawer_margin_7_items_horizontal_outer_rows"
+        app:layout_marginBottomPercent="@fraction/ws_nav_drawer_margin_7_items_vertical"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
     <android.support.wear.widget.CircledImageView
-        android:id="@+id/wearable_support_nav_drawer_icon_6"
+        android:id="@+id/ws_nav_drawer_icon_6"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        app:layout_marginEndPercent="@fraction/nav_drawer_margin_7_items_horizontal_outer_rows"
-        app:layout_marginBottomPercent="@fraction/nav_drawer_margin_7_items_vertical"
+        app:layout_marginEndPercent="@fraction/ws_nav_drawer_margin_7_items_horizontal_outer_rows"
+        app:layout_marginBottomPercent="@fraction/ws_nav_drawer_margin_7_items_vertical"
         tools:ignore="ContentDescription"
-        style="@style/SinglePageNavDrawerIconStyle" />
+        style="@style/WsSinglePageNavDrawerIconStyle" />
 
 </android.support.percent.PercentRelativeLayout>
