@@ -17,9 +17,7 @@
 package android.support.transition;
 
 import android.animation.PropertyValuesHolder;
-import android.animation.TypeEvaluator;
 import android.graphics.Path;
-import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.support.annotation.RequiresApi;
 import android.util.Property;
@@ -29,28 +27,7 @@ class PropertyValuesHolderUtilsApi14 implements PropertyValuesHolderUtilsImpl {
 
     @Override
     public PropertyValuesHolder ofPointF(Property<?, PointF> property, Path path) {
-        return PropertyValuesHolder.ofObject(property, new PathEvaluator(path));
-    }
-
-    private static class PathEvaluator implements TypeEvaluator<PointF> {
-
-        private final PointF mPointF = new PointF();
-        private final PathMeasure mPathMeasure;
-        private final float mPathLength;
-        private final float[] mPosition = new float[2];
-
-        PathEvaluator(Path path) {
-            mPathMeasure = new PathMeasure(path, false);
-            mPathLength = mPathMeasure.getLength();
-        }
-
-        @Override
-        public PointF evaluate(float fraction, PointF startValue, PointF endValue) {
-            mPathMeasure.getPosTan(mPathLength * fraction, mPosition, null);
-            mPointF.set(mPosition[0], mPosition[1]);
-            return mPointF;
-        }
-
+        return PropertyValuesHolder.ofFloat(new PathProperty<>(property, path), 0f, 1f);
     }
 
 }
