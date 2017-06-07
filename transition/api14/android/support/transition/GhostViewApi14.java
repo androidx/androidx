@@ -150,6 +150,8 @@ class GhostViewApi14 extends View implements GhostViewImpl {
         final int[] viewLocation = new int[2];
         getLocationOnScreen(location);
         mView.getLocationOnScreen(viewLocation);
+        viewLocation[0] -= mView.getTranslationX();
+        viewLocation[1] -= mView.getTranslationY();
         mDeltaX = viewLocation[0] - location[0];
         mDeltaY = viewLocation[1] - location[1];
         // Monitor invalidation of the target view.
