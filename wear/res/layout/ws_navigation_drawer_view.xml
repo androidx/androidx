@@ -20,14 +20,14 @@
     android:layout_height="match_parent" >
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/wearable_support_navigation_drawer_view_pager"
+        android:id="@+id/ws_navigation_drawer_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     <android.support.wear.widget.drawer.PageIndicatorView
-        android:id="@+id/wearable_support_navigation_drawer_page_indicator"
+        android:id="@+id/ws_navigation_drawer_page_indicator"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/peek_view_icon_size"
-        android:layout_marginBottom="@dimen/peek_view_bottom_padding"
+        android:layout_height="@dimen/ws_peek_view_icon_size"
+        android:layout_marginBottom="@dimen/ws_peek_view_bottom_padding"
         android:layout_gravity="bottom|center_horizontal"
         app:pageIndicatorDotFadeWhenIdle="false" />
 

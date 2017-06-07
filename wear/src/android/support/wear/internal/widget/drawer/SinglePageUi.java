@@ -44,26 +44,26 @@ public class SinglePageUi implements SinglePagePresenter.Ui {
     @IdRes
     private static final int[] SINGLE_PAGE_BUTTON_IDS =
             new int[]{
-                    R.id.wearable_support_nav_drawer_icon_0,
-                    R.id.wearable_support_nav_drawer_icon_1,
-                    R.id.wearable_support_nav_drawer_icon_2,
-                    R.id.wearable_support_nav_drawer_icon_3,
-                    R.id.wearable_support_nav_drawer_icon_4,
-                    R.id.wearable_support_nav_drawer_icon_5,
-                    R.id.wearable_support_nav_drawer_icon_6,
+                    R.id.ws_nav_drawer_icon_0,
+                    R.id.ws_nav_drawer_icon_1,
+                    R.id.ws_nav_drawer_icon_2,
+                    R.id.ws_nav_drawer_icon_3,
+                    R.id.ws_nav_drawer_icon_4,
+                    R.id.ws_nav_drawer_icon_5,
+                    R.id.ws_nav_drawer_icon_6,
             };
 
     @LayoutRes
     private static final int[] SINGLE_PAGE_LAYOUT_RES =
             new int[]{
                     0,
-                    R.layout.single_page_nav_drawer_1_item,
-                    R.layout.single_page_nav_drawer_2_item,
-                    R.layout.single_page_nav_drawer_3_item,
-                    R.layout.single_page_nav_drawer_4_item,
-                    R.layout.single_page_nav_drawer_5_item,
-                    R.layout.single_page_nav_drawer_6_item,
-                    R.layout.single_page_nav_drawer_7_item,
+                    R.layout.ws_single_page_nav_drawer_1_item,
+                    R.layout.ws_single_page_nav_drawer_2_item,
+                    R.layout.ws_single_page_nav_drawer_3_item,
+                    R.layout.ws_single_page_nav_drawer_4_item,
+                    R.layout.ws_single_page_nav_drawer_5_item,
+                    R.layout.ws_single_page_nav_drawer_6_item,
+                    R.layout.ws_single_page_nav_drawer_7_item,
             };
 
     private final WearableNavigationDrawerView mDrawer;
@@ -108,10 +108,10 @@ public class SinglePageUi implements SinglePagePresenter.Ui {
         View content = inflater.inflate(layoutRes, mDrawer, false /* attachToRoot */);
         final View peek =
                 inflater.inflate(
-                        R.layout.single_page_nav_drawer_peek_view, mDrawer,
+                        R.layout.ws_single_page_nav_drawer_peek_view, mDrawer,
                         false /* attachToRoot */);
 
-        mTextView = (TextView) content.findViewById(R.id.wearable_support_nav_drawer_text);
+        mTextView = (TextView) content.findViewById(R.id.ws_nav_drawer_text);
         mSinglePageImageViews = new CircledImageView[count];
         for (int i = 0; i < count; i++) {
             mSinglePageImageViews[i] = (CircledImageView) content

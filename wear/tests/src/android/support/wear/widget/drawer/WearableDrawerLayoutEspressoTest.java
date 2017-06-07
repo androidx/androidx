@@ -136,7 +136,7 @@ public class WearableDrawerLayoutEspressoTest {
                                 MAX_WAIT_MS));
 
         // THEN the text should display "0".
-        onView(withId(R.id.wearable_support_nav_drawer_text)).check(matches(withText("0")));
+        onView(withId(R.id.ws_nav_drawer_text)).check(matches(withText("0")));
     }
 
     @Test
@@ -151,13 +151,13 @@ public class WearableDrawerLayoutEspressoTest {
                                 MAX_WAIT_MS));
 
         // WHEN the second item is selected
-        onView(withId(R.id.wearable_support_nav_drawer_icon_1)).perform(click());
+        onView(withId(R.id.ws_nav_drawer_icon_1)).perform(click());
 
         // THEN the text should display "1" and it should close.
-        onView(withId(R.id.wearable_support_nav_drawer_text))
+        onView(withId(R.id.ws_nav_drawer_text))
                 .perform(
                         waitForMatchingView(
-                                allOf(withId(R.id.wearable_support_nav_drawer_text), withText("1")),
+                                allOf(withId(R.id.ws_nav_drawer_text), withText("1")),
                                 MAX_WAIT_MS));
         onView(withId(R.id.navigation_drawer))
                 .perform(
@@ -181,7 +181,7 @@ public class WearableDrawerLayoutEspressoTest {
         selectNavItem(navDrawer, 1);
 
         // THEN the text should display "1" and the listener should be notified.
-        onView(withId(R.id.wearable_support_nav_drawer_text))
+        onView(withId(R.id.ws_nav_drawer_text))
                 .check(matches(withText("1")));
         verify(mNavDrawerItemSelectedListener).onItemSelected(1);
     }
@@ -201,7 +201,7 @@ public class WearableDrawerLayoutEspressoTest {
         selectNavItem(navDrawer, 1);
 
         // THEN the text should display "1" and the listener should be notified.
-        onView(allOf(withId(R.id.wearable_support_navigation_drawer_item_text), isDisplayed()))
+        onView(allOf(withId(R.id.ws_navigation_drawer_item_text), isDisplayed()))
                 .check(matches(withText("1")));
         verify(mNavDrawerItemSelectedListener).onItemSelected(1);
     }
@@ -319,7 +319,7 @@ public class WearableDrawerLayoutEspressoTest {
         DrawerTestActivity activity = activityRule.getActivity();
         ImageView peekIconView =
                 (ImageView) activity
-                        .findViewById(R.id.wearable_support_action_drawer_peek_action_icon);
+                        .findViewById(R.id.ws_action_drawer_peek_action_icon);
         // THEN its peek icon should not be null
         assertNotNull(peekIconView.getDrawable());
     }
@@ -340,7 +340,7 @@ public class WearableDrawerLayoutEspressoTest {
         onView(
                 allOf(
                         withParent(withId(R.id.action_drawer)),
-                        withId(R.id.wearable_support_drawer_view_peek_container)))
+                        withId(R.id.ws_drawer_view_peek_container)))
                 .perform(click());
         // THEN its click listener should be notified
         verify(mockClickListener).onMenuItemClick(any(MenuItem.class));

@@ -17,25 +17,25 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/action_drawer_peek_view_height"
+    android:layout_height="@dimen/ws_action_drawer_peek_view_height"
     android:layout_gravity="center"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:paddingTop="@dimen/action_drawer_peek_top_padding">
+    android:paddingTop="@dimen/ws_action_drawer_peek_top_padding">
 
     <ImageView
-        android:id="@+id/wearable_support_action_drawer_peek_action_icon"
-        android:layout_width="@dimen/peek_view_icon_size"
-        android:layout_height="@dimen/peek_view_icon_size"
+        android:id="@+id/ws_action_drawer_peek_action_icon"
+        android:layout_width="@dimen/ws_peek_view_icon_size"
+        android:layout_height="@dimen/ws_peek_view_icon_size"
         android:tint="?android:attr/colorForeground"
         tools:ignore="ContentDescription" />
 
     <ImageView
-        android:id="@+id/wearable_support_action_drawer_expand_icon"
-        android:layout_width="@dimen/peek_view_icon_size"
-        android:layout_height="@dimen/peek_view_icon_size"
-        android:layout_marginTop="@dimen/action_drawer_expand_icon_top_margin"
-        android:src="@drawable/ic_expand_less_white_22"
+        android:id="@+id/ws_action_drawer_expand_icon"
+        android:layout_width="@dimen/ws_peek_view_icon_size"
+        android:layout_height="@dimen/ws_peek_view_icon_size"
+        android:layout_marginTop="@dimen/ws_action_drawer_expand_icon_top_margin"
+        android:src="@drawable/ws_ic_expand_less_white_22"
         android:alpha="0.5"
         android:tint="?android:attr/colorForeground"
         tools:ignore="NegativeMargin,ContentDescription" />
