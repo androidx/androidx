@@ -203,7 +203,7 @@ public class FontRequestEmojiCompatConfigTest {
         assertThat(argumentCaptor.getValue().getMessage(), containsString(exceptionMessage));
     }
 
-    public static class WaitingLoaderCallback extends EmojiCompat.LoaderCallback {
+    public static class WaitingLoaderCallback extends EmojiCompat.MetadataRepoLoaderCallback {
         final CountDownLatch mLatch;
 
         public WaitingLoaderCallback() {

@@ -1911,7 +1911,8 @@ package android.support.text.emoji {
   }
 
   public static abstract class EmojiCompat.Config {
-    ctor protected EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataLoader);
+    ctor protected EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataRepoLoader);
+    ctor protected deprecated EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataLoader);
     method public android.support.text.emoji.EmojiCompat.Config registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorColor(int);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorEnabled(boolean);
@@ -1925,14 +1926,24 @@ package android.support.text.emoji {
     method public void onInitialized();
   }
 
-  public static abstract class EmojiCompat.LoaderCallback {
+  public static abstract deprecated class EmojiCompat.LoaderCallback {
     ctor public EmojiCompat.LoaderCallback();
     method public abstract void onFailed(java.lang.Throwable);
     method public abstract void onLoaded(android.support.text.emoji.MetadataRepo);
   }
 
-  public static abstract interface EmojiCompat.MetadataLoader {
+  public static abstract deprecated interface EmojiCompat.MetadataLoader {
     method public abstract void load(android.support.text.emoji.EmojiCompat.LoaderCallback);
+  }
+
+  public static abstract interface EmojiCompat.MetadataRepoLoader {
+    method public abstract void load(android.support.text.emoji.EmojiCompat.MetadataRepoLoaderCallback);
+  }
+
+  public static abstract class EmojiCompat.MetadataRepoLoaderCallback {
+    ctor public EmojiCompat.MetadataRepoLoaderCallback();
+    method public abstract void onFailed(java.lang.Throwable);
+    method public abstract void onLoaded(android.support.text.emoji.MetadataRepo);
   }
 
   public abstract class EmojiSpan extends android.text.style.ReplacementSpan {
