@@ -19,8 +19,8 @@
         <item name="android:layout_width">@dimen/ws_nav_drawer_single_page_icon_size</item>
         <item name="android:padding">@dimen/ws_nav_drawer_single_page_icon_padding</item>
         <item name="android:clipToPadding">false</item>
-        <item name="circle_radius">@dimen/ws_nav_drawer_single_page_circle_radius</item>
-        <item name="circle_color">#33ffffff</item>
+        <item name="background_radius">@dimen/ws_nav_drawer_single_page_circle_radius</item>
+        <item name="background_color">#33ffffff</item>
     </style>
     <style name="WsSinglePageNavDrawerTextStyle">
         <item name="android:layout_height">wrap_content</item>
@@ -43,11 +43,11 @@
         <item name="android:layout_height">@dimen/ws_switch_size</item>
         <item name="android:switchMinWidth">@dimen/ws_switch_size</item>
         <item name="android:layout_gravity">center</item>
-        <item name="android:thumb">@drawable/watch_switch_thumb_material_anim</item>
-        <item name="android:thumbTint">@color/watch_switch_thumb_color_material</item>
+        <item name="android:thumb">@drawable/ws_switch_thumb_material_anim</item>
+        <item name="android:thumbTint">@color/ws_switch_thumb_color_material</item>
         <item name="android:thumbTintMode">multiply</item>
-        <item name="android:track">@drawable/watch_switch_track_mtrl</item>
-        <item name="android:trackTint">@color/watch_switch_track_color_material</item>
+        <item name="android:track">@drawable/ws_switch_track_mtrl</item>
+        <item name="android:trackTint">@color/ws_switch_track_color_material</item>
         <item name="android:background">@empty</item>
         <item name="android:showText">false</item>
     </style>

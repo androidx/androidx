@@ -20,4 +20,4 @@
     android:layout_height="@dimen/ws_action_drawer_item_icon_size"
     android:layout_gravity="center"
     android:gravity="center"
-    style="@style/WearableActionDrawerTitleText" />
+    style="@style/WsWearableActionDrawerTitleText" />
