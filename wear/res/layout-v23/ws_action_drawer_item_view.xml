@@ -36,6 +36,6 @@
         android:id="@+id/ws_action_drawer_item_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/WearableActionDrawerItemText"/>
+        style="@style/WsWearableActionDrawerItemText"/>
 
 </LinearLayout>
