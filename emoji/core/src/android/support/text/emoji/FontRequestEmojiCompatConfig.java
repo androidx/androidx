@@ -64,10 +64,10 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
 
 
     /**
-     * MetadataLoader implementation that uses FontsContractCompat and TypefaceCompat to load a
+     * MetadataRepoLoader implementation that uses FontsContractCompat and TypefaceCompat to load a
      * given FontRequest.
      */
-    private static class FontRequestMetadataLoader implements EmojiCompat.MetadataLoader {
+    private static class FontRequestMetadataLoader implements EmojiCompat.MetadataRepoLoader {
         private final Context mContext;
         private final FontRequest mRequest;
         private final FontsContractDelegate mFontsContract;
@@ -83,7 +83,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
 
         @Override
         @RequiresApi(19)
-        public void load(@NonNull final EmojiCompat.LoaderCallback loaderCallback) {
+        public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
             final InitRunnable runnable =
                     new InitRunnable(mContext, mRequest, mFontsContract, loaderCallback);
@@ -98,7 +98,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
      */
     @RequiresApi(19)
     private static class InitRunnable implements Runnable {
-        private final EmojiCompat.LoaderCallback mLoaderCallback;
+        private final EmojiCompat.MetadataRepoLoaderCallback mLoaderCallback;
         private final Context mContext;
         private final FontsContractDelegate mFontsContract;
         private final FontRequest mFontRequest;
@@ -106,7 +106,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         private InitRunnable(final Context context,
                 final FontRequest fontRequest,
                 final FontsContractDelegate fontsContract,
-                final EmojiCompat.LoaderCallback loaderCallback) {
+                final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             mContext = context;
             mFontRequest = fontRequest;
             mFontsContract = fontsContract;
