@@ -57,9 +57,9 @@ public class InitCallbackTest {
     public void testRegisterInitCallback_callsFailCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);
-        final EmojiCompat.MetadataLoader loader = mock(EmojiCompat.MetadataLoader.class);
-        doThrow(new RuntimeException("")).when(loader).load(any(EmojiCompat.LoaderCallback
-                .class));
+        final EmojiCompat.MetadataRepoLoader loader = mock(EmojiCompat.MetadataRepoLoader.class);
+        doThrow(new RuntimeException("")).when(loader)
+                .load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
 
         final EmojiCompat.Config config = new TestConfig(loader);
         final EmojiCompat emojiCompat = EmojiCompat.reset(config);
@@ -76,9 +76,9 @@ public class InitCallbackTest {
     @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback_whenOnFailCalledByLoader() {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
-        final EmojiCompat.MetadataLoader loader = new EmojiCompat.MetadataLoader() {
+        final EmojiCompat.MetadataRepoLoader loader = new EmojiCompat.MetadataRepoLoader() {
             @Override
-            public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
+            public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
                 loaderCallback.onFailed(new RuntimeException(""));
             }
         };
@@ -95,9 +95,9 @@ public class InitCallbackTest {
     @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback_whenMetadataRepoIsNull() {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
-        final EmojiCompat.MetadataLoader loader = new EmojiCompat.MetadataLoader() {
+        final EmojiCompat.MetadataRepoLoader loader = new EmojiCompat.MetadataRepoLoader() {
             @Override
-            public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
+            public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
                 loaderCallback.onLoaded(null);
             }
         };
