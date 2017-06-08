@@ -19,9 +19,9 @@ package android.support.v4.view;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.internal.view.SupportMenuItem;
-import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -274,7 +274,7 @@ public final class MenuItemCompat {
      */
     static final MenuVersionImpl IMPL;
     static {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new MenuItemCompatApi26Impl();
         } else {
             IMPL = new MenuItemCompatBaseImpl();

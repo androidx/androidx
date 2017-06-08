@@ -30,7 +30,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -557,7 +556,7 @@ public class ContextCompat {
      * @see Context#startService()
      */
     public static void startForegroundService(Context context, Intent intent) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             context.startForegroundService(intent);
         } else {
             // Pre-O behavior.
