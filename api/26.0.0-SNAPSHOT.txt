@@ -8833,6 +8833,7 @@ package android.support.v4.view {
     method public static deprecated float getY(android.view.View);
     method public static float getZ(android.view.View);
     method public static boolean hasAccessibilityDelegate(android.view.View);
+    method public static boolean hasExplicitFocusable(android.view.View);
     method public static boolean hasNestedScrollingParent(android.view.View);
     method public static boolean hasNestedScrollingParent(android.view.View, int);
     method public static boolean hasOnClickListeners(android.view.View);
