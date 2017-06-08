@@ -393,8 +393,6 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
     }
 
     private void requestFocusOnRV() {
-        assertThat("RV initially has no focus", mRecyclerView.hasFocus(), is(false));
-        assertThat("RV initially is not focused", mRecyclerView.isFocused(), is(false));
         mRecyclerView.requestFocus();
         String msg = !mRecyclerView.isComputingLayout() ? " before laying out the children"
                 : " during laying out the children";
