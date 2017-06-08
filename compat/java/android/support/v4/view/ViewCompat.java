@@ -36,7 +36,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.util.Log;
@@ -1576,7 +1575,7 @@ public class ViewCompat {
 
     static final ViewCompatBaseImpl IMPL;
     static {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new ViewCompatApi26Impl();
         } else if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new ViewCompatApi24Impl();

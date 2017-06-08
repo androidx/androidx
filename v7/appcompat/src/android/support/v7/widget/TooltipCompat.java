@@ -17,9 +17,9 @@
 package android.support.v7.widget;
 
 import android.annotation.TargetApi;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.os.BuildCompat;
 import android.view.View;
 
 /**
@@ -49,7 +49,7 @@ public class TooltipCompat  {
 
     private static final ViewCompatImpl IMPL;
     static {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new Api26ViewCompatImpl();
         } else {
             IMPL = new BaseViewCompatImpl();

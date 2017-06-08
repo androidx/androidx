@@ -31,7 +31,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.os.BuildCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.VectorEnabledTintResources;
@@ -549,7 +548,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
      * and perform the corresponding action.
      */
     private boolean performMenuItemShortcut(int keycode, KeyEvent event) {
-        if (!BuildCompat.isAtLeastO() && !event.isCtrlPressed()
+        if (!(Build.VERSION.SDK_INT >= 26) && !event.isCtrlPressed()
                 && !KeyEvent.metaStateHasNoModifiers(event.getMetaState())
                 && event.getRepeatCount() == 0
                 && !KeyEvent.isModifierKey(event.getKeyCode())) {
