@@ -15,14 +15,8 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="android.support.v13.test">
-
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="24"
-        tools:overrideLibrary="android.support.test, android.app, android.support.test.rule,
-                      android.support.test.espresso, android.support.test.espresso.idling"/>
+          package="android.support.v13.test">
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
         <activity android:name="android.support.v13.view.DragStartHelperTestActivity"/>
