@@ -1076,7 +1076,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testKeyboardNavigation() {
         ButtonPagerAdapter adapter = new ButtonPagerAdapter();
         adapter.add("Red", Color.RED);
