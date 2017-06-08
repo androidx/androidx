@@ -661,7 +661,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         if (mTarget instanceof ListView) {
             return ListViewCompat.canScrollList((ListView) mTarget, -1);
         }
-        return ViewCompat.canScrollVertically(mTarget, -1);
+        return mTarget.canScrollVertically(-1);
     }
 
     /**
