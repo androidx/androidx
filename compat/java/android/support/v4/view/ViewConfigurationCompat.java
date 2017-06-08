@@ -17,8 +17,8 @@
 package android.support.v4.view;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ViewConfiguration;
@@ -37,7 +37,7 @@ public final class ViewConfigurationCompat {
     private static Method sGetScaledScrollFactorMethod;
 
     static {
-        if (android.os.Build.VERSION.SDK_INT >= 25 && !BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT == 25) {
             try {
                 sGetScaledScrollFactorMethod =
                         ViewConfiguration.class.getDeclaredMethod("getScaledScrollFactor");
@@ -79,7 +79,7 @@ public final class ViewConfigurationCompat {
      */
     public static float getScaledHorizontalScrollFactor(@NonNull ViewConfiguration config,
             @NonNull Context context) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return config.getScaledHorizontalScrollFactor();
         } else {
             return getLegacyScrollFactor(config, context);
@@ -96,7 +96,7 @@ public final class ViewConfigurationCompat {
      */
     public static float getScaledVerticalScrollFactor(@NonNull ViewConfiguration config,
             @NonNull Context context) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return config.getScaledVerticalScrollFactor();
         } else {
             return getLegacyScrollFactor(config, context);

@@ -22,11 +22,11 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.TintableBackgroundView;
 import android.support.v4.widget.AutoSizeableTextView;
 import android.support.v4.widget.TextViewCompat;
@@ -183,7 +183,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     @Override
     public void setTextSize(int unit, float size) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             super.setTextSize(unit, size);
         } else {
             if (mTextHelper != null) {
@@ -203,7 +203,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public void setAutoSizeTextTypeWithDefaults(
             @TextViewCompat.AutoSizeTextType int autoSizeTextType) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             super.setAutoSizeTextTypeWithDefaults(autoSizeTextType);
         } else {
             if (mTextHelper != null) {
@@ -226,7 +226,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
             int autoSizeMaxTextSize,
             int autoSizeStepGranularity,
             int unit) throws IllegalArgumentException {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             super.setAutoSizeTextTypeUniformWithConfiguration(
                     autoSizeMinTextSize, autoSizeMaxTextSize, autoSizeStepGranularity, unit);
         } else {
@@ -248,7 +248,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     public void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
             throws IllegalArgumentException {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             super.setAutoSizeTextTypeUniformWithPresetSizes(presetSizes, unit);
         } else {
             if (mTextHelper != null) {
@@ -267,7 +267,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @Override
     @TextViewCompat.AutoSizeTextType
     public int getAutoSizeTextType() {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return super.getAutoSizeTextType() == TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM
                     ? TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM
                     : TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
@@ -288,7 +288,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int getAutoSizeStepGranularity() {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return super.getAutoSizeStepGranularity();
         } else {
             if (mTextHelper != null) {
@@ -307,7 +307,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int getAutoSizeMinTextSize() {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return super.getAutoSizeMinTextSize();
         } else {
             if (mTextHelper != null) {
@@ -326,7 +326,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int getAutoSizeMaxTextSize() {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return super.getAutoSizeMaxTextSize();
         } else {
             if (mTextHelper != null) {
@@ -345,7 +345,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP)
     @Override
     public int[] getAutoSizeTextAvailableSizes() {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             return super.getAutoSizeTextAvailableSizes();
         } else {
             if (mTextHelper != null) {

@@ -34,7 +34,6 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
 import android.support.v4.math.MathUtils;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -179,7 +178,7 @@ public class AppBarLayout extends LinearLayout {
             ViewUtilsLollipop.setDefaultAppBarLayoutStateListAnimator(
                     this, a.getDimensionPixelSize(R.styleable.AppBarLayout_elevation, 0));
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             // In O+, we have these values set in the style. Since there is no defStyleAttr for
             // AppBarLayout at the AppCompat level, check for these attributes here.
             if (a.hasValue(R.styleable.AppBarLayout_android_keyboardNavigationCluster)) {
