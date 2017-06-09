@@ -450,67 +450,67 @@ public class NotificationCompat {
     /**
      * Notification category: incoming call (voice or video) or similar synchronous communication request.
      */
-    public static final String CATEGORY_CALL = NotificationCompatApi21.CATEGORY_CALL;
+    public static final String CATEGORY_CALL = Notification.CATEGORY_CALL;
 
     /**
      * Notification category: incoming direct message (SMS, instant message, etc.).
      */
-    public static final String CATEGORY_MESSAGE = NotificationCompatApi21.CATEGORY_MESSAGE;
+    public static final String CATEGORY_MESSAGE = Notification.CATEGORY_MESSAGE;
 
     /**
      * Notification category: asynchronous bulk message (email).
      */
-    public static final String CATEGORY_EMAIL = NotificationCompatApi21.CATEGORY_EMAIL;
+    public static final String CATEGORY_EMAIL = Notification.CATEGORY_EMAIL;
 
     /**
      * Notification category: calendar event.
      */
-    public static final String CATEGORY_EVENT = NotificationCompatApi21.CATEGORY_EVENT;
+    public static final String CATEGORY_EVENT = Notification.CATEGORY_EVENT;
 
     /**
      * Notification category: promotion or advertisement.
      */
-    public static final String CATEGORY_PROMO = NotificationCompatApi21.CATEGORY_PROMO;
+    public static final String CATEGORY_PROMO = Notification.CATEGORY_PROMO;
 
     /**
      * Notification category: alarm or timer.
      */
-    public static final String CATEGORY_ALARM = NotificationCompatApi21.CATEGORY_ALARM;
+    public static final String CATEGORY_ALARM = Notification.CATEGORY_ALARM;
 
     /**
      * Notification category: progress of a long-running background operation.
      */
-    public static final String CATEGORY_PROGRESS = NotificationCompatApi21.CATEGORY_PROGRESS;
+    public static final String CATEGORY_PROGRESS = Notification.CATEGORY_PROGRESS;
 
     /**
      * Notification category: social network or sharing update.
      */
-    public static final String CATEGORY_SOCIAL = NotificationCompatApi21.CATEGORY_SOCIAL;
+    public static final String CATEGORY_SOCIAL = Notification.CATEGORY_SOCIAL;
 
     /**
      * Notification category: error in background operation or authentication status.
      */
-    public static final String CATEGORY_ERROR = NotificationCompatApi21.CATEGORY_ERROR;
+    public static final String CATEGORY_ERROR = Notification.CATEGORY_ERROR;
 
     /**
      * Notification category: media transport control for playback.
      */
-    public static final String CATEGORY_TRANSPORT = NotificationCompatApi21.CATEGORY_TRANSPORT;
+    public static final String CATEGORY_TRANSPORT = Notification.CATEGORY_TRANSPORT;
 
     /**
      * Notification category: system or device status update.  Reserved for system use.
      */
-    public static final String CATEGORY_SYSTEM = NotificationCompatApi21.CATEGORY_SYSTEM;
+    public static final String CATEGORY_SYSTEM = Notification.CATEGORY_SYSTEM;
 
     /**
      * Notification category: indication of running background service.
      */
-    public static final String CATEGORY_SERVICE = NotificationCompatApi21.CATEGORY_SERVICE;
+    public static final String CATEGORY_SERVICE = Notification.CATEGORY_SERVICE;
 
     /**
      * Notification category: user-scheduled reminder.
      */
-    public static final String CATEGORY_REMINDER = NotificationCompatApi23.CATEGORY_REMINDER;
+    public static final String CATEGORY_REMINDER = Notification.CATEGORY_REMINDER;
 
     /**
      * Notification category: a specific, timely recommendation for a single thing.
@@ -518,12 +518,12 @@ public class NotificationCompat {
      * want to read next.
      */
     public static final String CATEGORY_RECOMMENDATION =
-            NotificationCompatApi21.CATEGORY_RECOMMENDATION;
+            Notification.CATEGORY_RECOMMENDATION;
 
     /**
      * Notification category: ongoing information about device or contextual status.
      */
-    public static final String CATEGORY_STATUS = NotificationCompatApi21.CATEGORY_STATUS;
+    public static final String CATEGORY_STATUS = Notification.CATEGORY_STATUS;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
@@ -4335,10 +4335,10 @@ public class NotificationCompat {
         if (Build.VERSION.SDK_INT >= 20) {
             return (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0;
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY);
+            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY);
         } else if (Build.VERSION.SDK_INT >= 16) {
             return NotificationCompatJellybean.getExtras(notification).getBoolean(
-                    NotificationCompatJellybean.EXTRA_LOCAL_ONLY);
+                    NotificationCompatExtras.EXTRA_LOCAL_ONLY);
         } else {
             return false;
         }
@@ -4352,10 +4352,10 @@ public class NotificationCompat {
         if (Build.VERSION.SDK_INT >= 20) {
             return notification.getGroup();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getString(NotificationCompatJellybean.EXTRA_GROUP_KEY);
+            return notification.extras.getString(NotificationCompatExtras.EXTRA_GROUP_KEY);
         } else if (Build.VERSION.SDK_INT >= 16) {
             return NotificationCompatJellybean.getExtras(notification).getString(
-                    NotificationCompatJellybean.EXTRA_GROUP_KEY);
+                    NotificationCompatExtras.EXTRA_GROUP_KEY);
         } else {
             return null;
         }
@@ -4371,10 +4371,10 @@ public class NotificationCompat {
         if (Build.VERSION.SDK_INT >= 20) {
             return (notification.flags & Notification.FLAG_GROUP_SUMMARY) != 0;
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getBoolean(NotificationCompatJellybean.EXTRA_GROUP_SUMMARY);
+            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY);
         } else if (Build.VERSION.SDK_INT >= 16) {
             return NotificationCompatJellybean.getExtras(notification).getBoolean(
-                    NotificationCompatJellybean.EXTRA_GROUP_SUMMARY);
+                    NotificationCompatExtras.EXTRA_GROUP_SUMMARY);
         } else {
             return false;
         }
@@ -4396,10 +4396,10 @@ public class NotificationCompat {
         if (Build.VERSION.SDK_INT >= 20) {
             return notification.getSortKey();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getString(NotificationCompatJellybean.EXTRA_SORT_KEY);
+            return notification.extras.getString(NotificationCompatExtras.EXTRA_SORT_KEY);
         } else if (Build.VERSION.SDK_INT >= 16) {
             return NotificationCompatJellybean.getExtras(notification).getString(
-                    NotificationCompatJellybean.EXTRA_SORT_KEY);
+                    NotificationCompatExtras.EXTRA_SORT_KEY);
         } else {
             return null;
         }
