@@ -22,12 +22,15 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.CancellationSignal;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFileResourceEntry;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
+import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
 import java.lang.reflect.Array;
@@ -36,7 +39,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -122,12 +124,20 @@ class TypefaceCompatApi24Impl implements TypefaceCompat.TypefaceCompatImpl {
     }
 
     @Override
-    public Typeface createTypeface(Context context, @NonNull FontInfo[] fonts,
-            Map<Uri, ByteBuffer> uriBuffer) {
+    public Typeface createFromFontInfo(Context context,
+            @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
         Object family = newFamily();
+        SimpleArrayMap<Uri, ByteBuffer> bufferCache = new SimpleArrayMap<>();
+
         for (final FontInfo font : fonts) {
-            if (!addFontWeightStyle(family, uriBuffer.get(font.getUri()), font.getTtcIndex(),
-                    font.getWeight(), font.isItalic())) {
+            final Uri uri = font.getUri();
+            ByteBuffer buffer = bufferCache.get(uri);
+            if (buffer == null) {
+                buffer = TypefaceCompatUtil.mmap(context, cancellationSignal, uri);
+                bufferCache.put(uri, buffer);
+            }
+            if (!addFontWeightStyle(family, buffer, font.getTtcIndex(), font.getWeight(),
+                    font.isItalic())) {
                 return null;
             }
         }

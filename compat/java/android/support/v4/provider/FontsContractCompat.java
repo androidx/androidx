@@ -52,19 +52,13 @@ import android.support.v4.util.Preconditions;
 import android.support.v4.util.SimpleArrayMap;
 import android.widget.TextView;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -179,7 +173,8 @@ public class FontsContractCompat {
             new SelfDestructiveThread("fonts", Process.THREAD_PRIORITY_BACKGROUND,
                     BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS);
 
-    private static Typeface getFontInternal(final Context context, final FontRequest request) {
+    private static Typeface getFontInternal(final Context context, final FontRequest request,
+            int style) {
         FontFamilyResult result;
         try {
             result = fetchFonts(context, null /* CancellationSignal */, request);
@@ -187,7 +182,8 @@ public class FontsContractCompat {
             return null;
         }
         if (result.getStatusCode() == FontFamilyResult.STATUS_OK) {
-            return buildTypeface(context, null /* CancellationSignal */, result.getFonts());
+            return TypefaceCompat.createFromFontInfo(context, null /* CancellationSignal */,
+                    result.getFonts(), style);
         }
         return null;
     }
@@ -201,7 +197,7 @@ public class FontsContractCompat {
     @RestrictTo(LIBRARY_GROUP)
     public static Typeface getFontSync(final Context context, final FontRequest request,
             final TextView targetView, @FetchStrategy int strategy, int timeout, final int style) {
-        final String id = request.getIdentifier();
+        final String id = request.getIdentifier() + "-" + style;
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
             return cached;
@@ -212,13 +208,13 @@ public class FontsContractCompat {
 
         if (isBlockingFetch && timeout == FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE) {
             // Wait forever. No need to post to the thread.
-            return getFontInternal(context, request);
+            return getFontInternal(context, request, style);
         }
 
         final Callable<Typeface> fetcher = new Callable<Typeface>() {
             @Override
             public Typeface call() throws Exception {
-                Typeface typeface = getFontInternal(context, request);
+                Typeface typeface = getFontInternal(context, request, style);
                 if (typeface != null) {
                     sTypefaceCache.put(id, typeface);
                 }
@@ -582,55 +578,6 @@ public class FontsContractCompat {
     }
 
     /**
-     * A helper function to create a mapping from {@link Uri} to {@link ByteBuffer}.
-     *
-     * Skip if the file contents is not ready to be read.
-     *
-     * @param context A {@link Context} to be used for resolving content URI in
-     *                {@link FontInfo}.
-     * @param fonts An array of {@link FontInfo}.
-     * @return A map from {@link Uri} to {@link ByteBuffer}.
-     */
-    private static Map<Uri, ByteBuffer> prepareFontData(Context context, FontInfo[] fonts,
-            CancellationSignal cancellationSignal) {
-        final HashMap<Uri, ByteBuffer> out = new HashMap<>();
-        final ContentResolver resolver = context.getContentResolver();
-
-        for (FontInfo font : fonts) {
-            if (font.getResultCode() != Columns.RESULT_CODE_OK) {
-                continue;
-            }
-
-            final Uri uri = font.getUri();
-            if (out.containsKey(uri)) {
-                continue;
-            }
-
-            ByteBuffer buffer = null;
-            ParcelFileDescriptor pfd = null;
-            FileInputStream fis = null;
-            try {
-                if (Build.VERSION.SDK_INT > 19) {
-                    pfd = resolver.openFileDescriptor(uri, "r", cancellationSignal);
-                } else {
-                    pfd = resolver.openFileDescriptor(uri, "r");
-                }
-                fis = new FileInputStream(pfd.getFileDescriptor());
-                final FileChannel fileChannel = fis.getChannel();
-                final long size = fileChannel.size();
-                buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, size);
-            } catch (IOException e) {
-                // ignore
-            }
-
-            // TODO: try other approach?, e.g. read all contents instead of mmap.
-
-            out.put(uri, buffer);
-        }
-        return Collections.unmodifiableMap(out);
-    }
-
-    /**
      * Build a Typeface from an array of {@link FontInfo}
      *
      * Results that are marked as not ready will be skipped.
@@ -644,9 +591,8 @@ public class FontsContractCompat {
      */
     public static Typeface buildTypeface(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts) {
-        final Map<Uri, ByteBuffer> uriBuffer =
-                prepareFontData(context, fonts, cancellationSignal);
-        return TypefaceCompat.createTypeface(context, fonts, uriBuffer);
+        return TypefaceCompat.createFromFontInfo(context, cancellationSignal, fonts,
+                Typeface.NORMAL);
     }
 
     /**
