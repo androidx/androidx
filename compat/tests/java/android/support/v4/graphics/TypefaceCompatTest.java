@@ -17,7 +17,6 @@
 package android.support.v4.graphics;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import android.app.Instrumentation;
 import android.content.Context;
@@ -142,30 +141,86 @@ public class TypefaceCompatTest {
         Typeface typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
                 getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
                 R.font.styletest_sync_providerfont, Typeface.NORMAL, null /* TextView */);
-        // TODO: Add support of styled font selection from family result.
-        assertNotNull(typeface);
+        typeface = Typeface.create(typeface, Typeface.NORMAL);
+        assertEquals(R.font.large_a, getSelectedFontResourceId(typeface));
+
+        typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
+                R.font.styletest_sync_providerfont, Typeface.ITALIC, null /* TextView */);
+        typeface = Typeface.create(typeface, Typeface.ITALIC);
+        assertEquals(R.font.large_b, getSelectedFontResourceId(typeface));
+
+        typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
+                R.font.styletest_sync_providerfont, Typeface.BOLD, null /* TextView */);
+        typeface = Typeface.create(typeface, Typeface.BOLD);
+        assertEquals(R.font.large_c, getSelectedFontResourceId(typeface));
+
+        typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
+                R.font.styletest_sync_providerfont, Typeface.BOLD_ITALIC, null /* TextView */);
+        typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
+        assertEquals(R.font.large_d, getSelectedFontResourceId(typeface));
     }
 
     @Test
     public void testCreateFromResourcesFamilyXml_resourceFont_asyncloading() throws Exception {
         Instrumentation inst = InstrumentationRegistry.getInstrumentation();
         final TextView textView = new TextView(mContext);
+        PollingCheck.PollingCheckCondition condition = new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return textView.getTypeface() != null;
+            }
+        };
+
+        textView.setTypeface(null);
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 TypefaceCompat.createFromResourcesFamilyXml(mContext,
                         getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
-                        R.font.styletest_sync_providerfont, Typeface.NORMAL, textView);
+                        R.font.styletest_async_providerfont, Typeface.NORMAL, textView);
             }
         });
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+        PollingCheck.waitFor(condition);
+        assertEquals(R.font.large_a, getSelectedFontResourceId(textView.getTypeface()));
+
+        textView.setTypeface(null);
+        inst.runOnMainSync(new Runnable() {
             @Override
-            public boolean canProceed() {
-                return textView.getTypeface() != null;
+            public void run() {
+                TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
+                        R.font.styletest_async_providerfont, Typeface.ITALIC, textView);
             }
         });
-        // TODO: Add support of styled font selection from family result.
-        assertNotNull(textView.getTypeface());
+        PollingCheck.waitFor(condition);
+        assertEquals(R.font.large_b, getSelectedFontResourceId(textView.getTypeface()));
+
+        textView.setTypeface(null);
+        inst.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
+                        R.font.styletest_async_providerfont, Typeface.BOLD, textView);
+            }
+        });
+        PollingCheck.waitFor(condition);
+        assertEquals(R.font.large_c, getSelectedFontResourceId(textView.getTypeface()));
+
+        textView.setTypeface(null);
+        inst.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
+                        R.font.styletest_async_providerfont, Typeface.BOLD_ITALIC, textView);
+            }
+        });
+        PollingCheck.waitFor(condition);
+        assertEquals(R.font.large_d, getSelectedFontResourceId(textView.getTypeface()));
     }
 
     @Test

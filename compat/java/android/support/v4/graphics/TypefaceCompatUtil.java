@@ -18,8 +18,12 @@ package android.support.v4.graphics;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
@@ -81,6 +85,22 @@ class TypefaceCompatUtil {
     }
 
     /**
+     * Copy the file contents to the direct byte buffer.
+     */
+    @RequiresApi(19)
+    public static ByteBuffer mmap(Context context, CancellationSignal cancellationSignal, Uri uri) {
+        final ContentResolver resolver = context.getContentResolver();
+        try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(uri, "r", cancellationSignal);
+                FileInputStream fis = new FileInputStream(pfd.getFileDescriptor())) {
+            FileChannel channel = fis.getChannel();
+            final long size = channel.size();
+            return channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
      * Copy the resource contents to the direct byte buffer.
      */
     @RequiresApi(19)
@@ -97,42 +117,6 @@ class TypefaceCompatUtil {
         } finally {
             tmpFile.delete();
         }
-    }
-
-    /**
-     * Helper class for reading ByteBuffer as InputStream.
-     */
-    private static class ByteBufferInputStream extends InputStream {
-        private ByteBuffer mBuf;
-
-        ByteBufferInputStream(ByteBuffer buf) {
-            mBuf = buf;
-        }
-
-        @Override
-        public int read() {
-            if (!mBuf.hasRemaining()) {
-                return -1;
-            }
-            return mBuf.get() & 0xFF;
-        }
-
-        @Override
-        public int read(byte[] bytes, int off, int len) {
-            if (!mBuf.hasRemaining()) {
-                return -1;
-            }
-            len = Math.min(len, mBuf.remaining());
-            mBuf.get(bytes, off, len);
-            return len;
-        }
-    }
-
-    /**
-     * Copy the buffer contents to file.
-     */
-    public static boolean copyToFile(File file, ByteBuffer buffer) {
-        return copyToFile(file, new ByteBufferInputStream(buffer));
     }
 
     /**

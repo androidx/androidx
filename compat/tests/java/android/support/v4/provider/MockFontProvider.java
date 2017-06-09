@@ -204,7 +204,15 @@ public class MockFontProvider extends ContentProvider {
             InputStream is = null;
             try {
                 is = mgr.open("fonts/" + file);
-                copy(is, getCopiedFile(context, file));
+                File copied = getCopiedFile(context, file);
+                File parent = copied.getParentFile();
+                if (!parent.isDirectory()) {
+                    parent.mkdirs();
+                    parent.setReadable(true, false);
+                    parent.setExecutable(true, false);
+                }
+                copy(is, copied);
+                copied.setReadable(true, false);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -245,7 +253,8 @@ public class MockFontProvider extends ContentProvider {
     }
 
     public static File getCopiedFile(Context context, String path) {
-        return new File(context.getFilesDir(), path);
+        final File cacheDir = new File(context.getFilesDir(), "fontCache");
+        return new File(cacheDir, path);
     }
 
     @Override
