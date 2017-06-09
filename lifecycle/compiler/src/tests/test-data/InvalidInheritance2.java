@@ -24,10 +24,10 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 interface Base {
     @OnLifecycleEvent(ON_STOP)
-    void onStop();
+    void foo();
 }
 
 class Derived implements Base {
-    @OnLifecycleEvent({ON_START , ON_STOP})
-    public void onStop(){}
+    @OnLifecycleEvent(ON_START)
+    public void foo(){}
 }

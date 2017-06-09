@@ -23,12 +23,12 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 class Base {
     @OnLifecycleEvent(ON_STOP)
-    void onStop() {
+    void foo() {
     }
 }
 
 class Derived extends Base {
-    @OnLifecycleEvent({ON_START ,ON_STOP})
-    void onStop() {
+    @OnLifecycleEvent(ON_START)
+    void foo() {
     }
 }

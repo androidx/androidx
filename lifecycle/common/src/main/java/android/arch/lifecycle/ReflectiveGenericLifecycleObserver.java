@@ -22,12 +22,9 @@ import android.support.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * An internal implementation of {@link GenericLifecycleObserver} that relies on reflection.
@@ -48,14 +45,21 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         invokeCallbacks(mInfo, source, event);
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private void invokeCallbacks(CallbackInfo info, LifecycleOwner source, Event event) {
-        if (info.mEvents.contains(event)) {
-            for (int i = info.mMethodReferences.size() - 1; i >= 0; i--) {
-                MethodReference reference = info.mMethodReferences.get(i);
+    private void invokeMethodsForEvent(List<MethodReference> handlers, LifecycleOwner source,
+            Event event) {
+        if (handlers != null) {
+            for (int i = handlers.size() - 1; i >= 0; i--) {
+                MethodReference reference = handlers.get(i);
                 invokeCallback(reference, source, event);
             }
         }
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void invokeCallbacks(CallbackInfo info, LifecycleOwner source, Event event) {
+        invokeMethodsForEvent(info.mEventHandlers.get(event), source, event);
+        invokeMethodsForEvent(info.mEventHandlers.get(Event.ON_ANY), source, event);
+
         // TODO prevent duplicate calls into the same method. Preferably while parsing
         if (info.mSuper != null) {
             invokeCallbacks(info.mSuper, source, event);
@@ -69,25 +73,23 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
     }
 
     private void invokeCallback(MethodReference reference, LifecycleOwner source, Event event) {
-        if (reference.mEvents.contains(event)) {
-            //noinspection TryWithIdenticalCatches
-            try {
-                switch (reference.mCallType) {
-                    case CALL_TYPE_NO_ARG:
-                        reference.mMethod.invoke(mWrapped);
-                        break;
-                    case CALL_TYPE_PROVIDER:
-                        reference.mMethod.invoke(mWrapped, source);
-                        break;
-                    case CALL_TYPE_PROVIDER_WITH_EVENT:
-                        reference.mMethod.invoke(mWrapped, source, event);
-                        break;
-                }
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException("Failed to call observer method", e.getCause());
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
+        //noinspection TryWithIdenticalCatches
+        try {
+            switch (reference.mCallType) {
+                case CALL_TYPE_NO_ARG:
+                    reference.mMethod.invoke(mWrapped);
+                    break;
+                case CALL_TYPE_PROVIDER:
+                    reference.mMethod.invoke(mWrapped, source);
+                    break;
+                case CALL_TYPE_PROVIDER_WITH_EVENT:
+                    reference.mMethod.invoke(mWrapped, source, event);
+                    break;
             }
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Failed to call observer method", e.getCause());
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -107,8 +109,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     private static CallbackInfo createInfo(Class klass) {
         Method[] methods = klass.getDeclaredMethods();
-        List<MethodReference> methodReferences = null;
-        Set<Event> allEvents = new HashSet<>();
+        Map<Event, List<MethodReference>> eventHandlers = new HashMap<>();
         for (Method method : methods) {
             OnLifecycleEvent annotation = method.getAnnotation(OnLifecycleEvent.class);
             if (annotation == null) {
@@ -133,14 +134,15 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
             if (params.length > 2) {
                 throw new IllegalArgumentException("cannot have more than 2 params");
             }
+            Event event = annotation.value();
+            List<MethodReference> methodReferences = eventHandlers.get(event);
             if (methodReferences == null) {
                 methodReferences = new ArrayList<>();
+                eventHandlers.put(event, methodReferences);
             }
-            Set<Event> events = expandOnAnyEvents(annotation.value());
-            methodReferences.add(new MethodReference(events, callType, method));
-            allEvents.addAll(events);
+            methodReferences.add(new MethodReference(event, callType, method));
         }
-        CallbackInfo info = new CallbackInfo(allEvents, methodReferences);
+        CallbackInfo info = new CallbackInfo(eventHandlers);
         sInfoCache.put(klass, info);
         Class superclass = klass.getSuperclass();
         if (superclass != null) {
@@ -149,7 +151,7 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         Class[] interfaces = klass.getInterfaces();
         for (Class intrfc : interfaces) {
             CallbackInfo interfaceInfo = getInfo(intrfc);
-            if (!interfaceInfo.mEvents.isEmpty()) {
+            if (!interfaceInfo.mEventHandlers.isEmpty()) {
                 if (info.mInterfaces == null) {
                     info.mInterfaces = new ArrayList<>();
                 }
@@ -161,62 +163,30 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
 
     @SuppressWarnings("WeakerAccess")
     static class CallbackInfo {
-        final Set<Event> mEvents;
-        @Nullable
-        List<MethodReference> mMethodReferences;
+        final Map<Event, List<MethodReference>> mEventHandlers;
         @Nullable
         List<CallbackInfo> mInterfaces;
         @Nullable
         CallbackInfo mSuper;
 
-        CallbackInfo(Set<Event> events, @Nullable List<MethodReference> methodReferences) {
-            mEvents = events;
-            mMethodReferences = methodReferences;
+        CallbackInfo(Map<Event, List<MethodReference>> eventHandlers) {
+            mEventHandlers = eventHandlers;
         }
     }
 
     @SuppressWarnings("WeakerAccess")
     static class MethodReference {
-        final Set<Event> mEvents;
+        final Event mEvent;
         final int mCallType;
         final Method mMethod;
 
-        MethodReference(Set<Event> events, int callType, Method method) {
-            mEvents = events;
+        MethodReference(Event event, int callType, Method method) {
+            mEvent = event;
             mCallType = callType;
             mMethod = method;
             mMethod.setAccessible(true);
         }
     }
-
-    private static Set<Event> expandOnAnyEvents(Event[] events) {
-        boolean hasOnAllEvents = false;
-        for (Event e: events) {
-            if (e == Event.ON_ANY) {
-                hasOnAllEvents = true;
-                break;
-            }
-        }
-
-        if (!hasOnAllEvents) {
-            HashSet<Event> set = new HashSet<>();
-            Collections.addAll(set, events);
-            return set;
-        } else {
-            return ALL_EVENTS;
-        }
-    }
-
-    private static final Set<Event> ALL_EVENTS = new HashSet<Event>() {
-        {
-            add(Event.ON_CREATE);
-            add(Event.ON_START);
-            add(Event.ON_RESUME);
-            add(Event.ON_PAUSE);
-            add(Event.ON_STOP);
-            add(Event.ON_DESTROY);
-        }
-    };
 
     private static final int CALL_TYPE_NO_ARG = 0;
     private static final int CALL_TYPE_PROVIDER = 1;

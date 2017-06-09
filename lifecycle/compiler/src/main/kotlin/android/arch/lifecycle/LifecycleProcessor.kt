@@ -255,19 +255,19 @@ class LifecycleProcessor : AbstractProcessor() {
                 .addModifiers(PUBLIC)
                 .addAnnotation(Override::class.java)
         val dispatchMethod = dispatchMethodBuilder.apply {
-            observer.methods.flatMap { stateMethod ->
-                stateMethod.onLifecycleEvent.value.map { event -> Pair(event, stateMethod) }
-            }.groupBy { pair -> pair.first }.forEach { entry ->
-                val event = entry.key
-                val methods = entry.value.map { pair -> pair.second }
-                if (event == Lifecycle.Event.ON_ANY) {
-                    writeMethodCalls(eventParam, methods, ownerParam, receiverField)
-                } else {
-                    beginControlFlow("if ($N == $T.$L)", eventParam, JAVA_LIFECYCLE_EVENT, event)
-                            .writeMethodCalls(eventParam, methods, ownerParam, receiverField)
-                    endControlFlow()
-                }
-            }
+            observer.methods
+                    .groupBy { stateMethod -> stateMethod.onLifecycleEvent.value }
+                    .forEach { entry ->
+                        val event = entry.key
+                        val methods = entry.value
+                        if (event == Lifecycle.Event.ON_ANY) {
+                            writeMethodCalls(eventParam, methods, ownerParam, receiverField)
+                        } else {
+                            beginControlFlow("if ($N == $T.$L)", eventParam, JAVA_LIFECYCLE_EVENT, event)
+                                    .writeMethodCalls(eventParam, methods, ownerParam, receiverField)
+                            endControlFlow()
+                        }
+                    }
         }.build()
 
         @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
