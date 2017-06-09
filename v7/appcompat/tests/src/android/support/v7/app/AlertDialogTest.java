@@ -60,6 +60,7 @@ import android.support.test.espresso.ViewInteraction;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.TestUtilsMatchers;
 import android.text.TextUtils;
@@ -76,6 +77,7 @@ import android.widget.ListView;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -95,13 +97,16 @@ import org.mockito.ArgumentCaptor;
  *     is rendered by a single <code>CheckedTextView</code>.</li>
  * </ul>
  */
-public class AlertDialogTest extends BaseInstrumentationTestCase<AlertDialogTestActivity> {
+public class AlertDialogTest {
+    @Rule
+    public final ActivityTestRule<AlertDialogTestActivity> mActivityTestRule;
+
     private Button mButton;
 
     private AlertDialog mAlertDialog;
 
     public AlertDialogTest() {
-        super(AlertDialogTestActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(AlertDialogTestActivity.class);
     }
 
     @Before

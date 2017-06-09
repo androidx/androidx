@@ -46,7 +46,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import android.support.v7.app.BaseInstrumentationTestCase;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.appcompat.test.R;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -60,9 +61,16 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestActivity> {
+@RunWith(AndroidJUnit4.class)
+public class ListPopupWindowTest {
+    @Rule
+    public final ActivityTestRule<PopupTestActivity> mActivityTestRule =
+            new ActivityTestRule<>(PopupTestActivity.class);
+
     private FrameLayout mContainer;
 
     private Button mButton;
@@ -86,15 +94,11 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         }
     }
 
-    public ListPopupWindowTest() {
-        super(PopupTestActivity.class);
-    }
-
     @Before
     public void setUp() throws Exception {
         final PopupTestActivity activity = mActivityTestRule.getActivity();
-        mContainer = (FrameLayout) activity.findViewById(R.id.container);
-        mButton = (Button) mContainer.findViewById(R.id.test_button);
+        mContainer = activity.findViewById(R.id.container);
+        mButton = mContainer.findViewById(R.id.test_button);
         mItemClickListener = new PopupItemClickListener();
     }
 

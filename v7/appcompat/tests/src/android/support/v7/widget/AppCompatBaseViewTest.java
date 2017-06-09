@@ -36,9 +36,10 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.ColorUtils;
-import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.AppCompatTintableViewActions;
 import android.support.v7.testutils.BaseTestActivity;
@@ -47,7 +48,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Base class for testing custom view extensions in appcompat-v7 that implement the
@@ -55,15 +58,18 @@ import org.junit.Test;
  * from here and add test cases specific to the functionality they add to the relevant
  * base view class (such as <code>AppCompatTextView</code>'s all-caps support).
  */
-public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extends View>
-        extends BaseInstrumentationTestCase<A> {
+@RunWith(AndroidJUnit4.class)
+public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extends View> {
+    @Rule
+    public final ActivityTestRule<A> mActivityTestRule;
+
     protected ViewGroup mContainer;
 
     protected A mActivity;
     protected Resources mResources;
 
     public AppCompatBaseViewTest(Class clazz) {
-        super(clazz);
+        mActivityTestRule = new ActivityTestRule<A>(clazz);
     }
 
     @Before
