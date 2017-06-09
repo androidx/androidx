@@ -19,21 +19,29 @@ package android.support.v7.app;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.app.Instrumentation;
 import android.os.SystemClock;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public abstract class BaseKeyboardShortcutsTestCase<A extends BaseTestActivity>
-        extends BaseInstrumentationTestCase<A> {
+@RunWith(AndroidJUnit4.class)
+public abstract class BaseKeyboardShortcutsTestCase<A extends BaseTestActivity> {
+    @Rule
+    public final ActivityTestRule<A> mActivityTestRule;
 
     protected BaseKeyboardShortcutsTestCase(Class<A> activityClass) {
-        super(activityClass);
+        mActivityTestRule = new ActivityTestRule<>(activityClass);
     }
 
     @Test
@@ -45,18 +53,19 @@ public abstract class BaseKeyboardShortcutsTestCase<A extends BaseTestActivity>
     }
 
     private void testKeyboardShortcut(final int keyCode, final int meta, final int expectedId) {
+        final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         final long downTime = SystemClock.uptimeMillis();
         final KeyEvent downEvent = new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN,
                 keyCode, 0, meta, KeyCharacterMap.VIRTUAL_KEYBOARD, 0);
-        getInstrumentation().sendKeySync(downEvent);
-        getInstrumentation().waitForIdleSync();
+        instrumentation.sendKeySync(downEvent);
+        instrumentation.waitForIdleSync();
 
         final KeyEvent upEvent = new KeyEvent(downTime, downTime + 500, KeyEvent.ACTION_UP,
                 keyCode, 0, meta, KeyCharacterMap.VIRTUAL_KEYBOARD, 0);
-        getInstrumentation().sendKeySync(upEvent);
-        getInstrumentation().waitForIdleSync();
+        instrumentation.sendKeySync(upEvent);
+        instrumentation.waitForIdleSync();
 
-        MenuItem selectedItem = getActivity().getOptionsItemSelected();
+        MenuItem selectedItem = mActivityTestRule.getActivity().getOptionsItemSelected();
         assertNotNull("Options item selected", selectedItem);
         assertEquals("Correct options item selected", selectedItem.getItemId(), expectedId);
     }

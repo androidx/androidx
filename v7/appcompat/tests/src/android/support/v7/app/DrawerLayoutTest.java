@@ -49,6 +49,8 @@ import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.Suppress;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.appcompat.test.R;
@@ -56,20 +58,23 @@ import android.support.v7.custom.CustomDrawerLayout;
 import android.view.View;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
-public class DrawerLayoutTest extends BaseInstrumentationTestCase<DrawerLayoutActivity> {
+@RunWith(AndroidJUnit4.class)
+public class DrawerLayoutTest {
+    @Rule
+    public final ActivityTestRule<DrawerLayoutActivity> mActivityTestRule =
+            new ActivityTestRule<DrawerLayoutActivity>(DrawerLayoutActivity.class);
+
     private CustomDrawerLayout mDrawerLayout;
 
     private View mStartDrawer;
 
     private View mContentView;
-
-    public DrawerLayoutTest() {
-        super(DrawerLayoutActivity.class);
-    }
 
     @Before
     public void setUp() {
