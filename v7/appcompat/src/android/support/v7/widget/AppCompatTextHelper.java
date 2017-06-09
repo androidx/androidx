@@ -283,15 +283,7 @@ class AppCompatTextHelper {
     void onLayout(boolean changed, int left, int top, int right, int bottom) {
         // Auto-size is supported by the framework starting from Android O.
         if (!(Build.VERSION.SDK_INT >= 26)) {
-            if (isAutoSizeEnabled()) {
-                if (getNeedsAutoSizeText()) {
-                    // Call auto-size after the width and height have been calculated.
-                    autoSizeText();
-                }
-                // Always try to auto-size if enabled. Functions that do not want to trigger
-                // auto-sizing after the next layout round should set this to false.
-                setNeedsAutoSizeText(true);
-            }
+            autoSizeText();
         }
     }
 
@@ -305,20 +297,16 @@ class AppCompatTextHelper {
         }
     }
 
-    private boolean isAutoSizeEnabled() {
-        return mAutoSizeTextHelper.isAutoSizeEnabled();
-    }
-
-    private boolean getNeedsAutoSizeText() {
-        return mAutoSizeTextHelper.getNeedsAutoSizeText();
-    }
-
-    private void setNeedsAutoSizeText(boolean needsAutoSizeText) {
-        mAutoSizeTextHelper.setNeedsAutoSizeText(needsAutoSizeText);
-    }
-
-    private void autoSizeText() {
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    void autoSizeText() {
         mAutoSizeTextHelper.autoSizeText();
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    boolean isAutoSizeEnabled() {
+        return mAutoSizeTextHelper.isAutoSizeEnabled();
     }
 
     private void setTextSizeInternal(int unit, float size) {
