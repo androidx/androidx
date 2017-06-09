@@ -36,14 +36,7 @@ class NotificationCompatJellybean {
     public static final String TAG = "NotificationCompat";
 
     // Extras keys used for Jellybean SDK and above.
-    static final String EXTRA_LOCAL_ONLY = "android.support.localOnly";
-    static final String EXTRA_ACTION_EXTRAS = "android.support.actionExtras";
-    static final String EXTRA_REMOTE_INPUTS = "android.support.remoteInputs";
     static final String EXTRA_DATA_ONLY_REMOTE_INPUTS = "android.support.dataRemoteInputs";
-    static final String EXTRA_GROUP_KEY = "android.support.groupKey";
-    static final String EXTRA_GROUP_SUMMARY = "android.support.isGroupSummary";
-    static final String EXTRA_SORT_KEY = "android.support.sortKey";
-    static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
     static final String EXTRA_ALLOW_GENERATED_REPLIES = "android.support.allowGeneratedReplies";
 
     // Bundle keys for storing action fields in a bundle
@@ -112,18 +105,18 @@ class NotificationCompatJellybean {
                 mExtras.putAll(extras);
             }
             if (localOnly) {
-                mExtras.putBoolean(EXTRA_LOCAL_ONLY, true);
+                mExtras.putBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY, true);
             }
             if (groupKey != null) {
-                mExtras.putString(EXTRA_GROUP_KEY, groupKey);
+                mExtras.putString(NotificationCompatExtras.EXTRA_GROUP_KEY, groupKey);
                 if (groupSummary) {
-                    mExtras.putBoolean(EXTRA_GROUP_SUMMARY, true);
+                    mExtras.putBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY, true);
                 } else {
-                    mExtras.putBoolean(EXTRA_USE_SIDE_CHANNEL, true);
+                    mExtras.putBoolean(NotificationManagerCompat.EXTRA_USE_SIDE_CHANNEL, true);
                 }
             }
             if (sortKey != null) {
-                mExtras.putString(EXTRA_SORT_KEY, sortKey);
+                mExtras.putString(NotificationCompatExtras.EXTRA_SORT_KEY, sortKey);
             }
             mContentView = contentView;
             mBigContentView = bigContentView;
@@ -155,7 +148,8 @@ class NotificationCompatJellybean {
             SparseArray<Bundle> actionExtrasMap = buildActionExtrasMap(mActionExtrasList);
             if (actionExtrasMap != null) {
                 // Add the action extras sparse array if any action was added with extras.
-                getExtras(notif).putSparseParcelableArray(EXTRA_ACTION_EXTRAS, actionExtrasMap);
+                getExtras(notif).putSparseParcelableArray(
+                        NotificationCompatExtras.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
             if (mContentView != null) {
                 notif.contentView = mContentView;
@@ -266,7 +260,8 @@ class NotificationCompatJellybean {
         boolean allowGeneratedReplies = false;
         if (extras != null) {
             remoteInputs = RemoteInputCompatJellybean.fromBundleArray(
-                    BundleUtil.getBundleArrayFromBundle(extras, EXTRA_REMOTE_INPUTS),
+                    BundleUtil.getBundleArrayFromBundle(extras,
+                            NotificationCompatExtras.EXTRA_REMOTE_INPUTS),
                     remoteInputFactory);
             dataOnlyRemoteInputs = RemoteInputCompatJellybean.fromBundleArray(
                     BundleUtil.getBundleArrayFromBundle(extras, EXTRA_DATA_ONLY_REMOTE_INPUTS),
@@ -282,7 +277,7 @@ class NotificationCompatJellybean {
         builder.addAction(action.getIcon(), action.getTitle(), action.getActionIntent());
         Bundle actionExtras = new Bundle(action.getExtras());
         if (action.getRemoteInputs() != null) {
-            actionExtras.putParcelableArray(EXTRA_REMOTE_INPUTS,
+            actionExtras.putParcelableArray(NotificationCompatExtras.EXTRA_REMOTE_INPUTS,
                     RemoteInputCompatJellybean.toBundleArray(action.getRemoteInputs()));
         }
         if (action.getDataOnlyRemoteInputs() != null) {
@@ -313,7 +308,7 @@ class NotificationCompatJellybean {
                     Bundle extras = getExtras(notif);
                     if (extras != null) {
                         SparseArray<Bundle> actionExtrasMap = extras.getSparseParcelableArray(
-                                EXTRA_ACTION_EXTRAS);
+                                NotificationCompatExtras.EXTRA_ACTION_EXTRAS);
                         if (actionExtrasMap != null) {
                             actionExtras = actionExtrasMap.get(actionIndex);
                         }
