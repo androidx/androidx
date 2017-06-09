@@ -37,7 +37,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     private static final String TAG = "RemoteInput";
 
     /** Label used to denote the clip data type used for remote input transport */
-    public static final String RESULTS_CLIP_LABEL = RemoteInputCompatJellybean.RESULTS_CLIP_LABEL;
+    public static final String RESULTS_CLIP_LABEL = "android.remoteinput.results";
 
     /** Extra added to a clip data intent object to hold the text results bundle. */
     public static final String EXTRA_RESULTS_DATA = "android.remoteinput.resultsData";

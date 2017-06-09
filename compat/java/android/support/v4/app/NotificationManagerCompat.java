@@ -66,8 +66,7 @@ public final class NotificationManagerCompat {
      * Notification extras key: if set to true, the posted notification should use
      * the side channel for delivery instead of using notification manager.
      */
-    public static final String EXTRA_USE_SIDE_CHANNEL =
-            NotificationCompatJellybean.EXTRA_USE_SIDE_CHANNEL;
+    public static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
 
     /**
      * Intent action to register for on a service to receive side channel
