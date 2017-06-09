@@ -20,6 +20,7 @@ import COMMON
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.OnConflictStrategy
+import android.arch.persistence.room.ext.CommonTypeNames
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
@@ -179,6 +180,61 @@ class InsertionMethodProcessorTest {
             assertThat(param.type.typeName(), `is`(
                     ParameterizedTypeName.get(ClassName.get("java.util", "Set")
                             , COMMON.USER_TYPE_NAME) as TypeName))
+            assertThat(insertion.entity?.typeName,
+                    `is`(ClassName.get("foo.bar", "User") as TypeName))
+            assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun insertQueue() {
+        singleInsertMethod(
+                """
+                @Insert
+                abstract public void insertUsers(Queue<User> users);
+                """) { insertion, invocation ->
+            assertThat(insertion.name, `is`("insertUsers"))
+            assertThat(insertion.parameters.size, `is`(1))
+            val param = insertion.parameters.first()
+            assertThat(param.type.typeName(), `is`(
+                    ParameterizedTypeName.get(ClassName.get("java.util", "Queue")
+                            , COMMON.USER_TYPE_NAME) as TypeName))
+            assertThat(insertion.entity?.typeName,
+                    `is`(ClassName.get("foo.bar", "User") as TypeName))
+            assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun insertIterable() {
+        singleInsertMethod("""
+                @Insert
+                abstract public void insert(Iterable<User> users);
+                """) { insertion, invocation ->
+            assertThat(insertion.name, `is`("insert"))
+            assertThat(insertion.parameters.size, `is`(1))
+            val param = insertion.parameters.first()
+            assertThat(param.type.typeName(), `is`(ParameterizedTypeName.get(
+                    ClassName.get("java.lang", "Iterable"), COMMON.USER_TYPE_NAME) as TypeName))
+            assertThat(insertion.entity?.typeName,
+                    `is`(ClassName.get("foo.bar", "User") as TypeName))
+            assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun insertCustomCollection() {
+        singleInsertMethod("""
+                static class MyList<Irrelevant, Item> extends ArrayList<Item> {}
+                @Insert
+                abstract public void insert(MyList<String, User> users);
+                """) { insertion, invocation ->
+            assertThat(insertion.name, `is`("insert"))
+            assertThat(insertion.parameters.size, `is`(1))
+            val param = insertion.parameters.first()
+            assertThat(param.type.typeName(), `is`(ParameterizedTypeName.get(
+                    ClassName.get("foo.bar", "MyClass.MyList"),
+                    CommonTypeNames.STRING, COMMON.USER_TYPE_NAME) as TypeName))
             assertThat(insertion.entity?.typeName,
                     `is`(ClassName.get("foo.bar", "User") as TypeName))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))

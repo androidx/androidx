@@ -17,6 +17,7 @@
 package android.arch.persistence.room.processor
 
 import android.arch.persistence.room.Dao
+import android.arch.persistence.room.ext.CommonTypeNames
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
@@ -176,6 +177,46 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             val param = shortcut.parameters.first()
             assertThat(param.type.typeName(), `is`(
                     ParameterizedTypeName.get(ClassName.get("java.util", "Set")
+                            , COMMON.USER_TYPE_NAME) as TypeName))
+            assertThat(shortcut.entity?.typeName,
+                    `is`(ClassName.get("foo.bar", "User") as TypeName))
+            assertThat(shortcut.returnCount, `is`(false))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun iterable() {
+        singleShortcutMethod(
+                """
+                @${annotation.java.canonicalName}
+                abstract public void modifyUsers(Iterable<User> users);
+                """) { shortcut, invocation ->
+            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.parameters.size, `is`(1))
+            val param = shortcut.parameters.first()
+            assertThat(param.type.typeName(), `is`(
+                    ParameterizedTypeName.get(ClassName.get("java.lang", "Iterable")
+                            , COMMON.USER_TYPE_NAME) as TypeName))
+            assertThat(shortcut.entity?.typeName,
+                    `is`(ClassName.get("foo.bar", "User") as TypeName))
+            assertThat(shortcut.returnCount, `is`(false))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun customCollection() {
+        singleShortcutMethod(
+                """
+                static class MyList<Irrelevant, Item> extends ArrayList<Item> {}
+                @${annotation.java.canonicalName}
+                abstract public void modifyUsers(MyList<String, User> users);
+                """) { shortcut, invocation ->
+            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.parameters.size, `is`(1))
+            val param = shortcut.parameters.first()
+            assertThat(param.type.typeName(), `is`(
+                    ParameterizedTypeName.get(ClassName.get("foo.bar", "MyClass.MyList")
+                            , CommonTypeNames.STRING
                             , COMMON.USER_TYPE_NAME) as TypeName))
             assertThat(shortcut.entity?.typeName,
                     `is`(ClassName.get("foo.bar", "User") as TypeName))

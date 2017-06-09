@@ -19,8 +19,6 @@ package android.arch.persistence.room;
 import android.arch.persistence.db.SupportSQLiteStatement;
 import android.support.annotation.RestrictTo;
 
-import java.util.Collection;
-
 /**
  * Implementations of this class knows how to delete or update a particular entity.
  * <p>
@@ -80,7 +78,7 @@ public abstract class EntityDeletionOrUpdateAdapter<T> extends SharedSQLiteState
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    public final int handleMultiple(Collection<T> entities) {
+    public final int handleMultiple(Iterable<T> entities) {
         final SupportSQLiteStatement stmt = acquire();
         try {
             int total = 0;
