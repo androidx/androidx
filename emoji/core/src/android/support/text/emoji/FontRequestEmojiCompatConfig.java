@@ -20,17 +20,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.graphics.TypefaceCompat;
 import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontFamilyResult;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
-import android.support.v4.util.ArrayMap;
 import android.support.v4.util.Preconditions;
 
 import java.io.FileInputStream;
@@ -145,12 +142,10 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                     throwException("Unable to open file.");
                 }
 
-                // TypefaceCompat.buildTypeface opens file descriptor again, so bypass the
-                // FontsContract.prepareFontData and create FontInfo and ByteBuffer directly.
-                final ArrayMap<Uri, ByteBuffer> bufferMap = new ArrayMap<>();
-                bufferMap.put(font.getUri(), buffer.duplicate());
-                final Typeface typeface = TypefaceCompat.createTypeface(mContext,
-                        new FontInfo[] { font }, bufferMap);
+                // TODO(nona): Introduce public API to make Typeface from filedescriptor so that we
+                // can stop opening file descriptor twice.
+                final Typeface typeface = FontsContractCompat.buildTypeface(mContext,
+                        null /* cancellation signal */, fonts);
                 if (typeface == null) {
                     throwException("Failed to create Typeface.");
                 }
