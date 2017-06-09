@@ -23,25 +23,31 @@ import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.BaseInstrumentationTestCase;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.testutils.TestUtils;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SmallTest
-public class AppCompatResourcesTestCase extends BaseInstrumentationTestCase<AppCompatActivity> {
+@RunWith(AndroidJUnit4.class)
+public class AppCompatResourcesTestCase {
+    @Rule
+    public final ActivityTestRule<AppCompatActivity> mActivityTestRule;
 
     public AppCompatResourcesTestCase() {
-        super(AppCompatActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(AppCompatActivity.class);
     }
 
     @Test
     public void testGetColorStateListWithThemedAttributes() {
-        final Activity context = getActivity();
+        final Activity context = mActivityTestRule.getActivity();
 
         final int colorForegound = TestUtils.getThemeAttrColor(
                 context, android.R.attr.colorForeground);
@@ -65,7 +71,7 @@ public class AppCompatResourcesTestCase extends BaseInstrumentationTestCase<AppC
 
     @Test
     public void testGetDrawableVectorResource() {
-        final Activity context = getActivity();
+        final Activity context = mActivityTestRule.getActivity();
         assertNotNull(AppCompatResources.getDrawable(context, R.drawable.test_vector_off));
     }
 

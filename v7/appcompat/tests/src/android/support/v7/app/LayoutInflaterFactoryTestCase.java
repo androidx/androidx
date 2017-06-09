@@ -20,12 +20,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.RequiresApi;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.custom.ContextWrapperFrameLayout;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
@@ -45,14 +47,15 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class LayoutInflaterFactoryTestCase
-        extends BaseInstrumentationTestCase<LayoutInflaterFactoryTestActivity> {
-
-    public LayoutInflaterFactoryTestCase() {
-        super(LayoutInflaterFactoryTestActivity.class);
-    }
+@RunWith(AndroidJUnit4.class)
+public class LayoutInflaterFactoryTestCase {
+    @Rule
+    public final ActivityTestRule<LayoutInflaterFactoryTestActivity> mActivityTestRule =
+            new ActivityTestRule<>(LayoutInflaterFactoryTestActivity.class);
 
     @Before
     public void setup() {
@@ -64,7 +67,7 @@ public class LayoutInflaterFactoryTestCase
     @Test
     @SmallTest
     public void testAndroidThemeInflation() {
-        final LayoutInflater inflater = LayoutInflater.from(getActivity());
+        final LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
         assertThemedContext(inflater.inflate(R.layout.layout_android_theme, null));
     }
 
@@ -72,7 +75,7 @@ public class LayoutInflaterFactoryTestCase
     @Test
     @SmallTest
     public void testAppThemeInflation() {
-        final LayoutInflater inflater = LayoutInflater.from(getActivity());
+        final LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
         assertThemedContext(inflater.inflate(R.layout.layout_app_theme, null));
     }
 
@@ -83,7 +86,7 @@ public class LayoutInflaterFactoryTestCase
     @Test
     @SmallTest
     public void testAndroidThemeWithChildrenInflation() {
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
         final ViewGroup root = (ViewGroup) inflater.inflate(
                 R.layout.layout_android_theme_children, null);
         assertThemedContext(root);
@@ -93,7 +96,7 @@ public class LayoutInflaterFactoryTestCase
     @Test
     @SmallTest
     public void testThemedInflationWithUnattachedParent() {
-        final Context activity = getActivity();
+        final Context activity = mActivityTestRule.getActivity();
 
         // Create a parent but not attached
         final LinearLayout parent = new LinearLayout(activity);
@@ -195,15 +198,15 @@ public class LayoutInflaterFactoryTestCase
     @Test
     @SmallTest
     public void testDeclarativeOnClickWithContextWrapper() {
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
         View view = inflater.inflate(R.layout.layout_button_themed_onclick, null);
 
         assertTrue(view.performClick());
-        assertTrue(getActivity().wasDeclarativeOnClickCalled());
+        assertTrue(mActivityTestRule.getActivity().wasDeclarativeOnClickCalled());
     }
 
     private void verifyAppCompatWidgetInflation(final int layout, final Class<?> expectedClass) {
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mActivityTestRule.getActivity());
         View view = inflater.inflate(layout, null);
         assertSame("View is " + expectedClass.getSimpleName(), expectedClass,
                 view.getClass());
