@@ -778,6 +778,39 @@ public class GridWidgetTest {
         verifyEdgesSame(endEdges, endEdges2);
     }
 
+
+    @Test
+    public void testLayoutWhenAViewIsInvalidated() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        mNumRows = 1;
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        waitOneUiCycle();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                RecyclerView.ViewHolder vh = mGridView.findViewHolderForAdapterPosition(3);
+                // The following is nowhere ideal since we can't override GridLayoutManager to
+                // obtain a reference to Recycler. Ideally, this test should call
+                // addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID) on the ViewHolder to
+                // simulate markKnownViewsInvalid on the cached views in RecyclerView.
+                mLayoutManager.stopIgnoringView(vh.itemView);
+            }
+        });
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForScrollIdle();
+    }
+
+
     void preparePredictiveLayout() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
