@@ -22,7 +22,6 @@ import android.app.Service;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.support.v4.accessibilityservice.AccessibilityServiceInfoCompat;
-import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,20 +78,16 @@ public class AccessibilityManagerSupportActivity extends Activity {
      * when the global accessibility state on the device changes.
      */
     private void registerAccessibilityStateChangeListener() {
-        // The AccessibilityStateChange listener APIs were added in ICS. Therefore to be
-        // backwards compatible we use the APIs in the support library. Note that if the
-        // platform API version is lower and the called API is not available no listener
-        // is added and you will not receive a call of onAccessibilityStateChanged.
-        AccessibilityManagerCompat.addAccessibilityStateChangeListener(mAccessibilityManager,
-                new AccessibilityManagerCompat.AccessibilityStateChangeListener() {
-            @Override
-            public void onAccessibilityStateChanged(boolean enabled) {
-                Toast.makeText(AccessibilityManagerSupportActivity.this,
-                        getString(R.string.accessibility_manager_accessibility_state,
-                                Boolean.toString(enabled)),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+        mAccessibilityManager.addAccessibilityStateChangeListener(
+                new AccessibilityManager.AccessibilityStateChangeListener() {
+                    @Override
+                    public void onAccessibilityStateChanged(boolean enabled) {
+                        Toast.makeText(AccessibilityManagerSupportActivity.this,
+                                getString(R.string.accessibility_manager_accessibility_state,
+                                        Boolean.toString(enabled)),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**
@@ -100,13 +95,9 @@ public class AccessibilityManagerSupportActivity extends Activity {
      * accessibility services.
      */
     private void updateAccessibilityStateView() {
-        // The API for getting the enabled accessibility services based on feedback
-        // type was added in ICS. Therefore to be backwards compatible we use the
-        // APIs in the support library. Note that if the platform API version is lower
-        // and the called API is not available an empty list of services is returned.
         List<AccessibilityServiceInfo> enabledServices =
-            AccessibilityManagerCompat.getEnabledAccessibilityServiceList(mAccessibilityManager,
-                    AccessibilityServiceInfo.FEEDBACK_SPOKEN);
+                mAccessibilityManager.getEnabledAccessibilityServiceList(
+                        AccessibilityServiceInfo.FEEDBACK_SPOKEN);
         if (!enabledServices.isEmpty()) {
             StringBuilder builder = new StringBuilder();
             final int enabledServiceCount = enabledServices.size();
