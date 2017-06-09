@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -243,5 +244,18 @@ public class AppCompatTextViewTest
         TextViewCompat.setTextAppearance(textView, R.style.TextView_FontResourceWithStyle);
 
         assertNotEquals(Typeface.DEFAULT, textView.getTypeface());
+    }
+
+    @Test
+    @UiThreadTest
+    public void testSetTextAppearance_resetTypeface() throws PackageManager.NameNotFoundException {
+        TextView textView = mContainer.findViewById(R.id.textview_simple);
+
+        TextViewCompat.setTextAppearance(textView, R.style.TextView_SansSerif);
+        Typeface firstTypeface = textView.getTypeface();
+
+        TextViewCompat.setTextAppearance(textView, R.style.TextView_Serif);
+        Typeface secondTypeface = textView.getTypeface();
+        assertNotEquals(firstTypeface, secondTypeface);
     }
 }
