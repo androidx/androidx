@@ -69,6 +69,86 @@ public class AppCompatTextViewAutoSizeTest {
     }
 
     @Test
+    public void testAutoSizeCallers_setText() throws Throwable {
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+                R.id.textview_autosize_uniform, false);
+
+        // Configure layout params and auto-size both in pixels to dodge flakiness on different
+        // devices.
+        final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                500, 500);
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeTextView.setLayoutParams(layoutParams);
+                autoSizeTextView.setAutoSizeTextTypeUniformWithConfiguration(
+                        1, 5000, 1, TypedValue.COMPLEX_UNIT_PX);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+
+        final String initialText = "13characters ";
+        final StringBuilder textToSet = new StringBuilder().append(initialText);
+        float initialSize = 0;
+
+        // As we add characters the text size shrinks.
+        for (int i = 0; i < 10; i++) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setText(textToSet.toString());
+                }
+            });
+
+            mInstrumentation.waitForIdleSync();
+            float expectedLargerSize = autoSizeTextView.getTextSize();
+            if (i == 0) {
+                initialSize = expectedLargerSize;
+            }
+
+            textToSet.append(initialText);
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setText(textToSet.toString());
+                }
+            });
+            mInstrumentation.waitForIdleSync();
+            assertTrue(expectedLargerSize >= autoSizeTextView.getTextSize());
+        }
+        assertTrue(initialSize > autoSizeTextView.getTextSize());
+
+        initialSize = 9999999;
+        // As we remove characters the text size expands.
+        for (int i = 9; i >= 0; i--) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setText(textToSet.toString());
+                }
+            });
+            mInstrumentation.waitForIdleSync();
+            float expectedSmallerSize = autoSizeTextView.getTextSize();
+            if (i == 0) {
+                initialSize = expectedSmallerSize;
+            }
+
+            textToSet.replace((textToSet.length() - initialText.length()),
+                    textToSet.length(), "");
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setText(textToSet.toString());
+                }
+            });
+            mInstrumentation.waitForIdleSync();
+
+            assertTrue(autoSizeTextView.getTextSize() >= expectedSmallerSize);
+        }
+        assertTrue(autoSizeTextView.getTextSize() > initialSize);
+    }
+
+    @Test
     public void testAutoSizeUniform_equivalentConfigurations() throws Throwable {
         final DisplayMetrics dm = mActivity.getResources().getDisplayMetrics();
         final int minTextSize = 10;
@@ -112,23 +192,22 @@ public class AppCompatTextViewAutoSizeTest {
                 presetTextView.getAutoSizeTextAvailableSizes());
 
         final String someText = "This is a string";
-        final int widthHeight = 600;
+        final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                500, 500);
         // Configure identically and attach to layout.
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                granularityTextView.setLayoutParams(layoutParams);
+                presetTextView.setLayoutParams(layoutParams);
+
                 LinearLayout ll = mActivity.findViewById(R.id.layout_textviewtest);
                 ll.removeAllViews();
                 ll.addView(granularityTextView);
                 ll.addView(presetTextView);
 
                 granularityTextView.setText(someText);
-                granularityTextView.setWidth(widthHeight);
-                granularityTextView.setHeight(widthHeight);
-
                 presetTextView.setText(someText);
-                presetTextView.setWidth(widthHeight);
-                presetTextView.setHeight(widthHeight);
             }
         });
         mInstrumentation.waitForIdleSync();
