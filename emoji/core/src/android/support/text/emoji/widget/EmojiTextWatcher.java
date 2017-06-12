@@ -69,6 +69,10 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
                     break;
                 case EmojiCompat.LOAD_STATE_LOADING:
                     EmojiCompat.get().registerInitCallback(getInitCallback());
+                    break;
+                case EmojiCompat.LOAD_STATE_FAILED:
+                default:
+                    break;
             }
         }
     }
