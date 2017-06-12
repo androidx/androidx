@@ -17,9 +17,8 @@ dependencies {
         exclude module: 'support-annotations'
     }
     androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker
     androidTestCompile libs.dexmaker_mockito
-    androidTestCompile project(path: ':support-testutils')
+    androidTestCompile project(':support-testutils')
 }
 
 android {

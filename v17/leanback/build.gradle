@@ -15,13 +15,14 @@ dependencies {
         exclude module: 'support-annotations'
     }
     androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker
     androidTestCompile libs.dexmaker_mockito
+    androidTestCompile libs.multidex
 }
 
 android {
     defaultConfig {
         minSdkVersion 17
+        multiDexEnabled true
     }
 
     sourceSets {

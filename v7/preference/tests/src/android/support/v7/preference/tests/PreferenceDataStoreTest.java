@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyFloat;
@@ -212,7 +213,7 @@ public class PreferenceDataStoreTest {
     private void putStringTestCommon() {
         mPreference.putString(TEST_STR);
 
-        verify(mDataStore, atLeast(0)).getString(eq(KEY), anyString());
+        verify(mDataStore, atLeast(0)).getString(eq(KEY), nullable(String.class));
         verify(mDataStore, atLeastOnce()).putString(eq(KEY), anyString());
         verifyNoMoreInteractions(mDataStore);
 
