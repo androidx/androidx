@@ -199,6 +199,7 @@ class AppCompatTextHelper {
 
         if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
                 || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
+            mFontTypeface = null;
             int fontFamilyId = a.hasValue(R.styleable.TextAppearance_android_fontFamily)
                     ? R.styleable.TextAppearance_android_fontFamily
                     : R.styleable.TextAppearance_fontFamily;
