@@ -1084,7 +1084,7 @@ public class AppBarLayout extends LinearLayout {
                 // If we have a reference to a scrolling view, check it
                 final View scrollingView = mLastNestedScrollingChildRef.get();
                 return scrollingView != null && scrollingView.isShown()
-                        && !ViewCompat.canScrollVertically(scrollingView, -1);
+                        && !scrollingView.canScrollVertically(-1);
             } else {
                 // Otherwise we assume that the scrolling view hasn't been scrolled and can drag.
                 return true;
