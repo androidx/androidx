@@ -8,12 +8,12 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 class InheritanceOk2Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event) {
+    public void onStop(LifecycleOwner provider) {
     }
 }
 
 class InheritanceOk2Derived extends InheritanceOk2Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop2(LifecycleOwner provider, Event event) {
+    public void onStop2(LifecycleOwner provider) {
     }
 }

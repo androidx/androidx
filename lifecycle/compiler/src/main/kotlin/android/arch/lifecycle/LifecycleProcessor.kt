@@ -49,7 +49,9 @@ fun ExecutableElement.isProtected() = modifiers.contains(PROTECTED)
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 class LifecycleProcessor : AbstractProcessor() {
     companion object ErrorMessages {
-        const val TOO_MANY_ARGS_ERROR_MSG = "callback method cannot have more than 2 parameters"
+        const val TOO_MANY_ARGS = "callback method cannot have more than 2 parameters"
+        const val TOO_MANY_ARGS_NOT_ON_ANY = "only callback annotated with ON_ANY " +
+                "can have 2 parameters"
         const val INVALID_SECOND_ARGUMENT = "2nd argument of a callback method" +
                 " must be Lifecycle.Event and represent the current event"
         const val INVALID_FIRST_ARGUMENT = "1st argument of a callback method must be " +
@@ -81,22 +83,29 @@ class LifecycleProcessor : AbstractProcessor() {
         return true
     }
 
-    private fun validateMethod(method: ExecutableElement): Boolean {
+    private fun validateMethod(method: ExecutableElement, event: Lifecycle.Event): Boolean {
         if (PRIVATE in method.modifiers) {
             printErrorMessage(INVALID_METHOD_MODIFIER, method)
             return false
         }
-        if (method.parameters.size > 2) {
-            printErrorMessage(TOO_MANY_ARGS_ERROR_MSG, method)
+        val params = method.parameters
+        if ((params.size > 2)) {
+            printErrorMessage(TOO_MANY_ARGS, method)
             return false
         }
-        if (method.parameters.size > 1) {
-            // 2nd parameter must be an int
-            return validateParam(method.parameters[1], JAVA_LIFECYCLE_EVENT,
-                    INVALID_SECOND_ARGUMENT)
+
+        if (params.size == 2 && event != Lifecycle.Event.ON_ANY) {
+            printErrorMessage(TOO_MANY_ARGS_NOT_ON_ANY, method)
+            return false
         }
-        if (method.parameters.size > 0) {
-            return validateParam(method.parameters[0], LifecycleOwner::class.java,
+
+        if (params.size == 2 && !validateParam(params[1], JAVA_LIFECYCLE_EVENT,
+                INVALID_SECOND_ARGUMENT)) {
+            return false
+        }
+
+        if (params.size > 0) {
+            return validateParam(params[0], LifecycleOwner::class.java,
                     INVALID_FIRST_ARGUMENT)
         }
         return true
@@ -125,7 +134,7 @@ class LifecycleProcessor : AbstractProcessor() {
                 val enclosingElement = elem.enclosingElement
                 val onState = elem.getAnnotation(OnLifecycleEvent::class.java)
                 val method = MoreElements.asExecutable(elem)
-                if (validateClass(enclosingElement) && validateMethod(method)) {
+                if (validateClass(enclosingElement) && validateMethod(method, onState.value)) {
                     StateMethod(method, onState)
                 } else {
                     null

@@ -22,10 +22,10 @@ import android.arch.lifecycle.LifecycleOwner;
 import java.lang.Object;
 import java.lang.Override;
 
-public class DifferentPackagesBase1_LifecycleAdapter implements GenericLifecycleObserver {
-  final DifferentPackagesBase1 mReceiver;
+public class OnAnyMethod_LifecycleAdapter implements GenericLifecycleObserver {
+  final OnAnyMethod mReceiver;
 
-  DifferentPackagesBase1_LifecycleAdapter(DifferentPackagesBase1 receiver) {
+  OnAnyMethod_LifecycleAdapter(OnAnyMethod receiver) {
     this.mReceiver = receiver;
   }
 
@@ -34,13 +34,11 @@ public class DifferentPackagesBase1_LifecycleAdapter implements GenericLifecycle
     if (event == Lifecycle.Event.ON_STOP) {
       mReceiver.onStop(owner);
     }
+    mReceiver.any(owner);
+    mReceiver.any(owner,event);
   }
 
   public Object getReceiver() {
     return mReceiver;
-  }
-
-  public static void __synthetic_onStop(DifferentPackagesBase1 receiver, LifecycleOwner owner) {
-    receiver.onStop(owner);
   }
 }

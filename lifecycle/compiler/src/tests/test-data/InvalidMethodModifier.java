@@ -23,6 +23,6 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 public class InvalidMethodModifier {
     @OnLifecycleEvent(ON_STOP)
-    private void onStop(Event event) {
+    private void onStop() {
     }
 }

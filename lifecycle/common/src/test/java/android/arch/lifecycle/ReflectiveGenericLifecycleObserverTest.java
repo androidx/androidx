@@ -60,33 +60,33 @@ public class ReflectiveGenericLifecycleObserverTest {
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
         when(mLifecycle.getCurrentState()).thenReturn(STARTED);
         observer.onStateChanged(mOwner, ON_CREATE);
-        verify(obj).onAnyState();
+        verify(obj).onAnyState(mOwner, ON_CREATE);
         reset(obj);
 
         observer.onStateChanged(mOwner, ON_START);
-        verify(obj).onAnyState();
+        verify(obj).onAnyState(mOwner, ON_START);
         reset(obj);
 
         observer.onStateChanged(mOwner, ON_RESUME);
-        verify(obj).onAnyState();
+        verify(obj).onAnyState(mOwner, ON_RESUME);
         reset(obj);
 
         observer.onStateChanged(mOwner, ON_PAUSE);
-        verify(obj).onAnyState();
+        verify(obj).onAnyState(mOwner, ON_PAUSE);
         reset(obj);
 
         observer.onStateChanged(mOwner, ON_STOP);
-        verify(obj).onAnyState();
+        verify(obj).onAnyState(mOwner, ON_STOP);
         reset(obj);
 
         observer.onStateChanged(mOwner, ON_DESTROY);
-        verify(obj).onAnyState();
+        verify(obj).onAnyState(mOwner, ON_DESTROY);
         reset(obj);
     }
 
     private static class AnyStateListener implements LifecycleObserver {
         @OnLifecycleEvent(ON_ANY)
-        void onAnyState() {
+        void onAnyState(LifecycleOwner owner, Lifecycle.Event event) {
 
         }
     }
@@ -99,7 +99,6 @@ public class ReflectiveGenericLifecycleObserverTest {
         observer.onStateChanged(mOwner, ON_CREATE);
         verify(obj).onCreated();
         verify(obj).onCreated(mOwner);
-        verify(obj).onCreated(mOwner, ON_CREATE);
     }
 
     private static class CreatedStateListener implements LifecycleObserver {
@@ -110,11 +109,6 @@ public class ReflectiveGenericLifecycleObserverTest {
         @SuppressWarnings("UnusedParameters")
         @OnLifecycleEvent(ON_CREATE)
         void onCreated(LifecycleOwner provider) {
-
-        }
-        @SuppressWarnings("UnusedParameters")
-        @OnLifecycleEvent(ON_CREATE)
-        void onCreated(LifecycleOwner provider, Lifecycle.Event event) {
 
         }
     }
@@ -214,10 +208,20 @@ public class ReflectiveGenericLifecycleObserverTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testWrongFirstParam() {
+    public void testWrongFirstParam1() {
         LifecycleObserver observer = new LifecycleObserver() {
             @OnLifecycleEvent(ON_START)
             private void started(Lifecycle.Event e) {
+            }
+        };
+        new ReflectiveGenericLifecycleObserver(observer);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongFirstParam2() {
+        LifecycleObserver observer = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_ANY)
+            private void started(Lifecycle l, Lifecycle.Event e) {
             }
         };
         new ReflectiveGenericLifecycleObserver(observer);
@@ -236,7 +240,7 @@ public class ReflectiveGenericLifecycleObserverTest {
     @Test(expected = IllegalArgumentException.class)
     public void testThreeParams() {
         LifecycleObserver observer = new LifecycleObserver() {
-            @OnLifecycleEvent(ON_START)
+            @OnLifecycleEvent(ON_ANY)
             private void started(LifecycleOwner owner, Lifecycle.Event e, int i) {
             }
         };

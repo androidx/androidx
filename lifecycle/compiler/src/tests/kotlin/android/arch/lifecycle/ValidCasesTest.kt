@@ -31,7 +31,9 @@ class ValidCasesTest {
 
     @Test
     fun testOnAny() {
-        processClass("foo.OnAnyMethod").compilesWithoutError()
+        processClass("foo.OnAnyMethod").compilesWithoutError().and().generatesSources(
+                load("foo.OnAnyMethod_LifecycleAdapter", "expected")
+        )
     }
 
     @Test

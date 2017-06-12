@@ -25,5 +25,5 @@ import foo.DifferentPackagesBase1;
 
 public class DifferentPackagesDerived1 extends DifferentPackagesBase1 {
     @OnLifecycleEvent(ON_STOP)
-    void onStop2(LifecycleOwner provider, Event event){}
+    void onStop2(LifecycleOwner provider){}
 }

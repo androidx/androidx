@@ -24,10 +24,10 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 class DifferentPackagesPreBase2 {
     @OnLifecycleEvent(ON_STOP)
-    void onStop(LifecycleOwner provider, Event event){}
+    void onStop(LifecycleOwner provider){}
 }
 
 public class DifferentPackagesBase2 extends DifferentPackagesPreBase2 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event){}
+    public void onStop(LifecycleOwner provider){}
 }

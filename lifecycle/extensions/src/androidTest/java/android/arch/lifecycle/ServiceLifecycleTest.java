@@ -35,12 +35,14 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.LocalBroadcastManager;
 
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @MediumTest
+@RunWith(AndroidJUnit4.class)
 public class ServiceLifecycleTest {
 
     private static final int RETRY_NUMBER = 5;

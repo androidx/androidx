@@ -22,5 +22,5 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 class NoPackageOk {
     @OnLifecycleEvent(ON_STOP)
-    void onStop(LifecycleOwner provider, Event event){}
+    void onStop(LifecycleOwner provider){}
 }

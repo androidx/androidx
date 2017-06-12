@@ -24,12 +24,12 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 class InheritanceOk3Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event) {
+    public void onStop(LifecycleOwner provider) {
     }
 }
 
 class InheritanceOk3Derived extends InheritanceOk3Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event) {
+    public void onStop(LifecycleOwner provider) {
     }
 }

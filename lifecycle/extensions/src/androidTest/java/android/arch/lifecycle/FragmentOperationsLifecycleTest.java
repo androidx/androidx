@@ -33,15 +33,18 @@ import android.arch.lifecycle.extensions.test.R;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.FragmentManager;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @MediumTest
+@RunWith(AndroidJUnit4.class)
 public class FragmentOperationsLifecycleTest {
 
     @Rule

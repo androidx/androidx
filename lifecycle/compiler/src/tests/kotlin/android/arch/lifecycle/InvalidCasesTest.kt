@@ -27,9 +27,11 @@ class InvalidCasesTest(val name: String, val errorMsg: String) {
         @JvmStatic
         @Parameterized.Parameters(name = "failingCase({0})")
         fun data() : Collection<Array<Any>> = listOf(
-                arrayOf<Any>("foo.InvalidFirstArg", LifecycleProcessor.INVALID_FIRST_ARGUMENT),
+                arrayOf<Any>("foo.InvalidFirstArg1", LifecycleProcessor.INVALID_FIRST_ARGUMENT),
+                arrayOf<Any>("foo.InvalidFirstArg2", LifecycleProcessor.INVALID_FIRST_ARGUMENT),
                 arrayOf<Any>("foo.InvalidSecondArg", LifecycleProcessor.INVALID_SECOND_ARGUMENT),
-                arrayOf<Any>("foo.TooManyArgs", LifecycleProcessor.TOO_MANY_ARGS_ERROR_MSG),
+                arrayOf<Any>("foo.TooManyArgs1", LifecycleProcessor.TOO_MANY_ARGS),
+                arrayOf<Any>("foo.TooManyArgs2", LifecycleProcessor.TOO_MANY_ARGS_NOT_ON_ANY),
                 arrayOf<Any>("foo.InvalidMethodModifier",
                         LifecycleProcessor.INVALID_METHOD_MODIFIER),
                 arrayOf<Any>("foo.InvalidClassModifier", LifecycleProcessor.INVALID_CLASS_MODIFIER),

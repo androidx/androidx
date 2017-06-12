@@ -32,7 +32,7 @@ public class DifferentPackagesBase2_LifecycleAdapter implements GenericLifecycle
   @Override
   public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
     if (event == Lifecycle.Event.ON_STOP) {
-      mReceiver.onStop(owner,event);
+      mReceiver.onStop(owner);
     }
   }
 

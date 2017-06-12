@@ -24,13 +24,13 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 class InterfaceOk2Base {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop1(LifecycleOwner provider, Event event) {
+    public void onStop1(LifecycleOwner provider) {
     }
 }
 
 interface InterfaceOk2Interface {
     @OnLifecycleEvent(ON_STOP)
-    void onStop2(LifecycleOwner provider, Event event);
+    void onStop2(LifecycleOwner provider);
 }
 
 class InterfaceOk2Proxy extends InterfaceOk2Base {
@@ -38,8 +38,8 @@ class InterfaceOk2Proxy extends InterfaceOk2Base {
 
 class InterfaceOk2Derived extends InterfaceOk2Proxy implements InterfaceOk2Interface {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop3(LifecycleOwner provider, Event event) {
+    public void onStop3(LifecycleOwner provider) {
     }
 
-    public void onStop2(LifecycleOwner provider, Event event) {}
+    public void onStop2(LifecycleOwner provider) {}
 }

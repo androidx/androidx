@@ -24,7 +24,7 @@ import android.arch.lifecycle.OnLifecycleEvent;
 public class InvalidClassModifier {
     private static class Inner {
         @OnLifecycleEvent(ON_STOP)
-        private void onStop(Event event) {
+        private void onStop() {
         }
     }
 }

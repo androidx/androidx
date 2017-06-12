@@ -32,7 +32,7 @@ public class InterfaceOk2Interface_LifecycleAdapter implements GenericLifecycleO
   @Override
   public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
     if (event == Lifecycle.Event.ON_STOP) {
-      mReceiver.onStop2(owner,event);
+      mReceiver.onStop2(owner);
     }
   }
 

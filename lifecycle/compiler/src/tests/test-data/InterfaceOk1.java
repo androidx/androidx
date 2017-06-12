@@ -22,5 +22,5 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 interface InterfaceOk1 {
     @OnLifecycleEvent(ON_STOP)
-    void onStop(LifecycleOwner provider, Event event);
+    void onStop(LifecycleOwner provider);
 }

@@ -17,7 +17,7 @@ public class Bar {
     }
 
     @OnLifecycleEvent(ON_STOP)
-    public void doOnStop2Args(LifecycleOwner provider, Event lastEvent) {
+    public void doOnStop2Args(LifecycleOwner provider) {
     }
 
     public static class Inner1 {

@@ -144,17 +144,22 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
                             "invalid parameter type. Must be one and instanceof LifecycleOwner");
                 }
             }
+            Event event = annotation.value();
+
             if (params.length > 1) {
                 callType = CALL_TYPE_PROVIDER_WITH_EVENT;
                 if (!params[1].isAssignableFrom(Event.class)) {
                     throw new IllegalArgumentException(
                             "invalid parameter type. second arg must be an event");
                 }
+                if (event != Event.ON_ANY) {
+                    throw new IllegalArgumentException(
+                            "Second arg is supported only for ON_ANY value");
+                }
             }
             if (params.length > 2) {
                 throw new IllegalArgumentException("cannot have more than 2 params");
             }
-            Event event = annotation.value();
             MethodReference methodReference = new MethodReference(callType, method);
             verifyAndPutHandler(handlerToEvent, methodReference, event, klass);
         }

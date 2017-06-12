@@ -24,7 +24,7 @@ import android.arch.lifecycle.OnLifecycleEvent;
 
 class Base1 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event) {
+    public void onStop(LifecycleOwner provider) {
     }
 }
 
@@ -33,24 +33,24 @@ class Proxy extends Base1 {
 
 class Derived1 extends Proxy {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop2(LifecycleOwner provider, Event event) {
+    public void onStop2(LifecycleOwner provider) {
     }
 }
 
 class Derived2 extends Proxy {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop2(LifecycleOwner provider, Event event) {
+    public void onStop2(LifecycleOwner provider) {
     }
 }
 
 class Base2 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider, Event event) {
+    public void onStop(LifecycleOwner provider) {
     }
 }
 
 class Derived3 extends Base2 {
     @OnLifecycleEvent(ON_STOP)
-    public void onStop2(LifecycleOwner provider, Event event) {
+    public void onStop2(LifecycleOwner provider) {
     }
 }

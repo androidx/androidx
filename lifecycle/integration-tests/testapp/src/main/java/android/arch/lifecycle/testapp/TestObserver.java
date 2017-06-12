@@ -40,31 +40,31 @@ class TestObserver implements LifecycleObserver {
     }
 
     @OnLifecycleEvent(ON_CREATE)
-    public void create(LifecycleOwner pr, Event event) {
-        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+    public void create(LifecycleOwner pr) {
+        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, ON_CREATE));
     }
 
     @OnLifecycleEvent(ON_START)
-    public void start(LifecycleOwner pr, Event event) {
-        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+    public void start(LifecycleOwner pr) {
+        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, ON_START));
     }
 
     @OnLifecycleEvent(ON_RESUME)
-    public void resume(LifecycleOwner pr, Event event) {
-        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+    public void resume(LifecycleOwner pr) {
+        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, ON_RESUME));
     }
     @OnLifecycleEvent(ON_PAUSE)
-    public void pause(LifecycleOwner pr, Event event) {
-        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+    public void pause(LifecycleOwner pr) {
+        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, ON_PAUSE));
     }
 
     @OnLifecycleEvent(ON_STOP)
-    public void stop(LifecycleOwner pr, Event event) {
-        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+    public void stop(LifecycleOwner pr) {
+        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, ON_STOP));
     }
 
     @OnLifecycleEvent(ON_DESTROY)
-    public void destroy(LifecycleOwner pr, Event event) {
-        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, event));
+    public void destroy(LifecycleOwner pr) {
+        mCollectedEvents.add(new Pair<>(LIFECYCLE_EVENT, ON_DESTROY));
     }
 }

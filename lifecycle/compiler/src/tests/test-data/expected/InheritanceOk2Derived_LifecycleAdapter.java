@@ -32,8 +32,8 @@ public class InheritanceOk2Derived_LifecycleAdapter implements GenericLifecycleO
   @Override
   public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
     if (event == Lifecycle.Event.ON_STOP) {
-      mReceiver.onStop(owner,event);
-      mReceiver.onStop2(owner,event);
+      mReceiver.onStop(owner);
+      mReceiver.onStop2(owner);
     }
   }
 

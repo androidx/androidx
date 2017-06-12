@@ -33,8 +33,8 @@ public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecy
   @Override
   public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
     if (event == Lifecycle.Event.ON_STOP) {
-      DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver,owner,event);
-      mReceiver.onStop2(owner,event);
+      DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver,owner);
+      mReceiver.onStop2(owner);
     }
   }
 
