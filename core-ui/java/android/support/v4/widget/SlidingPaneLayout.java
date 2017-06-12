@@ -16,10 +16,8 @@
 
 package android.support.v4.widget;
 
-import android.support.annotation.RequiresApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
@@ -32,6 +30,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.AccessibilityDelegateCompat;
@@ -41,7 +40,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
@@ -192,8 +190,7 @@ public class SlidingPaneLayout extends ViewGroup {
 
     private final Rect mTmpRect = new Rect();
 
-    final ArrayList<DisableLayerRunnable> mPostedRunnables =
-            new ArrayList<DisableLayerRunnable>();
+    final ArrayList<DisableLayerRunnable> mPostedRunnables = new ArrayList<>();
 
     static final SlidingPanelLayoutImpl IMPL;
 
@@ -261,8 +258,6 @@ public class SlidingPaneLayout extends ViewGroup {
 
         final float density = context.getResources().getDisplayMetrics().density;
         mOverhangSize = (int) (DEFAULT_OVERHANG_SIZE * density + 0.5f);
-
-        final ViewConfiguration viewConfig = ViewConfiguration.get(context);
 
         setWillNotDraw(false);
 
@@ -1012,28 +1007,7 @@ public class SlidingPaneLayout extends ViewGroup {
             canvas.clipRect(mTmpRect);
         }
 
-        if (Build.VERSION.SDK_INT >= 11) { // HC
-            result = super.drawChild(canvas, child, drawingTime);
-        } else {
-            if (lp.dimWhenOffset && mSlideOffset > 0) {
-                if (!child.isDrawingCacheEnabled()) {
-                    child.setDrawingCacheEnabled(true);
-                }
-                final Bitmap cache = child.getDrawingCache();
-                if (cache != null) {
-                    canvas.drawBitmap(cache, child.getLeft(), child.getTop(), lp.dimPaint);
-                    result = false;
-                } else {
-                    Log.e(TAG, "drawChild: child view " + child + " returned null drawing cache");
-                    result = super.drawChild(canvas, child, drawingTime);
-                }
-            } else {
-                if (child.isDrawingCacheEnabled()) {
-                    child.setDrawingCacheEnabled(false);
-                }
-                result = super.drawChild(canvas, child, drawingTime);
-            }
-        }
+        result = super.drawChild(canvas, child, drawingTime);
 
         canvas.restoreToCount(save);
 
