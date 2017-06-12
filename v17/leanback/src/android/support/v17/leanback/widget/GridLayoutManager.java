@@ -1882,7 +1882,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             View view = getChildAt(index);
             position = getAdapterPositionByView(view);
             Grid.Location location = mGrid.getLocation(position);
-            if (location == null) {
+            // position could be NO_POSITION for the views off the screen that were cached. For
+            // these views markKnownViewsInvalid invalidates them.
+            if (location == null || (position == NO_POSITION)) {
                 if (DEBUG) Log.w(getTag(), "fastRelayout(): no Location at " + position);
                 invalidateAfter = true;
                 break;
