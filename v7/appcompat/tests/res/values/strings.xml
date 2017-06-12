@@ -95,4 +95,5 @@
     <string name="menu6">menu six</string>
 
     <string name="font_sans_serif">sans-serif</string>
+    <string name="font_serif">serif</string>
 </resources>
