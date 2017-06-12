@@ -2560,6 +2560,20 @@ public final class MediaRouter {
         }
 
         private void setSelectedRouteInternal(RouteInfo route, int unselectReason) {
+            // TODO: Remove the following logging when no longer needed.
+            if (mBluetoothRoute != null && route.isDefault()) {
+                final StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
+                StringBuffer sb = new StringBuffer();
+                // callStack[3] is the caller of this method.
+                for (int i = 3; i < callStack.length; i++) {
+                    StackTraceElement caller = callStack[i];
+                    sb.append(caller.getClassName() + "." + caller.getMethodName()
+                            + ":" + caller.getLineNumber()).append("  ");
+                }
+                Log.w(TAG, "Default route is selected while a BT route is available: pkgName="
+                        + mApplicationContext.getPackageName() + ", callers=" + sb.toString());
+            }
+
             if (mSelectedRoute != route) {
                 if (mSelectedRoute != null) {
                     if (DEBUG) {
