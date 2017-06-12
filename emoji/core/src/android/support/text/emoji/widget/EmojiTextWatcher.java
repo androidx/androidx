@@ -37,10 +37,9 @@ import java.lang.ref.WeakReference;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(19)
 final class EmojiTextWatcher implements android.text.TextWatcher {
-    static final int MAX_EMOJI_COUNT = Integer.MAX_VALUE;
     private final EditText mEditText;
     private InitCallback mInitCallback;
-    private int mMaxEmojiCount = MAX_EMOJI_COUNT;
+    private int mMaxEmojiCount = EditTextAttributeHelper.MAX_EMOJI_COUNT;
 
     EmojiTextWatcher(EditText editText) {
         mEditText = editText;
