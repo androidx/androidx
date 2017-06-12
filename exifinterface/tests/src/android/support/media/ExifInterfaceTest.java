@@ -82,7 +82,7 @@ public class ExifInterfaceTest {
             ExifInterface.TAG_MAKE,
             ExifInterface.TAG_MODEL,
             ExifInterface.TAG_F_NUMBER,
-            ExifInterface.TAG_DATETIME,
+            ExifInterface.TAG_DATETIME_ORIGINAL,
             ExifInterface.TAG_EXPOSURE_TIME,
             ExifInterface.TAG_FLASH,
             ExifInterface.TAG_FOCAL_LENGTH,
@@ -118,7 +118,7 @@ public class ExifInterfaceTest {
         public final String make;
         public final String model;
         public final float aperture;
-        public final String datetime;
+        public final String dateTimeOriginal;
         public final float exposureTime;
         public final float flash;
         public final String focalLength;
@@ -161,7 +161,7 @@ public class ExifInterfaceTest {
             make = getString(typedArray, 7);
             model = getString(typedArray, 8);
             aperture = typedArray.getFloat(9, 0f);
-            datetime = getString(typedArray, 10);
+            dateTimeOriginal = getString(typedArray, 10);
             exposureTime = typedArray.getFloat(11, 0f);
             flash = typedArray.getFloat(12, 0f);
             focalLength = getString(typedArray, 13);
@@ -417,7 +417,8 @@ public class ExifInterfaceTest {
         assertStringTag(exifInterface, ExifInterface.TAG_MAKE, expectedValue.make);
         assertStringTag(exifInterface, ExifInterface.TAG_MODEL, expectedValue.model);
         assertFloatTag(exifInterface, ExifInterface.TAG_F_NUMBER, expectedValue.aperture);
-        assertStringTag(exifInterface, ExifInterface.TAG_DATETIME_ORIGINAL, expectedValue.datetime);
+        assertStringTag(exifInterface, ExifInterface.TAG_DATETIME_ORIGINAL,
+                expectedValue.dateTimeOriginal);
         assertFloatTag(exifInterface, ExifInterface.TAG_EXPOSURE_TIME, expectedValue.exposureTime);
         assertFloatTag(exifInterface, ExifInterface.TAG_FLASH, expectedValue.flash);
         assertStringTag(exifInterface, ExifInterface.TAG_FOCAL_LENGTH, expectedValue.focalLength);
