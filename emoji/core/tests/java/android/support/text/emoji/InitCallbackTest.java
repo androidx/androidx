@@ -15,6 +15,7 @@
  */
 package android.support.text.emoji;
 
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -68,8 +69,8 @@ public class InitCallbackTest {
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        verify(initCallback1, times(1)).onFailed(any(Throwable.class));
-        verify(initCallback2, times(1)).onFailed(any(Throwable.class));
+        verify(initCallback1, times(1)).onFailed(nullable(Throwable.class));
+        verify(initCallback2, times(1)).onFailed(nullable(Throwable.class));
     }
 
     @Test
@@ -88,7 +89,7 @@ public class InitCallbackTest {
         emojiCompat.registerInitCallback(initCallback);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        verify(initCallback, times(1)).onFailed(any(Throwable.class));
+        verify(initCallback, times(1)).onFailed(nullable(Throwable.class));
     }
 
     @Test
@@ -107,7 +108,7 @@ public class InitCallbackTest {
         emojiCompat.registerInitCallback(initCallback);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        verify(initCallback, times(1)).onFailed(any(Throwable.class));
+        verify(initCallback, times(1)).onFailed(nullable(Throwable.class));
     }
 
     @Test
@@ -144,9 +145,9 @@ public class InitCallbackTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         verify(callbackUnregister, times(0)).onFailed(any(Throwable.class));
-        verify(callbackConfigUnregister, times(0)).onFailed(any(Throwable.class));
-        verify(callback, times(1)).onFailed(any(Throwable.class));
-        verify(callbackConfig, times(1)).onFailed(any(Throwable.class));
+        verify(callbackConfigUnregister, times(0)).onFailed(nullable(Throwable.class));
+        verify(callback, times(1)).onFailed(nullable(Throwable.class));
+        verify(callbackConfig, times(1)).onFailed(nullable(Throwable.class));
     }
 
     @Test

@@ -44,12 +44,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -687,15 +686,11 @@ public class RecyclerViewCacheTest {
 
         verify(mockAdapter, times(2)).onCreateViewHolder(any(ViewGroup.class), anyInt());
         verify(mockAdapter, times(2)).onBindViewHolder(
-                argThat(new BaseMatcher<RecyclerView.ViewHolder>() {
+                argThat(new ArgumentMatcher<RecyclerView.ViewHolder>() {
                     @Override
-                    public boolean matches(Object item) {
-                        RecyclerView.ViewHolder holder = (RecyclerView.ViewHolder) item;
+                    public boolean matches(RecyclerView.ViewHolder holder) {
                         return holder.itemView == holder.mNestedRecyclerView.get();
                     }
-
-                    @Override
-                    public void describeTo(Description description) { }
                 }),
                 anyInt(),
                 any(List.class));

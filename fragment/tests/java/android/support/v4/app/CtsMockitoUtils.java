@@ -18,6 +18,7 @@ package android.support.v4.app;
 import android.os.SystemClock;
 
 import org.mockito.exceptions.base.MockitoAssertionError;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.invocation.Invocation;
 import org.mockito.verification.VerificationMode;
@@ -72,6 +73,11 @@ public class CtsMockitoUtils {
 
             throw new MockitoAssertionError("Timed out while waiting " + mTimeout + "ms for "
                     + data.getWanted().toString());
+        }
+
+        @Override
+        public VerificationMode description(String description) {
+            return VerificationModeFactory.description(this, description);
         }
 
         private void markAllInvocationsAsVerified(VerificationData data) {
