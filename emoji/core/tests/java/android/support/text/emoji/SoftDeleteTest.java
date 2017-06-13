@@ -70,8 +70,8 @@ public class SoftDeleteTest {
     @Test
     public void testDelete_doesNotDelete_whenSelectionIsUndefined() {
         // no selection is set on editable
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 1, 0,
-                false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji(EMOJI_WITH_ZWJ));
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -82,8 +82,8 @@ public class SoftDeleteTest {
         Selection.setSelection(mEditable, mTestString.emojiStartIndex(),
                 mTestString.emojiEndIndex() + 1);
 
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 1, 0,
-                false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji(EMOJI_WITH_ZWJ));
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -93,7 +93,8 @@ public class SoftDeleteTest {
     public void testDelete_withNullEditable() {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
 
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, null, 1, 0, false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, null,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji(EMOJI_WITH_ZWJ));
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -103,7 +104,8 @@ public class SoftDeleteTest {
     public void testDelete_withNullInputConnection() {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
 
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(null, mEditable, 1, 0, false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(null, mEditable,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji(EMOJI_WITH_ZWJ));
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -114,8 +116,8 @@ public class SoftDeleteTest {
     public void testDelete_withInvalidLength() {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
 
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, -1, 0,
-                false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                -1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji(EMOJI_WITH_ZWJ));
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -126,8 +128,8 @@ public class SoftDeleteTest {
     public void testDelete_withInvalidAfterLength() {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
 
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 0, -1,
-                false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                0 /*beforeLength*/, -1 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji(EMOJI_WITH_ZWJ));
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -138,8 +140,8 @@ public class SoftDeleteTest {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
 
         // backwards delete 1 character, it will delete the emoji
-        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 1, 0,
-                false));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals(new TestString().withPrefix().withSuffix().toString(), mEditable.toString());
@@ -150,8 +152,8 @@ public class SoftDeleteTest {
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
 
         // backwards delete 1 character, it will delete the emoji
-        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 1, 0,
-                true));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                1 /*beforeLength*/, 0 /*afterLength*/, true /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals(new TestString().withPrefix().withSuffix().toString(), mEditable.toString());
@@ -162,8 +164,8 @@ public class SoftDeleteTest {
         Selection.setSelection(mEditable, mTestString.emojiStartIndex());
 
         // forward delete 1 character, it will dele the emoji.
-        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 0, 1,
-                false));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                0 /*beforeLength*/, 1 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals(new TestString().withPrefix().withSuffix().toString(), mEditable.toString());
@@ -174,8 +176,8 @@ public class SoftDeleteTest {
         Selection.setSelection(mEditable, mTestString.emojiStartIndex());
 
         // forward delete 1 codepoint, it will delete the emoji.
-        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 0, 1,
-                false));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                0 /*beforeLength*/, 1 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals(new TestString().withPrefix().withSuffix().toString(), mEditable.toString());
@@ -186,8 +188,8 @@ public class SoftDeleteTest {
         // make sure selection at 0 does not do something weird for backward delete
         Selection.setSelection(mEditable, 0);
 
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 1, 0,
-                false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji());
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -198,8 +200,8 @@ public class SoftDeleteTest {
         // make sure selection at end does not do something weird for forward delete
         Selection.setSelection(mEditable, mTestString.emojiEndIndex());
 
-        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 0, 1,
-                false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                0 /*beforeLength*/, 1 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, hasEmoji());
         assertEquals(mTestString.toString(), mEditable.toString());
@@ -216,8 +218,8 @@ public class SoftDeleteTest {
         Selection.setSelection(mEditable, "abc".length() + EMOJI_FLAG.charCount() / 2);
 
         // delete 4 characters forward, 4 character backwards
-        assertTrue(
-                EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 4, 4, false));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                4 /*beforeLength*/, 4 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals("af", mEditable.toString());
@@ -234,8 +236,8 @@ public class SoftDeleteTest {
         Selection.setSelection(mEditable, "abc".length() + EMOJI_FLAG.charCount() / 2);
 
         // delete 3 codepoints forward, 3 codepoints backwards
-        assertTrue(
-                EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 3, 3, true));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                3 /*beforeLength*/, 3 /*afterLength*/, true /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals("af", mEditable.toString());
@@ -251,8 +253,8 @@ public class SoftDeleteTest {
         // set the selection in the middle of emoji
         Selection.setSelection(mEditable, "abc".length() + EMOJI_FLAG.charCount() / 2);
 
-        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 100, 100,
-                false));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                100 /*beforeLength*/, 100 /*afterLength*/, false /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals("", mEditable.toString());
@@ -268,8 +270,8 @@ public class SoftDeleteTest {
         // set the selection in the middle of emoji
         Selection.setSelection(mEditable, "abc".length() + EMOJI_FLAG.charCount() / 2);
 
-        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable, 100, 100,
-                true));
+        assertTrue(EmojiCompat.handleDeleteSurroundingText(mInputConnection, mEditable,
+                100 /*beforeLength*/, 100 /*afterLength*/, true /*inCodePoints*/));
 
         assertThat(mEditable, not(hasEmoji()));
         assertEquals("", mEditable.toString());
