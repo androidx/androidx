@@ -56,7 +56,7 @@ final class EmojiProcessor {
      */
     @IntDef({ACTION_ADVANCE_BOTH, ACTION_ADVANCE_END, ACTION_FLUSH})
     @Retention(RetentionPolicy.SOURCE)
-    @interface Action {
+    private @interface Action {
     }
 
     /**
@@ -338,6 +338,7 @@ final class EmojiProcessor {
     static boolean handleDeleteSurroundingText(@NonNull final InputConnection inputConnection,
             @NonNull final Editable editable, @IntRange(from = 0) final int beforeLength,
             @IntRange(from = 0) final int afterLength, final boolean inCodePoints) {
+        //noinspection ConstantConditions
         if (editable == null || inputConnection == null) {
             return false;
         }

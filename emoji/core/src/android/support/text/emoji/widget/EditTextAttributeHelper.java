@@ -37,7 +37,7 @@ public class EditTextAttributeHelper {
     private int mMaxEmojiCount;
 
     public EditTextAttributeHelper(@NonNull View view, AttributeSet attrs, int defStyleAttr) {
-        if (view != null && attrs != null) {
+        if (attrs != null) {
             final Context context = view.getContext();
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EmojiEditText,
                     defStyleAttr, 0);

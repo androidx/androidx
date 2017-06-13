@@ -172,7 +172,7 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
                 @NonNull FontRequest request) throws NameNotFoundException {
             return FontsContractCompat.fetchFonts(context, null /* cancellation signal */, request);
         }
-    };
+    }
 
     private static final FontsContractDelegate DEFAULT_FONTS_CONTRACT = new FontsContractDelegate();
 

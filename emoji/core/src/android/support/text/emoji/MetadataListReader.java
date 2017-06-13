@@ -182,11 +182,11 @@ class MetadataListReader {
         }
     }
 
-    static int toUnsignedShort(final short value) {
+    private static int toUnsignedShort(final short value) {
         return value & 0xFFFF;
     }
 
-    static long toUnsignedInt(final int value) {
+    private static long toUnsignedInt(final int value) {
         return value & 0xFFFFFFFFL;
     }
 
