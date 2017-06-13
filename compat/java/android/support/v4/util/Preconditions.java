@@ -22,6 +22,7 @@ import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Simple static methods to be called at the start of your own methods to verify
@@ -281,11 +282,11 @@ public class Preconditions {
             throw new IllegalArgumentException(valueName + " must not be NaN");
         } else if (value < lower) {
             throw new IllegalArgumentException(
-                    String.format(
+                    String.format(Locale.US,
                             "%s is out of range of [%f, %f] (too low)", valueName, lower, upper));
         } else if (value > upper) {
             throw new IllegalArgumentException(
-                    String.format(
+                    String.format(Locale.US,
                             "%s is out of range of [%f, %f] (too high)", valueName, lower, upper));
         }
 
@@ -308,11 +309,11 @@ public class Preconditions {
             String valueName) {
         if (value < lower) {
             throw new IllegalArgumentException(
-                    String.format(
+                    String.format(Locale.US,
                             "%s is out of range of [%d, %d] (too low)", valueName, lower, upper));
         } else if (value > upper) {
             throw new IllegalArgumentException(
-                    String.format(
+                    String.format(Locale.US,
                             "%s is out of range of [%d, %d] (too high)", valueName, lower, upper));
         }
 
@@ -335,11 +336,11 @@ public class Preconditions {
             String valueName) {
         if (value < lower) {
             throw new IllegalArgumentException(
-                    String.format(
+                    String.format(Locale.US,
                             "%s is out of range of [%d, %d] (too low)", valueName, lower, upper));
         } else if (value > upper) {
             throw new IllegalArgumentException(
-                    String.format(
+                    String.format(Locale.US,
                             "%s is out of range of [%d, %d] (too high)", valueName, lower, upper));
         }
 
@@ -364,7 +365,7 @@ public class Preconditions {
         for (int i = 0; i < value.length; ++i) {
             if (value[i] == null) {
                 throw new NullPointerException(
-                        String.format("%s[%d] must not be null", valueName, i));
+                        String.format(Locale.US, "%s[%d] must not be null", valueName, i));
             }
         }
 
@@ -392,7 +393,7 @@ public class Preconditions {
         for (T elem : value) {
             if (elem == null) {
                 throw new NullPointerException(
-                        String.format("%s[%d] must not be null", valueName, ctr));
+                        String.format(Locale.US, "%s[%d] must not be null", valueName, ctr));
             }
             ++ctr;
         }
@@ -449,11 +450,11 @@ public class Preconditions {
                 throw new IllegalArgumentException(valueName + "[" + i + "] must not be NaN");
             } else if (v < lower) {
                 throw new IllegalArgumentException(
-                        String.format("%s[%d] is out of range of [%f, %f] (too low)",
+                        String.format(Locale.US, "%s[%d] is out of range of [%f, %f] (too low)",
                                 valueName, i, lower, upper));
             } else if (v > upper) {
                 throw new IllegalArgumentException(
-                        String.format("%s[%d] is out of range of [%f, %f] (too high)",
+                        String.format(Locale.US, "%s[%d] is out of range of [%f, %f] (too high)",
                                 valueName, i, lower, upper));
             }
         }

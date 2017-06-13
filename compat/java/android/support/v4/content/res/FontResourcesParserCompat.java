@@ -228,6 +228,7 @@ public class FontResourcesParserCompat {
                     certs.add(certsList);
                 }
             }
+            typedArray.recycle();
         }
         return certs != null ?  certs : Collections.<List<byte[]>>emptyList();
     }
