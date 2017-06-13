@@ -54,6 +54,7 @@ import android.widget.TextView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -196,7 +197,8 @@ public class FontsContractCompat {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     public static Typeface getFontSync(final Context context, final FontRequest request,
-            final TextView targetView, @FetchStrategy int strategy, int timeout, final int style) {
+            final @Nullable TextView targetView, @FetchStrategy int strategy, int timeout,
+            final int style) {
         final String id = request.getIdentifier() + "-" + style;
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
@@ -229,10 +231,14 @@ public class FontsContractCompat {
                 return null;
             }
         } else {
+            final WeakReference<TextView> textViewWeak = new WeakReference<TextView>(targetView);
             final ReplyCallback<Typeface> reply = new ReplyCallback<Typeface>() {
                 @Override
                 public void onReply(final Typeface typeface) {
-                    targetView.setTypeface(typeface, style);
+                    final TextView textView = textViewWeak.get();
+                    if (textView != null) {
+                        targetView.setTypeface(typeface, style);
+                    }
                 }
             };
 
