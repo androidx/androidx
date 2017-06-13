@@ -50,13 +50,13 @@ import java.util.Objects;
  * WearableDrawerLayout} to create a drawer for users to easily pull up contextual actions. These
  * contextual actions may be specified by using a {@link Menu}, which may be populated by either:
  *
- * <ul> <li>Specifying the {@code action_menu} attribute in the XML layout file. Example:
+ * <ul> <li>Specifying the {@code app:actionMenu} attribute in the XML layout file. Example:
  * <pre>
  * &lt;android.support.wear.widget.drawer.WearableActionDrawerView
  *     xmlns:app="http://schemas.android.com/apk/res-auto"
  *     android:layout_width=”match_parent”
  *     android:layout_height=”match_parent”
- *     app:action_menu="@menu/action_drawer" /&gt;</pre>
+ *     app:actionMenu="@menu/action_drawer" /&gt;</pre>
  *
  * <li>Getting the menu with {@link #getMenu}, and then inflating it with {@link
  * MenuInflater#inflate}. Example:
