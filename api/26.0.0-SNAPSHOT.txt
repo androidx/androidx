@@ -1040,7 +1040,9 @@ package android.support.media {
     method public boolean hasThumbnail();
     method public boolean isThumbnailCompressed();
     method public void saveAttributes() throws java.io.IOException;
+    method public void setAltitude(double);
     method public void setAttribute(java.lang.String, java.lang.String);
+    method public void setGpsInfo(android.location.Location);
     method public void setLatLong(double, double);
     field public static final int ORIENTATION_FLIP_HORIZONTAL = 2; // 0x2
     field public static final int ORIENTATION_FLIP_VERTICAL = 4; // 0x4
