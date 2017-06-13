@@ -76,12 +76,6 @@ final class EmojiProcessor {
     private static final int ACTION_FLUSH = 3;
 
     /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
-
-    /**
      * Factory used to create EmojiSpans.
      */
     private final EmojiCompat.SpanFactory mSpanFactory;
@@ -190,7 +184,7 @@ final class EmojiProcessor {
 
             // calculate max number of emojis that can be added. since getSpans call is a relatively
             // expensive operation, do it only when maxEmojiCount is not unlimited.
-            if (maxEmojiCount != EMOJI_COUNT_UNLIMITED && spannable != null) {
+            if (maxEmojiCount != EmojiCompat.EMOJI_COUNT_UNLIMITED && spannable != null) {
                 maxEmojiCount -= spannable.getSpans(0, spannable.length(), EmojiSpan.class).length;
             }
             // add new ones
