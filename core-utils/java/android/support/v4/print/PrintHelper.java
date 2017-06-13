@@ -108,23 +108,23 @@ public final class PrintHelper {
     /**
      * Interface implemented by classes that support printing
      */
-    static interface PrintHelperVersionImpl {
+    interface PrintHelperVersionImpl {
 
-        public void setScaleMode(int scaleMode);
+        void setScaleMode(int scaleMode);
 
-        public int getScaleMode();
+        int getScaleMode();
 
-        public void setColorMode(int colorMode);
+        void setColorMode(int colorMode);
 
-        public int getColorMode();
+        int getColorMode();
 
-        public void setOrientation(int orientation);
+        void setOrientation(int orientation);
 
-        public int getOrientation();
+        int getOrientation();
 
-        public void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback);
+        void printBitmap(String jobName, Bitmap bitmap, OnPrintFinishCallback callback);
 
-        public void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback)
+        void printBitmap(String jobName, Uri imageFile, OnPrintFinishCallback callback)
                 throws FileNotFoundException;
     }
 
@@ -171,124 +171,10 @@ public final class PrintHelper {
     }
 
     /**
-     * Generic implementation for KitKat to Api24
-     */
-    @RequiresApi(19)
-    private static class PrintHelperImpl<RealHelper extends PrintHelperKitkat>
-            implements PrintHelperVersionImpl {
-        private final RealHelper mPrintHelper;
-
-        protected PrintHelperImpl(RealHelper helper) {
-            mPrintHelper = helper;
-        }
-
-        @Override
-        public void setScaleMode(int scaleMode) {
-            mPrintHelper.setScaleMode(scaleMode);
-        }
-
-        @Override
-        public int getScaleMode() {
-            return mPrintHelper.getScaleMode();
-        }
-
-        @Override
-        public void setColorMode(int colorMode) {
-            mPrintHelper.setColorMode(colorMode);
-        }
-
-        @Override
-        public int getColorMode() {
-            return mPrintHelper.getColorMode();
-        }
-
-        @Override
-        public void setOrientation(int orientation) {
-            mPrintHelper.setOrientation(orientation);
-        }
-
-        @Override
-        public int getOrientation() {
-            return mPrintHelper.getOrientation();
-        }
-
-        @Override
-        public void printBitmap(String jobName, Bitmap bitmap,
-                final OnPrintFinishCallback callback) {
-            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
-            if (callback != null) {
-                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
-                    @Override
-                    public void onFinish() {
-                        callback.onFinish();
-                    }
-                };
-            }
-            mPrintHelper.printBitmap(jobName, bitmap, delegateCallback);
-        }
-
-        @Override
-        public void printBitmap(String jobName, Uri imageFile,
-                final OnPrintFinishCallback callback) throws FileNotFoundException {
-            PrintHelperKitkat.OnPrintFinishCallback delegateCallback = null;
-            if (callback != null) {
-                delegateCallback = new PrintHelperKitkat.OnPrintFinishCallback() {
-                    @Override
-                    public void onFinish() {
-                        callback.onFinish();
-                    }
-                };
-            }
-            mPrintHelper.printBitmap(jobName, imageFile, delegateCallback);
-        }
-    }
-
-    /**
-     * Implementation used on KitKat
-     */
-    @RequiresApi(19)
-    private static final class PrintHelperKitkatImpl extends PrintHelperImpl<PrintHelperKitkat> {
-        PrintHelperKitkatImpl(Context context) {
-            super(new PrintHelperKitkat(context));
-        }
-    }
-
-    /**
-     * Implementation used on Api20 to Api22
-     */
-    @RequiresApi(20)
-    private static final class PrintHelperApi20Impl extends PrintHelperImpl<PrintHelperApi20> {
-        PrintHelperApi20Impl(Context context) {
-            super(new PrintHelperApi20(context));
-        }
-    }
-
-    /**
-     * Implementation used on Api23
-     */
-    @RequiresApi(23)
-    private static final class PrintHelperApi23Impl extends PrintHelperImpl<PrintHelperApi23> {
-        PrintHelperApi23Impl(Context context) {
-            super(new PrintHelperApi23(context));
-        }
-    }
-
-
-    /**
-     * Implementation used on Api24 and above
-     */
-    @RequiresApi(24)
-    private static final class PrintHelperApi24Impl extends PrintHelperImpl<PrintHelperApi24> {
-        PrintHelperApi24Impl(Context context) {
-            super(new PrintHelperApi24(context));
-        }
-    }
-
-    /**
      * Kitkat specific PrintManager API implementation.
      */
     @RequiresApi(19)
-    private static class PrintHelperKitkat {
+    private static class PrintHelperKitkat implements PrintHelperVersionImpl{
         private static final String LOG_TAG = "PrintHelperKitkat";
         // will be <= 300 dpi on A4 (8.3×11.7) paper (worst case of 150 dpi)
         private static final int MAX_PRINT_SIZE = 3500;
@@ -322,10 +208,6 @@ public final class PrintHelper {
          * this is a color image (default)
          */
         public static final int COLOR_MODE_COLOR = 2;
-
-        public interface OnPrintFinishCallback {
-            void onFinish();
-        }
 
         /**
          * Whether the PrintActivity respects the suggested orientation
@@ -361,6 +243,7 @@ public final class PrintHelper {
          * @param scaleMode {@link #SCALE_MODE_FIT} or
          *                  {@link #SCALE_MODE_FILL}
          */
+        @Override
         public void setScaleMode(int scaleMode) {
             mScaleMode = scaleMode;
         }
@@ -371,6 +254,7 @@ public final class PrintHelper {
          * @return The scale Mode: {@link #SCALE_MODE_FIT} or
          * {@link #SCALE_MODE_FILL}
          */
+        @Override
         public int getScaleMode() {
             return mScaleMode;
         }
@@ -383,6 +267,7 @@ public final class PrintHelper {
          * @param colorMode The color mode which is one of
          *                  {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
          */
+        @Override
         public void setColorMode(int colorMode) {
             mColorMode = colorMode;
         }
@@ -393,6 +278,7 @@ public final class PrintHelper {
          * @param orientation The page orientation which is one of
          *                    {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
          */
+        @Override
         public void setOrientation(int orientation) {
             mOrientation = orientation;
         }
@@ -403,6 +289,7 @@ public final class PrintHelper {
          * @return The preferred orientation which is one of
          * {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}
          */
+        @Override
         public int getOrientation() {
             /// Unset defaults to landscape but might turn image
             if (mOrientation == 0) {
@@ -417,6 +304,7 @@ public final class PrintHelper {
          * @return The color mode which is one of {@link #COLOR_MODE_COLOR}
          * and {@link #COLOR_MODE_MONOCHROME}.
          */
+        @Override
         public int getColorMode() {
             return mColorMode;
         }
@@ -458,11 +346,13 @@ public final class PrintHelper {
          * @param bitmap  The bitmap to print.
          * @param callback Optional callback to observe when printing is finished.
          */
+        @Override
         public void printBitmap(final String jobName, final Bitmap bitmap,
-                final PrintHelperKitkat.OnPrintFinishCallback callback) {
+                final OnPrintFinishCallback callback) {
             if (bitmap == null) {
                 return;
             }
+
             final int fittingMode = mScaleMode; // grab the fitting mode at time of call
             PrintManager printManager =
                     (PrintManager) mContext.getSystemService(Context.PRINT_SERVICE);
@@ -682,8 +572,9 @@ public final class PrintHelper {
          * @param callback Optional callback to observe when printing is finished.
          * @throws FileNotFoundException if <code>Uri</code> is not pointing to a valid image.
          */
+        @Override
         public void printBitmap(final String jobName, final Uri imageFile,
-                final PrintHelperKitkat.OnPrintFinishCallback callback)
+                final OnPrintFinishCallback callback)
                 throws FileNotFoundException {
             final int fittingMode = mScaleMode;
 
@@ -1000,13 +891,13 @@ public final class PrintHelper {
      */
     public PrintHelper(Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
-            mImpl = new PrintHelperApi24Impl(context);
+            mImpl = new PrintHelperApi24(context);
         } else if (Build.VERSION.SDK_INT >= 23) {
-            mImpl = new PrintHelperApi23Impl(context);
+            mImpl = new PrintHelperApi23(context);
         } else if (Build.VERSION.SDK_INT >= 20) {
-            mImpl = new PrintHelperApi20Impl(context);
+            mImpl = new PrintHelperApi20(context);
         } else if (Build.VERSION.SDK_INT >= 19){
-            mImpl = new PrintHelperKitkatImpl(context);
+            mImpl = new PrintHelperKitkat(context);
         } else {
             // System does not support printing.
             mImpl = new PrintHelperStubImpl();
