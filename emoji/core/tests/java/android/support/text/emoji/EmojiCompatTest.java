@@ -680,8 +680,8 @@ public class EmojiCompatTest {
         verifyNoMoreInteractions(inputConnection);
 
         // try backwards delete 1 character
-        assertFalse(
-                EmojiCompat.handleDeleteSurroundingText(inputConnection, editable, 1, 0, false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(inputConnection, editable,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
     }
 
     @Test

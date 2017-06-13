@@ -53,7 +53,7 @@ final class EmojiInputConnection extends InputConnectionWrapper {
     @Override
     public boolean deleteSurroundingText(final int beforeLength, final int afterLength) {
         final boolean result = EmojiCompat.handleDeleteSurroundingText(this, getEditable(),
-                beforeLength, afterLength, false /* in code ponints */);
+                beforeLength, afterLength, false /*inCodePoints*/);
         return result || super.deleteSurroundingText(beforeLength, afterLength);
     }
 
@@ -61,7 +61,7 @@ final class EmojiInputConnection extends InputConnectionWrapper {
     public boolean deleteSurroundingTextInCodePoints(final int beforeLength,
             final int afterLength) {
         final boolean result = EmojiCompat.handleDeleteSurroundingText(this, getEditable(),
-                beforeLength, afterLength, true  /* in code ponints */);
+                beforeLength, afterLength, true /*inCodePoints*/);
         return result || super.deleteSurroundingTextInCodePoints(beforeLength, afterLength);
     }
 
