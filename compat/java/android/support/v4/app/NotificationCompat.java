@@ -2300,6 +2300,26 @@ public class NotificationCompat {
                             ? makeMessageLine(latestIncomingMessage)
                             : latestIncomingMessage.getText());
                 }
+                // Build a fallback BigTextStyle for API 16-23 devices
+                if (Build.VERSION.SDK_INT >= 16) {
+                    SpannableStringBuilder completeMessage = new SpannableStringBuilder();
+                    boolean showNames = mConversationTitle != null
+                            || hasMessagesWithoutSender();
+                    for (int i = mMessages.size() - 1; i >= 0; i--) {
+                        MessagingStyle.Message message = mMessages.get(i);
+                        CharSequence line;
+                        line = showNames ? makeMessageLine(message) : message.getText();
+                        if (i != mMessages.size() - 1) {
+                            completeMessage.insert(0, "\n");
+                        }
+                        completeMessage.insert(0, line);
+                    }
+                    NotificationCompatJellybean.addBigTextStyle(builder,
+                            null,
+                            false,
+                            null,
+                            completeMessage);
+                }
             }
         }
 
@@ -2317,6 +2337,16 @@ public class NotificationCompat {
                 return mMessages.get(mMessages.size() - 1);
             }
             return null;
+        }
+
+        private boolean hasMessagesWithoutSender() {
+            for (int i = mMessages.size() - 1; i >= 0; i--) {
+                MessagingStyle.Message message = mMessages.get(i);
+                if (message.getSender() == null) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private CharSequence makeMessageLine(MessagingStyle.Message message) {
