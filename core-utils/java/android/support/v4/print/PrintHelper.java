@@ -38,6 +38,7 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.print.PrintManager;
 import android.print.pdf.PrintedPdfDocument;
+import android.support.annotation.IntDef;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
@@ -45,6 +46,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Helper for printing bitmaps.
@@ -63,12 +66,12 @@ public final class PrintHelper {
     /**
      * this is a black and white image
      */
-    public static final int COLOR_MODE_MONOCHROME = 1;
+    public static final int COLOR_MODE_MONOCHROME = PrintAttributes.COLOR_MODE_MONOCHROME;
 
     /**
      * this is a color image (default)
      */
-    public static final int COLOR_MODE_COLOR = 2;
+    public static final int COLOR_MODE_COLOR = PrintAttributes.COLOR_MODE_COLOR;
 
     /**
      * Print the image in landscape orientation (default).
@@ -86,14 +89,25 @@ public final class PrintHelper {
      * document to print or printing was cancelled.
      */
     public interface OnPrintFinishCallback {
-
         /**
          * Called when a print operation is finished.
          */
-        public void onFinish();
+        void onFinish();
     }
 
-    PrintHelperVersionImpl mImpl;
+    @IntDef({SCALE_MODE_FIT, SCALE_MODE_FILL})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ScaleMode {}
+
+    @IntDef({COLOR_MODE_MONOCHROME, COLOR_MODE_COLOR})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ColorMode {}
+
+    @IntDef({ORIENTATION_LANDSCAPE, ORIENTATION_PORTRAIT})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface Orientation {}
+
+    private final PrintHelperVersionImpl mImpl;
 
     /**
      * Gets whether the system supports printing.
@@ -131,34 +145,42 @@ public final class PrintHelper {
     /**
      * Implementation used when we do not support printing
      */
-    private static final class PrintHelperStubImpl implements PrintHelperVersionImpl {
-        int mScaleMode = SCALE_MODE_FILL;
-        int mColorMode = COLOR_MODE_COLOR;
-        int mOrientation = ORIENTATION_LANDSCAPE;
+    private static final class PrintHelperStub implements PrintHelperVersionImpl {
+        @ScaleMode int mScaleMode = SCALE_MODE_FILL;
+        @ColorMode int mColorMode = COLOR_MODE_COLOR;
+        @Orientation int mOrientation = ORIENTATION_LANDSCAPE;
+
         @Override
-        public void setScaleMode(int scaleMode) {
+        public void setScaleMode(@ScaleMode int scaleMode) {
             mScaleMode = scaleMode;
         }
 
+        @ScaleMode
+        @Override
+        public int getScaleMode() {
+            return mScaleMode;
+        }
+
+        @ColorMode
         @Override
         public int getColorMode() {
             return mColorMode;
         }
 
         @Override
-        public void setColorMode(int colorMode) {
+        public void setColorMode(@ColorMode int colorMode) {
             mColorMode = colorMode;
         }
 
         @Override
-        public void setOrientation(int orientation) { mOrientation = orientation; }
+        public void setOrientation(@Orientation int orientation) {
+            mOrientation = orientation;
+        }
 
+        @Orientation
         @Override
-        public int getOrientation() { return mOrientation; }
-
-        @Override
-        public int getScaleMode() {
-            return mScaleMode;
+        public int getOrientation() {
+            return mOrientation;
         }
 
         @Override
@@ -174,40 +196,13 @@ public final class PrintHelper {
      * Kitkat specific PrintManager API implementation.
      */
     @RequiresApi(19)
-    private static class PrintHelperKitkat implements PrintHelperVersionImpl{
-        private static final String LOG_TAG = "PrintHelperKitkat";
+    private static class PrintHelperApi19 implements PrintHelperVersionImpl{
+        private static final String LOG_TAG = "PrintHelperApi19";
         // will be <= 300 dpi on A4 (8.3×11.7) paper (worst case of 150 dpi)
         private static final int MAX_PRINT_SIZE = 3500;
         final Context mContext;
         BitmapFactory.Options mDecodeOptions = null;
         private final Object mLock = new Object();
-        /**
-         * image will be scaled but leave white space
-         */
-        public static final int SCALE_MODE_FIT = 1;
-        /**
-         * image will fill the paper and be cropped (default)
-         */
-        public static final int SCALE_MODE_FILL = 2;
-
-        /**
-         * select landscape (default)
-         */
-        public static final int ORIENTATION_LANDSCAPE = 1;
-
-        /**
-         * select portrait
-         */
-        public static final int ORIENTATION_PORTRAIT = 2;
-
-        /**
-         * this is a black and white image
-         */
-        public static final int COLOR_MODE_MONOCHROME = 1;
-        /**
-         * this is a color image (default)
-         */
-        public static final int COLOR_MODE_COLOR = 2;
 
         /**
          * Whether the PrintActivity respects the suggested orientation
@@ -220,13 +215,13 @@ public final class PrintHelper {
          */
         protected boolean mIsMinMarginsHandlingCorrect;
 
-        int mScaleMode = SCALE_MODE_FILL;
+        @ScaleMode int mScaleMode = SCALE_MODE_FILL;
 
-        int mColorMode = COLOR_MODE_COLOR;
+        @ColorMode int mColorMode = COLOR_MODE_COLOR;
 
-        int mOrientation;
+        @Orientation int mOrientation;
 
-        PrintHelperKitkat(Context context) {
+        PrintHelperApi19(Context context) {
             mPrintActivityRespectsOrientation = true;
             mIsMinMarginsHandlingCorrect = true;
 
@@ -244,7 +239,7 @@ public final class PrintHelper {
          *                  {@link #SCALE_MODE_FILL}
          */
         @Override
-        public void setScaleMode(int scaleMode) {
+        public void setScaleMode(@ScaleMode int scaleMode) {
             mScaleMode = scaleMode;
         }
 
@@ -254,6 +249,7 @@ public final class PrintHelper {
          * @return The scale Mode: {@link #SCALE_MODE_FIT} or
          * {@link #SCALE_MODE_FILL}
          */
+        @ScaleMode
         @Override
         public int getScaleMode() {
             return mScaleMode;
@@ -268,7 +264,7 @@ public final class PrintHelper {
          *                  {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
          */
         @Override
-        public void setColorMode(int colorMode) {
+        public void setColorMode(@ColorMode int colorMode) {
             mColorMode = colorMode;
         }
 
@@ -279,7 +275,7 @@ public final class PrintHelper {
          *                    {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}.
          */
         @Override
-        public void setOrientation(int orientation) {
+        public void setOrientation(@Orientation int orientation) {
             mOrientation = orientation;
         }
 
@@ -289,6 +285,7 @@ public final class PrintHelper {
          * @return The preferred orientation which is one of
          * {@link #ORIENTATION_LANDSCAPE} or {@link #ORIENTATION_PORTRAIT}
          */
+        @Orientation
         @Override
         public int getOrientation() {
             /// Unset defaults to landscape but might turn image
@@ -304,6 +301,7 @@ public final class PrintHelper {
          * @return The color mode which is one of {@link #COLOR_MODE_COLOR}
          * and {@link #COLOR_MODE_MONOCHROME}.
          */
+        @ColorMode
         @Override
         public int getColorMode() {
             return mColorMode;
@@ -416,7 +414,8 @@ public final class PrintHelper {
          *                    {@link #SCALE_MODE_FIT}
          * @return Matrix to be used in canvas.drawBitmap(bitmap, matrix, null) call
          */
-        private Matrix getMatrix(int imageWidth, int imageHeight, RectF content, int fittingMode) {
+        private Matrix getMatrix(int imageWidth, int imageHeight, RectF content,
+                @ScaleMode int fittingMode) {
             Matrix matrix = new Matrix();
 
             // Compute and apply scale to fill the page.
@@ -626,7 +625,7 @@ public final class PrintHelper {
                         @Override
                         protected Bitmap doInBackground(Uri... uris) {
                             try {
-                                return loadConstrainedBitmap(imageFile, MAX_PRINT_SIZE);
+                                return loadConstrainedBitmap(imageFile);
                             } catch (FileNotFoundException e) {
                           /* ignore */
                             }
@@ -738,13 +737,12 @@ public final class PrintHelper {
          * Loads a bitmap while limiting its size
          *
          * @param uri           location of a valid image
-         * @param maxSideLength the maximum length of a size
          * @return the Bitmap
          * @throws FileNotFoundException if the Uri does not point to an image
          */
-        private Bitmap loadConstrainedBitmap(Uri uri, int maxSideLength)
+        private Bitmap loadConstrainedBitmap(Uri uri)
                 throws FileNotFoundException {
-            if (maxSideLength <= 0 || uri == null || mContext == null) {
+            if (uri == null || mContext == null) {
                 throw new IllegalArgumentException("bad argument to getScaledBitmap");
             }
             // Get width and height of stored bitmap
@@ -764,16 +762,16 @@ public final class PrintHelper {
             int imageSide = Math.max(w, h);
 
             int sampleSize = 1;
-            while (imageSide > maxSideLength) {
+            while (imageSide > MAX_PRINT_SIZE) {
                 imageSide >>>= 1;
                 sampleSize <<= 1;
             }
 
             // Make sure sample size is reasonable
-            if (sampleSize <= 0 || 0 >= (int) (Math.min(w, h) / sampleSize)) {
+            if (sampleSize <= 0 || 0 >= (Math.min(w, h) / sampleSize)) {
                 return null;
             }
-            BitmapFactory.Options decodeOptions = null;
+            BitmapFactory.Options decodeOptions;
             synchronized (mLock) { // prevent race with set null below
                 mDecodeOptions = new BitmapFactory.Options();
                 mDecodeOptions.inMutable = true;
@@ -812,7 +810,7 @@ public final class PrintHelper {
             }
         }
 
-        private Bitmap convertBitmapForColorMode(Bitmap original, int colorMode) {
+        private Bitmap convertBitmapForColorMode(Bitmap original, @ColorMode int colorMode) {
             if (colorMode != COLOR_MODE_MONOCHROME) {
                 return original;
             }
@@ -836,13 +834,12 @@ public final class PrintHelper {
      * Api20 specific PrintManager API implementation.
      */
     @RequiresApi(20)
-    private static class PrintHelperApi20 extends PrintHelperKitkat {
+    private static class PrintHelperApi20 extends PrintHelperApi19 {
         PrintHelperApi20(Context context) {
             super(context);
 
-            /**
-             * There is a bug in the PrintActivity that causes it to ignore the orientation
-             */
+
+            // There is a bug in the PrintActivity that causes it to ignore the orientation
             mPrintActivityRespectsOrientation = false;
         }
     }
@@ -884,10 +881,9 @@ public final class PrintHelper {
     }
 
     /**
-     * Returns the PrintHelper that can be used to print images.
+     * Constructs the PrintHelper that can be used to print images.
      *
      * @param context A context for accessing system resources.
-     * @return the <code>PrintHelper</code> to support printing images.
      */
     public PrintHelper(Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
@@ -896,11 +892,11 @@ public final class PrintHelper {
             mImpl = new PrintHelperApi23(context);
         } else if (Build.VERSION.SDK_INT >= 20) {
             mImpl = new PrintHelperApi20(context);
-        } else if (Build.VERSION.SDK_INT >= 19){
-            mImpl = new PrintHelperKitkat(context);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            mImpl = new PrintHelperApi19(context);
         } else {
             // System does not support printing.
-            mImpl = new PrintHelperStubImpl();
+            mImpl = new PrintHelperStub();
         }
     }
 
@@ -913,7 +909,7 @@ public final class PrintHelper {
      * @param scaleMode {@link #SCALE_MODE_FIT} or
      *                  {@link #SCALE_MODE_FILL}
      */
-    public void setScaleMode(int scaleMode) {
+    public void setScaleMode(@ScaleMode int scaleMode) {
         mImpl.setScaleMode(scaleMode);
     }
 
@@ -923,6 +919,7 @@ public final class PrintHelper {
      * @return The scale Mode: {@link #SCALE_MODE_FIT} or
      * {@link #SCALE_MODE_FILL}
      */
+    @ScaleMode
     public int getScaleMode() {
         return mImpl.getScaleMode();
     }
@@ -935,7 +932,7 @@ public final class PrintHelper {
      * @param colorMode The color mode which is one of
      * {@link #COLOR_MODE_COLOR} and {@link #COLOR_MODE_MONOCHROME}.
      */
-    public void setColorMode(int colorMode) {
+    public void setColorMode(@ColorMode int colorMode) {
         mImpl.setColorMode(colorMode);
     }
 
@@ -945,6 +942,7 @@ public final class PrintHelper {
      * @return The color mode which is one of {@link #COLOR_MODE_COLOR}
      * and {@link #COLOR_MODE_MONOCHROME}.
      */
+    @ColorMode
     public int getColorMode() {
         return mImpl.getColorMode();
     }
