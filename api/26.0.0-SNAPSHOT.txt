@@ -1914,6 +1914,7 @@ package android.support.text.emoji {
   public static abstract class EmojiCompat.Config {
     ctor protected EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataRepoLoader);
     ctor protected deprecated EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataLoader);
+    method protected final android.support.text.emoji.EmojiCompat.MetadataRepoLoader getMetadataRepoLoader();
     method public android.support.text.emoji.EmojiCompat.Config registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorColor(int);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorEnabled(boolean);
@@ -1953,6 +1954,18 @@ package android.support.text.emoji {
 
   public class FontRequestEmojiCompatConfig extends android.support.text.emoji.EmojiCompat.Config {
     ctor public FontRequestEmojiCompatConfig(android.content.Context, android.support.v4.provider.FontRequest);
+    method public android.support.text.emoji.FontRequestEmojiCompatConfig setHandler(android.os.Handler);
+    method public android.support.text.emoji.FontRequestEmojiCompatConfig setRetryPolicy(android.support.text.emoji.FontRequestEmojiCompatConfig.RetryPolicy);
+  }
+
+  public static class FontRequestEmojiCompatConfig.ExponentialBackoffRetryPolicy extends android.support.text.emoji.FontRequestEmojiCompatConfig.RetryPolicy {
+    ctor public FontRequestEmojiCompatConfig.ExponentialBackoffRetryPolicy(long);
+    method public long getRetryDelay();
+  }
+
+  public static abstract class FontRequestEmojiCompatConfig.RetryPolicy {
+    ctor public FontRequestEmojiCompatConfig.RetryPolicy();
+    method public abstract long getRetryDelay();
   }
 
   public final class MetadataRepo {
