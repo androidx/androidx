@@ -17,9 +17,9 @@ dependencies {
         exclude group: 'com.android.support'
     }
     androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker
     androidTestCompile libs.dexmaker_mockito
     androidTestCompile project(':support-testutils')
+    androidTestCompile libs.multidex
 
     testCompile libs.junit
     testCompile ("$libs.test_runner") {
@@ -32,6 +32,7 @@ android {
         minSdkVersion 14
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
+        multiDexEnabled true
     }
 
     sourceSets {

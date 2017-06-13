@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.eq;
@@ -266,7 +267,7 @@ public class ListPopupWindowTest {
 
         // Verify that our menu item click listener hasn't been called yet
         verify(popupBuilder.mOnItemClickListener, never()).onItemClick(
-                any(AdapterView.class), any(View.class), any(int.class), any(int.class));
+                any(AdapterView.class), any(View.class), any(int.class), anyLong());
 
         final View mainDecorView = mActivityTestRule.getActivity().getWindow().getDecorView();
         onView(withText("Charlie"))
@@ -276,7 +277,7 @@ public class ListPopupWindowTest {
         // position. Note that we use any() for other parameters, as we don't want to tie ourselves
         // to the specific implementation details of how ListPopupWindow displays its content.
         verify(popupBuilder.mOnItemClickListener, times(1)).onItemClick(
-                any(AdapterView.class), any(View.class), eq(2), any(int.class));
+                any(AdapterView.class), any(View.class), eq(2), anyLong());
 
         // Our item click listener also dismisses the popup
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
@@ -293,7 +294,7 @@ public class ListPopupWindowTest {
 
         // Verify that our menu item click listener hasn't been called yet
         verify(popupBuilder.mOnItemClickListener, never()).onItemClick(
-                any(AdapterView.class), any(View.class), any(int.class), any(int.class));
+                any(AdapterView.class), any(View.class), any(int.class), anyLong());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -306,7 +307,7 @@ public class ListPopupWindowTest {
         // position. Note that we use any() for other parameters, as we don't want to tie ourselves
         // to the specific implementation details of how ListPopupWindow displays its content.
         verify(popupBuilder.mOnItemClickListener, times(1)).onItemClick(
-                any(AdapterView.class), any(View.class), eq(1), any(int.class));
+                any(AdapterView.class), any(View.class), eq(1), anyLong());
         // Our item click listener also dismisses the popup
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
     }
