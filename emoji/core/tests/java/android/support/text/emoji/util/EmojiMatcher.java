@@ -21,10 +21,10 @@ import android.support.text.emoji.EmojiSpan;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.mockito.ArgumentMatcher;
 
 /**
  * Utility class that includes matchers specific to emojis and EmojiSpans.
@@ -62,9 +62,9 @@ public class EmojiMatcher {
     }
 
     public static <T extends CharSequence> T sameCharSequence(final T expected) {
-        return argThat(new BaseMatcher<T>() {
+        return argThat(new ArgumentMatcher<T>() {
             @Override
-            public boolean matches(Object o) {
+            public boolean matches(T o) {
                 if (o instanceof CharSequence && expected.getClass() == o.getClass()) {
                     return TextUtils.equals(expected, (CharSequence) o);
                 }
@@ -72,8 +72,8 @@ public class EmojiMatcher {
             }
 
             @Override
-            public void describeTo(Description description) {
-                description.appendText("doesn't match " + expected);
+            public String toString() {
+                return "doesn't match " + expected;
             }
         });
     }

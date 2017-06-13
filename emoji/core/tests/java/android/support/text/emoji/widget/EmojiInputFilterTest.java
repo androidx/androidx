@@ -68,7 +68,7 @@ public class EmojiInputFilterTest {
     @Test
     public void testFilter_withString() {
         final String testString = "abc";
-        when(mEmojiCompat.process(any(Spannable.class), anyInt(), anyInt()))
+        when(mEmojiCompat.process(any(CharSequence.class), anyInt(), anyInt()))
                 .thenReturn(new SpannableString(testString));
         final CharSequence result = mInputFilter.filter(testString, 0, 1, null, 0, 1);
 
