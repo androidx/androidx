@@ -13,24 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.text.emoji.widget;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.inputmethodservice.ExtractEditText;
 import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-import android.widget.EditText;
 
 /**
- * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}. When used
- * on devices running API 18 or below, this widget acts as a regular {@link EditText}.
+ * ExtractEditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}.
+ * When used on devices running API 18 or below, this widget acts as a {@link ExtractEditText} and
+ * does not provide any emoji compatibility feature.
+ *
+ * @hide
  */
-public class EmojiEditText extends EditText {
+@RestrictTo(LIBRARY_GROUP)
+public class EmojiExtractEditText extends ExtractEditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;
 
     /**
@@ -39,23 +47,24 @@ public class EmojiEditText extends EditText {
      */
     private boolean mInitialized;
 
-    public EmojiEditText(Context context) {
+    public EmojiExtractEditText(Context context) {
         super(context);
         init(null /*attrs*/, 0 /*defStyleAttr*/);
     }
 
-    public EmojiEditText(Context context, AttributeSet attrs) {
+    public EmojiExtractEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(attrs, android.R.attr.editTextStyle);
     }
 
-    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(attrs, defStyleAttr);
     }
@@ -88,7 +97,6 @@ public class EmojiEditText extends EditText {
      *
      * @param maxEmojiCount maximum number of EmojiSpans to be added to a single CharSequence,
      *                      should be equal or greater than 0
-     *
      * @see EmojiCompat#process(CharSequence, int, int, int)
      */
     public void setMaxEmojiCount(@IntRange(from = 0) int maxEmojiCount) {
