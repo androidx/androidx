@@ -701,7 +701,9 @@ public class NotificationCompat {
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView);
             addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderJellybean(builder, b.mStyle);
+            if (b.mStyle != null) {
+                b.mStyle.apply(builder);
+            }
             Notification notification = extender.build(b, builder);
             if (b.mStyle != null) {
                 Bundle extras = getExtras(notification);
@@ -744,7 +746,9 @@ public class NotificationCompat {
                     b.mPeople, b.mExtras, b.mGroupKey, b.mGroupSummary, b.mSortKey,
                     b.mContentView, b.mBigContentView);
             addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderJellybean(builder, b.mStyle);
+            if (b.mStyle != null) {
+                b.mStyle.apply(builder);
+            }
             return extender.build(b, builder);
         }
 
@@ -767,7 +771,9 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
                     b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderJellybean(builder, b.mStyle);
+            if (b.mStyle != null) {
+                b.mStyle.apply(builder);
+            }
             Notification notification = extender.build(b, builder);
             if (b.mStyle != null) {
                 b.mStyle.addCompatExtras(getExtras(notification));
@@ -808,7 +814,9 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
                     b.mHeadsUpContentView, b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderJellybean(builder, b.mStyle);
+            if (b.mStyle != null) {
+                b.mStyle.apply(builder);
+            }
             Notification notification = extender.build(b, builder);
             if (b.mStyle != null) {
                 b.mStyle.addCompatExtras(getExtras(notification));
@@ -844,7 +852,9 @@ public class NotificationCompat {
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
                     b.mBigContentView, b.mHeadsUpContentView, b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderApi24(builder, b.mStyle);
+            if (b.mStyle != null) {
+                b.mStyle.apply(builder);
+            }
             Notification notification = extender.build(b, builder);
             if (b.mStyle != null) {
                 b.mStyle.addCompatExtras(getExtras(notification));
@@ -869,7 +879,9 @@ public class NotificationCompat {
                     b.mShortcutId, b.mTimeout, b.mColorized, b.mColorizedSet,
                     b.mGroupAlertBehavior);
             addActionsToBuilder(builder, b.mActions);
-            addStyleToBuilderApi24(builder, b.mStyle);
+            if (b.mStyle != null) {
+                b.mStyle.apply(builder);
+            }
             Notification notification = extender.build(b, builder);
             if (b.mStyle != null) {
                 b.mStyle.addCompatExtras(getExtras(notification));
@@ -882,65 +894,6 @@ public class NotificationCompat {
             ArrayList<Action> actions) {
         for (Action action : actions) {
             builder.addAction(action);
-        }
-    }
-
-    @RequiresApi(16)
-    static void addStyleToBuilderJellybean(NotificationBuilderWithBuilderAccessor builder,
-            Style style) {
-        if (style != null) {
-            if (style instanceof BigTextStyle) {
-                BigTextStyle bigTextStyle = (BigTextStyle) style;
-                NotificationCompatJellybean.addBigTextStyle(builder,
-                        bigTextStyle.mBigContentTitle,
-                        bigTextStyle.mSummaryTextSet,
-                        bigTextStyle.mSummaryText,
-                        bigTextStyle.mBigText);
-            } else if (style instanceof InboxStyle) {
-                InboxStyle inboxStyle = (InboxStyle) style;
-                NotificationCompatJellybean.addInboxStyle(builder,
-                        inboxStyle.mBigContentTitle,
-                        inboxStyle.mSummaryTextSet,
-                        inboxStyle.mSummaryText,
-                        inboxStyle.mTexts);
-            } else if (style instanceof BigPictureStyle) {
-                BigPictureStyle bigPictureStyle = (BigPictureStyle) style;
-                NotificationCompatJellybean.addBigPictureStyle(builder,
-                        bigPictureStyle.mBigContentTitle,
-                        bigPictureStyle.mSummaryTextSet,
-                        bigPictureStyle.mSummaryText,
-                        bigPictureStyle.mPicture,
-                        bigPictureStyle.mBigLargeIcon,
-                        bigPictureStyle.mBigLargeIconSet);
-            }
-        }
-    }
-
-    @RequiresApi(24)
-    static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
-            Style style) {
-        if (style != null) {
-            if (style instanceof MessagingStyle) {
-                MessagingStyle messagingStyle = (MessagingStyle) style;
-                List<CharSequence> texts = new ArrayList<>();
-                List<Long> timestamps = new ArrayList<>();
-                List<CharSequence> senders = new ArrayList<>();
-                List<String> dataMimeTypes = new ArrayList<>();
-                List<Uri> dataUris = new ArrayList<>();
-
-                for (MessagingStyle.Message message : messagingStyle.mMessages) {
-                    texts.add(message.getText());
-                    timestamps.add(message.getTimestamp());
-                    senders.add(message.getSender());
-                    dataMimeTypes.add(message.getDataMimeType());
-                    dataUris.add(message.getDataUri());
-                }
-                NotificationCompatApi24.addMessagingStyle(builder, messagingStyle.mUserDisplayName,
-                        messagingStyle.mConversationTitle, texts, timestamps, senders,
-                        dataMimeTypes, dataUris);
-            } else {
-                addStyleToBuilderJellybean(builder, style);
-            }
         }
     }
 
@@ -1995,6 +1948,14 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP)
         // TODO: implement for all styles
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        // TODO: implement for all styles
         public void addCompatExtras(Bundle extras) {
         }
 
@@ -2028,9 +1989,9 @@ public class NotificationCompat {
      * @see Notification#bigContentView
      */
     public static class BigPictureStyle extends Style {
-        Bitmap mPicture;
-        Bitmap mBigLargeIcon;
-        boolean mBigLargeIconSet;
+        private Bitmap mPicture;
+        private Bitmap mBigLargeIcon;
+        private boolean mBigLargeIconSet;
 
         public BigPictureStyle() {
         }
@@ -2073,6 +2034,23 @@ public class NotificationCompat {
             mBigLargeIconSet = true;
             return this;
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                NotificationCompatJellybean.addBigPictureStyle(builder,
+                        mBigContentTitle,
+                        mSummaryTextSet,
+                        mSummaryText,
+                        mPicture,
+                        mBigLargeIcon,
+                        mBigLargeIconSet);
+            }
+        }
     }
 
     /**
@@ -2097,7 +2075,7 @@ public class NotificationCompat {
      * @see Notification#bigContentView
      */
     public static class BigTextStyle extends Style {
-        CharSequence mBigText;
+        private CharSequence mBigText;
 
         public BigTextStyle() {
         }
@@ -2131,6 +2109,21 @@ public class NotificationCompat {
         public BigTextStyle bigText(CharSequence cs) {
             mBigText = Builder.limitCharSequenceLength(cs);
             return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                NotificationCompatJellybean.addBigTextStyle(builder,
+                        mBigContentTitle,
+                        mSummaryTextSet,
+                        mSummaryText,
+                        mBigText);
+            }
         }
     }
 
@@ -2282,6 +2275,32 @@ public class NotificationCompat {
                 }
             }
             return style;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                List<CharSequence> texts = new ArrayList<>();
+                List<Long> timestamps = new ArrayList<>();
+                List<CharSequence> senders = new ArrayList<>();
+                List<String> dataMimeTypes = new ArrayList<>();
+                List<Uri> dataUris = new ArrayList<>();
+
+                for (MessagingStyle.Message message : mMessages) {
+                    texts.add(message.getText());
+                    timestamps.add(message.getTimestamp());
+                    senders.add(message.getSender());
+                    dataMimeTypes.add(message.getDataMimeType());
+                    dataUris.add(message.getDataUri());
+                }
+                NotificationCompatApi24.addMessagingStyle(builder, mUserDisplayName,
+                        mConversationTitle, texts, timestamps, senders,
+                        dataMimeTypes, dataUris);
+            }
         }
 
         @Override
@@ -2515,7 +2534,7 @@ public class NotificationCompat {
      * @see Notification#bigContentView
      */
     public static class InboxStyle extends Style {
-        ArrayList<CharSequence> mTexts = new ArrayList<CharSequence>();
+        private ArrayList<CharSequence> mTexts = new ArrayList<CharSequence>();
 
         public InboxStyle() {
         }
@@ -2548,6 +2567,21 @@ public class NotificationCompat {
         public InboxStyle addLine(CharSequence cs) {
             mTexts.add(Builder.limitCharSequenceLength(cs));
             return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                NotificationCompatJellybean.addInboxStyle(builder,
+                        mBigContentTitle,
+                        mSummaryTextSet,
+                        mSummaryText,
+                        mTexts);
+            }
         }
     }
 
