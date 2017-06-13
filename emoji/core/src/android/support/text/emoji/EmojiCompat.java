@@ -194,6 +194,7 @@ public class EmojiCompat {
      * Old metadata loader instance given in the Config instance.
      * @deprecated Will be removed soon.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     private final MetadataLoader mLegacyMetadataLoader;
 
@@ -223,6 +224,7 @@ public class EmojiCompat {
         mEmojiSpanIndicatorEnabled = config.mEmojiSpanIndicatorEnabled;
         mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
         mMetadataLoader = config.mMetadataLoader;
+        //noinspection deprecation
         mLegacyMetadataLoader = config.mLegacyMetadataLoader;
         mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
@@ -539,6 +541,7 @@ public class EmojiCompat {
         // since charSequence might be null here we have to check it. Passing through here to the
         // main function so that it can do all the checks including isInitialized. It will also
         // be the main point that decides what to return.
+        //noinspection ConstantConditions
         @IntRange(from = 0) final int length = charSequence == null ? 0 : charSequence.length();
         return process(charSequence, 0, length);
     }
@@ -655,6 +658,7 @@ public class EmojiCompat {
         Preconditions.checkArgument(start <= end, "start should be <= than end");
 
         // early return since there is nothing to do
+        //noinspection ConstantConditions
         if (charSequence == null) {
             return charSequence;
         }
@@ -700,6 +704,7 @@ public class EmojiCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
+        //noinspection ConstantConditions
         if (isInitialized() && outAttrs != null && outAttrs.extras != null) {
             mHelper.updateEditorInfoAttrs(outAttrs);
         }
@@ -784,6 +789,7 @@ public class EmojiCompat {
      *
      * @deprecated Use {@link MetadataRepoLoader} instead.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
     @Deprecated
     public interface MetadataLoader {
         /**
@@ -803,6 +809,7 @@ public class EmojiCompat {
      *
      * @deprecated Use {@link MetadataRepoLoaderCallback} instead.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
     @Deprecated
     public abstract static class LoaderCallback {
         /**
@@ -828,6 +835,7 @@ public class EmojiCompat {
      */
     public abstract static class Config {
         private final MetadataRepoLoader mMetadataLoader;
+        @SuppressWarnings("deprecation")
         private final MetadataLoader mLegacyMetadataLoader;
         private boolean mReplaceAll;
         private Set<InitCallback> mInitCallbacks;
@@ -852,6 +860,8 @@ public class EmojiCompat {
          *
          * @deprecated Use constructor with MetadataRepoLoader instead.
          */
+        @SuppressWarnings("deprecation")
+        @Deprecated
         protected Config(@NonNull final MetadataLoader metadataLoader) {
             Preconditions.checkNotNull(metadataLoader, "metadataLoader cannot be null.");
             mLegacyMetadataLoader = metadataLoader;
@@ -947,6 +957,7 @@ public class EmojiCompat {
         private final Throwable mThrowable;
         private final int mLoadState;
 
+        @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
         ListenerDispatcher(@NonNull final InitCallback initCallback,
                 @LoadState final int loadState) {
             this(Arrays.asList(Preconditions.checkNotNull(initCallback,
@@ -990,7 +1001,7 @@ public class EmojiCompat {
      * Internal helper class to behave no-op for certain functions.
      */
     private static class CompatInternal {
-        protected final EmojiCompat mEmojiCompat;
+        final EmojiCompat mEmojiCompat;
 
         CompatInternal(EmojiCompat emojiCompat) {
             mEmojiCompat = emojiCompat;
@@ -1028,7 +1039,7 @@ public class EmojiCompat {
     }
 
     @RequiresApi(19)
-    private static class CompatInternal19 extends CompatInternal {
+    private static final class CompatInternal19 extends CompatInternal {
         /**
          * Responsible to process a CharSequence and add the spans. @{code Null} until the time the
          * metadata is loaded.
@@ -1062,6 +1073,7 @@ public class EmojiCompat {
                     };
                     mEmojiCompat.mMetadataLoader.load(callback);
                 } else {
+                    //noinspection deprecation
                     final LoaderCallback callback = new LoaderCallback() {
                         @Override
                         public void onLoaded(@NonNull MetadataRepo metadataRepo) {
@@ -1082,6 +1094,7 @@ public class EmojiCompat {
         }
 
         private void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
+            //noinspection ConstantConditions
             if (metadataRepo == null) {
                 mEmojiCompat.onMetadataLoadFailed(
                         new IllegalArgumentException("metadataRepo cannot be null"));

@@ -49,7 +49,8 @@ public final class MetadataRepo {
     private final MetadataList mMetadataList;
 
     /**
-     * char presentation of all EmojiMetadata's in a single array.
+     * char presentation of all EmojiMetadata's in a single array. All emojis we have are mapped to
+     * Private Use Area A, in the range U+F0000..U+FFFFD. Therefore each emoji takes 2 chars.
      */
     private final char[] mEmojiCharArray;
 
@@ -135,6 +136,9 @@ public final class MetadataRepo {
         int length = metadataList.listLength();
         for (int i = 0; i < length; i++) {
             final EmojiMetadata metadata = new EmojiMetadata(this, i);
+            //since all emojis are mapped to a single codepoint in Private Use Area A they are 2
+            //chars wide
+            //noinspection ResultOfMethodCallIgnored
             Character.toChars(metadata.getId(), mEmojiCharArray, i * 2);
             put(metadata);
         }
@@ -203,10 +207,11 @@ public final class MetadataRepo {
      */
     @RestrictTo(LIBRARY_GROUP)
     static class Node {
-        private SparseArray<Node> mChildren;
+        private final SparseArray<Node> mChildren;
         private EmojiMetadata mData;
 
         private Node() {
+            this(1);
         }
 
         private Node(final int defaultChildrenSize) {
@@ -224,9 +229,6 @@ public final class MetadataRepo {
         private void put(@NonNull final EmojiMetadata data, final int start, final int end) {
             Node node = get(data.getCodepointAt(start));
             if (node == null) {
-                if (mChildren == null) {
-                    mChildren = new SparseArray<>(1);
-                }
                 node = new Node();
                 mChildren.put(data.getCodepointAt(start), node);
             }
