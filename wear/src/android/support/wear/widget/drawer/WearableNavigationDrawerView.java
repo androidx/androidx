@@ -55,8 +55,8 @@ import java.util.concurrent.TimeUnit;
  * navigation drawer will be displayed as empty. The multiple page navigation drawer will display 1
  * or more pages to the user, each representing different navigation verticals.
  *
- * <p>The developer may specify which style to use with the {@code app:navigation_style} custom
- * attribute. If not specified, {@link #SINGLE_PAGE} will be used as the default.
+ * <p>The developer may specify which style to use with the {@code app:navigationStyle} custom
+ * attribute. If not specified, {@link #SINGLE_PAGE singlePage} will be used as the default.
  */
 @TargetApi(Build.VERSION_CODES.M)
 public class WearableNavigationDrawerView extends WearableDrawerView {
