@@ -48,8 +48,8 @@ import java.lang.annotation.RetentionPolicy;
  * content must be provided.
  *
  * <p>There are two ways to specify the content and peek views: by invoking {@code setter} methods
- * on the {@code WearableDrawerView}, or by specifying the {@code drawer_content} and {@code
- * peek_view} attributes. Examples:
+ * on the {@code WearableDrawerView}, or by specifying the {@code app:drawerContent} and {@code
+ * app:peekView} attributes. Examples:
  *
  * <pre>
  * // From Java:
@@ -62,8 +62,8 @@ import java.lang.annotation.RetentionPolicy;
  *     android:layout_height="match_parent"
  *     android:layout_gravity="bottom"
  *     android:background="@color/red"
- *     app:drawer_content="@+id/drawer_content"
- *     app:peek_view="@+id/peek_view"&gt;
+ *     app:drawerContent="@+id/drawer_content"
+ *     app:peekView="@+id/peek_view"&gt;
  *
  *     &lt;FrameLayout
  *         android:id="@id/drawer_content"
