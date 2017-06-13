@@ -30,6 +30,7 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.res.ResourcesCompat;
@@ -66,6 +67,84 @@ public class AppCompatTextViewAutoSizeTest {
     public void setup() {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mActivity = mActivityTestRule.getActivity();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    // public TextView#getMaxLines only introduced in API 16.
+    public void testAutoSizeCallers_setMaxLines() throws Throwable {
+        final AppCompatTextView autoSizeTextView = prepareAndRetrieveAutoSizeTestData(
+                R.id.textview_autosize_uniform, false);
+        // Configure layout params and auto-size both in pixels to dodge flakiness on different
+        // devices.
+        final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                500, 500);
+        final String text = "one two three four five six seven eight nine ten";
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeTextView.setLayoutParams(layoutParams);
+                autoSizeTextView.setAutoSizeTextTypeUniformWithConfiguration(
+                        1 /* autoSizeMinTextSize */,
+                        5000 /* autoSizeMaxTextSize */,
+                        1 /* autoSizeStepGranularity */,
+                        TypedValue.COMPLEX_UNIT_PX);
+                autoSizeTextView.setText(text);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+
+        float initialSize = 0;
+        for (int i = 1; i < 10; i++) {
+            final int maxLines = i;
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setMaxLines(maxLines);
+                }
+            });
+            mInstrumentation.waitForIdleSync();
+            float expectedSmallerSize = autoSizeTextView.getTextSize();
+            if (i == 1) {
+                initialSize = expectedSmallerSize;
+            }
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setMaxLines(maxLines + 1);
+                }
+            });
+            mInstrumentation.waitForIdleSync();
+            assertTrue(expectedSmallerSize <= autoSizeTextView.getTextSize());
+        }
+        assertTrue(initialSize < autoSizeTextView.getTextSize());
+
+        initialSize = 999999;
+        for (int i = 10; i > 1; i--) {
+            final int maxLines = i;
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setMaxLines(maxLines);
+                }
+            });
+            mInstrumentation.waitForIdleSync();
+            float expectedLargerSize = autoSizeTextView.getTextSize();
+            if (i == 10) {
+                initialSize = expectedLargerSize;
+            }
+
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    autoSizeTextView.setMaxLines(maxLines - 1);
+                }
+            });
+            mInstrumentation.waitForIdleSync();
+            assertTrue(expectedLargerSize >= autoSizeTextView.getTextSize());
+        }
+        assertTrue(initialSize > autoSizeTextView.getTextSize());
     }
 
     @Test

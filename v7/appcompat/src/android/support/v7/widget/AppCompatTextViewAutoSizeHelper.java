@@ -552,11 +552,8 @@ class AppCompatTextViewAutoSizeHelper {
                     ? VERY_WIDE
                     : mTextView.getMeasuredWidth() - mTextView.getTotalPaddingLeft()
                             - mTextView.getTotalPaddingRight();
-            final int availableHeight = Build.VERSION.SDK_INT >= 21
-                    ? mTextView.getHeight() - mTextView.getExtendedPaddingBottom()
-                    - mTextView.getExtendedPaddingBottom()
-                    : mTextView.getHeight() - mTextView.getCompoundPaddingBottom()
-                            - mTextView.getCompoundPaddingTop();
+            final int availableHeight = mTextView.getHeight() - mTextView.getCompoundPaddingBottom()
+                    - mTextView.getCompoundPaddingTop();
 
             if (availableWidth <= 0 || availableHeight <= 0) {
                 return;
@@ -686,9 +683,9 @@ class AppCompatTextViewAutoSizeHelper {
                         text, alignment, Math.round(availableSpace.right), maxLines)
                 : createStaticLayoutForMeasuringPre23(
                         text, alignment, Math.round(availableSpace.right));
-
         // Lines overflow.
-        if (maxLines != -1 && layout.getLineCount() > maxLines) {
+        if (maxLines != -1 && (layout.getLineCount() > maxLines
+                || (layout.getLineEnd(layout.getLineCount() - 1)) != text.length())) {
             return false;
         }
 
