@@ -23,8 +23,7 @@ import android.support.annotation.RestrictTo;
 import java.io.PrintWriter;
 
 /**
- * Helper for accessing features in {@link android.util.TimeUtils}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.util.TimeUtils}.
  *
  * @hide
  */

@@ -37,7 +37,7 @@ import android.widget.TextView;
 import java.io.File;
 
 /**
- * Helper for accessing features in {@link Typeface} in a backwards compatible fashion.
+ * Helper for accessing features in {@link Typeface}.
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)

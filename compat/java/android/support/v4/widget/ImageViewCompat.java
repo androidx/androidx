@@ -24,8 +24,7 @@ import android.support.annotation.RequiresApi;
 import android.widget.ImageView;
 
 /**
- * Helper for accessing features in {@link ImageView} introduced in later platform releases
- * in a backwards compatible fashion.
+ * Helper for accessing features in {@link ImageView}.
  */
 public class ImageViewCompat {
     interface ImageViewCompatImpl {

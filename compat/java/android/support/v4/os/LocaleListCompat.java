@@ -27,7 +27,7 @@ import android.support.annotation.Size;
 import java.util.Locale;
 
 /**
- * Helper for accessing features in LocaleList in a backwards compatible fashion.
+ * Helper for accessing features in {@link LocaleList}.
  */
 public final class LocaleListCompat {
     static final LocaleListInterface IMPL;

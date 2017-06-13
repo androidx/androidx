@@ -37,8 +37,7 @@ import android.util.TypedValue;
 import java.io.File;
 
 /**
- * Helper for accessing features in {@link android.content.Context}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.Context}.
  */
 public class ContextCompat {
     private static final String TAG = "ContextCompat";

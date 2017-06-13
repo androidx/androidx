@@ -21,8 +21,7 @@ import android.os.AsyncTask;
 import java.util.concurrent.Executor;
 
 /**
- * Helper for accessing features in {@link android.os.AsyncTask}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.os.AsyncTask}.
  *
  * @deprecated Use {@link android.os.AsyncTask} directly.
  */
