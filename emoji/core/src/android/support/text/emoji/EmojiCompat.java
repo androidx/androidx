@@ -155,6 +155,12 @@ public class EmojiCompat {
     public @interface ReplaceStrategy {
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
+
     private static final Object sInstanceLock = new Object();
 
     @GuardedBy("sInstanceLock")
@@ -566,7 +572,7 @@ public class EmojiCompat {
     @CheckResult
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end) {
-        return process(charSequence, start, end, EmojiProcessor.EMOJI_COUNT_UNLIMITED);
+        return process(charSequence, start, end, EMOJI_COUNT_UNLIMITED);
     }
 
     /**
