@@ -32,6 +32,11 @@ import android.view.inputmethod.InputConnection;
  */
 public class EmojiAppCompatEditText extends AppCompatEditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;
+
+    /**
+     * Prevent calling {@link #init(AttributeSet, int)} multiple times in case super() constructors
+     * call other constructors.
+     */
     private boolean mInitialized;
 
     public EmojiAppCompatEditText(Context context) {

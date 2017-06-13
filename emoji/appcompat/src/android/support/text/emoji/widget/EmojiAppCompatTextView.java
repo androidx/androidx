@@ -28,6 +28,11 @@ import android.util.AttributeSet;
  */
 public class EmojiAppCompatTextView extends AppCompatTextView {
     private EmojiTextViewHelper mEmojiTextViewHelper;
+
+    /**
+     * Prevent calling {@link #init()} multiple times in case super() constructors
+     * call other constructors.
+     */
     private boolean mInitialized;
 
     public EmojiAppCompatTextView(Context context) {
