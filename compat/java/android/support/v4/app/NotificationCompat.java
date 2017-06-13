@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.AudioManager;
@@ -34,9 +35,15 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.v4.text.BidiFormatter;
 import android.support.v4.view.GravityCompat;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.view.Gravity;
 import android.widget.RemoteViews;
 
@@ -656,7 +663,7 @@ public class NotificationCompat {
         public Notification build(Builder b, BuilderExtender extender) {
             BuilderBase builder =
                     new BuilderBase(b.mContext, b.mNotification,
-                            b.resolveTitle(), b.resolveText(), b.mContentInfo, b.mTickerView,
+                            b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
                             b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                             b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
             return extender.build(b, builder);
@@ -695,7 +702,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatJellybean.Builder builder = new NotificationCompatJellybean.Builder(
-                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
@@ -739,7 +746,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatKitKat.Builder builder = new NotificationCompatKitKat.Builder(
-                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly,
@@ -764,7 +771,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatApi20.Builder builder = new NotificationCompatApi20.Builder(
-                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
@@ -806,7 +813,7 @@ public class NotificationCompat {
         @Override
         public Notification build(Builder b, BuilderExtender extender) {
             NotificationCompatApi21.Builder builder = new NotificationCompatApi21.Builder(
-                    b.mContext, b.mNotification, b.resolveTitle(), b.resolveText(), b.mContentInfo,
+                    b.mContext, b.mNotification, b.mContentTitle, b.mContentText, b.mContentInfo,
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
@@ -1890,27 +1897,6 @@ public class NotificationCompat {
         public int getColor() {
             return mColor;
         }
-
-
-        /**
-         * @return the text of the notification
-         *
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        protected CharSequence resolveText() {
-            return mContentText;
-        }
-
-        /**
-         * @return the title of the notification
-         *
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        protected CharSequence resolveTitle() {
-            return mContentTitle;
-        }
     }
 
     /**
@@ -2300,7 +2286,66 @@ public class NotificationCompat {
                 NotificationCompatApi24.addMessagingStyle(builder, mUserDisplayName,
                         mConversationTitle, texts, timestamps, senders,
                         dataMimeTypes, dataUris);
+            } else {
+                MessagingStyle.Message latestIncomingMessage = findLatestIncomingMessage();
+                // Set the title
+                if (mConversationTitle != null) {
+                    builder.getBuilder().setContentTitle(mConversationTitle);
+                } else if (latestIncomingMessage != null) {
+                    builder.getBuilder().setContentTitle(latestIncomingMessage.getSender());
+                }
+                // Set the text
+                if (latestIncomingMessage != null) {
+                    builder.getBuilder().setContentText(mConversationTitle != null
+                            ? makeMessageLine(latestIncomingMessage)
+                            : latestIncomingMessage.getText());
+                }
             }
+        }
+
+        @Nullable
+        private MessagingStyle.Message findLatestIncomingMessage() {
+            for (int i = mMessages.size() - 1; i >= 0; i--) {
+                MessagingStyle.Message message = mMessages.get(i);
+                // Incoming messages have a non-empty sender.
+                if (!TextUtils.isEmpty(message.getSender())) {
+                    return message;
+                }
+            }
+            if (!mMessages.isEmpty()) {
+                // No incoming messages, fall back to outgoing message
+                return mMessages.get(mMessages.size() - 1);
+            }
+            return null;
+        }
+
+        private CharSequence makeMessageLine(MessagingStyle.Message message) {
+            BidiFormatter bidi = BidiFormatter.getInstance();
+            SpannableStringBuilder sb = new SpannableStringBuilder();
+            final boolean afterLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+            int color = afterLollipop ? Color.BLACK : Color.WHITE;
+            CharSequence replyName = message.getSender();
+            if (TextUtils.isEmpty(message.getSender())) {
+                replyName = mUserDisplayName == null
+                        ? "" : mUserDisplayName;
+                color = afterLollipop && mBuilder.getColor() != NotificationCompat.COLOR_DEFAULT
+                        ? mBuilder.getColor()
+                        : color;
+            }
+            CharSequence senderText = bidi.unicodeWrap(replyName);
+            sb.append(senderText);
+            sb.setSpan(makeFontColorSpan(color),
+                    sb.length() - senderText.length(),
+                    sb.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE /* flags */);
+            CharSequence text = message.getText() == null ? "" : message.getText();
+            sb.append("  ").append(bidi.unicodeWrap(text));
+            return sb;
+        }
+
+        @NonNull
+        private TextAppearanceSpan makeFontColorSpan(int color) {
+            return new TextAppearanceSpan(null, 0, 0, ColorStateList.valueOf(color), null);
         }
 
         @Override
