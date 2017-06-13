@@ -1939,6 +1939,18 @@ public class ExifInterface {
     }
 
     /**
+     * Set the date time value.
+     *
+     * @param timeStamp number of milliseconds since Jan. 1, 1970, midnight local time.
+     * @hide
+     */
+    public void setDateTime(long timeStamp) {
+        long sub = timeStamp % 1000;
+        setAttribute(TAG_DATETIME, sFormatter.format(new Date(timeStamp)));
+        setAttribute(TAG_SUBSEC_TIME, Long.toString(sub));
+    }
+
+    /**
      * Returns number of milliseconds since Jan. 1, 1970, midnight local time.
      * Returns -1 if the date time information if not available.
      * @hide
