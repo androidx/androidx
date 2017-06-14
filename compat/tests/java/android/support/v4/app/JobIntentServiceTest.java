@@ -19,13 +19,16 @@ package android.support.v4.app;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -47,6 +50,9 @@ public class JobIntentServiceTest {
 
     static final Object sLock = new Object();
     static CountDownLatch sReadyToRunLatch;
+    static CountDownLatch sServiceWaitingLatch;
+    static CountDownLatch sServiceStoppedLatch;
+    static CountDownLatch sWaitCompleteLatch;
     static CountDownLatch sServiceFinishedLatch;
 
     static boolean sFinished;
@@ -62,14 +68,28 @@ public class JobIntentServiceTest {
     }
 
     public static final class TestIntentItem implements Parcelable {
+        public static final int FLAG_WAIT = 1 << 0;
+        public static final int FLAG_STOPPED_AFTER_WAIT = 1 << 1;
+
         public final Intent intent;
         public final TestIntentItem[] subitems;
+        public final int flags;
         public final Uri[] requireUrisGranted;
         public final Uri[] requireUrisNotGranted;
 
         public TestIntentItem(Intent intent) {
             this.intent = intent;
             subitems = null;
+            flags = 0;
+            requireUrisGranted = null;
+            requireUrisNotGranted = null;
+        }
+
+        public TestIntentItem(Intent intent, int flags) {
+            this.intent = intent;
+            subitems = null;
+            this.flags = flags;
+            intent.putExtra("flags", flags);
             requireUrisGranted = null;
             requireUrisNotGranted = null;
         }
@@ -78,6 +98,7 @@ public class JobIntentServiceTest {
             this.intent = intent;
             this.subitems = subitems;
             intent.putExtra("subitems", subitems);
+            flags = 0;
             requireUrisGranted = null;
             requireUrisNotGranted = null;
         }
@@ -86,6 +107,7 @@ public class JobIntentServiceTest {
                 Uri[] requireUrisNotGranted) {
             this.intent = intent;
             subitems = null;
+            flags = 0;
             this.requireUrisGranted = requireUrisGranted;
             this.requireUrisNotGranted = requireUrisNotGranted;
         }
@@ -108,11 +130,13 @@ public class JobIntentServiceTest {
         public void writeToParcel(Parcel parcel, int flags) {
             intent.writeToParcel(parcel, flags);
             parcel.writeTypedArray(subitems, flags);
+            parcel.writeInt(flags);
         }
 
         TestIntentItem(Parcel parcel) {
             intent = Intent.CREATOR.createFromParcel(parcel);
             subitems = parcel.createTypedArray(CREATOR);
+            flags = parcel.readInt();
             requireUrisGranted = null;
             requireUrisNotGranted = null;
         }
@@ -133,6 +157,9 @@ public class JobIntentServiceTest {
     static void initStatics() {
         synchronized (sLock) {
             sReadyToRunLatch = new CountDownLatch(1);
+            sServiceWaitingLatch = new CountDownLatch(1);
+            sServiceStoppedLatch = new CountDownLatch(1);
+            sWaitCompleteLatch = new CountDownLatch(1);
             sServiceFinishedLatch = new CountDownLatch(1);
             sFinished = false;
             sFinishedWork = null;
@@ -142,6 +169,38 @@ public class JobIntentServiceTest {
 
     static void allowServiceToRun() {
         sReadyToRunLatch.countDown();
+    }
+
+    static void serviceReportWaiting() {
+        sServiceWaitingLatch.countDown();
+    }
+
+    static void ensureServiceWaiting() {
+        try {
+            if (!sServiceWaitingLatch.await(10, TimeUnit.SECONDS)) {
+                fail("Timed out waiting for wait, service state " + sLastServiceState);
+            }
+        } catch (InterruptedException e) {
+            fail("Interrupted waiting for service to wait: " + e);
+        }
+    }
+
+    static void serviceReportStopped() {
+        sServiceStoppedLatch.countDown();
+    }
+
+    static void ensureServiceStopped() {
+        try {
+            if (!sServiceStoppedLatch.await(10, TimeUnit.SECONDS)) {
+                fail("Timed out waiting for stop, service state " + sLastServiceState);
+            }
+        } catch (InterruptedException e) {
+            fail("Interrupted waiting for service to stop: " + e);
+        }
+    }
+
+    static void allowServiceToResumeFromWait() {
+        sWaitCompleteLatch.countDown();
     }
 
     static void finishServiceExecution(ArrayList<Intent> work, String errorMsg) {
@@ -207,6 +266,22 @@ public class JobIntentServiceTest {
             updateServiceState("Handling work: " + intent);
             mReceivedWork.add(intent);
             intent.setExtrasClassLoader(TestIntentItem.class.getClassLoader());
+            int flags = intent.getIntExtra("flags", 0);
+            if ((flags & TestIntentItem.FLAG_WAIT) != 0) {
+                serviceReportWaiting();
+                try {
+                    if (!sWaitCompleteLatch.await(10, TimeUnit.SECONDS)) {
+                        finishServiceExecution(null, "Timeout waiting for wait complete");
+                    }
+                } catch (InterruptedException e) {
+                    finishServiceExecution(null, "Interrupted waiting for wait complete: " + e);
+                }
+                if ((flags & TestIntentItem.FLAG_STOPPED_AFTER_WAIT) != 0) {
+                    if (!isStopped()) {
+                        finishServiceExecution(null, "Service not stopped after waiting");
+                    }
+                }
+            }
             Parcelable[] subitems = intent.getParcelableArrayExtra("subitems");
             if (subitems != null) {
                 for (Parcelable pitem : subitems) {
@@ -214,6 +289,12 @@ public class JobIntentServiceTest {
                             JOB_ID, ((TestIntentItem) pitem).intent);
                 }
             }
+        }
+
+        @Override
+        public boolean onStopCurrentWork() {
+            serviceReportStopped();
+            return super.onStopCurrentWork();
         }
 
         @Override
@@ -343,6 +424,44 @@ public class JobIntentServiceTest {
             JobIntentService.enqueueWork(mContext, TargetService.class, JOB_ID, item.intent);
         }
         allowServiceToRun();
+
+        waitServiceFinish();
+        compareIntents(items, sFinishedWork);
+    }
+
+    /**
+     * Test case of job stopping while it is doing work.
+     */
+    @MediumTest
+    @Test
+    @RequiresApi(26)
+    public void testStopWhileWorking() throws Throwable {
+        if (Build.VERSION.SDK_INT < 26) {
+            // This test only makes sense when running on top of JobScheduler.
+            return;
+        }
+
+        initStatics();
+
+        TestIntentItem[] items = new TestIntentItem[] {
+                new TestIntentItem(new Intent("FIRST"),
+                        TestIntentItem.FLAG_WAIT | TestIntentItem.FLAG_STOPPED_AFTER_WAIT),
+        };
+
+        for (TestIntentItem item : items) {
+            JobIntentService.enqueueWork(mContext, TargetService.class, JOB_ID, item.intent);
+        }
+        allowServiceToRun();
+        ensureServiceWaiting();
+
+        // At this point we will make the job stop...  this isn't normally how this would
+        // happen with an IntentJobService, and doing it this way breaks re-delivery of
+        // work, but we have CTS tests for the underlying redlivery mechanism.
+        ((JobScheduler) mContext.getApplicationContext().getSystemService(
+                Context.JOB_SCHEDULER_SERVICE)).cancel(JOB_ID);
+        ensureServiceStopped();
+
+        allowServiceToResumeFromWait();
 
         waitServiceFinish();
         compareIntents(items, sFinishedWork);
