@@ -29,8 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 /**
- * Helper for accessing features in {@link android.view.MenuItem}
- * introduced after API level 14 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.view.MenuItem}.
  * <p class="note"><strong>Note:</strong> You cannot get an instance of this class. Instead,
  * it provides <em>static</em> methods that correspond to the methods in {@link
  * android.view.MenuItem}, but take a {@link android.view.MenuItem} object as an additional

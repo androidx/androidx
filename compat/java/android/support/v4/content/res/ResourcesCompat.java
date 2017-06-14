@@ -46,8 +46,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * Helper for accessing features in {@link android.content.res.Resources}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.res.Resources}.
  */
 public final class ResourcesCompat {
     private static final String TAG = "ResourcesCompat";

@@ -23,8 +23,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 /**
- * Helper for accessing features in android.app.AppOpsManager
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.AppOpsManager}.
  */
 public final class AppOpsManagerCompat {
 

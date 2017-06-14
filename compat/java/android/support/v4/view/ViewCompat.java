@@ -61,8 +61,7 @@ import java.util.Collection;
 import java.util.WeakHashMap;
 
 /**
- * Helper for accessing features in {@link View} introduced after API
- * level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link View}.
  */
 public class ViewCompat {
     private static final String TAG = "ViewCompat";

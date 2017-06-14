@@ -20,7 +20,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Helper for accessing features in {@link android.os.Parcelable} in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.os.Parcelable}.
  *
  * @deprecated Use {@link android.os.Parcelable.ClassLoaderCreator} directly.
  */

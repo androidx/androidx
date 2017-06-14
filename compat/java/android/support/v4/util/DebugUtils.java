@@ -21,8 +21,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.support.annotation.RestrictTo;
 
 /**
- * Helper for accessing features in {@link android.util.DebugUtils}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.util.DebugUtils}.
  *
  * @hide
  */
