@@ -72,10 +72,10 @@
     </style>
 
     <style name="TextView_SansSerif">
-        <item name="android:fontFamily">@string/font_sans_serif</item>
+        <item name="fontFamily">@string/font_sans_serif</item>
     </style>
 
     <style name="TextView_Serif">
-        <item name="android:fontFamily">@string/font_serif</item>
+        <item name="fontFamily">@string/font_serif</item>
     </style>
 </resources>
