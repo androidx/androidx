@@ -988,6 +988,10 @@ public class ViewCompat {
         public boolean restoreDefaultFocus(@NonNull View view) {
             return view.requestFocus();
         }
+
+        public boolean hasExplicitFocusable(@NonNull View view) {
+            return view.hasFocusable();
+        }
     }
 
     @RequiresApi(15)
@@ -1570,6 +1574,11 @@ public class ViewCompat {
         @Override
         public boolean restoreDefaultFocus(@NonNull View view) {
             return view.restoreDefaultFocus();
+        }
+
+        @Override
+        public boolean hasExplicitFocusable(@NonNull View view) {
+            return view.hasExplicitFocusable();
         }
     }
 
@@ -3690,6 +3699,25 @@ public class ViewCompat {
      */
     public static boolean restoreDefaultFocus(@NonNull View view) {
         return IMPL.restoreDefaultFocus(view);
+    }
+
+    /**
+     * Returns true if this view is focusable or if it contains a reachable View
+     * for which {@link View#hasExplicitFocusable()} returns {@code true}.
+     * A "reachable hasExplicitFocusable()" is a view whose parents do not block descendants focus.
+     * Only {@link View#VISIBLE} views for which {@link View#getFocusable()} would return
+     * {@link View#FOCUSABLE} are considered focusable.
+     *
+     * <p>This method preserves the pre-{@link Build.VERSION_CODES#O} behavior of
+     * {@link View#hasFocusable()} in that only views explicitly set focusable will cause
+     * this method to return true. A view set to {@link View#FOCUSABLE_AUTO} that resolves
+     * to focusable will not.</p>
+     *
+     * @return {@code true} if the view is focusable or if the view contains a focusable
+     *         view, {@code false} otherwise
+     */
+    public static boolean hasExplicitFocusable(@NonNull View view) {
+        return IMPL.hasExplicitFocusable(view);
     }
 
     protected ViewCompat() {}
