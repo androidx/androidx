@@ -35,11 +35,9 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 /**
- * A {@link TextView} which supports compatible features on older version of the platform,
+ * A {@link TextView} which supports compatible features on older versions of the platform,
  * including:
  * <ul>
- *     <li>Supports {@link R.attr#textAllCaps} style attribute which works back to
- *     {@link android.os.Build.VERSION_CODES#GINGERBREAD Gingerbread}.</li>
  *     <li>Allows dynamic tint of its background via the background tint methods in
  *     {@link android.support.v4.view.ViewCompat}.</li>
  *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
@@ -54,7 +52,9 @@ import android.widget.TextView;
  *     {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH Ice Cream Sandwich}.</li>
  * </ul>
  *
- * <p>This will automatically be used when you use {@link TextView} in your layouts.
+ * <p>This will automatically be used when you use {@link TextView} in your layouts
+ * and the top-level activity / dialog is provided by
+ * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatTextView extends TextView implements TintableBackgroundView,
