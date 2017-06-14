@@ -95,6 +95,8 @@ public abstract class JobIntentService extends Service {
     CompatJobEngine mJobImpl;
     WorkEnqueuer mCompatWorkEnqueuer;
     CommandProcessor mCurProcessor;
+    boolean mInterruptIfStopped = false;
+    boolean mStopped = false;
 
     final ArrayList<CompatWorkItem> mCompatQueue;
 
@@ -236,6 +238,7 @@ public abstract class JobIntentService extends Service {
         static final boolean DEBUG = false;
 
         final JobIntentService mService;
+        final Object mLock = new Object();
         JobParameters mParams;
 
         final class WrapperWorkItem implements JobIntentService.GenericWorkItem {
@@ -252,7 +255,11 @@ public abstract class JobIntentService extends Service {
 
             @Override
             public void complete() {
-                mParams.completeWork(mJobWork);
+                synchronized (mLock) {
+                    if (mParams != null) {
+                        mParams.completeWork(mJobWork);
+                    }
+                }
             }
         }
 
@@ -278,7 +285,13 @@ public abstract class JobIntentService extends Service {
         @Override
         public boolean onStopJob(JobParameters params) {
             if (DEBUG) Log.d(TAG, "onStartJob: " + params);
-            return mService.onStopCurrentWork();
+            boolean result = mService.doStopCurrentWork();
+            synchronized (mLock) {
+                // Once we return, the job is stopped, so its JobParameters are no
+                // longer valid and we should not be doing anything with them.
+                mParams = null;
+            }
+            return result;
         }
 
         /**
@@ -286,7 +299,13 @@ public abstract class JobIntentService extends Service {
          */
         @Override
         public JobIntentService.GenericWorkItem dequeueWork() {
-            JobWorkItem work = mParams.dequeueWork();
+            JobWorkItem work;
+            synchronized (mLock) {
+                if (mParams == null) {
+                    return null;
+                }
+                work = mParams.dequeueWork();
+            }
             if (work != null) {
                 return new WrapperWorkItem(work);
             } else {
@@ -511,6 +530,28 @@ public abstract class JobIntentService extends Service {
     protected abstract void onHandleWork(@NonNull Intent intent);
 
     /**
+     * Control whether code executing in {@link #onHandleWork(Intent)} will be interrupted
+     * if the job is stopped.  By default this is false.  If called and set to true, any
+     * time {@link #onStopCurrentWork()} is called, the class will first call
+     * {@link AsyncTask#cancel(boolean) AsyncTask.cancel(true)} to interrupt the running
+     * task.
+     *
+     * @param interruptIfStopped Set to true to allow the system to interrupt actively
+     * running work.
+     */
+    public void setInterruptIfStopped(boolean interruptIfStopped) {
+        mInterruptIfStopped = interruptIfStopped;
+    }
+
+    /**
+     * Returns true if {@link #onStopCurrentWork()} has been called.  You can use this,
+     * while executing your work, to see if it should be stopped.
+     */
+    public boolean isStopped() {
+        return mStopped;
+    }
+
+    /**
      * This will be called if the JobScheduler has decided to stop this job.  The job for
      * this service does not have any constraints specified, so this will only generally happen
      * if the service exceeds the job's maximum execution time.
@@ -523,6 +564,14 @@ public abstract class JobIntentService extends Service {
      */
     public boolean onStopCurrentWork() {
         return true;
+    }
+
+    boolean doStopCurrentWork() {
+        if (mCurProcessor != null) {
+            mCurProcessor.cancel(mInterruptIfStopped);
+        }
+        mStopped = true;
+        return onStopCurrentWork();
     }
 
     void ensureProcessorRunningLocked() {
