@@ -27,6 +27,18 @@ public class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
+    public boolean transactionMethod(int i, String s, long l) {
+        __db.beginTransaction();
+        try {
+            boolean _result = super.transactionMethod(i, s, l);
+            __db.setTransactionSuccessful();
+            return _result;
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
     public List<ComplexDao.FullName> fullNames(int id) {
         final String _sql = "SELECT name || lastName as fullName, uid as id FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
