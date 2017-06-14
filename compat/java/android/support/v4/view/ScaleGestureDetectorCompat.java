@@ -20,7 +20,7 @@ import android.os.Build;
 import android.view.ScaleGestureDetector;
 
 /**
- * Helper for accessing features in {@link ScaleGestureDetector} in a backwards compatible fashion.
+ * Helper for accessing features in {@link ScaleGestureDetector}.
  */
 public final class ScaleGestureDetectorCompat {
     private ScaleGestureDetectorCompat() {}

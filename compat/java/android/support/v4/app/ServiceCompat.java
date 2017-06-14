@@ -28,7 +28,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Helper for accessing features in {@link android.app.Service} in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.Service}.
  */
 public final class ServiceCompat {
 

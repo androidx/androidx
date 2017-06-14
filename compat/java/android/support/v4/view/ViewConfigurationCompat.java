@@ -26,7 +26,7 @@ import android.view.ViewConfiguration;
 import java.lang.reflect.Method;
 
 /**
- * Helper for accessing features in {@link ViewConfiguration} in a backwards compatible fashion.
+ * Helper for accessing features in {@link ViewConfiguration}.
  *
  * @deprecated Use {@link ViewConfiguration} directly.
  */

@@ -18,15 +18,14 @@ package android.support.v4.accessibilityservice;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.support.annotation.RequiresApi;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 
 /**
- * Helper for accessing features in {@link android.accessibilityservice.AccessibilityService}
- * in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.accessibilityservice.AccessibilityService}.
  */
 public final class AccessibilityServiceInfoCompat {
 

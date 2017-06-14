@@ -25,8 +25,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 /**
- * Helper for accessing features in {@link SearchView}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link SearchView}.
  *
  * @deprecated Use {@link SearchView} directly.
  */

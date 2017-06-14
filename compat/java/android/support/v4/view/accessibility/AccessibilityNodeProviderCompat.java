@@ -16,17 +16,16 @@
 
 package android.support.v4.view.accessibility;
 
-import android.support.annotation.RequiresApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper for accessing {@link android.view.accessibility.AccessibilityNodeProvider}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing {@link android.view.accessibility.AccessibilityNodeProvider}.
  */
 public class AccessibilityNodeProviderCompat {
 

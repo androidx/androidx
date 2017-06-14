@@ -36,8 +36,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 /**
- * Helper for accessing features in {@link android.graphics.drawable.Icon}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.graphics.drawable.Icon}.
  */
 public class IconCompat {
 

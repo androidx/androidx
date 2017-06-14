@@ -27,7 +27,7 @@ import android.view.accessibility.AccessibilityRecord;
 import java.util.List;
 
 /**
- * Helper for accessing {@link AccessibilityRecord} in a backwards compatible fashion.
+ * Helper for accessing {@link AccessibilityRecord}.
  */
 public class AccessibilityRecordCompat {
 

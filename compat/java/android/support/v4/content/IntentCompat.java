@@ -23,8 +23,7 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 
 /**
- * Helper for accessing features in {@link android.content.Intent}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.Intent}.
  */
 public final class IntentCompat {
 
