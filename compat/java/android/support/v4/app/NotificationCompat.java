@@ -48,8 +48,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Helper for accessing features in {@link android.app.Notification}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.Notification}.
  */
 public class NotificationCompat {
 
@@ -591,7 +590,7 @@ public class NotificationCompat {
     }
 
     /**
-     * Interface for appcompat to extend v4 builder with media style.
+     * Interface for appcompat to extend compat builder with media style.
      *
      * @hide
      */

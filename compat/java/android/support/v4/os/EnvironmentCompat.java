@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Helper for accessing features in {@link Environment} in a backwards compatible fashion.
+ * Helper for accessing features in {@link Environment}.
  */
 public final class EnvironmentCompat {
     private static final String TAG = "EnvironmentCompat";

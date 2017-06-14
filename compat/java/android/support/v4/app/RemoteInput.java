@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Helper for using the {@link android.app.RemoteInput} API in a backwards compatible fashion.
+ * Helper for using the {@link android.app.RemoteInput}.
  */
 public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     private static final String TAG = "RemoteInput";

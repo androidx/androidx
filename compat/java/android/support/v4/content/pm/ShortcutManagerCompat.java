@@ -32,8 +32,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 /**
- * Helper for accessing features in {@link android.content.pm.ShortcutManager}
- * in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.pm.ShortcutManager}.
  */
 public class ShortcutManagerCompat {
 

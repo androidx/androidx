@@ -40,8 +40,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Helper for accessing features in {@link ConnectivityManager} introduced after
- * API level 16 in a backwards compatible fashion.
+ * Helper for accessing features in {@link ConnectivityManager}.
  */
 public final class ConnectivityManagerCompat {
 

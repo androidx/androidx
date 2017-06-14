@@ -21,8 +21,7 @@ import android.os.AsyncTask;
 import java.util.concurrent.Executor;
 
 /**
- * Helper for accessing a shared parallel Executor instance
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing a shared parallel Executor instance.
  *
  * @deprecated Use {@link AsyncTask} directly.
  */

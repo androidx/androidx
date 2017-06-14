@@ -22,7 +22,7 @@ import android.support.annotation.RequiresApi;
 import android.widget.EdgeEffect;
 
 /**
- * Helper for accessing {@link android.widget.EdgeEffect} in a backwards compatible fashion.
+ * Helper for accessing {@link android.widget.EdgeEffect}.
  *
  * This class is used to access {@link android.widget.EdgeEffect} on platform versions
  * that support it. When running on older platforms it will result in no-ops. It should

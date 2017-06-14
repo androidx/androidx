@@ -29,8 +29,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
 /**
- * Helper for accessing {@link AccessibilityDelegate} introduced after
- * API level 4 in a backwards compatible fashion.
+ * Helper for accessing {@link AccessibilityDelegate}.
  * <p>
  * <strong>Note:</strong> On platform versions prior to
  * {@link android.os.Build.VERSION_CODES#M API 23}, delegate methods on
