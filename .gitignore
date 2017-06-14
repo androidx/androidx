@@ -1,13 +1,9 @@
 .classpath
 .gradle
-.idea/*
-.idea/**/*
-!.idea/*/
+.idea/
 !.idea/codeStyleSettings.xml
 !.idea/copyright/AndroidCopyright.xml
 !.idea/copyright/profiles_settings.xml
-!.idea/inspectionProfiles/SupportLib.xml
-!.idea/inspectionProfiles/profiles_settings.xml
 !.idea/vcs.xml
 .project
 .settings/
