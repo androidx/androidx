@@ -24,9 +24,11 @@ import android.util.AttributeSet;
 import android.widget.SeekBar;
 
 /**
- * A {@link SeekBar} which supports compatible features on older version of the platform.
+ * A {@link SeekBar} which supports compatible features on older versions of the platform.
  *
- * <p>This will automatically be used when you use {@link SeekBar} in your layouts.
+ * <p>This will automatically be used when you use {@link SeekBar} in your layouts
+ * and the top-level activity / dialog is provided by
+ * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
  * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatSeekBar extends SeekBar {
