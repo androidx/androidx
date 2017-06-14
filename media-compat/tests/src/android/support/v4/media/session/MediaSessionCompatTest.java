@@ -18,6 +18,7 @@ package android.support.v4.media.session;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_RATING;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -217,8 +218,12 @@ public class MediaSessionCompatTest {
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
-            MediaMetadataCompat metadata =
-                    new MediaMetadataCompat.Builder().putString(TEST_KEY, TEST_VALUE).build();
+            RatingCompat rating = RatingCompat.newHeartRating(true);
+            MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                    .putString(TEST_KEY, TEST_VALUE)
+                    .putRating(METADATA_KEY_RATING, rating)
+                    .build();
+            mSession.setActive(true);
             mSession.setMetadata(metadata);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnMetadataChangedCalled);
@@ -230,6 +235,11 @@ public class MediaSessionCompatTest {
             metadataOut = controller.getMetadata();
             assertNotNull(metadataOut);
             assertEquals(TEST_VALUE, metadataOut.getString(TEST_KEY));
+
+            assertNotNull(metadataOut.getRating(METADATA_KEY_RATING));
+            RatingCompat ratingOut = metadataOut.getRating(METADATA_KEY_RATING);
+            assertEquals(rating.getRatingStyle(), ratingOut.getRatingStyle());
+            assertEquals(rating.getPercentRating(), ratingOut.getPercentRating(), 0.0f);
         }
     }
 
