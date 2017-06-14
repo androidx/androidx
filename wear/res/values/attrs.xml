@@ -171,4 +171,16 @@
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="CircularProgressLayout">
+        <!-- Sets the color of the background circle. -->
+        <attr name="backgroundColor" format="color" />
+        <!-- Sets the stroke width of the progress indicator. -->
+        <attr name="strokeWidth" format="dimension" />
+        <!-- Sets the color scheme used by the progress indicator. This may be an array of colors or
+        a single color. If an array of colors is used, first color will be used for determinate
+        progress indicator, while the rest will be shown in order during indeterminate spinner. -->
+        <attr name="colorSchemeColors" format="reference|color" />
+        <!-- Sets if the progress should be shown as an indeterminate spinner. -->
+        <attr name="indeterminate" format="boolean" />
+    </declare-styleable>
 </resources>
