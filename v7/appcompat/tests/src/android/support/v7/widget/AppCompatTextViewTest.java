@@ -256,6 +256,8 @@ public class AppCompatTextViewTest
 
         TextViewCompat.setTextAppearance(textView, R.style.TextView_Serif);
         Typeface secondTypeface = textView.getTypeface();
+        assertNotNull(firstTypeface);
+        assertNotNull(secondTypeface);
         assertNotEquals(firstTypeface, secondTypeface);
     }
 }
