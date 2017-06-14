@@ -40,8 +40,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -1014,7 +1014,7 @@ public class AlertDialogTest {
         // Verify that a Message with expected 'what' field has been posted on our mock handler
         ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
         verify(messageHandler, times(1)).sendMessageDelayed(
-                messageArgumentCaptor.capture(), anyInt());
+                messageArgumentCaptor.capture(), anyLong());
         assertEquals("Button clicked", whichButtonClicked, messageArgumentCaptor.getValue().what);
         // Verify that the dialog is no longer showing
         assertFalse("Dialog is not showing", mAlertDialog.isShowing());
