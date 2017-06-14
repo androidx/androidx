@@ -36,6 +36,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Base class for all Room databases. All classes that are annotated with {@link Database} must
@@ -200,6 +201,45 @@ public abstract class RoomDatabase {
      */
     public void setTransactionSuccessful() {
         mOpenHelper.getWritableDatabase().setTransactionSuccessful();
+    }
+
+    /**
+     * Executes the specified {@link Runnable} in a database transaction. The transaction will be
+     * marked as successful unless an exception is thrown in the {@link Runnable}.
+     *
+     * @param body The piece of code to execute.
+     */
+    public void runInTransaction(Runnable body) {
+        beginTransaction();
+        try {
+            body.run();
+            setTransactionSuccessful();
+        } finally {
+            endTransaction();
+        }
+    }
+
+    /**
+     * Executes the specified {@link Callable} in a database transaction. The transaction will be
+     * marked as successful unless an exception is thrown in the {@link Callable}.
+     *
+     * @param body The piece of code to execute.
+     * @param <V>  The type of the return value.
+     * @return The value returned from the {@link Callable}.
+     */
+    public <V> V runInTransaction(Callable<V> body) {
+        beginTransaction();
+        try {
+            V result = body.call();
+            setTransactionSuccessful();
+            return result;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception in transaction", e);
+        } finally {
+            endTransaction();
+        }
     }
 
     /**

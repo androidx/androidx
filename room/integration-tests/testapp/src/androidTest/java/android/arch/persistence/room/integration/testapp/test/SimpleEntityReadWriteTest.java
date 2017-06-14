@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
@@ -28,6 +29,7 @@ import android.arch.persistence.room.integration.testapp.dao.UserDao;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -233,7 +235,7 @@ public class SimpleEntityReadWriteTest {
         final String name = "my name";
         user.setName(name);
         mUserDao.insert(user);
-        assertThat(mUserDao.findByNameLenght(name.length()), is(Collections.singletonList(user)));
+        assertThat(mUserDao.findByNameLength(name.length()), is(Collections.singletonList(user)));
     }
 
     @Test
@@ -304,5 +306,50 @@ public class SimpleEntityReadWriteTest {
     public void emptyInQuery() {
         User[] users = mUserDao.loadByIds();
         assertThat(users, is(new User[0]));
+    }
+
+    @Test
+    public void transactionByRunnable() {
+        User a = TestUtil.createUser(3);
+        User b = TestUtil.createUser(5);
+        mUserDao.insertBothByRunnable(a, b);
+        assertThat(mUserDao.count(), is(2));
+    }
+
+    @Test
+    public void transactionByRunnable_failure() {
+        User a = TestUtil.createUser(3);
+        User b = TestUtil.createUser(3);
+        boolean caught = false;
+        try {
+            mUserDao.insertBothByRunnable(a, b);
+        } catch (SQLiteConstraintException e) {
+            caught = true;
+        }
+        assertTrue("SQLiteConstraintException expected", caught);
+        assertThat(mUserDao.count(), is(0));
+    }
+
+    @Test
+    public void transactionByCallable() {
+        User a = TestUtil.createUser(3);
+        User b = TestUtil.createUser(5);
+        int count = mUserDao.insertBothByCallable(a, b);
+        assertThat(mUserDao.count(), is(2));
+        assertThat(count, is(2));
+    }
+
+    @Test
+    public void transactionByCallable_failure() {
+        User a = TestUtil.createUser(3);
+        User b = TestUtil.createUser(3);
+        boolean caught = false;
+        try {
+            mUserDao.insertBothByCallable(a, b);
+        } catch (SQLiteConstraintException e) {
+            caught = true;
+        }
+        assertTrue("SQLiteConstraintException expected", caught);
+        assertThat(mUserDao.count(), is(0));
     }
 }
