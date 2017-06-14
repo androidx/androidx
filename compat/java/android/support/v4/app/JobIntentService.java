@@ -101,7 +101,7 @@ public abstract class JobIntentService extends Service {
     final ArrayList<CompatWorkItem> mCompatQueue;
 
     static final Object sLock = new Object();
-    static final HashMap<Class, WorkEnqueuer> sClassWorkEnqueuer = new HashMap<>();
+    static final HashMap<ComponentName, WorkEnqueuer> sClassWorkEnqueuer = new HashMap<>();
 
     /**
      * Base class for the target service we can deliver work to and the implementation of
@@ -113,8 +113,8 @@ public abstract class JobIntentService extends Service {
         boolean mHasJobId;
         int mJobId;
 
-        WorkEnqueuer(Context context, Class cls) {
-            mComponentName = new ComponentName(context, cls);
+        WorkEnqueuer(Context context, ComponentName cn) {
+            mComponentName = cn;
         }
 
         void ensureJobId(int jobId) {
@@ -157,16 +157,18 @@ public abstract class JobIntentService extends Service {
         boolean mLaunchingService;
         boolean mServiceRunning;
 
-        CompatWorkEnqueuer(Context context, Class cls) {
-            super(context, cls);
+        CompatWorkEnqueuer(Context context, ComponentName cn) {
+            super(context, cn);
             mContext = context.getApplicationContext();
             // Make wake locks.  We need two, because the launch wake lock wants to have
             // a timeout, and the system does not do the right thing if you mix timeout and
             // non timeout (or even changing the timeout duration) in one wake lock.
             PowerManager pm = ((PowerManager) context.getSystemService(Context.POWER_SERVICE));
-            mLaunchWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, cls.getName());
+            mLaunchWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    cn.getClassName() + ":launch");
             mLaunchWakeLock.setReferenceCounted(false);
-            mRunWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, cls.getName());
+            mRunWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    cn.getClassName() + ":run");
             mRunWakeLock.setReferenceCounted(false);
         }
 
@@ -319,8 +321,8 @@ public abstract class JobIntentService extends Service {
         private final JobInfo mJobInfo;
         private final JobScheduler mJobScheduler;
 
-        JobWorkEnqueuer(Context context, Class cls, int jobId) {
-            super(context, cls);
+        JobWorkEnqueuer(Context context, ComponentName cn, int jobId) {
+            super(context, cn);
             ensureJobId(jobId);
             JobInfo.Builder b = new JobInfo.Builder(jobId, mComponentName);
             mJobInfo = b.setOverrideDeadline(0).build();
@@ -421,7 +423,8 @@ public abstract class JobIntentService extends Service {
             mCompatWorkEnqueuer = null;
         } else {
             mJobImpl = null;
-            mCompatWorkEnqueuer = getWorkEnqueuer(this, this.getClass(), false, 0);
+            ComponentName cn = new ComponentName(this, this.getClass());
+            mCompatWorkEnqueuer = getWorkEnqueuer(this, cn, false, 0);
             mCompatWorkEnqueuer.serviceCreated();
         }
     }
@@ -486,28 +489,45 @@ public abstract class JobIntentService extends Service {
      */
     public static void enqueueWork(@NonNull Context context, @NonNull Class cls, int jobId,
             @NonNull Intent work) {
+        enqueueWork(context, new ComponentName(context, cls), jobId, work);
+    }
+
+    /**
+     * Like {@link #enqueueWork(Context, Class, int, Intent)}, but supplies a ComponentName
+     * for the service to interact with instead of its class.
+     *
+     * @param context Context this is being called from.
+     * @param component The published ComponentName of the class this work should be
+     * dispatched to.
+     * @param jobId A unique job ID for scheduling; must be the same value for all work
+     * enqueued for the same class.
+     * @param work The Intent of work to enqueue.
+     */
+    public static void enqueueWork(@NonNull Context context, @NonNull ComponentName component,
+            int jobId, @NonNull Intent work) {
         if (work == null) {
             throw new IllegalArgumentException("work must not be null");
         }
         synchronized (sLock) {
-            WorkEnqueuer we = getWorkEnqueuer(context, cls, true, jobId);
+            WorkEnqueuer we = getWorkEnqueuer(context, component, true, jobId);
             we.ensureJobId(jobId);
             we.enqueueWork(work);
         }
     }
 
-    static WorkEnqueuer getWorkEnqueuer(Context context, Class cls, boolean hasJobId, int jobId) {
-        WorkEnqueuer we = sClassWorkEnqueuer.get(cls);
+    static WorkEnqueuer getWorkEnqueuer(Context context, ComponentName cn, boolean hasJobId,
+            int jobId) {
+        WorkEnqueuer we = sClassWorkEnqueuer.get(cn);
         if (we == null) {
             if (Build.VERSION.SDK_INT >= 26) {
                 if (!hasJobId) {
                     throw new IllegalArgumentException("Can't be here without a job id");
                 }
-                we = new JobWorkEnqueuer(context, cls, jobId);
+                we = new JobWorkEnqueuer(context, cn, jobId);
             } else {
-                we = new CompatWorkEnqueuer(context, cls);
+                we = new CompatWorkEnqueuer(context, cn);
             }
-            sClassWorkEnqueuer.put(cls, we);
+            sClassWorkEnqueuer.put(cn, we);
         }
         return we;
     }

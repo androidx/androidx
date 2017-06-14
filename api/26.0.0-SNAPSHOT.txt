@@ -6282,6 +6282,7 @@ package android.support.v4.app {
   public abstract class JobIntentService extends android.app.Service {
     ctor public JobIntentService();
     method public static void enqueueWork(android.content.Context, java.lang.Class, int, android.content.Intent);
+    method public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
     method public boolean isStopped();
     method public android.os.IBinder onBind(android.content.Intent);
     method protected abstract void onHandleWork(android.content.Intent);
