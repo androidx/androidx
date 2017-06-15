@@ -1193,115 +1193,6 @@ package android.support.media {
 
 package android.support.media.tv {
 
-  public abstract class BasePreviewProgram extends android.support.media.tv.BaseProgram {
-    method public java.lang.String getAuthor();
-    method public int getAvailability();
-    method public java.lang.String getContentId();
-    method public int getDurationMillis();
-    method public android.content.Intent getIntent() throws java.net.URISyntaxException;
-    method public android.net.Uri getIntentUri();
-    method public long getInteractionCount();
-    method public int getInteractionType();
-    method public java.lang.String getInternalProviderId();
-    method public int getItemCount();
-    method public int getLastPlaybackPositionMillis();
-    method public android.net.Uri getLogoUri();
-    method public java.lang.String getOfferPrice();
-    method public int getPosterArtAspectRatio();
-    method public android.net.Uri getPreviewVideoUri();
-    method public java.lang.String getReleaseDate();
-    method public java.lang.String getStartingPrice();
-    method public int getThumbnailAspectRatio();
-    method public int getType();
-    method public boolean isBrowsable();
-    method public boolean isLive();
-    method public boolean isTransient();
-  }
-
-  public static abstract class BasePreviewProgram.Builder<T extends android.support.media.tv.BasePreviewProgram.Builder> extends android.support.media.tv.BaseProgram.Builder {
-    ctor public BasePreviewProgram.Builder();
-    ctor public BasePreviewProgram.Builder(android.support.media.tv.BasePreviewProgram);
-    method public T setAuthor(java.lang.String);
-    method public T setAvailability(int);
-    method public T setContentId(java.lang.String);
-    method public T setDurationMillis(int);
-    method public T setIntent(android.content.Intent);
-    method public T setIntentUri(android.net.Uri);
-    method public T setInteractionCount(long);
-    method public T setInteractionType(int);
-    method public T setInternalProviderId(java.lang.String);
-    method public T setItemCount(int);
-    method public T setLastPlaybackPositionMillis(int);
-    method public T setLive(boolean);
-    method public T setLogoUri(android.net.Uri);
-    method public T setOfferPrice(java.lang.String);
-    method public T setPosterArtAspectRatio(int);
-    method public T setPreviewVideoUri(android.net.Uri);
-    method public T setReleaseDate(java.lang.String);
-    method public T setReleaseDate(java.util.Date);
-    method public T setStartingPrice(java.lang.String);
-    method public T setThumbnailAspectRatio(int);
-    method public T setTransient(boolean);
-    method public T setType(int);
-  }
-
-  public abstract class BaseProgram {
-    method public java.lang.String[] getAudioLanguages();
-    method public java.lang.String[] getCanonicalGenres();
-    method public android.media.tv.TvContentRating[] getContentRatings();
-    method public java.lang.String getDescription();
-    method public java.lang.String getEpisodeNumber();
-    method public java.lang.String getEpisodeTitle();
-    method public long getId();
-    method public byte[] getInternalProviderDataByteArray();
-    method public java.lang.Long getInternalProviderFlag1();
-    method public java.lang.Long getInternalProviderFlag2();
-    method public java.lang.Long getInternalProviderFlag3();
-    method public java.lang.Long getInternalProviderFlag4();
-    method public java.lang.String getLongDescription();
-    method public android.net.Uri getPosterArtUri();
-    method public java.lang.String getReviewRating();
-    method public int getReviewRatingStyle();
-    method public java.lang.String getSeasonNumber();
-    method public java.lang.String getSeasonTitle();
-    method public android.net.Uri getThumbnailUri();
-    method public java.lang.String getTitle();
-    method public int getVideoHeight();
-    method public int getVideoWidth();
-    method public boolean isSearchable();
-    method public android.content.ContentValues toContentValues();
-  }
-
-  public static abstract class BaseProgram.Builder<T extends android.support.media.tv.BaseProgram.Builder> {
-    ctor public BaseProgram.Builder();
-    ctor public BaseProgram.Builder(android.support.media.tv.BaseProgram);
-    method public T setAudioLanguages(java.lang.String[]);
-    method public T setCanonicalGenres(java.lang.String[]);
-    method public T setContentRatings(android.media.tv.TvContentRating[]);
-    method public T setDescription(java.lang.String);
-    method public T setEpisodeNumber(int);
-    method public T setEpisodeNumber(java.lang.String, int);
-    method public T setEpisodeTitle(java.lang.String);
-    method public T setId(long);
-    method public T setInternalProviderData(byte[]);
-    method public T setInternalProviderFlag1(long);
-    method public T setInternalProviderFlag2(long);
-    method public T setInternalProviderFlag3(long);
-    method public T setInternalProviderFlag4(long);
-    method public T setLongDescription(java.lang.String);
-    method public T setPosterArtUri(android.net.Uri);
-    method public T setReviewRating(java.lang.String);
-    method public T setReviewRatingStyle(int);
-    method public T setSearchable(boolean);
-    method public T setSeasonNumber(int);
-    method public T setSeasonNumber(java.lang.String, int);
-    method public T setSeasonTitle(java.lang.String);
-    method public T setThumbnailUri(android.net.Uri);
-    method public T setTitle(java.lang.String);
-    method public T setVideoHeight(int);
-    method public T setVideoWidth(int);
-  }
-
   public final class Channel {
     method public static android.support.media.tv.Channel fromCursor(android.database.Cursor);
     method public int getAppLinkColor();
@@ -1375,13 +1266,14 @@ package android.support.media.tv {
     method public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
   }
 
-  public final class PreviewProgram extends android.support.media.tv.BasePreviewProgram {
+  public final class PreviewProgram {
     method public static android.support.media.tv.PreviewProgram fromCursor(android.database.Cursor);
     method public long getChannelId();
     method public int getWeight();
+    method public android.content.ContentValues toContentValues();
   }
 
-  public static final class PreviewProgram.Builder extends android.support.media.tv.BasePreviewProgram.Builder {
+  public static final class PreviewProgram.Builder {
     ctor public PreviewProgram.Builder();
     ctor public PreviewProgram.Builder(android.support.media.tv.PreviewProgram);
     method public android.support.media.tv.PreviewProgram build();
@@ -1389,7 +1281,7 @@ package android.support.media.tv {
     method public android.support.media.tv.PreviewProgram.Builder setWeight(int);
   }
 
-  public final class Program extends android.support.media.tv.BaseProgram implements java.lang.Comparable {
+  public final class Program implements java.lang.Comparable {
     method public int compareTo(android.support.media.tv.Program);
     method public static android.support.media.tv.Program fromCursor(android.database.Cursor);
     method public java.lang.String[] getBroadcastGenres();
@@ -1397,9 +1289,10 @@ package android.support.media.tv {
     method public long getEndTimeUtcMillis();
     method public long getStartTimeUtcMillis();
     method public boolean isRecordingProhibited();
+    method public android.content.ContentValues toContentValues();
   }
 
-  public static class Program.Builder extends android.support.media.tv.BaseProgram.Builder {
+  public static class Program.Builder {
     ctor public Program.Builder();
     ctor public Program.Builder(android.support.media.tv.Program);
     method public android.support.media.tv.Program build();
@@ -1801,13 +1694,14 @@ package android.support.media.tv {
     field public static final int WATCH_NEXT_TYPE_WATCHLIST = 3; // 0x3
   }
 
-  public final class WatchNextProgram extends android.support.media.tv.BasePreviewProgram {
+  public final class WatchNextProgram {
     method public static android.support.media.tv.WatchNextProgram fromCursor(android.database.Cursor);
     method public long getLastEngagementTimeUtcMillis();
     method public int getWatchNextType();
+    method public android.content.ContentValues toContentValues();
   }
 
-  public static final class WatchNextProgram.Builder extends android.support.media.tv.BasePreviewProgram.Builder {
+  public static final class WatchNextProgram.Builder {
     ctor public WatchNextProgram.Builder();
     ctor public WatchNextProgram.Builder(android.support.media.tv.WatchNextProgram);
     method public android.support.media.tv.WatchNextProgram build();
