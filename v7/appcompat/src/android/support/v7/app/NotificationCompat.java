@@ -80,7 +80,10 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         if (b.mStyle instanceof DecoratedCustomViewStyle) {
             NotificationCompatImpl24.addDecoratedCustomViewStyle(builder);
         } else if (b.mStyle instanceof DecoratedMediaCustomViewStyle) {
-            NotificationCompatImpl24.addDecoratedMediaCustomViewStyle(builder);
+            DecoratedMediaCustomViewStyle mediaStyle = (DecoratedMediaCustomViewStyle) b.mStyle;
+            NotificationCompatImpl24.addDecoratedMediaCustomViewStyle(builder,
+                    mediaStyle.mActionsToShowInCompact,
+                    mediaStyle.mToken != null ? mediaStyle.mToken.getToken() : null);
         } else {
             addStyleGetContentViewLollipop(builder, b);
         }
