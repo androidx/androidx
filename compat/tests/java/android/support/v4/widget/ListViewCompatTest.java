@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.compat.test.R;
@@ -52,7 +53,7 @@ public class ListViewCompatTest extends BaseInstrumentationTestCase<ListViewTest
 
     @Before
     public void setUp() throws Throwable {
-        mListView = (ListView) mActivityTestRule.getActivity().findViewById(R.id.content);
+        mListView = mActivityTestRule.getActivity().findViewById(R.id.content);
         runOnMainAndLayoutSync(mActivityTestRule, mListView, new Runnable() {
             @Override
             public void run() {
@@ -72,6 +73,7 @@ public class ListViewCompatTest extends BaseInstrumentationTestCase<ListViewTest
                         return position;
                     }
 
+                    @SuppressLint("SetTextI18n")
                     @Override
                     public View getView(int position, View convertView, ViewGroup parent) {
                         if (convertView == null) {
