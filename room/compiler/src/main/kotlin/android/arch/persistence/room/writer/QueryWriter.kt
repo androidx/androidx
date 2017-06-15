@@ -134,7 +134,7 @@ class QueryWriter constructor(val parameters : List<QueryParameter>,
                 if (constInputs > 0 || varInputs.isNotEmpty()) {
                     addStatement("$L = $L$L", argIndex,
                             if (constInputs > 0) (1 + constInputs) else "1",
-                            varInputs.joinToString { " + $it" })
+                            varInputs.joinToString("") { " + $it" })
                 }
                 val param = pair.second
                 param?.let {

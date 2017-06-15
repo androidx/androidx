@@ -362,4 +362,58 @@ public class ComplexDao_Impl extends ComplexDao {
             }
         }.getLiveData();
     }
+
+    @Override
+    public List<Integer> getAllAgesAsList(List<Integer> ids1, int[] ids2, int... ids3) {
+        StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+        _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
+        final int _inputSize = ids1.size();
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+        _stringBuilder.append(") OR uid IN (");
+        final int _inputSize_1 = ids2.length;
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_1);
+        _stringBuilder.append(") OR uid IN (");
+        final int _inputSize_2 = ids3.length;
+        StringUtil.appendPlaceholders(_stringBuilder, _inputSize_2);
+        _stringBuilder.append(")");
+        final String _sql = _stringBuilder.toString();
+        final int _argCount = 0 + _inputSize + _inputSize_1 + _inputSize_2;
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+        int _argIndex = 1;
+        for (Integer _item : ids1) {
+            if (_item == null) {
+                _statement.bindNull(_argIndex);
+            } else {
+                _statement.bindLong(_argIndex, _item);
+            }
+            _argIndex ++;
+        }
+        _argIndex = 1 + _inputSize;
+        for (int _item_1 : ids2) {
+            _statement.bindLong(_argIndex, _item_1);
+            _argIndex ++;
+        }
+        _argIndex = 1 + _inputSize + _inputSize_1;
+        for (int _item_2 : ids3) {
+            _statement.bindLong(_argIndex, _item_2);
+            _argIndex ++;
+        }
+        final Cursor _cursor = __db.query(_statement);
+        try {
+            final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final Integer _item_3;
+                if (_cursor.isNull(0)) {
+                    _item_3 = null;
+                } else {
+                    _item_3 = _cursor.getInt(0);
+                }
+                _result.add(_item_3);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
+    }
 }

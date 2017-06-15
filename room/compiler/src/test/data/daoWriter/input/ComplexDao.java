@@ -58,4 +58,8 @@ abstract class ComplexDao {
 
     @Query("SELECT * FROM user where uid IN (:ids)")
     abstract public LiveData<List<User>> loadUsersByIdsLive(int... ids);
+
+    @Query("SELECT ageColumn FROM user where uid IN(:ids1) OR uid IN (:ids2) OR uid IN (:ids3)")
+    abstract public List<Integer> getAllAgesAsList(List<Integer> ids1,
+            int[] ids2, int... ids3);
 }
