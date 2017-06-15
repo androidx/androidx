@@ -176,7 +176,6 @@ public class IconCompat {
     /**
      * @hide
      */
-    @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP)
     @TargetApi(Build.VERSION_CODES.O)
     public Icon toIcon() {
