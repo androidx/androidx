@@ -783,31 +783,44 @@ public class GridWidgetTest {
     public void testLayoutWhenAViewIsInvalidated() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
-        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1000);
+        intent.putExtra(GridActivity.EXTRA_HAS_STABLE_IDS, true);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
         mNumRows = 1;
         initActivity(intent);
         mOrientation = BaseGridView.VERTICAL;
         waitOneUiCycle();
 
+        // push views to cache.
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                RecyclerView.ViewHolder vh = mGridView.findViewHolderForAdapterPosition(3);
-                // The following is nowhere ideal since we can't override GridLayoutManager to
-                // obtain a reference to Recycler. Ideally, this test should call
-                // addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID) on the ViewHolder to
-                // simulate markKnownViewsInvalid on the cached views in RecyclerView.
-                mLayoutManager.stopIgnoringView(vh.itemView);
+                mActivity.mItemLengths[0] = mActivity.mItemLengths[0] * 3;
+                mActivity.mGridView.getAdapter().notifyItemChanged(0);
+            }
+        });
+        waitForItemAnimation();
+
+        // notifyDataSetChange will mark the cached views FLAG_INVALID
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.mGridView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        waitForItemAnimation();
+
+        // Cached views will be added in prelayout with FLAG_INVALID, in post layout we should
+        // handle it properly
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.mItemLengths[0] = mActivity.mItemLengths[0] / 3;
+                mActivity.mGridView.getAdapter().notifyItemChanged(0);
             }
         });
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mGridView.requestLayout();
-            }
-        });
-        waitForScrollIdle();
+        waitForItemAnimation();
     }
 
 
