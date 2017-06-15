@@ -610,7 +610,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
      * A private class to do all the drawing of CircularProgressDrawable, which includes background,
      * progress spinner and the arrow. This class is to separate drawing from animation.
      */
-    private class Ring {
+    private static class Ring {
         final RectF mTempBounds = new RectF();
         final Paint mPaint = new Paint();
         final Paint mArrowPaint = new Paint();
