@@ -144,22 +144,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         return addStyleGetContentViewIcs(builder, b);
     }
 
-    private static MessagingStyle.Message findLatestIncomingMessage(MessagingStyle style) {
-        List<MessagingStyle.Message> messages = style.getMessages();
-        for (int i = messages.size() - 1; i >= 0; i--) {
-            MessagingStyle.Message m = messages.get(i);
-            // Incoming messages have a non-empty sender.
-            if (!TextUtils.isEmpty(m.getSender())) {
-                return m;
-            }
-        }
-        if (!messages.isEmpty()) {
-            // No incoming messages, fall back to outgoing message
-            return messages.get(messages.size() - 1);
-        }
-        return null;
-    }
-
     private static CharSequence makeMessageLine(android.support.v4.app.NotificationCompat.Builder b,
             MessagingStyle style,
             MessagingStyle.Message m) {
@@ -381,45 +365,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          */
         public Builder(Context context) {
             super(context);
-        }
-
-        /**
-         * @return the text of the notification
-         *
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Override
-        protected CharSequence resolveText() {
-            if (mStyle instanceof MessagingStyle) {
-                MessagingStyle style = (MessagingStyle) mStyle;
-                MessagingStyle.Message m = findLatestIncomingMessage(style);
-                CharSequence conversationTitle = style.getConversationTitle();
-                if (m != null) {
-                    return conversationTitle != null ? makeMessageLine(this, style, m)
-                            : m.getText();
-                }
-            }
-            return super.resolveText();
-        }
-
-        /**
-         * @return the title of the notification
-         *
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Override
-        protected CharSequence resolveTitle() {
-            if (mStyle instanceof MessagingStyle) {
-                MessagingStyle style = (MessagingStyle) mStyle;
-                MessagingStyle.Message m = findLatestIncomingMessage(style);
-                CharSequence conversationTitle = style.getConversationTitle();
-                if (conversationTitle != null || m != null) {
-                    return conversationTitle != null ? conversationTitle : m.getSender();
-                }
-            }
-            return super.resolveTitle();
         }
 
         /**
