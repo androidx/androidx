@@ -42,25 +42,26 @@ import android.support.annotation.MainThread;
  * }
  * </pre>
  * <p>
- * A method can observe multiple events as well as multiple methods can observe the same event.
+ * Multiple methods can observe the same event.
  * <pre>
  * class TestObserver implements LifecycleObserver {
- *   {@literal @}OnLifecycleEvent({ON_STOP, ON_START})
- *   void onStoppedOrStarted() {}
  *   {@literal @}OnLifecycleEvent(ON_STOP)
- *   void onStopped() {}
+ *   void onStoppedFirst() {}
+ *   {@literal @}OnLifecycleEvent(ON_STOP)
+ *   void onStoppedSecond() {}
  * }
  * </pre>
  * <p>
- * Observer methods can receive 0, 1 or 2 arguments.
- * If used, the first argument must be of type {@link LifecycleOwner} and the second argument
- * must be of type {@link Event}.
+ * Observer methods can receive zero or one argument.
+ * If used, the first argument must be of type {@link LifecycleOwner}.
+ * Methods annotated with {@link Event#ON_ANY} can receive the second argument, which must be
+ * of type {@link Event}.
  * <pre>
  * class TestObserver implements LifecycleObserver {
  *   {@literal @}OnLifecycleEvent(ON_CREATE)
  *   void onCreated(LifecycleOwner source) {}
- *   {@literal @}OnLifecycleEvent({ON_STOP, ON_START})
- *   void onStoppedOrStarted(LifecycleOwner source, Event event) {}
+ *   {@literal @}OnLifecycleEvent(ON_ANY)
+ *   void onAny(LifecycleOwner source, Event event) {}
  * }
  * </pre>
  * These additional parameters are provided to allow you to conveniently observe multiple providers
