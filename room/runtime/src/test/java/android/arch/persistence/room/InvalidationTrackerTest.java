@@ -258,14 +258,21 @@ public class InvalidationTrackerTest {
                 return index.addAndGet(2) < keyValuePairs.length;
             }
         });
-        Answer<Integer> answer = new Answer<Integer>() {
+        Answer<Integer> intAnswer = new Answer<Integer>() {
             @Override
             public Integer answer(InvocationOnMock invocation) throws Throwable {
                 return keyValuePairs[index.intValue() + (Integer) invocation.getArguments()[0]];
             }
         };
-        when(cursor.getInt(anyInt())).thenAnswer(answer);
-        when(cursor.getLong(anyInt())).thenAnswer(answer);
+        Answer<Long> longAnswer = new Answer<Long>() {
+            @Override
+            public Long answer(InvocationOnMock invocation) throws Throwable {
+                return (long) keyValuePairs[index.intValue()
+                        + (Integer) invocation.getArguments()[0]];
+            }
+        };
+        when(cursor.getInt(anyInt())).thenAnswer(intAnswer);
+        when(cursor.getLong(anyInt())).thenAnswer(longAnswer);
         return cursor;
     }
 

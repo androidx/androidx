@@ -31,6 +31,7 @@ import static android.arch.lifecycle.Lifecycle.State.STARTED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Matchers;
 
 @RunWith(JUnit4.class)
 public class ReflectiveGenericLifecycleObserverTest {
@@ -198,17 +200,17 @@ public class ReflectiveGenericLifecycleObserverTest {
     @Test
     public void testPrivateObserverMethods() {
         class ObserverWithPrivateMethod implements LifecycleObserver {
-            boolean called = false;
+            boolean mCalled = false;
             @OnLifecycleEvent(ON_START)
             private void started() {
-                called = true;
+                mCalled = true;
             }
         }
 
         ObserverWithPrivateMethod obj = mock(ObserverWithPrivateMethod.class);
         ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
         observer.onStateChanged(mOwner, ON_START);
-        assertThat(obj.called, is(true));
+        assertThat(obj.mCalled, is(true));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -241,4 +243,119 @@ public class ReflectiveGenericLifecycleObserverTest {
         new ReflectiveGenericLifecycleObserver(observer);
     }
 
+    class BaseClass1 implements LifecycleObserver {
+        @OnLifecycleEvent(ON_START)
+        void foo(LifecycleOwner owner) {
+        }
+    }
+
+    class DerivedClass1 extends BaseClass1 {
+        @OnLifecycleEvent(ON_STOP)
+        void foo(LifecycleOwner owner) {
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidSuper1() {
+        new ReflectiveGenericLifecycleObserver(new DerivedClass1());
+    }
+
+    class BaseClass2 implements LifecycleObserver {
+        @OnLifecycleEvent(ON_START)
+        void foo(LifecycleOwner owner) {
+        }
+    }
+
+    class DerivedClass2 extends BaseClass1 {
+        @OnLifecycleEvent(ON_STOP)
+        void foo() {
+        }
+    }
+
+    @Test
+    public void testValidSuper1() {
+        DerivedClass2 obj = mock(DerivedClass2.class);
+        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
+        observer.onStateChanged(mock(LifecycleOwner.class), ON_START);
+        verify(obj).foo(Matchers.<LifecycleOwner>any());
+        verify(obj, never()).foo();
+        reset(obj);
+        observer.onStateChanged(mock(LifecycleOwner.class), ON_STOP);
+        verify(obj).foo();
+        verify(obj, never()).foo(Matchers.<LifecycleOwner>any());
+    }
+
+    class BaseClass3 implements LifecycleObserver {
+        @OnLifecycleEvent(ON_START)
+        void foo(LifecycleOwner owner) {
+        }
+    }
+
+    interface Interface3 extends LifecycleObserver {
+        @OnLifecycleEvent(ON_STOP)
+        void foo(LifecycleOwner owner);
+    }
+
+    class DerivedClass3 extends BaseClass3 implements Interface3 {
+        @Override
+        public void foo(LifecycleOwner owner) {
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidSuper2() {
+        new ReflectiveGenericLifecycleObserver(new DerivedClass3());
+    }
+
+    class BaseClass4 implements LifecycleObserver {
+        @OnLifecycleEvent(ON_START)
+        void foo(LifecycleOwner owner) {
+        }
+    }
+
+    interface Interface4 extends LifecycleObserver {
+        @OnLifecycleEvent(ON_START)
+        void foo(LifecycleOwner owner);
+    }
+
+    class DerivedClass4 extends BaseClass4 implements Interface4 {
+        @Override
+        @OnLifecycleEvent(ON_START)
+        public void foo(LifecycleOwner owner) {
+        }
+
+        @OnLifecycleEvent(ON_START)
+        public void foo() {
+        }
+    }
+
+    @Test
+    public void testValidSuper2() {
+        DerivedClass4 obj = mock(DerivedClass4.class);
+        ReflectiveGenericLifecycleObserver observer = new ReflectiveGenericLifecycleObserver(obj);
+        observer.onStateChanged(mock(LifecycleOwner.class), ON_START);
+        verify(obj).foo(Matchers.<LifecycleOwner>any());
+        verify(obj).foo();
+    }
+
+    interface InterfaceStart extends LifecycleObserver {
+        @OnLifecycleEvent(ON_START)
+        void foo(LifecycleOwner owner);
+    }
+
+    interface InterfaceStop extends LifecycleObserver {
+        @OnLifecycleEvent(ON_STOP)
+        void foo(LifecycleOwner owner);
+    }
+
+    class DerivedClass5 implements InterfaceStart, InterfaceStop {
+        @Override
+        public void foo(LifecycleOwner owner) {
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidSuper3() {
+        new ReflectiveGenericLifecycleObserver(new DerivedClass5());
+    }
 }
