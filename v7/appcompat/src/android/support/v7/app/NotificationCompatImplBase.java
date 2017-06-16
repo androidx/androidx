@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
@@ -114,21 +113,6 @@ class NotificationCompatImplBase {
             view.setViewVisibility(R.id.cancel_action, View.GONE);
         }
         return view;
-    }
-
-    @RequiresApi(16)
-    public static <T extends NotificationCompatBase.Action> void overrideMediaBigContentView(
-            Notification n, Context context, CharSequence contentTitle, CharSequence contentText,
-            CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, int color, List<T> actions,
-            boolean showCancelButton, PendingIntent cancelButtonIntent,
-            boolean decoratedCustomView) {
-        n.bigContentView = generateMediaBigView(context, contentTitle, contentText, contentInfo,
-                number, largeIcon, subText, useChronometer, when, priority, color, actions,
-                showCancelButton, cancelButtonIntent, decoratedCustomView);
-        if (showCancelButton) {
-            n.flags |= Notification.FLAG_ONGOING_EVENT;
-        }
     }
 
     @RequiresApi(11)
