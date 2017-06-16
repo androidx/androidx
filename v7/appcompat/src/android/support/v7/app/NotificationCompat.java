@@ -165,27 +165,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, n.bigContentView,
                         innerView);
             }
-        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
-            addDecoratedBigStyleToBuilderJellybean(n, b);
         }
-    }
-
-    @RequiresApi(16)
-    private static void addDecoratedBigStyleToBuilderJellybean(Notification n,
-            android.support.v4.app.NotificationCompat.Builder b) {
-        RemoteViews bigContentView = b.getBigContentView();
-        RemoteViews innerView = bigContentView != null ? bigContentView : b.getContentView();
-        if (innerView == null) {
-            // No expandable notification
-            return;
-        }
-        RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
-                b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber,
-                n.icon ,b.mLargeIcon, b.mSubText, b.mUseChronometer, b.getWhenIfShowing(),
-                b.getPriority(), b.getColor(), R.layout.notification_template_custom_big,
-                false /* fitIn1U */, b.mActions);
-        NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, remoteViews, innerView);
-        n.bigContentView = remoteViews;
     }
 
     @RequiresApi(21)
@@ -221,8 +201,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                     NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, n.bigContentView,
                             innerView);
             setBackgroundColor(b.mContext, n.bigContentView, b.getColor());
-        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
-            addDecoratedBigStyleToBuilderJellybean(n, b);
         }
     }
 
@@ -537,6 +515,36 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                     null /* actions */);
             NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext, remoteViews,
                     mBuilder.getContentView());
+            return remoteViews;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                // No custom big content view required
+                return null;
+            }
+            RemoteViews bigContentView = mBuilder.getBigContentView();
+            RemoteViews innerView = bigContentView != null
+                    ? bigContentView
+                    : mBuilder.getContentView();
+            if (innerView == null) {
+                // No expandable notification
+                return null;
+            }
+            RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
+                    mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
+                    mBuilder.mContentInfo, mBuilder.mNumber, mBuilder.mNotification.icon,
+                    mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
+                    mBuilder.getWhenIfShowing(), mBuilder.getPriority(), mBuilder.getColor(),
+                    R.layout.notification_template_custom_big,
+                    false /* fitIn1U */, mBuilder.mActions);
+            NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
+                    remoteViews, innerView);
             return remoteViews;
         }
     }
