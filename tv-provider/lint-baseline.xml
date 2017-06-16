@@ -8,7 +8,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="128"
+            line="129"
             column="28"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="138"
+            line="139"
             column="28"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="148"
+            line="149"
             column="28"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="166"
+            line="167"
             column="28"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="217"
+            line="218"
             column="28"/>
     </issue>
 
@@ -63,19 +63,8 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/android/support/media/tv/BaseProgram.java"
-            line="256"
+            line="257"
             column="28"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: PackageManager.GET_META_DATA, PackageManager.GET_RESOLVED_FILTER, PackageManager.GET_SHARED_LIBRARY_FILES, PackageManager.MATCH_ALL, PackageManager.MATCH_DISABLED_COMPONENTS, PackageManager.MATCH_DISABLED_UNTIL_USED_COMPONENTS, PackageManager.MATCH_DEFAULT_ONLY, PackageManager.MATCH_DIRECT_BOOT_AWARE, PackageManager.MATCH_DIRECT_BOOT_UNAWARE, PackageManager.MATCH_SYSTEM_ONLY, PackageManager.MATCH_UNINSTALLED_PACKAGES, PackageManager.GET_DISABLED_COMPONENTS, PackageManager.GET_DISABLED_UNTIL_USED_COMPONENTS, PackageManager.GET_UNINSTALLED_PACKAGES"
-        errorLine1="                    new Intent().setAction(ACTION_BIND_SIDE_CHANNEL), PackageManager.GET_SERVICES);"
-        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/app/NotificationManagerCompat.java"
-            line="413"
-            column="71"/>
     </issue>
 
     <issue
@@ -85,7 +74,7 @@
         errorLine2="                                                                                ~~~~~~">
         <location
             file="src/android/support/media/tv/Program.java"
-            line="285"
+            line="286"
             column="81"/>
     </issue>
 
@@ -96,7 +85,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/android/support/media/tv/WatchNextProgram.java"
-            line="95"
+            line="99"
             column="28"/>
     </issue>
 
