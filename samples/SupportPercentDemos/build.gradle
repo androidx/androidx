@@ -20,6 +20,7 @@ android {
 
     lintOptions {
         abortOnError true
+        check 'NewApi'
     }
 
     signingConfigs {
