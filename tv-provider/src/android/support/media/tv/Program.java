@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.media.tv.TvContentRating;  // For javadoc gen of super class
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
