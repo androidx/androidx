@@ -73,38 +73,18 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         return null;
     }
 
-    @RequiresApi(24)
-    private static void addStyleToBuilderApi24(NotificationBuilderWithBuilderAccessor builder,
-            android.support.v4.app.NotificationCompat.Builder b) {
-        if (b.mStyle instanceof DecoratedMediaCustomViewStyle) {
-            DecoratedMediaCustomViewStyle mediaStyle = (DecoratedMediaCustomViewStyle) b.mStyle;
-            NotificationCompatImpl24.addDecoratedMediaCustomViewStyle(builder,
-                    mediaStyle.mActionsToShowInCompact,
-                    mediaStyle.mToken != null ? mediaStyle.mToken.getToken() : null);
-        } else {
-            addStyleGetContentViewLollipop(builder, b);
-        }
-    }
-
     @RequiresApi(21)
     private static RemoteViews addStyleGetContentViewLollipop(
             NotificationBuilderWithBuilderAccessor builder,
             android.support.v4.app.NotificationCompat.Builder b) {
-        if (b.mStyle instanceof MediaStyle) {
-            MediaStyle mediaStyle = (MediaStyle) b.mStyle;
-            NotificationCompatImpl21.addMediaStyle(builder,
-                    mediaStyle.mActionsToShowInCompact,
-                    mediaStyle.mToken != null ? mediaStyle.mToken.getToken() : null);
+        if (b.mStyle instanceof DecoratedMediaCustomViewStyle) {
+            DecoratedMediaCustomViewStyle mediaStyle = (DecoratedMediaCustomViewStyle) b.mStyle;
 
             boolean hasContentView = b.getContentView() != null;
             // If we are on L/M the media notification will only be colored if the expanded version
             // is of media style, so we have to create a custom view for the collapsed version as
             // well in that case.
-            boolean isMorL = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.M;
-            boolean createCustomContent = hasContentView
-                    || (isMorL && b.getBigContentView() != null);
-            if (b.mStyle instanceof DecoratedMediaCustomViewStyle && createCustomContent) {
+            if (hasContentView || b.getBigContentView() != null) {
                 RemoteViews contentViewMedia = NotificationCompatImplBase.overrideContentViewMedia(
                         builder, b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo,
                         b.mNumber, b.mLargeIcon, b.mSubText, b.mUseChronometer,
@@ -120,7 +100,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
             }
             return null;
         }
-        return addStyleGetContentViewIcs(builder, b);
+        return null;
     }
 
     @RequiresApi(14)
@@ -231,7 +211,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         protected BuilderExtender getExtender() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                return new Api24Extender();
+                return super.getExtender();
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 return new LollipopExtender();
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -298,17 +278,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
             addBigStyleToBuilderLollipop(n, b);
             addHeadsUpToBuilderLollipop(n, b);
             return n;
-        }
-    }
-
-    @RequiresApi(24)
-    private static class Api24Extender extends BuilderExtender {
-
-        @Override
-        public Notification build(android.support.v4.app.NotificationCompat.Builder b,
-                NotificationBuilderWithBuilderAccessor builder) {
-            addStyleToBuilderApi24(builder, b);
-            return super.build(b, builder);
         }
     }
 
@@ -423,6 +392,19 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {
             mCancelButtonIntent = pendingIntent;
             return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                NotificationCompatImpl21.addMediaStyle(builder,
+                        mActionsToShowInCompact,
+                        mToken != null ? mToken.getToken() : null);
+            }
         }
     }
 
@@ -578,6 +560,21 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     public static class DecoratedMediaCustomViewStyle extends MediaStyle {
 
         public DecoratedMediaCustomViewStyle() {
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                NotificationCompatImpl24.addDecoratedMediaCustomViewStyle(builder,
+                        mActionsToShowInCompact,
+                        mToken != null ? mToken.getToken() : null);
+            } else {
+                super.apply(builder);
+            }
         }
     }
 }
