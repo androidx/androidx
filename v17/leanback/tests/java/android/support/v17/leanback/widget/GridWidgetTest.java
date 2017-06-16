@@ -823,6 +823,47 @@ public class GridWidgetTest {
         waitForItemAnimation();
     }
 
+    @Test
+    public void testWrongInsertViewIndexInFastRelayout() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 2);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mNumRows = 1;
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+
+        // removing two children, they will be hidden views as first 2 children of RV.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setRemoveDuration(2000);
+                mActivity.removeItems(0, 2);
+            }
+        });
+        waitForItemAnimationStart();
+
+        // add three views and notify change of the first item.
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(0, new int[]{161, 161, 161});
+            }
+        });
+        waitForLayout();
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyItemChanged(0);
+            }
+        });
+        waitForLayout();
+        // after layout, the viewholder should still be the first child of LayoutManager.
+        assertEquals(0, mGridView.getChildAdapterPosition(
+                mGridView.getLayoutManager().getChildAt(0)));
+    }
 
     void preparePredictiveLayout() throws Throwable {
         Intent intent = new Intent();
