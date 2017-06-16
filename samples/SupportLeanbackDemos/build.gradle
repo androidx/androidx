@@ -28,6 +28,7 @@ android {
 
     lintOptions {
         abortOnError false
+        check 'NewApi'
     }
 
     compileOptions {

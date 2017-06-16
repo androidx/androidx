@@ -28,6 +28,7 @@ android {
     lintOptions {
         checkReleaseBuilds false
         abortOnError true
+        check 'NewApi'
     }
 
     compileOptions {
