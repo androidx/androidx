@@ -35,8 +35,7 @@ import android.widget.RemoteViews;
 
 /**
  * An extension of {@link android.support.v4.app.NotificationCompat} which supports
- * {@link android.support.v7.app.NotificationCompat.MediaStyle},
- * {@link android.support.v7.app.NotificationCompat.DecoratedCustomViewStyle},
+ * {@link android.support.v7.app.NotificationCompat.MediaStyle}
  * and {@link android.support.v7.app.NotificationCompat.DecoratedMediaCustomViewStyle}.
  * You should start using this variant if you need support any of these styles.
  */
@@ -169,24 +168,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     @RequiresApi(21)
-    private static void addDecoratedHeadsUpToBuilderLollipop(Notification n,
-            android.support.v4.app.NotificationCompat.Builder b) {
-        RemoteViews headsUp = b.getHeadsUpContentView();
-        RemoteViews innerView = headsUp != null ? headsUp : b.getContentView();
-        if (headsUp == null) {
-            // No expandable notification
-            return;
-        }
-        RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
-                b.mContext, b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber, n.icon,
-                b.mLargeIcon, b.mSubText, b.mUseChronometer, b.getWhenIfShowing(), b.getPriority(),
-                b.getColor(), R.layout.notification_template_custom_big, false /* fitIn1U */,
-                b.mActions);
-        NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, remoteViews, innerView);
-        n.headsUpContentView = remoteViews;
-    }
-
-    @RequiresApi(21)
     private static void addBigStyleToBuilderLollipop(Notification n,
             android.support.v4.app.NotificationCompat.Builder b) {
         RemoteViews innerView = b.getBigContentView() != null
@@ -227,8 +208,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
             NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, n.headsUpContentView,
                     innerView);
             setBackgroundColor(b.mContext, n.headsUpContentView, b.getColor());
-        } else if (b.mStyle instanceof DecoratedCustomViewStyle) {
-            addDecoratedHeadsUpToBuilderLollipop(n, b);
         }
     }
 
@@ -506,16 +485,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 // No special content view
                 return null;
             }
-            RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
-                    mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
-                    mBuilder.mContentInfo, mBuilder.mNumber, mBuilder.mNotification.icon,
-                    mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
-                    mBuilder.getWhenIfShowing(), mBuilder.getPriority(), mBuilder.getColor(),
-                    R.layout.notification_template_custom_big, false /* fitIn1U */,
-                    null /* actions */);
-            NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext, remoteViews,
-                    mBuilder.getContentView());
-            return remoteViews;
+            return createRemoteViews(mBuilder.getContentView(), false);
         }
 
         /**
@@ -536,13 +506,36 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 // No expandable notification
                 return null;
             }
+            return createRemoteViews(innerView, true);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                // No custom heads up content view required
+                return null;
+            }
+            RemoteViews headsUp = mBuilder.getHeadsUpContentView();
+            RemoteViews innerView = headsUp != null ? headsUp : mBuilder.getContentView();
+            if (headsUp == null) {
+                // No expandable notification
+                return null;
+            }
+            return createRemoteViews(innerView, true);
+        }
+
+        private RemoteViews createRemoteViews(RemoteViews innerView, boolean showActions) {
             RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
                     mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
                     mBuilder.mContentInfo, mBuilder.mNumber, mBuilder.mNotification.icon,
                     mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
                     mBuilder.getWhenIfShowing(), mBuilder.getPriority(), mBuilder.getColor(),
                     R.layout.notification_template_custom_big,
-                    false /* fitIn1U */, mBuilder.mActions);
+                    false /* fitIn1U */, showActions ? mBuilder.mActions : null);
             NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
                     remoteViews, innerView);
             return remoteViews;
