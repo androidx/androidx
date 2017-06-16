@@ -3506,15 +3506,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         return null;
     }
 
-    @Override
-    public void focusableViewAvailable(View view) {
-        if (isComputingLayout()) {
-            // RV will use its own logic to recover focus after layout, so don't propagate.
-            return;
-        }
-        super.focusableViewAvailable(view);
-    }
-
     private void recoverFocusFromState() {
         if (!mPreserveFocusAfterLayout || mAdapter == null || !hasFocus()
                 || getDescendantFocusability() == FOCUS_BLOCK_DESCENDANTS
