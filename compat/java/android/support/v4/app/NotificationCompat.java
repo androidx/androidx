@@ -604,9 +604,20 @@ public class NotificationCompat {
     @RestrictTo(LIBRARY_GROUP)
     protected static class BuilderExtender {
         public Notification build(Builder b, NotificationBuilderWithBuilderAccessor builder) {
+            RemoteViews styleContentView = b.mStyle != null
+                    ? b.mStyle.makeContentView(builder)
+                    : null;
             Notification n = builder.build();
-            if (b.mContentView != null) {
+            if (styleContentView != null) {
+                n.contentView = styleContentView;
+            } else if (b.mContentView != null) {
                 n.contentView = b.mContentView;
+            }
+            if (Build.VERSION.SDK_INT >= 16 && b.mStyle != null) {
+                RemoteViews styleBigContentView = b.mStyle.makeBigContentView(builder);
+                if (styleBigContentView != null) {
+                    n.bigContentView = styleBigContentView;
+                }
             }
             return n;
         }
@@ -1906,7 +1917,11 @@ public class NotificationCompat {
      * effect.
      */
     public static abstract class Style {
-        Builder mBuilder;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        protected Builder mBuilder;
         CharSequence mBigContentTitle;
         CharSequence mSummaryText;
         boolean mSummaryTextSet = false;
@@ -1934,6 +1949,22 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP)
         // TODO: implement for all styles
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {
+            return null;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
+            return null;
         }
 
         /**
