@@ -619,6 +619,12 @@ public class NotificationCompat {
                     n.bigContentView = styleBigContentView;
                 }
             }
+            if (Build.VERSION.SDK_INT >= 21 && b.mStyle != null) {
+                RemoteViews styleHeadsUpContentView = b.mStyle.makeHeadsUpContentView(builder);
+                if (styleHeadsUpContentView != null) {
+                    n.headsUpContentView = styleHeadsUpContentView;
+                }
+            }
             return n;
         }
     }
@@ -1971,6 +1977,14 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP)
         public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
+            return null;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {
             return null;
         }
 
