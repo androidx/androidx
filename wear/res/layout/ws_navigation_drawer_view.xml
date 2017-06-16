@@ -29,6 +29,6 @@
         android:layout_height="@dimen/ws_peek_view_icon_size"
         android:layout_marginBottom="@dimen/ws_peek_view_bottom_padding"
         android:layout_gravity="bottom|center_horizontal"
-        app:dotFadeWhenIdle="false" />
+        app:wsPageIndicatorDotFadeWhenIdle="false" />
 
 </FrameLayout>
