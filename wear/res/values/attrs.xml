@@ -101,32 +101,32 @@
 
     <declare-styleable name="PageIndicatorView">
         <!-- Sets the distance between dots. -->
-        <attr name="dotSpacing" format="dimension" />
+        <attr name="wsPageIndicatorDotSpacing" format="dimension" />
         <!-- Sets the radius of a dot when it is not selected. -->
-        <attr name="dotRadius" format="dimension" />
+        <attr name="wsPageIndicatorDotRadius" format="dimension" />
         <!-- Sets the radius of a dot when it is selected. -->
-        <attr name="dotRadiusSelected" format="dimension" />
+        <attr name="wsPageIndicatorDotRadiusSelected" format="dimension" />
         <!-- Sets the color of a dot when it is not selected. -->
-        <attr name="dotColor" format="color" />
+        <attr name="wsPageIndicatorDotColor" format="color" />
         <!-- Sets the color of a dot when it is selected. -->
-        <attr name="dotColorSelected" format="color" />
+        <attr name="wsPageIndicatorDotColorSelected" format="color" />
         <!-- Sets whether the dots should fade out after inactivity. -->
-        <attr name="dotFadeWhenIdle" format="boolean" />
+        <attr name="wsPageIndicatorDotFadeWhenIdle" format="boolean" />
         <!-- Sets the delay between the pager arriving at an idle state, and the fade out animation
              beginning, in milliseconds. -->
-        <attr name="dotFadeOutDelay" format="integer" />
+        <attr name="wsPageIndicatorDotFadeOutDelay" format="integer" />
         <!-- Sets the duration of the fade out animation. -->
-        <attr name="dotFadeOutDuration" format="integer" />
+        <attr name="wsPageIndicatorDotFadeOutDuration" format="integer" />
         <!-- Sets the duration of the fade in animation. -->
-        <attr name="dotFadeInDuration" format="integer" />
+        <attr name="wsPageIndicatorDotFadeInDuration" format="integer" />
         <!-- Sets the shadow color. -->
-        <attr name="dotShadowColor" format="color" />
+        <attr name="wsPageIndicatorDotShadowColor" format="color" />
         <!-- Sets the shadow radius. -->
-        <attr name="dotShadowRadius" format="dimension" />
+        <attr name="wsPageIndicatorDotShadowRadius" format="dimension" />
         <!-- Sets the horizontal shadow offset. -->
-        <attr name="dotShadowDx" format="dimension" />
+        <attr name="wsPageIndicatorDotShadowDx" format="dimension" />
         <!-- Sets the vertical shadow offset. -->
-        <attr name="dotShadowDy" format="dimension" />
+        <attr name="wsPageIndicatorDotShadowDy" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="CircledImageView">
