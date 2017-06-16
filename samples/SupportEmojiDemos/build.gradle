@@ -40,6 +40,11 @@ android {
         main.assets.srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
     }
 
+    lintOptions {
+        abortOnError true
+        check 'NewApi'
+    }
+
     signingConfigs {
         debug {
             // Use a local debug keystore to avoid build server issues.
