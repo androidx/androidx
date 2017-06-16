@@ -17,6 +17,7 @@
 package android.support.v7.app;
 
 import android.app.Notification;
+import android.media.session.MediaSession;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 
@@ -28,8 +29,18 @@ class NotificationCompatImpl24 {
         builder.setStyle(new Notification.DecoratedCustomViewStyle());
     }
 
-    public static void addDecoratedMediaCustomViewStyle(NotificationBuilderWithBuilderAccessor b) {
+    public static void addDecoratedMediaCustomViewStyle(NotificationBuilderWithBuilderAccessor b,
+            int[] actionsToShowInCompact,
+            Object token) {
         Notification.Builder builder = b.getBuilder();
-        builder.setStyle(new Notification.DecoratedMediaCustomViewStyle());
+        Notification.DecoratedMediaCustomViewStyle style =
+                new Notification.DecoratedMediaCustomViewStyle();
+        if (actionsToShowInCompact != null) {
+            style.setShowActionsInCompactView(actionsToShowInCompact);
+        }
+        if (token != null) {
+            style.setMediaSession((MediaSession.Token) token);
+        }
+        builder.setStyle(style);
     }
 }
