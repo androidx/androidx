@@ -25,7 +25,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
@@ -34,9 +33,7 @@ import android.support.v7.appcompat.R;
 import android.widget.RemoteViews;
 
 /**
- * An extension of {@link android.support.v4.app.NotificationCompat} which supports
- * {@link android.support.v7.app.NotificationCompat.DecoratedMediaCustomViewStyle}.
- * You should start using this variant if you need support this style.
+ * An extension of {@link android.support.v4.app.NotificationCompat} which adds additional styles.
  */
 public class NotificationCompat extends android.support.v4.app.NotificationCompat {
 
@@ -72,35 +69,8 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         return null;
     }
 
-    private static void setBackgroundColor(Context context, RemoteViews views, int color) {
-        if (color == COLOR_DEFAULT) {
-            color = context.getResources().getColor(
-                    R.color.notification_material_background_media_default_color);
-        }
-        views.setInt(R.id.status_bar_latest_event_content, "setBackgroundColor", color);
-    }
-
-    @RequiresApi(21)
-    private static void addHeadsUpToBuilderLollipop(Notification n,
-            android.support.v4.app.NotificationCompat.Builder b) {
-        RemoteViews innerView = b.getHeadsUpContentView() != null
-                ? b.getHeadsUpContentView()
-                : b.getContentView();
-        if (b.mStyle instanceof DecoratedMediaCustomViewStyle && innerView != null) {
-            n.headsUpContentView = NotificationCompatImplBase.generateMediaBigView(b.mContext,
-                    b.mContentTitle, b.mContentText, b.mContentInfo, b.mNumber,
-                    b.mLargeIcon, b.mSubText, b.mUseChronometer, b.getWhenIfShowing(),
-                    b.getPriority(), 0, b.mActions, false /* showCancelButton */,
-                    null /* cancelButtonIntent */, true /* decoratedCustomView */);
-            NotificationCompatImplBase.buildIntoRemoteViews(b.mContext, n.headsUpContentView,
-                    innerView);
-            setBackgroundColor(b.mContext, n.headsUpContentView, b.getColor());
-        }
-    }
-
     /**
-     * See {@link android.support.v4.app.NotificationCompat}. In addition to the builder in v4, this
-     * builder also supports {@link MediaStyle}.
+     * See {@link android.support.v4.app.NotificationCompat}.
      */
     public static class Builder extends android.support.v4.app.NotificationCompat.Builder {
 
@@ -109,36 +79,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
          */
         public Builder(Context context) {
             super(context);
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Override
-        protected BuilderExtender getExtender() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                return super.getExtender();
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                return new LollipopExtender();
-            } else {
-                return super.getExtender();
-            }
-        }
-    }
-
-    @RequiresApi(21)
-    private static class LollipopExtender extends BuilderExtender {
-
-        LollipopExtender() {
-        }
-
-        @Override
-        public Notification build(android.support.v4.app.NotificationCompat.Builder b,
-                NotificationBuilderWithBuilderAccessor builder) {
-            Notification n = super.build(b, builder);
-            addHeadsUpToBuilderLollipop(n, b);
-            return n;
         }
     }
 
@@ -513,7 +453,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                                 contentView,
                                 mBuilder.getContentView());
                     }
-                    setBackgroundColor(mBuilder.mContext, contentView, mBuilder.getColor());
+                    setBackgroundColor(contentView);
                     return contentView;
                 }
             } else {
@@ -550,9 +490,44 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                     bigContentView,
                     innerView);
             if (Build.VERSION.SDK_INT >= 21) {
-                setBackgroundColor(mBuilder.mContext, bigContentView, mBuilder.getColor());
+                setBackgroundColor(bigContentView);
             }
             return bigContentView;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                // No custom heads up content view required
+                return null;
+            }
+            RemoteViews innerView = mBuilder.getHeadsUpContentView() != null
+                    ? mBuilder.getHeadsUpContentView()
+                    : mBuilder.getContentView();
+            if (innerView == null) {
+                // No expandable notification
+                return null;
+            }
+            RemoteViews headsUpContentView = generateBigContentView(true);
+            NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
+                    headsUpContentView,
+                    innerView);
+            if (Build.VERSION.SDK_INT >= 21) {
+                setBackgroundColor(headsUpContentView);
+            }
+            return headsUpContentView;
+        }
+
+        private void setBackgroundColor(RemoteViews views) {
+            int color = mBuilder.getColor() != COLOR_DEFAULT
+                    ? mBuilder.getColor()
+                    : mBuilder.mContext.getResources().getColor(
+                        R.color.notification_material_background_media_default_color);
+            views.setInt(R.id.status_bar_latest_event_content, "setBackgroundColor", color);
         }
     }
 }
