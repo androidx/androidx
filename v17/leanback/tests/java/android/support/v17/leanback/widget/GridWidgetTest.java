@@ -865,6 +865,59 @@ public class GridWidgetTest {
                 mGridView.getLayoutManager().getChildAt(0)));
     }
 
+    @Test
+    public void testMoveIntoPrelayoutItems() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1000);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mNumRows = 1;
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+
+        final int lastItemPos = mGridView.getChildCount() - 1;
+        assertTrue(mGridView.getChildCount() >= 4);
+        // notify change of 3 items, so prelayout will layout extra 3 items, then move an item
+        // into the extra layout range. Post layout's fastRelayout() should handle this properly.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyItemChanged(lastItemPos - 3);
+                mGridView.getAdapter().notifyItemChanged(lastItemPos - 2);
+                mGridView.getAdapter().notifyItemChanged(lastItemPos - 1);
+                mActivity.moveItem(900, lastItemPos + 2, true);
+            }
+        });
+        waitForItemAnimation();
+    }
+
+    @Test
+    public void testMoveIntoPrelayoutItems2() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1000);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mNumRows = 1;
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+
+        setSelectedPosition(999);
+        final int firstItemPos = mGridView.getChildAdapterPosition(mGridView.getChildAt(0));
+        assertTrue(mGridView.getChildCount() >= 4);
+        // notify change of 3 items, so prelayout will layout extra 3 items, then move an item
+        // into the extra layout range. Post layout's fastRelayout() should handle this properly.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyItemChanged(firstItemPos + 1);
+                mGridView.getAdapter().notifyItemChanged(firstItemPos + 2);
+                mGridView.getAdapter().notifyItemChanged(firstItemPos + 3);
+                mActivity.moveItem(0, firstItemPos - 2, true);
+            }
+        });
+        waitForItemAnimation();
+    }
+
     void preparePredictiveLayout() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
