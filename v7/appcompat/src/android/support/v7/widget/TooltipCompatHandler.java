@@ -84,11 +84,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
             view.setLongClickable(false);
             view.setOnHoverListener(null);
         } else {
-            if (sActiveHandler != null && sActiveHandler.mAnchor == view) {
-                sActiveHandler.update(tooltipText);
-            } else {
-                new TooltipCompatHandler(view, tooltipText);
-            }
+            new TooltipCompatHandler(view, tooltipText);
         }
     }
 
@@ -186,9 +182,5 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         }
         mAnchor.removeCallbacks(mShowRunnable);
         mAnchor.removeCallbacks(mHideRunnable);
-    }
-
-    private void update(CharSequence tooltipText) {
-        mPopup.updateContent(tooltipText);
     }
 }
