@@ -244,7 +244,9 @@ abstract class Grid {
 
     /**
      * Invalidate items after or equal to index. This will remove visible items
-     * after that and invalidate cache of layout results after that.
+     * after that and invalidate cache of layout results after that. Note that it's client's
+     * responsibility to perform removing child action, {@link Provider#removeItem(int)} will not
+     * be called because the index might be invalidated.
      */
     public void invalidateItemsAfter(int index) {
         if (index < 0) {
@@ -253,9 +255,8 @@ abstract class Grid {
         if (mLastVisibleIndex < 0) {
             return;
         }
-        while (mLastVisibleIndex >= index) {
-            mProvider.removeItem(mLastVisibleIndex);
-            mLastVisibleIndex--;
+        if (mLastVisibleIndex >= index) {
+            mLastVisibleIndex = index - 1;
         }
         resetVisibleIndexIfEmpty();
         if (getFirstVisibleIndex() < 0) {
