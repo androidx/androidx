@@ -1631,7 +1631,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             }
             if (TRACE) TraceCompat.endSection();
 
-            updateScrollLimits();
+            if (!mState.isPreLayout()) {
+                updateScrollLimits();
+            }
             if (!mInLayout && mPendingMoveSmoothScroller != null) {
                 mPendingMoveSmoothScroller.consumePendingMovesAfterLayout();
             }
@@ -1656,11 +1658,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         @Override
         public int getEdge(int index) {
-            if (mReverseFlowPrimary) {
-                return getViewMax(findViewByPosition(index - mPositionDeltaInPreLayout));
-            } else {
-                return getViewMin(findViewByPosition(index - mPositionDeltaInPreLayout));
-            }
+            View v = findViewByPosition(index - mPositionDeltaInPreLayout);
+            return mReverseFlowPrimary ? getViewMax(v) : getViewMin(v);
         }
 
         @Override
@@ -1877,15 +1876,21 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     private void fastRelayout() {
         boolean invalidateAfter = false;
         final int childCount = getChildCount();
-        int position = -1;
-        for (int index = 0; index < childCount; index++) {
+        int position = mGrid.getFirstVisibleIndex();
+        int index = 0;
+        for (; index < childCount; index++, position++) {
             View view = getChildAt(index);
-            position = getAdapterPositionByView(view);
+            // We don't hit fastRelayout() if State.didStructure() is true, but prelayout may add
+            // extra views and invalidate existing Grid position. Also the prelayout calling
+            // getViewForPosotion() may retrieve item from cache with FLAG_INVALID. The adapter
+            // postion will be -1 for this case. Either case, we should invalidate after this item
+            // and call getViewForPosition() again to rebind.
+            if (position != getAdapterPositionByView(view)) {
+                invalidateAfter = true;
+                break;
+            }
             Grid.Location location = mGrid.getLocation(position);
-            // The last Prelayout calling getViewForPosition() may retrieve item from cache with
-            // FLAG_INVALID that causes NO_POSITION. Prelayout does not rebind data. Now postlayout
-            // should invalid after this item and call getViewForPosition() again to rebind.
-            if (location == null || (position == NO_POSITION)) {
+            if (location == null) {
                 invalidateAfter = true;
                 break;
             }
@@ -1921,6 +1926,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         if (invalidateAfter) {
             final int savedLastPos = mGrid.getLastVisibleIndex();
+            for (int i = childCount - 1; i >= index; i--) {
+                View v = getChildAt(i);
+                detachAndScrapView(v, mRecycler);
+            }
             mGrid.invalidateItemsAfter(position);
             if (mPruneChild) {
                 // in regular prune child mode, we just append items up to edge limit
