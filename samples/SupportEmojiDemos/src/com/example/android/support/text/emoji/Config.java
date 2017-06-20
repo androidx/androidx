@@ -107,9 +107,9 @@ class Config {
                 config = new BundledEmojiCompatConfig(mContext);
             }
         } else {
-            config = new EmojiCompat.Config(new EmojiCompat.MetadataLoader() {
+            config = new EmojiCompat.Config(new EmojiCompat.MetadataRepoLoader() {
                 @Override
-                public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
+                public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
                     loaderCallback.onFailed(new RuntimeException("Disable"));
                 }
             }) {

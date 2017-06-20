@@ -1796,10 +1796,8 @@ package android.support.text.emoji {
     field public static final java.lang.String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
     field public static final java.lang.String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
     field public static final int LOAD_STATE_FAILED = 2; // 0x2
-    field public static final deprecated int LOAD_STATE_FAILURE = 2; // 0x2
     field public static final int LOAD_STATE_LOADING = 0; // 0x0
     field public static final int LOAD_STATE_SUCCEEDED = 1; // 0x1
-    field public static final deprecated int LOAD_STATE_SUCCESS = 1; // 0x1
     field public static final int REPLACE_STRATEGY_ALL = 1; // 0x1
     field public static final int REPLACE_STRATEGY_DEFAULT = 0; // 0x0
     field public static final int REPLACE_STRATEGY_NON_EXISTENT = 2; // 0x2
@@ -1807,7 +1805,6 @@ package android.support.text.emoji {
 
   public static abstract class EmojiCompat.Config {
     ctor protected EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataRepoLoader);
-    ctor protected deprecated EmojiCompat.Config(android.support.text.emoji.EmojiCompat.MetadataLoader);
     method protected final android.support.text.emoji.EmojiCompat.MetadataRepoLoader getMetadataRepoLoader();
     method public android.support.text.emoji.EmojiCompat.Config registerInitCallback(android.support.text.emoji.EmojiCompat.InitCallback);
     method public android.support.text.emoji.EmojiCompat.Config setEmojiSpanIndicatorColor(int);
@@ -1820,16 +1817,6 @@ package android.support.text.emoji {
     ctor public EmojiCompat.InitCallback();
     method public void onFailed(java.lang.Throwable);
     method public void onInitialized();
-  }
-
-  public static abstract deprecated class EmojiCompat.LoaderCallback {
-    ctor public EmojiCompat.LoaderCallback();
-    method public abstract void onFailed(java.lang.Throwable);
-    method public abstract void onLoaded(android.support.text.emoji.MetadataRepo);
-  }
-
-  public static abstract deprecated interface EmojiCompat.MetadataLoader {
-    method public abstract void load(android.support.text.emoji.EmojiCompat.LoaderCallback);
   }
 
   public static abstract interface EmojiCompat.MetadataRepoLoader {

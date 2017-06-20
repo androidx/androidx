@@ -105,22 +105,10 @@ public class EmojiCompat {
     public static final int LOAD_STATE_SUCCEEDED = 1;
 
     /**
-     * @deprecated Use {@link #LOAD_STATE_SUCCEEDED} instead.
-     */
-    @Deprecated
-    public static final int LOAD_STATE_SUCCESS = 1;
-
-    /**
      * An unrecoverable error occurred during initialization of EmojiCompat. Calls to functions
      * such as {@link #process(CharSequence)} will fail.
      */
     public static final int LOAD_STATE_FAILED = 2;
-
-    /**
-     * @deprecated Use {@link #LOAD_STATE_FAILED} instead.
-     */
-    @Deprecated
-    public static final int LOAD_STATE_FAILURE = 2;
 
     /**
      * @hide
@@ -191,14 +179,6 @@ public class EmojiCompat {
     private final MetadataRepoLoader mMetadataLoader;
 
     /**
-     * Old metadata loader instance given in the Config instance.
-     * @deprecated Will be removed soon.
-     */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
-    private final MetadataLoader mLegacyMetadataLoader;
-
-    /**
      * @see Config#setReplaceAll(boolean)
      */
     private final boolean mReplaceAll;
@@ -224,8 +204,6 @@ public class EmojiCompat {
         mEmojiSpanIndicatorEnabled = config.mEmojiSpanIndicatorEnabled;
         mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
         mMetadataLoader = config.mMetadataLoader;
-        //noinspection deprecation
-        mLegacyMetadataLoader = config.mLegacyMetadataLoader;
         mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
         if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
@@ -785,49 +763,6 @@ public class EmojiCompat {
     }
 
     /**
-     * Interface to load emoji metadata.
-     *
-     * @deprecated Use {@link MetadataRepoLoader} instead.
-     */
-    @SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
-    @Deprecated
-    public interface MetadataLoader {
-        /**
-         * Start loading the metadata. When the loading operation is finished {@link
-         * LoaderCallback#onLoaded(MetadataRepo)} or {@link LoaderCallback#onFailed(Throwable)}
-         * should be called. When used on devices running API 18 or below, this function is never
-         * called.
-         *
-         * @param loaderCallback callback to signal the loading state
-         */
-        void load(@NonNull LoaderCallback loaderCallback);
-    }
-
-    /**
-     * Callback to inform EmojiCompat about the state of the metadata load. Passed to MetadataLoader
-     * during {@link MetadataLoader#load(LoaderCallback)} call.
-     *
-     * @deprecated Use {@link MetadataRepoLoaderCallback} instead.
-     */
-    @SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
-    @Deprecated
-    public abstract static class LoaderCallback {
-        /**
-         * Called by {@link MetadataLoader} when metadata is loaded successfully.
-         *
-         * @param metadataRepo MetadataRepo instance, cannot be {@code null}
-         */
-        public abstract void onLoaded(@NonNull MetadataRepo metadataRepo);
-
-        /**
-         * Called by {@link MetadataLoader} if an error occurs while loading the metadata.
-         *
-         * @param throwable the exception that caused the failure, {@code nullable}
-         */
-        public abstract void onFailed(@Nullable Throwable throwable);
-    }
-
-    /**
      * Configuration class for EmojiCompat. Changes to the values will be ignored after
      * {@link #init(Config)} is called.
      *
@@ -835,8 +770,6 @@ public class EmojiCompat {
      */
     public abstract static class Config {
         private final MetadataRepoLoader mMetadataLoader;
-        @SuppressWarnings("deprecation")
-        private final MetadataLoader mLegacyMetadataLoader;
         private boolean mReplaceAll;
         private Set<InitCallback> mInitCallbacks;
         private boolean mEmojiSpanIndicatorEnabled;
@@ -850,22 +783,6 @@ public class EmojiCompat {
         protected Config(@NonNull final MetadataRepoLoader metadataLoader) {
             Preconditions.checkNotNull(metadataLoader, "metadataLoader cannot be null.");
             mMetadataLoader = metadataLoader;
-            mLegacyMetadataLoader = null;
-        }
-
-        /**
-         * Default constructor.
-         *
-         * @param metadataLoader MetadataLoader instance, cannot be {@code null}
-         *
-         * @deprecated Use constructor with MetadataRepoLoader instead.
-         */
-        @SuppressWarnings("deprecation")
-        @Deprecated
-        protected Config(@NonNull final MetadataLoader metadataLoader) {
-            Preconditions.checkNotNull(metadataLoader, "metadataLoader cannot be null.");
-            mLegacyMetadataLoader = metadataLoader;
-            mMetadataLoader = null;
         }
 
         /**
@@ -1057,35 +974,18 @@ public class EmojiCompat {
         @Override
         void loadMetadata() {
             try {
-                if (mEmojiCompat.mMetadataLoader != null) {
-                    final MetadataRepoLoaderCallback callback = new MetadataRepoLoaderCallback() {
-                        @Override
-                        public void onLoaded(@NonNull MetadataRepo metadataRepo) {
-                            onMetadataLoadSuccess(metadataRepo);
-                        }
+                final MetadataRepoLoaderCallback callback = new MetadataRepoLoaderCallback() {
+                    @Override
+                    public void onLoaded(@NonNull MetadataRepo metadataRepo) {
+                        onMetadataLoadSuccess(metadataRepo);
+                    }
 
-                        @Override
-                        public void onFailed(@Nullable Throwable throwable) {
-                            mEmojiCompat.onMetadataLoadFailed(throwable);
-                        }
-                    };
-                    mEmojiCompat.mMetadataLoader.load(callback);
-                } else {
-                    //noinspection deprecation
-                    final LoaderCallback callback = new LoaderCallback() {
-                        @Override
-                        public void onLoaded(@NonNull MetadataRepo metadataRepo) {
-                            onMetadataLoadSuccess(metadataRepo);
-                        }
-
-                        @Override
-                        public void onFailed(@Nullable Throwable throwable) {
-                            mEmojiCompat.onMetadataLoadFailed(throwable);
-                        }
-                    };
-                    mEmojiCompat.mLegacyMetadataLoader.load(callback);
-                }
-
+                    @Override
+                    public void onFailed(@Nullable Throwable throwable) {
+                        mEmojiCompat.onMetadataLoadFailed(throwable);
+                    }
+                };
+                mEmojiCompat.mMetadataLoader.load(callback);
             } catch (Throwable t) {
                 mEmojiCompat.onMetadataLoadFailed(t);
             }
