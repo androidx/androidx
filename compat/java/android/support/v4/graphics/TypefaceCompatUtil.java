@@ -43,7 +43,7 @@ import java.nio.channels.FileChannel;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-class TypefaceCompatUtil {
+public class TypefaceCompatUtil {
     private static final String TAG = "TypefaceCompatUtil";
 
     private TypefaceCompatUtil() {}  // Do not instantiate.

@@ -99,14 +99,21 @@ public class FontResourcesParserCompat {
      * A class that represents a font element in an xml file which points to a file in resources.
      */
     public static final class FontFileResourceEntry {
+        private final @NonNull String mFileName;
         private int mWeight;
         private boolean mItalic;
         private int mResourceId;
 
-        public FontFileResourceEntry(int weight, boolean italic, int resourceId) {
+        public FontFileResourceEntry(@NonNull String fileName, int weight, boolean italic,
+                int resourceId) {
+            mFileName = fileName;
             mWeight = weight;
             mItalic = italic;
             mResourceId = resourceId;
+        }
+
+        public @NonNull String getFileName() {
+            return mFileName;
         }
 
         public int getWeight() {
@@ -248,11 +255,12 @@ public class FontResourcesParserCompat {
         int weight = array.getInt(R.styleable.FontFamilyFont_fontWeight, NORMAL_WEIGHT);
         boolean isItalic = ITALIC == array.getInt(R.styleable.FontFamilyFont_fontStyle, 0);
         int resourceId = array.getResourceId(R.styleable.FontFamilyFont_font, 0);
+        String filename = array.getString(R.styleable.FontFamilyFont_font);
         array.recycle();
         while (parser.next() != XmlPullParser.END_TAG) {
             skip(parser);
         }
-        return new FontFileResourceEntry(weight, isItalic, resourceId);
+        return new FontFileResourceEntry(filename, weight, isItalic, resourceId);
     }
 
     private static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
