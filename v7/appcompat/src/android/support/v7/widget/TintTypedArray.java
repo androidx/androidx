@@ -109,9 +109,6 @@ public class TintTypedArray {
      */
     @Nullable
     public Typeface getFont(@StyleableRes int index, int style, @NonNull TextView targetView) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            return mWrapped.getFont(index);
-        }
         final int resourceId = mWrapped.getResourceId(index, 0);
         if (resourceId == 0) {
             return null;
