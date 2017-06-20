@@ -941,10 +941,8 @@ public class EmojiCompat {
 
         /**
          * Returns the {@link MetadataRepoLoader}.
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
-        public final MetadataRepoLoader getMetadataLoader() {
+        protected final MetadataRepoLoader getMetadataRepoLoader() {
             return mMetadataLoader;
         }
     }
