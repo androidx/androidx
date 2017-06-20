@@ -188,7 +188,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="java/android/support/v4/widget/DrawerLayout.java"
-            line="680"
+            line="634"
             column="37"/>
     </issue>
 
@@ -199,7 +199,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="java/android/support/v4/widget/DrawerLayout.java"
-            line="753"
+            line="707"
             column="34"/>
     </issue>
 
@@ -210,7 +210,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="java/android/support/v4/widget/DrawerLayout.java"
-            line="1086"
+            line="1067"
             column="25"/>
     </issue>
 
