@@ -320,6 +320,12 @@ public class ExifInterfaceTest {
         // When the DATETIME has no value, then it should be set to DATETIME_ORIGINAL's value.
         exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+
+        long currentTimeStamp = System.currentTimeMillis();
+        exif.setDateTime(currentTimeStamp);
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(currentTimeStamp, exif.getDateTime());
     }
 
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {
