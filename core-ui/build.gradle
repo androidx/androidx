@@ -23,9 +23,6 @@ android {
 
     sourceSets {
         main.java.srcDirs = [
-                'ics',
-                'jellybean-mr2',
-                'api21',
                 'java'
         ]
     }
