@@ -19,15 +19,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
 import android.os.SystemClock;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.os.BuildCompat;
 import android.support.v7.appcompat.test.R;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,8 +40,6 @@ import org.junit.runner.RunWith;
 public class AppCompatMenuItemShortcutsTest {
 
     private AppCompatMenuItemShortcutsTestActivity mActivity;
-    private MenuInflater mMenuInflater;
-    private Menu mMenu;
 
     @Rule
     public ActivityTestRule<AppCompatMenuItemShortcutsTestActivity> mActivityTestRule =
@@ -57,7 +53,7 @@ public class AppCompatMenuItemShortcutsTest {
     @Test
     public void testPerformShortcut() {
         // The support library is only needed for API 25 or lower.
-        if (!BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT < 26) {
             final long downTime = SystemClock.uptimeMillis();
             int keyCodeToSend, metaState;
             KeyEvent keyEventToSend;
