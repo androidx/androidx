@@ -32,12 +32,21 @@ public class GuidedStepFragmentTestActivity extends Activity {
      */
     public static final String EXTRA_ADD_AS_ROOT = "addAsRoot";
 
+    /**
+     * Layout direction
+     */
+    public static final String EXTRA_LAYOUT_DIRECTION = "layoutDir";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
 
+        int layoutDirection = intent.getIntExtra(EXTRA_LAYOUT_DIRECTION, -1);
+        if (layoutDirection != -1) {
+            findViewById(android.R.id.content).setLayoutDirection(layoutDirection);
+        }
         if (savedInstanceState == null) {
             String firstTestName = intent.getStringExtra(EXTRA_TEST_NAME);
             if (firstTestName != null) {
