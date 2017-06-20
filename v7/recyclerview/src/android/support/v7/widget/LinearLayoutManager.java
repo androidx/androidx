@@ -491,6 +491,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         // resolve layout direction
         resolveShouldLayoutReverse();
 
+        final View focused = getFocusedChild();
         if (!mAnchorInfo.mValid || mPendingScrollPosition != NO_POSITION
                 || mPendingSavedState != null) {
             mAnchorInfo.reset();
@@ -498,6 +499,22 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             // calculate anchor position and coordinate
             updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
             mAnchorInfo.mValid = true;
+        } else if (focused != null && (mOrientationHelper.getDecoratedStart(focused)
+                        >= mOrientationHelper.getEndAfterPadding()
+                || mOrientationHelper.getDecoratedEnd(focused)
+                <= mOrientationHelper.getStartAfterPadding())) {
+            // This case relates to when the anchor child is the focused view and due to layout
+            // shrinking the focused view fell outside the viewport, e.g. when soft keyboard shows
+            // up after tapping an EditText which shrinks RV causing the focused view (The tapped
+            // EditText which is the anchor child) to get kicked out of the screen. Will update the
+            // anchor coordinate in order to make sure that the focused view is laid out. Otherwise,
+            // the available space in layoutState will be calculated as negative preventing the
+            // focused view from being laid out in fill.
+            // Note that we won't update the anchor position between layout passes (refer to
+            // TestResizingRelayoutWithAutoMeasure), which happens if we were to call
+            // updateAnchorInfoForLayout for an anchor that's not the focused view (e.g. a reference
+            // child which can change between layout passes).
+            mAnchorInfo.assignFromViewAndKeepVisibleRect(focused);
         }
         if (DEBUG) {
             Log.d(TAG, "Anchor info:" + mAnchorInfo);

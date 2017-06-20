@@ -18,6 +18,9 @@ package android.support.v7.widget;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -35,11 +38,14 @@ import android.os.Build;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.view.AccessibilityDelegateCompat;
+import android.support.v7.util.TouchUtils;
 import android.util.Log;
 import android.util.StateSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.LinearLayout;
 
 import org.junit.Test;
 
@@ -59,6 +65,89 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @LargeTest
 public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
+
+    @Test
+    public void editTextVisibility() throws Throwable {
+
+        // Simulating a scenario where an EditText is tapped (which will receive focus).
+        // The soft keyboard that's opened overlaps the focused EditText which will shrink RV's
+        // padded bounded area. LLM should still lay out the focused EditText so that it becomes
+        // visible above the soft keyboard.
+        // The condition for this test is setting RV's height to a non-exact height, so that measure
+        // is called twice (once with the larger height and another time with smaller height when
+        // the keyboard shows up). To ensure this resizing of RV, SOFT_INPUT_ADJUST_RESIZE is set.
+        final LinearLayout container = new LinearLayout(getActivity());
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setLayoutParams(
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup
+                        .LayoutParams.MATCH_PARENT));
+
+        final EditTextAdapter editTextAdapter = new EditTextAdapter(50);
+
+        mRecyclerView = inflateWrappedRV();
+        ViewGroup.LayoutParams lp = mRecyclerView.getLayoutParams();
+        lp.height = WRAP_CONTENT;
+        lp.width = MATCH_PARENT;
+
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setAdapter(editTextAdapter);
+        mLayoutManager = new WrappedLinearLayoutManager(getActivity(), VERTICAL, false);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        container.addView(mRecyclerView);
+
+        mLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().getContainer().addView(container);
+            }
+        });
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivityRule.getActivity().getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
+            }
+        });
+
+        // First focus on the last fully visible EditText.
+        View toFocus = findLastFullyVisibleChild(mRecyclerView);
+        int focusIndex = mRecyclerView.getChildAdapterPosition(toFocus);
+
+        mLayoutManager.expectLayouts(1);
+        TouchUtils.tapView(getInstrumentation(), mRecyclerView, toFocus);
+        mLayoutManager.waitForLayout(5);
+        getInstrumentation().waitForIdleSync();
+        waitForIdleScroll(mRecyclerView);
+        assertThat("Child at position " + focusIndex + " should be focused",
+                toFocus.hasFocus(), is(true));
+        // Testing for partial visibility instead of full visibility since TextView calls
+        // requestRectangleOnScreen (inside bringPointIntoView) for the focused view with a rect
+        // containing the content area. This rect is guaranteed to be fully visible whereas a
+        // portion of TextView could be out of bounds.
+        assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
+                isViewPartiallyInBound(mRecyclerView, toFocus));
+
+        // Close soft input
+        mLayoutManager.expectLayouts(1);
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        mLayoutManager.waitForLayout(5);
+        getInstrumentation().waitForIdleSync();
+        waitForIdleScroll(mRecyclerView);
+        assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
+                isViewPartiallyInBound(mRecyclerView, toFocus));
+
+        // Now focus on the first fully visible EditText.
+        toFocus = findFirstFullyVisibleChild(mRecyclerView);
+        focusIndex = mRecyclerView.getChildAdapterPosition(toFocus);
+        mLayoutManager.expectLayouts(1);
+        TouchUtils.tapView(getInstrumentation(), mRecyclerView, toFocus);
+        mLayoutManager.waitForLayout(5);
+        getInstrumentation().waitForIdleSync();
+        waitForIdleScroll(mRecyclerView);
+        assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
+                isViewPartiallyInBound(mRecyclerView, toFocus));
+    }
 
     @Test
     public void topUnfocusableViewsVisibility() throws Throwable {
