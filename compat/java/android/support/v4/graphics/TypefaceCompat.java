@@ -34,8 +34,6 @@ import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.util.LruCache;
 import android.widget.TextView;
 
-import java.io.File;
-
 /**
  * Helper for accessing features in {@link Typeface}.
  * @hide
@@ -46,7 +44,10 @@ public class TypefaceCompat {
 
     private static final TypefaceCompatImpl sTypefaceCompatImpl;
     static {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && TypefaceCompatApi24Impl.isUsable()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            sTypefaceCompatImpl = new TypefaceCompatApi26Impl();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && TypefaceCompatApi24Impl.isUsable()) {
             sTypefaceCompatImpl = new TypefaceCompatApi24Impl();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             sTypefaceCompatImpl = new TypefaceCompatApi21Impl();
@@ -69,6 +70,9 @@ public class TypefaceCompat {
         Typeface createFromFontInfo(Context context,
                 @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts,
                 int style);
+
+        Typeface createFromResourcesFontFile(
+                Context context, Resources resources, int id, String path, int style);
     }
 
     private TypefaceCompat() {}
@@ -87,7 +91,7 @@ public class TypefaceCompat {
      *
      * @param resources Resources instance
      * @param id a resource id
-     * @param a style to be used for this resource, -1 if not availbale.
+     * @param style style to be used for this resource, -1 if not available.
      * @return Unique id for a given resource and id.
      */
     private static String createResourceUid(final Resources resources, int id, int style) {
@@ -123,28 +127,13 @@ public class TypefaceCompat {
      */
     @Nullable
     public static Typeface createFromResourcesFontFile(
-            Context context, Resources resources, int id, int style) {
-        final File tmpFile = TypefaceCompatUtil.getTempFile(context);
-        if (tmpFile == null) {
-            return null;
+            Context context, Resources resources, int id, String path, int style) {
+        Typeface typeface = sTypefaceCompatImpl.createFromResourcesFontFile(
+                context, resources, id, path, style);
+        if (typeface != null) {
+            sTypefaceCache.put(createResourceUid(resources, id, style), typeface);
         }
-        try {
-            if (!TypefaceCompatUtil.copyToFile(tmpFile, resources, id)) {
-                return null;
-            }
-            Typeface typeface = Typeface.createFromFile(tmpFile.getPath());
-            if (typeface != null) {
-                sTypefaceCache.put(createResourceUid(resources, id, style), typeface);
-            }
-            return typeface;
-        } catch (RuntimeException e) {
-            // This was thrown from Typeface.createFromFile when a Typeface could not be loaded.
-            // such as due to an invalid ttf or unreadable file. We don't want to throw that
-            // exception anymore.
-            return null;
-        } finally {
-            tmpFile.delete();
-        }
+        return typeface;
     }
 
     /**

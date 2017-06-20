@@ -17,7 +17,9 @@
 package android.support.v4.graphics;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -28,7 +30,6 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.testutils.PollingCheck;
 import android.support.v4.content.res.FontResourcesParserCompat;
@@ -47,11 +48,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@SdkSuppress(maxSdkVersion = 25)  // on API 26, use platform implementation.
 @SmallTest
 public class TypefaceCompatTest {
-    private static final String AUTHORITY = "android.provider.fonts.font";
-    private static final String PACKAGE = "android.support.compat.test";
 
     public Context mContext;
     public Resources mResources;
@@ -225,6 +223,8 @@ public class TypefaceCompatTest {
 
     @Test
     public void testCreateFromResourcesFamilyXml_resourceFont() throws Exception {
+        @SuppressLint("ResourceType")
+        // We are retrieving the XML font as an XML resource for testing purposes.
         final FamilyResourceEntry entry = FontResourcesParserCompat.parse(
                 mResources.getXml(R.font.styletestfont), mResources);
         Typeface typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry, mResources,
@@ -262,14 +262,16 @@ public class TypefaceCompatTest {
 
     @Test
     public void testCreateFromResourcesFontFile() {
-        Typeface typeface = TypefaceCompat.createFromResourcesFontFile(
-                mContext, mResources, R.font.large_a, Typeface.NORMAL);
+        Typeface typeface = TypefaceCompat.createFromResourcesFontFile(mContext, mResources,
+                R.font.large_a, "res/font/large_a.ttf", Typeface.NORMAL);
+        assertNotNull(typeface);
         assertEquals(typeface, TypefaceCompat.findFromCache(
                 mResources, R.font.large_a, Typeface.NORMAL));
         assertEquals(R.font.large_a, getSelectedFontResourceId(typeface));
 
-        typeface = TypefaceCompat.createFromResourcesFontFile(
-                mContext, mResources, R.font.large_b, Typeface.NORMAL);
+        typeface = TypefaceCompat.createFromResourcesFontFile(mContext, mResources, R.font.large_b,
+                "res/font/large_b.ttf", Typeface.NORMAL);
+        assertNotNull(typeface);
         assertEquals(typeface, TypefaceCompat.findFromCache(
                 mResources, R.font.large_b, Typeface.NORMAL));
         assertEquals(R.font.large_b, getSelectedFontResourceId(typeface));

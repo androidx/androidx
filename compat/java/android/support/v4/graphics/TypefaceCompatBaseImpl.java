@@ -145,6 +145,32 @@ class TypefaceCompatBaseImpl implements TypefaceCompat.TypefaceCompatImpl {
             return null;
         }
         return TypefaceCompat.createFromResourcesFontFile(
-                context, resources, best.getResourceId(), style);
+                context, resources, best.getResourceId(), best.getFileName(), style);
+    }
+
+    /**
+     * Used by Resources to load a font resource of type font file.
+     */
+    @Nullable
+    @Override
+    public Typeface createFromResourcesFontFile(
+            Context context, Resources resources, int id, String path, int style) {
+        final File tmpFile = TypefaceCompatUtil.getTempFile(context);
+        if (tmpFile == null) {
+            return null;
+        }
+        try {
+            if (!TypefaceCompatUtil.copyToFile(tmpFile, resources, id)) {
+                return null;
+            }
+            return Typeface.createFromFile(tmpFile.getPath());
+        } catch (RuntimeException e) {
+            // This was thrown from Typeface.createFromFile when a Typeface could not be loaded.
+            // such as due to an invalid ttf or unreadable file. We don't want to throw that
+            // exception anymore.
+            return null;
+        } finally {
+            tmpFile.delete();
+        }
     }
 }
