@@ -41,7 +41,6 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
-import android.support.v4.os.BuildCompat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +73,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setBadgeIconType(badgeIcon)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(badgeIcon, NotificationCompat.getBadgeIconType(n));
         } else {
             assertEquals(NotificationCompat.BADGE_ICON_NONE,
@@ -88,7 +87,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setTimeout(timeout)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(timeout, NotificationCompat.getTimeout(n));
         } else {
             assertEquals(0, NotificationCompat.getTimeout(n));
@@ -101,7 +100,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setShortcutId(shortcutId)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(shortcutId, NotificationCompat.getShortcutId(n));
         } else {
             assertEquals(null, NotificationCompat.getShortcutId(n));
@@ -114,7 +113,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setChannel(channelId)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(channelId, NotificationCompat.getChannel(n));
         } else {
             assertNull(NotificationCompat.getChannel(n));
@@ -126,7 +125,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         String channelId = "new ID";
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity(), channelId)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(channelId, NotificationCompat.getChannel(n));
         } else {
             assertNull(NotificationCompat.getChannel(n));
@@ -136,7 +135,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     @Test
     public void testNotificationActionBuilder_assignsColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(true).build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             Bundle extras = NotificationCompat.getExtras(n);
             assertTrue(Boolean.TRUE.equals(extras.get(EXTRA_COLORIZED)));
         }
@@ -145,7 +144,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     @Test
     public void testNotificationActionBuilder_unassignesColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(false).build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             Bundle extras = NotificationCompat.getExtras(n);
             assertTrue(Boolean.FALSE.equals(extras.get(EXTRA_COLORIZED)));
         }
@@ -154,7 +153,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     @Test
     public void testNotificationActionBuilder_doesntAssignColorized() throws Throwable {
         Notification n = newNotificationBuilder().build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             Bundle extras = NotificationCompat.getExtras(n);
             assertFalse(extras.containsKey(EXTRA_COLORIZED));
         }
@@ -288,7 +287,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setGroupAlertBehavior(GROUP_ALERT_CHILDREN)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(GROUP_ALERT_CHILDREN, NotificationCompat.getGroupAlertBehavior(n));
         } else {
             assertEquals(GROUP_ALERT_ALL, NotificationCompat.getGroupAlertBehavior(n));
@@ -318,7 +317,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .setGroupSummary(false)
                 .build();
 
-        if (Build.VERSION.SDK_INT >= 20 && !BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 20 && !(Build.VERSION.SDK_INT >= 26)) {
             assertNull(n.sound);
             assertNull(n.vibrate);
             assertTrue((n.defaults & DEFAULT_LIGHTS) != 0);
@@ -373,7 +372,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .setGroupSummary(false)
                 .build();
 
-        if (Build.VERSION.SDK_INT >= 20 && !BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 20 && !(Build.VERSION.SDK_INT >= 26)) {
             assertNotNull(n.sound);
             assertNotNull(n.vibrate);
             assertTrue((n.defaults & DEFAULT_LIGHTS) != 0);
@@ -404,7 +403,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .setGroup(null)
                 .setGroupSummary(false)
                 .build();
-        if (!BuildCompat.isAtLeastO()) {
+        if (!(Build.VERSION.SDK_INT >= 26)) {
             assertNotNull(n.sound);
             assertNotNull(n.vibrate);
             assertTrue((n.defaults & DEFAULT_LIGHTS) != 0);
