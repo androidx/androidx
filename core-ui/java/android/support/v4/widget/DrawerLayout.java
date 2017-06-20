@@ -17,6 +17,9 @@
 
 package android.support.v4.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -34,7 +37,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.AbsSavedState;
@@ -51,6 +54,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.WindowInsets;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.lang.annotation.Retention;
@@ -91,8 +95,12 @@ import java.util.List;
  * href="{@docRoot}training/implementing-navigation/nav-drawer.html">Creating a Navigation
  * Drawer</a>.</p>
  */
-public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
+public class DrawerLayout extends ViewGroup {
     private static final String TAG = "DrawerLayout";
+
+    private static final int[] THEME_ATTRS = {
+            android.R.attr.colorPrimaryDark
+    };
 
     @IntDef({STATE_IDLE, STATE_DRAGGING, STATE_SETTLING})
     @Retention(RetentionPolicy.SOURCE)
@@ -287,79 +295,6 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         }
     }
 
-    interface DrawerLayoutCompatImpl {
-        void configureApplyInsets(View drawerLayout);
-        void dispatchChildInsets(View child, Object insets, int drawerGravity);
-        void applyMarginInsets(MarginLayoutParams lp, Object insets, int drawerGravity);
-        int getTopInset(Object lastInsets);
-        Drawable getDefaultStatusBarBackground(Context context);
-    }
-
-    static class DrawerLayoutCompatImplBase implements DrawerLayoutCompatImpl {
-        @Override
-        public void configureApplyInsets(View drawerLayout) {
-            // This space for rent
-        }
-
-        @Override
-        public void dispatchChildInsets(View child, Object insets, int drawerGravity) {
-            // This space for rent
-        }
-
-        @Override
-        public void applyMarginInsets(MarginLayoutParams lp, Object insets, int drawerGravity) {
-            // This space for rent
-        }
-
-        @Override
-        public int getTopInset(Object insets) {
-            return 0;
-        }
-
-        @Override
-        public Drawable getDefaultStatusBarBackground(Context context) {
-            return null;
-        }
-    }
-
-    @RequiresApi(21)
-    static class DrawerLayoutCompatImplApi21 implements DrawerLayoutCompatImpl {
-        @Override
-        public void configureApplyInsets(View drawerLayout) {
-            DrawerLayoutCompatApi21.configureApplyInsets(drawerLayout);
-        }
-
-        @Override
-        public void dispatchChildInsets(View child, Object insets, int drawerGravity) {
-            DrawerLayoutCompatApi21.dispatchChildInsets(child, insets, drawerGravity);
-        }
-
-        @Override
-        public void applyMarginInsets(MarginLayoutParams lp, Object insets, int drawerGravity) {
-            DrawerLayoutCompatApi21.applyMarginInsets(lp, insets, drawerGravity);
-        }
-
-        @Override
-        public int getTopInset(Object insets) {
-            return DrawerLayoutCompatApi21.getTopInset(insets);
-        }
-
-        @Override
-        public Drawable getDefaultStatusBarBackground(Context context) {
-            return DrawerLayoutCompatApi21.getDefaultStatusBarBackground(context);
-        }
-    }
-
-    static {
-        if (Build.VERSION.SDK_INT >= 21) {
-            IMPL = new DrawerLayoutCompatImplApi21();
-        } else {
-            IMPL = new DrawerLayoutCompatImplBase();
-        }
-    }
-
-    static final DrawerLayoutCompatImpl IMPL;
-
     public DrawerLayout(Context context) {
         this(context, null);
     }
@@ -397,8 +332,27 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
         ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegate());
         ViewGroupCompat.setMotionEventSplittingEnabled(this, false);
         if (ViewCompat.getFitsSystemWindows(this)) {
-            IMPL.configureApplyInsets(this);
-            mStatusBarBackground = IMPL.getDefaultStatusBarBackground(context);
+            if (Build.VERSION.SDK_INT >= 21) {
+                setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                    @TargetApi(21)
+                    @Override
+                    public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
+                        final DrawerLayout drawerLayout = (DrawerLayout) view;
+                        drawerLayout.setChildInsets(insets, insets.getSystemWindowInsetTop() > 0);
+                        return insets.consumeSystemWindowInsets();
+                    }
+                });
+                setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
+                try {
+                    mStatusBarBackground = a.getDrawable(0);
+                } finally {
+                    a.recycle();
+                }
+            } else {
+                mStatusBarBackground = null;
+            }
         }
 
         mDrawerElevation = DRAWER_ELEVATION * density;
@@ -440,7 +394,7 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
      * @hide Internal use only; called to apply window insets when configured
      * with fitsSystemWindows="true"
      */
-    @Override
+    @RestrictTo(LIBRARY_GROUP)
     public void setChildInsets(Object insets, boolean draw) {
         mLastInsets = insets;
         mDrawStatusBarBackground = draw;
@@ -1063,9 +1017,36 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
             if (applyInsets) {
                 final int cgrav = GravityCompat.getAbsoluteGravity(lp.gravity, layoutDirection);
                 if (ViewCompat.getFitsSystemWindows(child)) {
-                    IMPL.dispatchChildInsets(child, mLastInsets, cgrav);
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        WindowInsets wi = (WindowInsets) mLastInsets;
+                        if (cgrav == Gravity.LEFT) {
+                            wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
+                                    wi.getSystemWindowInsetTop(), 0,
+                                    wi.getSystemWindowInsetBottom());
+                        } else if (cgrav == Gravity.RIGHT) {
+                            wi = wi.replaceSystemWindowInsets(0, wi.getSystemWindowInsetTop(),
+                                    wi.getSystemWindowInsetRight(),
+                                    wi.getSystemWindowInsetBottom());
+                        }
+                        child.dispatchApplyWindowInsets(wi);
+                    }
                 } else {
-                    IMPL.applyMarginInsets(lp, mLastInsets, cgrav);
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        WindowInsets wi = (WindowInsets) mLastInsets;
+                        if (cgrav == Gravity.LEFT) {
+                            wi = wi.replaceSystemWindowInsets(wi.getSystemWindowInsetLeft(),
+                                    wi.getSystemWindowInsetTop(), 0,
+                                    wi.getSystemWindowInsetBottom());
+                        } else if (cgrav == Gravity.RIGHT) {
+                            wi = wi.replaceSystemWindowInsets(0, wi.getSystemWindowInsetTop(),
+                                    wi.getSystemWindowInsetRight(),
+                                    wi.getSystemWindowInsetBottom());
+                        }
+                        lp.leftMargin = wi.getSystemWindowInsetLeft();
+                        lp.topMargin = wi.getSystemWindowInsetTop();
+                        lp.rightMargin = wi.getSystemWindowInsetRight();
+                        lp.bottomMargin = wi.getSystemWindowInsetBottom();
+                    }
                 }
             }
 
@@ -1340,7 +1321,13 @@ public class DrawerLayout extends ViewGroup implements DrawerLayoutImpl {
     public void onDraw(Canvas c) {
         super.onDraw(c);
         if (mDrawStatusBarBackground && mStatusBarBackground != null) {
-            final int inset = IMPL.getTopInset(mLastInsets);
+            final int inset;
+            if (Build.VERSION.SDK_INT >= 21) {
+                inset = mLastInsets != null
+                        ? ((WindowInsets) mLastInsets).getSystemWindowInsetTop() : 0;
+            } else {
+                inset = 0;
+            }
             if (inset > 0) {
                 mStatusBarBackground.setBounds(0, 0, getWidth(), inset);
                 mStatusBarBackground.draw(c);
