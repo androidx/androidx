@@ -19,6 +19,7 @@ package android.support.media;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -51,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -516,6 +518,10 @@ public class ExifInterface {
     private static class Rational {
         public final long numerator;
         public final long denominator;
+
+        private Rational(double value) {
+            this((long) (value * 10000), 10000);
+        }
 
         private Rational(long numerator, long denominator) {
             // Handle erroneous case
@@ -1446,7 +1452,7 @@ public class ExifInterface {
             } else {
                 try {
                     double doubleValue = Double.parseDouble(value);
-                    value = (long) (doubleValue * 10000L) + "/10000";
+                    value = new Rational(doubleValue).toString();
                 } catch (NumberFormatException e) {
                     Log.w(TAG, "Invalid value for " + tag + " : " + value);
                     return;
@@ -1899,6 +1905,28 @@ public class ExifInterface {
     }
 
     /**
+     * Sets the GPS-related information. It will set GPS processing method, latitude and longitude
+     * values, GPS timestamp, and speed information at the same time.
+     *
+     * @param location the {@link Location} object returned by GPS service.
+     */
+    public void setGpsInfo(Location location) {
+        if (location == null) {
+            return;
+        }
+        setAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD, location.getProvider());
+        setLatLong(location.getLatitude(), location.getLongitude());
+        setAltitude(location.getAltitude());
+        // Location objects store speeds in m/sec. Translates it to km/hr here.
+        setAttribute(TAG_GPS_SPEED_REF, "K");
+        setAttribute(TAG_GPS_SPEED, new Rational(location.getSpeed()
+                * TimeUnit.HOURS.toSeconds(1) / 1000).toString());
+        String[] dateTime = sFormatter.format(new Date(location.getTime())).split("\\s+");
+        setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateTime[0]);
+        setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, dateTime[1]);
+    }
+
+    /**
      * Sets the latitude and longitude values.
      *
      * @param latitude the decimal value of latitude. Must be a valid double value between -90.0 and
@@ -1936,6 +1964,15 @@ public class ExifInterface {
         } else {
             return defaultValue;
         }
+    }
+
+    /**
+     * Sets the altitude in meters.
+     */
+    public void setAltitude(double altitude) {
+        String ref = altitude >= 0 ? "0" : "1";
+        setAttribute(TAG_GPS_ALTITUDE, new Rational(Math.abs(altitude)).toString());
+        setAttribute(TAG_GPS_ALTITUDE_REF, ref);
     }
 
     /**
