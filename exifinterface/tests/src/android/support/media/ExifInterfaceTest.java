@@ -25,6 +25,7 @@ import static junit.framework.Assert.fail;
 
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.os.Environment;
 import android.support.exifinterface.test.R;
 import android.support.test.filters.LargeTest;
@@ -46,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test {@link ExifInterface}.
@@ -66,6 +68,8 @@ public class ExifInterfaceTest {
 
     private static final String TEST_TEMP_FILE_NAME = "testImage";
     private static final double DELTA = 1e-8;
+    // We translate double to rational in a 1/10000 precision.
+    private static final double RATIONAL_DELTA = 0.0001;
     private static final int TEST_LAT_LONG_VALUES_ARRAY_LENGTH = 8;
     private static final double[] TEST_LATITUDE_VALID_VALUES = new double[]
             {0, 45, 90, -60, 0.00000001, -89.999999999, 14.2465923626, -68.3434534737};
@@ -77,6 +81,8 @@ public class ExifInterfaceTest {
     private static final double[] TEST_LONGITUDE_INVALID_VALUES = new double[]
             {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 180.0000000001,
                     263.34763236326, -1e10, 347.325252623, -4000.346323236};
+    private static final double[] TEST_ALTITUDE_VALUES = new double[]
+            {0, -2000, 10000, -355.99999999999, 18.02038};
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_MAKE,
@@ -251,6 +257,38 @@ public class ExifInterfaceTest {
 
     @Test
     @SmallTest
+    public void testSetGpsInfo() throws IOException {
+        final String provider = "ExifInterfaceTest";
+        final long timestamp = System.currentTimeMillis();
+        final float speedInMeterPerSec = 36.627533f;
+        Location location = new Location(provider);
+        location.setLatitude(TEST_LATITUDE_VALID_VALUES[TEST_LATITUDE_VALID_VALUES.length - 1]);
+        location.setLongitude(TEST_LONGITUDE_VALID_VALUES[TEST_LONGITUDE_VALID_VALUES.length - 1]);
+        location.setAltitude(TEST_ALTITUDE_VALUES[TEST_ALTITUDE_VALUES.length - 1]);
+        location.setSpeed(speedInMeterPerSec);
+        location.setTime(timestamp);
+        ExifInterface exif = createTestExifInterface();
+        exif.setGpsInfo(location);
+
+        double[] latLong = exif.getLatLong();
+        assertNotNull(latLong);
+        assertEquals(TEST_LATITUDE_VALID_VALUES[TEST_LATITUDE_VALID_VALUES.length - 1],
+                latLong[0], DELTA);
+        assertEquals(TEST_LONGITUDE_VALID_VALUES[TEST_LONGITUDE_VALID_VALUES.length - 1],
+                latLong[1], DELTA);
+        assertEquals(TEST_ALTITUDE_VALUES[TEST_ALTITUDE_VALUES.length - 1], exif.getAltitude(0),
+                RATIONAL_DELTA);
+        assertEquals("K", exif.getAttribute(ExifInterface.TAG_GPS_SPEED_REF));
+        assertEquals(speedInMeterPerSec, exif.getAttributeDouble(ExifInterface.TAG_GPS_SPEED, 0.0)
+                * 1000 / TimeUnit.HOURS.toSeconds(1), RATIONAL_DELTA);
+        assertEquals(provider, exif.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD));
+        // GPS time's precision is secs.
+        assertEquals(TimeUnit.MILLISECONDS.toSeconds(timestamp),
+                TimeUnit.MILLISECONDS.toSeconds(exif.getGpsDateTime()));
+    }
+
+    @Test
+    @SmallTest
     public void testSetLatLong_withValidValues() throws IOException {
         for (int i = 0; i < TEST_LAT_LONG_VALUES_ARRAY_LENGTH; i++) {
             ExifInterface exif = createTestExifInterface();
@@ -292,6 +330,16 @@ public class ExifInterfaceTest {
             }
             assertNull(exif.getLatLong());
             assertLatLongValuesAreNotSet(exif);
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testSetAltitude() throws IOException {
+        for (int i = 0; i < TEST_ALTITUDE_VALUES.length; i++) {
+            ExifInterface exif = createTestExifInterface();
+            exif.setAltitude(TEST_ALTITUDE_VALUES[i]);
+            assertEquals(TEST_ALTITUDE_VALUES[i], exif.getAltitude(Double.NaN), RATIONAL_DELTA);
         }
     }
 
