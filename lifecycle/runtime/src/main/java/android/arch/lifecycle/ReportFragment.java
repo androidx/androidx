@@ -26,7 +26,7 @@ import android.support.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ReportFragment extends Fragment {
 
     private static final String REPORT_FRAGMENT_TAG = "android.arch.lifecycle"
