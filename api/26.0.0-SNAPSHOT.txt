@@ -50,6 +50,9 @@ package android.support.animation {
     ctor public FlingAnimation(K, android.support.animation.FloatPropertyCompat<K>);
     method public float getFriction();
     method public android.support.animation.FlingAnimation setFriction(float);
+    method public android.support.animation.FlingAnimation setMaxValue(float);
+    method public android.support.animation.FlingAnimation setMinValue(float);
+    method public android.support.animation.FlingAnimation setStartVelocity(float);
   }
 
   public abstract class FloatPropertyCompat<T> {
@@ -378,6 +381,9 @@ package android.support.design.widget {
     ctor public AppBarLayout(android.content.Context);
     ctor public AppBarLayout(android.content.Context, android.util.AttributeSet);
     method public void addOnOffsetChangedListener(android.support.design.widget.AppBarLayout.OnOffsetChangedListener);
+    method protected android.support.design.widget.AppBarLayout.LayoutParams generateDefaultLayoutParams();
+    method public android.support.design.widget.AppBarLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.design.widget.AppBarLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public deprecated float getTargetElevation();
     method public final int getTotalScrollRange();
     method public void removeOnOffsetChangedListener(android.support.design.widget.AppBarLayout.OnOffsetChangedListener);
@@ -510,6 +516,9 @@ package android.support.design.widget {
     method public boolean getSkipCollapsed();
     method public final int getState();
     method public boolean isHideable();
+    method public void onNestedPreScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, int, int, int[]);
+    method public boolean onStartNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
+    method public void onStopNestedScroll(android.support.design.widget.CoordinatorLayout, V, android.view.View);
     method public void setBottomSheetCallback(android.support.design.widget.BottomSheetBehavior.BottomSheetCallback);
     method public void setHideable(boolean);
     method public final void setPeekHeight(int);
@@ -550,6 +559,9 @@ package android.support.design.widget {
     ctor public CollapsingToolbarLayout(android.content.Context);
     ctor public CollapsingToolbarLayout(android.content.Context, android.util.AttributeSet);
     ctor public CollapsingToolbarLayout(android.content.Context, android.util.AttributeSet, int);
+    method protected android.support.design.widget.CollapsingToolbarLayout.LayoutParams generateDefaultLayoutParams();
+    method public android.widget.FrameLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.widget.FrameLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public int getCollapsedTitleGravity();
     method public android.graphics.Typeface getCollapsedTitleTypeface();
     method public android.graphics.drawable.Drawable getContentScrim();
@@ -615,6 +627,9 @@ package android.support.design.widget {
     ctor public CoordinatorLayout(android.content.Context, android.util.AttributeSet, int);
     method public void dispatchDependentViewsChanged(android.view.View);
     method public boolean doViewsOverlap(android.view.View, android.view.View);
+    method protected android.support.design.widget.CoordinatorLayout.LayoutParams generateDefaultLayoutParams();
+    method public android.support.design.widget.CoordinatorLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.design.widget.CoordinatorLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public java.util.List<android.view.View> getDependencies(android.view.View);
     method public java.util.List<android.view.View> getDependents(android.view.View);
     method public android.graphics.drawable.Drawable getStatusBarBackground();
@@ -708,6 +723,7 @@ package android.support.design.widget {
     method public boolean getUseCompatPadding();
     method public void hide();
     method public void hide(android.support.design.widget.FloatingActionButton.OnVisibilityChangedListener);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
     method public void setCompatElevation(float);
     method public void setRippleColor(int);
     method public void setSize(int);
@@ -847,6 +863,7 @@ package android.support.design.widget {
     method public void addTab(android.support.design.widget.TabLayout.Tab, boolean);
     method public void addTab(android.support.design.widget.TabLayout.Tab, int, boolean);
     method public void clearOnTabSelectedListeners();
+    method public android.widget.FrameLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
     method public int getSelectedTabPosition();
     method public android.support.design.widget.TabLayout.Tab getTabAt(int);
     method public int getTabCount();
@@ -1267,10 +1284,12 @@ package android.support.media.tv {
   }
 
   public final class PreviewProgram {
+    method public boolean equals(java.lang.Object);
     method public static android.support.media.tv.PreviewProgram fromCursor(android.database.Cursor);
     method public long getChannelId();
     method public int getWeight();
     method public android.content.ContentValues toContentValues();
+    method public java.lang.String toString();
   }
 
   public static final class PreviewProgram.Builder {
@@ -1283,13 +1302,16 @@ package android.support.media.tv {
 
   public final class Program implements java.lang.Comparable {
     method public int compareTo(android.support.media.tv.Program);
+    method public boolean equals(java.lang.Object);
     method public static android.support.media.tv.Program fromCursor(android.database.Cursor);
     method public java.lang.String[] getBroadcastGenres();
     method public long getChannelId();
     method public long getEndTimeUtcMillis();
     method public long getStartTimeUtcMillis();
+    method public int hashCode();
     method public boolean isRecordingProhibited();
     method public android.content.ContentValues toContentValues();
+    method public java.lang.String toString();
   }
 
   public static class Program.Builder {
@@ -1695,10 +1717,12 @@ package android.support.media.tv {
   }
 
   public final class WatchNextProgram {
+    method public boolean equals(java.lang.Object);
     method public static android.support.media.tv.WatchNextProgram fromCursor(android.database.Cursor);
     method public long getLastEngagementTimeUtcMillis();
     method public int getWatchNextType();
     method public android.content.ContentValues toContentValues();
+    method public java.lang.String toString();
   }
 
   public static final class WatchNextProgram.Builder {
@@ -1717,6 +1741,8 @@ package android.support.percent {
     ctor public PercentFrameLayout(android.content.Context);
     ctor public PercentFrameLayout(android.content.Context, android.util.AttributeSet);
     ctor public PercentFrameLayout(android.content.Context, android.util.AttributeSet, int);
+    method protected android.support.percent.PercentFrameLayout.LayoutParams generateDefaultLayoutParams();
+    method public android.support.percent.PercentFrameLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
   }
 
   public static deprecated class PercentFrameLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams implements android.support.percent.PercentLayoutHelper.PercentLayoutParams {
@@ -1765,6 +1791,8 @@ package android.support.percent {
     ctor public PercentRelativeLayout(android.content.Context);
     ctor public PercentRelativeLayout(android.content.Context, android.util.AttributeSet);
     ctor public PercentRelativeLayout(android.content.Context, android.util.AttributeSet, int);
+    method protected android.support.percent.PercentRelativeLayout.LayoutParams generateDefaultLayoutParams();
+    method public android.support.percent.PercentRelativeLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
   }
 
   public static deprecated class PercentRelativeLayout.LayoutParams extends android.widget.RelativeLayout.LayoutParams implements android.support.percent.PercentLayoutHelper.PercentLayoutParams {
@@ -2158,14 +2186,27 @@ package android.support.transition {
   public class TransitionSet extends android.support.transition.Transition {
     ctor public TransitionSet();
     ctor public TransitionSet(android.content.Context, android.util.AttributeSet);
+    method public android.support.transition.TransitionSet addListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.TransitionSet addTarget(android.view.View);
+    method public android.support.transition.TransitionSet addTarget(int);
+    method public android.support.transition.TransitionSet addTarget(java.lang.String);
+    method public android.support.transition.TransitionSet addTarget(java.lang.Class);
     method public android.support.transition.TransitionSet addTransition(android.support.transition.Transition);
     method public void captureEndValues(android.support.transition.TransitionValues);
     method public void captureStartValues(android.support.transition.TransitionValues);
     method public int getOrdering();
     method public android.support.transition.Transition getTransitionAt(int);
     method public int getTransitionCount();
+    method public android.support.transition.TransitionSet removeListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.TransitionSet removeTarget(int);
+    method public android.support.transition.TransitionSet removeTarget(android.view.View);
+    method public android.support.transition.TransitionSet removeTarget(java.lang.Class);
+    method public android.support.transition.TransitionSet removeTarget(java.lang.String);
     method public android.support.transition.TransitionSet removeTransition(android.support.transition.Transition);
+    method public android.support.transition.TransitionSet setDuration(long);
+    method public android.support.transition.TransitionSet setInterpolator(android.animation.TimeInterpolator);
     method public android.support.transition.TransitionSet setOrdering(int);
+    method public android.support.transition.TransitionSet setStartDelay(long);
     field public static final int ORDERING_SEQUENTIAL = 1; // 0x1
     field public static final int ORDERING_TOGETHER = 0; // 0x0
   }
@@ -2240,6 +2281,7 @@ package android.support.v13.app {
     ctor public FragmentTabHost(android.content.Context, android.util.AttributeSet);
     method public void addTab(android.widget.TabHost.TabSpec, java.lang.Class<?>, android.os.Bundle);
     method public void onTabChanged(java.lang.String);
+    method public deprecated void setup();
     method public void setup(android.content.Context, android.app.FragmentManager);
     method public void setup(android.content.Context, android.app.FragmentManager, int);
   }
@@ -2999,6 +3041,10 @@ package android.support.v17.leanback.app {
     method public long getSupportedActions();
     method public boolean hasValidMedia();
     method public boolean isMediaPlaying();
+    method protected void pausePlayback();
+    method protected void skipToNext();
+    method protected void skipToPrevious();
+    method protected void startPlayback(int);
   }
 
   public abstract class OnboardingFragment extends android.app.Fragment {
@@ -3163,6 +3209,7 @@ package android.support.v17.leanback.app {
 
   public class PlaybackFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost implements android.support.v17.leanback.widget.PlaybackSeekUi {
     ctor public PlaybackFragmentGlueHost(android.support.v17.leanback.app.PlaybackFragment);
+    method public void fadeOut();
     method public void setPlaybackSeekUiClient(android.support.v17.leanback.widget.PlaybackSeekUi.Client);
   }
 
@@ -3259,6 +3306,7 @@ package android.support.v17.leanback.app {
 
   public class PlaybackSupportFragmentGlueHost extends android.support.v17.leanback.media.PlaybackGlueHost implements android.support.v17.leanback.widget.PlaybackSeekUi {
     ctor public PlaybackSupportFragmentGlueHost(android.support.v17.leanback.app.PlaybackSupportFragment);
+    method public void fadeOut();
     method public void setPlaybackSeekUiClient(android.support.v17.leanback.widget.PlaybackSeekUi.Client);
   }
 
@@ -3919,6 +3967,9 @@ package android.support.v17.leanback.widget {
     ctor public BaseCardView(android.content.Context);
     ctor public BaseCardView(android.content.Context, android.util.AttributeSet);
     ctor public BaseCardView(android.content.Context, android.util.AttributeSet, int);
+    method protected android.support.v17.leanback.widget.BaseCardView.LayoutParams generateDefaultLayoutParams();
+    method public android.support.v17.leanback.widget.BaseCardView.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.v17.leanback.widget.BaseCardView.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public int getCardType();
     method public deprecated int getExtraVisibility();
     method public int getInfoVisibility();
@@ -5932,6 +5983,8 @@ package android.support.v4.app {
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
     method public android.support.v4.app.LoaderManager getSupportLoaderManager();
     method public void onAttachFragment(android.support.v4.app.Fragment);
+    method public void onMultiWindowModeChanged(boolean);
+    method public void onPictureInPictureModeChanged(boolean);
     method protected void onResumeFragments();
     method public java.lang.Object onRetainCustomNonConfigurationInstance();
     method public final java.lang.Object onRetainNonConfigurationInstance();
@@ -6098,6 +6151,7 @@ package android.support.v4.app {
     ctor public FragmentTabHost(android.content.Context, android.util.AttributeSet);
     method public void addTab(android.widget.TabHost.TabSpec, java.lang.Class<?>, android.os.Bundle);
     method public void onTabChanged(java.lang.String);
+    method public deprecated void setup();
     method public void setup(android.content.Context, android.support.v4.app.FragmentManager);
     method public void setup(android.content.Context, android.support.v4.app.FragmentManager, int);
   }
@@ -7080,6 +7134,7 @@ package android.support.v4.graphics.drawable {
     method public void setCircular(boolean);
     method public void setColorFilter(android.graphics.ColorFilter);
     method public void setCornerRadius(float);
+    method public void setDither(boolean);
     method public void setGravity(int);
     method public void setMipMap(boolean);
     method public void setTargetDensity(android.graphics.Canvas);
@@ -8619,6 +8674,7 @@ package android.support.v4.view {
     ctor public PagerTabStrip(android.content.Context, android.util.AttributeSet);
     method public boolean getDrawFullUnderline();
     method public int getTabIndicatorColor();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
     method public void setDrawFullUnderline(boolean);
     method public void setTabIndicatorColor(int);
     method public void setTabIndicatorColorResource(int);
@@ -9368,6 +9424,7 @@ package android.support.v4.view.accessibility {
 
   public class AccessibilityRecordCompat {
     ctor public deprecated AccessibilityRecordCompat(java.lang.Object);
+    method public deprecated boolean equals(java.lang.Object);
     method public deprecated int getAddedCount();
     method public deprecated java.lang.CharSequence getBeforeText();
     method public deprecated java.lang.CharSequence getClassName();
@@ -9388,6 +9445,7 @@ package android.support.v4.view.accessibility {
     method public deprecated java.util.List<java.lang.CharSequence> getText();
     method public deprecated int getToIndex();
     method public deprecated int getWindowId();
+    method public deprecated int hashCode();
     method public deprecated boolean isChecked();
     method public deprecated boolean isEnabled();
     method public deprecated boolean isFullScreen();
@@ -10273,6 +10331,7 @@ package android.support.v7.app {
     method public deprecated void setSupportProgressBarIndeterminateVisibility(boolean);
     method public deprecated void setSupportProgressBarVisibility(boolean);
     method public android.support.v7.view.ActionMode startSupportActionMode(android.support.v7.view.ActionMode.Callback);
+    method public void supportInvalidateOptionsMenu();
     method public void supportNavigateUpTo(android.content.Intent);
     method public boolean supportRequestWindowFeature(int);
     method public boolean supportShouldUpRecreateTask(android.content.Intent);
@@ -11550,6 +11609,9 @@ package android.support.v7.widget {
     ctor public ActionMenuView(android.content.Context);
     ctor public ActionMenuView(android.content.Context, android.util.AttributeSet);
     method public void dismissPopupMenus();
+    method protected android.support.v7.widget.ActionMenuView.LayoutParams generateDefaultLayoutParams();
+    method public android.support.v7.widget.ActionMenuView.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.v7.widget.ActionMenuView.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public android.view.Menu getMenu();
     method public android.graphics.drawable.Drawable getOverflowIcon();
     method public int getPopupTheme();
@@ -11583,13 +11645,17 @@ package android.support.v7.widget {
     ctor public AppCompatAutoCompleteTextView(android.content.Context);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet, int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setTextAppearance(android.content.Context, int);
   }
 
   public class AppCompatButton extends android.widget.Button implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatButton(android.content.Context);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatButton(android.content.Context, android.util.AttributeSet, int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
     method public void setSupportAllCaps(boolean);
+    method public void setTextAppearance(android.content.Context, int);
   }
 
   public class AppCompatCheckBox extends android.widget.CheckBox implements android.support.v4.widget.TintableCompoundButton {
@@ -11602,30 +11668,37 @@ package android.support.v7.widget {
     ctor public AppCompatCheckedTextView(android.content.Context);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet, int);
+    method public void setTextAppearance(android.content.Context, int);
   }
 
   public class AppCompatEditText extends android.widget.EditText implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatEditText(android.content.Context);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet, int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setTextAppearance(android.content.Context, int);
   }
 
   public class AppCompatImageButton extends android.widget.ImageButton implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatImageButton(android.content.Context);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatImageButton(android.content.Context, android.util.AttributeSet, int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
   }
 
   public class AppCompatImageView extends android.widget.ImageView implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatImageView(android.content.Context);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatImageView(android.content.Context, android.util.AttributeSet, int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
   }
 
   public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet, int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setTextAppearance(android.content.Context, int);
   }
 
   public class AppCompatRadioButton extends android.widget.RadioButton implements android.support.v4.widget.TintableCompoundButton {
@@ -11653,12 +11726,15 @@ package android.support.v7.widget {
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int);
     ctor public AppCompatSpinner(android.content.Context, android.util.AttributeSet, int, int, android.content.res.Resources.Theme);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
   }
 
   public class AppCompatTextView extends android.widget.TextView implements android.support.v4.view.TintableBackgroundView {
     ctor public AppCompatTextView(android.content.Context);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet);
     ctor public AppCompatTextView(android.content.Context, android.util.AttributeSet, int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable);
+    method public void setTextAppearance(android.content.Context, int);
   }
 
   public class CardView extends android.widget.FrameLayout {
@@ -11709,6 +11785,9 @@ package android.support.v7.widget {
     ctor public GridLayout(android.content.Context, android.util.AttributeSet, int);
     ctor public GridLayout(android.content.Context, android.util.AttributeSet);
     ctor public GridLayout(android.content.Context);
+    method protected android.support.v7.widget.GridLayout.LayoutParams generateDefaultLayoutParams();
+    method public android.support.v7.widget.GridLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.v7.widget.GridLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public int getAlignmentMode();
     method public int getColumnCount();
     method public int getOrientation();
@@ -11810,6 +11889,9 @@ package android.support.v7.widget {
     ctor public LinearLayoutCompat(android.content.Context);
     ctor public LinearLayoutCompat(android.content.Context, android.util.AttributeSet);
     ctor public LinearLayoutCompat(android.content.Context, android.util.AttributeSet, int);
+    method protected android.support.v7.widget.LinearLayoutCompat.LayoutParams generateDefaultLayoutParams();
+    method public android.support.v7.widget.LinearLayoutCompat.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.v7.widget.LinearLayoutCompat.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public int getBaselineAlignedChildIndex();
     method public android.graphics.drawable.Drawable getDividerDrawable();
     method public int getDividerPadding();
@@ -12758,6 +12840,9 @@ package android.support.v7.widget {
     ctor public Toolbar(android.content.Context, android.util.AttributeSet, int);
     method public void collapseActionView();
     method public void dismissPopupMenus();
+    method protected android.support.v7.widget.Toolbar.LayoutParams generateDefaultLayoutParams();
+    method public android.support.v7.widget.Toolbar.LayoutParams generateLayoutParams(android.util.AttributeSet);
+    method protected android.support.v7.widget.Toolbar.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams);
     method public int getContentInsetEnd();
     method public int getContentInsetEndWithActions();
     method public int getContentInsetLeft();
@@ -12939,6 +13024,7 @@ package android.support.wear.widget {
     ctor public BoxInsetLayout(android.content.Context);
     ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet);
     ctor public BoxInsetLayout(android.content.Context, android.util.AttributeSet, int);
+    method public android.support.wear.widget.BoxInsetLayout.LayoutParams generateLayoutParams(android.util.AttributeSet);
     method protected void onLayout(boolean, int, int, int, int);
   }
 
