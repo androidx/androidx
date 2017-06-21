@@ -54,29 +54,21 @@ final class MediaRouterThemeHelper {
      *              {@code 0} to use the parent {@code context}'s default theme.
      * @return The themed context.
      */
-    public static Context createThemedContext(Context context, int style) {
+    static Context createThemedContext(Context context, int style) {
         // First, apply dialog property overlay.
+        Context themedContext =
+                new ContextThemeWrapper(context, getStyledRouterThemeId(context, style));
+        int customizedThemeId = getThemeResource(context, R.attr.mediaRouteTheme);
+        return customizedThemeId == 0 ? themedContext
+                : new ContextThemeWrapper(themedContext, customizedThemeId);
+    }
 
-        int theme;
-        if (isLightTheme(context)) {
-            if (getControllerColor(context, style) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
-                theme = R.style.Theme_MediaRouter_Light;
-            } else {
-                theme = R.style.Theme_MediaRouter_Light_DarkControlPanel;
-            }
-        } else {
-            if (getControllerColor(context, style) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
-                theme = R.style.Theme_MediaRouter_LightControlPanel;
-            } else {
-                theme = R.style.Theme_MediaRouter;
-            }
-        }
-        int mediaRouteThemeResId = getThemeResource(context, R.attr.mediaRouteTheme);
-        Context themedContext = new ContextThemeWrapper(context, theme);
-        if (mediaRouteThemeResId != 0) {
-            themedContext = new ContextThemeWrapper(themedContext, mediaRouteThemeResId);
-        }
-        return themedContext;
+    /**
+     * Creates the theme resource ID intended to be used by dialogs.
+     */
+    static int createThemeForDialog(Context context, int style) {
+        int customizedThemeId = getThemeResource(context, R.attr.mediaRouteTheme);
+        return customizedThemeId != 0 ? customizedThemeId : getStyledRouterThemeId(context, style);
     }
 
     public static int getThemeResource(Context context, int attr) {
@@ -179,5 +171,23 @@ final class MediaRouterThemeHelper {
             return context.getResources().getColor(value.resourceId);
         }
         return value.data;
+    }
+
+    private static int getStyledRouterThemeId(Context context, int style) {
+        int themeId;
+        if (isLightTheme(context)) {
+            if (getControllerColor(context, style) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
+                themeId = R.style.Theme_MediaRouter_Light;
+            } else {
+                themeId = R.style.Theme_MediaRouter_Light_DarkControlPanel;
+            }
+        } else {
+            if (getControllerColor(context, style) == COLOR_DARK_ON_LIGHT_BACKGROUND) {
+                themeId = R.style.Theme_MediaRouter_LightControlPanel;
+            } else {
+                themeId = R.style.Theme_MediaRouter;
+            }
+        }
+        return themeId;
     }
 }
