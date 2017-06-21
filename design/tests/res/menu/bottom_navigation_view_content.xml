@@ -13,14 +13,21 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/destination_home"
+          android:icon="@drawable/test_drawable_red"
           android:title="@string/navigate_home"
-          android:icon="@drawable/test_drawable_red" />
+          app:contentDescription="@string/navigate_home"
+          app:tooltipText="@string/navigate_home"/>
     <item android:id="@+id/destination_profile"
+          android:icon="@drawable/test_drawable_green"
           android:title="@string/navigate_profile"
-          android:icon="@drawable/test_drawable_green" />
+          app:contentDescription="@string/navigate_profile"
+          app:tooltipText="@string/navigate_profile"/>
     <item android:id="@+id/destination_people"
+          android:icon="@drawable/test_drawable_blue"
           android:title="@string/navigate_people"
-          android:icon="@drawable/test_drawable_blue" />
+          app:contentDescription="@string/navigate_people"
+          app:tooltipText="@string/navigate_people"/>
 </menu>
