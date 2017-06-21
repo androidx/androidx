@@ -5,7 +5,13 @@ dependencies {
     compile project(":support-appcompat-v7")
     compile project(":support-palette-v7")
 
-    androidTestCompile libs.test_runner
+    androidTestCompile (libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile (libs.espresso_core) {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile libs.mockito_core
 }
 
 android {
