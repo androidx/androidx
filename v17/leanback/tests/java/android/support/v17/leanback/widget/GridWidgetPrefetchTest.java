@@ -248,11 +248,11 @@ public class GridWidgetPrefetchTest {
         view.setAdapter(createBoxAdapter());
 
         // check default
-        assertEquals(4, view.getInitialItemPrefetchCount());
+        assertEquals(4, view.getInitialPrefetchItemCount());
 
         // check setter behavior
         view.setInitialPrefetchItemCount(0);
-        assertEquals(0, view.getInitialItemPrefetchCount());
+        assertEquals(0, view.getInitialPrefetchItemCount());
 
         // check positions fetched, relative to focus
         view.scrollToPosition(2);

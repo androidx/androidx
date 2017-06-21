@@ -47,6 +47,9 @@
     <style name="Theme.DesignDemos.Navigation" parent="Theme.DesignDemos.Navigation.Base"/>
 
     <style name="Theme.DesignDemos.BottomSheetModal" parent="Theme.Design">
+        <item name="colorPrimary">#607D8B</item>
+        <item name="colorPrimaryDark">#455A64</item>
+        <item name="colorAccent">#FFAB40</item>
         <item name="bottomSheetDialogTheme">@style/Theme.DesignDemos.BottomSheetModal.BottomSheetDialog</item>
     </style>
 

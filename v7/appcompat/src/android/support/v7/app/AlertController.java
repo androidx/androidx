@@ -16,6 +16,8 @@
 
 package android.support.v7.app;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
@@ -28,6 +30,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.appcompat.R;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -57,8 +60,6 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 class AlertController {
     private final Context mContext;
@@ -652,7 +653,7 @@ class AlertController {
             }
 
             if (mListView != null) {
-                ((LinearLayout.LayoutParams) customPanel.getLayoutParams()).weight = 0;
+                ((LinearLayoutCompat.LayoutParams) customPanel.getLayoutParams()).weight = 0;
             }
         } else {
             customPanel.setVisibility(View.GONE);

@@ -34,7 +34,7 @@ public class AppCompatCheckedTextView extends CheckedTextView {
             android.R.attr.checkMark
     };
 
-    private AppCompatTextHelper mTextHelper;
+    private final AppCompatTextHelper mTextHelper;
 
     public AppCompatCheckedTextView(Context context) {
         this(context, null);

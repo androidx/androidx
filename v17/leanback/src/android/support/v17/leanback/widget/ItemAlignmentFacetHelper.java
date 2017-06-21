@@ -55,8 +55,8 @@ class ItemAlignmentFacetHelper {
                 }
             }
             if (facet.mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                alignPos += ((view == itemView ? p.getOpticalWidth(view) : view.getWidth())
-                        * facet.mOffsetPercent) / 100f;
+                alignPos += (int) (((view == itemView ? p.getOpticalWidth(view) : view.getWidth())
+                        * facet.mOffsetPercent) / 100f);
             }
             if (itemView != view) {
                 sRect.left = alignPos;
@@ -74,8 +74,8 @@ class ItemAlignmentFacetHelper {
                 }
             }
             if (facet.mOffsetPercent != ITEM_ALIGN_OFFSET_PERCENT_DISABLED) {
-                alignPos += ((view == itemView ? p.getOpticalHeight(view) : view.getHeight())
-                        * facet.mOffsetPercent) / 100f;
+                alignPos += (int) (((view == itemView ? p.getOpticalHeight(view) : view.getHeight())
+                        * facet.mOffsetPercent) / 100f);
             }
             if (itemView != view) {
                 sRect.top = alignPos;

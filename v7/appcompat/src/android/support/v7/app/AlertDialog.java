@@ -187,7 +187,9 @@ public class AlertDialog extends AppCompatDialog implements DialogInterface {
 
     /**
      * Internal api to allow hinting for the best button panel layout.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     void setButtonPanelLayoutHint(int layoutHint) {
         mAlert.setButtonPanelLayoutHint(layoutHint);
     }

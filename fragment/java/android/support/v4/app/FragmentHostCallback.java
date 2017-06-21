@@ -308,6 +308,8 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         if (lm == null && create) {
             lm = new LoaderManagerImpl(who, this, started);
             mAllLoaderManagers.put(who, lm);
+        } else if (started && lm != null && !lm.mStarted) {
+            lm.doStart();
         }
         return lm;
     }
@@ -348,7 +350,8 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
 
     void restoreLoaderNonConfig(SimpleArrayMap<String, LoaderManager> loaderManagers) {
         if (loaderManagers != null) {
-            for (int i = 0, N = loaderManagers.size(); i < N; i++) {
+            final int numLoaderManagers = loaderManagers.size();
+            for (int i = 0; i < numLoaderManagers; i++) {
                 ((LoaderManagerImpl) loaderManagers.valueAt(i)).updateHostController(this);
             }
         }

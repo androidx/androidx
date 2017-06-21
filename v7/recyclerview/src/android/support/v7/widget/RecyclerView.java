@@ -725,6 +725,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 final View child = RecyclerView.this.getChildAt(index);
                 if (child != null) {
                     dispatchChildDetached(child);
+
+                    // Clear any android.view.animation.Animation that may prevent the item from
+                    // detaching when being removed. If a child is re-added before the
+                    // lazy detach occurs, it will receive invalid attach/detach sequencing.
+                    child.clearAnimation();
                 }
                 if (VERBOSE_TRACING) {
                     TraceCompat.beginSection("RV removeViewAt");
@@ -744,7 +749,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             public void removeAllViews() {
                 final int count = getChildCount();
                 for (int i = 0; i < count; i ++) {
-                    dispatchChildDetached(getChildAt(i));
+                    View child = getChildAt(i);
+                    dispatchChildDetached(child);
+
+                    // Clear any android.view.animation.Animation that may prevent the item from
+                    // detaching when being removed. If a child is re-added before the
+                    // lazy detach occurs, it will receive invalid attach/detach sequencing.
+                    child.clearAnimation();
                 }
                 RecyclerView.this.removeAllViews();
             }
@@ -3125,6 +3136,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     }
 
     void onExitLayoutOrScroll() {
+        onExitLayoutOrScroll(true);
+    }
+
+    void onExitLayoutOrScroll(boolean enableChangeEvents) {
         mLayoutOrScrollCounter --;
         if (mLayoutOrScrollCounter < 1) {
             if (DEBUG && mLayoutOrScrollCounter < 0) {
@@ -3132,8 +3147,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         + "Some calls are not matching");
             }
             mLayoutOrScrollCounter = 0;
-            dispatchContentChangedIfNecessary();
-            dispatchPendingImportantForAccessibilityChanges();
+            if (enableChangeEvents) {
+                dispatchContentChangedIfNecessary();
+                dispatchPendingImportantForAccessibilityChanges();
+            }
         }
     }
 
@@ -3786,6 +3803,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                         + " is not flagged as tmp detached." + vh);
             }
         }
+
+        // Clear any android.view.animation.Animation that may prevent the item from
+        // detaching when being removed. If a child is re-added before the
+        // lazy detach occurs, it will receive invalid attach/detach sequencing.
+        child.clearAnimation();
+
         dispatchChildDetached(child);
         super.removeDetachedView(child, animate);
     }
@@ -4119,31 +4142,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     /**
      * Call this method to signal that *all* adapter content has changed (generally, because of
      * swapAdapter, or notifyDataSetChanged), and that once layout occurs, all attached items should
-     * be discarded or animated. Note that this work is deferred because RecyclerView requires a
-     * layout to resolve non-incremental changes to the data set.
+     * be discarded or animated.
      *
-     * Attached items are labeled as position unknown, and may no longer be cached.
+     * Attached items are labeled as invalid, and all cached items are discarded.
      *
      * It is still possible for items to be prefetched while mDataSetHasChangedAfterLayout == true,
-     * so calling this method *must* be associated with marking the cache invalid, so that the
-     * only valid items that remain in the cache, once layout occurs, are prefetched items.
+     * so this method must always discard all cached views so that the only valid items that remain
+     * in the cache, once layout occurs, are valid prefetched items.
      */
     void setDataSetChangedAfterLayout() {
-        if (mDataSetHasChangedAfterLayout) {
-            return;
-        }
         mDataSetHasChangedAfterLayout = true;
-        final int childCount = mChildHelper.getUnfilteredChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final ViewHolder holder = getChildViewHolderInt(mChildHelper.getUnfilteredChildAt(i));
-            if (holder != null && !holder.shouldIgnore()) {
-                holder.addFlags(ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
-            }
-        }
-        mRecycler.setAdapterPositionsAsUnknown();
-
-        // immediately mark all views as invalid, so prefetched views can be
-        // differentiated from views bound to previous data set - both in children, and cache
         markKnownViewsInvalid();
     }
 
@@ -6168,22 +6176,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                     continue;
                 }
 
-                final int pos = holder.getLayoutPosition();
+                final int pos = holder.mPosition;
                 if (pos >= positionStart && pos < positionEnd) {
                     holder.addFlags(ViewHolder.FLAG_UPDATE);
                     recycleCachedViewAt(i);
                     // cached views should not be flagged as changed because this will cause them
                     // to animate when they are returned from cache.
-                }
-            }
-        }
-
-        void setAdapterPositionsAsUnknown() {
-            final int cachedCount = mCachedViews.size();
-            for (int i = 0; i < cachedCount; i++) {
-                final ViewHolder holder = mCachedViews.get(i);
-                if (holder != null) {
-                    holder.addFlags(ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
                 }
             }
         }
@@ -11561,7 +11559,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         void prepareForNestedPrefetch(Adapter adapter) {
             mLayoutStep = STEP_START;
             mItemCount = adapter.getItemCount();
-            mStructureChanged = false;
             mInPreLayout = false;
             mTrackOldChangeHolders = false;
             mIsMeasuring = false;
@@ -11749,7 +11746,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
          * @param velocityX the fling velocity on the X axis
          * @param velocityY the fling velocity on the Y axis
          *
-         * @return true if the fling washandled, false otherwise.
+         * @return true if the fling was handled, false otherwise.
          */
         public abstract boolean onFling(int velocityX, int velocityY);
     }

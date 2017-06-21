@@ -62,9 +62,9 @@ public class HeadersSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void defaultScale() {
-        launchAndWaitActivity(F_defaultScale.class, 1000);
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(F_defaultScale.class, 1000);
 
-        final VerticalGridView gridView = ((HeadersSupportFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((HeadersSupportFragment) activity.getTestFragment())
                 .getVerticalGridView();
         ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
                 gridView.findViewHolderForAdapterPosition(0);
@@ -90,9 +90,9 @@ public class HeadersSupportFragmentTest extends SingleSupportFragmentTestBase {
 
     @Test
     public void disableScale() {
-        launchAndWaitActivity(F_disableScale.class, 1000);
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(F_disableScale.class, 1000);
 
-        final VerticalGridView gridView = ((HeadersSupportFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((HeadersSupportFragment) activity.getTestFragment())
                 .getVerticalGridView();
         ItemBridgeAdapter.ViewHolder vh = (ItemBridgeAdapter.ViewHolder)
                 gridView.findViewHolderForAdapterPosition(0);

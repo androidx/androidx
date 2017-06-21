@@ -17,6 +17,7 @@ package android.support.v17.leanback.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
@@ -29,8 +30,13 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridView;
 import android.view.KeyEvent;
 import android.view.View;
@@ -78,11 +84,11 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void defaultAlignment() throws InterruptedException {
-        launchAndWaitActivity(F_defaultAlignment.class, 1000);
+        SingleFragmentTestActivity activity = launchAndWaitActivity(F_defaultAlignment.class, 1000);
 
         final Rect rect = new Rect();
 
-        final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsFragment) activity.getTestFragment())
                 .getVerticalGridView();
         View row0 = gridView.findViewHolderForAdapterPosition(0).itemView;
         rect.set(0, 0, row0.getWidth(), row0.getHeight());
@@ -123,9 +129,10 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void selectBeforeSetAdapter() throws InterruptedException {
-        launchAndWaitActivity(F_selectBeforeSetAdapter.class, 2000);
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(F_selectBeforeSetAdapter.class, 2000);
 
-        final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsFragment) activity.getTestFragment())
                 .getVerticalGridView();
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
@@ -156,9 +163,10 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void selectBeforeAddData() throws InterruptedException {
-        launchAndWaitActivity(F_selectBeforeAddData.class, 2000);
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(F_selectBeforeAddData.class, 2000);
 
-        final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsFragment) activity.getTestFragment())
                 .getVerticalGridView();
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
@@ -183,9 +191,10 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void selectAfterAddData() throws InterruptedException {
-        launchAndWaitActivity(F_selectAfterAddData.class, 2000);
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(F_selectAfterAddData.class, 2000);
 
-        final VerticalGridView gridView = ((RowsFragment) mActivity.getTestFragment())
+        final VerticalGridView gridView = ((RowsFragment) activity.getTestFragment())
                 .getVerticalGridView();
         assertEquals(7, gridView.getSelectedPosition());
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
@@ -213,12 +222,13 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
 
     @Test
     public void restoreSelection() {
-        launchAndWaitActivity(F_restoreSelection.class, 1000);
+        final SingleFragmentTestActivity activity =
+                launchAndWaitActivity(F_restoreSelection.class, 1000);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 new Runnable() {
                     public void run() {
-                        mActivity.recreate();
+                        activity.recreate();
                     }
                 }
         );
@@ -232,4 +242,58 @@ public class RowsFragmentTest extends SingleFragmentTestBase {
         assertNotNull(gridView.findViewHolderForAdapterPosition(7));
 
     }
+
+    public static class F_ListRowWithOnClick extends RowsFragment {
+        Presenter.ViewHolder mLastClickedItemViewHolder;
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setOnItemViewClickedListener(new OnItemViewClickedListener() {
+                @Override
+                public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                        RowPresenter.ViewHolder rowViewHolder, Row row) {
+                    mLastClickedItemViewHolder = itemViewHolder;
+                }
+            });
+            ListRowPresenter lrp = new ListRowPresenter();
+            ArrayObjectAdapter adapter = new ArrayObjectAdapter(lrp);
+            setAdapter(adapter);
+            loadData(adapter, 10, 1);
+        }
+    }
+
+    @Test
+    public void prefetchChildItemsBeforeAttach() throws Throwable {
+        SingleFragmentTestActivity activity =
+                launchAndWaitActivity(F_ListRowWithOnClick.class, 1000);
+
+        F_ListRowWithOnClick fragment = (F_ListRowWithOnClick) activity.getTestFragment();
+        final VerticalGridView gridView = fragment.getVerticalGridView();
+        View lastRow = gridView.getChildAt(gridView.getChildCount() - 1);
+        final int lastRowPos = gridView.getChildAdapterPosition(lastRow);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    public void run() {
+                        gridView.setSelectedPositionSmooth(lastRowPos);
+                    }
+                }
+        );
+        waitForScrollIdle(gridView);
+        ItemBridgeAdapter.ViewHolder prefetchedBridgeVh = (ItemBridgeAdapter.ViewHolder)
+                gridView.findViewHolderForAdapterPosition(lastRowPos + 1);
+        RowPresenter prefetchedRowPresenter = (RowPresenter) prefetchedBridgeVh.getPresenter();
+        final ListRowPresenter.ViewHolder prefetchedListRowVh = (ListRowPresenter.ViewHolder)
+                prefetchedRowPresenter.getRowViewHolder(prefetchedBridgeVh.getViewHolder());
+
+        fragment.mLastClickedItemViewHolder = null;
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                new Runnable() {
+                    public void run() {
+                        prefetchedListRowVh.getItemViewHolder(0).view.performClick();
+                    }
+                }
+        );
+        assertSame(prefetchedListRowVh.getItemViewHolder(0), fragment.mLastClickedItemViewHolder);
+    }
+
 }

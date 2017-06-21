@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class ParallaxFloatTest {
 
-    Parallax.FloatParallax mSource;
+    Parallax<Parallax.FloatProperty> mSource;
     int mScreenMax;
 
     static void assertFloatEquals(float expected, float actual) {
@@ -41,7 +41,7 @@ public class ParallaxFloatTest {
 
     @Before
     public void setUp() throws Exception {
-        mSource = new Parallax.FloatParallax<Parallax.FloatProperty>() {
+        mSource = new Parallax<Parallax.FloatProperty>() {
 
             public float getMaxValue() {
                 return mScreenMax;
@@ -58,8 +58,8 @@ public class ParallaxFloatTest {
     public void testVariable() {
         mScreenMax = 1080;
         Parallax.FloatProperty var1 = mSource.addProperty("var1");
-        var1.setFloatValue(mSource, 54);
-        assertFloatEquals((float) 54, var1.getFloatValue(mSource));
+        var1.setValue(mSource, 54);
+        assertFloatEquals((float) 54, var1.getValue(mSource));
         assertEquals(var1.getName(), "var1");
         var1.set(mSource, (float) 2000);
         assertFloatEquals((float) 2000, var1.get(mSource).floatValue());
@@ -70,7 +70,8 @@ public class ParallaxFloatTest {
         mScreenMax = 1080;
         Parallax.FloatProperty var1 = mSource.addProperty("var1");
 
-        Parallax.FloatPropertyMarkerValue keyValue = var1.atAbsolute(1000);
+        Parallax.FloatPropertyMarkerValue keyValue = (Parallax.FloatPropertyMarkerValue)
+                var1.atAbsolute(1000);
         assertSame(keyValue.getProperty(), var1);
         assertFloatEquals((float) 1000, keyValue.getMarkerValue(mSource));
     }
@@ -80,7 +81,8 @@ public class ParallaxFloatTest {
         mScreenMax = 1080;
         Parallax.FloatProperty var1 = mSource.addProperty("var1");
 
-        Parallax.FloatPropertyMarkerValue keyValue = var1.at(0, 0.5f);
+        Parallax.FloatPropertyMarkerValue keyValue = (Parallax.FloatPropertyMarkerValue)
+                var1.at(0, 0.5f);
         assertSame(keyValue.getProperty(), var1);
         assertFloatEquals((float) 540, keyValue.getMarkerValue(mSource));
     }
@@ -90,11 +92,13 @@ public class ParallaxFloatTest {
         mScreenMax = 1080;
         Parallax.FloatProperty var1 = mSource.addProperty("var1");
 
-        Parallax.FloatPropertyMarkerValue keyValue = var1.at(-100, 0.5f);
+        Parallax.FloatPropertyMarkerValue keyValue = (Parallax.FloatPropertyMarkerValue)
+                var1.at(-100, 0.5f);
         assertSame(keyValue.getProperty(), var1);
         assertFloatEquals((float) 440, keyValue.getMarkerValue(mSource));
 
-        Parallax.FloatPropertyMarkerValue keyValue2 = var1.at(100, 0.5f);
+        Parallax.FloatPropertyMarkerValue keyValue2 = (Parallax.FloatPropertyMarkerValue)
+                var1.at(100, 0.5f);
         assertSame(keyValue2.getProperty(), var1);
         assertFloatEquals((float) 640, keyValue2.getMarkerValue(mSource));
     }
@@ -104,10 +108,10 @@ public class ParallaxFloatTest {
         Parallax.FloatProperty var1 = mSource.addProperty("var1");
         Parallax.FloatProperty var2 = mSource.addProperty("var2");
 
-        var1.setFloatValue(mSource, (float) 500);
-        var2.setFloatValue(mSource, (float) 499);
+        var1.setValue(mSource, (float) 500);
+        var2.setValue(mSource, (float) 499);
 
-        mSource.verifyProperties();
+        mSource.verifyFloatProperties();
     }
 
     @Test(expected = IllegalStateException.class)
@@ -115,10 +119,10 @@ public class ParallaxFloatTest {
         Parallax.FloatProperty var1 = mSource.addProperty("var1");
         Parallax.FloatProperty var2 = mSource.addProperty("var2");
 
-        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
-        var2.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
+        var1.setValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        var2.setValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
 
-        mSource.verifyProperties();
+        mSource.verifyFloatProperties();
     }
 
     @Test
@@ -126,19 +130,19 @@ public class ParallaxFloatTest {
         Parallax.FloatProperty var1 = mSource.addProperty("var1");
         Parallax.FloatProperty var2 = mSource.addProperty("var2");
 
-        var1.setFloatValue(mSource, (float) 499);
-        var2.setFloatValue(mSource, (float) 500);
+        var1.setValue(mSource, (float) 499);
+        var2.setValue(mSource, (float) 500);
 
-        mSource.verifyProperties();
+        mSource.verifyFloatProperties();
 
-        var1.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
-        var2.setFloatValue(mSource, (float) 500);
+        var1.setValue(mSource, Parallax.FloatProperty.UNKNOWN_BEFORE);
+        var2.setValue(mSource, (float) 500);
 
-        mSource.verifyProperties();
+        mSource.verifyFloatProperties();
 
-        var1.setFloatValue(mSource, (float) 499);
-        var2.setFloatValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
+        var1.setValue(mSource, (float) 499);
+        var2.setValue(mSource, Parallax.FloatProperty.UNKNOWN_AFTER);
 
-        mSource.verifyProperties();
+        mSource.verifyFloatProperties();
     }
 }

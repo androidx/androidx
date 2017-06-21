@@ -17,6 +17,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="android.support.v13">
     <uses-sdk android:minSdkVersion="13" tools:overrideLibrary="android.support.v13"/>
-    <meta-data android:name="android.support.VERSION" android:value="${support-version}"/>
-    <application />
+    <application>
+        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+    </application>
 </manifest>

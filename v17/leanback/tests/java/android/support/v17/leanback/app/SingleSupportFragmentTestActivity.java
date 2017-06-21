@@ -24,6 +24,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.test.R;
+import android.util.Log;
 
 public class SingleSupportFragmentTestActivity extends FragmentActivity {
 
@@ -35,10 +36,12 @@ public class SingleSupportFragmentTestActivity extends FragmentActivity {
     public static final String EXTRA_ACTIVITY_LAYOUT = "activityLayout";
 
     public static final String EXTRA_UI_VISIBILITY = "uiVisibility";
+    private static final String TAG = "TestActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate " + this);
         Intent intent = getIntent();
 
         final int uiOptions = intent.getIntExtra(EXTRA_UI_VISIBILITY, 0);

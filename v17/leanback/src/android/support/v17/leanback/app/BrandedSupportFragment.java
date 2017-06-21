@@ -153,6 +153,7 @@ public class BrandedSupportFragment extends Fragment {
         }
         if (mTitleView != null && view instanceof ViewGroup) {
             mTitleHelper = new TitleHelper((ViewGroup) view, mTitleView);
+            mTitleHelper.showTitle(mShowingTitle);
         }
     }
 

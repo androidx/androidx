@@ -38,7 +38,6 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.media.PollingCheck;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
@@ -213,9 +212,6 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSetPlaybackState() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -310,15 +306,37 @@ public class MediaSessionCompatTest {
     }
 
     /**
+     * Tests {@link MediaSessionCompat#setCaptioningEnabled}.
+     */
+    @Test
+    @SmallTest
+    public void testSetCaptioningEnabled() throws Exception {
+        MediaControllerCompat controller = mSession.getController();
+        controller.registerCallback(mCallback, mHandler);
+        synchronized (mWaitLock) {
+            mCallback.resetLocked();
+            mSession.setCaptioningEnabled(true);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnCaptioningEnabledChangedCalled);
+            assertEquals(true, mCallback.mCaptioningEnabled);
+            assertEquals(true, controller.isCaptioningEnabled());
+
+            mCallback.resetLocked();
+            mSession.setCaptioningEnabled(false);
+            mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(mCallback.mOnCaptioningEnabledChangedCalled);
+            assertEquals(false, mCallback.mCaptioningEnabled);
+            assertEquals(false, controller.isCaptioningEnabled());
+        }
+    }
+
+    /**
      * Tests {@link MediaSessionCompat#setRepeatMode}.
      */
     @Test
     @SmallTest
     public void testSetRepeatMode() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -339,13 +357,9 @@ public class MediaSessionCompatTest {
     public void testSetShuffleModeEnabled() throws Exception {
         final boolean shuffleModeEnabled = true;
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
-            final int repeatMode = PlaybackStateCompat.REPEAT_MODE_ALL;
             mSession.setShuffleModeEnabled(shuffleModeEnabled);
             mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCallback.mOnShuffleModeChangedCalled);
@@ -361,10 +375,6 @@ public class MediaSessionCompatTest {
     @SmallTest
     public void testSendSessionEvent() throws Exception {
         MediaControllerCompat controller = mSession.getController();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            waitUntilExtraBinderReady(controller);
-        }
         controller.registerCallback(mCallback, mHandler);
         synchronized (mWaitLock) {
             mCallback.resetLocked();
@@ -620,15 +630,6 @@ public class MediaSessionCompatTest {
         controller.dispatchMediaButtonEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
     }
 
-    private void waitUntilExtraBinderReady(final MediaControllerCompat controller) {
-        new PollingCheck(TIME_OUT_MS) {
-            @Override
-            protected boolean check() {
-                return controller.isExtraBinderReady();
-            }
-        }.run();
-    }
-
     private class MediaControllerCallback extends MediaControllerCompat.Callback {
         private volatile boolean mOnPlaybackStateChangedCalled;
         private volatile boolean mOnMetadataChangedCalled;
@@ -638,6 +639,7 @@ public class MediaSessionCompatTest {
         private volatile boolean mOnAudioInfoChangedCalled;
         private volatile boolean mOnSessionDestroyedCalled;
         private volatile boolean mOnSessionEventCalled;
+        private volatile boolean mOnCaptioningEnabledChangedCalled;
         private volatile boolean mOnRepeatModeChangedCalled;
         private volatile boolean mOnShuffleModeChangedCalled;
 
@@ -648,6 +650,7 @@ public class MediaSessionCompatTest {
         private volatile String mEvent;
         private volatile Bundle mExtras;
         private volatile MediaControllerCompat.PlaybackInfo mPlaybackInfo;
+        private volatile boolean mCaptioningEnabled;
         private volatile int mRepeatMode;
         private volatile boolean mShuffleModeEnabled;
 
@@ -669,6 +672,7 @@ public class MediaSessionCompatTest {
             mTitle = null;
             mExtras = null;
             mPlaybackInfo = null;
+            mCaptioningEnabled = false;
             mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
             mShuffleModeEnabled = false;
         }
@@ -741,6 +745,15 @@ public class MediaSessionCompatTest {
                 mOnSessionEventCalled = true;
                 mEvent = event;
                 mExtras = (Bundle) extras.clone();
+                mWaitLock.notify();
+            }
+        }
+
+        @Override
+        public void onCaptioningEnabledChanged(boolean enabled) {
+            synchronized (mWaitLock) {
+                mOnCaptioningEnabledChangedCalled = true;
+                mCaptioningEnabled = enabled;
                 mWaitLock.notify();
             }
         }

@@ -14,7 +14,10 @@
 
 package android.support.graphics.drawable;
 
+import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.util.AttributeSet;
+import android.util.TypedValue;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -63,5 +66,47 @@ class TypedArrayUtils {
         } else {
             return a.getColor(resId, defaultValue);
         }
+    }
+
+    public static String getNamedString(TypedArray a, XmlPullParser parser, String attrName,
+            int resId) {
+        final boolean hasAttr = hasAttribute(parser, attrName);
+        if (!hasAttr) {
+            return null;
+        } else {
+            return a.getString(resId);
+        }
+    }
+
+    public static int getNamedResId(TypedArray a, XmlPullParser parser, String attrName,
+            int resId, int defaultValue) {
+        final boolean hasAttr = hasAttribute(parser, attrName);
+        if (!hasAttr) {
+            return defaultValue;
+        } else {
+            return a.getResourceId(resId, defaultValue);
+        }
+    }
+
+    public static TypedValue peekNamedValue(TypedArray a, XmlPullParser parser, String attrName,
+            int resId) {
+        final boolean hasAttr = hasAttribute(parser, attrName);
+        if (!hasAttr) {
+            return null;
+        } else {
+            return a.peekValue(resId);
+        }
+    }
+
+    /**
+     * Obtains styled attributes from the theme, if available, or unstyled
+     * resources if the theme is null.
+     */
+    public static TypedArray obtainAttributes(
+            Resources res, Resources.Theme theme, AttributeSet set, int[] attrs) {
+        if (theme == null) {
+            return res.obtainAttributes(set, attrs);
+        }
+        return theme.obtainStyledAttributes(set, attrs, 0, 0);
     }
 }

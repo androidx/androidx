@@ -2708,7 +2708,8 @@ public final class MediaRouter {
                     record.updatePlaybackInfo();
                 }
                 if (mMediaSession != null) {
-                    if (mSelectedRoute == getDefaultRoute()) {
+                    if (mSelectedRoute == getDefaultRoute()
+                            || mSelectedRoute == getBluetoothRoute()) {
                         // Local route
                         mMediaSession.clearVolumeHandling();
                     } else {

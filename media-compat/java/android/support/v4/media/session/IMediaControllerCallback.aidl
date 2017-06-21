@@ -39,4 +39,5 @@ oneway interface IMediaControllerCallback {
     void onVolumeInfoChanged(in ParcelableVolumeInfo info);
     void onRepeatModeChanged(int repeatMode);
     void onShuffleModeChanged(boolean enabled);
+    void onCaptioningEnabledChanged(boolean enabled);
 }

@@ -31,8 +31,7 @@ import org.junit.Test;
  * tests specific to {@link AppCompatImageView} class.
  */
 @SmallTest
-public class AppCompatImageViewTest
-        extends AppCompatBaseViewTest<AppCompatImageViewActivity, AppCompatImageView> {
+public class AppCompatImageViewTest extends AppCompatBaseImageViewTest<AppCompatImageView> {
     public AppCompatImageViewTest() {
         super(AppCompatImageViewActivity.class);
     }
@@ -40,7 +39,7 @@ public class AppCompatImageViewTest
     @Test
     public void testImageViewBothSrcCompatAndroidSrcSet() {
         final int expectedColor = mContainer.getResources().getColor(R.color.test_blue);
-        ViewInteraction imageViewInteration = onView(withId(R.id.view_android_src_srccompat));
-        imageViewInteration.check(matches(TestUtilsMatchers.drawable(expectedColor)));
+        ViewInteraction imageViewInteraction = onView(withId(R.id.view_android_src_srccompat));
+        imageViewInteraction.check(matches(TestUtilsMatchers.drawable(expectedColor)));
     }
 }

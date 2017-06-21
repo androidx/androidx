@@ -18,13 +18,15 @@ package android.support.v17.leanback.widget.picker;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
+import android.support.annotation.IntRange;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,15 +37,16 @@ import java.util.Locale;
  * <p>
  * This class is a widget for selecting time and displays it according to the formatting for the
  * current system locale. The time can be selected by hour, minute, and AM/PM picker columns.
- * The AM/PM mode is activated only when the 12 hour format is desired by setting
- * {@code is24HourFormat} attribute to false. Otherwise, TimePicker displays only two columns for a
- * 24 hour time format.
+ * The AM/PM mode is determined by either explicitly setting the current mode through
+ * {@link #setIs24Hour(boolean)} or the widget attribute {@code is24HourFormat} (true for 24-hour
+ * mode, false for 12-hour mode). Otherwise, TimePicker retrieves the mode based on the current
+ * context. In 24-hour mode, TimePicker displays only the hour and minute columns.
  * <p>
  * This widget can show the current time as the initial value if {@code useCurrentTime} is set to
- * true. Each individual time picker field can be set  set at any time by calling
- * {@link #setHour(int)}, {@link #setMinute(int)} using 24-hour time format. The time format can
- * also be changed at any time by calling {@link #setIs24Hour(boolean)}, and the AM/PM picker column
- * will be activated or deactivated according to the given format.
+ * true. Each individual time picker field can be set at any time by calling {@link #setHour(int)},
+ * {@link #setMinute(int)} using 24-hour time format. The time format can also be changed at any
+ * time by calling {@link #setIs24Hour(boolean)}, and the AM/PM picker column will be activated or
+ * deactivated accordingly.
  *
  * @attr ref R.styleable#lbTimePicker_is24HourFormat
  * @attr ref R.styleable#lbTimePicker_useCurrentTime
@@ -106,7 +109,8 @@ public class TimePicker extends Picker {
         mPickerView = (ViewGroup) findViewById(R.id.picker);
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbTimePicker);
-        mIs24hFormat = attributesArray.getBoolean(R.styleable.lbTimePicker_is24HourFormat, false);
+        mIs24hFormat = attributesArray.getBoolean(R.styleable.lbTimePicker_is24HourFormat,
+                DateFormat.is24HourFormat(context));
         boolean useCurrentTime = attributesArray.getBoolean(R.styleable.lbTimePicker_useCurrentTime,
                 true);
 
@@ -155,11 +159,21 @@ public class TimePicker extends Picker {
      */
     private String getTimePickerFormat() {
         // Obtain the time format string per the current locale (e.g. h:mm a)
-        String hmaPattern  = ((SimpleDateFormat) DateFormat
-                .getTimeInstance(DateFormat.SHORT, mConstant.locale)).toPattern();
+        String hmaPattern;
+        if (Build.VERSION.SDK_INT >= 18) {
+            hmaPattern = DateFormat.getBestDateTimePattern(mConstant.locale, "hma");
+        } else {
+            // getTimeInstance is not very reliable and it may not include 'a' (for AM/PM)
+            // in the returned pattern string. In those cases, we assume that am/pm appears at the
+            // end of the fields. Need to find a more reliable way for API below 18.
+            hmaPattern  = ((SimpleDateFormat) java.text.DateFormat
+                    .getTimeInstance(java.text.DateFormat.FULL, mConstant.locale)).toPattern();
+        }
+
         boolean isRTL = TextUtils.getLayoutDirectionFromLocale(mConstant.locale) == View
                 .LAYOUT_DIRECTION_RTL;
-        boolean isAmPmAtEnd = hmaPattern.indexOf("a") > hmaPattern.indexOf("m");
+        boolean isAmPmAtEnd = (hmaPattern.indexOf('a') >= 0)
+                ? (hmaPattern.indexOf("a") > hmaPattern.indexOf("m")) : true;
         // Hour will always appear to the left of minutes regardless of layout direction.
         String timePickerFormat = isRTL ? "mh" : "hm";
 
@@ -242,7 +256,7 @@ public class TimePicker extends Picker {
      * @param hour the hour to set, in the range (0-23)
      * @see #getHour()
      */
-    public void setHour(int hour) {
+    public void setHour(@IntRange(from = 0, to = 23) int hour) {
         if (hour < 0 || hour > 23) {
             throw new IllegalArgumentException("hour: " + hour + " is not in [0-23] range in");
         }
@@ -286,7 +300,7 @@ public class TimePicker extends Picker {
      * @param minute the minute to set, in the range (0-59)
      * @see #getMinute()
      */
-    public void setMinute(int minute) {
+    public void setMinute(@IntRange(from = 0, to = 59) int minute) {
         if (mCurrentMinute == minute) {
             return;
         }

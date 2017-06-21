@@ -785,6 +785,73 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testAddLastItemHorizontal() throws Throwable {
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mGridView.setSelectedPositionSmooth(49);
+                    }
+                }
+        );
+        waitForScrollIdle(mVerifyLayout);
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(50, new int[]{150});
+            }
+        });
+
+        // assert new added item aligned to right edge
+        assertEquals(mGridView.getWidth() - mGridView.getPaddingRight(),
+                mGridView.getLayoutManager().findViewByPosition(50).getRight());
+    }
+
+    @Test
+    public void testAddMultipleLastItemsHorizontal() throws Throwable {
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_BOTH_EDGE);
+                        mGridView.setWindowAlignmentOffsetPercent(50);
+                        mGridView.setSelectedPositionSmooth(49);
+                    }
+                }
+        );
+        waitForScrollIdle(mVerifyLayout);
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(50, new int[]{150, 150, 150, 150, 150, 150, 150, 150, 150,
+                        150, 150, 150, 150, 150});
+            }
+        });
+
+        // The focused item will be at center of window
+        View view = mGridView.getLayoutManager().findViewByPosition(49);
+        assertEquals(mGridView.getWidth() / 2, (view.getLeft() + view.getRight()) / 2);
+    }
+
+    @Test
     public void testItemAddRemoveHorizontal() throws Throwable {
 
         Intent intent = new Intent();
@@ -2988,8 +3055,28 @@ public class GridWidgetTest {
         assertTrue(selectedPosition2 < selectedPosition1);
     }
 
+    void slideInAndWaitIdle() throws Throwable {
+        slideInAndWaitIdle(5000);
+    }
+
+    void slideInAndWaitIdle(long timeout) throws Throwable {
+        // animateIn() would reset position
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateIn();
+            }
+        });
+        PollingCheck.waitFor(timeout, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return !mGridView.getLayoutManager().isSmoothScrolling()
+                        && mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+    }
+
     @Test
-    public void testAnimateOutResetByScrollTo() throws Throwable {
+    public void testAnimateOutBlockScrollTo() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.vertical_linear_with_button_onleft);
@@ -3012,12 +3099,14 @@ public class GridWidgetTest {
                 mGridView.animateOut();
             }
         });
+        // wait until sliding out.
         PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
                 return mGridView.getChildAt(0).getTop() > mGridView.getPaddingTop();
             }
         });
+        // scrollToPosition() should not affect slideOut status
         mActivityTestRule.runOnUiThread(new Runnable() {
             public void run() {
                 mGridView.scrollToPosition(0);
@@ -3029,13 +3118,180 @@ public class GridWidgetTest {
                 return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
             }
         });
+        assertTrue("First view slided Out", mGridView.getChildAt(0).getTop()
+                >= mGridView.getHeight());
 
+        slideInAndWaitIdle();
         assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
                 mGridView.getChildAt(0).getTop());
     }
 
     @Test
-    public void testAnimateOutResetByFocusChange() throws Throwable {
+    public void testAnimateOutBlockSmoothScrolling() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        int[] items = new int[30];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateOut();
+            }
+        });
+        // wait until sliding out.
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getChildAt(0).getTop() > mGridView.getPaddingTop();
+            }
+        });
+        // smoothScrollToPosition() should not affect slideOut status
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.smoothScrollToPosition(29);
+            }
+        });
+        PollingCheck.waitFor(10000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+        assertTrue("First view slided Out", mGridView.getChildAt(0).getTop()
+                >= mGridView.getHeight());
+
+        slideInAndWaitIdle();
+        View lastChild = mGridView.getChildAt(mGridView.getChildCount() - 1);
+        assertSame("Scrolled to last child",
+                mGridView.findViewHolderForAdapterPosition(29).itemView, lastChild);
+    }
+
+    @Test
+    public void testAnimateOutBlockLongScrollTo() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        int[] items = new int[30];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateOut();
+            }
+        });
+        // wait until sliding out.
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getChildAt(0).getTop() > mGridView.getPaddingTop();
+            }
+        });
+        // smoothScrollToPosition() should not affect slideOut status
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.scrollToPosition(29);
+            }
+        });
+        PollingCheck.waitFor(10000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+        assertTrue("First view slided Out", mGridView.getChildAt(0).getTop()
+                >= mGridView.getHeight());
+
+        slideInAndWaitIdle();
+        View lastChild = mGridView.getChildAt(mGridView.getChildCount() - 1);
+        assertSame("Scrolled to last child",
+                mGridView.findViewHolderForAdapterPosition(29).itemView, lastChild);
+    }
+
+    @Test
+    public void testAnimateOutBlockLayout() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        int[] items = new int[100];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.animateOut();
+            }
+        });
+        // wait until sliding out.
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getChildAt(0).getTop() > mGridView.getPaddingTop();
+            }
+        });
+        // change adapter should not affect slideOut status
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.changeItem(0, 200);
+            }
+        });
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
+            }
+        });
+        assertTrue("First view slided Out", mGridView.getChildAt(0).getTop()
+                >= mGridView.getHeight());
+        assertEquals("onLayout suppressed during slide out", 300,
+                mGridView.getChildAt(0).getHeight());
+
+        slideInAndWaitIdle();
+        assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
+                mGridView.getChildAt(0).getTop());
+        // size of item should be updated immediately after slide in animation finishes:
+        PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return 200 == mGridView.getChildAt(0).getHeight();
+            }
+        });
+    }
+
+    @Test
+    public void testAnimateOutBlockFocusChange() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.vertical_linear_with_button_onleft);
@@ -3077,13 +3333,16 @@ public class GridWidgetTest {
                 return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE;
             }
         });
+        assertTrue("First view slided Out", mGridView.getChildAt(0).getTop()
+                >= mGridView.getHeight());
 
+        slideInAndWaitIdle();
         assertEquals("First view is aligned with padding top", mGridView.getPaddingTop(),
                 mGridView.getChildAt(0).getTop());
     }
 
     @Test
-    public void testHorizontalAnimateOutResetByScrollTo() throws Throwable {
+    public void testHorizontalAnimateOutBlockScrollTo() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.horizontal_linear);
@@ -3124,8 +3383,13 @@ public class GridWidgetTest {
             }
         });
 
+        assertTrue("First view is slided out", mGridView.getChildAt(0).getLeft()
+                > mGridView.getWidth());
+
+        slideInAndWaitIdle();
         assertEquals("First view is aligned with padding left", mGridView.getPaddingLeft(),
                 mGridView.getChildAt(0).getLeft());
+
     }
 
     @Test
@@ -3172,9 +3436,87 @@ public class GridWidgetTest {
             }
         });
 
+        assertTrue("First view is slided out", mGridView.getChildAt(0).getRight() < 0);
+
+        slideInAndWaitIdle();
         assertEquals("First view is aligned with padding right",
                 mGridView.getWidth() - mGridView.getPaddingRight(),
                 mGridView.getChildAt(0).getRight());
     }
 
+    @Test
+    public void testSmoothScrollerOutRange() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button_onleft);
+        intent.putExtra(GridActivity.EXTRA_REQUEST_FOCUS_ONLAYOUT, true);
+        int[] items = new int[30];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 680;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        final View button = mActivity.findViewById(R.id.button);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                button.requestFocus();
+            }
+        });
+
+        mGridView.setSelectedPositionSmooth(0);
+        waitForScrollIdle(mVerifyLayout);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                mGridView.setSelectedPositionSmooth(120);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertTrue(button.hasFocus());
+        int key;
+        if (mGridView.getLayoutDirection() == ViewGroup.LAYOUT_DIRECTION_RTL) {
+            key = KeyEvent.KEYCODE_DPAD_LEFT;
+        } else {
+            key = KeyEvent.KEYCODE_DPAD_RIGHT;
+        }
+        sendKey(key);
+        // the GridView should has focus in its children
+        assertTrue(mGridView.hasFocus());
+        assertFalse(mGridView.isFocused());
+        assertEquals(29, mGridView.getSelectedPosition());
+    }
+
+    @Test
+    public void testRemoveLastItemWithStableId() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_HAS_STABLE_IDS, true);
+        int[] items = new int[1];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 680;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getItemAnimator().setRemoveDuration(2000);
+                mActivity.removeItems(0, 1, false);
+                mGridView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        Thread.sleep(500);
+        assertEquals(-1, mGridView.getSelectedPosition());
+    }
 }
+

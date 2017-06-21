@@ -181,6 +181,7 @@
         <!-- List attributes -->
         <item name="textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
         <item name="textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="textAppearanceListItemSecondary">@style/TextAppearance.AppCompat.Body1</item>
         <item name="listPreferredItemHeight">64dp</item>
         <item name="listPreferredItemHeightSmall">48dp</item>
         <item name="listPreferredItemHeightLarge">80dp</item>
@@ -342,6 +343,7 @@
         <!-- List attributes -->
         <item name="textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
         <item name="textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="textAppearanceListItemSecondary">@style/TextAppearance.AppCompat.Body1</item>
         <item name="listPreferredItemHeight">64dp</item>
         <item name="listPreferredItemHeightSmall">48dp</item>
         <item name="listPreferredItemHeightLarge">80dp</item>

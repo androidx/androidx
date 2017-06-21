@@ -32,7 +32,7 @@ import android.widget.SeekBar;
  */
 public class AppCompatSeekBar extends SeekBar {
 
-    private AppCompatSeekBarHelper mAppCompatSeekBarHelper;
+    private final AppCompatSeekBarHelper mAppCompatSeekBarHelper;
 
     public AppCompatSeekBar(Context context) {
         this(context, null);

@@ -14,10 +14,12 @@
 package com.example.android.leanback;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
@@ -26,7 +28,6 @@ import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
 import android.support.v17.leanback.widget.PlaybackControlsRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
-import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
@@ -55,8 +56,6 @@ public class PlaybackOverlayFragment
     private static final int ROW_CONTROLS = 0;
 
     private PlaybackControlHelper mGlue;
-    private PlaybackControlsRowPresenter mPlaybackControlsRowPresenter;
-    private ListRowPresenter mListRowPresenter;
     final Handler mHandler = new Handler();
 
     // Artificial delay to simulate a media being prepared. The onRowChanged callback should be
@@ -123,7 +122,9 @@ public class PlaybackOverlayFragment
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == R.id.lb_control_picture_in_picture) {
-                    getActivity().enterPictureInPictureMode();
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        getActivity().enterPictureInPictureMode();
+                    }
                     return;
                 }
                 super.onActionClicked(action);
@@ -139,21 +140,14 @@ public class PlaybackOverlayFragment
         }, MEDIA_PREPARATION_DELAY);
         mGlue.setOnItemViewClickedListener(mOnItemViewClickedListener);
 
-        mPlaybackControlsRowPresenter = mGlue.createControlsRowAndPresenter();
-        mPlaybackControlsRowPresenter.setSecondaryActionsHidden(SECONDARY_HIDDEN);
-        mListRowPresenter = new ListRowPresenter();
+        PlaybackControlsRowPresenter playbackControlsRowPresenter =
+                mGlue.createControlsRowAndPresenter();
+        playbackControlsRowPresenter.setSecondaryActionsHidden(SECONDARY_HIDDEN);
+        ClassPresenterSelector selector = new ClassPresenterSelector();
+        selector.addClassPresenter(ListRow.class, new ListRowPresenter());
+        selector.addClassPresenter(PlaybackControlsRow.class, playbackControlsRowPresenter);
 
-        setAdapter(new SparseArrayObjectAdapter(new PresenterSelector() {
-            @Override
-            public Presenter getPresenter(Object object) {
-                if (object instanceof PlaybackControlsRow) {
-                    return mPlaybackControlsRowPresenter;
-                } else if (object instanceof ListRow) {
-                    return mListRowPresenter;
-                }
-                throw new IllegalArgumentException("Unhandled object: " + object);
-            }
-        }));
+        setAdapter(new SparseArrayObjectAdapter(selector));
 
         // Add the controls row
         getAdapter().set(ROW_CONTROLS, mGlue.getControlsRow());

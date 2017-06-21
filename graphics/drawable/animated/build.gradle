@@ -9,6 +9,7 @@ dependencies {
     androidTestCompile ("com.android.support.test.espresso:espresso-core:${project.rootProject.ext.espressoVersion}") {
         exclude module: 'support-annotations'
     }
+    compile project(path: ':support-core-ui')
     testCompile 'junit:junit:4.12'
 }
 

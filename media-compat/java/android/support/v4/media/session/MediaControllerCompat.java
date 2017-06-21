@@ -58,6 +58,17 @@ import java.util.List;
  * <p>
  * This is a helper for accessing features in {@link android.media.session.MediaSession}
  * introduced after API level 4 in a backwards compatible fashion.
+ * <p class="note">
+ * If MediaControllerCompat is created with a {@link MediaSessionCompat.Token session token}
+ * from another process, following methods will not work directly after the creation if the
+ * {@link MediaSessionCompat.Token session token} is not passed through a
+ * {@link android.support.v4.media.MediaBrowserCompat}:
+ * <ul>
+ * <li>{@link #getPlaybackState()}.{@link PlaybackStateCompat#getExtras() getExtras()}</li>
+ * <li>{@link #isCaptioningEnabled()}</li>
+ * <li>{@link #getRepeatMode()}</li>
+ * <li>{@link #isShuffleModeEnabled()}</li>
+ * </ul></p>
  */
 public final class MediaControllerCompat {
     static final String TAG = "MediaControllerCompat";
@@ -253,11 +264,14 @@ public final class MediaControllerCompat {
 
     /**
      * Add a queue item from the given {@code description} at the end of the play queue
-     * of this session. Not all sessions may support this.
+     * of this session. Not all sessions may support this. To know whether the session supports
+     * this, get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param description The {@link MediaDescriptionCompat} for creating the
      *            {@link MediaSessionCompat.QueueItem} to be inserted.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void addQueueItem(MediaDescriptionCompat description) {
@@ -268,13 +282,16 @@ public final class MediaControllerCompat {
      * Add a queue item from the given {@code description} at the specified position
      * in the play queue of this session. Shifts the queue item currently at that position
      * (if any) and any subsequent queue items to the right (adds one to their indices).
-     * Not all sessions may support this.
+     * Not all sessions may support this. To know whether the session supports this,
+     * get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param description The {@link MediaDescriptionCompat} for creating the
      *            {@link MediaSessionCompat.QueueItem} to be inserted.
      * @param index The index at which the created {@link MediaSessionCompat.QueueItem}
      *            is to be inserted.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void addQueueItem(MediaDescriptionCompat description, int index) {
@@ -284,11 +301,14 @@ public final class MediaControllerCompat {
     /**
      * Remove the first occurrence of the specified {@link MediaSessionCompat.QueueItem}
      * with the given {@link MediaDescriptionCompat description} in the play queue of the
-     * associated session. Not all sessions may support this.
+     * associated session. Not all sessions may support this. To know whether the session supports
+     * this, get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param description The {@link MediaDescriptionCompat} for denoting the
      *            {@link MediaSessionCompat.QueueItem} to be removed.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void removeQueueItem(MediaDescriptionCompat description) {
@@ -297,10 +317,13 @@ public final class MediaControllerCompat {
 
     /**
      * Remove an queue item at the specified position in the play queue
-     * of this session. Not all sessions may support this.
+     * of this session. Not all sessions may support this. To know whether the session supports
+     * this, get the session's flags with {@link #getFlags()} and check that the flag
+     * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
      *
      * @param index The index of the element to be removed.
      * @throws UnsupportedOperationException If this session doesn't support this.
+     * @see #getFlags()
      * @see MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS
      */
     public void removeQueueItemAt(int index) {
@@ -337,6 +360,15 @@ public final class MediaControllerCompat {
      */
     public int getRatingType() {
         return mImpl.getRatingType();
+    }
+
+    /**
+     * Return whether captioning is enabled for this session.
+     *
+     * @return {@code true} if captioning is enabled, {@code false} if disabled or not set.
+     */
+    public boolean isCaptioningEnabled() {
+        return mImpl.isCaptioningEnabled();
     }
 
     /**
@@ -494,15 +526,6 @@ public final class MediaControllerCompat {
         return mImpl.getPackageName();
     }
 
-    @VisibleForTesting
-    boolean isExtraBinderReady() {
-        if (mImpl instanceof MediaControllerImplApi21) {
-            return ((MediaControllerImplApi21) mImpl).mExtraBinder != null;
-        } else {
-            return false;
-        }
-    }
-
     /**
      * Gets the underlying framework
      * {@link android.media.session.MediaController} object.
@@ -607,6 +630,14 @@ public final class MediaControllerCompat {
          * @param info The current audio info for this session.
          */
         public void onAudioInfoChanged(PlaybackInfo info) {
+        }
+
+        /**
+         * Override to handle changes to the captioning enabled status.
+         *
+         * @param enabled {@code true} if captioning is enabled, {@code false} otherwise.
+         */
+        public void onCaptioningEnabledChanged(boolean enabled) {
         }
 
         /**
@@ -732,6 +763,11 @@ public final class MediaControllerCompat {
             }
 
             @Override
+            public void onCaptioningEnabledChanged(boolean enabled) throws RemoteException {
+                mHandler.post(MessageHandler.MSG_UPDATE_CAPTIONING_ENABLED, enabled, null);
+            }
+
+            @Override
             public void onRepeatModeChanged(int repeatMode) throws RemoteException {
                 mHandler.post(MessageHandler.MSG_UPDATE_REPEAT_MODE, repeatMode, null);
             }
@@ -768,6 +804,7 @@ public final class MediaControllerCompat {
             private static final int MSG_DESTROYED = 8;
             private static final int MSG_UPDATE_REPEAT_MODE = 9;
             private static final int MSG_UPDATE_SHUFFLE_MODE = 10;
+            private static final int MSG_UPDATE_CAPTIONING_ENABLED = 11;
 
             public MessageHandler(Looper looper) {
                 super(looper);
@@ -793,6 +830,9 @@ public final class MediaControllerCompat {
                         break;
                     case MSG_UPDATE_QUEUE_TITLE:
                         onQueueTitleChanged((CharSequence) msg.obj);
+                        break;
+                    case MSG_UPDATE_CAPTIONING_ENABLED:
+                        onCaptioningEnabledChanged((boolean) msg.obj);
                         break;
                     case MSG_UPDATE_REPEAT_MODE:
                         onRepeatModeChanged((int) msg.obj);
@@ -975,6 +1015,13 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating);
 
         /**
+         * Enable/disable captioning for this session.
+         *
+         * @param enabled {@code true} to enable captioning, {@code false} to disable.
+         */
+        public abstract void setCaptioningEnabled(boolean enabled);
+
+        /**
          * Set the repeat mode for this session.
          *
          * @param repeatMode The repeat mode. Must be one of the followings:
@@ -1007,6 +1054,8 @@ public final class MediaControllerCompat {
          *
          * @see #sendCustomAction(PlaybackStateCompat.CustomAction action,
          *      Bundle args)
+         * @see MediaSessionCompat#ACTION_FLAG_AS_INAPPROPRIATE
+         * @see MediaSessionCompat#ACTION_SKIP_AD
          * @param action The action identifier of the
          *            {@link PlaybackStateCompat.CustomAction} as specified by
          *            the {@link MediaSessionCompat}.
@@ -1120,6 +1169,7 @@ public final class MediaControllerCompat {
         CharSequence getQueueTitle();
         Bundle getExtras();
         int getRatingType();
+        boolean isCaptioningEnabled();
         int getRepeatMode();
         boolean isShuffleModeEnabled();
         long getFlags();
@@ -1135,12 +1185,10 @@ public final class MediaControllerCompat {
     }
 
     static class MediaControllerImplBase implements MediaControllerImpl {
-        private MediaSessionCompat.Token mToken;
         private IMediaSession mBinder;
         private TransportControls mTransportControls;
 
         public MediaControllerImplBase(MediaSessionCompat.Token token) {
-            mToken = token;
             mBinder = IMediaSession.Stub.asInterface((IBinder) token.getToken());
         }
 
@@ -1311,6 +1359,16 @@ public final class MediaControllerCompat {
                 Log.e(TAG, "Dead object in getRatingType.", e);
             }
             return 0;
+        }
+
+        @Override
+        public boolean isCaptioningEnabled() {
+            try {
+                return mBinder.isCaptioningEnabled();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in isCaptioningEnabled.", e);
+            }
+            return false;
         }
 
         @Override
@@ -1571,6 +1629,15 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            try {
+                mBinder.setCaptioningEnabled(enabled);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setCaptioningEnabled.", e);
+            }
+        }
+
+        @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
             try {
                 mBinder.setRepeatMode(repeatMode);
@@ -1615,7 +1682,10 @@ public final class MediaControllerCompat {
         public MediaControllerImplApi21(Context context, MediaSessionCompat session) {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     session.getSessionToken().getToken());
-            requestExtraBinder();
+            mExtraBinder = session.getSessionToken().getExtraBinder();
+            if (mExtraBinder == null) {
+                requestExtraBinder();
+            }
         }
 
         public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
@@ -1623,7 +1693,10 @@ public final class MediaControllerCompat {
             mControllerObj = MediaControllerCompatApi21.fromToken(context,
                     sessionToken.getToken());
             if (mControllerObj == null) throw new RemoteException();
-            requestExtraBinder();
+            mExtraBinder = sessionToken.getExtraBinder();
+            if (mExtraBinder == null) {
+                requestExtraBinder();
+            }
         }
 
         @Override
@@ -1706,6 +1779,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void addQueueItem(MediaDescriptionCompat description) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
             sendCommand(COMMAND_ADD_QUEUE_ITEM, params, null);
@@ -1713,6 +1791,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void addQueueItem(MediaDescriptionCompat description, int index) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
             params.putInt(COMMAND_ARGUMENT_INDEX, index);
@@ -1721,6 +1804,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void removeQueueItem(MediaDescriptionCompat description) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putParcelable(COMMAND_ARGUMENT_MEDIA_DESCRIPTION, description);
             sendCommand(COMMAND_REMOVE_QUEUE_ITEM, params, null);
@@ -1728,6 +1816,11 @@ public final class MediaControllerCompat {
 
         @Override
         public void removeQueueItemAt(int index) {
+            long flags = getFlags();
+            if ((flags & MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS) == 0) {
+                throw new UnsupportedOperationException(
+                        "This session doesn't support queue management operations");
+            }
             Bundle params = new Bundle();
             params.putInt(COMMAND_ARGUMENT_INDEX, index);
             sendCommand(COMMAND_REMOVE_QUEUE_ITEM_AT, params, null);
@@ -1753,6 +1846,18 @@ public final class MediaControllerCompat {
                 }
             }
             return MediaControllerCompatApi21.getRatingType(mControllerObj);
+        }
+
+        @Override
+        public boolean isCaptioningEnabled() {
+            if (mExtraBinder != null) {
+                try {
+                    return mExtraBinder.isCaptioningEnabled();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Dead object in isCaptioningEnabled.", e);
+                }
+            }
+            return false;
         }
 
         @Override
@@ -1825,7 +1930,6 @@ public final class MediaControllerCompat {
             return mControllerObj;
         }
 
-        // TODO: Handle the case of calling other methods before receiving the extra binder.
         private void requestExtraBinder() {
             sendCommand(COMMAND_GET_EXTRA_BINDER, null,
                     new ExtraBinderRequestResultReceiver(this, new Handler()));
@@ -1922,6 +2026,16 @@ public final class MediaControllerCompat {
             public void onQueueTitleChanged(CharSequence title) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
+            }
+
+            @Override
+            public void onCaptioningEnabledChanged(final boolean enabled) throws RemoteException {
+                mCallback.mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onCaptioningEnabledChanged(enabled);
+                    }
+                });
             }
 
             @Override
@@ -2038,6 +2152,13 @@ public final class MediaControllerCompat {
         public void setRating(RatingCompat rating) {
             MediaControllerCompatApi21.TransportControls.setRating(mControlsObj,
                     rating != null ? rating.getRating() : null);
+        }
+
+        @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(MediaSessionCompat.ACTION_ARGUMENT_CAPTIONING_ENABLED, enabled);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_CAPTIONING_ENABLED, bundle);
         }
 
         @Override

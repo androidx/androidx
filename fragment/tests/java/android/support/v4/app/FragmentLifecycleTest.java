@@ -684,6 +684,90 @@ public class FragmentLifecycleTest {
         assertTrue(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * When a fragment is saved in non-config, it should be restored to the same index.
+     */
+    @Test
+    @UiThreadTest
+    public void restoreNonConfig() throws Throwable {
+        FragmentController fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        Fragment fragment1 = new StrictFragment();
+        fm.beginTransaction()
+                .add(fragment1, "1")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+        Fragment fragment2 = new StrictFragment();
+        fragment2.setRetainInstance(true);
+        fragment2.setTargetFragment(fragment1, 0);
+        Fragment fragment3 = new StrictFragment();
+        fm.beginTransaction()
+                .remove(fragment1)
+                .add(fragment2, "2")
+                .add(fragment3, "3")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+        Pair<Parcelable, FragmentManagerNonConfig> savedState =
+                FragmentTestUtil.destroy(mActivityRule, fc);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+        boolean foundFragment2 = false;
+        for (Fragment fragment : fc.getSupportFragmentManager().getFragments()) {
+            if (fragment == fragment2) {
+                foundFragment2 = true;
+                assertNotNull(fragment.getTargetFragment());
+                assertEquals("1", fragment.getTargetFragment().getTag());
+            } else {
+                assertNotEquals("2", fragment.getTag());
+            }
+        }
+        assertTrue(foundFragment2);
+    }
+
+    /**
+     * When a fragment has been optimized out, it state should still be saved during
+     * save and restore instance state.
+     */
+    @Test
+    @UiThreadTest
+    public void saveRemovedFragment() throws Throwable {
+        FragmentController fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        SaveStateFragment fragment1 = SaveStateFragment.create(1);
+        fm.beginTransaction()
+                .add(android.R.id.content, fragment1, "1")
+                .addToBackStack(null)
+                .commit();
+        SaveStateFragment fragment2 = SaveStateFragment.create(2);
+        fm.beginTransaction()
+                .replace(android.R.id.content, fragment2, "2")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+        Pair<Parcelable, FragmentManagerNonConfig> savedState =
+                FragmentTestUtil.destroy(mActivityRule, fc);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+        fm = fc.getSupportFragmentManager();
+        fragment2 = (SaveStateFragment) fm.findFragmentByTag("2");
+        assertNotNull(fragment2);
+        assertEquals(2, fragment2.getValue());
+        fm.popBackStackImmediate();
+        fragment1 = (SaveStateFragment) fm.findFragmentByTag("1");
+        assertNotNull(fragment1);
+        assertEquals(1, fragment1.getValue());
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
@@ -948,6 +1032,35 @@ public class FragmentLifecycleTest {
             SimpleFragment fragment = new SimpleFragment();
             fragment.mLayoutId = layoutId;
             return fragment;
+        }
+    }
+
+    public static class SaveStateFragment extends Fragment {
+        private static final String VALUE_KEY = "SaveStateFragment.mValue";
+        private int mValue;
+
+        public static SaveStateFragment create(int value) {
+            SaveStateFragment saveStateFragment = new SaveStateFragment();
+            saveStateFragment.mValue = value;
+            return saveStateFragment;
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putInt(VALUE_KEY, mValue);
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (savedInstanceState != null) {
+                mValue = savedInstanceState.getInt(VALUE_KEY, mValue);
+            }
+        }
+
+        public int getValue() {
+            return mValue;
         }
     }
 }

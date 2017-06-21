@@ -90,7 +90,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
 
     /**
      * Inserts an item into this adapter at the specified index.
-     * If the index is >= {@link #size} an exception will be thrown.
+     * If the index is > {@link #size} an exception will be thrown.
      *
      * @param index The index at which the item should be inserted.
      * @param item The item to insert into the adapter.

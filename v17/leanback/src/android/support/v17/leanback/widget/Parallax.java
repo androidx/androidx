@@ -31,22 +31,40 @@ import java.util.List;
  * rules to mapping property values to {@link ParallaxTarget}.
  *
  * <p>
- * There are two types of Parallax, int or float. App should subclass either
- * {@link Parallax.IntParallax} or {@link Parallax.FloatParallax}. App may subclass
- * {@link Parallax.IntProperty} or {@link Parallax.FloatProperty} to supply additional information
- * about how to retrieve Property value.  {@link RecyclerViewParallax} is a great example of
- * Parallax implementation tracking child view positions on screen.
+ * Example:
+ * <code>
+ *     // when Property "var1" changes from 15 to max value, perform parallax effect to
+ *     // change myView's translationY from 0 to 100.
+ *     Parallax<IntProperty> parallax = new Parallax<IntProperty>() {...};
+ *     p1 = parallax.addProperty("var1");
+ *     parallax.addEffect(p1.at(15), p1.atMax())
+ *             .target(myView, PropertyValuesHolder.ofFloat("translationY", 0, 100));
+ * </code>
+ * </p>
+ *
+ * <p>
+ * To create a {@link ParallaxEffect}, user calls {@link #addEffect(PropertyMarkerValue[])} with a
+ * list of {@link PropertyMarkerValue} which defines the range of {@link Parallax.IntProperty} or
+ * {@link Parallax.FloatProperty}. Then user adds {@link ParallaxTarget} into
+ * {@link ParallaxEffect}.
+ * </p>
+ * <p>
+ * App may subclass {@link Parallax.IntProperty} or {@link Parallax.FloatProperty} to supply
+ * additional information about how to retrieve Property value.  {@link RecyclerViewParallax} is
+ * a great example of Parallax implementation tracking child view positions on screen.
  * </p>
  * <p>
  * <ul>Restrictions of properties
+ * <li>FloatProperty and IntProperty cannot be mixed in one Parallax</li>
  * <li>Values must be in ascending order.</li>
  * <li>If the UI element is unknown above screen, use UNKNOWN_BEFORE.</li>
  * <li>if the UI element is unknown below screen, use UNKNOWN_AFTER.</li>
  * <li>UNKNOWN_BEFORE and UNKNOWN_AFTER are not allowed to be next to each other.</li>
  * </ul>
- * These rules can be verified by {@link #verifyProperties()}.
+ * These rules will be verified at runtime.
  * </p>
- * Subclass should override {@link #updateValues()} to update property values and perform
+ * <p>
+ * Subclass must override {@link #updateValues()} to update property values and perform
  * {@link ParallaxEffect}s. Subclass may call {@link #updateValues()} automatically e.g.
  * {@link RecyclerViewParallax} calls {@link #updateValues()} in RecyclerView scrolling. App might
  * call {@link #updateValues()} manually when Parallax is unaware of the value change. For example,
@@ -54,15 +72,12 @@ import java.util.List;
  * changes; it's the app's responsibility to call {@link #updateValues()} in every frame of
  * animation.
  * </p>
- * @param <PropertyT> Class of the property, e.g. {@link IntProperty} or {@link FloatProperty}.
+ * @param <PropertyT> Subclass of {@link Parallax.IntProperty} or {@link Parallax.FloatProperty}
  */
-public abstract class Parallax<PropertyT extends Property> {
-
-    private final List<ParallaxEffect> mEffects = new ArrayList<ParallaxEffect>(4);
+public abstract class Parallax<PropertyT extends android.util.Property> {
 
     /**
      * Class holding a fixed value for a Property in {@link Parallax}.
-     * Base class for {@link IntPropertyMarkerValue} and {@link FloatPropertyMarkerValue}.
      * @param <PropertyT> Class of the property, e.g. {@link IntProperty} or {@link FloatProperty}.
      */
     public static class PropertyMarkerValue<PropertyT> {
@@ -82,10 +97,10 @@ public abstract class Parallax<PropertyT extends Property> {
 
     /**
      * IntProperty provide access to an index based integer type property inside
-     * {@link IntParallax}. The IntProperty typically represents UI element position inside
-     * {@link IntParallax}.
+     * {@link Parallax}. The IntProperty typically represents UI element position inside
+     * {@link Parallax}.
      */
-    public static class IntProperty extends Property<IntParallax, Integer> {
+    public static class IntProperty extends Property<Parallax, Integer> {
 
         /**
          * Property value is unknown and it's smaller than minimal value of Parallax. For
@@ -94,7 +109,7 @@ public abstract class Parallax<PropertyT extends Property> {
         public static final int UNKNOWN_BEFORE = Integer.MIN_VALUE;
 
         /**
-         * Property value is unknown and it's larger than {@link IntParallax#getMaxValue()}. For
+         * Property value is unknown and it's larger than {@link Parallax#getMaxValue()}. For
          * example if a child is not created and after the last visible child of RecyclerView.
          */
         public static final int UNKNOWN_AFTER = Integer.MAX_VALUE;
@@ -105,7 +120,7 @@ public abstract class Parallax<PropertyT extends Property> {
          * Constructor.
          *
          * @param name Name of this Property.
-         * @param index Index of this Property inside {@link IntParallax}.
+         * @param index Index of this Property inside {@link Parallax}.
          */
         public IntProperty(String name, int index) {
             super(Integer.class, name);
@@ -113,168 +128,112 @@ public abstract class Parallax<PropertyT extends Property> {
         }
 
         @Override
-        public final Integer get(IntParallax object) {
-            return getIntValue(object);
+        public final Integer get(Parallax object) {
+            return object.getIntPropertyValue(mIndex);
         }
 
         @Override
-        public final void set(IntParallax object, Integer value) {
-            setIntValue(object, value);
-        }
-
-        final int getIntValue(IntParallax source) {
-            return source.getPropertyValue(mIndex);
-        }
-
-        final void setIntValue(IntParallax source, int value) {
-            source.setPropertyValue(mIndex, value);
+        public final void set(Parallax object, Integer value) {
+            object.setIntPropertyValue(mIndex, value);
         }
 
         /**
-         * @return Index of this Property in {@link IntParallax}.
+         * @return Index of this Property in {@link Parallax}.
          */
         public final int getIndex() {
             return mIndex;
         }
 
         /**
-         * Creates an {@link IntPropertyMarkerValue} object for the absolute marker value.
+         * Fast version of get() method that returns a primitive int value of the Property.
+         * @param object The Parallax object that owns this Property.
+         * @return Int value of the Property.
+         */
+        public final int getValue(Parallax object) {
+            return object.getIntPropertyValue(mIndex);
+        }
+
+        /**
+         * Fast version of set() method that takes a primitive int value into the Property.
+         *
+         * @param object The Parallax object that owns this Property.
+         * @param value Int value of the Property.
+         */
+        public final void setValue(Parallax object, int value) {
+            object.setIntPropertyValue(mIndex, value);
+        }
+
+        /**
+         * Creates an {@link PropertyMarkerValue} object for the absolute marker value.
          *
          * @param absoluteValue The integer marker value.
-         * @return A new {@link IntPropertyMarkerValue} object.
+         * @return A new {@link PropertyMarkerValue} object.
          */
-        public final IntPropertyMarkerValue atAbsolute(int absoluteValue) {
+        public final PropertyMarkerValue atAbsolute(int absoluteValue) {
             return new IntPropertyMarkerValue(this, absoluteValue, 0f);
         }
 
         /**
-         * Creates an {@link IntPropertyMarkerValue} object for a fraction of
-         * {@link IntParallax#getMaxValue()}.
+         * Creates an {@link PropertyMarkerValue} object for the marker value representing
+         * {@link Parallax#getMaxValue()}.
+         *
+         * @return A new {@link PropertyMarkerValue} object.
+         */
+        public final PropertyMarkerValue atMax() {
+            return new IntPropertyMarkerValue(this, 0, 1f);
+        }
+
+        /**
+         * Creates an {@link PropertyMarkerValue} object for the marker value representing 0.
+         *
+         * @return A new {@link PropertyMarkerValue} object.
+         */
+        public final PropertyMarkerValue atMin() {
+            return new IntPropertyMarkerValue(this, 0);
+        }
+
+        /**
+         * Creates an {@link PropertyMarkerValue} object for a fraction of
+         * {@link Parallax#getMaxValue()}.
          *
          * @param fractionOfMaxValue 0 to 1 fraction to multiply with
-         *                                       {@link IntParallax#getMaxValue()} for
+         *                                       {@link Parallax#getMaxValue()} for
          *                                       the marker value.
-         * @return A new {@link IntPropertyMarkerValue} object.
+         * @return A new {@link PropertyMarkerValue} object.
          */
-        public final IntPropertyMarkerValue atFraction(float fractionOfMaxValue) {
+        public final PropertyMarkerValue atFraction(float fractionOfMaxValue) {
             return new IntPropertyMarkerValue(this, 0, fractionOfMaxValue);
         }
 
         /**
-         * Create an {@link IntPropertyMarkerValue} object by multiplying the fraction with
-         * {@link IntParallax#getMaxValue()} and adding offsetValue to it.
+         * Create an {@link PropertyMarkerValue} object by multiplying the fraction with
+         * {@link Parallax#getMaxValue()} and adding offsetValue to it.
          *
          * @param offsetValue                    An offset integer value to be added to marker
          *                                       value.
          * @param fractionOfMaxParentVisibleSize 0 to 1 fraction to multiply with
-         *                                       {@link IntParallax#getMaxValue()} for
+         *                                       {@link Parallax#getMaxValue()} for
          *                                       the marker value.
-         * @return A new {@link IntPropertyMarkerValue} object.
+         * @return A new {@link PropertyMarkerValue} object.
          */
-        public final IntPropertyMarkerValue at(int offsetValue,
-                                               float fractionOfMaxParentVisibleSize) {
+        public final PropertyMarkerValue at(int offsetValue,
+                float fractionOfMaxParentVisibleSize) {
             return new IntPropertyMarkerValue(this, offsetValue, fractionOfMaxParentVisibleSize);
         }
     }
 
     /**
-     * Parallax that manages a list of {@link IntProperty}. App may override this class with a
-     * specific {@link IntProperty} subclass.
-     *
-     * @param <IntPropertyT> Type of {@link IntProperty} or subclass.
-     */
-    public abstract static class IntParallax<IntPropertyT extends IntProperty>
-            extends Parallax<IntPropertyT> {
-
-        private int[] mValues = new int[4];
-
-        /**
-         * Get index based property value.
-         *
-         * @param index Index of the property.
-         * @return Value of the property.
-         */
-        public final int getPropertyValue(int index) {
-            return mValues[index];
-        }
-
-        /**
-         * Set index based property value.
-         *
-         * @param index Index of the property.
-         * @param value Value of the property.
-         */
-        public final void setPropertyValue(int index, int value) {
-            if (index >= mProperties.size()) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-            mValues[index] = value;
-        }
-
-        /**
-         * Return the max value, which is typically parent visible area, e.g. RecyclerView's height
-         * if we are tracking Y position of a child. The size can be used to calculate marker value
-         * using the provided fraction of IntPropertyMarkerValue.
-         *
-         * @return Max value of parallax.
-         * @see IntPropertyMarkerValue#IntPropertyMarkerValue(IntProperty, int, float)
-         */
-        public abstract int getMaxValue();
-
-        @Override
-        public final IntPropertyT addProperty(String name) {
-            int newPropertyIndex = mProperties.size();
-            IntPropertyT property = createProperty(name, newPropertyIndex);
-            mProperties.add(property);
-            int size = mValues.length;
-            if (size == newPropertyIndex) {
-                int[] newValues = new int[size * 2];
-                for (int i = 0; i < size; i++) {
-                    newValues[i] = mValues[i];
-                }
-                mValues = newValues;
-            }
-            mValues[newPropertyIndex] = IntProperty.UNKNOWN_AFTER;
-            return property;
-        }
-
-        @Override
-        public final void verifyProperties() throws IllegalStateException {
-            if (mProperties.size() < 2) {
-                return;
-            }
-            int last = mProperties.get(0).getIntValue(this);
-            for (int i = 1; i < mProperties.size(); i++) {
-                int v = mProperties.get(i).getIntValue(this);
-                if (v < last) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
-                                    + " smaller than Property[%d]\"%s\"",
-                            i, mProperties.get(i).getName(),
-                            i - 1, mProperties.get(i - 1).getName()));
-                } else if (last == IntProperty.UNKNOWN_BEFORE && v == IntProperty.UNKNOWN_AFTER) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
-                                    + " UNKNOWN_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
-                            i - 1, mProperties.get(i - 1).getName(),
-                            i, mProperties.get(i).getName()));
-                }
-                last = v;
-            }
-        }
-
-    }
-
-    /**
      * Implementation of {@link PropertyMarkerValue} for {@link IntProperty}.
      */
-    public static class IntPropertyMarkerValue extends PropertyMarkerValue<IntProperty> {
+    static class IntPropertyMarkerValue extends PropertyMarkerValue<IntProperty> {
         private final int mValue;
         private final float mFactionOfMax;
 
-        public IntPropertyMarkerValue(IntProperty property, int value) {
+        IntPropertyMarkerValue(IntProperty property, int value) {
             this(property, value, 0f);
         }
 
-        public IntPropertyMarkerValue(IntProperty property, int value, float fractionOfMax) {
+        IntPropertyMarkerValue(IntProperty property, int value, float fractionOfMax) {
             super(property);
             mValue = value;
             mFactionOfMax = fractionOfMax;
@@ -283,7 +242,7 @@ public abstract class Parallax<PropertyT extends Property> {
         /**
          * @return The marker value of integer type.
          */
-        public final int getMarkerValue(IntParallax source) {
+        final int getMarkerValue(Parallax source) {
             return mFactionOfMax == 0 ? mValue : mValue + Math.round(source
                     .getMaxValue() * mFactionOfMax);
         }
@@ -291,10 +250,10 @@ public abstract class Parallax<PropertyT extends Property> {
 
     /**
      * FloatProperty provide access to an index based integer type property inside
-     * {@link FloatParallax}. The FloatProperty typically represents UI element position inside
-     * {@link FloatParallax}.
+     * {@link Parallax}. The FloatProperty typically represents UI element position inside
+     * {@link Parallax}.
      */
-    public static class FloatProperty extends Property<FloatParallax, Float> {
+    public static class FloatProperty extends Property<Parallax, Float> {
 
         /**
          * Property value is unknown and it's smaller than minimal value of Parallax. For
@@ -303,7 +262,7 @@ public abstract class Parallax<PropertyT extends Property> {
         public static final float UNKNOWN_BEFORE = -Float.MAX_VALUE;
 
         /**
-         * Property value is unknown and it's larger than {@link FloatParallax#getMaxValue()}. For
+         * Property value is unknown and it's larger than {@link Parallax#getMaxValue()}. For
          * example if a child is not created and after the last visible child of RecyclerView.
          */
         public static final float UNKNOWN_AFTER = Float.MAX_VALUE;
@@ -314,7 +273,7 @@ public abstract class Parallax<PropertyT extends Property> {
          * Constructor.
          *
          * @param name Name of this Property.
-         * @param index Index of this Property inside {@link FloatParallax}.
+         * @param index Index of this Property inside {@link Parallax}.
          */
         public FloatProperty(String name, int index) {
             super(Float.class, name);
@@ -322,168 +281,111 @@ public abstract class Parallax<PropertyT extends Property> {
         }
 
         @Override
-        public final Float get(FloatParallax object) {
-            return getFloatValue(object);
+        public final Float get(Parallax object) {
+            return object.getFloatPropertyValue(mIndex);
         }
 
         @Override
-        public final void set(FloatParallax object, Float value) {
-            setFloatValue(object, value);
-        }
-
-        final float getFloatValue(FloatParallax source) {
-            return source.getPropertyValue(mIndex);
-        }
-
-        final void setFloatValue(FloatParallax source, float value) {
-            source.setPropertyValue(mIndex, value);
+        public final void set(Parallax object, Float value) {
+            object.setFloatPropertyValue(mIndex, value);
         }
 
         /**
-         * @return Index of this Property in {@link FloatParallax}.
+         * @return Index of this Property in {@link Parallax}.
          */
         public final int getIndex() {
             return mIndex;
         }
 
         /**
-         * Creates an {@link FloatPropertyMarkerValue} object for the absolute marker value.
+         * Fast version of get() method that returns a primitive int value of the Property.
+         * @param object The Parallax object that owns this Property.
+         * @return Float value of the Property.
+         */
+        public final float getValue(Parallax object) {
+            return object.getFloatPropertyValue(mIndex);
+        }
+
+        /**
+         * Fast version of set() method that takes a primitive float value into the Property.
+         *
+         * @param object The Parallax object that owns this Property.
+         * @param value Float value of the Property.
+         */
+        public final void setValue(Parallax object, float value) {
+            object.setFloatPropertyValue(mIndex, value);
+        }
+
+        /**
+         * Creates an {@link PropertyMarkerValue} object for the absolute marker value.
          *
          * @param markerValue The float marker value.
-         * @return A new {@link FloatPropertyMarkerValue} object.
+         * @return A new {@link PropertyMarkerValue} object.
          */
-        public final FloatPropertyMarkerValue atAbsolute(float markerValue) {
+        public final PropertyMarkerValue atAbsolute(float markerValue) {
             return new FloatPropertyMarkerValue(this, markerValue, 0f);
         }
 
         /**
-         * Creates an {@link FloatPropertyMarkerValue} object for a fraction of
-         * {@link FloatParallax#getMaxValue()}.
+         * Creates an {@link PropertyMarkerValue} object for the marker value representing
+         * {@link Parallax#getMaxValue()}.
+         *
+         * @return A new {@link PropertyMarkerValue} object.
+         */
+        public final PropertyMarkerValue atMax() {
+            return new FloatPropertyMarkerValue(this, 0, 1f);
+        }
+
+        /**
+         * Creates an {@link PropertyMarkerValue} object for the marker value representing 0.
+         *
+         * @return A new {@link PropertyMarkerValue} object.
+         */
+        public final PropertyMarkerValue atMin() {
+            return new FloatPropertyMarkerValue(this, 0);
+        }
+
+        /**
+         * Creates an {@link PropertyMarkerValue} object for a fraction of
+         * {@link Parallax#getMaxValue()}.
          *
          * @param fractionOfMaxParentVisibleSize 0 to 1 fraction to multiply with
-         *                                       {@link FloatParallax#getMaxValue()} for
+         *                                       {@link Parallax#getMaxValue()} for
          *                                       the marker value.
-         * @return A new {@link FloatPropertyMarkerValue} object.
+         * @return A new {@link PropertyMarkerValue} object.
          */
-        public final FloatPropertyMarkerValue atFraction(float fractionOfMaxParentVisibleSize) {
+        public final PropertyMarkerValue atFraction(float fractionOfMaxParentVisibleSize) {
             return new FloatPropertyMarkerValue(this, 0, fractionOfMaxParentVisibleSize);
         }
 
         /**
-         * Create an {@link FloatPropertyMarkerValue} object by multiplying the fraction with
-         * {@link FloatParallax#getMaxValue()} and adding offsetValue to it.
+         * Create an {@link PropertyMarkerValue} object by multiplying the fraction with
+         * {@link Parallax#getMaxValue()} and adding offsetValue to it.
          *
          * @param offsetValue                    An offset float value to be added to marker value.
          * @param fractionOfMaxParentVisibleSize 0 to 1 fraction to multiply with
-         *                                       {@link FloatParallax#getMaxValue()} for
+         *                                       {@link Parallax#getMaxValue()} for
          *                                       the marker value.
-         * @return A new {@link FloatPropertyMarkerValue} object.
+         * @return A new {@link PropertyMarkerValue} object.
          */
-        public final FloatPropertyMarkerValue at(float offsetValue,
-                                                 float fractionOfMaxParentVisibleSize) {
+        public final PropertyMarkerValue at(float offsetValue,
+                float fractionOfMaxParentVisibleSize) {
             return new FloatPropertyMarkerValue(this, offsetValue, fractionOfMaxParentVisibleSize);
         }
     }
 
     /**
-     * Parallax that manages a list of {@link FloatProperty}. App may override this class with a
-     * specific {@link FloatProperty} subclass.
-     *
-     * @param <FloatPropertyT> Type of {@link FloatProperty} or subclass.
-     */
-    public abstract static class FloatParallax<FloatPropertyT extends FloatProperty> extends
-            Parallax<FloatPropertyT> {
-
-        private float[] mValues = new float[4];
-
-        /**
-         * Get index based property value.
-         *
-         * @param index Index of the property.
-         * @return Value of the property.
-         */
-        public final float getPropertyValue(int index) {
-            return mValues[index];
-        }
-
-        /**
-         * Set index based property value.
-         *
-         * @param index Index of the property.
-         * @param value Value of the property.
-         */
-        public final void setPropertyValue(int index, float value) {
-            if (index >= mProperties.size()) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-            mValues[index] = value;
-        }
-
-        /**
-         * Return the max value which is typically size of parent visible area, e.g. RecyclerView's
-         * height if we are tracking Y position of a child. The size can be used to calculate marker
-         * value using the provided fraction of FloatPropertyMarkerValue.
-         *
-         * @return Size of parent visible area.
-         * @see FloatPropertyMarkerValue#FloatPropertyMarkerValue(FloatProperty, float, float)
-         */
-        public abstract float getMaxValue();
-
-        @Override
-        public final FloatPropertyT addProperty(String name) {
-            int newPropertyIndex = mProperties.size();
-            FloatPropertyT property = createProperty(name, newPropertyIndex);
-            mProperties.add(property);
-            int size = mValues.length;
-            if (size == newPropertyIndex) {
-                float[] newValues = new float[size * 2];
-                for (int i = 0; i < size; i++) {
-                    newValues[i] = mValues[i];
-                }
-                mValues = newValues;
-            }
-            mValues[newPropertyIndex] = FloatProperty.UNKNOWN_AFTER;
-            return property;
-        }
-
-        @Override
-        public final void verifyProperties() throws IllegalStateException {
-            if (mProperties.size() < 2) {
-                return;
-            }
-            float last = mProperties.get(0).getFloatValue(this);
-            for (int i = 1; i < mProperties.size(); i++) {
-                float v = mProperties.get(i).getFloatValue(this);
-                if (v < last) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
-                                    + " smaller than Property[%d]\"%s\"",
-                            i, mProperties.get(i).getName(),
-                            i - 1, mProperties.get(i - 1).getName()));
-                } else if (last == FloatProperty.UNKNOWN_BEFORE && v
-                        == FloatProperty.UNKNOWN_AFTER) {
-                    throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
-                                    + " UNKNOWN_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
-                            i - 1, mProperties.get(i - 1).getName(),
-                            i, mProperties.get(i).getName()));
-                }
-                last = v;
-            }
-        }
-
-    }
-
-    /**
      * Implementation of {@link PropertyMarkerValue} for {@link FloatProperty}.
      */
-    public static class FloatPropertyMarkerValue extends PropertyMarkerValue<FloatProperty> {
+    static class FloatPropertyMarkerValue extends PropertyMarkerValue<FloatProperty> {
         private final float mValue;
         private final float mFactionOfMax;
 
-        public FloatPropertyMarkerValue(FloatProperty property, float value) {
+        FloatPropertyMarkerValue(FloatProperty property, float value) {
             this(property, value, 0f);
         }
 
-        public FloatPropertyMarkerValue(FloatProperty property, float value, float fractionOfMax) {
+        FloatPropertyMarkerValue(FloatProperty property, float value, float fractionOfMax) {
             super(property);
             mValue = value;
             mFactionOfMax = fractionOfMax;
@@ -492,7 +394,7 @@ public abstract class Parallax<PropertyT extends Property> {
         /**
          * @return The marker value.
          */
-        public final float getMarkerValue(FloatParallax source) {
+        final float getMarkerValue(Parallax source) {
             return mFactionOfMax == 0 ? mValue : mValue + source.getMaxValue()
                     * mFactionOfMax;
         }
@@ -501,20 +403,162 @@ public abstract class Parallax<PropertyT extends Property> {
     final List<PropertyT> mProperties = new ArrayList<PropertyT>();
     final List<PropertyT> mPropertiesReadOnly = Collections.unmodifiableList(mProperties);
 
+    private int[] mValues = new int[4];
+    private float[] mFloatValues = new float[4];
+
+    private final List<ParallaxEffect> mEffects = new ArrayList<ParallaxEffect>(4);
+
+    /**
+     * Return the max value which is typically size of parent visible area, e.g. RecyclerView's
+     * height if we are tracking Y position of a child. The size can be used to calculate marker
+     * value using the provided fraction of FloatPropertyMarkerValue.
+     *
+     * @return Size of parent visible area.
+     * @see IntPropertyMarkerValue#IntPropertyMarkerValue(IntProperty, int, float)
+     * @see FloatPropertyMarkerValue#FloatPropertyMarkerValue(FloatProperty, float, float)
+     */
+    public abstract float getMaxValue();
+
+    /**
+     * Get index based property value.
+     *
+     * @param index Index of the property.
+     * @return Value of the property.
+     */
+    final int getIntPropertyValue(int index) {
+        return mValues[index];
+    }
+
+    /**
+     * Set index based property value.
+     *
+     * @param index Index of the property.
+     * @param value Value of the property.
+     */
+    final void setIntPropertyValue(int index, int value) {
+        if (index >= mProperties.size()) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        mValues[index] = value;
+    }
+
+    /**
+     * Add a new IntProperty in the Parallax object. App may override
+     * {@link #createProperty(String, int)}.
+     *
+     * @param name Name of the property.
+     * @return Newly created Property object.
+     * @see #createProperty(String, int)
+     */
+    public final PropertyT addProperty(String name) {
+        int newPropertyIndex = mProperties.size();
+        PropertyT property = createProperty(name, newPropertyIndex);
+        if (property instanceof IntProperty) {
+            int size = mValues.length;
+            if (size == newPropertyIndex) {
+                int[] newValues = new int[size * 2];
+                for (int i = 0; i < size; i++) {
+                    newValues[i] = mValues[i];
+                }
+                mValues = newValues;
+            }
+            mValues[newPropertyIndex] = IntProperty.UNKNOWN_AFTER;
+        } else if (property instanceof FloatProperty) {
+            int size = mFloatValues.length;
+            if (size == newPropertyIndex) {
+                float[] newValues = new float[size * 2];
+                for (int i = 0; i < size; i++) {
+                    newValues[i] = mFloatValues[i];
+                }
+                mFloatValues = newValues;
+            }
+            mFloatValues[newPropertyIndex] = FloatProperty.UNKNOWN_AFTER;
+        } else {
+            throw new IllegalArgumentException("Invalid Property type");
+        }
+        mProperties.add(property);
+        return property;
+    }
+
+    /**
+     * Verify sanity of property values, throws RuntimeException if fails. The property values
+     * must be in ascending order. UNKNOW_BEFORE and UNKNOWN_AFTER are not allowed to be next to
+     * each other.
+     */
+    void verifyIntProperties() throws IllegalStateException {
+        if (mProperties.size() < 2) {
+            return;
+        }
+        int last = getIntPropertyValue(0);
+        for (int i = 1; i < mProperties.size(); i++) {
+            int v = getIntPropertyValue(i);
+            if (v < last) {
+                throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                + " smaller than Property[%d]\"%s\"",
+                        i, mProperties.get(i).getName(),
+                        i - 1, mProperties.get(i - 1).getName()));
+            } else if (last == IntProperty.UNKNOWN_BEFORE && v == IntProperty.UNKNOWN_AFTER) {
+                throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                + " UNKNOWN_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
+                        i - 1, mProperties.get(i - 1).getName(),
+                        i, mProperties.get(i).getName()));
+            }
+            last = v;
+        }
+    }
+
+    final void verifyFloatProperties() throws IllegalStateException {
+        if (mProperties.size() < 2) {
+            return;
+        }
+        float last = getFloatPropertyValue(0);
+        for (int i = 1; i < mProperties.size(); i++) {
+            float v = getFloatPropertyValue(i);
+            if (v < last) {
+                throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                + " smaller than Property[%d]\"%s\"",
+                        i, mProperties.get(i).getName(),
+                        i - 1, mProperties.get(i - 1).getName()));
+            } else if (last == FloatProperty.UNKNOWN_BEFORE && v
+                    == FloatProperty.UNKNOWN_AFTER) {
+                throw new IllegalStateException(String.format("Parallax Property[%d]\"%s\" is"
+                                + " UNKNOWN_BEFORE and Property[%d]\"%s\" is UNKNOWN_AFTER",
+                        i - 1, mProperties.get(i - 1).getName(),
+                        i, mProperties.get(i).getName()));
+            }
+            last = v;
+        }
+    }
+
+    /**
+     * Get index based property value.
+     *
+     * @param index Index of the property.
+     * @return Value of the property.
+     */
+    final float getFloatPropertyValue(int index) {
+        return mFloatValues[index];
+    }
+
+    /**
+     * Set index based property value.
+     *
+     * @param index Index of the property.
+     * @param value Value of the property.
+     */
+    final void setFloatPropertyValue(int index, float value) {
+        if (index >= mProperties.size()) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        mFloatValues[index] = value;
+    }
+
     /**
      * @return A unmodifiable list of properties.
      */
     public final List<PropertyT> getProperties() {
         return mPropertiesReadOnly;
     }
-
-    /**
-     * Add a new Property in the Parallax object.
-     *
-     * @param name Name of the property.
-     * @return Newly created Property.
-     */
-    public abstract PropertyT addProperty(String name);
 
     /**
      * Create a new Property object. App does not directly call this method.  See
@@ -526,13 +570,6 @@ public abstract class Parallax<PropertyT extends Property> {
     public abstract PropertyT createProperty(String name, int index);
 
     /**
-     * Verify sanity of property values, throws RuntimeException if fails. The property values
-     * must be in ascending order. UNKNOW_BEFORE and UNKNOWN_AFTER are not allowed to be next to
-     * each other.
-     */
-    public abstract void verifyProperties() throws IllegalStateException;
-
-    /**
      * Update property values and perform {@link ParallaxEffect}s. Subclass may override and call
      * super.updateValues() after updated properties values.
      */
@@ -541,16 +578,6 @@ public abstract class Parallax<PropertyT extends Property> {
         for (int i = 0; i < mEffects.size(); i++) {
             mEffects.get(i).performMapping(this);
         }
-    }
-
-    /**
-     * Adds a {@link ParallaxEffect} object which defines rules to perform mapping to multiple
-     * {@link ParallaxTarget}s.
-     *
-     * @param effect A {@link ParallaxEffect} object.
-     */
-    public void addEffect(ParallaxEffect effect) {
-        mEffects.add(effect);
     }
 
     /**
@@ -586,24 +613,16 @@ public abstract class Parallax<PropertyT extends Property> {
      * @param ranges A list of marker values that defines the ranges.
      * @return Newly created ParallaxEffect object.
      */
-    public ParallaxEffect addEffect(IntPropertyMarkerValue... ranges) {
-        IntEffect effect = new IntEffect();
+    public ParallaxEffect addEffect(PropertyMarkerValue... ranges) {
+        ParallaxEffect effect;
+        if (ranges[0].getProperty() instanceof IntProperty) {
+            effect = new IntEffect();
+        } else {
+            effect = new FloatEffect();
+        }
         effect.setPropertyRanges(ranges);
-        addEffect(effect);
+        mEffects.add(effect);
         return effect;
     }
 
-    /**
-     * Create a {@link ParallaxEffect} object that will track source variable changes within a
-     * provided set of ranges.
-     *
-     * @param ranges A list of marker values that defines the ranges.
-     * @return Newly created ParallaxEffect object.
-     */
-    public ParallaxEffect addEffect(FloatPropertyMarkerValue... ranges) {
-        FloatEffect effect = new FloatEffect();
-        effect.setPropertyRanges(ranges);
-        addEffect(effect);
-        return effect;
-    }
 }

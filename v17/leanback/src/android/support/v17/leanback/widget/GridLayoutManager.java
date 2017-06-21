@@ -16,6 +16,7 @@ package android.support.v17.leanback.widget;
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
 import static android.support.v7.widget.RecyclerView.NO_ID;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static android.support.v7.widget.RecyclerView.VERTICAL;
 
 import android.content.Context;
@@ -208,6 +209,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 super.onStop();
                 return;
             }
+            if (mFocusPosition != getTargetPosition()) {
+                // This should not happen since we cropped value in startPositionSmoothScroller()
+                mFocusPosition = getTargetPosition();
+            }
             if (hasFocus()) {
                 mInSelection = true;
                 targetView.requestFocus();
@@ -379,6 +384,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // Represents whether child views are temporarily sliding out
     boolean mIsSlidingChildViews;
+    boolean mLayoutEatenInSliding;
 
     String getTag() {
         return TAG + ":" + mBaseGridView.getId();
@@ -871,7 +877,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // when item is removed, the position value can be any value.
             return NO_POSITION;
         }
-        return params.getViewPosition();
+        return params.getViewAdapterPosition();
     }
 
     int getSubPositionByView(View view, View childView) {
@@ -1649,14 +1655,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 ? Gravity.getAbsoluteGravity(mGravity & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK,
                 View.LAYOUT_DIRECTION_RTL)
                 : mGravity & Gravity.HORIZONTAL_GRAVITY_MASK;
-        if (mOrientation == HORIZONTAL && verticalGravity == Gravity.TOP
-                || mOrientation == VERTICAL && horizontalGravity == Gravity.LEFT) {
+        if ((mOrientation == HORIZONTAL && verticalGravity == Gravity.TOP)
+                || (mOrientation == VERTICAL && horizontalGravity == Gravity.LEFT)) {
             // do nothing
-        } else if (mOrientation == HORIZONTAL && verticalGravity == Gravity.BOTTOM
-                || mOrientation == VERTICAL && horizontalGravity == Gravity.RIGHT) {
+        } else if ((mOrientation == HORIZONTAL && verticalGravity == Gravity.BOTTOM)
+                || (mOrientation == VERTICAL && horizontalGravity == Gravity.RIGHT)) {
             startSecondary += getRowSizeSecondary(rowIndex) - sizeSecondary;
-        } else if (mOrientation == HORIZONTAL && verticalGravity == Gravity.CENTER_VERTICAL
-                || mOrientation == VERTICAL && horizontalGravity == Gravity.CENTER_HORIZONTAL) {
+        } else if ((mOrientation == HORIZONTAL && verticalGravity == Gravity.CENTER_VERTICAL)
+                || (mOrientation == VERTICAL && horizontalGravity == Gravity.CENTER_HORIZONTAL)) {
             startSecondary += (getRowSizeSecondary(rowIndex) - sizeSecondary) / 2;
         }
         int left, top, right, bottom;
@@ -1738,40 +1744,86 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return mGrid.appendOneColumnVisibleItems();
     }
 
+    void slideIn() {
+        if (mIsSlidingChildViews) {
+            mIsSlidingChildViews = false;
+            if (mFocusPosition >= 0) {
+                scrollToSelection(mFocusPosition, mSubFocusPosition, true, mPrimaryScrollExtra);
+            } else {
+                mLayoutEatenInSliding = false;
+                requestLayout();
+            }
+            if (mLayoutEatenInSliding) {
+                mLayoutEatenInSliding = false;
+                if (mBaseGridView.getScrollState() != SCROLL_STATE_IDLE || isSmoothScrolling()) {
+                    mBaseGridView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                            if (newState == SCROLL_STATE_IDLE) {
+                                mBaseGridView.removeOnScrollListener(this);
+                                requestLayout();
+                            }
+                        }
+                    });
+                } else {
+                    requestLayout();
+                }
+            }
+        }
+    }
+
+    int getSlideOutDistance() {
+        int distance;
+        if (mOrientation == VERTICAL) {
+            distance = -getHeight();
+            if (getChildCount() > 0) {
+                int top = getChildAt(0).getTop();
+                if (top < 0) {
+                    // scroll more if first child is above top edge
+                    distance = distance + top;
+                }
+            }
+        } else {
+            if (mReverseFlowPrimary) {
+                distance = getWidth();
+                if (getChildCount() > 0) {
+                    int start = getChildAt(0).getRight();
+                    if (start > distance) {
+                        // scroll more if first child is outside right edge
+                        distance = start;
+                    }
+                }
+            } else {
+                distance = -getWidth();
+                if (getChildCount() > 0) {
+                    int start = getChildAt(0).getLeft();
+                    if (start < 0) {
+                        // scroll more if first child is out side left edge
+                        distance = distance + start;
+                    }
+                }
+            }
+        }
+        return distance;
+    }
+
     /**
-     * Temporarily slide out child and will be auto slide-in in next scrollToView().
+     * Temporarily slide out child and block layout and scroll requests.
      */
     void slideOut() {
         if (mIsSlidingChildViews) {
             return;
         }
         mIsSlidingChildViews = true;
+        if (getChildCount() == 0) {
+            return;
+        }
         if (mOrientation == VERTICAL) {
-            int distance = -getHeight();
-            int top = getChildAt(0).getTop();
-            if (top < 0) {
-                // scroll more if first child is above top edge
-                distance = distance + top;
-            }
-            mBaseGridView.smoothScrollBy(0, distance, new AccelerateDecelerateInterpolator());
+            mBaseGridView.smoothScrollBy(0, getSlideOutDistance(),
+                    new AccelerateDecelerateInterpolator());
         } else {
-            int distance;
-            if (mReverseFlowPrimary) {
-                distance = getWidth();
-                int start = getChildAt(0).getRight();
-                if (start > distance) {
-                    // scroll more if first child is outside right edge
-                    distance = start;
-                }
-            } else {
-                distance = -getWidth();
-                int start = getChildAt(0).getLeft();
-                if (start < 0) {
-                    // scroll more if first child is out side left edge
-                    distance = distance + start;
-                }
-            }
-            mBaseGridView.smoothScrollBy(distance, 0, new AccelerateDecelerateInterpolator());
+            mBaseGridView.smoothScrollBy(getSlideOutDistance(), 0,
+                    new AccelerateDecelerateInterpolator());
         }
     }
 
@@ -1936,6 +1988,14 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
 
+        if (mIsSlidingChildViews) {
+            // if there is already children, delay the layout process until slideIn(), if it's
+            // first time layout children: scroll them offscreen at end of onLayoutChildren()
+            if (getChildCount() > 0) {
+                mLayoutEatenInSliding = true;
+                return;
+            }
+        }
         if (!mLayoutEnabled) {
             discardLayoutInfo();
             removeAndRecycleAllViews(recycler);
@@ -1983,10 +2043,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         if (mInFastRelayout = layoutInit()) {
             fastRelayout();
-            // appends items till focus position.
-            if (mFocusPosition != NO_POSITION) {
-                scrollToFocusViewInLayout(hadFocus, scrollToFocus);
-            }
         } else {
             mInLayoutSearchFocus = hadFocus;
             if (mFocusPosition != NO_POSITION) {
@@ -1994,23 +2050,24 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 while (appendOneColumnVisibleItems()
                         && findViewByPosition(mFocusPosition) == null) ;
             }
-            // multiple rounds: scrollToView of first round may drag first/last child into
-            // "visible window" and we update scrollMin/scrollMax then run second scrollToView
-            int oldFirstVisible;
-            int oldLastVisible;
-            do {
-                updateScrollMin();
-                updateScrollMax();
-                oldFirstVisible = mGrid.getFirstVisibleIndex();
-                oldLastVisible = mGrid.getLastVisibleIndex();
-                scrollToFocusViewInLayout(hadFocus, true);
-                appendVisibleItems();
-                prependVisibleItems();
-                removeInvisibleViewsAtFront();
-                removeInvisibleViewsAtEnd();
-            } while (mGrid.getFirstVisibleIndex() != oldFirstVisible
-                    || mGrid.getLastVisibleIndex() != oldLastVisible);
         }
+        // multiple rounds: scrollToView of first round may drag first/last child into
+        // "visible window" and we update scrollMin/scrollMax then run second scrollToView
+        // we must do this for fastRelayout() for the append item case
+        int oldFirstVisible;
+        int oldLastVisible;
+        do {
+            updateScrollMin();
+            updateScrollMax();
+            oldFirstVisible = mGrid.getFirstVisibleIndex();
+            oldLastVisible = mGrid.getLastVisibleIndex();
+            scrollToFocusViewInLayout(hadFocus, scrollToFocus);
+            appendVisibleItems();
+            prependVisibleItems();
+            removeInvisibleViewsAtFront();
+            removeInvisibleViewsAtEnd();
+        } while (mGrid.getFirstVisibleIndex() != oldFirstVisible
+                || mGrid.getLastVisibleIndex() != oldLastVisible);
 
         if (scrollToFocus) {
             scrollDirectionPrimary(-delta);
@@ -2045,6 +2102,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         dispatchChildSelectedAndPositioned();
 
+        if (mIsSlidingChildViews) {
+            scrollDirectionPrimary(getSlideOutDistance());
+        }
         mInLayout = false;
         leaveContext();
         if (DEBUG) Log.v(getTag(), "layoutChildren end");
@@ -2211,7 +2271,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void collectInitialPrefetchPositions(int adapterItemCount,
             LayoutPrefetchRegistry layoutPrefetchRegistry) {
-        int numToPrefetch = mBaseGridView.mInitialItemPrefetchCount;
+        int numToPrefetch = mBaseGridView.mInitialPrefetchItemCount;
         if (adapterItemCount != 0 && numToPrefetch != 0) {
             // prefetch items centered around mFocusPosition
             int initialPos = Math.max(0, Math.min(mFocusPosition - (numToPrefetch - 1)/ 2,
@@ -2385,7 +2445,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public void setSelection(int position, int subposition, boolean smooth,
             int primaryScrollExtra) {
-        if (mIsSlidingChildViews || mFocusPosition != position && position != NO_POSITION
+        if ((mFocusPosition != position && position != NO_POSITION)
                 || subposition != mSubFocusPosition || primaryScrollExtra != mPrimaryScrollExtra) {
             scrollToSelection(position, subposition, smooth, primaryScrollExtra);
         }
@@ -2404,7 +2464,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mFocusPosition = position;
             mSubFocusPosition = subposition;
             mFocusPositionOffset = Integer.MIN_VALUE;
-            if (!mLayoutEnabled) {
+            if (!mLayoutEnabled || mIsSlidingChildViews) {
                 return;
             }
             if (smooth) {
@@ -2413,7 +2473,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                             + "not be called before first layout pass");
                     return;
                 }
-                startPositionSmoothScroller(position);
+                position = startPositionSmoothScroller(position);
+                if (position != mFocusPosition) {
+                    // gets cropped by adapter size
+                    mFocusPosition = position;
+                    mSubFocusPosition = 0;
+                }
             } else {
                 mForceFullLayout = true;
                 requestLayout();
@@ -2422,7 +2487,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (TRACE) TraceCompat.endSection();
     }
 
-    void startPositionSmoothScroller(int position) {
+    int startPositionSmoothScroller(int position) {
         LinearSmoothScroller linearSmoothScroller = new GridLinearSmoothScroller() {
             @Override
             public PointF computeScrollVectorForPosition(int targetPosition) {
@@ -2445,6 +2510,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         };
         linearSmoothScroller.setTargetPosition(position);
         startSmoothScroll(linearSmoothScroller);
+        return linearSmoothScroller.getTargetPosition();
     }
 
     private void processPendingMovement(boolean forward) {
@@ -2546,8 +2612,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return true;
         }
         if (getPositionByView(child) == NO_POSITION) {
-            // This shouldn't happen, but in case it does be sure not to attempt a
-            // scroll to a view whose item has been removed.
+            // This is could be the last view in DISAPPEARING animation.
             return true;
         }
         if (!mInLayout && !mInSelection && !mInScroll) {
@@ -2651,17 +2716,19 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * Scroll to a given child view and change mFocusPosition.
+     * Scroll to a given child view and change mFocusPosition. Ignored when in slideOut() state.
      */
     void scrollToView(View view, boolean smooth) {
         scrollToView(view, view == null ? null : view.findFocus(), smooth);
     }
 
     /**
-     * Scroll to a given child view and change mFocusPosition.
+     * Scroll to a given child view and change mFocusPosition. Ignored when in slideOut() state.
      */
     private void scrollToView(View view, View childView, boolean smooth) {
-        mIsSlidingChildViews = false;
+        if (mIsSlidingChildViews) {
+            return;
+        }
         int newFocusPosition = getPositionByView(view);
         int newSubFocusPosition = getSubPositionByView(view, childView);
         if (newFocusPosition != mFocusPosition || newSubFocusPosition != mSubFocusPosition) {

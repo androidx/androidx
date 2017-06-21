@@ -148,7 +148,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     /**
      * Number of items to prefetch when first coming on screen with new data.
      */
-    private int mInitialItemPrefetchCount = 2;
+    private int mInitialPrefetchItemCount = 2;
 
     /**
      * Creates a vertical LinearLayoutManager
@@ -1229,7 +1229,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 ? LayoutState.ITEM_DIRECTION_HEAD
                 : LayoutState.ITEM_DIRECTION_TAIL;
         int targetPos = anchorPos;
-        for (int i = 0; i < mInitialItemPrefetchCount; i++) {
+        for (int i = 0; i < mInitialPrefetchItemCount; i++) {
             if (targetPos >= 0 && targetPos < adapterItemCount) {
                 layoutPrefetchRegistry.addPosition(targetPos, 0);
             } else {
@@ -1265,11 +1265,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * @param itemCount Number of items to prefetch
      *
      * @see #isItemPrefetchEnabled()
-     * @see #getInitialItemPrefetchCount()
+     * @see #getInitialPrefetchItemCount()
      * @see #collectInitialPrefetchPositions(int, LayoutPrefetchRegistry)
      */
     public void setInitialPrefetchItemCount(int itemCount) {
-        mInitialItemPrefetchCount = itemCount;
+        mInitialPrefetchItemCount = itemCount;
     }
 
     /**
@@ -1284,8 +1284,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      *
      * @return number of items to prefetch.
      */
+    public int getInitialPrefetchItemCount() {
+        return mInitialPrefetchItemCount;
+    }
+
+
+    /**
+     * @deprecated Use {@link #getInitialPrefetchItemCount()} instead.
+     */
+    @Deprecated
     public int getInitialItemPrefetchCount() {
-        return mInitialItemPrefetchCount;
+        return getInitialPrefetchItemCount();
     }
 
     @Override

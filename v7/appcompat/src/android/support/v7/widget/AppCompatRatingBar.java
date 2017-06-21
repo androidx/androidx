@@ -31,7 +31,7 @@ import android.widget.RatingBar;
  */
 public class AppCompatRatingBar extends RatingBar {
 
-    private AppCompatProgressBarHelper mAppCompatProgressBarHelper;
+    private final AppCompatProgressBarHelper mAppCompatProgressBarHelper;
 
     public AppCompatRatingBar(Context context) {
         this(context, null);

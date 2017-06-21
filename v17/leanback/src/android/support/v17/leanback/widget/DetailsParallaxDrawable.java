@@ -23,7 +23,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.v17.leanback.R;
-import android.support.v17.leanback.graphics.BoundsRule;
 import android.support.v17.leanback.graphics.CompositeDrawable;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.util.TypedValue;
@@ -124,8 +123,6 @@ public class DetailsParallaxDrawable extends CompositeDrawable {
         }
         addChildDrawable(coverDrawable);
         addChildDrawable(mBottomDrawable = bottomDrawable);
-        getChildAt(0).getBoundsRule().bottom = BoundsRule.inheritFromParent(1f);
-        getChildAt(1).getBoundsRule().top = BoundsRule.inheritFromParent(1f);
         connect(context, parallax, coverDrawableParallaxTarget);
     }
 
@@ -179,23 +176,18 @@ public class DetailsParallaxDrawable extends CompositeDrawable {
                 .getDimensionPixelSize(R.dimen.lb_details_v2_align_pos_for_actions);
         final int toValue = context.getResources()
                 .getDimensionPixelSize(R.dimen.lb_details_v2_align_pos_for_description);
-        parallax
-                .addEffect(frameTop.atAbsolute(fromValue), frameTop.atAbsolute(toValue))
+        parallax.addEffect(frameTop.atAbsolute(fromValue), frameTop.atAbsolute(toValue))
                 .target(coverDrawableParallaxTarget);
 
         // Add solid color parallax effect:
         // When frameBottom moves from bottom of the screen to top of the screen,
         // change solid ColorDrawable's top from bottom of screen to top of the screen.
-        parallax.addEffect(frameBottom.atFraction(1f), frameBottom.atFraction(0f))
-                .target(getChildAt(1),
-                        PropertyValuesHolder.ofFloat(
-                                CompositeDrawable.ChildDrawable.TOP_FRACTION, 1f, 0f));
+        parallax.addEffect(frameBottom.atMax(), frameBottom.atMin())
+                .target(getChildAt(1), ChildDrawable.TOP_ABSOLUTE);
         // Also when frameTop moves from bottom of screen to top of the screen,
         // we are changing bottom of the bitmap from bottom of screen to top of screen.
-        parallax.addEffect(frameTop.atFraction(1f), frameTop.atFraction(0f))
-                .target(getChildAt(0),
-                        PropertyValuesHolder.ofFloat(
-                                CompositeDrawable.ChildDrawable.BOTTOM_FRACTION, 1f, 0f));
+        parallax.addEffect(frameTop.atMax(), frameTop.atMin())
+                .target(getChildAt(0), ChildDrawable.BOTTOM_ABSOLUTE);
     }
 
 }

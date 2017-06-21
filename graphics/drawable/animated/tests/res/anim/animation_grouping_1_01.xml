@@ -19,8 +19,9 @@
 
     <objectAnimator
             android:duration="50"
-            android:propertyName="rotation"
-            android:valueFrom="0"
-            android:valueTo="180"
+            android:propertyName="pathData"
+            android:valueFrom="m -25 0 a 25,25 0 1,0 50,0 a 25,25 0 1,0 -50,0"
+            android:valueTo="m -125 0 a 125,125 0 1,0 250,0 a 125,125 0 1,0 -250,0"
+            android:valueType="pathType"
             android:repeatCount="2"/>
 </set>

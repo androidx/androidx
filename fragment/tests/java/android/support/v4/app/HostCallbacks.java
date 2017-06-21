@@ -16,20 +16,19 @@
 package android.support.v4.app;
 
 import android.os.Handler;
-import android.support.v4.app.test.FragmentTestActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 
-class HostCallbacks extends FragmentHostCallback<FragmentTestActivity> {
-    private final FragmentTestActivity mActivity;
+class HostCallbacks extends FragmentHostCallback<FragmentActivity> {
+    private final FragmentActivity mActivity;
 
-    HostCallbacks(FragmentTestActivity activity, Handler handler, int windowAnimations) {
+    HostCallbacks(FragmentActivity activity, Handler handler, int windowAnimations) {
         super(activity, handler, windowAnimations);
         mActivity = activity;
     }
 
     @Override
-    public FragmentTestActivity onGetHost() {
+    public FragmentActivity onGetHost() {
         return mActivity;
     }
 

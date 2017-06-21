@@ -34,7 +34,7 @@ import java.util.List;
  * @hide
  */
 interface IMediaSession {
-    // Next ID: 44
+    // Next ID: 46
     void sendCommand(String command, in Bundle args, in MediaSessionCompat.ResultReceiverWrapper cb) = 0;
     boolean sendMediaButton(in KeyEvent mediaButton) = 1;
     void registerCallbackListener(in IMediaControllerCallback cb) = 2;
@@ -53,6 +53,7 @@ interface IMediaSession {
     CharSequence getQueueTitle() = 29;
     Bundle getExtras() = 30;
     int getRatingType() = 31;
+    boolean isCaptioningEnabled() = 44;
     int getRepeatMode() = 36;
     boolean isShuffleModeEnabled() = 37;
     void addQueueItem(in MediaDescriptionCompat description) = 40;
@@ -78,6 +79,7 @@ interface IMediaSession {
     void rewind() = 22;
     void seekTo(long pos) = 23;
     void rate(in RatingCompat rating) = 24;
+    void setCaptioningEnabled(boolean enabled) = 45;
     void setRepeatMode(int repeatMode) = 38;
     void setShuffleModeEnabled(boolean shuffleMode) = 39;
     void sendCustomAction(String action, in Bundle args) = 25;

@@ -19,7 +19,7 @@
     <item android:id="@+id/action_search"
           android:title="@string/search_menu_title"
           app:showAsAction="always|collapseActionView"
-          app:actionViewClass="android.support.v7.widget.SearchView"/>
+          app:actionViewClass="android.support.v7.app.CustomCollapsibleView"/>
 
     <item android:id="@+id/action_alpha_shortcut"
           android:title="Alpha"

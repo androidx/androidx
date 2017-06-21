@@ -120,6 +120,22 @@ public class MediaSessionCompat {
     public static final int FLAG_HANDLES_QUEUE_COMMANDS = 1 << 2;
 
     /**
+     * Predefined custom action to flag the media that is currently playing as inappropriate.
+     *
+     * @see Callback#onCustomAction
+     */
+    public static final String ACTION_FLAG_AS_INAPPROPRIATE =
+            "android.support.v4.media.session.action.FLAG_AS_INAPPROPRIATE";
+
+    /**
+     * Predefined custom action to skip the advertisement that is currently playing.
+     *
+     * @see Callback#onCustomAction
+     */
+    public static final String ACTION_SKIP_AD =
+            "android.support.v4.media.session.action.SKIP_AD";
+
+    /**
      * Custom action to invoke playFromUri() for the forward compatibility.
      */
     static final String ACTION_PLAY_FROM_URI =
@@ -147,6 +163,12 @@ public class MediaSessionCompat {
      */
     static final String ACTION_PREPARE_FROM_URI =
             "android.support.v4.media.session.action.PREPARE_FROM_URI";
+
+    /**
+     * Custom action to invoke setCaptioningEnabled() for the forward compatibility.
+     */
+    static final String ACTION_SET_CAPTIONING_ENABLED =
+            "android.support.v4.media.session.action.SET_CAPTIONING_ENABLED";
 
     /**
      * Custom action to invoke setRepeatMode() for the forward compatibility.
@@ -184,6 +206,13 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_EXTRAS =
             "android.support.v4.media.session.action.ARGUMENT_EXTRAS";
+
+    /**
+     * Argument for use with {@link #ACTION_SET_CAPTIONING_ENABLED} indicating whether captioning is
+     * enabled.
+     */
+    static final String ACTION_ARGUMENT_CAPTIONING_ENABLED =
+            "android.support.v4.media.session.action.ARGUMENT_CAPTIONING_ENABLED";
 
     /**
      * Argument for use with {@link #ACTION_SET_REPEAT_MODE} indicating repeat mode.
@@ -537,6 +566,15 @@ public class MediaSessionCompat {
     }
 
     /**
+     * Enable/disable captioning for this session.
+     *
+     * @param enabled {@code true} to enable captioning, {@code false} to disable.
+     */
+    public void setCaptioningEnabled(boolean enabled) {
+        mImpl.setCaptioningEnabled(enabled);
+    }
+
+    /**
      * Set the repeat mode for this session.
      * <p>
      * Note that if this method is not called before, {@link MediaControllerCompat#getRepeatMode}
@@ -673,6 +711,39 @@ public class MediaSessionCompat {
             return null;
         }
         return new MediaSessionCompat(context, new MediaSessionImplApi21(mediaSession));
+    }
+
+    private static PlaybackStateCompat getStateWithUpdatedPosition(
+            PlaybackStateCompat state, MediaMetadataCompat metadata) {
+        if (state == null || state.getPosition() == PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN) {
+            return state;
+        }
+
+        if (state.getState() == PlaybackStateCompat.STATE_PLAYING
+                || state.getState() == PlaybackStateCompat.STATE_FAST_FORWARDING
+                || state.getState() == PlaybackStateCompat.STATE_REWINDING) {
+            long updateTime = state.getLastPositionUpdateTime();
+            if (updateTime > 0) {
+                long currentTime = SystemClock.elapsedRealtime();
+                long position = (long) (state.getPlaybackSpeed() * (currentTime - updateTime))
+                        + state.getPosition();
+                long duration = -1;
+                if (metadata != null && metadata.containsKey(
+                        MediaMetadataCompat.METADATA_KEY_DURATION)) {
+                    duration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+                }
+
+                if (duration >= 0 && position > duration) {
+                    position = duration;
+                } else if (position < 0) {
+                    position = 0;
+                }
+                return new PlaybackStateCompat.Builder(state)
+                        .setState(state.getState(), position, state.getPlaybackSpeed(), currentTime)
+                        .build();
+            }
+        }
+        return state;
     }
 
     /**
@@ -850,6 +921,14 @@ public class MediaSessionCompat {
         }
 
         /**
+         * Override to handle requests to enable/disable captioning.
+         *
+         * @param enabled {@code true} to enable captioning, {@code false} to disable.
+         */
+        public void onSetCaptioningEnabled(boolean enabled) {
+        }
+
+        /**
          * Override to handle the setting of the repeat mode.
          * <p>
          * You should call {@link #setRepeatMode} before end of this method in order to notify
@@ -884,6 +963,8 @@ public class MediaSessionCompat {
          *            {@link PlaybackStateCompat.CustomAction}.
          * @param extras Optional extras specified by the
          *            {@link MediaControllerCompat}.
+         * @see #ACTION_FLAG_AS_INAPPROPRIATE
+         * @see #ACTION_SKIP_AD
          */
         public void onCustomAction(String action, Bundle extras) {
         }
@@ -941,7 +1022,9 @@ public class MediaSessionCompat {
                     MediaSessionImplApi21 impl = (MediaSessionImplApi21) mSessionImpl.get();
                     if (impl != null) {
                         Bundle result = new Bundle();
-                        BundleCompat.putBinder(result, EXTRA_BINDER, impl.getExtraSessionBinder());
+                        IMediaSession extraBinder = impl.getSessionToken().getExtraBinder();
+                        BundleCompat.putBinder(result, EXTRA_BINDER,
+                                extraBinder == null ? null : extraBinder.asBinder());
                         cb.send(0, result);
                     }
                 } else if (command.equals(MediaControllerCompat.COMMAND_ADD_QUEUE_ITEM)) {
@@ -1053,6 +1136,9 @@ public class MediaSessionCompat {
                     Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
                     Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
                     Callback.this.onPrepareFromUri(uri, bundle);
+                } else if (action.equals(ACTION_SET_CAPTIONING_ENABLED)) {
+                    boolean enabled = extras.getBoolean(ACTION_ARGUMENT_CAPTIONING_ENABLED);
+                    Callback.this.onSetCaptioningEnabled(enabled);
                 } else if (action.equals(ACTION_SET_REPEAT_MODE)) {
                     int repeatMode = extras.getInt(ACTION_ARGUMENT_REPEAT_MODE);
                     Callback.this.onSetRepeatMode(repeatMode);
@@ -1110,9 +1196,15 @@ public class MediaSessionCompat {
      */
     public static final class Token implements Parcelable {
         private final Object mInner;
+        private final IMediaSession mExtraBinder;
 
         Token(Object inner) {
+            this(inner, null);
+        }
+
+        Token(Object inner, IMediaSession extraBinder) {
             mInner = inner;
+            mExtraBinder = extraBinder;
         }
 
         /**
@@ -1127,10 +1219,28 @@ public class MediaSessionCompat {
          * @return A compat Token for use with {@link MediaControllerCompat}.
          */
         public static Token fromToken(Object token) {
+            return fromToken(token, null);
+        }
+
+        /**
+         * Creates a compat Token from a framework
+         * {@link android.media.session.MediaSession.Token} object, and the extra binder.
+         * <p>
+         * This method is only supported on
+         * {@link android.os.Build.VERSION_CODES#LOLLIPOP} and later.
+         * </p>
+         *
+         * @param token The framework token object.
+         * @param extraBinder The extra binder.
+         * @return A compat Token for use with {@link MediaControllerCompat}.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public static Token fromToken(Object token, IMediaSession extraBinder) {
             if (token == null || android.os.Build.VERSION.SDK_INT < 21) {
                 return null;
             }
-            return new Token(MediaSessionCompatApi21.verifyToken(token));
+            return new Token(MediaSessionCompatApi21.verifyToken(token), extraBinder);
         }
 
         @Override
@@ -1185,6 +1295,14 @@ public class MediaSessionCompat {
          */
         public Object getToken() {
             return mInner;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public IMediaSession getExtraBinder() {
+            return mExtraBinder;
         }
 
         public static final Parcelable.Creator<Token> CREATOR
@@ -1438,6 +1556,7 @@ public class MediaSessionCompat {
         void setQueueTitle(CharSequence title);
 
         void setRatingType(@RatingCompat.Style int type);
+        void setCaptioningEnabled(boolean enabled);
         void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode);
         void setShuffleModeEnabled(boolean enabled);
         void setExtras(Bundle extras);
@@ -1479,6 +1598,7 @@ public class MediaSessionCompat {
         List<QueueItem> mQueue;
         CharSequence mQueueTitle;
         @RatingCompat.Style int mRatingType;
+        boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
         boolean mShuffleModeEnabled;
         Bundle mExtras;
@@ -1780,6 +1900,14 @@ public class MediaSessionCompat {
         }
 
         @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            if (mCaptioningEnabled != enabled) {
+                mCaptioningEnabled = enabled;
+                sendCaptioningEnabled(enabled);
+            }
+        }
+
+        @Override
         public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
             if (mRepeatMode != repeatMode) {
                 mRepeatMode = repeatMode;
@@ -1892,43 +2020,6 @@ public class MediaSessionCompat {
             }
         }
 
-        PlaybackStateCompat getStateWithUpdatedPosition() {
-            PlaybackStateCompat state;
-            long duration = -1;
-            synchronized (mLock) {
-                state = mState;
-                if (mMetadata != null
-                        && mMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
-                    duration = mMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-                }
-            }
-
-            PlaybackStateCompat result = null;
-            if (state != null) {
-                if (state.getState() == PlaybackStateCompat.STATE_PLAYING
-                        || state.getState() == PlaybackStateCompat.STATE_FAST_FORWARDING
-                        || state.getState() == PlaybackStateCompat.STATE_REWINDING) {
-                    long updateTime = state.getLastPositionUpdateTime();
-                    long currentTime = SystemClock.elapsedRealtime();
-                    if (updateTime > 0) {
-                        long position = (long) (state.getPlaybackSpeed()
-                                * (currentTime - updateTime)) + state.getPosition();
-                        if (duration >= 0 && position > duration) {
-                            position = duration;
-                        } else if (position < 0) {
-                            position = 0;
-                        }
-                        PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder(
-                                state);
-                        builder.setState(state.getState(), position, state.getPlaybackSpeed(),
-                                currentTime);
-                        result = builder.build();
-                    }
-                }
-            }
-            return result == null ? state : result;
-        }
-
         void sendVolumeInfoChanged(ParcelableVolumeInfo info) {
             int size = mControllerCallbacks.beginBroadcast();
             for (int i = size - 1; i >= 0; i--) {
@@ -2008,6 +2099,18 @@ public class MediaSessionCompat {
                 IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
                 try {
                     cb.onQueueTitleChanged(queueTitle);
+                } catch (RemoteException e) {
+                }
+            }
+            mControllerCallbacks.finishBroadcast();
+        }
+
+        private void sendCaptioningEnabled(boolean enabled) {
+            int size = mControllerCallbacks.beginBroadcast();
+            for (int i = size - 1; i >= 0; i--) {
+                IMediaControllerCallback cb = mControllerCallbacks.getBroadcastItem(i);
+                try {
+                    cb.onCaptioningEnabledChanged(enabled);
                 } catch (RemoteException e) {
                 }
             }
@@ -2234,6 +2337,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setCaptioningEnabled(boolean enabled) throws RemoteException {
+                postToHandler(MessageHandler.MSG_SET_CAPTIONING_ENABLED, enabled);
+            }
+
+            @Override
             public void setRepeatMode(int repeatMode) throws RemoteException {
                 postToHandler(MessageHandler.MSG_SET_REPEAT_MODE, repeatMode);
             }
@@ -2256,7 +2364,13 @@ public class MediaSessionCompat {
 
             @Override
             public PlaybackStateCompat getPlaybackState() {
-                return getStateWithUpdatedPosition();
+                PlaybackStateCompat state;
+                MediaMetadataCompat metadata;
+                synchronized (mLock) {
+                    state = mState;
+                    metadata = mMetadata;
+                }
+                return getStateWithUpdatedPosition(state, metadata);
             }
 
             @Override
@@ -2302,6 +2416,11 @@ public class MediaSessionCompat {
             @RatingCompat.Style
             public int getRatingType() {
                 return mRatingType;
+            }
+
+            @Override
+            public boolean isCaptioningEnabled() {
+                return mCaptioningEnabled;
             }
 
             @Override
@@ -2363,6 +2482,7 @@ public class MediaSessionCompat {
             private static final int MSG_ADD_QUEUE_ITEM_AT = 26;
             private static final int MSG_REMOVE_QUEUE_ITEM = 27;
             private static final int MSG_REMOVE_QUEUE_ITEM_AT = 28;
+            private static final int MSG_SET_CAPTIONING_ENABLED = 29;
 
             // KeyEvent constants only available on API 11+
             private static final int KEYCODE_MEDIA_PAUSE = 127;
@@ -2482,6 +2602,9 @@ public class MediaSessionCompat {
                     case MSG_SET_VOLUME:
                         setVolumeTo(msg.arg1, 0);
                         break;
+                    case MSG_SET_CAPTIONING_ENABLED:
+                        cb.onSetCaptioningEnabled((boolean) msg.obj);
+                        break;
                     case MSG_SET_REPEAT_MODE:
                         cb.onSetRepeatMode(msg.arg1);
                         break;
@@ -2558,23 +2681,26 @@ public class MediaSessionCompat {
         private final Token mToken;
 
         private boolean mDestroyed = false;
-        private ExtraSession mExtraSessionBinder;
         private final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
                 new RemoteCallbackList<>();
 
         private PlaybackStateCompat mPlaybackState;
+        private MediaMetadataCompat mMetadata;
         @RatingCompat.Style int mRatingType;
+        boolean mCaptioningEnabled;
         @PlaybackStateCompat.RepeatMode int mRepeatMode;
         boolean mShuffleModeEnabled;
 
         public MediaSessionImplApi21(Context context, String tag) {
             mSessionObj = MediaSessionCompatApi21.createSession(context, tag);
-            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj));
+            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj),
+                    new ExtraSession());
         }
 
         public MediaSessionImplApi21(Object mediaSession) {
             mSessionObj = MediaSessionCompatApi21.verifySession(mediaSession);
-            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj));
+            mToken = new Token(MediaSessionCompatApi21.getSessionToken(mSessionObj),
+                    new ExtraSession());
         }
 
         @Override
@@ -2657,6 +2783,7 @@ public class MediaSessionCompat {
 
         @Override
         public void setMetadata(MediaMetadataCompat metadata) {
+            mMetadata = metadata;
             MediaSessionCompatApi21.setMetadata(mSessionObj,
                     metadata == null ? null : metadata.getMediaMetadata());
         }
@@ -2694,6 +2821,22 @@ public class MediaSessionCompat {
                 mRatingType = type;
             } else {
                 MediaSessionCompatApi22.setRatingType(mSessionObj, type);
+            }
+        }
+
+        @Override
+        public void setCaptioningEnabled(boolean enabled) {
+            if (mCaptioningEnabled != enabled) {
+                mCaptioningEnabled = enabled;
+                int size = mExtraControllerCallbacks.beginBroadcast();
+                for (int i = size - 1; i >= 0; i--) {
+                    IMediaControllerCallback cb = mExtraControllerCallbacks.getBroadcastItem(i);
+                    try {
+                        cb.onCaptioningEnabledChanged(enabled);
+                    } catch (RemoteException e) {
+                    }
+                }
+                mExtraControllerCallbacks.finishBroadcast();
             }
         }
 
@@ -2751,13 +2894,6 @@ public class MediaSessionCompat {
             } else {
                 return MediaSessionCompatApi24.getCallingPackage(mSessionObj);
             }
-        }
-
-        ExtraSession getExtraSessionBinder() {
-            if (mExtraSessionBinder == null) {
-                mExtraSessionBinder = new ExtraSession();
-            }
-            return mExtraSessionBinder;
         }
 
         class ExtraSession extends IMediaSession.Stub {
@@ -2931,6 +3067,12 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setCaptioningEnabled(boolean enabled) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
             public void setRepeatMode(int repeatMode) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
@@ -2956,7 +3098,7 @@ public class MediaSessionCompat {
 
             @Override
             public PlaybackStateCompat getPlaybackState() {
-                return mPlaybackState;
+                return getStateWithUpdatedPosition(mPlaybackState, mMetadata);
             }
 
             @Override
@@ -3005,6 +3147,11 @@ public class MediaSessionCompat {
             @RatingCompat.Style
             public int getRatingType() {
                 return mRatingType;
+            }
+
+            @Override
+            public boolean isCaptioningEnabled() {
+                return mCaptioningEnabled;
             }
 
             @Override

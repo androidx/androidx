@@ -381,17 +381,12 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * @see MediaPlayer#setDataSource(String)
      */
     public boolean setMediaSource(Uri uri) {
-        if (mMediaSourceUri != null && mMediaSourceUri.equals(uri)) {
+        if (mMediaSourceUri != null ? mMediaSourceUri.equals(uri) : uri == null) {
             return false;
         }
-        if (mMediaSourceUri != null || mMediaSourcePath != null) {
-            mMediaSourceUri = uri;
-            mMediaSourcePath = null;
-            prepareMediaForPlaying();
-        } else {
-            mMediaSourceUri = uri;
-            prepareMediaForPlaying();
-        }
+        mMediaSourceUri = uri;
+        mMediaSourcePath = null;
+        prepareMediaForPlaying();
         return true;
     }
 
@@ -403,17 +398,12 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
      * @see MediaPlayer#setDataSource(String)
      */
     public boolean setMediaSource(String path) {
-        if (mMediaSourcePath != null && mMediaSourcePath.equals(mMediaSourcePath)) {
+        if (mMediaSourcePath != null ? mMediaSourcePath.equals(path) : path == null) {
             return false;
         }
-        if (mMediaSourceUri != null || mMediaSourcePath != null) {
-            mMediaSourceUri = null;
-            mMediaSourcePath = path;
-            prepareMediaForPlaying();
-        } else {
-            mMediaSourcePath = path;
-            prepareMediaForPlaying();
-        }
+        mMediaSourceUri = null;
+        mMediaSourcePath = path;
+        prepareMediaForPlaying();
         return true;
     }
 

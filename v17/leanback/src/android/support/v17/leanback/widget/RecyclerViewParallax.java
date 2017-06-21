@@ -22,6 +22,7 @@ import static android.support.v7.widget.RecyclerView.ViewHolder;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
+import android.util.Property;
 import android.view.View;
 
 /**
@@ -29,14 +30,21 @@ import android.view.View;
  * allows users to track position of specific views inside {@link RecyclerView} relative to
  * itself. @see {@link ChildPositionProperty} for details.
  */
-public class RecyclerViewParallax extends
-        Parallax.IntParallax<RecyclerViewParallax.ChildPositionProperty> {
+public class RecyclerViewParallax extends Parallax<RecyclerViewParallax.ChildPositionProperty> {
     RecyclerView mRecylerView;
     boolean mIsVertical;
 
     OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            updateValues();
+        }
+    };
+
+    View.OnLayoutChangeListener mOnLayoutChangeListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View view, int l, int t, int r, int b,
+                int oldL, int oldT, int oldR, int oldB) {
             updateValues();
         }
     };
@@ -141,16 +149,16 @@ public class RecyclerViewParallax extends
                     : recyclerView.findViewHolderForAdapterPosition(mAdapterPosition);
             if (viewHolder == null) {
                 if (recyclerView == null || recyclerView.getLayoutManager().getChildCount() == 0) {
-                    source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
+                    source.setIntPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
                     return;
                 }
                 View firstChild = recyclerView.getLayoutManager().getChildAt(0);
                 ViewHolder vh = recyclerView.findContainingViewHolder(firstChild);
                 int firstPosition = vh.getAdapterPosition();
                 if (firstPosition < mAdapterPosition) {
-                    source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
+                    source.setIntPropertyValue(getIndex(), IntProperty.UNKNOWN_AFTER);
                 } else {
-                    source.setPropertyValue(getIndex(), IntProperty.UNKNOWN_BEFORE);
+                    source.setIntPropertyValue(getIndex(), IntProperty.UNKNOWN_BEFORE);
                 }
             } else {
                 View trackingView = viewHolder.itemView.findViewById(mViewId);
@@ -165,16 +173,22 @@ public class RecyclerViewParallax extends
                 // add up translation values in parent.
                 float tx = 0, ty = 0;
                 while (trackingView != recyclerView && trackingView != null) {
-                    tx += trackingView.getTranslationX();
-                    ty += trackingView.getTranslationY();
+                    // In RecyclerView dispatchLayout() it may call onScrolled(0) with a move
+                    // ItemAnimation just created. We don't have any way to track the ItemAnimation
+                    // update listener, and in ideal use case, the tracking view should not be
+                    // animated in RecyclerView. Do not apply translation value for this case.
+                    if (!(trackingView.getParent() == recyclerView && recyclerView.isAnimating())) {
+                        tx += trackingView.getTranslationX();
+                        ty += trackingView.getTranslationY();
+                    }
                     trackingView = (View) trackingView.getParent();
                 }
                 rect.offset((int) tx, (int) ty);
                 if (source.mIsVertical) {
-                    source.setPropertyValue(getIndex(), rect.top + mOffset
+                    source.setIntPropertyValue(getIndex(), rect.top + mOffset
                             + (int) (mFraction * rect.height()));
                 } else {
-                    source.setPropertyValue(getIndex(), rect.left + mOffset
+                    source.setIntPropertyValue(getIndex(), rect.left + mOffset
                             + (int) (mFraction * rect.width()));
                 }
             }
@@ -188,7 +202,7 @@ public class RecyclerViewParallax extends
     }
 
     @Override
-    public int getMaxValue() {
+    public float getMaxValue() {
         if (mRecylerView == null) {
             return 0;
         }
@@ -205,6 +219,7 @@ public class RecyclerViewParallax extends
         }
         if (mRecylerView != null) {
             mRecylerView.removeOnScrollListener(mOnScrollListener);
+            mRecylerView.removeOnLayoutChangeListener(mOnLayoutChangeListener);
         }
         mRecylerView = recyclerView;
         if (mRecylerView != null) {
@@ -212,6 +227,7 @@ public class RecyclerViewParallax extends
                     .getProperties(mRecylerView.getContext(), null, 0, 0);
             mIsVertical = properties.orientation == RecyclerView.VERTICAL;
             mRecylerView.addOnScrollListener(mOnScrollListener);
+            mRecylerView.addOnLayoutChangeListener(mOnLayoutChangeListener);
         }
     }
 
@@ -221,8 +237,8 @@ public class RecyclerViewParallax extends
      */
     @Override
     public void updateValues() {
-        for (ChildPositionProperty prop: getProperties()) {
-            prop.updateValue(RecyclerViewParallax.this);
+        for (Property prop: getProperties()) {
+            ((ChildPositionProperty) prop).updateValue(RecyclerViewParallax.this);
         }
         super.updateValues();
     }

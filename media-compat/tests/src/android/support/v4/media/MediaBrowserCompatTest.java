@@ -19,7 +19,9 @@ package android.support.v4.media;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 import static org.junit.Assert.fail;
 
@@ -58,6 +60,10 @@ public class MediaBrowserCompatTest {
     private static final ComponentName TEST_BROWSER_SERVICE = new ComponentName(
             "android.support.mediacompat.test",
             "android.support.v4.media.StubMediaBrowserServiceCompat");
+    private static final ComponentName TEST_REMOTE_BROWSER_SERVICE = new ComponentName(
+            "android.support.mediacompat.test",
+            "android.support.v4.media.StubRemoteMediaBrowserServiceCompat");
+
     private static final ComponentName TEST_INVALID_BROWSER_SERVICE = new ComponentName(
             "invalid.package", "invalid.ServiceClassName");
     private final StubConnectionCallback mConnectionCallback = new StubConnectionCallback();
@@ -71,10 +77,10 @@ public class MediaBrowserCompatTest {
     public void testMediaBrowser() {
         resetCallbacks();
         createMediaBrowser(TEST_BROWSER_SERVICE);
-        assertEquals(false, mMediaBrowser.isConnected());
+        assertFalse(mMediaBrowser.isConnected());
 
         connectMediaBrowserService();
-        assertEquals(true, mMediaBrowser.isConnected());
+        assertTrue(mMediaBrowser.isConnected());
 
         assertEquals(TEST_BROWSER_SERVICE, mMediaBrowser.getServiceComponent());
         assertEquals(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, mMediaBrowser.getRoot());
@@ -90,6 +96,33 @@ public class MediaBrowserCompatTest {
                 return !mMediaBrowser.isConnected();
             }
         }.run();
+        assertFalse(mMediaBrowser.isConnected());
+    }
+
+    @Test
+    @SmallTest
+    public void testMediaBrowserWithRemoteService() {
+        resetCallbacks();
+        createMediaBrowser(TEST_REMOTE_BROWSER_SERVICE);
+        assertFalse(mMediaBrowser.isConnected());
+
+        connectMediaBrowserService();
+        assertTrue(mMediaBrowser.isConnected());
+
+        assertEquals(TEST_REMOTE_BROWSER_SERVICE, mMediaBrowser.getServiceComponent());
+        assertEquals(StubRemoteMediaBrowserServiceCompat.MEDIA_ID_ROOT, mMediaBrowser.getRoot());
+        assertEquals(StubRemoteMediaBrowserServiceCompat.EXTRAS_VALUE,
+                mMediaBrowser.getExtras().getString(
+                        StubRemoteMediaBrowserServiceCompat.EXTRAS_KEY));
+
+        mMediaBrowser.disconnect();
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return !mMediaBrowser.isConnected();
+            }
+        }.run();
+        assertFalse(mMediaBrowser.isConnected());
     }
 
     @Test
@@ -119,6 +152,46 @@ public class MediaBrowserCompatTest {
                 return mConnectionCallback.mConnectionFailedCount > 0
                         && mConnectionCallback.mConnectedCount == 0
                         && mConnectionCallback.mConnectionSuspendedCount == 0;
+            }
+        }.run();
+    }
+
+    @Test
+    @SmallTest
+    public void testSecondConnection() {
+        resetCallbacks();
+        createMediaBrowser(TEST_BROWSER_SERVICE);
+        connectMediaBrowserService();
+
+        mMediaBrowser.disconnect();
+        // We need to sleep some time here, because the browser may not be ready to connect yet.
+        try {
+            Thread.sleep(SLEEP_MS);
+        } catch (InterruptedException e) {
+            fail("Unexpected InterruptedException occurred.");
+        }
+
+        // Connect to the service again.
+        resetCallbacks();
+        connectMediaBrowserService();
+
+        // Test subscribe.
+        resetCallbacks();
+        mMediaBrowser.subscribe(StubMediaBrowserServiceCompat.MEDIA_ID_ROOT, mSubscriptionCallback);
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return mSubscriptionCallback.mChildrenLoadedCount > 0;
+            }
+        }.run();
+
+        // Test getItem.
+        resetCallbacks();
+        mMediaBrowser.getItem(StubMediaBrowserServiceCompat.MEDIA_ID_CHILDREN[0], mItemCallback);
+        new PollingCheck(TIME_OUT_MS) {
+            @Override
+            protected boolean check() {
+                return mItemCallback.mLastMediaItem != null;
             }
         }.run();
     }

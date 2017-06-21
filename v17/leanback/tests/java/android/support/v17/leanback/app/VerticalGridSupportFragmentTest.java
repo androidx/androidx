@@ -50,21 +50,21 @@ public class VerticalGridSupportFragmentTest extends SingleSupportFragmentTestBa
 
     @Test
     public void immediateRemoveFragment() throws Throwable {
-        launchAndWaitActivity(GridFragment.class, 500);
+        final SingleSupportFragmentTestActivity activity = launchAndWaitActivity(GridFragment.class, 500);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             public void run() {
                 GridFragment f = new GridFragment();
-                mActivity.getSupportFragmentManager().beginTransaction()
+                activity.getSupportFragmentManager().beginTransaction()
                         .replace(android.R.id.content, f, null).commit();
                 f.startEntranceTransition();
-                mActivity.getSupportFragmentManager().beginTransaction()
+                activity.getSupportFragmentManager().beginTransaction()
                         .replace(android.R.id.content, new Fragment(), null).commit();
             }
         });
 
         Thread.sleep(1000);
-        mActivity.finish();
+        activity.finish();
     }
 
 }

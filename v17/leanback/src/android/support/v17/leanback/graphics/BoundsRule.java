@@ -23,88 +23,87 @@ import android.graphics.Rect;
  * rectangular bound - left/top/right/bottom.
  */
 public class BoundsRule {
-    static final int INHERIT_PARENT = 0;
-    static final int ABSOLUTE_VALUE = 1;
-    static final int INHERIT_WITH_OFFSET = 2;
 
     /**
-     * This class represents individual rules for updating the bounds. Currently we support
-     * 3 different rule types -
-     *
-     * <ul>
-     *     <li>inheritFromParent: it applies a percentage to the parent property to compute
-     *     the final value </li>
-     *     <li>absoluteValue: it always used the supplied absolute value</li>
-     *     <li>inheritFromParentWithOffset: this uses a combination of INHERIT_PARENT
-     *     and ABSOLUTE_VALUE. First it applies the percentage on the parent and then adds the
-     *     offset to compute the final value</li>
-     * </ul>
+     * This class represents individual rules for updating the bounds.
      */
     public final static class ValueRule {
-        private final int type;
-        private float fraction;
-        private int absoluteValue;
+        float mFraction;
+        int mAbsoluteValue;
 
-        ValueRule(int type, int absoluteValue, float fraction) {
-            this.type = type;
-            this.absoluteValue = absoluteValue;
-            this.fraction = fraction;
+        /**
+         * Creates ValueRule using a fraction of parent size.
+         *
+         * @param fraction Percentage of parent.
+         * @return Newly created ValueRule.
+         */
+        public static ValueRule inheritFromParent(float fraction) {
+            return new ValueRule(0, fraction);
+        }
+
+        /**
+         * Creates ValueRule using an absolute value.
+         *
+         * @param absoluteValue Absolute value.
+         * @return Newly created ValueRule.
+         */
+        public static ValueRule absoluteValue(int absoluteValue) {
+            return new ValueRule(absoluteValue, 0);
+        }
+
+        /**
+         * Creates ValueRule of fraction and offset.
+         *
+         * @param fraction Percentage of parent.
+         * @param value    Offset
+         * @return Newly created ValueRule.
+         */
+        public static ValueRule inheritFromParentWithOffset(float fraction, int value) {
+            return new ValueRule(value, fraction);
+        }
+
+        ValueRule(int absoluteValue, float fraction) {
+            this.mAbsoluteValue = absoluteValue;
+            this.mFraction = fraction;
         }
 
         ValueRule(ValueRule rule) {
-            this.type = rule.type;
-            this.fraction = rule.fraction;
-            this.absoluteValue = rule.absoluteValue;
+            this.mFraction = rule.mFraction;
+            this.mAbsoluteValue = rule.mAbsoluteValue;
         }
 
         /**
          * Sets the fractional value (percentage of parent) for this rule.
+         *
+         * @param fraction Percentage of parent.
          */
         public void setFraction(float fraction) {
-            this.fraction = fraction;
+            this.mFraction = fraction;
         }
 
         /**
-         * Returns the current fractional value.
+         * @return The current fractional value.
          */
         public float getFraction() {
-            return fraction;
+            return mFraction;
         }
 
         /**
-         * Sets the absolute value for this rule.
+         * Sets the absolute/offset value for rule.
+         *
+         * @param absoluteValue Absolute value.
          */
         public void setAbsoluteValue(int absoluteValue) {
-            this.absoluteValue = absoluteValue;
+            this.mAbsoluteValue = absoluteValue;
         }
 
         /**
-         * Returns the current absolute value.
+         * @return The current absolute/offset value forrule.
          */
         public int getAbsoluteValue() {
-            return absoluteValue;
+            return mAbsoluteValue;
         }
-    }
 
-    /**
-     * Factory method for creating ValueRule of type INHERIT_FROM_PARENT.
-     */
-    public static ValueRule inheritFromParent(float fraction) {
-        return new ValueRule(INHERIT_PARENT, 0, fraction);
-    }
-
-    /**
-     * Factory method for creating ValueRule of type ABSOLUTE_VALUE.
-     */
-    public static ValueRule absoluteValue(int value) {
-        return new ValueRule(ABSOLUTE_VALUE, value, 0);
-    }
-
-    /**
-     * Factory method for creating ValueRule of type INHERIT_WITH_OFFSET.
-     */
-    public static ValueRule inheritFromParentWithOffset(float fraction, int value) {
-        return new ValueRule(INHERIT_WITH_OFFSET, value, fraction);
     }
 
     /**
@@ -150,17 +149,7 @@ public class BoundsRule {
     }
 
     private int doCalculate(int value, ValueRule rule, int size) {
-        int offset = 0;
-        switch(rule.type) {
-            case INHERIT_WITH_OFFSET:
-                offset = rule.absoluteValue;
-            case INHERIT_PARENT:
-                return value + offset + (int)(rule.fraction * size);
-            case ABSOLUTE_VALUE:
-                return rule.absoluteValue;
-        }
-
-        throw new IllegalArgumentException("Invalid type: "+rule.type);
+        return value + rule.mAbsoluteValue + (int) (rule.mFraction * size);
     }
 
     /** {@link ValueRule} for left attribute of {@link BoundsRule} */

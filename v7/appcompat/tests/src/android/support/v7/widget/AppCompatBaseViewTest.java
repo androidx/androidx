@@ -35,6 +35,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.test.filters.SmallTest;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.BaseInstrumentationTestCase;
@@ -42,7 +43,6 @@ import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.AppCompatTintableViewActions;
 import android.support.v7.testutils.BaseTestActivity;
 import android.support.v7.testutils.TestUtils;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.ViewGroup;
 

@@ -179,7 +179,7 @@ abstract public class OnboardingFragment extends Fragment {
     // No need to save/restore the logo resource ID, because the logo animation will not appear when
     // the fragment is restored.
     private int mLogoResourceId;
-    boolean mEnterTransitionFinished;
+    boolean mLogoAnimationFinished;
     int mCurrentPageIndex;
 
     private AnimatorSet mAnimator;
@@ -187,7 +187,7 @@ abstract public class OnboardingFragment extends Fragment {
     private final OnClickListener mOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (!mEnterTransitionFinished) {
+            if (!mLogoAnimationFinished) {
                 // Do not change page until the enter transition finishes.
                 return;
             }
@@ -202,7 +202,7 @@ abstract public class OnboardingFragment extends Fragment {
     private final OnKeyListener mOnKeyListener = new OnKeyListener() {
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
-            if (!mEnterTransitionFinished) {
+            if (!mLogoAnimationFinished) {
                 // Ignore key event until the enter transition finishes.
                 return keyCode != KeyEvent.KEYCODE_BACK;
             }
@@ -235,13 +235,28 @@ abstract public class OnboardingFragment extends Fragment {
         }
     };
 
-    void moveToPreviousPage() {
+    /**
+     * Navigates to the previous page.
+     */
+    protected void moveToPreviousPage() {
+        if (!mLogoAnimationFinished) {
+            // Ignore if the logo enter transition is in progress.
+            return;
+        }
         if (mCurrentPageIndex > 0) {
             --mCurrentPageIndex;
             onPageChangedInternal(mCurrentPageIndex + 1);
         }
     }
-    void moveToNextPage() {
+
+    /**
+     * Navigates to the next page.
+     */
+    protected void moveToNextPage() {
+        if (!mLogoAnimationFinished) {
+            // Ignore if the logo enter transition is in progress.
+            return;
+        }
         if (mCurrentPageIndex < getPageCount() - 1) {
             ++mCurrentPageIndex;
             onPageChangedInternal(mCurrentPageIndex - 1);
@@ -274,7 +289,7 @@ abstract public class OnboardingFragment extends Fragment {
         }
         if (savedInstanceState == null) {
             mCurrentPageIndex = 0;
-            mEnterTransitionFinished = false;
+            mLogoAnimationFinished = false;
             mPageIndicator.onPageSelected(0, false);
             view.getViewTreeObserver().addOnPreDrawListener(new OnPreDrawListener() {
                 @Override
@@ -287,7 +302,7 @@ abstract public class OnboardingFragment extends Fragment {
                 }
             });
         } else {
-            mEnterTransitionFinished = true;
+            mLogoAnimationFinished = true;
             mCurrentPageIndex = savedInstanceState.getInt(KEY_CURRENT_PAGE_INDEX);
             initializeViews(view);
         }
@@ -450,10 +465,19 @@ abstract public class OnboardingFragment extends Fragment {
         // Header views.
         mTitleView.setText(getPageTitle(mCurrentPageIndex));
         mDescriptionView.setText(getPageDescription(mCurrentPageIndex));
+        onLogoAnimationFinished();
+    }
+
+    /**
+     * Called immediately after fragment views become visible. This method gives subclasses a chance
+     * to initialize themselves. If a logo animation is specified, calling this method is delayed
+     * until after the logo animation is complete.
+     */
+    protected void onLogoAnimationFinished() {
     }
 
     void startEnterAnimation() {
-        mEnterTransitionFinished = true;
+        mLogoAnimationFinished = true;
         initializeViews(getView());
         List<Animator> animators = new ArrayList<>();
         final Context context = FragmentUtil.getContext(this);
@@ -487,6 +511,15 @@ abstract public class OnboardingFragment extends Fragment {
         mAnimator.start();
         // Search focus and give the focus to the appropriate child which has become visible.
         getView().requestFocus();
+    }
+
+    /**
+     * Returns whether the logo enter transition is finished.
+     *
+     * @return {@code true} if the logo enter transition is finished, {@code false} otherwise
+     */
+    protected final boolean isLogoAnimationFinished() {
+        return mLogoAnimationFinished;
     }
 
     /**

@@ -43,6 +43,43 @@ public class GapWorkerTest {
     }
 
     @Test
+    public void registrySimple() {
+        GapWorker.LayoutPrefetchRegistryImpl registry = new GapWorker.LayoutPrefetchRegistryImpl();
+        registry.addPosition(0, 0);
+        registry.addPosition(2, 0);
+        registry.addPosition(3, 0);
+        assertTrue(registry.lastPrefetchIncludedPosition(0));
+        assertFalse(registry.lastPrefetchIncludedPosition(1));
+        assertTrue(registry.lastPrefetchIncludedPosition(2));
+        assertTrue(registry.lastPrefetchIncludedPosition(3));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void registryNegativeLayout() {
+        GapWorker.LayoutPrefetchRegistryImpl registry = new GapWorker.LayoutPrefetchRegistryImpl();
+        registry.addPosition(-1, 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void registryNegativeDistance() {
+        GapWorker.LayoutPrefetchRegistryImpl registry = new GapWorker.LayoutPrefetchRegistryImpl();
+        registry.addPosition(0, -1);
+    }
+
+    @Test
+    public void registryResetCorrectly() {
+        GapWorker.LayoutPrefetchRegistryImpl registry = new GapWorker.LayoutPrefetchRegistryImpl();
+        registry.addPosition(0, 0);
+        assertFalse(registry.lastPrefetchIncludedPosition(-1));
+        assertTrue(registry.lastPrefetchIncludedPosition(0));
+
+        registry.clearPrefetchPositions();
+
+        assertFalse(registry.lastPrefetchIncludedPosition(-1));
+        assertFalse(registry.lastPrefetchIncludedPosition(0));
+    }
+
+    @Test
     public void taskOrderViewPresence() {
         ArrayList<GapWorker.Task> list = new ArrayList<>();
         list.add(new GapWorker.Task());

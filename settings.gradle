@@ -82,6 +82,9 @@ project(':support-animated-vector-drawable').projectDir = new File(rootDir, 'gra
 include ':support-transition'
 project(':support-transition').projectDir = new File(rootDir, 'transition')
 
+include ':support-dynamic-animation'
+project(':support-dynamic-animation').projectDir = new File(rootDir, 'dynamic-animation')
+
 include ':support-exifinterface'
 project(':support-exifinterface').projectDir = new File(rootDir, 'exifinterface')
 
@@ -117,6 +120,12 @@ project(':support-v7-demos').projectDir = new File(samplesRoot, 'Support7Demos')
 
 include ':support-v13-demos'
 project(':support-v13-demos').projectDir = new File(samplesRoot, 'Support13Demos')
+
+include ':support-vector-drawable-demos'
+project(':support-vector-drawable-demos').projectDir = new File(samplesRoot, 'SupportVectorDrawableDemos')
+
+include ':support-animation-demos'
+project(':support-animation-demos').projectDir = new File(samplesRoot, 'SupportAnimationDemos')
 
 /////////////////////////////
 //

@@ -759,7 +759,9 @@ class FragmentTransition {
             names = inTransaction.mSharedElementTargetNames;
         }
 
-        inSharedElements.retainAll(names);
+        if (names != null) {
+            inSharedElements.retainAll(names);
+        }
         if (sharedElementCallback != null) {
             sharedElementCallback.onMapSharedElements(names, inSharedElements);
             for (int i = names.size() - 1; i >= 0; i--) {
@@ -809,7 +811,8 @@ class FragmentTransition {
             FragmentContainerTransition fragments,
             Object enterTransition, boolean inIsPop) {
         BackStackRecord inTransaction = fragments.lastInTransaction;
-        if (enterTransition != null && inTransaction.mSharedElementSourceNames != null
+        if (enterTransition != null && inSharedElements != null
+                && inTransaction.mSharedElementSourceNames != null
                 && !inTransaction.mSharedElementSourceNames.isEmpty()) {
             final String targetName = inIsPop
                     ? inTransaction.mSharedElementSourceNames.get(0)
@@ -898,7 +901,9 @@ class FragmentTransition {
         if (transition != null) {
             viewList = new ArrayList<>();
             View root = fragment.getView();
-            FragmentTransitionCompat21.captureTransitioningViews(viewList, root);
+            if (root != null) {
+                FragmentTransitionCompat21.captureTransitioningViews(viewList, root);
+            }
             if (sharedElements != null) {
                 viewList.removeAll(sharedElements);
             }

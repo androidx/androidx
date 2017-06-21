@@ -22,12 +22,14 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.v7.widget.RecyclerView;
 
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
 public class SingleSupportFragmentTestBase {
+
+    private static final long WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS = 60000;
 
     @Rule
     public TestName mUnitTestName = new TestName();
@@ -35,20 +37,6 @@ public class SingleSupportFragmentTestBase {
     @Rule
     public ActivityTestRule<SingleSupportFragmentTestActivity> activityTestRule =
             new ActivityTestRule<>(SingleSupportFragmentTestActivity.class, false, false);
-
-    protected SingleSupportFragmentTestActivity mActivity;
-
-    @After
-    public void afterTest() throws Throwable {
-        activityTestRule.runOnUiThread(new Runnable() {
-            public void run() {
-                if (mActivity != null) {
-                    mActivity.finish();
-                    mActivity = null;
-                }
-            }
-        });
-    }
 
     public void sendKeys(int ...keys) {
         for (int i = 0; i < keys.length; i++) {
@@ -87,21 +75,48 @@ public class SingleSupportFragmentTestBase {
         }
     }
 
-    public void launchAndWaitActivity(Class fragmentClass, long waitTimeMs) {
-        launchAndWaitActivity(fragmentClass.getName(), null, waitTimeMs);
+    public SingleSupportFragmentTestActivity launchAndWaitActivity(Class fragmentClass, long waitTimeMs) {
+        return launchAndWaitActivity(fragmentClass.getName(), null, waitTimeMs);
     }
 
-    public void launchAndWaitActivity(Class fragmentClass, Options options, long waitTimeMs) {
-        launchAndWaitActivity(fragmentClass.getName(), options, waitTimeMs);
+    public SingleSupportFragmentTestActivity launchAndWaitActivity(Class fragmentClass, Options options,
+            long waitTimeMs) {
+        return launchAndWaitActivity(fragmentClass.getName(), options, waitTimeMs);
     }
 
-    public void launchAndWaitActivity(String firstFragmentName, Options options, long waitTimeMs) {
+    public SingleSupportFragmentTestActivity launchAndWaitActivity(String firstFragmentName,
+            Options options, long waitTimeMs) {
         Intent intent = new Intent();
         intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_FRAGMENT_NAME, firstFragmentName);
         if (options != null) {
             options.collect(intent);
         }
-        mActivity = activityTestRule.launchActivity(intent);
+        SingleSupportFragmentTestActivity activity = activityTestRule.launchActivity(intent);
         SystemClock.sleep(waitTimeMs);
+        return activity;
     }
+
+    protected void waitForScrollIdle(RecyclerView recyclerView) throws Throwable {
+        waitForScrollIdle(recyclerView, null);
+    }
+
+    protected void waitForScrollIdle(RecyclerView recyclerView, Runnable verify) throws Throwable {
+        Thread.sleep(100);
+        int total = 0;
+        while (recyclerView.getLayoutManager().isSmoothScrolling()
+                || recyclerView.getScrollState() != recyclerView.SCROLL_STATE_IDLE) {
+            if ((total += 100) >= WAIT_FOR_SCROLL_IDLE_TIMEOUT_MS) {
+                throw new RuntimeException("waitForScrollIdle Timeout");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                break;
+            }
+            if (verify != null) {
+                activityTestRule.runOnUiThread(verify);
+            }
+        }
+    }
+
 }

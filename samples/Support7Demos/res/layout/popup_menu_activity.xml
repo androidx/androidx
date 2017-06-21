@@ -27,6 +27,16 @@
         android:layout_centerHorizontal="true"
         android:text="@string/popup_menu_button" />
 
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/elevation_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/test_button"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:checked="true"
+        android:text="@string/popup_default_elevation" />
+
     <TextView
         android:id="@+id/log"
         android:layout_width="match_parent"

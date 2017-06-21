@@ -16,6 +16,7 @@ package android.support.v17.leanback.app;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
+import android.support.v17.leanback.util.StateMachine.State;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnChildLaidOutListener;
@@ -47,6 +48,29 @@ public class VerticalGridFragment extends BaseFragment {
     private OnItemViewClickedListener mOnItemViewClickedListener;
     private Object mSceneAfterEntranceTransition;
     private int mSelectedPosition = -1;
+
+    /**
+     * State to setEntranceTransitionState(false)
+     */
+    final State STATE_SET_ENTRANCE_START_STATE = new State("SET_ENTRANCE_START_STATE") {
+        @Override
+        public void run() {
+            setEntranceTransitionState(false);
+        }
+    };
+
+    @Override
+    void createStateMachineStates() {
+        super.createStateMachineStates();
+        mStateMachine.addState(STATE_SET_ENTRANCE_START_STATE);
+    }
+
+    @Override
+    void createStateMachineTransitions() {
+        super.createStateMachineTransitions();
+        mStateMachine.addTransition(STATE_ENTRANCE_ON_PREPARED,
+                STATE_SET_ENTRANCE_START_STATE, EVT_ON_CREATEVIEW);
+    }
 
     /**
      * Sets the grid presenter.
@@ -160,13 +184,8 @@ public class VerticalGridFragment extends BaseFragment {
         ViewGroup gridFrame = (ViewGroup) root.findViewById(R.id.grid_frame);
         installTitleView(inflater, gridFrame, savedInstanceState);
         getProgressBarManager().setRootView(root);
-        return root;
-    }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        ViewGroup gridDock = (ViewGroup) view.findViewById(R.id.browse_grid_dock);
+        ViewGroup gridDock = (ViewGroup) root.findViewById(R.id.browse_grid_dock);
         mGridViewHolder = mGridPresenter.onCreateViewHolder(gridDock);
         gridDock.addView(mGridViewHolder.view);
         mGridViewHolder.getGridView().setOnChildLaidOutListener(mChildLaidOutListener);
@@ -179,6 +198,7 @@ public class VerticalGridFragment extends BaseFragment {
         });
 
         updateAdapter();
+        return root;
     }
 
     private void setupFocusSearchListener() {
@@ -191,9 +211,6 @@ public class VerticalGridFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         setupFocusSearchListener();
-        if (isEntranceTransitionEnabled()) {
-            setEntranceTransitionState(false);
-        }
     }
 
     @Override

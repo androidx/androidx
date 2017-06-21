@@ -63,7 +63,6 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
         StringBuilder mCurrentTimeStringBuilder = new StringBuilder();
         int mCurrentTimeMarginStart;
         int mTotalTimeMarginEnd;
-        final PersistentFocusWrapper mControlsFocusWrapper;
 
         ViewHolder(View rootView) {
             super(rootView);
@@ -91,7 +90,6 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
                     ((MarginLayoutParams) mCurrentTime.getLayoutParams()).getMarginStart();
             mTotalTimeMarginEnd =
                     ((MarginLayoutParams) mTotalTime.getLayoutParams()).getMarginEnd();
-            mControlsFocusWrapper = (PersistentFocusWrapper) mControlBar.getParent();
         }
 
         void showMoreActions(boolean show) {
@@ -298,7 +296,6 @@ class PlaybackControlsPresenter extends ControlBarPresenter {
     }
 
     public void resetFocus(ViewHolder vh) {
-        vh.mControlsFocusWrapper.clearSelection();
         vh.mControlBar.requestFocus();
     }
 

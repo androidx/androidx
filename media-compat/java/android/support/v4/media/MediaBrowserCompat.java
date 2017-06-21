@@ -23,10 +23,12 @@ import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_GET_MEDIA
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_REMOVE_SUBSCRIPTION;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEARCH;
-import static android.support.v4.media.MediaBrowserProtocol
-        .CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
+import static android.support.v4.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static android.support.v4.media.MediaBrowserProtocol.CLIENT_VERSION_CURRENT;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
+import static android.support.v4.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION_EXTRAS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_LIST;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_MEDIA_SESSION_TOKEN;
@@ -38,6 +40,7 @@ import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_EXTRAS;
 import static android.support.v4.media.MediaBrowserProtocol.DATA_SEARCH_QUERY;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
 import static android.support.v4.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
+import static android.support.v4.media.MediaBrowserProtocol.EXTRA_SESSION_BINDER;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
 import static android.support.v4.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
@@ -61,6 +64,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
+import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaControllerCompat.TransportControls;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.os.BuildCompat;
@@ -82,6 +86,8 @@ import java.util.Map;
  * <p>
  * This object is not thread-safe. All calls should happen on the thread on which the browser
  * was constructed.
+ * </p><p>
+ * All callback methods will be called from the thread on which the browser was constructed.
  * </p>
  */
 public final class MediaBrowserCompat {
@@ -124,11 +130,7 @@ public final class MediaBrowserCompat {
      */
     public MediaBrowserCompat(Context context, ComponentName serviceComponent,
             ConnectionCallback callback, Bundle rootHints) {
-        // To workaround an issue of {@link #unsubscribe(String, SubscriptionCallback)} on API 24
-        // and 25 devices, use the support library version of implementation on those devices.
-        if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
-            mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
-        } else if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 21) {
             mImpl = new MediaBrowserImplApi21(context, serviceComponent, callback, rootHints);
@@ -336,6 +338,7 @@ public final class MediaBrowserCompat {
      * @param extras The bundle of service-specific arguments to send to the media browser service.
      *            The contents of this bundle may affect the search result.
      * @param callback The callback to receive the search result. Must be non-null.
+     * @throws IllegalStateException if the browser is not connected to the media browser service.
      */
     public void search(@NonNull final String query, final Bundle extras,
             @NonNull SearchCallback callback) {
@@ -346,6 +349,23 @@ public final class MediaBrowserCompat {
             throw new IllegalArgumentException("callback cannot be null");
         }
         mImpl.search(query, extras, callback);
+    }
+
+    /**
+     * Sends a custom action to the connected service. If the service doesn't support the given
+     * action, {@link CustomActionCallback#onError} will be called.
+     *
+     * @param action The custom action that will be sent to the connected service. Should not be an
+     *            empty string.
+     * @param extras The bundle of service-specific arguments to send to the media browser service.
+     * @param callback The callback to receive the result of the custom action.
+     */
+    public void sendCustomAction(@NonNull String action, Bundle extras,
+            @Nullable CustomActionCallback callback) {
+        if (TextUtils.isEmpty(action)) {
+            throw new IllegalArgumentException("action cannot be empty");
+        }
+        mImpl.sendCustomAction(action, extras, callback);
     }
 
     /**
@@ -601,11 +621,7 @@ public final class MediaBrowserCompat {
         WeakReference<Subscription> mSubscriptionRef;
 
         public SubscriptionCallback() {
-            if (Build.VERSION.SDK_INT >= 26 || BuildCompat.isAtLeastO()) {
-                mSubscriptionCallbackObj =
-                        MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
-                mToken = null;
-            } else if (Build.VERSION.SDK_INT >= 21) {
+            if (Build.VERSION.SDK_INT >= 21) {
                 mSubscriptionCallbackObj =
                         MediaBrowserCompatApi21.createSubscriptionCallback(new StubApi21());
                 mToken = new Binder();
@@ -722,24 +738,6 @@ public final class MediaBrowserCompat {
             }
 
         }
-
-        private class StubApi24 extends StubApi21
-                implements MediaBrowserCompatApi24.SubscriptionCallback {
-            StubApi24() {
-            }
-
-            @Override
-            public void onChildrenLoaded(@NonNull String parentId, List<?> children,
-                    @NonNull Bundle options) {
-                SubscriptionCallback.this.onChildrenLoaded(
-                        parentId, MediaItem.fromMediaItemList(children), options);
-            }
-
-            @Override
-            public void onError(@NonNull String parentId, @NonNull Bundle options) {
-                SubscriptionCallback.this.onError(parentId, options);
-            }
-        }
     }
 
     /**
@@ -822,6 +820,43 @@ public final class MediaBrowserCompat {
         }
     }
 
+    /**
+     * Callback for receiving the result of {@link #sendCustomAction}.
+     */
+    public abstract static class CustomActionCallback {
+        /**
+         * Called when an interim update was delivered from the connected service while performing
+         * the custom action.
+         *
+         * @param action The custom action sent to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param data The additional data delivered from the connected service.
+         */
+        public void onProgressUpdate(String action, Bundle extras, Bundle data) {
+        }
+
+        /**
+         * Called when the custom action finished successfully.
+         *
+         * @param action The custom action sent to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param resultData The additional data delivered from the connected service.
+         */
+        public void onResult(String action, Bundle extras, Bundle resultData) {
+        }
+
+        /**
+         * Called when an error happens while performing the custom action or the connected service
+         * doesn't support the requested custom action.
+         *
+         * @param action The custom action sent to the connected service.
+         * @param extras The bundle of service-specific arguments sent to the connected service.
+         * @param data The additional data delivered from the connected service.
+         */
+        public void onError(String action, Bundle extras, Bundle data) {
+        }
+    }
+
     interface MediaBrowserImpl {
         void connect();
         void disconnect();
@@ -835,6 +870,7 @@ public final class MediaBrowserCompat {
         void unsubscribe(@NonNull String parentId, SubscriptionCallback callback);
         void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb);
         void search(@NonNull String query, Bundle extras, @NonNull SearchCallback callback);
+        void sendCustomAction(String action, Bundle extras, final CustomActionCallback callback);
     }
 
     interface MediaBrowserServiceCallbackImpl {
@@ -846,10 +882,11 @@ public final class MediaBrowserCompat {
 
     static class MediaBrowserImplBase
             implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl {
-        static final int CONNECT_STATE_DISCONNECTED = 0;
-        static final int CONNECT_STATE_CONNECTING = 1;
-        private static final int CONNECT_STATE_CONNECTED = 2;
-        static final int CONNECT_STATE_SUSPENDED = 3;
+        static final int CONNECT_STATE_DISCONNECTING = 0;
+        static final int CONNECT_STATE_DISCONNECTED = 1;
+        static final int CONNECT_STATE_CONNECTING = 2;
+        static final int CONNECT_STATE_CONNECTED = 3;
+        static final int CONNECT_STATE_SUSPENDED = 4;
 
         final Context mContext;
         final ComponentName mServiceComponent;
@@ -949,21 +986,26 @@ public final class MediaBrowserCompat {
             // It's ok to call this any state, because allowing this lets apps not have
             // to check isConnected() unnecessarily. They won't appreciate the extra
             // assertions for this. We do everything we can here to go back to a sane state.
-            if (mCallbacksMessenger != null) {
-                try {
-                    mServiceBinderWrapper.disconnect(mCallbacksMessenger);
-                } catch (RemoteException ex) {
-                    // We are disconnecting anyway. Log, just for posterity but it's not
-                    // a big problem.
-                    Log.w(TAG, "RemoteException during connect for " + mServiceComponent);
+            mState = CONNECT_STATE_DISCONNECTING;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mCallbacksMessenger != null) {
+                        try {
+                            mServiceBinderWrapper.disconnect(mCallbacksMessenger);
+                        } catch (RemoteException ex) {
+                            // We are disconnecting anyway. Log, just for posterity but it's not
+                            // a big problem.
+                            Log.w(TAG, "RemoteException during connect for " + mServiceComponent);
+                        }
+                    }
+                    forceCloseConnection();
+                    if (DEBUG) {
+                        Log.d(TAG, "disconnect...");
+                        dump();
+                    }
                 }
-            }
-            forceCloseConnection();
-
-            if (DEBUG) {
-                Log.d(TAG, "disconnect...");
-                dump();
-            }
+            });
         }
 
         /**
@@ -1044,7 +1086,7 @@ public final class MediaBrowserCompat {
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
-            if (mState == CONNECT_STATE_CONNECTED) {
+            if (isConnected()) {
                 try {
                     mServiceBinderWrapper.addSubscription(parentId, callback.mToken, copiedOptions,
                             mCallbacksMessenger);
@@ -1066,7 +1108,7 @@ public final class MediaBrowserCompat {
             // Tell the service if necessary.
             try {
                 if (callback == null) {
-                    if (mState == CONNECT_STATE_CONNECTED) {
+                    if (isConnected()) {
                         mServiceBinderWrapper.removeSubscription(parentId, null,
                                 mCallbacksMessenger);
                     }
@@ -1075,7 +1117,7 @@ public final class MediaBrowserCompat {
                     final List<Bundle> optionsList = sub.getOptionsList();
                     for (int i = callbacks.size() - 1; i >= 0; --i) {
                         if (callbacks.get(i) == callback) {
-                            if (mState == CONNECT_STATE_CONNECTED) {
+                            if (isConnected()) {
                                 mServiceBinderWrapper.removeSubscription(
                                         parentId, callback.mToken, mCallbacksMessenger);
                             }
@@ -1103,7 +1145,7 @@ public final class MediaBrowserCompat {
             if (cb == null) {
                 throw new IllegalArgumentException("cb is null");
             }
-            if (mState != CONNECT_STATE_CONNECTED) {
+            if (!isConnected()) {
                 Log.i(TAG, "Not connected, unable to retrieve the MediaItem.");
                 mHandler.post(new Runnable() {
                     @Override
@@ -1117,7 +1159,7 @@ public final class MediaBrowserCompat {
             try {
                 mServiceBinderWrapper.getMediaItem(mediaId, receiver, mCallbacksMessenger);
             } catch (RemoteException e) {
-                Log.i(TAG, "Remote error getting media item.");
+                Log.i(TAG, "Remote error getting media item: " + mediaId);
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1131,14 +1173,8 @@ public final class MediaBrowserCompat {
         public void search(@NonNull final String query, final Bundle extras,
                 @NonNull final SearchCallback callback) {
             if (!isConnected()) {
-                Log.i(TAG, "Not connected, unable to search.");
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(query, extras);
-                    }
-                });
-                return;
+                throw new IllegalStateException("search() called while not connected"
+                        + " (state=" + getStateLabel(mState) + ")");
             }
 
             ResultReceiver receiver = new SearchResultReceiver(query, extras, callback, mHandler);
@@ -1150,6 +1186,32 @@ public final class MediaBrowserCompat {
                     @Override
                     public void run() {
                         callback.onError(query, extras);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void sendCustomAction(@NonNull final String action, final Bundle extras,
+                @Nullable final CustomActionCallback callback) {
+            if (!isConnected()) {
+                throw new IllegalStateException("Cannot send a custom action (" + action + ") with "
+                        + "extras " + extras + " because the browser is not connected to the "
+                        + "service.");
+            }
+
+            ResultReceiver receiver = new CustomActionResultReceiver(action, extras, callback,
+                    mHandler);
+            try {
+                mServiceBinderWrapper.sendCustomAction(action, extras, receiver,
+                        mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error sending a custom action: action=" + action + ", extras="
+                        + extras, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(action, extras, null);
                     }
                 });
             }
@@ -1267,6 +1329,8 @@ public final class MediaBrowserCompat {
          */
         private static String getStateLabel(int state) {
             switch (state) {
+                case CONNECT_STATE_DISCONNECTING:
+                    return "CONNECT_STATE_DISCONNECTING";
                 case CONNECT_STATE_DISCONNECTED:
                     return "CONNECT_STATE_DISCONNECTED";
                 case CONNECT_STATE_CONNECTING:
@@ -1431,20 +1495,15 @@ public final class MediaBrowserCompat {
 
         protected ServiceBinderWrapper mServiceBinderWrapper;
         protected Messenger mCallbacksMessenger;
+        private MediaSessionCompat.Token mMediaSessionToken;
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
-            // Do not send the client version for API 26 and higher, since we don't need to use
-            // EXTRA_MESSENGER_BINDER for API 26 and higher.
-            if (Build.VERSION.SDK_INT <= 25) {
-                if (rootHints == null) {
-                    rootHints = new Bundle();
-                }
-                rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
-                mRootHints = new Bundle(rootHints);
-            } else {
-                mRootHints = rootHints == null ? null : new Bundle(rootHints);
+            if (rootHints == null) {
+                rootHints = new Bundle();
             }
+            rootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
+            mRootHints = new Bundle(rootHints);
             callback.setInternalConnectionCallback(this);
             mBrowserObj = MediaBrowserCompatApi21.createBrowser(context, serviceComponent,
                     callback.mConnectionCallbackObj, mRootHints);
@@ -1492,8 +1551,11 @@ public final class MediaBrowserCompat {
         @NonNull
         @Override
         public MediaSessionCompat.Token getSessionToken() {
-            return MediaSessionCompat.Token.fromToken(
-                    MediaBrowserCompatApi21.getSessionToken(mBrowserObj));
+            if (mMediaSessionToken == null) {
+                mMediaSessionToken = MediaSessionCompat.Token.fromToken(
+                        MediaBrowserCompatApi21.getSessionToken(mBrowserObj));
+            }
+            return mMediaSessionToken;
         }
 
         @Override
@@ -1626,14 +1688,7 @@ public final class MediaBrowserCompat {
         public void search(@NonNull final String query, final Bundle extras,
                 @NonNull final SearchCallback callback) {
             if (!isConnected()) {
-                Log.i(TAG, "Not connected, unable to search.");
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(query, extras);
-                    }
-                });
-                return;
+                throw new IllegalStateException("search() called while not connected");
             }
             if (mServiceBinderWrapper == null) {
                 Log.i(TAG, "The connected service doesn't support search.");
@@ -1662,6 +1717,41 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        public void sendCustomAction(final String action, final Bundle extras,
+                final CustomActionCallback callback) {
+            if (!isConnected()) {
+                throw new IllegalStateException("Cannot send a custom action (" + action + ") with "
+                        + "extras " + extras + " because the browser is not connected to the "
+                        + "service.");
+            }
+            if (mServiceBinderWrapper == null) {
+                Log.i(TAG, "The connected service doesn't support sendCustomAction.");
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(action, extras, null);
+                    }
+                });
+            }
+
+            ResultReceiver receiver = new CustomActionResultReceiver(action, extras, callback,
+                    mHandler);
+            try {
+                mServiceBinderWrapper.sendCustomAction(action, extras, receiver,
+                        mCallbacksMessenger);
+            } catch (RemoteException e) {
+                Log.i(TAG, "Remote error sending a custom action: action=" + action + ", extras="
+                        + extras, e);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(action, extras, null);
+                    }
+                });
+            }
+        }
+
+        @Override
         public void onConnected() {
             Bundle extras = MediaBrowserCompatApi21.getExtras(mBrowserObj);
             if (extras == null) {
@@ -1678,12 +1768,19 @@ public final class MediaBrowserCompat {
                     Log.i(TAG, "Remote error registering client messenger." );
                 }
             }
+            IMediaSession sessionToken = IMediaSession.Stub.asInterface(
+                    BundleCompat.getBinder(extras, EXTRA_SESSION_BINDER));
+            if (sessionToken != null) {
+                mMediaSessionToken = MediaSessionCompat.Token.fromToken(
+                        MediaBrowserCompatApi21.getSessionToken(mBrowserObj), sessionToken);
+            }
         }
 
         @Override
         public void onConnectionSuspended() {
             mServiceBinderWrapper = null;
             mCallbacksMessenger = null;
+            mMediaSessionToken = null;
             mHandler.setCallbacksMessenger(null);
         }
 
@@ -1750,36 +1847,6 @@ public final class MediaBrowserCompat {
                 MediaBrowserCompatApi23.getItem(mBrowserObj, mediaId, cb.mItemCallbackObj);
             } else {
                 super.getItem(mediaId, cb);
-            }
-        }
-    }
-
-    // TODO: Rename to MediaBrowserImplApi26 once O is released
-    static class MediaBrowserImplApi24 extends MediaBrowserImplApi23 {
-        public MediaBrowserImplApi24(Context context, ComponentName serviceComponent,
-                ConnectionCallback callback, Bundle rootHints) {
-            super(context, serviceComponent, callback, rootHints);
-        }
-
-        @Override
-        public void subscribe(@NonNull String parentId, @NonNull Bundle options,
-                @NonNull SubscriptionCallback callback) {
-            if (options == null) {
-                MediaBrowserCompatApi21.subscribe(
-                        mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
-            } else {
-                MediaBrowserCompatApi24.subscribe(
-                        mBrowserObj, parentId, options, callback.mSubscriptionCallbackObj);
-            }
-        }
-
-        @Override
-        public void unsubscribe(@NonNull String parentId, SubscriptionCallback callback) {
-            if (callback == null) {
-                MediaBrowserCompatApi21.unsubscribe(mBrowserObj, parentId);
-            } else {
-                MediaBrowserCompatApi24.unsubscribe(mBrowserObj, parentId,
-                        callback.mSubscriptionCallbackObj);
             }
         }
     }
@@ -1938,6 +2005,15 @@ public final class MediaBrowserCompat {
             sendRequest(CLIENT_MSG_SEARCH, data, callbacksMessenger);
         }
 
+        void sendCustomAction(String action, Bundle extras, ResultReceiver receiver,
+                Messenger callbacksMessenger) throws RemoteException {
+            Bundle data = new Bundle();
+            data.putString(DATA_CUSTOM_ACTION, action);
+            data.putBundle(DATA_CUSTOM_ACTION_EXTRAS, extras);
+            data.putParcelable(DATA_RESULT_RECEIVER, receiver);
+            sendRequest(CLIENT_MSG_SEND_CUSTOM_ACTION, data, callbacksMessenger);
+        }
+
         private void sendRequest(int what, Bundle data, Messenger cbMessenger)
                 throws RemoteException {
             Message msg = Message.obtain();
@@ -1993,6 +2069,9 @@ public final class MediaBrowserCompat {
 
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultData != null) {
+                resultData.setClassLoader(MediaBrowserCompat.class.getClassLoader());
+            }
             if (resultCode != MediaBrowserServiceCompat.RESULT_OK || resultData == null
                     || !resultData.containsKey(MediaBrowserServiceCompat.KEY_SEARCH_RESULTS)) {
                 mCallback.onError(mQuery, mExtras);
@@ -2008,6 +2087,42 @@ public final class MediaBrowserCompat {
                 }
             }
             mCallback.onSearchResult(mQuery, mExtras, results);
+        }
+    }
+
+    private static class CustomActionResultReceiver extends ResultReceiver {
+        private final String mAction;
+        private final Bundle mExtras;
+        private final CustomActionCallback mCallback;
+
+        CustomActionResultReceiver(String action, Bundle extras, CustomActionCallback callback,
+                Handler handler) {
+            super(handler);
+            mAction = action;
+            mExtras = extras;
+            mCallback = callback;
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (mCallback == null) {
+                return;
+            }
+            switch (resultCode) {
+                case MediaBrowserServiceCompat.RESULT_PROGRESS_UPDATE:
+                    mCallback.onProgressUpdate(mAction, mExtras, resultData);
+                    break;
+                case MediaBrowserServiceCompat.RESULT_OK:
+                    mCallback.onResult(mAction, mExtras, resultData);
+                    break;
+                case MediaBrowserServiceCompat.RESULT_ERROR:
+                    mCallback.onError(mAction, mExtras, resultData);
+                    break;
+                default:
+                    Log.w(TAG, "Unknown result code: " + resultCode + " (extras=" + mExtras
+                            + ", resultData=" + resultData + ")");
+                    break;
+            }
         }
     }
 }

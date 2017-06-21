@@ -22,7 +22,7 @@ import android.support.annotation.Nullable;
 
 /**
  * Interface which allows a {@link android.view.View} to receive background tinting calls from
- * {@code ViewCompat} when running on API v20 devices or lower.
+ * {@link ViewCompat} when running on API v20 devices or lower.
  */
 public interface TintableBackgroundView {
 

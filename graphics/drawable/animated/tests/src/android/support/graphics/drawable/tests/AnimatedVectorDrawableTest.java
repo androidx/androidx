@@ -16,24 +16,34 @@
 
 package android.support.graphics.drawable.tests;
 
+import static android.support.graphics.drawable.tests.DrawableUtils.saveVectorDrawableIntoPNG;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import static java.lang.Thread.sleep;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Drawable.ConstantState;
 import android.support.annotation.DrawableRes;
+import android.support.graphics.drawable.Animatable2Compat.AnimationCallback;
 import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.graphics.drawable.animated.test.R;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ImageButton;
@@ -45,8 +55,6 @@ import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -55,12 +63,18 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class AnimatedVectorDrawableTest {
     @Rule public final ActivityTestRule<DrawableStubActivity> mActivityTestRule;
+
+    private static final float PIXEL_ERROR_THRESHOLD = 0.3f;
+    private static final float PIXEL_DIFF_THRESHOLD = 0.03f;
+    private static final float PIXEL_DIFF_COUNT_THRESHOLD = 0.1f;
+
     private static final String LOGTAG = AnimatedVectorDrawableTest.class.getSimpleName();
 
     private static final int IMAGE_WIDTH = 64;
     private static final int IMAGE_HEIGHT = 64;
-    private static final @DrawableRes int DRAWABLE_RES_ID =
-            R.drawable.animation_vector_drawable_grouping_1;
+
+    @DrawableRes
+    private static final int DRAWABLE_RES_ID = R.drawable.animation_vector_drawable_grouping_1;
 
     private Context mContext;
     private Resources mResources;
@@ -68,6 +82,26 @@ public class AnimatedVectorDrawableTest {
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private static final boolean DBG_DUMP_PNG = false;
+
+    // States to check for animation callback tests.
+    private boolean mAnimationStarted = false;
+    private boolean mAnimationEnded = false;
+
+    // Animation callback used for all callback related tests.
+    private AnimationCallback mAnimationCallback =
+            new AnimationCallback() {
+                @Override
+                public void onAnimationStart(
+                        Drawable drawable) {
+                    mAnimationStarted = true;
+                }
+
+                @Override
+                public void onAnimationEnd(
+                        Drawable drawable) {
+                    mAnimationEnded = true;
+                }
+            };
 
     public AnimatedVectorDrawableTest() {
         mActivityTestRule = new ActivityTestRule<>(DrawableStubActivity.class);
@@ -83,37 +117,6 @@ public class AnimatedVectorDrawableTest {
         mAnimatedVectorDrawable = AnimatedVectorDrawableCompat.create(mContext, DRAWABLE_RES_ID);
     }
 
-    // This is only for debugging or golden image (re)generation purpose.
-    private void saveVectorDrawableIntoPNG(Bitmap bitmap, int resId) throws IOException {
-        // Save the image to the disk.
-        FileOutputStream out = null;
-        try {
-            String outputFolder = "/sdcard/temp/";
-            File folder = new File(outputFolder);
-            if (!folder.exists()) {
-                folder.mkdir();
-            }
-            String originalFilePath = mResources.getString(resId);
-            File originalFile = new File(originalFilePath);
-            String fileFullName = originalFile.getName();
-            String fileTitle = fileFullName.substring(0, fileFullName.lastIndexOf("."));
-            String outputFilename = outputFolder + fileTitle + "_golden.png";
-            File outputFile = new File(outputFilename);
-            if (!outputFile.exists()) {
-                outputFile.createNewFile();
-            }
-
-            out = new FileOutputStream(outputFile, false);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            Log.v(LOGTAG, "Write test No." + outputFilename + " to file successfully.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
 
     @Test
     public void testInflate() throws Exception {
@@ -141,8 +144,107 @@ public class AnimatedVectorDrawableTest {
         assertTrue(earthColor == 0xFF5656EA);
 
         if (DBG_DUMP_PNG) {
-            saveVectorDrawableIntoPNG(mBitmap, DRAWABLE_RES_ID);
+            saveVectorDrawableIntoPNG(mResources, mBitmap, DRAWABLE_RES_ID, null);
         }
+    }
+
+    /**
+     * Render AVD sequence in an bitmap for several frames with the same content, and make sure
+     * there is no image corruptions.
+     *
+     * @throws IOException only if DBG_DUMP_PNG is true when dumping images for debugging purpose.
+     */
+    @Test
+    public void testRenderCorrectness() throws IOException {
+        final int numTests = 5;
+        final Bitmap bitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_WIDTH,
+                Bitmap.Config.ARGB_8888);
+        final Canvas c = new Canvas(bitmap);
+
+        final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                R.drawable.animation_vector_drawable_circle);
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                avd.start();
+            }
+        });
+
+        // First make sure the content is drawn into the bitmap.
+        // Then save the first frame as the golden images.
+        bitmap.eraseColor(0);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                avd.draw(c);
+            }
+        });
+        int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);
+        assertTrue(centerColor != 0);
+        Bitmap firstFrame = Bitmap.createBitmap(bitmap);
+        if (DBG_DUMP_PNG) {
+            saveVectorDrawableIntoPNG(mResources, firstFrame, -1, "firstframe");
+        }
+
+        // Now compare the following frames with the 1st frames. Expect some minor difference like
+        // Anti-Aliased edges, so the compare is fuzzy.
+        for (int i = 0; i < numTests; i++) {
+            bitmap.eraseColor(0);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    avd.draw(c);
+                }
+            });
+            if (DBG_DUMP_PNG) {
+                saveVectorDrawableIntoPNG(mResources, bitmap, -1, "correctness_" + i);
+            }
+            compareImages(firstFrame, bitmap, "correctness_" + i);
+        }
+    }
+
+    /**
+     * Utility function for fuzzy image comparison b/t 2 bitmap. Failed if the difference is bigger
+     * than a threshold.
+     */
+    private void compareImages(Bitmap ideal, Bitmap given, String filename) {
+        int idealWidth = ideal.getWidth();
+        int idealHeight = ideal.getHeight();
+
+        assertTrue(idealWidth == given.getWidth());
+        assertTrue(idealHeight == given.getHeight());
+
+        int totalDiffPixelCount = 0;
+        float totalPixelCount = idealWidth * idealHeight;
+        for (int x = 0; x < idealWidth; x++) {
+            for (int y = 0; y < idealHeight; y++) {
+                int idealColor = ideal.getPixel(x, y);
+                int givenColor = given.getPixel(x, y);
+                if (idealColor == givenColor) {
+                    continue;
+                }
+
+                float totalError = 0;
+                totalError += Math.abs(Color.red(idealColor) - Color.red(givenColor));
+                totalError += Math.abs(Color.green(idealColor) - Color.green(givenColor));
+                totalError += Math.abs(Color.blue(idealColor) - Color.blue(givenColor));
+                totalError += Math.abs(Color.alpha(idealColor) - Color.alpha(givenColor));
+
+                if ((totalError / 1024.0f) >= PIXEL_ERROR_THRESHOLD) {
+                    fail((filename + ": totalError is " + totalError));
+                }
+
+                if ((totalError / 1024.0f) >= PIXEL_DIFF_THRESHOLD) {
+                    totalDiffPixelCount++;
+                }
+            }
+        }
+        if ((totalDiffPixelCount / totalPixelCount) >= PIXEL_DIFF_COUNT_THRESHOLD) {
+            fail((filename + ": totalDiffPixelCount is " + totalDiffPixelCount));
+        }
+
     }
 
     @Test
@@ -211,7 +313,7 @@ public class AnimatedVectorDrawableTest {
         // Check the view several times during the animation to verify that it only
         // has red color in it
         for (int i = 0; i < numTests; ++i) {
-            Thread.sleep(100);
+            sleep(100);
             // check fill
             verifyRedOnly(pixelX, pixelY, imageButton, bitmap, c, latch);
             // check stroke
@@ -273,5 +375,162 @@ public class AnimatedVectorDrawableTest {
         } else {
             assertEquals(d1.mutate(), d1);
         }
+    }
+
+    /**
+     * A helper function to setup the AVDC for callback tests.
+     */
+    private AnimatedVectorDrawableCompat setupAnimatedVectorDrawableCompat() {
+        final ImageButton imageButton =
+                (ImageButton) mActivityTestRule.getActivity().findViewById(R.id.imageButton);
+        mAnimationStarted = false;
+        mAnimationEnded = false;
+
+        AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                R.drawable.animation_vector_drawable_grouping_1); // Duration is 50 ms.
+        ViewCompat.setBackground(imageButton, avd);
+        return avd;
+    }
+
+    @Test
+    /**
+     * Test show that callback is successfully registered.
+     * Note that this test requires screen is on.
+     */
+    public void testRegisterCallback() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                AnimatedVectorDrawableCompat avd = setupAnimatedVectorDrawableCompat();
+                avd.registerAnimationCallback(mAnimationCallback);
+                avd.start();
+            }
+        });
+        Thread.sleep(500);
+        assertTrue(mAnimationStarted);
+        assertTrue(mAnimationEnded);
+    }
+
+    @Test
+    /**
+     * Test show that callback is successfully removed.
+     * Note that this test requires screen is on.
+     */
+    public void testClearCallback() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                AnimatedVectorDrawableCompat avd =
+                        setupAnimatedVectorDrawableCompat();
+                avd.registerAnimationCallback(mAnimationCallback);
+                avd.clearAnimationCallbacks();
+                avd.start();
+            }
+        });
+        Thread.sleep(500);
+        assertFalse(mAnimationStarted);
+        assertFalse(mAnimationEnded);
+    }
+
+    @Test
+    /**
+     * Test show that callback is successfully unregistered.
+     * Note that this test requires screen is on.
+     */
+    public void testUnregisterCallback() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                AnimatedVectorDrawableCompat avd =
+                        setupAnimatedVectorDrawableCompat();
+
+                avd.registerAnimationCallback(mAnimationCallback);
+                avd.unregisterAnimationCallback(mAnimationCallback);
+                avd.start();
+            }
+        });
+        Thread.sleep(500);
+        assertFalse(mAnimationStarted);
+        assertFalse(mAnimationEnded);
+    }
+
+    /**
+     * Render AVD with path morphing, make sure the bitmap is different when it render at the start
+     * and the end.
+     *
+     * @throws Exception for time out or I/O problem while dumping debug images.
+     */
+    @Test
+    public void testPathMorphing() throws Exception {
+        final Object lock = new Object();
+        final Bitmap bitmap = Bitmap.createBitmap(IMAGE_WIDTH, IMAGE_WIDTH,
+                Bitmap.Config.ARGB_8888);
+        final Canvas c = new Canvas(bitmap);
+
+        final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                R.drawable.animation_path_morphing_rect);
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+        bitmap.eraseColor(0);
+        avd.draw(c);
+        int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);
+        assertTrue(centerColor == 0xffff0000);
+
+        if (DBG_DUMP_PNG) {
+            saveVectorDrawableIntoPNG(mResources, bitmap, -1, "start");
+        }
+
+        avd.registerAnimationCallback(new AnimationCallback() {
+            @Override
+            public void onAnimationStart(Drawable drawable) {
+                // Nothing to do.
+            }
+
+            @Override
+            public void onAnimationEnd(Drawable drawable) {
+                bitmap.eraseColor(0);
+                drawable.draw(c);
+                int centerColor = bitmap.getPixel(IMAGE_WIDTH / 2 , IMAGE_WIDTH / 2);
+                assertTrue(centerColor == 0);
+
+                synchronized (lock) {
+                    lock.notify();
+                }
+            }
+        });
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                avd.start();
+            }
+        });
+
+        synchronized (lock) {
+            lock.wait(1000);
+        }
+
+        if (DBG_DUMP_PNG) {
+            saveVectorDrawableIntoPNG(mResources, bitmap, -1, "ended");
+        }
+    }
+
+    /**
+     * Make sure when path didn't match, we got an exception.
+     */
+    @Test
+    @UiThreadTest
+    public void testPathMorphingException() throws Exception {
+        boolean hasException = false;
+        try {
+            final AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
+                    R.drawable.animation_path_morphing_rect_exception);
+        } catch (Exception e) {
+            // Expected to come in here, so nothing happen.
+            hasException = true;
+        }
+
+        assertTrue(hasException);
+
     }
 }

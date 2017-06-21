@@ -92,6 +92,10 @@
             android:name="android.support.design.widget.AppBarLayoutCollapsePinTestActivity"
             android:theme="@style/Theme.TranslucentStatus"/>
 
+        <activity
+            android:name="android.support.design.widget.AppBarWithScrollbarsActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
+
     </application>
 
     <instrumentation
