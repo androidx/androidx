@@ -35,7 +35,8 @@ class Lifecycling {
 
     static {
         try {
-            sREFLECTIVE = ReflectiveGenericLifecycleObserver.class.getConstructor(Object.class);
+            sREFLECTIVE = ReflectiveGenericLifecycleObserver.class
+                    .getDeclaredConstructor(Object.class);
         } catch (NoSuchMethodException ignored) {
 
         }
@@ -59,15 +60,14 @@ class Lifecycling {
             }
             cachedConstructor = getGeneratedAdapterConstructor(klass);
             if (cachedConstructor != null) {
-                sCallbackCache.put(klass, cachedConstructor);
                 if (!cachedConstructor.isAccessible()) {
                     cachedConstructor.setAccessible(true);
                 }
-                return cachedConstructor.newInstance(object);
             } else {
-                sCallbackCache.put(klass, sREFLECTIVE);
+                cachedConstructor = sREFLECTIVE;
             }
-            return new ReflectiveGenericLifecycleObserver(object);
+            sCallbackCache.put(klass, cachedConstructor);
+            return cachedConstructor.newInstance(object);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
@@ -75,7 +75,6 @@ class Lifecycling {
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Nullable
