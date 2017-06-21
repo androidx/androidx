@@ -16,25 +16,73 @@
 
 package android.support.v7.app;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.media.MediaRouter.RouteInfo;
 import android.support.v7.media.TestUtils;
+import android.support.v7.mediarouter.test.R;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
 public class MediaRouteChooserDialogTest {
+
+    @Rule
+    public final ActivityTestRule<MediaRouteChooserDialogTestActivity> mActivityTestRule;
     private MediaRouteChooserDialog.RouteComparator mComparator;
+
+    public MediaRouteChooserDialogTest() {
+        mActivityTestRule = new ActivityTestRule<>(MediaRouteChooserDialogTestActivity.class);
+    }
 
     @Before
     public void setup() {
         mComparator = new MediaRouteChooserDialog.RouteComparator();
+    }
+
+    @Test
+    @SmallTest
+    @UiThreadTest
+    public void testWindowNoTitle() {
+        final Context context = mActivityTestRule.getActivity();
+        TypedArray typedArray;
+
+        // Without any base theme or customized theme
+        MediaRouteChooserDialog dialog = new MediaRouteChooserDialog(context);
+        typedArray = dialog.getContext().obtainStyledAttributes(R.styleable.AppCompatTheme);
+        assertTrue(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
+        typedArray.recycle();
+
+        // No base theme, with a customized theme (has window title)
+        dialog = new MediaRouteChooserDialog(context, R.style.HasWindowTitle);
+        typedArray = dialog.getContext().obtainStyledAttributes(R.styleable.AppCompatTheme);
+        assertFalse(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
+        typedArray.recycle();
+
+        // With base theme (has window title), no customized theme
+        context.setTheme(R.style.HasWindowTitle);
+        dialog = new MediaRouteChooserDialog(context);
+        typedArray = dialog.getContext().obtainStyledAttributes(R.styleable.AppCompatTheme);
+        assertTrue(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
+        typedArray.recycle();
+
+        // With base theme and a customized theme (both has window title)
+        dialog = new MediaRouteChooserDialog(context, R.style.HasWindowTitle);
+        typedArray = dialog.getContext().obtainStyledAttributes(R.styleable.AppCompatTheme);
+        assertFalse(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
+        typedArray.recycle();
+
+        context.setTheme(0);
     }
 
     @Test
