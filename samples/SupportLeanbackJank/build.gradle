@@ -11,6 +11,7 @@ android {
 
     defaultConfig {
         minSdkVersion 17
+        targetSdkVersion project.ext.currentSdk
     }
 
     buildTypes {
