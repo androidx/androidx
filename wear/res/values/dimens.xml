@@ -63,4 +63,7 @@
     <dimen name="ws_drawer_view_edge_size">38dp</dimen>
     <!-- Dimensions for the wearable switch. -->
     <dimen name="ws_switch_size">40dp</dimen>
+
+    <!-- Default stroke width for CircularProgressLayout -->
+    <dimen name="circular_progress_layout_stroke_width">4dp</dimen>
 </resources>

@@ -13048,6 +13048,34 @@ package android.support.wear.widget {
     field public int boxedEdges;
   }
 
+  public class CircularProgressLayout extends android.widget.FrameLayout {
+    ctor public CircularProgressLayout(android.content.Context);
+    ctor public CircularProgressLayout(android.content.Context, android.util.AttributeSet);
+    ctor public CircularProgressLayout(android.content.Context, android.util.AttributeSet, int);
+    ctor public CircularProgressLayout(android.content.Context, android.util.AttributeSet, int, int);
+    method public int getBackgroundColor();
+    method public int[] getColorSchemeColors();
+    method public android.support.wear.widget.CircularProgressLayout.OnTimerFinishedListener getOnTimerFinishedListener();
+    method public android.support.v4.widget.CircularProgressDrawable getProgressDrawable();
+    method public float getStartingRotation();
+    method public float getStrokeWidth();
+    method public long getTotalTime();
+    method public boolean isIndeterminate();
+    method public boolean isTimerRunning();
+    method public void setColorSchemeColors(int...);
+    method public void setIndeterminate(boolean);
+    method public void setOnTimerFinishedListener(android.support.wear.widget.CircularProgressLayout.OnTimerFinishedListener);
+    method public void setStartingRotation(float);
+    method public void setStrokeWidth(float);
+    method public void setTotalTime(long);
+    method public void startTimer();
+    method public void stopTimer();
+  }
+
+  public static abstract interface CircularProgressLayout.OnTimerFinishedListener {
+    method public abstract void onTimerFinished(android.support.wear.widget.CircularProgressLayout);
+  }
+
   public class CurvingLayoutCallback extends android.support.wear.widget.WearableLinearLayoutManager.LayoutCallback {
     ctor public CurvingLayoutCallback(android.content.Context);
     method public void adjustAnchorOffsetXY(android.view.View, float[]);
