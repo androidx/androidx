@@ -420,4 +420,32 @@ public class GuidedStepFragmentTest extends GuidedStepFragmentTestBase {
 
     }
 
+    @Test
+    public void buttonActionsRtl() throws Throwable {
+        final String firstFragmentName = generateMethodTestName("first");
+        GuidedStepTestFragment.Provider first = mockProvider(firstFragmentName);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1000).title("action").build());
+                return null;
+            }
+        }).when(first).onCreateActions(any(List.class), nullable(Bundle.class));
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1001).title("button action").build());
+                return null;
+            }
+        }).when(first).onCreateButtonActions(any(List.class), nullable(Bundle.class));
+
+        final GuidedStepFragmentTestActivity activity = launchTestActivity(firstFragmentName,
+                true, View.LAYOUT_DIRECTION_RTL);
+
+        assertEquals(View.LAYOUT_DIRECTION_RTL, first.getFragment().getView().getLayoutDirection());
+        View firstView = first.getFragment().getActionItemView(0);
+        assertTrue(firstView.hasFocus());
+    }
 }
