@@ -105,7 +105,7 @@ public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTest
         verify(second, times(1)).onCreateGuidance(nullable(Bundle.class));
         verify(second, times(1)).onCreateActions(any(List.class), nullable(Bundle.class));
         verify(second, times(1)).onCreateButtonActions(any(List.class), nullable(Bundle.class));
-        verify(second, times(1)).onCreateView(any(LayoutInflater.class), any(ViewGroup.class),
+        verify(second, times(1)).onCreateView(any(LayoutInflater.class), nullable(ViewGroup.class),
                 nullable(Bundle.class), any(View.class));
         verify(second, times(1)).onViewStateRestored(nullable(Bundle.class));
         verify(second, times(1)).onStart();
@@ -423,4 +423,32 @@ public class GuidedStepSupportFragmentTest extends GuidedStepSupportFragmentTest
 
     }
 
+    @Test
+    public void buttonActionsRtl() throws Throwable {
+        final String firstFragmentName = generateMethodTestName("first");
+        GuidedStepTestSupportFragment.Provider first = mockProvider(firstFragmentName);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1000).title("action").build());
+                return null;
+            }
+        }).when(first).onCreateActions(any(List.class), nullable(Bundle.class));
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) {
+                List actions = (List) invocation.getArguments()[0];
+                actions.add(new GuidedAction.Builder().id(1001).title("button action").build());
+                return null;
+            }
+        }).when(first).onCreateButtonActions(any(List.class), nullable(Bundle.class));
+
+        final GuidedStepSupportFragmentTestActivity activity = launchTestActivity(firstFragmentName,
+                true, View.LAYOUT_DIRECTION_RTL);
+
+        assertEquals(View.LAYOUT_DIRECTION_RTL, first.getFragment().getView().getLayoutDirection());
+        View firstView = first.getFragment().getActionItemView(0);
+        assertTrue(firstView.hasFocus());
+    }
 }
