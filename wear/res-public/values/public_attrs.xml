@@ -36,4 +36,10 @@
 
     <!-- WearableNavigationDrawerView -->
     <public type="attr" name="navigationStyle" />
+
+    <!-- CircularProgressLayout -->
+    <public type="attr" name="backgroundColor" />
+    <public type="attr" name="colorSchemeColors" />
+    <public type="attr" name="strokeWidth" />
+    <public type="attr" name="indeterminate" />
 </resources>
