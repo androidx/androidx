@@ -229,7 +229,7 @@ public final class MediaRouter {
      */
     public static final int AVAILABILITY_FLAG_REQUIRE_MATCH = 1 << 1;
 
-    MediaRouter(Context context) {
+    private MediaRouter(Context context) {
         mContext = context;
     }
 
@@ -1973,10 +1973,11 @@ public final class MediaRouter {
             // the framework media router.  This one is special and receives
             // synchronization messages from the media router.
             mSystemProvider = SystemMediaRouteProvider.obtain(applicationContext, this);
-            addProvider(mSystemProvider);
         }
 
         public void start() {
+            addProvider(mSystemProvider);
+
             // Start watching for routes published by registered media route
             // provider services.
             mRegisteredProviderWatcher = new RegisteredMediaRouteProviderWatcher(
@@ -2561,7 +2562,7 @@ public final class MediaRouter {
 
         private void setSelectedRouteInternal(RouteInfo route, int unselectReason) {
             // TODO: Remove the following logging when no longer needed.
-            if (mBluetoothRoute != null && route.isDefault()) {
+            if (mBluetoothRoute != null && route != null && route.isDefault()) {
                 final StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
                 StringBuffer sb = new StringBuffer();
                 // callStack[3] is the caller of this method.
