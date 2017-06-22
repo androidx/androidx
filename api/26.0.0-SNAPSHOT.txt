@@ -1027,6 +1027,8 @@ package android.support.media {
   public class ExifInterface {
     ctor public ExifInterface(java.lang.String) throws java.io.IOException;
     ctor public ExifInterface(java.io.InputStream) throws java.io.IOException;
+    method public void flipHorizontally();
+    method public void flipVertically();
     method public double getAltitude(double);
     method public java.lang.String getAttribute(java.lang.String);
     method public double getAttributeDouble(java.lang.String, double);
@@ -1039,6 +1041,8 @@ package android.support.media {
     method public long[] getThumbnailRange();
     method public boolean hasThumbnail();
     method public boolean isThumbnailCompressed();
+    method public void resetOrientation();
+    method public void rotate(int);
     method public void saveAttributes() throws java.io.IOException;
     method public void setAltitude(double);
     method public void setAttribute(java.lang.String, java.lang.String);
