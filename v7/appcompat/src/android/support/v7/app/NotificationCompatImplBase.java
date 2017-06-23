@@ -28,7 +28,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompatBase;
 import android.support.v7.appcompat.R;
@@ -52,26 +51,7 @@ class NotificationCompatImplBase {
     private static final int MAX_ACTION_BUTTONS = 3;
 
     @RequiresApi(11)
-    public static <T extends NotificationCompatBase.Action> RemoteViews overrideContentViewMedia(
-            NotificationBuilderWithBuilderAccessor builder,
-            Context context, CharSequence contentTitle, CharSequence contentText,
-            CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, List<T> actions,
-            int[] actionsToShowInCompact, boolean showCancelButton,
-            PendingIntent cancelButtonIntent, boolean isDecoratedCustomView) {
-        RemoteViews views = generateContentViewMedia(context, contentTitle, contentText, contentInfo,
-                number, largeIcon, subText, useChronometer, when, priority, actions,
-                actionsToShowInCompact, showCancelButton, cancelButtonIntent,
-                isDecoratedCustomView);
-        builder.getBuilder().setContent(views);
-        if (showCancelButton) {
-            builder.getBuilder().setOngoing(true);
-        }
-        return views;
-    }
-
-    @RequiresApi(11)
-    private static <T extends NotificationCompatBase.Action> RemoteViews generateContentViewMedia(
+    static <T extends NotificationCompatBase.Action> RemoteViews generateContentViewMedia(
             Context context, CharSequence contentTitle, CharSequence contentText,
             CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
             boolean useChronometer, long when, int priority, List<T> actions,

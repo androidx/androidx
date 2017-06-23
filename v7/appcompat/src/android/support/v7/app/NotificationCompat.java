@@ -234,14 +234,12 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 // No custom content view required
                 return null;
             }
-            overrideContentView(builder, false);
-            return null;
+            return generateContentView(false);
         }
 
-        RemoteViews overrideContentView(
-                NotificationBuilderWithBuilderAccessor builder, boolean isDecorated) {
-            return NotificationCompatImplBase.overrideContentViewMedia(
-                    builder, mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
+        RemoteViews generateContentView(boolean isDecorated) {
+            return NotificationCompatImplBase.generateContentViewMedia(
+                    mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
                     mBuilder.mContentInfo, mBuilder.mNumber, mBuilder.mLargeIcon,
                     mBuilder.mSubText, mBuilder.mUseChronometer, mBuilder.getWhenIfShowing(),
                     mBuilder.getPriority(), mBuilder.mActions, mActionsToShowInCompact,
@@ -458,7 +456,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 boolean createCustomContent = hasContentView
                         || mBuilder.getBigContentView() != null;
                 if (createCustomContent) {
-                    RemoteViews contentView = overrideContentView(builder, hasContentView);
+                    RemoteViews contentView = generateContentView(hasContentView);
                     if (hasContentView) {
                         NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
                                 contentView,
@@ -468,12 +466,12 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                     return contentView;
                 }
             } else {
-                RemoteViews contentViewMedia = overrideContentView(builder, hasContentView);
+                RemoteViews contentView = generateContentView(hasContentView);
                 if (hasContentView) {
                     NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
-                            contentViewMedia,
+                            contentView,
                             mBuilder.getContentView());
-                    return contentViewMedia;
+                    return contentView;
                 }
             }
             return null;
