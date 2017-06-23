@@ -45,53 +45,7 @@ import java.util.List;
 @RequiresApi(9)
 class NotificationCompatImplBase {
 
-    static final int MAX_MEDIA_BUTTONS_IN_COMPACT = 3;
     static final int MAX_MEDIA_BUTTONS = 5;
-
-    @RequiresApi(11)
-    static <T extends NotificationCompatBase.Action> RemoteViews generateContentViewMedia(
-            Context context, CharSequence contentTitle, CharSequence contentText,
-            CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, List<T> actions,
-            int[] actionsToShowInCompact, boolean showCancelButton,
-            PendingIntent cancelButtonIntent, boolean isDecoratedCustomView) {
-        RemoteViews view = applyStandardTemplate(context, contentTitle, contentText, contentInfo,
-                number, 0 /* smallIcon */, largeIcon, subText, useChronometer, when, priority,
-                0 /* color is unused on media */,
-                isDecoratedCustomView ? R.layout.notification_template_media_custom
-                        : R.layout.notification_template_media,
-                true /* fitIn1U */);
-
-        final int numActions = actions.size();
-        final int N = actionsToShowInCompact == null
-                ? 0
-                : Math.min(actionsToShowInCompact.length, MAX_MEDIA_BUTTONS_IN_COMPACT);
-        view.removeAllViews(R.id.media_actions);
-        if (N > 0) {
-            for (int i = 0; i < N; i++) {
-                if (i >= numActions) {
-                    throw new IllegalArgumentException(String.format(
-                            "setShowActionsInCompactView: action %d out of bounds (max %d)",
-                            i, numActions - 1));
-                }
-
-                final NotificationCompatBase.Action action = actions.get(actionsToShowInCompact[i]);
-                final RemoteViews button = generateMediaActionButton(context, action);
-                view.addView(R.id.media_actions, button);
-            }
-        }
-        if (showCancelButton) {
-            view.setViewVisibility(R.id.end_padder, View.GONE);
-            view.setViewVisibility(R.id.cancel_action, View.VISIBLE);
-            view.setOnClickPendingIntent(R.id.cancel_action, cancelButtonIntent);
-            view.setInt(R.id.cancel_action, "setAlpha",
-                    context.getResources().getInteger(R.integer.cancel_button_image_alpha));
-        } else {
-            view.setViewVisibility(R.id.end_padder, View.VISIBLE);
-            view.setViewVisibility(R.id.cancel_action, View.GONE);
-        }
-        return view;
-    }
 
     @RequiresApi(11)
     public static <T extends NotificationCompatBase.Action> RemoteViews generateMediaBigView(
