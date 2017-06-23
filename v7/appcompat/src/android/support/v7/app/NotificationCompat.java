@@ -127,6 +127,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     public static class MediaStyle extends android.support.v4.app.NotificationCompat.Style {
 
         private static final int MAX_MEDIA_BUTTONS_IN_COMPACT = 3;
+        private static final int MAX_MEDIA_BUTTONS = 5;
 
         int[] mActionsToShowInCompact = null;
         MediaSessionCompat.Token mToken;
@@ -309,17 +310,41 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 // No custom content view required
                 return null;
             }
-            return generateBigContentView(false);
+            return generateBigContentView();
         }
 
-        RemoteViews generateBigContentView(boolean isDecorated) {
-            return NotificationCompatImplBase.generateMediaBigView(
+        RemoteViews generateBigContentView() {
+            final int actionCount = Math.min(mBuilder.mActions.size(), MAX_MEDIA_BUTTONS);
+            RemoteViews big = NotificationCompatImplBase.applyStandardTemplate(
                     mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
-                    mBuilder.mContentInfo, mBuilder.mNumber, mBuilder.mLargeIcon,
-                    mBuilder.mSubText, mBuilder.mUseChronometer,
-                    mBuilder.getWhenIfShowing(), mBuilder.getPriority(), 0,
-                    mBuilder.mActions, mShowCancelButton, mCancelButtonIntent,
-                    isDecorated);
+                    mBuilder.mContentInfo, mBuilder.mNumber, 0 /* smallIcon */,
+                    mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
+                    mBuilder.getWhenIfShowing(), mBuilder.getPriority(),
+                    0 /* color is unused on media */,
+                    getBigContentViewLayoutResource(actionCount), false /* fitIn1U */);
+
+            big.removeAllViews(R.id.media_actions);
+            if (actionCount > 0) {
+                for (int i = 0; i < actionCount; i++) {
+                    final RemoteViews button = generateMediaActionButton(mBuilder.mActions.get(i));
+                    big.addView(R.id.media_actions, button);
+                }
+            }
+            if (mShowCancelButton) {
+                big.setViewVisibility(R.id.cancel_action, View.VISIBLE);
+                big.setInt(R.id.cancel_action, "setAlpha", mBuilder.mContext
+                        .getResources().getInteger(R.integer.cancel_button_image_alpha));
+                big.setOnClickPendingIntent(R.id.cancel_action, mCancelButtonIntent);
+            } else {
+                big.setViewVisibility(R.id.cancel_action, View.GONE);
+            }
+            return big;
+        }
+
+        int getBigContentViewLayoutResource(int actionCount) {
+            return actionCount <= 3
+                    ? R.layout.notification_template_big_media_narrow
+                    : R.layout.notification_template_big_media;
         }
     }
 
@@ -589,7 +614,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 // No expandable notification
                 return null;
             }
-            RemoteViews bigContentView = generateBigContentView(true);
+            RemoteViews bigContentView = generateBigContentView();
             NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
                     bigContentView,
                     innerView);
@@ -597,6 +622,13 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 setBackgroundColor(bigContentView);
             }
             return bigContentView;
+        }
+
+        @Override
+        int getBigContentViewLayoutResource(int actionCount) {
+            return actionCount <= 3
+                    ? R.layout.notification_template_big_media_narrow_custom
+                    : R.layout.notification_template_big_media_custom;
         }
 
         /**
@@ -616,7 +648,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 // No expandable notification
                 return null;
             }
-            RemoteViews headsUpContentView = generateBigContentView(true);
+            RemoteViews headsUpContentView = generateBigContentView();
             NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
                     headsUpContentView,
                     innerView);

@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -29,14 +28,12 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompatBase;
 import android.support.v7.appcompat.R;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import java.text.NumberFormat;
-import java.util.List;
 
 /**
  * Helper class to generate MediaStyle notifications for pre-Lollipop platforms. Overrides
@@ -44,68 +41,6 @@ import java.util.List;
  */
 @RequiresApi(9)
 class NotificationCompatImplBase {
-
-    static final int MAX_MEDIA_BUTTONS = 5;
-
-    @RequiresApi(11)
-    public static <T extends NotificationCompatBase.Action> RemoteViews generateMediaBigView(
-            Context context, CharSequence contentTitle, CharSequence contentText,
-            CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, int color, List<T> actions,
-            boolean showCancelButton, PendingIntent cancelButtonIntent,
-            boolean decoratedCustomView) {
-        final int actionCount = Math.min(actions.size(), MAX_MEDIA_BUTTONS);
-        RemoteViews big = applyStandardTemplate(context, contentTitle, contentText, contentInfo,
-                number, 0 /* smallIcon */, largeIcon, subText, useChronometer, when, priority,
-                color,  /* fitIn1U */getBigMediaLayoutResource(decoratedCustomView, actionCount),
-                false);
-
-        big.removeAllViews(R.id.media_actions);
-        if (actionCount > 0) {
-            for (int i = 0; i < actionCount; i++) {
-                final RemoteViews button = generateMediaActionButton(context, actions.get(i));
-                big.addView(R.id.media_actions, button);
-            }
-        }
-        if (showCancelButton) {
-            big.setViewVisibility(R.id.cancel_action, View.VISIBLE);
-            big.setInt(R.id.cancel_action, "setAlpha",
-                    context.getResources().getInteger(R.integer.cancel_button_image_alpha));
-            big.setOnClickPendingIntent(R.id.cancel_action, cancelButtonIntent);
-        } else {
-            big.setViewVisibility(R.id.cancel_action, View.GONE);
-        }
-        return big;
-    }
-
-    @RequiresApi(11)
-    private static RemoteViews generateMediaActionButton(Context context,
-            NotificationCompatBase.Action action) {
-        final boolean tombstone = (action.getActionIntent() == null);
-        RemoteViews button = new RemoteViews(context.getPackageName(),
-                R.layout.notification_media_action);
-        button.setImageViewResource(R.id.action0, action.getIcon());
-        if (!tombstone) {
-            button.setOnClickPendingIntent(R.id.action0, action.getActionIntent());
-        }
-        if (Build.VERSION.SDK_INT >= 15) {
-            button.setContentDescription(R.id.action0, action.getTitle());
-        }
-        return button;
-    }
-
-    @RequiresApi(11)
-    private static int getBigMediaLayoutResource(boolean decoratedCustomView, int actionCount) {
-        if (actionCount <= 3) {
-            return decoratedCustomView
-                    ? R.layout.notification_template_big_media_narrow_custom
-                    : R.layout.notification_template_big_media_narrow;
-        } else {
-            return decoratedCustomView
-                    ? R.layout.notification_template_big_media_custom
-                    : R.layout.notification_template_big_media;
-        }
-    }
 
     static Bitmap createColoredBitmap(Context context, int iconId, int color) {
         return createColoredBitmap(context, iconId, color, 0);
