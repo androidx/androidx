@@ -37,18 +37,4 @@
         <item name="android:elevation">@dimen/ws_wearable_drawer_view_elevation</item>
         <item name="android:background">?android:attr/colorBackgroundFloating</item>
     </style>
-    <style name="Widget.Wear.RoundSwitch"
-            parent="@android:style/Widget.Material.CompoundButton.Switch">
-        <item name="android:layout_width">@dimen/ws_switch_size</item>
-        <item name="android:layout_height">@dimen/ws_switch_size</item>
-        <item name="android:switchMinWidth">@dimen/ws_switch_size</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:thumb">@drawable/ws_switch_thumb_material_anim</item>
-        <item name="android:thumbTint">@color/ws_switch_thumb_color_material</item>
-        <item name="android:thumbTintMode">multiply</item>
-        <item name="android:track">@drawable/ws_switch_track_mtrl</item>
-        <item name="android:trackTint">@color/ws_switch_track_color_material</item>
-        <item name="android:background">@empty</item>
-        <item name="android:showText">false</item>
-    </style>
 </resources>
