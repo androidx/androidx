@@ -636,20 +636,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         setNestedScrollingEnabled(nestedScrollingEnabled);
     }
 
-    @Override
-    public String toString() {
-        return super.toString()
-                + ", adapter:" + mAdapter
-                + ", layout:" + mLayout
-                + ", context:" + getContext();
-    }
-
     /**
      * Label appended to all public exception strings, used to help find which RV in an app is
      * hitting an exception.
      */
     String exceptionLabel() {
-        return " " + this;
+        return " " + super.toString()
+                + ", adapter:" + mAdapter
+                + ", layout:" + mLayout
+                + ", context:" + getContext();
     }
 
     /**
