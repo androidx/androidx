@@ -460,32 +460,23 @@ public class RecyclerViewBasicTest {
     }
 
     @Test
-    public void toStringContainsClasses() {
-        RecyclerView recyclerView = new RecyclerView(getContext());
-        recyclerView.setAdapter(new MockAdapter(10));
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        String string = recyclerView.toString();
-        assertTrue("must contain RV class", string.contains(RecyclerView.class.getName()));
-        assertTrue("must contain Adapter class", string.contains(MockAdapter.class.getName()));
-        assertTrue("must contain LM class", string.contains(LinearLayoutManager.class.getName()));
-        assertTrue("must contain ctx class", string.contains(getContext().getClass().getName()));
-    }
-
-    @Test
     public void exceptionContainsClasses() {
-        RecyclerView recyclerView = new RecyclerView(getContext());
-        recyclerView.setAdapter(new MockAdapter(10));
+        RecyclerView first = new RecyclerView(getContext());
+        first.setLayoutManager(new LinearLayoutManager(getContext()));
+        first.setAdapter(new MockAdapter(10));
 
+        RecyclerView second = new RecyclerView(getContext());
         try {
-            recyclerView.generateDefaultLayoutParams();
+            second.setLayoutManager(first.getLayoutManager());
             fail("exception expected");
-        } catch (IllegalStateException e) {
-            String message = e.getMessage();
-            assertTrue("must contain RV class",
-                    message.contains(RecyclerView.class.getName()));
-            assertTrue("must contain Adapter class",
-                    message.contains(MockAdapter.class.getName()));
+        } catch (IllegalArgumentException e) {
+            // Note: exception contains first RV
+            String m = e.getMessage();
+            assertTrue("must contain RV class", m.contains(RecyclerView.class.getName()));
+            assertTrue("must contain Adapter class", m.contains(MockAdapter.class.getName()));
+            assertTrue("must contain LM class", m.contains(LinearLayoutManager.class.getName()));
+            assertTrue("must contain ctx class", m.contains(getContext().getClass().getName()));
+
         }
     }
 
