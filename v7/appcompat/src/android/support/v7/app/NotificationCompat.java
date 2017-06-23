@@ -32,6 +32,7 @@ import android.support.v4.app.BundleCompat;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v7.appcompat.R;
+import android.view.View;
 import android.widget.RemoteViews;
 
 /**
@@ -301,6 +302,8 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      */
     public static class DecoratedCustomViewStyle extends Style {
 
+        private static final int MAX_ACTION_BUTTONS = 3;
+
         public DecoratedCustomViewStyle() {
         }
 
@@ -373,16 +376,49 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
 
         private RemoteViews createRemoteViews(RemoteViews innerView, boolean showActions) {
-            RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplateWithActions(
+            RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplate(
                     mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
                     mBuilder.mContentInfo, mBuilder.mNumber, mBuilder.mNotification.icon,
                     mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
                     mBuilder.getWhenIfShowing(), mBuilder.getPriority(), mBuilder.getColor(),
-                    R.layout.notification_template_custom_big,
-                    false /* fitIn1U */, showActions ? mBuilder.mActions : null);
+                    R.layout.notification_template_custom_big, false /* fitIn1U */);
+            remoteViews.removeAllViews(R.id.actions);
+            boolean actionsVisible = false;
+            if (showActions && mBuilder.mActions != null) {
+                int numActions = Math.max(mBuilder.mActions.size(), MAX_ACTION_BUTTONS);
+                if (numActions > 0) {
+                    actionsVisible = true;
+                    for (int i = 0; i < numActions; i++) {
+                        final RemoteViews button = generateActionButton(mBuilder.mActions.get(i));
+                        remoteViews.addView(R.id.actions, button);
+                    }
+                }
+            }
+            int actionVisibility = actionsVisible ? View.VISIBLE : View.GONE;
+            remoteViews.setViewVisibility(R.id.actions, actionVisibility);
+            remoteViews.setViewVisibility(R.id.action_divider, actionVisibility);
             NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
                     remoteViews, innerView);
             return remoteViews;
+        }
+
+        private RemoteViews generateActionButton(NotificationCompat.Action action) {
+            final boolean tombstone = (action.actionIntent == null);
+            RemoteViews button = new RemoteViews(mBuilder.mContext.getPackageName(),
+                    tombstone ? R.layout.notification_action_tombstone
+                            : R.layout.notification_action);
+            button.setImageViewBitmap(R.id.action_image,
+                    NotificationCompatImplBase.createColoredBitmap(mBuilder.mContext,
+                            action.getIcon(), mBuilder.mContext.getResources()
+                                    .getColor(R.color.notification_action_color_filter)));
+            button.setTextViewText(R.id.action_text, action.title);
+            if (!tombstone) {
+                button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
+            }
+            if (Build.VERSION.SDK_INT >= 15) {
+                button.setContentDescription(R.id.action_container, action.title);
+            }
+            return button;
         }
     }
 

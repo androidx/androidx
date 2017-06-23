@@ -36,7 +36,6 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,7 +47,6 @@ class NotificationCompatImplBase {
 
     static final int MAX_MEDIA_BUTTONS_IN_COMPACT = 3;
     static final int MAX_MEDIA_BUTTONS = 5;
-    private static final int MAX_ACTION_BUTTONS = 3;
 
     @RequiresApi(11)
     static <T extends NotificationCompatBase.Action> RemoteViews generateContentViewMedia(
@@ -155,53 +153,7 @@ class NotificationCompatImplBase {
         }
     }
 
-    public static RemoteViews applyStandardTemplateWithActions(Context context,
-            CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
-            int number, int smallIcon, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, int color, int resId, boolean fitIn1U,
-            ArrayList<NotificationCompat.Action> actions) {
-        RemoteViews remoteViews = applyStandardTemplate(context, contentTitle, contentText,
-                contentInfo, number, smallIcon, largeIcon, subText, useChronometer, when, priority,
-                color, resId, fitIn1U);
-        remoteViews.removeAllViews(R.id.actions);
-        boolean actionsVisible = false;
-        if (actions != null) {
-            int N = actions.size();
-            if (N > 0) {
-                actionsVisible = true;
-                if (N > MAX_ACTION_BUTTONS) N = MAX_ACTION_BUTTONS;
-                for (int i = 0; i < N; i++) {
-                    final RemoteViews button = generateActionButton(context, actions.get(i));
-                    remoteViews.addView(R.id.actions, button);
-                }
-            }
-        }
-        int actionVisibility = actionsVisible ? View.VISIBLE : View.GONE;
-        remoteViews.setViewVisibility(R.id.actions, actionVisibility);
-        remoteViews.setViewVisibility(R.id.action_divider, actionVisibility);
-        return remoteViews;
-    }
-
-    private static RemoteViews generateActionButton(Context context,
-            NotificationCompat.Action action) {
-        final boolean tombstone = (action.actionIntent == null);
-        RemoteViews button =  new RemoteViews(context.getPackageName(),
-                tombstone ? getActionTombstoneLayoutResource()
-                        : getActionLayoutResource());
-        button.setImageViewBitmap(R.id.action_image,
-                createColoredBitmap(context, action.getIcon(),
-                        context.getResources().getColor(R.color.notification_action_color_filter)));
-        button.setTextViewText(R.id.action_text, action.title);
-        if (!tombstone) {
-            button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
-        }
-        if (Build.VERSION.SDK_INT >= 15) {
-            button.setContentDescription(R.id.action_container, action.title);
-        }
-        return button;
-    }
-
-    private static Bitmap createColoredBitmap(Context context, int iconId, int color) {
+    static Bitmap createColoredBitmap(Context context, int iconId, int color) {
         return createColoredBitmap(context, iconId, color, 0);
     }
 
@@ -218,14 +170,6 @@ class NotificationCompatImplBase {
         Canvas canvas = new Canvas(resultBitmap);
         drawable.draw(canvas);
         return resultBitmap;
-    }
-
-    private static int getActionLayoutResource() {
-        return R.layout.notification_action;
-    }
-
-    private static int getActionTombstoneLayoutResource() {
-        return R.layout.notification_action_tombstone;
     }
 
     public static RemoteViews applyStandardTemplate(Context context,
