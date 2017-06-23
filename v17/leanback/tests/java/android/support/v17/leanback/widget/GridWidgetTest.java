@@ -3888,6 +3888,108 @@ public class GridWidgetTest {
         assertTrue(selectedPosition2 < selectedPosition1);
     }
 
+    @Test
+    public void testAccessibilityScrollForwardHalfVisible() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.item_button_at_bottom);
+        intent.putExtra(GridActivity.EXTRA_ITEMS,  new int[]{});
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        int height = mGridView.getHeight() - mGridView.getPaddingTop()
+                - mGridView.getPaddingBottom();
+        final int childHeight = height - mGridView.getVerticalSpacing() - 100;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffset(100);
+                mGridView.setWindowAlignmentOffsetPercent(BaseGridView
+                        .WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+                mGridView.setItemAlignmentOffset(0);
+                mGridView.setItemAlignmentOffsetPercent(BaseGridView
+                        .ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
+            }
+        });
+        mActivity.addItems(0, new int[]{childHeight, childHeight});
+        waitForItemAnimation();
+        setSelectedPosition(0);
+
+        final RecyclerViewAccessibilityDelegate delegateCompat = mGridView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info);
+            }
+        });
+        assertTrue("test sanity", info.isScrollable());
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.performAccessibilityAction(mGridView,
+                        AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(1, mGridView.getSelectedPosition());
+    }
+
+    @Test
+    public void testAccessibilityScrollBackwardHalfVisible() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.item_button_at_top);
+        intent.putExtra(GridActivity.EXTRA_ITEMS,  new int[]{});
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        int height = mGridView.getHeight() - mGridView.getPaddingTop()
+                - mGridView.getPaddingBottom();
+        final int childHeight = height - mGridView.getVerticalSpacing() - 100;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
+                mGridView.setWindowAlignmentOffset(100);
+                mGridView.setWindowAlignmentOffsetPercent(BaseGridView
+                        .WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
+                mGridView.setItemAlignmentOffset(0);
+                mGridView.setItemAlignmentOffsetPercent(BaseGridView
+                        .ITEM_ALIGN_OFFSET_PERCENT_DISABLED);
+            }
+        });
+        mActivity.addItems(0, new int[]{childHeight, childHeight});
+        waitForItemAnimation();
+        setSelectedPosition(1);
+
+        final RecyclerViewAccessibilityDelegate delegateCompat = mGridView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info);
+            }
+        });
+        assertTrue("test sanity", info.isScrollable());
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.performAccessibilityAction(mGridView,
+                        AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD, null);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
+        assertEquals(0, mGridView.getSelectedPosition());
+    }
+
     void slideInAndWaitIdle() throws Throwable {
         slideInAndWaitIdle(5000);
     }

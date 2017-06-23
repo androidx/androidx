@@ -3315,6 +3315,15 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return count == 0 || mBaseGridView.findViewHolderForAdapterPosition(0) != null;
     }
 
+    boolean isItemFullyVisible(int pos) {
+        RecyclerView.ViewHolder vh = mBaseGridView.findViewHolderForAdapterPosition(pos);
+        if (vh == null) {
+            return false;
+        }
+        return vh.itemView.getLeft() >= 0 && vh.itemView.getRight() < mBaseGridView.getWidth()
+                && vh.itemView.getTop() >= 0 && vh.itemView.getBottom() < mBaseGridView.getHeight();
+    }
+
     boolean canScrollTo(View view) {
         return view.getVisibility() == View.VISIBLE && (!hasFocus() || view.hasFocusable());
     }
@@ -3609,11 +3618,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         saveContext(recycler, state);
         switch (action) {
             case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
-                // try to focus all the way to the last visible item on the same row.
-                processSelectionMoves(false, -mState.getItemCount());
+                processSelectionMoves(false, -1);
                 break;
             case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
-                processSelectionMoves(false, mState.getItemCount());
+                processSelectionMoves(false, 1);
                 break;
         }
         leaveContext();
@@ -3678,11 +3686,12 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void onInitializeAccessibilityNodeInfo(Recycler recycler, State state,
             AccessibilityNodeInfoCompat info) {
         saveContext(recycler, state);
-        if (mScrollEnabled && !hasCreatedFirstItem()) {
+        int count = state.getItemCount();
+        if (mScrollEnabled && count > 1 && !isItemFullyVisible(0)) {
             info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
             info.setScrollable(true);
         }
-        if (mScrollEnabled && !hasCreatedLastItem()) {
+        if (mScrollEnabled && count > 1 && !isItemFullyVisible(count - 1)) {
             info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
             info.setScrollable(true);
         }
