@@ -152,6 +152,10 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
         return mQuery;
     }
 
+    public int getArgCount() {
+        return mArgCount;
+    }
+
     @Override
     public void bindTo(SupportSQLiteProgram program) {
         for (int index = 1; index <= mArgCount; index++) {
@@ -202,6 +206,20 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
     public void bindBlob(int index, byte[] value) {
         mBindingTypes[index] = BLOB;
         mBlobBindings[index] = value;
+    }
+
+    /**
+     * Copies arguments from another RoomSQLiteQuery into this query.
+     *
+     * @param other The other query, which holds the arguments to be copied.
+     */
+    public void copyArgumentsFrom(RoomSQLiteQuery other) {
+        int argCount = other.getArgCount() + 1; // +1 for the binding offsets
+        System.arraycopy(other.mBindingTypes, 0, mBindingTypes, 0, argCount);
+        System.arraycopy(other.mLongBindings, 0, mLongBindings, 0, argCount);
+        System.arraycopy(other.mStringBindings, 0, mStringBindings, 0, argCount);
+        System.arraycopy(other.mBlobBindings, 0, mBlobBindings, 0, argCount);
+        System.arraycopy(other.mDoubleBindings, 0, mDoubleBindings, 0, argCount);
     }
 
     @Override

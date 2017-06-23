@@ -33,6 +33,15 @@ project(':arch:runtime').projectDir = new File(supportRoot, "app-toolkit/runtime
 include ':arch:common'
 project(':arch:common').projectDir = new File(supportRoot, "app-toolkit/common")
 
+include ':paging:common'
+project(':paging:common').projectDir = new File(supportRoot, "paging/common")
+
+include ":paging:runtime"
+project(':paging:runtime').projectDir = new File(supportRoot, "paging/runtime")
+
+include ':paging:integration-tests:testapp'
+project(':paging:integration-tests:testapp').projectDir = new File(supportRoot, "paging/integration-tests/testapp")
+
 include ':arch:core-testing'
 project(':arch:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
 
