@@ -884,6 +884,25 @@ public class NotificationCompat {
             }
             return notification;
         }
+
+        @Override
+        public Action getAction(Notification n, int actionIndex) {
+            return (Action) NotificationCompatApi24.getAction(n, actionIndex, Action.FACTORY,
+                    RemoteInput.FACTORY);
+        }
+
+        @Override
+        public Action[] getActionsFromParcelableArrayList(
+                ArrayList<Parcelable> parcelables) {
+            return (Action[]) NotificationCompatApi24.getActionsFromParcelableArrayList(
+                    parcelables, Action.FACTORY, RemoteInput.FACTORY);
+        }
+
+        @Override
+        public ArrayList<Parcelable> getParcelableArrayListForActions(
+                Action[] actions) {
+            return NotificationCompatApi24.getParcelableArrayListForActions(actions);
+        }
     }
 
     @RequiresApi(26)
