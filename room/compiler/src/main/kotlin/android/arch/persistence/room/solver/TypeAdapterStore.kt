@@ -320,10 +320,9 @@ class TypeAdapterStore private constructor(val context: Context,
                 return ListQueryResultAdapter(rowAdapter)
             }
             return null
-        } else if (typeMirror.kind == TypeKind.ARRAY) {
-            val array = MoreTypes.asArray(typeMirror)
+        } else if (typeMirror is ArrayType && typeMirror.componentType.kind != TypeKind.BYTE) {
             val rowAdapter =
-                    findRowAdapter(array.componentType, query) ?: return null
+                    findRowAdapter(typeMirror.componentType, query) ?: return null
             return ArrayQueryResultAdapter(rowAdapter)
         } else {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
@@ -409,7 +408,7 @@ class TypeAdapterStore private constructor(val context: Context,
             val binder = findStatementValueBinder(declared.typeArguments.first(),
                     null) ?: return null
             return CollectionQueryParameterAdapter(binder)
-        } else if (typeMirror is ArrayType) {
+        } else if (typeMirror is ArrayType && typeMirror.componentType.kind != TypeKind.BYTE) {
             val component = typeMirror.componentType
             val binder = findStatementValueBinder(component, null) ?: return null
             return ArrayQueryParameterAdapter(binder)

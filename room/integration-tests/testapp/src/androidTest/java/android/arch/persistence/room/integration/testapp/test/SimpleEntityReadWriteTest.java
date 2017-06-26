@@ -21,11 +21,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertTrue;
 
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
+import android.arch.persistence.room.integration.testapp.dao.BlobEntityDao;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
+import android.arch.persistence.room.integration.testapp.vo.BlobEntity;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.content.Context;
 import android.database.Cursor;
@@ -52,12 +55,14 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class SimpleEntityReadWriteTest {
     private UserDao mUserDao;
+    private BlobEntityDao mBlobEntityDao;
 
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getTargetContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mUserDao = db.getUserDao();
+        mBlobEntityDao = db.getBlobEntityDao();
     }
 
     @Test
@@ -306,6 +311,18 @@ public class SimpleEntityReadWriteTest {
     public void emptyInQuery() {
         User[] users = mUserDao.loadByIds();
         assertThat(users, is(new User[0]));
+    }
+
+    @Test
+    public void blob() {
+        BlobEntity a = new BlobEntity(1, "abc".getBytes());
+        BlobEntity b = new BlobEntity(2, "def".getBytes());
+        mBlobEntityDao.insert(a);
+        mBlobEntityDao.insert(b);
+        List<BlobEntity> list = mBlobEntityDao.selectAll();
+        assertThat(list, hasSize(2));
+        mBlobEntityDao.updateContent(2, "ghi".getBytes());
+        assertThat(mBlobEntityDao.getContent(2), is(equalTo("ghi".getBytes())));
     }
 
     @Test
