@@ -950,23 +950,16 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Request that the player prepare its playback without audio focus. In other words, other
-         * session can continue to play during the preparation of this session. This method can be
-         * used to speed up the start of the playback. Once the preparation is done, the session
-         * will change its playback state to {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards,
-         * {@link #play} can be called to start playback. If the preparation is not needed,
-         * {@link #play} can be directly called without this method.
+         * Request that the player prepare for playback. This can decrease the time it takes to
+         * start playback when a play command is received. Preparation is not required. You can
+         * call {@link #play} without calling this method beforehand.
          */
         public abstract void prepare();
 
         /**
-         * Request that the player prepare playback for a specific media id. In other words, other
-         * session can continue to play during the preparation of this session. This method can be
-         * used to speed up the start of the playback. Once the preparation is
-         * done, the session will change its playback state to
-         * {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards, {@link #play} can be called to
-         * start playback. If the preparation is not needed, {@link #playFromMediaId} can
-         * be directly called without this method.
+         * Request that the player prepare playback for a specific media id. This can decrease the
+         * time it takes to start playback when a play command is received. Preparation is not
+         * required. You can call {@link #playFromMediaId} without calling this method beforehand.
          *
          * @param mediaId The id of the requested media.
          * @param extras Optional extras that can include extra information about the media item
@@ -975,14 +968,10 @@ public final class MediaControllerCompat {
         public abstract void prepareFromMediaId(String mediaId, Bundle extras);
 
         /**
-         * Request that the player prepare playback for a specific search query.
-         * An empty or null query should be treated as a request to prepare any
-         * music. In other words, other session can continue to play during
-         * the preparation of this session. This method can be used to speed up the start of the
-         * playback. Once the preparation is done, the session will change its playback state to
-         * {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards, {@link #play} can be called to
-         * start playback. If the preparation is not needed, {@link #playFromSearch} can be directly
-         * called without this method.
+         * Request that the player prepare playback for a specific search query. This can decrease
+         * the time it takes to start playback when a play command is received. An empty or null
+         * query should be treated as a request to prepare any music. Preparation is not required.
+         * You can call {@link #playFromSearch} without calling this method beforehand.
          *
          * @param query The search query.
          * @param extras Optional extras that can include extra information
@@ -991,13 +980,9 @@ public final class MediaControllerCompat {
         public abstract void prepareFromSearch(String query, Bundle extras);
 
         /**
-         * Request that the player prepare playback for a specific {@link Uri}.
-         * In other words, other session can continue to play during the preparation of this
-         * session. This method can be used to speed up the start of the playback.
-         * Once the preparation is done, the session will change its playback state to
-         * {@link PlaybackStateCompat#STATE_PAUSED}. Afterwards, {@link #play} can be called to
-         * start playback. If the preparation is not needed, {@link #playFromUri} can be directly
-         * called without this method.
+         * Request that the player prepare playback for a specific {@link Uri}. This can decrease
+         * the time it takes to start playback when a play command is received. Preparation is not
+         * required. You can call {@link #playFromUri} without calling this method beforehand.
          *
          * @param uri The URI of the requested media.
          * @param extras Optional extras that can include extra information about the media item
