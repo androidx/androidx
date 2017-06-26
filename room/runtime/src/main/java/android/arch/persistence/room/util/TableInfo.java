@@ -244,7 +244,7 @@ public class TableInfo {
 
             //noinspection SimplifiableIfStatement
             if (!name.equals(column.name)) return false;
-            return type != null ? type.equals(column.type) : column.type == null;
+            return type != null ? type.equalsIgnoreCase(column.type) : column.type == null;
         }
 
         /**

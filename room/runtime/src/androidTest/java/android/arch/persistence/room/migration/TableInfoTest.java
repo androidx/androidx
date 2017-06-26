@@ -24,14 +24,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.arch.persistence.room.util.TableInfo;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Test;
@@ -167,6 +166,17 @@ public class TableInfoTest {
                 asList("name", "lastName") // ref columns
         );
         assertThat(info.foreignKeys.iterator().next(), is(expected));
+    }
+
+    @Test
+    public void caseInsensitiveTypeName() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (n integer)");
+        TableInfo info = TableInfo.read(mDb, "foo");
+        assertThat(info, is(new TableInfo(
+                "foo",
+                toMap(new TableInfo.Column("n", "INTEGER", 0)),
+                Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
     private static Map<String, TableInfo.Column> toMap(TableInfo.Column... columns) {
