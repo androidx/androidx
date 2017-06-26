@@ -179,6 +179,18 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         assertEquals(a.getAllowGeneratedReplies(), aCopy.getAllowGeneratedReplies());
     }
 
+    @SdkSuppress(minSdkVersion = 24)
+    @TargetApi(24)
+    @Test
+    public void testFrameworkNotificationActionBuilder_setAllowGeneratedRepliesTrue()
+            throws Throwable {
+        Notification notif = new Notification.Builder(mContext)
+                .addAction(new Notification.Action.Builder(0, "title", null)
+                        .setAllowGeneratedReplies(true).build()).build();
+        NotificationCompat.Action action = NotificationCompat.getAction(notif, 0);
+        assertTrue(action.getAllowGeneratedReplies());
+    }
+
     @Test
     public void testNotificationActionBuilder_defaultAllowGeneratedRepliesTrue() throws Throwable {
         NotificationCompat.Action a = newActionBuilder().build();
