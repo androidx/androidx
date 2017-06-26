@@ -21,10 +21,12 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v4.app.BundleCompat;
 import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
@@ -204,12 +206,22 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 21) {
-                NotificationCompatImpl21.addMediaStyle(builder,
-                        mActionsToShowInCompact,
-                        mToken != null ? mToken.getToken() : null);
+                builder.getBuilder().setStyle(
+                        fillInMediaStyle(new Notification.MediaStyle()));
             } else if (mShowCancelButton) {
                 builder.getBuilder().setOngoing(true);
             }
+        }
+
+        @RequiresApi(21)
+        Notification.MediaStyle fillInMediaStyle(Notification.MediaStyle style) {
+            if (mActionsToShowInCompact != null) {
+                style.setShowActionsInCompactView(mActionsToShowInCompact);
+            }
+            if (mToken != null) {
+                style.setMediaSession((MediaSession.Token) mToken.getToken());
+            }
+            return style;
         }
 
         /**
@@ -301,7 +313,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
-                NotificationCompatImpl24.addDecoratedCustomViewStyle(builder);
+                builder.getBuilder().setStyle(new Notification.DecoratedCustomViewStyle());
             }
         }
 
@@ -421,9 +433,8 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
-                NotificationCompatImpl24.addDecoratedMediaCustomViewStyle(builder,
-                        mActionsToShowInCompact,
-                        mToken != null ? mToken.getToken() : null);
+                builder.getBuilder().setStyle(
+                        fillInMediaStyle(new Notification.DecoratedMediaCustomViewStyle()));
             } else {
                 super.apply(builder);
             }
