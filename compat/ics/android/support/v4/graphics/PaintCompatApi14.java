@@ -24,6 +24,7 @@ import android.support.v4.util.Pair;
 class PaintCompatApi14 {
     // U+DFFFD which is very end of unassigned plane.
     private static final String TOFU_STRING = "\uDB3F\uDFFD";
+    private static final String EM_STRING = "m";
 
     private static final ThreadLocal<Pair<Rect, Rect>> sRectThreadLocal = new ThreadLocal<>();
 
@@ -36,6 +37,8 @@ class PaintCompatApi14 {
         }
 
         final float missingGlyphWidth = paint.measureText(TOFU_STRING);
+        final float emGlyphWidth = paint.measureText(EM_STRING);
+
         final float width = paint.measureText(string);
 
         if (width == 0f) {
@@ -46,7 +49,7 @@ class PaintCompatApi14 {
         if (string.codePointCount(0, string.length()) > 1) {
             // Heuristic to detect fallback glyphs for ligatures like flags and ZWJ sequences
             // Return false if string is rendered too widely
-            if (width > 2 * missingGlyphWidth) {
+            if (width > 2 * emGlyphWidth) {
                 return false;
             }
 
