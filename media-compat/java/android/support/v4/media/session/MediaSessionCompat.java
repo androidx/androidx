@@ -867,7 +867,7 @@ public class MediaSessionCompat {
         final Object mCallbackObj;
         private WeakReference<MediaSessionImpl> mSessionImpl;
         private CallbackHandler mCallbackHandler = null;
-        private boolean mMediaPlayPauseKeyHandled;
+        private boolean mMediaPlayPauseKeyPending;
 
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 24) {
@@ -924,42 +924,45 @@ public class MediaSessionCompat {
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                     if (keyEvent.getRepeatCount() > 0) {
+                        // Consider long-press as a single tap.
+                        handleMediaPlayPauseKeySingleTapIfPending();
+                    } else if (mMediaPlayPauseKeyPending) {
                         mCallbackHandler.removeMessages(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
-                        if (keyEvent.getRepeatCount() == 1) {
-                            handleMediaPlayPauseKeySingleTapIfUnhandled();
-                        }
-                    } else if (mCallbackHandler.hasMessages(
-                            CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT)) {
-                        mCallbackHandler.removeMessages(
-                                CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
+                        mMediaPlayPauseKeyPending = false;
                         PlaybackStateCompat state = impl.getPlaybackState();
                         long validActions = state == null ? 0 : state.getActions();
                         // Consider double tap as the next.
                         if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
                             onSkipToNext();
                         }
-                        mMediaPlayPauseKeyHandled = true;
                     } else {
-                        mMediaPlayPauseKeyHandled = false;
+                        mMediaPlayPauseKeyPending = true;
                         mCallbackHandler.sendEmptyMessageDelayed(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT,
                                 ViewConfiguration.getDoubleTapTimeout());
                     }
                     return true;
+                default:
+                    // If another key is pressed within double tap timeout, consider the pending
+                    // pending play/pause as a single tap to handle media keys in order.
+                    handleMediaPlayPauseKeySingleTapIfPending();
+                    break;
             }
             return false;
         }
 
-        private void handleMediaPlayPauseKeySingleTapIfUnhandled() {
-            if (mMediaPlayPauseKeyHandled) {
+        private void handleMediaPlayPauseKeySingleTapIfPending() {
+            if (!mMediaPlayPauseKeyPending) {
                 return;
             }
+            mMediaPlayPauseKeyPending = false;
+            mCallbackHandler.removeMessages(
+                    CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
             MediaSessionImpl impl = mSessionImpl.get();
             if (impl == null) {
                 return;
             }
-            mMediaPlayPauseKeyHandled = true;
             PlaybackStateCompat state = impl.getPlaybackState();
             long validActions = state == null ? 0 : state.getActions();
             boolean isPlaying = state != null
@@ -1230,7 +1233,7 @@ public class MediaSessionCompat {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT) {
-                    handleMediaPlayPauseKeySingleTapIfUnhandled();
+                    handleMediaPlayPauseKeySingleTapIfPending();
                 }
             }
         }
