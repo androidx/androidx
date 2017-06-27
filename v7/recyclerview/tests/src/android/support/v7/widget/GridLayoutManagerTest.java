@@ -18,6 +18,9 @@ package android.support.v7.widget;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -36,9 +39,11 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+import android.support.v7.util.TouchUtils;
 import android.test.UiThreadTest;
 import android.util.SparseIntArray;
 import android.util.StateSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -168,6 +173,84 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         }
     }
 
+    @Test
+    public void editTextVisibility() throws Throwable {
+        final int spanCount = 3;
+        final int itemCount = 100;
+
+        RecyclerView recyclerView = new WrappedRecyclerView(getActivity());
+        GridEditTextAdapter editTextAdapter = new GridEditTextAdapter(itemCount) {
+            @Override
+            public TestViewHolder onCreateViewHolder(ViewGroup parent,
+                    int viewType) {
+                TestViewHolder testViewHolder = super.onCreateViewHolder(parent, viewType);
+                // Good to have colors for debugging
+                StateListDrawable stl = new StateListDrawable();
+                stl.addState(new int[]{android.R.attr.state_focused},
+                        new ColorDrawable(Color.RED));
+                stl.addState(StateSet.WILD_CARD, new ColorDrawable(Color.BLUE));
+                //noinspection deprecation using this for kitkat tests
+                testViewHolder.itemView.setBackgroundDrawable(stl);
+                return testViewHolder;
+            }
+        };
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivityRule.getActivity().getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
+            }
+        });
+
+        recyclerView.setLayoutParams(
+                new ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
+        Config config = new Config(spanCount, itemCount);
+        mGlm = new WrappedGridLayoutManager(getActivity(), config.mSpanCount, config.mOrientation,
+                config.mReverseLayout);
+        editTextAdapter.assignSpanSizeLookup(mGlm);
+        recyclerView.setAdapter(editTextAdapter);
+        recyclerView.setLayoutManager(mGlm);
+        waitForFirstLayout(recyclerView);
+
+        // First focus on the last fully visible EditText located at span index #1.
+        View toFocus = findLastFullyVisibleChild(mRecyclerView);
+        int focusIndex = mRecyclerView.getChildAdapterPosition(toFocus);
+        focusIndex = (focusIndex / spanCount) * spanCount + 1;
+        toFocus = mRecyclerView.findViewHolderForAdapterPosition(focusIndex).itemView;
+        assertTrue(focusIndex >= 1 && focusIndex < itemCount);
+
+        mGlm.expectLayout(1);
+        TouchUtils.tapView(getInstrumentation(), mRecyclerView, toFocus);
+        mGlm.waitForLayout(5);
+        getInstrumentation().waitForIdleSync();
+        waitForIdleScroll(mRecyclerView);
+        assertThat("Child at position " + focusIndex + " should be focused",
+                toFocus.hasFocus(), is(true));
+        assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
+                isViewPartiallyInBound(mRecyclerView, toFocus));
+
+        // Close soft input
+        mGlm.expectLayout(1);
+        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        mGlm.waitForLayout(5);
+        getInstrumentation().waitForIdleSync();
+        waitForIdleScroll(mRecyclerView);
+        assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
+                isViewPartiallyInBound(mRecyclerView, toFocus));
+
+        // Now focus on the first fully visible EditText located at the last span index.
+        toFocus = findFirstFullyVisibleChild(mRecyclerView);
+        focusIndex = mRecyclerView.getChildAdapterPosition(toFocus);
+        focusIndex = (focusIndex / spanCount) * spanCount + (spanCount - 1);
+        toFocus = mRecyclerView.findViewHolderForAdapterPosition(focusIndex).itemView;
+        mGlm.expectLayout(1);
+        TouchUtils.tapView(getInstrumentation(), mRecyclerView, toFocus);
+        mGlm.waitForLayout(5);
+        getInstrumentation().waitForIdleSync();
+        waitForIdleScroll(mRecyclerView);
+        assertTrue("Child view at adapter pos " + focusIndex + " should be fully visible.",
+                isViewPartiallyInBound(mRecyclerView, toFocus));
+    }
 
     @Test
     public void topUnfocusableViewsVisibility() throws Throwable {
