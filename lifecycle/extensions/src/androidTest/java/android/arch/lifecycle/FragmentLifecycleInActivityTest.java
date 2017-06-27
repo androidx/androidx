@@ -28,7 +28,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.app.Activity;
 import android.app.Instrumentation;
 import android.arch.lifecycle.activity.FragmentLifecycleActivity;
 import android.content.Intent;
@@ -44,10 +43,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 @RunWith(Parameterized.class)
 public class FragmentLifecycleInActivityTest {
+
+    private static final long TIMEOUT = 2; //sec
+
     @Rule
     public ActivityTestRule<FragmentLifecycleActivity> mActivityRule =
             new ActivityTestRule<>(FragmentLifecycleActivity.class, false, false);
@@ -68,7 +71,7 @@ public class FragmentLifecycleInActivityTest {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
     }
 
-    public void reset() {
+    private void reset() {
         mActivityRule.getActivity().resetEvents();
     }
 
@@ -135,18 +138,15 @@ public class FragmentLifecycleInActivityTest {
         mInstrumentation.waitForIdleSync();
     }
 
-    private void finishActivity(final Activity activity) {
-        Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
-                activity.getClass().getCanonicalName(), null, false);
-        mInstrumentation.addMonitor(monitor);
-
+    private void finishActivity(final FragmentLifecycleActivity activity)
+            throws InterruptedException {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 activity.finish();
             }
         });
-        monitor.waitForActivity();
+        assertThat(activity.awaitForDestruction(TIMEOUT, TimeUnit.SECONDS), is(true));
     }
 
     private void assertEvents(Lifecycle.Event... events) {

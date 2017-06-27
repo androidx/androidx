@@ -31,6 +31,8 @@ import android.support.v7.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class FragmentLifecycleActivity extends AppCompatActivity {
     public static final String NESTED_TAG = "nested_fragment";
@@ -40,6 +42,7 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
     private final List<Lifecycle.Event> mLoggedEvents = Collections
             .synchronizedList(new ArrayList<Lifecycle.Event>());
     private LifecycleOwner mObservedOwner;
+    private final CountDownLatch mDestroyLatch = new CountDownLatch(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,12 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, fragment, MAIN_TAG)
                 .commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDestroyLatch.countDown();
     }
 
     public void resetEvents() {
@@ -101,5 +110,10 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
 
     public LifecycleOwner getObservedOwner() {
         return mObservedOwner;
+    }
+
+    public boolean awaitForDestruction(long timeout, TimeUnit timeUnit)
+            throws InterruptedException {
+        return mDestroyLatch.await(timeout, timeUnit);
     }
 }
