@@ -241,7 +241,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get a {@link TransportControls} instance for this session.
+     * Gets a {@link TransportControls} instance for this session.
      *
      * @return A controls instance
      */
@@ -250,7 +250,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Send the specified media button event to the session. Only media keys can
+     * Sends the specified media button event to the session. Only media keys can
      * be sent by this method, other keys will be ignored.
      *
      * @param keyEvent The media button event to dispatch.
@@ -264,7 +264,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the current playback state for this session.
+     * Gets the current playback state for this session.
      *
      * @return The current PlaybackState or null
      */
@@ -273,7 +273,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the current metadata for this session.
+     * Gets the current metadata for this session.
      *
      * @return The current MediaMetadata or null.
      */
@@ -282,7 +282,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the current play queue for this session if one is set. If you only
+     * Gets the current play queue for this session if one is set. If you only
      * care about the current item {@link #getMetadata()} should be used.
      *
      * @return The current play queue or null.
@@ -292,7 +292,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Add a queue item from the given {@code description} at the end of the play queue
+     * Adds a queue item from the given {@code description} at the end of the play queue
      * of this session. Not all sessions may support this. To know whether the session supports
      * this, get the session's flags with {@link #getFlags()} and check that the flag
      * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
@@ -308,7 +308,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Add a queue item from the given {@code description} at the specified position
+     * Adds a queue item from the given {@code description} at the specified position
      * in the play queue of this session. Shifts the queue item currently at that position
      * (if any) and any subsequent queue items to the right (adds one to their indices).
      * Not all sessions may support this. To know whether the session supports this,
@@ -328,7 +328,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Remove the first occurrence of the specified {@link MediaSessionCompat.QueueItem}
+     * Removes the first occurrence of the specified {@link MediaSessionCompat.QueueItem}
      * with the given {@link MediaDescriptionCompat description} in the play queue of the
      * associated session. Not all sessions may support this. To know whether the session supports
      * this, get the session's flags with {@link #getFlags()} and check that the flag
@@ -345,7 +345,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Remove an queue item at the specified position in the play queue
+     * Removes an queue item at the specified position in the play queue
      * of this session. Not all sessions may support this. To know whether the session supports
      * this, get the session's flags with {@link #getFlags()} and check that the flag
      * {@link MediaSessionCompat#FLAG_HANDLES_QUEUE_COMMANDS} is set.
@@ -368,21 +368,21 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the queue title for this session.
+     * Gets the queue title for this session.
      */
     public CharSequence getQueueTitle() {
         return mImpl.getQueueTitle();
     }
 
     /**
-     * Get the extras for this session.
+     * Gets the extras for this session.
      */
     public Bundle getExtras() {
         return mImpl.getExtras();
     }
 
     /**
-     * Get the rating type supported by the session. One of:
+     * Gets the rating type supported by the session. One of:
      * <ul>
      * <li>{@link RatingCompat#RATING_NONE}</li>
      * <li>{@link RatingCompat#RATING_HEART}</li>
@@ -400,7 +400,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Return whether captioning is enabled for this session.
+     * Returns whether captioning is enabled for this session.
      *
      * @return {@code true} if captioning is enabled, {@code false} if disabled or not set.
      */
@@ -409,7 +409,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the repeat mode for this session.
+     * Gets the repeat mode for this session.
      *
      * @return The latest repeat mode set to the session, or
      *         {@link PlaybackStateCompat#REPEAT_MODE_NONE} if not set.
@@ -419,7 +419,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Return whether the shuffle mode is enabled for this session.
+     * Returns whether the shuffle mode is enabled for this session.
      *
      * @return {@code true} if the shuffle mode is enabled, {@code false} if disabled or not set.
      * @deprecated Use {@link #getShuffleMode} instead.
@@ -430,7 +430,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the shuffle mode for this session.
+     * Gets the shuffle mode for this session.
      *
      * @return The latest shuffle mode set to the session, or
      *         {@link PlaybackStateCompat#SHUFFLE_MODE_NONE} if not set.
@@ -440,7 +440,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the flags for this session. Flags are defined in
+     * Gets the flags for this session. Flags are defined in
      * {@link MediaSessionCompat}.
      *
      * @return The current set of flags for the session.
@@ -450,7 +450,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the current playback info for this session.
+     * Gets the current playback info for this session.
      *
      * @return The current playback info or null.
      */
@@ -459,7 +459,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get an intent for launching UI associated with this session if one
+     * Gets an intent for launching UI associated with this session if one
      * exists.
      *
      * @return A {@link PendingIntent} to launch UI or null.
@@ -469,7 +469,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the token for the session this controller is connected to.
+     * Gets the token for the session this controller is connected to.
      *
      * @return The session's token.
      */
@@ -478,7 +478,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Set the volume of the output this session is playing on. The command will
+     * Sets the volume of the output this session is playing on. The command will
      * be ignored if it does not support
      * {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}. The flags in
      * {@link AudioManager} may be used to affect the handling.
@@ -493,7 +493,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Adjust the volume of the output this session is playing on. The direction
+     * Adjusts the volume of the output this session is playing on. The direction
      * must be one of {@link AudioManager#ADJUST_LOWER},
      * {@link AudioManager#ADJUST_RAISE}, or {@link AudioManager#ADJUST_SAME}.
      * The command will be ignored if the session does not support
@@ -538,7 +538,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Stop receiving updates on the specified callback. If an update has
+     * Stops receiving updates on the specified callback. If an update has
      * already been posted you may still receive it after calling this method.
      *
      * @param callback The callback to remove
@@ -567,7 +567,7 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Get the session owner's package name.
+     * Gets the session owner's package name.
      *
      * @return The package name of of the session owner.
      */
@@ -665,7 +665,7 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Override to handle chagnes to the {@link MediaSessionCompat} extras.
+         * Override to handle changes to the {@link MediaSessionCompat} extras.
          *
          * @param extras The extras that can include other information
          *            associated with the {@link MediaSessionCompat}.
@@ -728,7 +728,7 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Set the handler to use for pre 21 callbacks.
+         * Sets the handler to use for pre 21 callbacks.
          */
         private void setHandler(Handler handler) {
             mHandler = new MessageHandler(handler.getLooper());
@@ -1040,7 +1040,7 @@ public final class MediaControllerCompat {
         public abstract void playFromUri(Uri uri, Bundle extras);
 
         /**
-         * Play an item with a specific id in the play queue. If you specify an
+         * Plays an item with a specific id in the play queue. If you specify an
          * id that is not in the play queue, the behavior is undefined.
          */
         public abstract void skipToQueueItem(long id);
@@ -1058,36 +1058,36 @@ public final class MediaControllerCompat {
         public abstract void stop();
 
         /**
-         * Move to a new location in the media stream.
+         * Moves to a new location in the media stream.
          *
          * @param pos Position to move to, in milliseconds.
          */
         public abstract void seekTo(long pos);
 
         /**
-         * Start fast forwarding. If playback is already fast forwarding this
+         * Starts fast forwarding. If playback is already fast forwarding this
          * may increase the rate.
          */
         public abstract void fastForward();
 
         /**
-         * Skip to the next item.
+         * Skips to the next item.
          */
         public abstract void skipToNext();
 
         /**
-         * Start rewinding. If playback is already rewinding this may increase
+         * Starts rewinding. If playback is already rewinding this may increase
          * the rate.
          */
         public abstract void rewind();
 
         /**
-         * Skip to the previous item.
+         * Skips to the previous item.
          */
         public abstract void skipToPrevious();
 
         /**
-         * Rate the current content. This will cause the rating to be set for
+         * Rates the current content. This will cause the rating to be set for
          * the current user. The Rating type must match the type returned by
          * {@link #getRatingType()}.
          *
@@ -1096,14 +1096,14 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating);
 
         /**
-         * Enable/disable captioning for this session.
+         * Enables/disables captioning for this session.
          *
          * @param enabled {@code true} to enable captioning, {@code false} to disable.
          */
         public abstract void setCaptioningEnabled(boolean enabled);
 
         /**
-         * Set the repeat mode for this session.
+         * Sets the repeat mode for this session.
          *
          * @param repeatMode The repeat mode. Must be one of the followings:
          *                   {@link PlaybackStateCompat#REPEAT_MODE_NONE},
@@ -1114,7 +1114,7 @@ public final class MediaControllerCompat {
         public abstract void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode);
 
         /**
-         * Set the shuffle mode for this session.
+         * Sets the shuffle mode for this session.
          *
          * @param enabled {@code true} to enable the shuffle mode, {@code false} to disable.
          * @deprecated Use {@link #setShuffleMode} instead.
@@ -1123,7 +1123,7 @@ public final class MediaControllerCompat {
         public abstract void setShuffleModeEnabled(boolean enabled);
 
         /**
-         * Set the shuffle mode for this session.
+         * Sets the shuffle mode for this session.
          *
          * @param shuffleMode The shuffle mode. Must be one of the followings:
          *                    {@link PlaybackStateCompat#SHUFFLE_MODE_NONE},
@@ -1133,7 +1133,7 @@ public final class MediaControllerCompat {
         public abstract void setShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode);
 
         /**
-         * Send a custom action for the {@link MediaSessionCompat} to perform.
+         * Sends a custom action for the {@link MediaSessionCompat} to perform.
          *
          * @param customAction The action to perform.
          * @param args Optional arguments to supply to the
@@ -1143,7 +1143,7 @@ public final class MediaControllerCompat {
                 Bundle args);
 
         /**
-         * Send the id and args from a custom action for the
+         * Sends the id and args from a custom action for the
          * {@link MediaSessionCompat} to perform.
          *
          * @see #sendCustomAction(PlaybackStateCompat.CustomAction action,
@@ -1190,7 +1190,7 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Get the type of volume handling, either local or remote. One of:
+         * Gets the type of volume handling, either local or remote. One of:
          * <ul>
          * <li>{@link PlaybackInfo#PLAYBACK_TYPE_LOCAL}</li>
          * <li>{@link PlaybackInfo#PLAYBACK_TYPE_REMOTE}</li>
@@ -1203,7 +1203,7 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Get the stream this is currently controlling volume on. When the volume
+         * Gets the stream this is currently controlling volume on. When the volume
          * type is {@link PlaybackInfo#PLAYBACK_TYPE_REMOTE} this value does not
          * have meaning and should be ignored.
          *
@@ -1215,7 +1215,7 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Get the type of volume control that can be used. One of:
+         * Gets the type of volume control that can be used. One of:
          * <ul>
          * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}</li>
          * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_RELATIVE}</li>
@@ -1230,7 +1230,7 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Get the maximum volume that may be set for this session.
+         * Gets the maximum volume that may be set for this session.
          *
          * @return The maximum allowed volume where this session is playing.
          */
@@ -1239,7 +1239,7 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Get the current volume for this session.
+         * Gets the current volume for this session.
          *
          * @return The current volume where this session is playing.
          */
