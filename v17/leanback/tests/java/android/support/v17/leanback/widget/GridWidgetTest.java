@@ -1419,28 +1419,6 @@ public class GridWidgetTest {
     }
 
     @Test
-    public void testItemMovedHorizontalRtl() throws Throwable {
-        Intent intent = new Intent();
-        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
-                R.layout.horizontal_linear_rtl);
-        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
-        intent.putExtra(GridActivity.EXTRA_ITEMS, new int[] {40, 40, 40});
-        initActivity(intent);
-        mOrientation = BaseGridView.HORIZONTAL;
-        mNumRows = 1;
-
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mActivity.moveItem(0, 1, true);
-            }
-        });
-        waitForItemAnimation();
-        assertEquals(mGridView.getWidth() - mGridView.getPaddingRight(),
-                mGridView.findViewHolderForAdapterPosition(0).itemView.getRight());
-    }
-
-    @Test
     public void testScrollSecondaryCannotScroll() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
