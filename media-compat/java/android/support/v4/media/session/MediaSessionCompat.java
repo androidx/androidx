@@ -115,19 +115,19 @@ public class MediaSessionCompat {
     public @interface SessionFlags {}
 
     /**
-     * Set this flag on the session to indicate that it can handle media button
+     * Sets this flag on the session to indicate that it can handle media button
      * events.
      */
     public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1 << 0;
 
     /**
-     * Set this flag on the session to indicate that it handles transport
+     * Sets this flag on the session to indicate that it handles transport
      * control commands through its {@link Callback}.
      */
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
 
     /**
-     * Set this flag on the session to indicate that it handles queue
+     * Sets this flag on the session to indicate that it handles queue
      * management commands through its {@link Callback}.
      */
     public static final int FLAG_HANDLES_QUEUE_COMMANDS = 1 << 2;
@@ -435,7 +435,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Add a callback to receive updates on for the MediaSession. This includes
+     * Adds a callback to receive updates on for the MediaSession. This includes
      * media button and volume events. The caller's thread will be used to post
      * events.
      *
@@ -446,7 +446,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the callback to receive updates for the MediaSession. This includes
+     * Sets the callback to receive updates for the MediaSession. This includes
      * media button and volume events. Set the callback to null to stop
      * receiving events.
      *
@@ -458,7 +458,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set an intent for launching UI for this Session. This can be used as a
+     * Sets an intent for launching UI for this Session. This can be used as a
      * quick link to an ongoing media screen. The intent should be for an
      * activity that may be started using
      * {@link Activity#startActivity(Intent)}.
@@ -470,7 +470,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set a pending intent for your media button receiver to allow restarting
+     * Sets a pending intent for your media button receiver to allow restarting
      * playback after the session has been stopped. If your app is started in
      * this way an {@link Intent#ACTION_MEDIA_BUTTON} intent will be sent via
      * the pending intent.
@@ -487,7 +487,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set any flags for the session.
+     * Sets any flags for the session.
      *
      * @param flags The flags to set for this session.
      */
@@ -496,7 +496,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the stream this session is playing on. This will affect the system's
+     * Sets the stream this session is playing on. This will affect the system's
      * volume handling for this session. If {@link #setPlaybackToRemote} was
      * previously called it will stop receiving volume commands and the system
      * will begin sending volume changes to the appropriate stream.
@@ -510,7 +510,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Configure this session to use remote volume handling. This must be called
+     * Configures this session to use remote volume handling. This must be called
      * to receive volume button events, otherwise the system will adjust the
      * current stream volume for this session. If {@link #setPlaybackToLocal}
      * was previously called that stream will stop receiving volume changes for
@@ -532,7 +532,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set if this session is currently active and ready to receive commands. If
+     * Sets if this session is currently active and ready to receive commands. If
      * set to false your session's controller may not be discoverable. You must
      * set the session to active before it can start receiving media button
      * events or transport commands.
@@ -552,7 +552,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Get the current active state of this session.
+     * Gets the current active state of this session.
      *
      * @return True if the session is active, false otherwise.
      */
@@ -561,7 +561,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Send a proprietary event to all MediaControllers listening to this
+     * Sends a proprietary event to all MediaControllers listening to this
      * Session. It's up to the Controller/Session owner to determine the meaning
      * of any events.
      *
@@ -585,7 +585,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Retrieve a token object that can be used by apps to create a
+     * Retrieves a token object that can be used by apps to create a
      * {@link MediaControllerCompat} for interacting with this session. The
      * owner of the session is responsible for deciding how to distribute these
      * tokens.
@@ -603,7 +603,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Get a controller for this session. This is a convenience method to avoid
+     * Gets a controller for this session. This is a convenience method to avoid
      * having to cache your own controller in process.
      *
      * @return A controller for this session.
@@ -613,7 +613,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Update the current playback state.
+     * Updates the current playback state.
      *
      * @param state The current state of playback
      */
@@ -622,7 +622,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Update the current metadata. New metadata can be created using
+     * Updates the current metadata. New metadata can be created using
      * {@link android.support.v4.media.MediaMetadataCompat.Builder}. This operation may take time
      * proportional to the size of the bitmap to replace large bitmaps with a scaled down copy.
      *
@@ -634,7 +634,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Update the list of items in the play queue. It is an ordered list and
+     * Updates the list of items in the play queue. It is an ordered list and
      * should contain the current item, and previous or upcoming items if they
      * exist. Specify null if there is no current play queue.
      * <p>
@@ -649,7 +649,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the title of the play queue. The UI should display this title along
+     * Sets the title of the play queue. The UI should display this title along
      * with the play queue itself. e.g. "Play Queue", "Now Playing", or an album
      * name.
      *
@@ -660,7 +660,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the style of rating used by this session. Apps trying to set the
+     * Sets the style of rating used by this session. Apps trying to set the
      * rating should use this style. Must be one of the following:
      * <ul>
      * <li>{@link RatingCompat#RATING_NONE}</li>
@@ -677,7 +677,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Enable/disable captioning for this session.
+     * Enables/disables captioning for this session.
      *
      * @param enabled {@code true} to enable captioning, {@code false} to disable.
      */
@@ -686,7 +686,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the repeat mode for this session.
+     * Sets the repeat mode for this session.
      * <p>
      * Note that if this method is not called before, {@link MediaControllerCompat#getRepeatMode}
      * will return {@link PlaybackStateCompat#REPEAT_MODE_NONE}.
@@ -702,7 +702,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the shuffle mode for this session.
+     * Sets the shuffle mode for this session.
      * <p>
      * Note that if this method is not called before,
      * {@link MediaControllerCompat#isShuffleModeEnabled} will return {@code false}.
@@ -716,7 +716,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the shuffle mode for this session.
+     * Sets the shuffle mode for this session.
      * <p>
      * Note that if this method is not called before, {@link MediaControllerCompat#getShuffleMode}
      * will return {@link PlaybackStateCompat#SHUFFLE_MODE_NONE}.
@@ -731,7 +731,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set some extras that can be associated with the
+     * Sets some extras that can be associated with the
      * {@link MediaSessionCompat}. No assumptions should be made as to how a
      * {@link MediaControllerCompat} will handle these extras. Keys should be
      * fully qualified (e.g. com.example.MY_EXTRA) to avoid conflicts.
@@ -1585,7 +1585,7 @@ public class MediaSessionCompat {
         private Object mItem;
 
         /**
-         * Create a new {@link MediaSessionCompat.QueueItem}.
+         * Creates a new {@link MediaSessionCompat.QueueItem}.
          *
          * @param description The {@link MediaDescriptionCompat} for this item.
          * @param id An identifier for this item. It must be unique within the
@@ -1613,14 +1613,14 @@ public class MediaSessionCompat {
         }
 
         /**
-         * Get the description for this item.
+         * Gets the description for this item.
          */
         public MediaDescriptionCompat getDescription() {
             return mDescription;
         }
 
         /**
-         * Get the queue id for this item.
+         * Gets the queue id for this item.
          */
         public long getQueueId() {
             return mId;
@@ -1638,7 +1638,7 @@ public class MediaSessionCompat {
         }
 
         /**
-         * Get the underlying
+         * Gets the underlying
          * {@link android.media.session.MediaSession.QueueItem}.
          * <p>
          * On builds before {@link android.os.Build.VERSION_CODES#LOLLIPOP} null
