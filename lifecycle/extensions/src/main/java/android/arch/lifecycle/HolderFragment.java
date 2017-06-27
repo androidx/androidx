@@ -18,7 +18,6 @@ package android.arch.lifecycle;
 
 import android.app.Activity;
 import android.app.Application.ActivityLifecycleCallbacks;
-import android.arch.lifecycle.state.SavedStateProvider;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -47,7 +46,6 @@ public class HolderFragment extends Fragment {
     public static final String HOLDER_TAG =
             "android.arch.lifecycle.state.StateProviderHolderFragment";
 
-    private SavedStateProvider mSavedStateProvider = new SavedStateProvider();
     private ViewModelStore mViewModelStore = new ViewModelStore();
 
     public HolderFragment() {
@@ -57,24 +55,18 @@ public class HolderFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSavedStateProvider.restoreState(savedInstanceState);
         sHolderFragmentManager.holderFragmentCreated(this);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        mSavedStateProvider.saveState(outState);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mViewModelStore.clear();
-    }
-
-    public SavedStateProvider getSavedStateProvider() {
-        return mSavedStateProvider;
     }
 
     public ViewModelStore getViewModelStore() {
