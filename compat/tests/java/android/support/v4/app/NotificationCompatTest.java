@@ -85,12 +85,12 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     public void testTimeout() throws Throwable {
         long timeout = 23552;
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setTimeout(timeout)
+                .setTimeoutAfter(timeout)
                 .build();
         if (Build.VERSION.SDK_INT >= 26) {
-            assertEquals(timeout, NotificationCompat.getTimeout(n));
+            assertEquals(timeout, NotificationCompat.getTimeoutAfter(n));
         } else {
-            assertEquals(0, NotificationCompat.getTimeout(n));
+            assertEquals(0, NotificationCompat.getTimeoutAfter(n));
         }
     }
 
@@ -111,12 +111,12 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     public void testNotificationChannel() throws Throwable {
         String channelId = "new ID";
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setChannel(channelId)
+                .setChannelId(channelId)
                 .build();
         if (Build.VERSION.SDK_INT >= 26) {
-            assertEquals(channelId, NotificationCompat.getChannel(n));
+            assertEquals(channelId, NotificationCompat.getChannelId(n));
         } else {
-            assertNull(NotificationCompat.getChannel(n));
+            assertNull(NotificationCompat.getChannelId(n));
         }
     }
 
@@ -126,9 +126,9 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity(), channelId)
                 .build();
         if (Build.VERSION.SDK_INT >= 26) {
-            assertEquals(channelId, NotificationCompat.getChannel(n));
+            assertEquals(channelId, NotificationCompat.getChannelId(n));
         } else {
-            assertNull(NotificationCompat.getChannel(n));
+            assertNull(NotificationCompat.getChannelId(n));
         }
     }
 

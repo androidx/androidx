@@ -1757,12 +1757,6 @@ public class NotificationCompat {
             return this;
         }
 
-        /** @deprecated removed from API 26 */
-        @Deprecated
-        public Builder setChannel(@NonNull String channelId) {
-            return setChannelId(channelId);
-        }
-
         /**
          * Specifies the time at which this notification should be canceled, if it is not already
          * canceled.
@@ -1770,12 +1764,6 @@ public class NotificationCompat {
         public Builder setTimeoutAfter(long durationMs) {
             mTimeout = durationMs;
             return this;
-        }
-
-        /** @deprecated removed from API 26 */
-        @Deprecated
-        public Builder setTimeout(long durationMs) {
-            return setTimeoutAfter(durationMs);
         }
 
         /**
@@ -4513,12 +4501,6 @@ public class NotificationCompat {
         }
     }
 
-    /** @deprecated removed from API 26 */
-    @Deprecated
-    public static String getChannel(Notification notification) {
-        return getChannelId(notification);
-    }
-
     /**
      * Returns the time at which this notification should be canceled by the system, if it's not
      * canceled already.
@@ -4529,12 +4511,6 @@ public class NotificationCompat {
         } else {
             return 0;
         }
-    }
-
-    /** @deprecated removed from API 26 */
-    @Deprecated
-    public static long getTimeout(Notification notification) {
-        return getTimeoutAfter(notification);
     }
 
     /**
