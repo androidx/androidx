@@ -56,6 +56,6 @@ limitations under the License.
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
     <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer errore-kodea: %1$d (%2$d gehigarria)"</string>
-    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"LEHEN URRATSAK"</string>
+    <string name="lb_onboarding_get_started" msgid="6961440391306351139">"HASI ERABILTZEN"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"Hurrengoa"</string>
 </resources>
