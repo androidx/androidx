@@ -26,7 +26,7 @@ import javax.lang.model.type.TypeMirror
 
 data class InsertionMethod(val element: ExecutableElement, val name: String,
                            @OnConflictStrategy val onConflict: Int,
-                           val entity: Entity?, val returnType: TypeMirror,
+                           val entities: Map<String, Entity>, val returnType: TypeMirror,
                            val insertionType: Type?,
                            val parameters: List<ShortcutQueryParameter>) {
     fun insertMethodTypeFor(param : ShortcutQueryParameter) : Type {

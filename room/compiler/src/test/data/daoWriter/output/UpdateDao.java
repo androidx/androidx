@@ -14,6 +14,8 @@ public class UpdateDao_Impl implements UpdateDao {
 
   private final EntityDeletionOrUpdateAdapter __updateAdapterOfMultiPKeyEntity;
 
+  private final EntityDeletionOrUpdateAdapter __updateAdapterOfBook;
+
   public UpdateDao_Impl(RoomDatabase __db) {
     this.__db = __db;
     this.__updateAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
@@ -67,6 +69,19 @@ public class UpdateDao_Impl implements UpdateDao {
         } else {
           stmt.bindString(4, value.lastName);
         }
+      }
+    };
+    this.__updateAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
+      @Override
+      public String createQuery() {
+        return "UPDATE OR ABORT `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
+      }
+
+      @Override
+      public void bind(SupportSQLiteStatement stmt, Book value) {
+        stmt.bindLong(1, value.bookId);
+        stmt.bindLong(2, value.uid);
+        stmt.bindLong(3, value.bookId);
       }
     };
   }
@@ -153,6 +168,18 @@ public class UpdateDao_Impl implements UpdateDao {
       _total +=__updateAdapterOfMultiPKeyEntity.handle(entity);
       __db.setTransactionSuccessful();
       return _total;
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
+  public void updateUserAndBook(User user, Book book) {
+    __db.beginTransaction();
+    try {
+      __updateAdapterOfUser.handle(user);
+      __updateAdapterOfBook.handle(book);
+      __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();
     }

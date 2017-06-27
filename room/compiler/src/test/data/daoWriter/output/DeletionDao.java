@@ -17,6 +17,8 @@ public class DeletionDao_Impl implements DeletionDao {
 
   private final EntityDeletionOrUpdateAdapter __deletionAdapterOfMultiPKeyEntity;
 
+  private final EntityDeletionOrUpdateAdapter __deletionAdapterOfBook;
+
   private final SharedSQLiteStatement __preparedStmtOfDeleteByUid;
 
   public DeletionDao_Impl(RoomDatabase __db) {
@@ -50,6 +52,17 @@ public class DeletionDao_Impl implements DeletionDao {
         } else {
           stmt.bindString(2, value.lastName);
         }
+      }
+    };
+    this.__deletionAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
+      @Override
+      public String createQuery() {
+        return "DELETE FROM `Book` WHERE `bookId` = ?";
+      }
+
+      @Override
+      public void bind(SupportSQLiteStatement stmt, Book value) {
+        stmt.bindLong(1, value.bookId);
       }
     };
     this.__preparedStmtOfDeleteByUid = new SharedSQLiteStatement(__db) {
@@ -143,6 +156,18 @@ public class DeletionDao_Impl implements DeletionDao {
       _total +=__deletionAdapterOfMultiPKeyEntity.handle(entity);
       __db.setTransactionSuccessful();
       return _total;
+    } finally {
+      __db.endTransaction();
+    }
+  }
+
+  @Override
+  public void deleteUserAndBook(User user, Book book) {
+    __db.beginTransaction();
+    try {
+      __deletionAdapterOfUser.handle(user);
+      __deletionAdapterOfBook.handle(book);
+      __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();
     }

@@ -23,13 +23,18 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.dao.BlobEntityDao;
+import android.arch.persistence.room.integration.testapp.dao.PetDao;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
+import android.arch.persistence.room.integration.testapp.dao.UserPetDao;
 import android.arch.persistence.room.integration.testapp.vo.BlobEntity;
+import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
+import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
@@ -56,12 +61,16 @@ import java.util.List;
 public class SimpleEntityReadWriteTest {
     private UserDao mUserDao;
     private BlobEntityDao mBlobEntityDao;
+    private PetDao mPetDao;
+    private UserPetDao mUserPetDao;
 
     @Before
     public void createDb() {
         Context context = InstrumentationRegistry.getTargetContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mUserDao = db.getUserDao();
+        mPetDao = db.getPetDao();
+        mUserPetDao = db.getUserPetDao();
         mBlobEntityDao = db.getBlobEntityDao();
     }
 
@@ -72,6 +81,53 @@ public class SimpleEntityReadWriteTest {
         mUserDao.insert(user);
         List<User> byName = mUserDao.findUsersByName("george");
         assertThat(byName.get(0), equalTo(user));
+    }
+
+    @Test
+    public void insertDifferentEntities() throws Exception {
+        User user1 = TestUtil.createUser(3);
+        user1.setName("george");
+        Pet pet = TestUtil.createPet(1);
+        pet.setUserId(3);
+        pet.setName("a");
+        mUserPetDao.insertUserAndPet(user1, pet);
+        assertThat(mUserDao.count(), is(1));
+        List<UserAndAllPets> inserted = mUserPetDao.loadAllUsersWithTheirPets();
+        assertThat(inserted, hasSize(1));
+        assertThat(inserted.get(0).user.getId(), is(3));
+        assertThat(inserted.get(0).user.getName(), is(equalTo("george")));
+        assertThat(inserted.get(0).pets, hasSize(1));
+        assertThat(inserted.get(0).pets.get(0).getPetId(), is(1));
+        assertThat(inserted.get(0).pets.get(0).getName(), is("a"));
+        assertThat(inserted.get(0).pets.get(0).getUserId(), is(3));
+        pet.setName("b");
+        mUserPetDao.updateUsersAndPets(new User[]{user1}, new Pet[]{pet});
+        List<UserAndAllPets> updated = mUserPetDao.loadAllUsersWithTheirPets();
+        assertThat(updated, hasSize(1));
+        assertThat(updated.get(0).pets, hasSize(1));
+        assertThat(updated.get(0).pets.get(0).getName(), is("b"));
+        User user2 = TestUtil.createUser(5);
+        user2.setName("chet");
+        mUserDao.insert(user2);
+        assertThat(mUserDao.count(), is(2));
+        mUserPetDao.delete2UsersAndPets(user1, user2, new Pet[]{pet});
+        List<UserAndAllPets> deleted = mUserPetDao.loadAllUsersWithTheirPets();
+        assertThat(deleted, hasSize(0));
+    }
+
+    @Test
+    public void insertDifferentEntities_transaction() throws Exception {
+        Pet pet = TestUtil.createPet(1);
+        mPetDao.insertOrReplace(pet);
+        assertThat(mPetDao.count(), is(1));
+        User user = TestUtil.createUser(3);
+        try {
+            mUserPetDao.insertUserAndPet(user, pet);
+            fail("Exception expected");
+        } catch (SQLiteConstraintException ignored) {
+        }
+        assertThat(mUserDao.count(), is(0));
+        assertThat(mPetDao.count(), is(1));
     }
 
     @Test

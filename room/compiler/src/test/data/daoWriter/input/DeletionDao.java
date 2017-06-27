@@ -42,4 +42,7 @@ abstract interface DeletionDao {
 
     @Query("DELETE FROM user where uid IN(:uid)")
     int deleteByUidList(int... uid);
+
+    @Delete
+    void deleteUserAndBook(User user, Book book);
 }

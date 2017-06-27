@@ -31,6 +31,8 @@ public class WriterDao_Impl implements WriterDao {
 
     private final EntityInsertionAdapter __insertionAdapterOfUser_1;
 
+    private final EntityInsertionAdapter __insertionAdapterOfBook;
+
     public WriterDao_Impl(RoomDatabase __db) {
         this.__db = __db;
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
@@ -79,6 +81,18 @@ public class WriterDao_Impl implements WriterDao {
                 stmt.bindLong(4, value.age);
             }
         };
+        this.__insertionAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
+            @Override
+            public String createQuery() {
+                return "INSERT OR ABORT INTO `Book`(`bookId`,`uid`) VALUES (?,?)";
+            }
+
+            @Override
+            public void bind(SupportSQLiteStatement stmt, Book value) {
+                stmt.bindLong(1, value.bookId);
+                stmt.bindLong(2, value.uid);
+            }
+        };
     }
 
     @Override
@@ -109,6 +123,18 @@ public class WriterDao_Impl implements WriterDao {
         __db.beginTransaction();
         try {
             __insertionAdapterOfUser_1.insert(users);
+            __db.setTransactionSuccessful();
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public void insertUserAndBook(User user, Book book) {
+        __db.beginTransaction();
+        try {
+            __insertionAdapterOfUser.insert(user);
+            __insertionAdapterOfBook.insert(book);
             __db.setTransactionSuccessful();
         } finally {
             __db.endTransaction();
