@@ -600,18 +600,8 @@ public class MediaSessionCompatTest {
         PendingIntent pi = PendingIntent.getBroadcast(getContext(), 0, mediaButtonIntent, 0);
         mSession.setMediaButtonReceiver(pi);
 
-        long supportedActions = PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE
-                | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_STOP
-                | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-                | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-                | PlaybackStateCompat.ACTION_FAST_FORWARD | PlaybackStateCompat.ACTION_REWIND;
-
         // Set state to STATE_PLAYING to get higher priority.
-        PlaybackStateCompat defaultState = new PlaybackStateCompat.Builder()
-                .setActions(supportedActions)
-                .setState(PlaybackStateCompat.STATE_PLAYING, 0L, 0.0f)
-                .build();
-        mSession.setPlaybackState(defaultState);
+        setPlaybackState(PlaybackStateCompat.STATE_PLAYING);
 
         sessionCallback.reset(1);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY);
@@ -651,24 +641,21 @@ public class MediaSessionCompatTest {
         // Test PLAY_PAUSE button twice.
         // First, send PLAY_PAUSE button event while in STATE_PAUSED.
         sessionCallback.reset(1);
-        mSession.setPlaybackState(new PlaybackStateCompat.Builder().setActions(supportedActions)
-                .setState(PlaybackStateCompat.STATE_PAUSED, 0L, 0.0f).build());
+        setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
         assertTrue(sessionCallback.await(TIME_OUT_MS));
         assertEquals(1, sessionCallback.mOnPlayCalledCount);
 
         // Next, send PLAY_PAUSE button event while in STATE_PLAYING.
         sessionCallback.reset(1);
-        mSession.setPlaybackState(new PlaybackStateCompat.Builder().setActions(supportedActions)
-                .setState(PlaybackStateCompat.STATE_PLAYING, 0L, 0.0f).build());
+        setPlaybackState(PlaybackStateCompat.STATE_PLAYING);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
         assertTrue(sessionCallback.await(TIME_OUT_MS));
         assertTrue(sessionCallback.mOnPauseCalled);
 
         // Double tap of PLAY_PAUSE is the next track.
         sessionCallback.reset(2);
-        mSession.setPlaybackState(new PlaybackStateCompat.Builder().setActions(supportedActions)
-                .setState(PlaybackStateCompat.STATE_PAUSED, 0L, 0.0f).build());
+        setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
         assertFalse(sessionCallback.await(WAIT_TIME_MS));
@@ -679,8 +666,7 @@ public class MediaSessionCompatTest {
         // Test PLAY_PAUSE button long-press.
         // It should be the same as the single short-press.
         sessionCallback.reset(1);
-        mSession.setPlaybackState(new PlaybackStateCompat.Builder().setActions(supportedActions)
-                .setState(PlaybackStateCompat.STATE_PAUSED, 0L, 0.0f).build());
+        setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
         assertTrue(sessionCallback.await(TIME_OUT_MS));
         assertEquals(1, sessionCallback.mOnPlayCalledCount);
@@ -700,16 +686,53 @@ public class MediaSessionCompatTest {
         // Initial long-press of the PLAY_PAUSE is considered as the single short-press already,
         // so it shouldn't be used as the first tap of the double tap.
         sessionCallback.reset(2);
-        mSession.setPlaybackState(new PlaybackStateCompat.Builder().setActions(supportedActions)
-                .setState(PlaybackStateCompat.STATE_PAUSED, 0L, 0.0f).build());
+        setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
         sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
         assertTrue(sessionCallback.await(TIME_OUT_MS));
         // onMediaButtonEvent() calls either onPlay() or onPause() depending on the playback state,
         // so onPlay() should be called twice while onPause() isn't called.
-        assertEquals(2, sessionCallback.mOnPlayCalledCount);
-        assertFalse(sessionCallback.mOnPauseCalled);
+        assertEquals(1, sessionCallback.mOnPlayCalledCount);
+        assertTrue(sessionCallback.mOnPauseCalled);
         assertFalse(sessionCallback.mOnSkipToNextCalled);
+
+        // If another media key is pressed while the double tap of PLAY_PAUSE,
+        // PLAY_PAUSE should be handles as normal.
+        sessionCallback.reset(3);
+        setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
+        sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+        sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_STOP);
+        sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+        assertTrue(sessionCallback.await(TIME_OUT_MS));
+        assertFalse(sessionCallback.mOnSkipToNextCalled);
+        assertTrue(sessionCallback.mOnStopCalled);
+        assertEquals(2, sessionCallback.mOnPlayCalledCount);
+
+        // Test if media keys are handled in order.
+        sessionCallback.reset(2);
+        setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
+        sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+        sendMediaKeyInputToController(KeyEvent.KEYCODE_MEDIA_STOP);
+        assertTrue(sessionCallback.await(TIME_OUT_MS));
+        assertEquals(1, sessionCallback.mOnPlayCalledCount);
+        assertTrue(sessionCallback.mOnStopCalled);
+        synchronized (mWaitLock) {
+            assertEquals(PlaybackStateCompat.STATE_STOPPED,
+                    mSession.getController().getPlaybackState().getState());
+        }
+    }
+
+    private void setPlaybackState(int state) {
+        final long allActions = PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PAUSE
+                | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_STOP
+                | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                | PlaybackStateCompat.ACTION_FAST_FORWARD | PlaybackStateCompat.ACTION_REWIND;
+        PlaybackStateCompat playbackState = new PlaybackStateCompat.Builder().setActions(allActions)
+                .setState(state, 0L, 0.0f).build();
+        synchronized (mWaitLock) {
+            mSession.setPlaybackState(playbackState);
+        }
     }
 
     @Test
@@ -995,18 +1018,21 @@ public class MediaSessionCompatTest {
         @Override
         public void onPlay() {
             mOnPlayCalledCount++;
+            setPlaybackState(PlaybackStateCompat.STATE_PLAYING);
             mLatch.countDown();
         }
 
         @Override
         public void onPause() {
             mOnPauseCalled = true;
+            setPlaybackState(PlaybackStateCompat.STATE_PAUSED);
             mLatch.countDown();
         }
 
         @Override
         public void onStop() {
             mOnStopCalled = true;
+            setPlaybackState(PlaybackStateCompat.STATE_STOPPED);
             mLatch.countDown();
         }
 
