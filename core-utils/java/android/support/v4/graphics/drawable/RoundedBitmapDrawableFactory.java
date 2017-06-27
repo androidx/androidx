@@ -31,7 +31,7 @@ import android.util.Log;
  * either from Bitmaps directly, or from streams and files.
  */
 public final class RoundedBitmapDrawableFactory {
-    private static final String TAG = "RoundedBitmapDrawableFactory";
+    private static final String TAG = "RoundedBitmapDrawableFa";
 
     private static class DefaultRoundedBitmapDrawable extends RoundedBitmapDrawable {
         DefaultRoundedBitmapDrawable(Resources res, Bitmap bitmap) {

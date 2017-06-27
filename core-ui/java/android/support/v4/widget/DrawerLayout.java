@@ -148,7 +148,8 @@ public class DrawerLayout extends ViewGroup {
      */
     public static final int LOCK_MODE_UNDEFINED = 3;
 
-    @IntDef({Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END})
+    @IntDef(value = {Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END},
+            flag = true)
     @Retention(RetentionPolicy.SOURCE)
     private @interface EdgeGravity {}
 
