@@ -61,17 +61,14 @@ class NotificationCompatImplBase {
         return resultBitmap;
     }
 
-    public static RemoteViews applyStandardTemplate(Context context,
-            CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
-            int number, int smallIcon, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, int color, int resId,
-            boolean fitIn1U) {
-        Resources res = context.getResources();
-        RemoteViews contentView = new RemoteViews(context.getPackageName(), resId);
+    public static RemoteViews applyStandardTemplate(NotificationCompat.Builder builder,
+            boolean showSmallIcon, int resId, boolean fitIn1U) {
+        Resources res = builder.mContext.getResources();
+        RemoteViews contentView = new RemoteViews(builder.mContext.getPackageName(), resId);
         boolean showLine3 = false;
         boolean showLine2 = false;
 
-        boolean minPriority = priority < NotificationCompat.PRIORITY_LOW;
+        boolean minPriority = builder.getPriority() < NotificationCompat.PRIORITY_LOW;
         if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 21) {
             // lets color the backgrounds
             if (minPriority) {
@@ -87,34 +84,34 @@ class NotificationCompatImplBase {
             }
         }
 
-        if (largeIcon != null) {
+        if (builder.mLargeIcon != null) {
             // On versions before Jellybean, the large icon was shown by SystemUI, so we need to hide
             // it here.
             if (Build.VERSION.SDK_INT >= 16) {
                 contentView.setViewVisibility(R.id.icon, View.VISIBLE);
-                contentView.setImageViewBitmap(R.id.icon, largeIcon);
+                contentView.setImageViewBitmap(R.id.icon, builder.mLargeIcon);
             } else {
                 contentView.setViewVisibility(R.id.icon, View.GONE);
             }
-            if (smallIcon != 0) {
+            if (showSmallIcon && builder.mNotification.icon != 0) {
                 int backgroundSize = res.getDimensionPixelSize(
                         R.dimen.notification_right_icon_size);
                 int iconSize = backgroundSize - res.getDimensionPixelSize(
                         R.dimen.notification_small_icon_background_padding) * 2;
                 if (Build.VERSION.SDK_INT >= 21) {
-                    Bitmap smallBit = createIconWithBackground(context,
-                            smallIcon,
+                    Bitmap smallBit = createIconWithBackground(builder.mContext,
+                            builder.mNotification.icon,
                             backgroundSize,
                             iconSize,
-                            color);
+                            builder.getColor());
                     contentView.setImageViewBitmap(R.id.right_icon, smallBit);
                 } else {
-                    contentView.setImageViewBitmap(R.id.right_icon,
-                            createColoredBitmap(context, smallIcon, Color.WHITE));
+                    contentView.setImageViewBitmap(R.id.right_icon, createColoredBitmap(
+                            builder.mContext, builder.mNotification.icon, Color.WHITE));
                 }
                 contentView.setViewVisibility(R.id.right_icon, View.VISIBLE);
             }
-        } else if (smallIcon != 0) { // small icon at left
+        } else if (showSmallIcon && builder.mNotification.icon != 0) { // small icon at left
             contentView.setViewVisibility(R.id.icon, View.VISIBLE);
             if (Build.VERSION.SDK_INT >= 21) {
                 int backgroundSize = res.getDimensionPixelSize(
@@ -122,40 +119,40 @@ class NotificationCompatImplBase {
                         - res.getDimensionPixelSize(R.dimen.notification_big_circle_margin);
                 int iconSize = res.getDimensionPixelSize(
                         R.dimen.notification_small_icon_size_as_large);
-                Bitmap smallBit = createIconWithBackground(context,
-                        smallIcon,
+                Bitmap smallBit = createIconWithBackground(builder.mContext,
+                        builder.mNotification.icon,
                         backgroundSize,
                         iconSize,
-                        color);
+                        builder.getColor());
                 contentView.setImageViewBitmap(R.id.icon, smallBit);
             } else {
-                contentView.setImageViewBitmap(R.id.icon,
-                        createColoredBitmap(context, smallIcon, Color.WHITE));
+                contentView.setImageViewBitmap(R.id.icon, createColoredBitmap(
+                        builder.mContext, builder.mNotification.icon, Color.WHITE));
             }
         }
-        if (contentTitle != null) {
-            contentView.setTextViewText(R.id.title, contentTitle);
+        if (builder.mContentTitle != null) {
+            contentView.setTextViewText(R.id.title, builder.mContentTitle);
         }
-        if (contentText != null) {
-            contentView.setTextViewText(R.id.text, contentText);
+        if (builder.mContentText != null) {
+            contentView.setTextViewText(R.id.text, builder.mContentText);
             showLine3 = true;
         }
         // If there is a large icon we have a right side
-        boolean hasRightSide = !(Build.VERSION.SDK_INT >= 21) && largeIcon != null;
-        if (contentInfo != null) {
-            contentView.setTextViewText(R.id.info, contentInfo);
+        boolean hasRightSide = !(Build.VERSION.SDK_INT >= 21) && builder.mLargeIcon != null;
+        if (builder.mContentInfo != null) {
+            contentView.setTextViewText(R.id.info, builder.mContentInfo);
             contentView.setViewVisibility(R.id.info, View.VISIBLE);
             showLine3 = true;
             hasRightSide = true;
-        } else if (number > 0) {
+        } else if (builder.mNumber > 0) {
             final int tooBig = res.getInteger(
                     R.integer.status_bar_notification_info_maxnum);
-            if (number > tooBig) {
+            if (builder.mNumber > tooBig) {
                 contentView.setTextViewText(R.id.info, ((Resources) res).getString(
                         R.string.status_bar_notification_info_overflow));
             } else {
                 NumberFormat f = NumberFormat.getIntegerInstance();
-                contentView.setTextViewText(R.id.info, f.format(number));
+                contentView.setTextViewText(R.id.info, f.format(builder.mNumber));
             }
             contentView.setViewVisibility(R.id.info, View.VISIBLE);
             showLine3 = true;
@@ -165,10 +162,10 @@ class NotificationCompatImplBase {
         }
 
         // Need to show three lines? Only allow on Jellybean+
-        if (subText != null && Build.VERSION.SDK_INT >= 16) {
-            contentView.setTextViewText(R.id.text, subText);
-            if (contentText != null) {
-                contentView.setTextViewText(R.id.text2, contentText);
+        if (builder.mSubText != null && Build.VERSION.SDK_INT >= 16) {
+            contentView.setTextViewText(R.id.text, builder.mSubText);
+            if (builder.mContentText != null) {
+                contentView.setTextViewText(R.id.text2, builder.mContentText);
                 contentView.setViewVisibility(R.id.text2, View.VISIBLE);
                 showLine2 = true;
             } else {
@@ -188,15 +185,16 @@ class NotificationCompatImplBase {
             contentView.setViewPadding(R.id.line1, 0, 0, 0, 0);
         }
 
-        if (when != 0) {
-            if (useChronometer && Build.VERSION.SDK_INT >= 16) {
+        if (builder.getWhenIfShowing() != 0) {
+            if (builder.mUseChronometer && Build.VERSION.SDK_INT >= 16) {
                 contentView.setViewVisibility(R.id.chronometer, View.VISIBLE);
                 contentView.setLong(R.id.chronometer, "setBase",
-                        when + (SystemClock.elapsedRealtime() - System.currentTimeMillis()));
+                        builder.getWhenIfShowing()
+                                + (SystemClock.elapsedRealtime() - System.currentTimeMillis()));
                 contentView.setBoolean(R.id.chronometer, "setStarted", true);
             } else {
                 contentView.setViewVisibility(R.id.time, View.VISIBLE);
-                contentView.setLong(R.id.time, "setTime", when);
+                contentView.setLong(R.id.time, "setTime", builder.getWhenIfShowing());
             }
             hasRightSide = true;
         }

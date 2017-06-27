@@ -243,11 +243,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
 
         RemoteViews generateContentView() {
             RemoteViews view = NotificationCompatImplBase.applyStandardTemplate(
-                    mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
-                    mBuilder.mContentInfo, mBuilder.mNumber, 0 /* smallIcon */,
-                    mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
-                    mBuilder.getWhenIfShowing(), mBuilder.getPriority(),
-                    0 /* color is unused on media */,
+                    mBuilder, false /* showSmallIcon */,
                     getContentViewLayoutResource(), true /* fitIn1U */);
 
             final int numActions = mBuilder.mActions.size();
@@ -316,11 +312,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         RemoteViews generateBigContentView() {
             final int actionCount = Math.min(mBuilder.mActions.size(), MAX_MEDIA_BUTTONS);
             RemoteViews big = NotificationCompatImplBase.applyStandardTemplate(
-                    mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
-                    mBuilder.mContentInfo, mBuilder.mNumber, 0 /* smallIcon */,
-                    mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
-                    mBuilder.getWhenIfShowing(), mBuilder.getPriority(),
-                    0 /* color is unused on media */,
+                    mBuilder, false /* showSmallIcon */,
                     getBigContentViewLayoutResource(actionCount), false /* fitIn1U */);
 
             big.removeAllViews(R.id.media_actions);
@@ -454,10 +446,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
 
         private RemoteViews createRemoteViews(RemoteViews innerView, boolean showActions) {
             RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplate(
-                    mBuilder.mContext, mBuilder.mContentTitle, mBuilder.mContentText,
-                    mBuilder.mContentInfo, mBuilder.mNumber, mBuilder.mNotification.icon,
-                    mBuilder.mLargeIcon, mBuilder.mSubText, mBuilder.mUseChronometer,
-                    mBuilder.getWhenIfShowing(), mBuilder.getPriority(), mBuilder.getColor(),
+                    mBuilder, true /* showSmallIcon */,
                     R.layout.notification_template_custom_big, false /* fitIn1U */);
             remoteViews.removeAllViews(R.id.actions);
             boolean actionsVisible = false;
