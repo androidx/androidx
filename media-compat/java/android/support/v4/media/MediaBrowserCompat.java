@@ -945,9 +945,10 @@ public final class MediaBrowserCompat {
         void subscribe(@NonNull String parentId, Bundle options,
                 @NonNull SubscriptionCallback callback);
         void unsubscribe(@NonNull String parentId, SubscriptionCallback callback);
-        void getItem(final @NonNull String mediaId, @NonNull final ItemCallback cb);
+        void getItem(@NonNull String mediaId, @NonNull ItemCallback cb);
         void search(@NonNull String query, Bundle extras, @NonNull SearchCallback callback);
-        void sendCustomAction(String action, Bundle extras, final CustomActionCallback callback);
+        void sendCustomAction(@NonNull String action, Bundle extras,
+                @Nullable CustomActionCallback callback);
     }
 
     interface MediaBrowserServiceCallbackImpl {
@@ -1289,12 +1290,14 @@ public final class MediaBrowserCompat {
             } catch (RemoteException e) {
                 Log.i(TAG, "Remote error sending a custom action: action=" + action + ", extras="
                         + extras, e);
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(action, extras, null);
-                    }
-                });
+                if (callback != null) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onError(action, extras, null);
+                        }
+                    });
+                }
             }
         }
 
@@ -1803,8 +1806,8 @@ public final class MediaBrowserCompat {
         }
 
         @Override
-        public void sendCustomAction(final String action, final Bundle extras,
-                final CustomActionCallback callback) {
+        public void sendCustomAction(@NonNull final String action, final Bundle extras,
+                @Nullable final CustomActionCallback callback) {
             if (!isConnected()) {
                 throw new IllegalStateException("Cannot send a custom action (" + action + ") with "
                         + "extras " + extras + " because the browser is not connected to the "
@@ -1812,12 +1815,14 @@ public final class MediaBrowserCompat {
             }
             if (mServiceBinderWrapper == null) {
                 Log.i(TAG, "The connected service doesn't support sendCustomAction.");
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(action, extras, null);
-                    }
-                });
+                if (callback != null) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onError(action, extras, null);
+                        }
+                    });
+                }
             }
 
             ResultReceiver receiver = new CustomActionResultReceiver(action, extras, callback,
@@ -1828,12 +1833,14 @@ public final class MediaBrowserCompat {
             } catch (RemoteException e) {
                 Log.i(TAG, "Remote error sending a custom action: action=" + action + ", extras="
                         + extras, e);
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(action, extras, null);
-                    }
-                });
+                if (callback != null) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onError(action, extras, null);
+                        }
+                    });
+                }
             }
         }
 

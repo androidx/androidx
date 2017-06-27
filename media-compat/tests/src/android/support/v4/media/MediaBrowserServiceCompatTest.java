@@ -378,7 +378,6 @@ public class MediaBrowserServiceCompatTest {
         assertEquals(val, browserRoot.getExtras().getString(key));
     }
 
-
     @Test
     @SmallTest
     public void testDelayedSetSessionToken() throws Exception {
@@ -583,6 +582,5 @@ public class MediaBrowserServiceCompatTest {
                 mWaitLock.notify();
             }
         }
-    };
-
+    }
 }
