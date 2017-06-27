@@ -1,26 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issues format="4" by="lint 2.4.0-alpha6">
 
-    <issue
-        id="ResourceType"
-        message="Expected resource of type xml"
-        errorLine1="            final XmlPullParser parser = res.getXml(resId);"
-        errorLine2="                                                    ~~~~~">
-        <location
-            file="src/android/support/graphics/drawable/VectorDrawableCompat.java"
-            line="557"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: View.LAYOUT_DIRECTION_LTR, View.LAYOUT_DIRECTION_RTL"
-        errorLine1="            return isAutoMirrored() &amp;&amp; getLayoutDirection() == LayoutDirection.RTL;"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/graphics/drawable/VectorDrawableCompat.java"
-            line="821"
-            column="64"/>
-    </issue>
-
 </issues>

@@ -477,7 +477,7 @@ public class SlidingPaneLayout extends ViewGroup {
         }
 
         int layoutHeight = 0;
-        int maxLayoutHeight = -1;
+        int maxLayoutHeight = 0;
         switch (heightMode) {
             case MeasureSpec.EXACTLY:
                 layoutHeight = maxLayoutHeight = heightSize - getPaddingTop() - getPaddingBottom();
