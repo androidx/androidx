@@ -5007,14 +5007,14 @@ public class GridWidgetTest {
 
     void prepareKeyLineTest(int numItems) throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
         int[] items = new int[numItems];
         for (int i = 0; i < items.length; i++) {
             items[i] = 32;
         }
         intent.putExtra(GridActivity.EXTRA_ITEMS, items);
         intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
-        mOrientation = BaseGridView.VERTICAL;
+        mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
 
         initActivity(intent);
@@ -5055,51 +5055,76 @@ public class GridWidgetTest {
             final boolean preferKeyLineOverHigh,
             ItemAt assertFirstItemLocation,
             ItemAt assertLastItemLocation) throws Throwable {
+        TestPreferKeyLineOptions options = new TestPreferKeyLineOptions();
+        options.mAssertItemLocations = new ItemAt[] {assertFirstItemLocation,
+                assertLastItemLocation};
+        options.mPreferKeyLineOverLow = preferKeyLineOverLow;
+        options.mPreferKeyLineOverHigh = preferKeyLineOverHigh;
+        options.mWindowAlignment = windowAlignment;
+
+        options.mRtl = false;
+        testPreferKeyLine(options);
+
+        options.mRtl = true;
+        testPreferKeyLine(options);
+    }
+
+    static class TestPreferKeyLineOptions {
+        int mWindowAlignment;
+        boolean mPreferKeyLineOverLow;
+        boolean mPreferKeyLineOverHigh;
+        ItemAt[] mAssertItemLocations;
+        boolean mRtl;
+    }
+
+    public void testPreferKeyLine(final TestPreferKeyLineOptions options) throws Throwable {
         startWaitLayout();
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mGridView.setWindowAlignment(windowAlignment);
+                if (options.mRtl) {
+                    mGridView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+                } else {
+                    mGridView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+                }
+                mGridView.setWindowAlignment(options.mWindowAlignment);
                 mGridView.setWindowAlignmentOffsetPercent(50);
                 mGridView.setWindowAlignmentOffset(0);
-                mGridView.setWindowAlignmentPreferKeyLineOverLowEdge(preferKeyLineOverLow);
-                mGridView.setWindowAlignmentPreferKeyLineOverHighEdge(preferKeyLineOverHigh);
+                mGridView.setWindowAlignmentPreferKeyLineOverLowEdge(options.mPreferKeyLineOverLow);
+                mGridView.setWindowAlignmentPreferKeyLineOverHighEdge(
+                        options.mPreferKeyLineOverHigh);
             }
         });
         waitForLayout();
 
-        final int lowPadding = mGridView.getPaddingTop();
-        final int highPadding = mGridView.getHeight() - mGridView.getPaddingBottom();
-        final int windowAlignCenter = mGridView.getHeight() / 2;
+        final int paddingStart = mGridView.getPaddingStart();
+        final int paddingEnd = mGridView.getPaddingEnd();
+        final int windowAlignCenter = mGridView.getWidth() / 2;
 
-        setSelectedPosition(assertFirstItemLocation.mScrollPosition);
-        View view = mGridView.findViewHolderForAdapterPosition(assertFirstItemLocation.mPosition)
-                .itemView;
-        switch (assertFirstItemLocation.mLocation) {
-            case ITEM_AT_LOW:
-                assertEquals(lowPadding, view.getTop());
-                break;
-            case ITEM_AT_HIGH:
-                assertEquals(highPadding, view.getBottom());
-                break;
-            case ITEM_AT_KEY_LINE:
-                assertEquals(windowAlignCenter, view.getTop() + view.getHeight() / 2, DELTA);
-                break;
-        }
-
-        setSelectedPosition(assertLastItemLocation.mScrollPosition);
-        view = mGridView.findViewHolderForAdapterPosition(assertLastItemLocation.mPosition)
-                .itemView;
-        switch (assertLastItemLocation.mLocation) {
-            case ITEM_AT_LOW:
-                assertEquals(lowPadding, view.getTop());
-                break;
-            case ITEM_AT_HIGH:
-                assertEquals(highPadding, view.getBottom());
-                break;
-            case ITEM_AT_KEY_LINE:
-                assertEquals(windowAlignCenter, view.getTop() + view.getHeight() / 2, DELTA);
-                break;
+        for (int i = 0; i < options.mAssertItemLocations.length; i++) {
+            ItemAt assertItemLocation = options.mAssertItemLocations[i];
+            setSelectedPosition(assertItemLocation.mScrollPosition);
+            View view = mGridView.findViewHolderForAdapterPosition(assertItemLocation.mPosition)
+                    .itemView;
+            switch (assertItemLocation.mLocation) {
+                case ITEM_AT_LOW:
+                    if (options.mRtl) {
+                        assertEquals(mGridView.getWidth() - paddingStart, view.getRight());
+                    } else {
+                        assertEquals(paddingStart, view.getLeft());
+                    }
+                    break;
+                case ITEM_AT_HIGH:
+                    if (options.mRtl) {
+                        assertEquals(paddingEnd, view.getLeft());
+                    } else {
+                        assertEquals(mGridView.getWidth() - paddingEnd, view.getRight());
+                    }
+                    break;
+                case ITEM_AT_KEY_LINE:
+                    assertEquals(windowAlignCenter, (view.getLeft() + view.getRight()) / 2, DELTA);
+                    break;
+            }
         }
     }
 
