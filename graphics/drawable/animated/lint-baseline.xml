@@ -13,124 +13,14 @@
     </issue>
 
     <issue
-        id="ResourceType"
-        message="Expected resource of type xml"
-        errorLine1="            final XmlPullParser parser = res.getXml(resId);"
-        errorLine2="                                                    ~~~~~">
-        <location
-            file="src/android/support/graphics/drawable/VectorDrawableCompat.java"
-            line="557"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.AT_MOST);"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="536"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.EXACTLY);"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="538"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="586"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="589"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                            childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="608"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                            childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="611"
-            column="75"/>
-    </issue>
-
-    <issue
         id="WrongConstant"
-        message="Must be one of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
-        errorLine1="        setDrawerLockMode(lockMode, gravity);"
-        errorLine2="                                    ~~~~~~~">
+        message="Must be one or more of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
+        errorLine1="                            + gravityToString(childGravity) + &quot; but this &quot; + TAG + &quot; already has a &quot;"
+        errorLine2="                                              ~~~~~~~~~~~~">
         <location
             file="java/android/support/v4/widget/DrawerLayout.java"
-            line="680"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
-        errorLine1="        return getDrawerLockMode(drawerGravity);"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/DrawerLayout.java"
-            line="753"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Flag not allowed here"
-        errorLine1="                        getDrawerViewAbsoluteGravity(child) &amp; Gravity.HORIZONTAL_GRAVITY_MASK;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/DrawerLayout.java"
-            line="1086"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: View.LAYOUT_DIRECTION_LTR, View.LAYOUT_DIRECTION_RTL"
-        errorLine1="            return isAutoMirrored() &amp;&amp; getLayoutDirection() == LayoutDirection.RTL;"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/graphics/drawable/VectorDrawableCompat.java"
-            line="821"
-            column="64"/>
+            line="1075"
+            column="47"/>
     </issue>
 
 </issues>
