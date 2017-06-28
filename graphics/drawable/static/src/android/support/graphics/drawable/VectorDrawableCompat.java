@@ -16,6 +16,7 @@ package android.support.graphics.drawable;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -554,7 +555,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         try {
-            final XmlPullParser parser = res.getXml(resId);
+            @SuppressLint("ResourceType") final XmlPullParser parser = res.getXml(resId);
             final AttributeSet attrs = Xml.asAttributeSet(parser);
             int type;
             while ((type = parser.next()) != XmlPullParser.START_TAG &&
@@ -818,7 +819,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     // We don't support RTL auto mirroring since the getLayoutDirection() is for API 17+.
     private boolean needMirroring() {
         if (Build.VERSION.SDK_INT >= 17) {
-            return isAutoMirrored() && getLayoutDirection() == LayoutDirection.RTL;
+            return isAutoMirrored()
+                    && DrawableCompat.getLayoutDirection(this) == LayoutDirection.RTL;
         } else {
             return false;
         }

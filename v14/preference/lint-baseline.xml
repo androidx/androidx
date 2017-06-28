@@ -94,17 +94,6 @@
     </issue>
 
     <issue
-        id="ResourceType"
-        message="Expected resource of type xml"
-        errorLine1="            final XmlPullParser parser = res.getXml(resId);"
-        errorLine2="                                                    ~~~~~">
-        <location
-            file="src/android/support/graphics/drawable/VectorDrawableCompat.java"
-            line="557"
-            column="53"/>
-    </issue>
-
-    <issue
         id="Range"
         message="Value must be ≥ 0 (was -2147483648)"
         errorLine1="                                MeasureSpec.makeMeasureSpec(largestChildHeight,"
@@ -124,72 +113,6 @@
             file="src/android/support/v7/widget/LinearLayoutCompat.java"
             line="1286"
             column="61"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.AT_MOST);"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="536"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight, MeasureSpec.EXACTLY);"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="538"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="586"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                                childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                              ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="589"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                            childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="608"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -1)"
-        errorLine1="                            childHeightSpec = MeasureSpec.makeMeasureSpec(maxLayoutHeight,"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/SlidingPaneLayout.java"
-            line="611"
-            column="75"/>
     </issue>
 
     <issue
@@ -343,171 +266,6 @@
         <location
             file="src/android/support/v7/widget/AppCompatDrawableManager.java"
             line="698"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 25 (FragmentStatePagerAdapter)"
-        errorLine1="        if (DEBUG) Log.v(TAG, &quot;Adding item #&quot; + position + &quot;: f=&quot; + fragment);"
-        errorLine2="                         ~~~">
-        <location
-            file="java/android/support/v4/app/FragmentStatePagerAdapter.java"
-            line="110"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 25 (FragmentStatePagerAdapter)"
-        errorLine1="        if (DEBUG) Log.v(TAG, &quot;Removing item #&quot; + position + &quot;: f=&quot; + object"
-        errorLine2="                         ~~~">
-        <location
-            file="java/android/support/v4/app/FragmentStatePagerAdapter.java"
-            line="135"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 25 (FragmentStatePagerAdapter)"
-        errorLine1="                        Log.w(TAG, &quot;Bad fragment at key &quot; + key);"
-        errorLine2="                              ~~~">
-        <location
-            file="java/android/support/v4/app/FragmentStatePagerAdapter.java"
-            line="224"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (RoundedBitmapDrawableFactory)"
-        errorLine1="            Log.w(TAG, &quot;RoundedBitmapDrawable cannot decode &quot; + filepath);"
-        errorLine2="                  ~~~">
-        <location
-            file="java/android/support/v4/graphics/drawable/RoundedBitmapDrawableFactory.java"
-            line="80"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 28 (RoundedBitmapDrawableFactory)"
-        errorLine1="            Log.w(TAG, &quot;RoundedBitmapDrawable cannot decode &quot; + is);"
-        errorLine2="                  ~~~">
-        <location
-            file="java/android/support/v4/graphics/drawable/RoundedBitmapDrawableFactory.java"
-            line="93"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="            Log.d(TAG, &quot;found saved state: &quot; + mPendingSavedState);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="783"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="            Log.d(TAG, &quot;Deciding anchor info from fresh state&quot;);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="828"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="            Log.d(TAG, &quot;invalid saved state class&quot;);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="1187"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="            Log.d(TAG, &quot;saved state:\n&quot; + state);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="1236"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="            Log.d(TAG, &quot;FILLING targetLine: &quot; + targetLine + &quot;,&quot;"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="1559"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="                    Log.d(TAG, &quot;assigned &quot; + currentSpan.mIndex + &quot; for &quot; + position);"
-        errorLine2="                          ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="1580"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="                    Log.d(TAG, &quot;using &quot; + spanIndex + &quot; for pos &quot; + position);"
-        errorLine2="                          ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="1584"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="            Log.d(TAG, &quot;asked &quot; + dt + &quot; scrolled&quot; + totalScroll);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="2153"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 26 (StaggeredGridLayoutManager)"
-        errorLine1="                    Log.d(TAG, &quot;Unknown focus request:&quot; + focusDirection);"
-        errorLine2="                          ~~~">
-        <location
-            file="src/android/support/v7/widget/StaggeredGridLayoutManager.java"
-            line="2385"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (WakefulBroadcastReceiver)"
-        errorLine1="            Log.w(&quot;WakefulBroadcastReceiver&quot;, &quot;No active wake lock id #&quot; + id);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/content/WakefulBroadcastReceiver.java"
-            line="141"
             column="19"/>
     </issue>
 
@@ -688,21 +446,6 @@
     </issue>
 
     <issue
-        id="UniqueConstants"
-        message="Constants `FLAG_CVE_EQ_PVE` and `FLAG_CVE_EQ_PVE` specify the same exact value (8192); this is usually a cut &amp; paste or merge error"
-        errorLine1="            FLAG_CVE_EQ_PVE, FLAG_CVE_EQ_PVE, FLAG_CVE_LT_PVE"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/v7/widget/ViewBoundsCheck.java"
-            line="125"
-            column="30"/>
-        <location
-            file="src/android/support/v7/widget/ViewBoundsCheck.java"
-            line="125"
-            column="13"/>
-    </issue>
-
-    <issue
         id="WrongConstant"
         message="Must be one of: PixelFormat.UNKNOWN, PixelFormat.TRANSLUCENT, PixelFormat.TRANSPARENT, PixelFormat.OPAQUE"
         errorLine1="        return 0;"
@@ -715,35 +458,13 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
-        errorLine1="        setDrawerLockMode(lockMode, gravity);"
-        errorLine2="                                    ~~~~~~~">
+        message="Must be one or more of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
+        errorLine1="                            + gravityToString(childGravity) + &quot; but this &quot; + TAG + &quot; already has a &quot;"
+        errorLine2="                                              ~~~~~~~~~~~~">
         <location
             file="java/android/support/v4/widget/DrawerLayout.java"
-            line="680"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
-        errorLine1="        return getDrawerLockMode(drawerGravity);"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/DrawerLayout.java"
-            line="753"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Flag not allowed here"
-        errorLine1="                        getDrawerViewAbsoluteGravity(child) &amp; Gravity.HORIZONTAL_GRAVITY_MASK;"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/DrawerLayout.java"
-            line="1086"
-            column="25"/>
+            line="1075"
+            column="47"/>
     </issue>
 
     <issue
@@ -766,17 +487,6 @@
             file="src/android/support/v7/app/ToolbarActionBar.java"
             line="254"
             column="36"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: View.LAYOUT_DIRECTION_LTR, View.LAYOUT_DIRECTION_RTL"
-        errorLine1="            return isAutoMirrored() &amp;&amp; getLayoutDirection() == LayoutDirection.RTL;"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/graphics/drawable/VectorDrawableCompat.java"
-            line="821"
-            column="64"/>
     </issue>
 
 </issues>

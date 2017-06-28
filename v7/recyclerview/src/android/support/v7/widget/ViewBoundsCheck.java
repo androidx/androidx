@@ -122,7 +122,7 @@ class ViewBoundsCheck {
             FLAG_CVS_GT_PVS, FLAG_CVS_EQ_PVS, FLAG_CVS_LT_PVS,
             FLAG_CVS_GT_PVE, FLAG_CVS_EQ_PVE, FLAG_CVS_LT_PVE,
             FLAG_CVE_GT_PVS, FLAG_CVE_EQ_PVS, FLAG_CVE_LT_PVS,
-            FLAG_CVE_EQ_PVE, FLAG_CVE_EQ_PVE, FLAG_CVE_LT_PVE
+            FLAG_CVE_GT_PVE, FLAG_CVE_EQ_PVE, FLAG_CVE_LT_PVE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ViewBounds {}

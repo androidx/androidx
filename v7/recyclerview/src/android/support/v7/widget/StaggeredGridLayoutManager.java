@@ -55,7 +55,7 @@ import java.util.List;
 public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager implements
         RecyclerView.SmoothScroller.ScrollVectorProvider {
 
-    private static final String TAG = "StaggeredGridLayoutManager";
+    private static final String TAG = "StaggeredGridLManager";
 
     static final boolean DEBUG = false;
 
