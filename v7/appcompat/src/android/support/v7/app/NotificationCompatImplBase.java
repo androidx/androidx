@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -28,17 +27,13 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationBuilderWithBuilderAccessor;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompatBase;
 import android.support.v7.appcompat.R;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Helper class to generate MediaStyle notifications for pre-Lollipop platforms. Overrides
@@ -47,181 +42,7 @@ import java.util.List;
 @RequiresApi(9)
 class NotificationCompatImplBase {
 
-    static final int MAX_MEDIA_BUTTONS_IN_COMPACT = 3;
-    static final int MAX_MEDIA_BUTTONS = 5;
-    private static final int MAX_ACTION_BUTTONS = 3;
-
-    @RequiresApi(11)
-    public static <T extends NotificationCompatBase.Action> RemoteViews overrideContentViewMedia(
-            NotificationBuilderWithBuilderAccessor builder,
-            Context context, CharSequence contentTitle, CharSequence contentText,
-            CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, List<T> actions,
-            int[] actionsToShowInCompact, boolean showCancelButton,
-            PendingIntent cancelButtonIntent, boolean isDecoratedCustomView) {
-        RemoteViews views = generateContentViewMedia(context, contentTitle, contentText, contentInfo,
-                number, largeIcon, subText, useChronometer, when, priority, actions,
-                actionsToShowInCompact, showCancelButton, cancelButtonIntent,
-                isDecoratedCustomView);
-        builder.getBuilder().setContent(views);
-        if (showCancelButton) {
-            builder.getBuilder().setOngoing(true);
-        }
-        return views;
-    }
-
-    @RequiresApi(11)
-    private static <T extends NotificationCompatBase.Action> RemoteViews generateContentViewMedia(
-            Context context, CharSequence contentTitle, CharSequence contentText,
-            CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, List<T> actions,
-            int[] actionsToShowInCompact, boolean showCancelButton,
-            PendingIntent cancelButtonIntent, boolean isDecoratedCustomView) {
-        RemoteViews view = applyStandardTemplate(context, contentTitle, contentText, contentInfo,
-                number, 0 /* smallIcon */, largeIcon, subText, useChronometer, when, priority,
-                0 /* color is unused on media */,
-                isDecoratedCustomView ? R.layout.notification_template_media_custom
-                        : R.layout.notification_template_media,
-                true /* fitIn1U */);
-
-        final int numActions = actions.size();
-        final int N = actionsToShowInCompact == null
-                ? 0
-                : Math.min(actionsToShowInCompact.length, MAX_MEDIA_BUTTONS_IN_COMPACT);
-        view.removeAllViews(R.id.media_actions);
-        if (N > 0) {
-            for (int i = 0; i < N; i++) {
-                if (i >= numActions) {
-                    throw new IllegalArgumentException(String.format(
-                            "setShowActionsInCompactView: action %d out of bounds (max %d)",
-                            i, numActions - 1));
-                }
-
-                final NotificationCompatBase.Action action = actions.get(actionsToShowInCompact[i]);
-                final RemoteViews button = generateMediaActionButton(context, action);
-                view.addView(R.id.media_actions, button);
-            }
-        }
-        if (showCancelButton) {
-            view.setViewVisibility(R.id.end_padder, View.GONE);
-            view.setViewVisibility(R.id.cancel_action, View.VISIBLE);
-            view.setOnClickPendingIntent(R.id.cancel_action, cancelButtonIntent);
-            view.setInt(R.id.cancel_action, "setAlpha",
-                    context.getResources().getInteger(R.integer.cancel_button_image_alpha));
-        } else {
-            view.setViewVisibility(R.id.end_padder, View.VISIBLE);
-            view.setViewVisibility(R.id.cancel_action, View.GONE);
-        }
-        return view;
-    }
-
-    @RequiresApi(11)
-    public static <T extends NotificationCompatBase.Action> RemoteViews generateMediaBigView(
-            Context context, CharSequence contentTitle, CharSequence contentText,
-            CharSequence contentInfo, int number, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, int color, List<T> actions,
-            boolean showCancelButton, PendingIntent cancelButtonIntent,
-            boolean decoratedCustomView) {
-        final int actionCount = Math.min(actions.size(), MAX_MEDIA_BUTTONS);
-        RemoteViews big = applyStandardTemplate(context, contentTitle, contentText, contentInfo,
-                number, 0 /* smallIcon */, largeIcon, subText, useChronometer, when, priority,
-                color,  /* fitIn1U */getBigMediaLayoutResource(decoratedCustomView, actionCount),
-                false);
-
-        big.removeAllViews(R.id.media_actions);
-        if (actionCount > 0) {
-            for (int i = 0; i < actionCount; i++) {
-                final RemoteViews button = generateMediaActionButton(context, actions.get(i));
-                big.addView(R.id.media_actions, button);
-            }
-        }
-        if (showCancelButton) {
-            big.setViewVisibility(R.id.cancel_action, View.VISIBLE);
-            big.setInt(R.id.cancel_action, "setAlpha",
-                    context.getResources().getInteger(R.integer.cancel_button_image_alpha));
-            big.setOnClickPendingIntent(R.id.cancel_action, cancelButtonIntent);
-        } else {
-            big.setViewVisibility(R.id.cancel_action, View.GONE);
-        }
-        return big;
-    }
-
-    @RequiresApi(11)
-    private static RemoteViews generateMediaActionButton(Context context,
-            NotificationCompatBase.Action action) {
-        final boolean tombstone = (action.getActionIntent() == null);
-        RemoteViews button = new RemoteViews(context.getPackageName(),
-                R.layout.notification_media_action);
-        button.setImageViewResource(R.id.action0, action.getIcon());
-        if (!tombstone) {
-            button.setOnClickPendingIntent(R.id.action0, action.getActionIntent());
-        }
-        if (Build.VERSION.SDK_INT >= 15) {
-            button.setContentDescription(R.id.action0, action.getTitle());
-        }
-        return button;
-    }
-
-    @RequiresApi(11)
-    private static int getBigMediaLayoutResource(boolean decoratedCustomView, int actionCount) {
-        if (actionCount <= 3) {
-            return decoratedCustomView
-                    ? R.layout.notification_template_big_media_narrow_custom
-                    : R.layout.notification_template_big_media_narrow;
-        } else {
-            return decoratedCustomView
-                    ? R.layout.notification_template_big_media_custom
-                    : R.layout.notification_template_big_media;
-        }
-    }
-
-    public static RemoteViews applyStandardTemplateWithActions(Context context,
-            CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
-            int number, int smallIcon, Bitmap largeIcon, CharSequence subText,
-            boolean useChronometer, long when, int priority, int color, int resId, boolean fitIn1U,
-            ArrayList<NotificationCompat.Action> actions) {
-        RemoteViews remoteViews = applyStandardTemplate(context, contentTitle, contentText,
-                contentInfo, number, smallIcon, largeIcon, subText, useChronometer, when, priority,
-                color, resId, fitIn1U);
-        remoteViews.removeAllViews(R.id.actions);
-        boolean actionsVisible = false;
-        if (actions != null) {
-            int N = actions.size();
-            if (N > 0) {
-                actionsVisible = true;
-                if (N > MAX_ACTION_BUTTONS) N = MAX_ACTION_BUTTONS;
-                for (int i = 0; i < N; i++) {
-                    final RemoteViews button = generateActionButton(context, actions.get(i));
-                    remoteViews.addView(R.id.actions, button);
-                }
-            }
-        }
-        int actionVisibility = actionsVisible ? View.VISIBLE : View.GONE;
-        remoteViews.setViewVisibility(R.id.actions, actionVisibility);
-        remoteViews.setViewVisibility(R.id.action_divider, actionVisibility);
-        return remoteViews;
-    }
-
-    private static RemoteViews generateActionButton(Context context,
-            NotificationCompat.Action action) {
-        final boolean tombstone = (action.actionIntent == null);
-        RemoteViews button =  new RemoteViews(context.getPackageName(),
-                tombstone ? getActionTombstoneLayoutResource()
-                        : getActionLayoutResource());
-        button.setImageViewBitmap(R.id.action_image,
-                createColoredBitmap(context, action.getIcon(),
-                        context.getResources().getColor(R.color.notification_action_color_filter)));
-        button.setTextViewText(R.id.action_text, action.title);
-        if (!tombstone) {
-            button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
-        }
-        if (Build.VERSION.SDK_INT >= 15) {
-            button.setContentDescription(R.id.action_container, action.title);
-        }
-        return button;
-    }
-
-    private static Bitmap createColoredBitmap(Context context, int iconId, int color) {
+    static Bitmap createColoredBitmap(Context context, int iconId, int color) {
         return createColoredBitmap(context, iconId, color, 0);
     }
 
@@ -238,14 +59,6 @@ class NotificationCompatImplBase {
         Canvas canvas = new Canvas(resultBitmap);
         drawable.draw(canvas);
         return resultBitmap;
-    }
-
-    private static int getActionLayoutResource() {
-        return R.layout.notification_action;
-    }
-
-    private static int getActionTombstoneLayoutResource() {
-        return R.layout.notification_action_tombstone;
     }
 
     public static RemoteViews applyStandardTemplate(Context context,
