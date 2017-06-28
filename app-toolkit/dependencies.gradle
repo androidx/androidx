@@ -28,7 +28,6 @@ ffVersions.javapoet = "1.8.0"
 ffVersions.compile_testing = "0.9"
 ffVersions.localize_maven = "1.2"
 ffVersions.support_lib = "25.3.1"
-ffVersions.mockito = "1.9.5"
 ffVersions.intellij_annotations = "12.0"
 ffVersions.rxjava2 = "2.0.6"
 ffVersions.reactivestreams = "1.0.0"
@@ -67,9 +66,6 @@ ffLibs.support = [
         app_compat : getSupportLib(':support-appcompat-v7', ffVersions.support_lib, ":appcompat-v7")
 ]
 
-ffLibs.mockito = [
-        all : "org.mockito:mockito-all:$ffVersions.mockito"
-]
 ffLibs.localize_maven = "com.android.databinding:localizemaven:$ffVersions.localize_maven"
 ffLibs.javapoet = "com.squareup:javapoet:$ffVersions.javapoet"
 ffLibs.antlr = "org.antlr:antlr4:$ffVersions.antlr"

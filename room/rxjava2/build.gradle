@@ -53,7 +53,7 @@ dependencies {
     compile libs.support.core_utils
     compile libs.rx_java
     testCompile libs.junit
-    testCompile libs.mockito.all
+    testCompile libs.mockito_core
     testCompile project(":arch:core-testing")
 }
 

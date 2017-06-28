@@ -49,7 +49,7 @@ android {
 dependencies {
     compile libs.support.annotations
     testCompile libs.junit
-    testCompile libs.mockito.all
+    testCompile libs.mockito_core
     testCompile(libs.test_runner) {
         exclude module: 'support-annotations'
     }
