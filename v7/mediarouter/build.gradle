@@ -11,7 +11,7 @@ dependencies {
     androidTestCompile (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.mockito_core
+    androidTestCompile libs.test_rules
 }
 
 android {
