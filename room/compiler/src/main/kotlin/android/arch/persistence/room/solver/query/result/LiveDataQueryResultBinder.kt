@@ -61,7 +61,7 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<S
             addMethod(createFinalizeMethod(roomSQLiteQueryVar))
         }.build()
         scope.builder().apply {
-            addStatement("return $L.getLiveData()", liveDataImpl)
+            addStatement("return $L", liveDataImpl)
         }
     }
 
