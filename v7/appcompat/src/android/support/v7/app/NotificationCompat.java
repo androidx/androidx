@@ -73,13 +73,18 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
     }
 
     /**
-     * See {@link android.support.v4.app.NotificationCompat}.
+     * @deprecated All {@link android.support.v4.app.NotificationCompat.Style styles} can now be
+     * used with {@link android.support.v4.app.NotificationCompat.Builder}.
      */
+    @Deprecated
     public static class Builder extends android.support.v4.app.NotificationCompat.Builder {
 
         /**
          * @inheritDoc
+         * @deprecated Use {@link android.support.v4.app.NotificationCompat.Builder
+         * #NotificationCompat.Builder(Context, String)}
          */
+        @Deprecated
         public Builder(Context context) {
             super(context);
         }
@@ -90,9 +95,11 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      *
      * In the expanded form, {@link Notification#bigContentView}, up to 5
      * {@link android.support.v4.app.NotificationCompat.Action}s specified with
-     * {@link NotificationCompat.Builder#addAction(int, CharSequence, PendingIntent) addAction} will
-     * be shown as icon-only pushbuttons, suitable for transport controls. The Bitmap given to
-     * {@link NotificationCompat.Builder#setLargeIcon(android.graphics.Bitmap) setLargeIcon()} will
+     * {@link android.support.v4.app.NotificationCompat.Builder#addAction(int, CharSequence,
+     * PendingIntent) addAction} will be shown as icon-only pushbuttons, suitable for transport
+     * controls. The Bitmap given to
+     * {@link android.support.v4.app.NotificationCompat.Builder#setLargeIcon(
+     * android.graphics.Bitmap) setLargeIcon()} will
      * be treated as album artwork.
      *
      * Unlike the other styles provided here, MediaStyle can also modify the standard-size
@@ -102,7 +109,8 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      *
      * Notifications created with MediaStyle will have their category set to
      * {@link Notification#CATEGORY_TRANSPORT CATEGORY_TRANSPORT} unless you set a different
-     * category using {@link NotificationCompat.Builder#setCategory(String) setCategory()}.
+     * category using {@link android.support.v4.app.NotificationCompat.Builder#setCategory(String)
+     * setCategory()}.
      *
      * Finally, if you attach a {@link android.media.session.MediaSession.Token} using
      * {@link android.support.v7.app.NotificationCompat.MediaStyle#setMediaSession}, the System UI
@@ -110,7 +118,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * accordingly (by showing album artwork in the lockscreen, for example).
      *
      * To use this style with your Notification, feed it to
-     * {@link NotificationCompat.Builder#setStyle} like so:
+     * {@link android.support.v4.app.NotificationCompat.Builder#setStyle} like so:
      * <pre class="prettyprint">
      * Notification noti = new NotificationCompat.Builder()
      *     .setSmallIcon(R.drawable.ic_stat_player)
@@ -354,7 +362,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * corresponding custom views to display.
      *
      * <p>To use this style with your Notification, feed it to
-     * {@link NotificationCompat.Builder#setStyle(Style)} like so:
+     * {@link android.support.v4.app.NotificationCompat.Builder#setStyle(Style)} like so:
      * <pre class="prettyprint">
      * Notification noti = new NotificationCompat.Builder()
      *     .setSmallIcon(R.drawable.ic_stat_player)
@@ -501,7 +509,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * corresponding custom views to display.
      *
      * <p>To use this style with your Notification, feed it to
-     * {@link NotificationCompat.Builder#setStyle(Style)} like so:
+     * {@link android.support.v4.app.NotificationCompat.Builder#setStyle(Style)} like so:
      * <pre class="prettyprint">
      * Notification noti = new Notification.Builder()
      *     .setSmallIcon(R.drawable.ic_stat_player)
