@@ -25,30 +25,40 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
+import android.support.compat.R;
 import android.support.v4.text.BidiFormatter;
 import android.support.v4.view.GravityCompat;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
+import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -2003,6 +2013,233 @@ public class NotificationCompat {
         // TODO: implement for all styles
         protected void restoreFromCompatExtras(Bundle extras) {
         }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public RemoteViews applyStandardTemplate(boolean showSmallIcon,
+                int resId, boolean fitIn1U) {
+            Resources res = mBuilder.mContext.getResources();
+            RemoteViews contentView = new RemoteViews(mBuilder.mContext.getPackageName(), resId);
+            boolean showLine3 = false;
+            boolean showLine2 = false;
+
+            boolean minPriority = mBuilder.getPriority() < NotificationCompat.PRIORITY_LOW;
+            if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 21) {
+                // lets color the backgrounds
+                if (minPriority) {
+                    contentView.setInt(R.id.notification_background,
+                            "setBackgroundResource", R.drawable.notification_bg_low);
+                    contentView.setInt(R.id.icon,
+                            "setBackgroundResource", R.drawable.notification_template_icon_low_bg);
+                } else {
+                    contentView.setInt(R.id.notification_background,
+                            "setBackgroundResource", R.drawable.notification_bg);
+                    contentView.setInt(R.id.icon,
+                            "setBackgroundResource", R.drawable.notification_template_icon_bg);
+                }
+            }
+
+            if (mBuilder.mLargeIcon != null) {
+                // On versions before Jellybean, the large icon was shown by SystemUI, so we need
+                // to hide it here.
+                if (Build.VERSION.SDK_INT >= 16) {
+                    contentView.setViewVisibility(R.id.icon, View.VISIBLE);
+                    contentView.setImageViewBitmap(R.id.icon, mBuilder.mLargeIcon);
+                } else {
+                    contentView.setViewVisibility(R.id.icon, View.GONE);
+                }
+                if (showSmallIcon && mBuilder.mNotification.icon != 0) {
+                    int backgroundSize = res.getDimensionPixelSize(
+                            R.dimen.notification_right_icon_size);
+                    int iconSize = backgroundSize - res.getDimensionPixelSize(
+                            R.dimen.notification_small_icon_background_padding) * 2;
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        Bitmap smallBit = createIconWithBackground(
+                                mBuilder.mNotification.icon,
+                                backgroundSize,
+                                iconSize,
+                                mBuilder.getColor());
+                        contentView.setImageViewBitmap(R.id.right_icon, smallBit);
+                    } else {
+                        contentView.setImageViewBitmap(R.id.right_icon, createColoredBitmap(
+                                mBuilder.mNotification.icon, Color.WHITE));
+                    }
+                    contentView.setViewVisibility(R.id.right_icon, View.VISIBLE);
+                }
+            } else if (showSmallIcon && mBuilder.mNotification.icon != 0) { // small icon at left
+                contentView.setViewVisibility(R.id.icon, View.VISIBLE);
+                if (Build.VERSION.SDK_INT >= 21) {
+                    int backgroundSize = res.getDimensionPixelSize(
+                            R.dimen.notification_large_icon_width)
+                            - res.getDimensionPixelSize(R.dimen.notification_big_circle_margin);
+                    int iconSize = res.getDimensionPixelSize(
+                            R.dimen.notification_small_icon_size_as_large);
+                    Bitmap smallBit = createIconWithBackground(
+                            mBuilder.mNotification.icon,
+                            backgroundSize,
+                            iconSize,
+                            mBuilder.getColor());
+                    contentView.setImageViewBitmap(R.id.icon, smallBit);
+                } else {
+                    contentView.setImageViewBitmap(R.id.icon, createColoredBitmap(
+                            mBuilder.mNotification.icon, Color.WHITE));
+                }
+            }
+            if (mBuilder.mContentTitle != null) {
+                contentView.setTextViewText(R.id.title, mBuilder.mContentTitle);
+            }
+            if (mBuilder.mContentText != null) {
+                contentView.setTextViewText(R.id.text, mBuilder.mContentText);
+                showLine3 = true;
+            }
+            // If there is a large icon we have a right side
+            boolean hasRightSide = !(Build.VERSION.SDK_INT >= 21) && mBuilder.mLargeIcon != null;
+            if (mBuilder.mContentInfo != null) {
+                contentView.setTextViewText(R.id.info, mBuilder.mContentInfo);
+                contentView.setViewVisibility(R.id.info, View.VISIBLE);
+                showLine3 = true;
+                hasRightSide = true;
+            } else if (mBuilder.mNumber > 0) {
+                final int tooBig = res.getInteger(
+                        R.integer.status_bar_notification_info_maxnum);
+                if (mBuilder.mNumber > tooBig) {
+                    contentView.setTextViewText(R.id.info, ((Resources) res).getString(
+                            R.string.status_bar_notification_info_overflow));
+                } else {
+                    NumberFormat f = NumberFormat.getIntegerInstance();
+                    contentView.setTextViewText(R.id.info, f.format(mBuilder.mNumber));
+                }
+                contentView.setViewVisibility(R.id.info, View.VISIBLE);
+                showLine3 = true;
+                hasRightSide = true;
+            } else {
+                contentView.setViewVisibility(R.id.info, View.GONE);
+            }
+
+            // Need to show three lines? Only allow on Jellybean+
+            if (mBuilder.mSubText != null && Build.VERSION.SDK_INT >= 16) {
+                contentView.setTextViewText(R.id.text, mBuilder.mSubText);
+                if (mBuilder.mContentText != null) {
+                    contentView.setTextViewText(R.id.text2, mBuilder.mContentText);
+                    contentView.setViewVisibility(R.id.text2, View.VISIBLE);
+                    showLine2 = true;
+                } else {
+                    contentView.setViewVisibility(R.id.text2, View.GONE);
+                }
+            }
+
+            // RemoteViews.setViewPadding and RemoteViews.setTextViewTextSize is not available on
+            // ICS-
+            if (showLine2 && Build.VERSION.SDK_INT >= 16) {
+                if (fitIn1U) {
+                    // need to shrink all the type to make sure everything fits
+                    final float subTextSize = res.getDimensionPixelSize(
+                            R.dimen.notification_subtext_size);
+                    contentView.setTextViewTextSize(R.id.text, TypedValue.COMPLEX_UNIT_PX,
+                            subTextSize);
+                }
+                // vertical centering
+                contentView.setViewPadding(R.id.line1, 0, 0, 0, 0);
+            }
+
+            if (mBuilder.getWhenIfShowing() != 0) {
+                if (mBuilder.mUseChronometer && Build.VERSION.SDK_INT >= 16) {
+                    contentView.setViewVisibility(R.id.chronometer, View.VISIBLE);
+                    contentView.setLong(R.id.chronometer, "setBase",
+                            mBuilder.getWhenIfShowing()
+                                    + (SystemClock.elapsedRealtime() - System.currentTimeMillis()));
+                    contentView.setBoolean(R.id.chronometer, "setStarted", true);
+                } else {
+                    contentView.setViewVisibility(R.id.time, View.VISIBLE);
+                    contentView.setLong(R.id.time, "setTime", mBuilder.getWhenIfShowing());
+                }
+                hasRightSide = true;
+            }
+            contentView.setViewVisibility(R.id.right_side, hasRightSide ? View.VISIBLE : View.GONE);
+            contentView.setViewVisibility(R.id.line3, showLine3 ? View.VISIBLE : View.GONE);
+            return contentView;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public Bitmap createColoredBitmap(int iconId, int color) {
+            return createColoredBitmap(iconId, color, 0);
+        }
+
+        private Bitmap createColoredBitmap(int iconId, int color, int size) {
+            Drawable drawable = mBuilder.mContext.getResources().getDrawable(iconId);
+            int width = size == 0 ? drawable.getIntrinsicWidth() : size;
+            int height = size == 0 ? drawable.getIntrinsicHeight() : size;
+            Bitmap resultBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            drawable.setBounds(0, 0, width, height);
+            if (color != 0) {
+                drawable.mutate().setColorFilter(
+                        new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+            }
+            Canvas canvas = new Canvas(resultBitmap);
+            drawable.draw(canvas);
+            return resultBitmap;
+        }
+
+        private Bitmap createIconWithBackground(int iconId, int size,
+                int iconSize, int color) {
+            Bitmap coloredBitmap = createColoredBitmap(R.drawable.notification_icon_background,
+                    color == NotificationCompat.COLOR_DEFAULT ? 0 : color, size);
+            Canvas canvas = new Canvas(coloredBitmap);
+            Drawable icon = mBuilder.mContext.getResources().getDrawable(iconId).mutate();
+            icon.setFilterBitmap(true);
+            int inset = (size - iconSize) / 2;
+            icon.setBounds(inset, inset, iconSize + inset, iconSize + inset);
+            icon.setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP));
+            icon.draw(canvas);
+            return coloredBitmap;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void buildIntoRemoteViews(RemoteViews outerView,
+                RemoteViews innerView) {
+            // this needs to be done fore the other calls, since otherwise we might hide the wrong
+            // things if our ids collide.
+            hideNormalContent(outerView);
+            outerView.removeAllViews(R.id.notification_main_column);
+            outerView.addView(R.id.notification_main_column, innerView.clone());
+            outerView.setViewVisibility(R.id.notification_main_column, View.VISIBLE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // Adjust padding depending on font size.
+                outerView.setViewPadding(R.id.notification_main_column_container,
+                        0, calculateTopPadding(), 0, 0);
+            }
+        }
+
+        private void hideNormalContent(RemoteViews outerView) {
+            outerView.setViewVisibility(R.id.title, View.GONE);
+            outerView.setViewVisibility(R.id.text2, View.GONE);
+            outerView.setViewVisibility(R.id.text, View.GONE);
+        }
+
+        private int calculateTopPadding() {
+            Resources resources = mBuilder.mContext.getResources();
+            int padding = resources.getDimensionPixelSize(R.dimen.notification_top_pad);
+            int largePadding = resources.getDimensionPixelSize(
+                    R.dimen.notification_top_pad_large_text);
+            float fontScale = resources.getConfiguration().fontScale;
+            float largeFactor = (constrain(fontScale, 1.0f, 1.3f) - 1f) / (1.3f - 1f);
+
+            // Linearly interpolate the padding between large and normal with the font scale ranging
+            // from 1f to LARGE_TEXT_SCALE
+            return Math.round((1 - largeFactor) * padding + largeFactor * largePadding);
+        }
+
+        private static float constrain(float amount, float low, float high) {
+            return amount < low ? low : (amount > high ? high : amount);
+        }
     }
 
     /**
@@ -2708,6 +2945,150 @@ public class NotificationCompat {
                         mSummaryText,
                         mTexts);
             }
+        }
+    }
+
+    /**
+     * Notification style for custom views that are decorated by the system.
+     *
+     * <p>Instead of providing a notification that is completely custom, a developer can set this
+     * style and still obtain system decorations like the notification header with the expand
+     * affordance and actions.
+     *
+     * <p>Use {@link NotificationCompat.Builder#setCustomContentView(RemoteViews)},
+     * {@link NotificationCompat.Builder#setCustomBigContentView(RemoteViews)} and
+     * {@link NotificationCompat.Builder#setCustomHeadsUpContentView(RemoteViews)} to set the
+     * corresponding custom views to display.
+     *
+     * <p>To use this style with your Notification, feed it to
+     * {@link NotificationCompat.Builder#setStyle(Style)} like so:
+     * <pre class="prettyprint">
+     * Notification noti = new NotificationCompat.Builder()
+     *     .setSmallIcon(R.drawable.ic_stat_player)
+     *     .setLargeIcon(albumArtBitmap))
+     *     .setCustomContentView(contentView)
+     *     .setStyle(<b>new NotificationCompat.DecoratedCustomViewStyle()</b>)
+     *     .build();
+     * </pre>
+     *
+     * <p>If you are using this style, consider using the corresponding styles like
+     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification} or
+     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification_Title} in
+     * your custom views in order to get the correct styling on each platform version.
+     */
+    public static class DecoratedCustomViewStyle extends Style {
+
+        private static final int MAX_ACTION_BUTTONS = 3;
+
+        public DecoratedCustomViewStyle() {
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void apply(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                builder.getBuilder().setStyle(new Notification.DecoratedCustomViewStyle());
+            }
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                // No custom content view required
+                return null;
+            }
+            if (mBuilder.getContentView() == null) {
+                // No special content view
+                return null;
+            }
+            return createRemoteViews(mBuilder.getContentView(), false);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                // No custom big content view required
+                return null;
+            }
+            RemoteViews bigContentView = mBuilder.getBigContentView();
+            RemoteViews innerView = bigContentView != null
+                    ? bigContentView
+                    : mBuilder.getContentView();
+            if (innerView == null) {
+                // No expandable notification
+                return null;
+            }
+            return createRemoteViews(innerView, true);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                // No custom heads up content view required
+                return null;
+            }
+            RemoteViews headsUp = mBuilder.getHeadsUpContentView();
+            RemoteViews innerView = headsUp != null ? headsUp : mBuilder.getContentView();
+            if (headsUp == null) {
+                // No expandable notification
+                return null;
+            }
+            return createRemoteViews(innerView, true);
+        }
+
+        private RemoteViews createRemoteViews(RemoteViews innerView, boolean showActions) {
+            RemoteViews remoteViews = applyStandardTemplate(true /* showSmallIcon */,
+                    R.layout.notification_template_custom_big, false /* fitIn1U */);
+            remoteViews.removeAllViews(R.id.actions);
+            boolean actionsVisible = false;
+            if (showActions && mBuilder.mActions != null) {
+                int numActions = Math.min(mBuilder.mActions.size(), MAX_ACTION_BUTTONS);
+                if (numActions > 0) {
+                    actionsVisible = true;
+                    for (int i = 0; i < numActions; i++) {
+                        final RemoteViews button = generateActionButton(mBuilder.mActions.get(i));
+                        remoteViews.addView(R.id.actions, button);
+                    }
+                }
+            }
+            int actionVisibility = actionsVisible ? View.VISIBLE : View.GONE;
+            remoteViews.setViewVisibility(R.id.actions, actionVisibility);
+            remoteViews.setViewVisibility(R.id.action_divider, actionVisibility);
+            buildIntoRemoteViews(remoteViews, innerView);
+            return remoteViews;
+        }
+
+        private RemoteViews generateActionButton(NotificationCompat.Action action) {
+            final boolean tombstone = (action.actionIntent == null);
+            RemoteViews button = new RemoteViews(mBuilder.mContext.getPackageName(),
+                    tombstone ? R.layout.notification_action_tombstone
+                            : R.layout.notification_action);
+            button.setImageViewBitmap(R.id.action_image,
+                    createColoredBitmap(action.getIcon(), mBuilder.mContext.getResources()
+                            .getColor(R.color.notification_action_color_filter)));
+            button.setTextViewText(R.id.action_text, action.title);
+            if (!tombstone) {
+                button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
+            }
+            if (Build.VERSION.SDK_INT >= 15) {
+                button.setContentDescription(R.id.action_container, action.title);
+            }
+            return button;
         }
     }
 

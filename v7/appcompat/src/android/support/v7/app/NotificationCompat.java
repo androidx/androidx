@@ -250,8 +250,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
 
         RemoteViews generateContentView() {
-            RemoteViews view = NotificationCompatImplBase.applyStandardTemplate(
-                    mBuilder, false /* showSmallIcon */,
+            RemoteViews view = applyStandardTemplate(false /* showSmallIcon */,
                     getContentViewLayoutResource(), true /* fitIn1U */);
 
             final int numActions = mBuilder.mActions.size();
@@ -319,8 +318,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
 
         RemoteViews generateBigContentView() {
             final int actionCount = Math.min(mBuilder.mActions.size(), MAX_MEDIA_BUTTONS);
-            RemoteViews big = NotificationCompatImplBase.applyStandardTemplate(
-                    mBuilder, false /* showSmallIcon */,
+            RemoteViews big = applyStandardTemplate(false /* showSmallIcon */,
                     getBigContentViewLayoutResource(actionCount), false /* fitIn1U */);
 
             big.removeAllViews(R.id.media_actions);
@@ -376,123 +374,23 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification} or
      * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Title} in
      * your custom views in order to get the correct styling on each platform version.
+     *
+     * @deprecated Use {@link android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle}
+     * and {@link android.support.compat.R.style#TextAppearance_Compat_Notification} or
+     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification_Title}.
      */
-    public static class DecoratedCustomViewStyle extends Style {
+    @Deprecated
+    public static class DecoratedCustomViewStyle extends
+            android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle {
 
-        private static final int MAX_ACTION_BUTTONS = 3;
-
+        /**
+         * @deprecated Use
+         * {@link android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle
+         * #DecoratedCustomViewStyle()}.
+         */
+        @Deprecated
         public DecoratedCustomViewStyle() {
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Override
-        public void apply(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                builder.getBuilder().setStyle(new Notification.DecoratedCustomViewStyle());
-            }
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Override
-        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                // No custom content view required
-                return null;
-            }
-            if (mBuilder.getContentView() == null) {
-                // No special content view
-                return null;
-            }
-            return createRemoteViews(mBuilder.getContentView(), false);
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Override
-        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                // No custom big content view required
-                return null;
-            }
-            RemoteViews bigContentView = mBuilder.getBigContentView();
-            RemoteViews innerView = bigContentView != null
-                    ? bigContentView
-                    : mBuilder.getContentView();
-            if (innerView == null) {
-                // No expandable notification
-                return null;
-            }
-            return createRemoteViews(innerView, true);
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Override
-        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                // No custom heads up content view required
-                return null;
-            }
-            RemoteViews headsUp = mBuilder.getHeadsUpContentView();
-            RemoteViews innerView = headsUp != null ? headsUp : mBuilder.getContentView();
-            if (headsUp == null) {
-                // No expandable notification
-                return null;
-            }
-            return createRemoteViews(innerView, true);
-        }
-
-        private RemoteViews createRemoteViews(RemoteViews innerView, boolean showActions) {
-            RemoteViews remoteViews = NotificationCompatImplBase.applyStandardTemplate(
-                    mBuilder, true /* showSmallIcon */,
-                    R.layout.notification_template_custom_big, false /* fitIn1U */);
-            remoteViews.removeAllViews(R.id.actions);
-            boolean actionsVisible = false;
-            if (showActions && mBuilder.mActions != null) {
-                int numActions = Math.min(mBuilder.mActions.size(), MAX_ACTION_BUTTONS);
-                if (numActions > 0) {
-                    actionsVisible = true;
-                    for (int i = 0; i < numActions; i++) {
-                        final RemoteViews button = generateActionButton(mBuilder.mActions.get(i));
-                        remoteViews.addView(R.id.actions, button);
-                    }
-                }
-            }
-            int actionVisibility = actionsVisible ? View.VISIBLE : View.GONE;
-            remoteViews.setViewVisibility(R.id.actions, actionVisibility);
-            remoteViews.setViewVisibility(R.id.action_divider, actionVisibility);
-            NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
-                    remoteViews, innerView);
-            return remoteViews;
-        }
-
-        private RemoteViews generateActionButton(NotificationCompat.Action action) {
-            final boolean tombstone = (action.actionIntent == null);
-            RemoteViews button = new RemoteViews(mBuilder.mContext.getPackageName(),
-                    tombstone ? R.layout.notification_action_tombstone
-                            : R.layout.notification_action);
-            button.setImageViewBitmap(R.id.action_image,
-                    NotificationCompatImplBase.createColoredBitmap(mBuilder.mContext,
-                            action.getIcon(), mBuilder.mContext.getResources()
-                                    .getColor(R.color.notification_action_color_filter)));
-            button.setTextViewText(R.id.action_text, action.title);
-            if (!tombstone) {
-                button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
-            }
-            if (Build.VERSION.SDK_INT >= 15) {
-                button.setContentDescription(R.id.action_container, action.title);
-            }
-            return button;
+            super();
         }
     }
 
@@ -526,7 +424,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Title_Media} in
      * your custom views in order to get the correct styling on each platform version.
      *
-     * @see DecoratedCustomViewStyle
+     * @see android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle
      * @see MediaStyle
      */
     public static class DecoratedMediaCustomViewStyle extends MediaStyle {
@@ -568,9 +466,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 if (createCustomContent) {
                     RemoteViews contentView = generateContentView();
                     if (hasContentView) {
-                        NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
-                                contentView,
-                                mBuilder.getContentView());
+                        buildIntoRemoteViews(contentView, mBuilder.getContentView());
                     }
                     setBackgroundColor(contentView);
                     return contentView;
@@ -578,9 +474,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
             } else {
                 RemoteViews contentView = generateContentView();
                 if (hasContentView) {
-                    NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
-                            contentView,
-                            mBuilder.getContentView());
+                    buildIntoRemoteViews(contentView, mBuilder.getContentView());
                     return contentView;
                 }
             }
@@ -612,9 +506,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 return null;
             }
             RemoteViews bigContentView = generateBigContentView();
-            NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
-                    bigContentView,
-                    innerView);
+            buildIntoRemoteViews(bigContentView, innerView);
             if (Build.VERSION.SDK_INT >= 21) {
                 setBackgroundColor(bigContentView);
             }
@@ -646,9 +538,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
                 return null;
             }
             RemoteViews headsUpContentView = generateBigContentView();
-            NotificationCompatImplBase.buildIntoRemoteViews(mBuilder.mContext,
-                    headsUpContentView,
-                    innerView);
+            buildIntoRemoteViews(headsUpContentView, innerView);
             if (Build.VERSION.SDK_INT >= 21) {
                 setBackgroundColor(headsUpContentView);
             }

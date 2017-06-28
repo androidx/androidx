@@ -329,22 +329,10 @@
     <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Large" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large" />
     <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Small" parent="TextAppearance.AppCompat.Widget.PopupMenu.Small" />
 
-    <!-- These styles didn't exist on v7. Since we only use the media template in later versions
-         (ICS+), just define it here and use the correct references in values/v14 -->
-    <style name="TextAppearance.StatusBar.EventContent" parent=""/>
-    <style name="TextAppearance.StatusBar.EventContent.Title" parent=""/>
-    <style name="TextAppearance.StatusBar.EventContent.Line2" parent=""/>
-    <style name="TextAppearance.StatusBar.EventContent.Info" parent=""/>
-    <style name="TextAppearance.StatusBar.EventContent.Time" parent=""/>
-
-    <style name="TextAppearance.AppCompat.Notification">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
-    </style>
-    <style name="TextAppearance.AppCompat.Notification.Title">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-    </style>
+    <!-- These styles have moved to support-compat and should be removed when
+         android.support.v7.app.NotificationCompat is removed -->
+    <style name="TextAppearance.AppCompat.Notification" parent="@android:style/TextAppearance.StatusBar.EventContent" />
+    <style name="TextAppearance.AppCompat.Notification.Title" parent="@android:style/TextAppearance.StatusBar.EventContent.Title" />
     <style name="TextAppearance.AppCompat.Notification.Info">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
@@ -364,7 +352,4 @@
     <style name="TextAppearance.AppCompat.Notification.Time.Media"/>
 
     <style name="TextAppearance.AppCompat.Notification.Line2.Media" parent="TextAppearance.AppCompat.Notification.Info.Media"/>
-
-    <style name="Widget.AppCompat.NotificationActionText" parent=""/>
-    <style name="Widget.AppCompat.NotificationActionContainer" parent=""/>
 </resources>
