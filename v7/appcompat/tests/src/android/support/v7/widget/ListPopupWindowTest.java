@@ -182,9 +182,14 @@ public class ListPopupWindowTest {
         Builder popupBuilder = new Builder().setModal(setupAsModal).withDismissListener();
         popupBuilder.wireToActionButton();
 
+        final View.OnClickListener mockContainerClickListener = mock(View.OnClickListener.class);
         // Also register a click listener on the top-level container
-        View.OnClickListener mockContainerClickListener = mock(View.OnClickListener.class);
-        mContainer.setOnClickListener(mockContainerClickListener);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mContainer.setOnClickListener(mockContainerClickListener);
+            }
+        });
 
         onView(withId(R.id.test_button)).perform(click());
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
