@@ -7517,6 +7517,27 @@ package android.support.v4.media {
 
 }
 
+package android.support.v4.media.app {
+
+  public class NotificationCompat {
+  }
+
+  public static class NotificationCompat.DecoratedMediaCustomViewStyle extends android.support.v4.media.app.NotificationCompat.MediaStyle {
+    ctor public NotificationCompat.DecoratedMediaCustomViewStyle();
+  }
+
+  public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
+    ctor public NotificationCompat.MediaStyle();
+    ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
+    method public static android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
+    method public android.support.v4.media.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
+    method public android.support.v4.media.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
+    method public android.support.v4.media.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
+    method public android.support.v4.media.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
+  }
+
+}
+
 package android.support.v4.media.session {
 
   public class MediaButtonReceiver extends android.content.BroadcastReceiver {
@@ -10486,7 +10507,7 @@ package android.support.v7.app {
 
   public class NotificationCompat extends android.support.v4.app.NotificationCompat {
     ctor public NotificationCompat();
-    method public static android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
+    method public static deprecated android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
   }
 
   public static deprecated class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
@@ -10497,17 +10518,17 @@ package android.support.v7.app {
     ctor public deprecated NotificationCompat.DecoratedCustomViewStyle();
   }
 
-  public static class NotificationCompat.DecoratedMediaCustomViewStyle extends android.support.v7.app.NotificationCompat.MediaStyle {
-    ctor public NotificationCompat.DecoratedMediaCustomViewStyle();
+  public static deprecated class NotificationCompat.DecoratedMediaCustomViewStyle extends android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle {
+    ctor public deprecated NotificationCompat.DecoratedMediaCustomViewStyle();
   }
 
-  public static class NotificationCompat.MediaStyle extends android.support.v4.app.NotificationCompat.Style {
-    ctor public NotificationCompat.MediaStyle();
-    ctor public NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
-    method public android.support.v7.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
-    method public android.support.v7.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
-    method public android.support.v7.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
-    method public android.support.v7.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
+  public static deprecated class NotificationCompat.MediaStyle extends android.support.v4.media.app.NotificationCompat.MediaStyle {
+    ctor public deprecated NotificationCompat.MediaStyle();
+    ctor public deprecated NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
+    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
+    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
+    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
+    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
   }
 
 }

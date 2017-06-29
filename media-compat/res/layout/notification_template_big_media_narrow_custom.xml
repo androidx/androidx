@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2016 The Android Open Source Project
+  ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -12,18 +12,21 @@
   ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
-  ~ limitations under the License
+  ~ limitations under the License.
   -->
 
+<!-- Layout to be used with only max 3 actions. It has a much larger picture at the left side-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/status_bar_latest_event_content"
     android:layout_width="match_parent"
     android:layout_height="128dp"
     >
-    <include layout="@layout/notification_template_icon_group"
-        android:layout_width="@dimen/notification_large_icon_width"
-        android:layout_height="@dimen/notification_large_icon_height"
-    />
+    <ImageView android:id="@+id/icon"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:scaleType="centerCrop"
+        />
+
     <include layout="@layout/notification_media_cancel_action"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -31,12 +34,13 @@
         android:layout_marginRight="2dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"/>
+
     <LinearLayout
         android:id="@+id/notification_main_column_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/notification_large_icon_height"
-        android:layout_marginStart="@dimen/notification_large_icon_height"
+        android:layout_marginLeft="128dp"
+        android:layout_marginStart="128dp"
         android:minHeight="@dimen/notification_large_icon_height"
         android:paddingTop="@dimen/notification_main_column_padding_top"
         android:orientation="horizontal"
@@ -47,12 +51,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginLeft="@dimen/notification_content_margin_start"
-            android:layout_marginStart="@dimen/notification_content_margin_start"
+            android:layout_marginLeft="@dimen/notification_media_narrow_margin"
+            android:layout_marginStart="@dimen/notification_media_narrow_margin"
             android:layout_marginRight="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-        />
+            android:layout_marginBottom="8dp"/>
         <FrameLayout
             android:id="@+id/right_side"
             android:layout_width="wrap_content"
@@ -61,7 +64,7 @@
             android:layout_marginEnd="8dp"
             android:paddingTop="@dimen/notification_right_side_padding_top">
             <DateTimeView android:id="@+id/time"
-                android:textAppearance="@style/TextAppearance.AppCompat.Notification.Time.Media"
+                android:textAppearance="@style/TextAppearance.Compat.Notification.Time.Media"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -69,7 +72,7 @@
                 android:visibility="gone"
             />
             <Chronometer android:id="@+id/chronometer"
-                android:textAppearance="@style/TextAppearance.AppCompat.Notification.Time.Media"
+                android:textAppearance="@style/TextAppearance.Compat.Notification.Time.Media"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -77,7 +80,7 @@
                 android:visibility="gone"
             />
             <TextView android:id="@+id/info"
-                android:textAppearance="@style/TextAppearance.AppCompat.Notification.Info.Media"
+                android:textAppearance="@style/TextAppearance.Compat.Notification.Info.Media"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -86,10 +89,13 @@
             />
         </FrameLayout>
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/media_actions"
         android:layout_width="match_parent"
         android:layout_height="48dp"
+        android:layout_toRightOf="@id/icon"
+        android:layout_toEndOf="@id/icon"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
@@ -101,6 +107,8 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_toRightOf="@id/icon"
+        android:layout_toEndOf="@id/icon"
         android:layout_above="@id/media_actions"
         android:id="@+id/action_divider"
         android:background="?android:attr/dividerHorizontal" />
