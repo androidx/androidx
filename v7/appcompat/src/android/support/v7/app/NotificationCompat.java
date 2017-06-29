@@ -451,7 +451,7 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
             remoteViews.removeAllViews(R.id.actions);
             boolean actionsVisible = false;
             if (showActions && mBuilder.mActions != null) {
-                int numActions = Math.max(mBuilder.mActions.size(), MAX_ACTION_BUTTONS);
+                int numActions = Math.min(mBuilder.mActions.size(), MAX_ACTION_BUTTONS);
                 if (numActions > 0) {
                     actionsVisible = true;
                     for (int i = 0; i < numActions; i++) {
