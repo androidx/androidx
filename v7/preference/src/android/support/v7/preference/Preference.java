@@ -999,6 +999,7 @@ public class Preference implements Comparable<Preference> {
      * @attr ref R.styleable#Preference_android_singleLineTitle
      */
     public void setSingleLineTitle(boolean singleLineTitle) {
+        mHasSingleLineTitleAttr = true;
         mSingleLineTitle = singleLineTitle;
     }
 
