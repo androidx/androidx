@@ -10480,8 +10480,8 @@ package android.support.v7.app {
     method public static android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
   }
 
-  public static class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
-    ctor public NotificationCompat.Builder(android.content.Context);
+  public static deprecated class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
+    ctor public deprecated NotificationCompat.Builder(android.content.Context);
   }
 
   public static class NotificationCompat.DecoratedCustomViewStyle extends android.support.v4.app.NotificationCompat.Style {
