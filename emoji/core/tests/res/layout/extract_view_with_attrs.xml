@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
@@ -15,8 +16,10 @@
   ~ limitations under the License.
   -->
 
-<!-- Definitions of attributes to be exposed as public -->
-<resources>
-    <public type="attr" name="maxEmojiCount"/>
-    <public type="attr" name="emojiReplaceStrategy"/>
-</resources>
+<android.support.text.emoji.widget.EmojiExtractTextLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/emojiExtractTextLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:emojiReplaceStrategy="nonExistent"/>

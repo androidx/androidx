@@ -29,42 +29,44 @@ import android.widget.EditText;
 /**
  * EditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}. When used
  * on devices running API 18 or below, this widget acts as a regular {@link EditText}.
+ *
+ * @attr ref android.support.text.emoji.R.styleable#EmojiEditText_maxEmojiCount
  */
 public class EmojiEditText extends EditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;
 
     /**
-     * Prevent calling {@link #init(AttributeSet, int)} multiple times in case super() constructors
-     * call other constructors.
+     * Prevent calling {@link #init(AttributeSet, int, int)} multiple times in case super()
+     * constructors call other constructors.
      */
     private boolean mInitialized;
 
     public EmojiEditText(Context context) {
         super(context);
-        init(null /*attrs*/, 0 /*defStyleAttr*/);
+        init(null /*attrs*/, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
     public EmojiEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(attrs, android.R.attr.editTextStyle);
+        init(attrs, android.R.attr.editTextStyle, 0 /*defStyleRes*/);
     }
 
     public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(attrs, defStyleAttr);
+        init(attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public EmojiEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(attrs, defStyleAttr);
+        init(attrs, defStyleAttr, defStyleRes);
     }
 
-    private void init(@Nullable AttributeSet attrs, int defStyleAttr) {
+    private void init(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (!mInitialized) {
             mInitialized = true;
             final EditTextAttributeHelper attrHelper = new EditTextAttributeHelper(this, attrs,
-                    defStyleAttr);
+                    defStyleAttr, defStyleRes);
             setMaxEmojiCount(attrHelper.getMaxEmojiCount());
             setKeyListener(super.getKeyListener());
         }
@@ -90,6 +92,8 @@ public class EmojiEditText extends EditText {
      *                      should be equal or greater than 0
      *
      * @see EmojiCompat#process(CharSequence, int, int, int)
+     *
+     * @attr ref android.support.text.emoji.R.styleable#EmojiEditText_maxEmojiCount
      */
     public void setMaxEmojiCount(@IntRange(from = 0) int maxEmojiCount) {
         getEmojiEditTextHelper().setMaxEmojiCount(maxEmojiCount);
@@ -100,6 +104,8 @@ public class EmojiEditText extends EditText {
      *
      * @see #setMaxEmojiCount(int)
      * @see EmojiCompat#process(CharSequence, int, int, int)
+     *
+     * @attr ref android.support.text.emoji.R.styleable#EmojiEditText_maxEmojiCount
      */
     public int getMaxEmojiCount() {
         return getEmojiEditTextHelper().getMaxEmojiCount();

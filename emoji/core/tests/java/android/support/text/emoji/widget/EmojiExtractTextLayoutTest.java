@@ -16,18 +16,25 @@
 
 package android.support.text.emoji.widget;
 
+import static android.support.text.emoji.util.EmojiMatcher.sameCharSequence;
+
 import static junit.framework.TestCase.assertFalse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.inputmethodservice.InputMethodService;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.text.emoji.EmojiCompat;
@@ -39,18 +46,23 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class EmojiExtractTextLayoutTest {
+
     private InputMethodService mInputMethodService;
-    private EmojiExtractTextLayout mLayout;
+
+    @BeforeClass
+    public static void setupEmojiCompat() {
+        EmojiCompat.reset(mock(EmojiCompat.class));
+    }
 
     @Before
     public void setup() {
-        EmojiCompat.reset(mock(EmojiCompat.class));
         mInputMethodService = mock(InputMethodService.class);
     }
 
@@ -58,14 +70,14 @@ public class EmojiExtractTextLayoutTest {
     @UiThreadTest
     public void testInflate() {
         final Context context = InstrumentationRegistry.getTargetContext();
-        mLayout = (EmojiExtractTextLayout) LayoutInflater.from(context)
+        final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(android.support.text.emoji.test.R.layout.extract_view, null);
 
-        final EmojiExtractEditText extractEditText = mLayout.findViewById(
+        final EmojiExtractEditText extractEditText = layout.findViewById(
                 android.R.id.inputExtractEditText);
         assertNotNull(extractEditText);
 
-        final ViewGroup inputExtractAccessories = mLayout.findViewById(
+        final ViewGroup inputExtractAccessories = layout.findViewById(
                 R.id.inputExtractAccessories);
         assertNotNull(inputExtractAccessories);
 
@@ -76,9 +88,56 @@ public class EmojiExtractTextLayoutTest {
 
     @Test
     @UiThreadTest
+    public void testSetEmojiReplaceStrategy() {
+        final Context context = InstrumentationRegistry.getTargetContext();
+
+        final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
+                .inflate(android.support.text.emoji.test.R.layout.extract_view_with_attrs, null);
+
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT, layout.getEmojiReplaceStrategy());
+
+        final EmojiExtractEditText extractEditText = layout.findViewById(
+                android.R.id.inputExtractEditText);
+        assertNotNull(extractEditText);
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT,
+                extractEditText.getEmojiReplaceStrategy());
+
+        layout.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_ALL, layout.getEmojiReplaceStrategy());
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_ALL, extractEditText.getEmojiReplaceStrategy());
+    }
+
+    @Test
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = 19)
+    public void testSetEmojiReplaceStrategyCallEmojiCompatWithCorrectStrategy() {
+        final Context context = InstrumentationRegistry.getTargetContext();
+
+        final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
+                .inflate(android.support.text.emoji.test.R.layout.extract_view_with_attrs, null);
+
+        final EmojiExtractEditText extractEditText = layout.findViewById(
+                android.R.id.inputExtractEditText);
+        assertNotNull(layout);
+        assertNotNull(extractEditText);
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT, layout.getEmojiReplaceStrategy());
+
+        final EmojiCompat emojiCompat = mock(EmojiCompat.class);
+        when(emojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+        EmojiCompat.reset(emojiCompat);
+
+        final String testString = "anytext";
+        extractEditText.setText(testString);
+
+        verify(emojiCompat, times(1)).process(sameCharSequence(testString), anyInt(), anyInt(),
+                anyInt(), eq(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT));
+    }
+
+    @Test
+    @UiThreadTest
     public void testOnUpdateExtractingViews() {
         final Context context = InstrumentationRegistry.getTargetContext();
-        mLayout = (EmojiExtractTextLayout) LayoutInflater.from(context)
+        final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(android.support.text.emoji.test.R.layout.extract_view, null);
 
         final EditorInfo editorInfo = new EditorInfo();
@@ -88,14 +147,14 @@ public class EmojiExtractTextLayoutTest {
 
         when(mInputMethodService.isExtractViewShown()).thenReturn(true);
 
-        final ViewGroup inputExtractAccessories = mLayout.findViewById(
+        final ViewGroup inputExtractAccessories = layout.findViewById(
                 R.id.inputExtractAccessories);
         inputExtractAccessories.setVisibility(View.GONE);
 
         final ExtractButtonCompat extractButton = inputExtractAccessories.findViewById(
                 R.id.inputExtractAction);
 
-        mLayout.onUpdateExtractingViews(mInputMethodService, editorInfo);
+        layout.onUpdateExtractingViews(mInputMethodService, editorInfo);
 
         assertEquals(View.VISIBLE, inputExtractAccessories.getVisibility());
         assertEquals(editorInfo.actionLabel, extractButton.getText());
@@ -106,19 +165,19 @@ public class EmojiExtractTextLayoutTest {
     @UiThreadTest
     public void testOnUpdateExtractingViews_hidesAccessoriesIfNoAction() {
         final Context context = InstrumentationRegistry.getTargetContext();
-        mLayout = (EmojiExtractTextLayout) LayoutInflater.from(context)
+        final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(android.support.text.emoji.test.R.layout.extract_view, null);
 
         final EditorInfo editorInfo = new EditorInfo();
         editorInfo.imeOptions = EditorInfo.IME_ACTION_NONE;
         when(mInputMethodService.isExtractViewShown()).thenReturn(true);
 
-        final ViewGroup inputExtractAccessories = mLayout.findViewById(
+        final ViewGroup inputExtractAccessories = layout.findViewById(
                 R.id.inputExtractAccessories);
         final ExtractButtonCompat extractButton = inputExtractAccessories.findViewById(
                 R.id.inputExtractAction);
 
-        mLayout.onUpdateExtractingViews(mInputMethodService, editorInfo);
+        layout.onUpdateExtractingViews(mInputMethodService, editorInfo);
 
         assertEquals(View.GONE, inputExtractAccessories.getVisibility());
         assertFalse(extractButton.hasOnClickListeners());

@@ -65,8 +65,8 @@ public class EmojiMatcher {
         return argThat(new ArgumentMatcher<T>() {
             @Override
             public boolean matches(T o) {
-                if (o instanceof CharSequence && expected.getClass() == o.getClass()) {
-                    return TextUtils.equals(expected, (CharSequence) o);
+                if (o instanceof CharSequence) {
+                    return TextUtils.equals(expected, o);
                 }
                 return false;
             }
