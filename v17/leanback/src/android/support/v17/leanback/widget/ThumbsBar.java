@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.RestrictTo;
+import android.support.v17.leanback.R;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -33,16 +34,18 @@ import android.widget.LinearLayout;
 @RestrictTo(LIBRARY_GROUP)
 public class ThumbsBar extends LinearLayout {
 
-    static final int DEFAULT_NUM_OF_THUMBS = 7;
-
-    int mMinimalMargin = 16;
-    int mNumOfThumbs;
-    int mThumbWidth = 160;
-    int mThumbHeight = 160;
-    int mHeroThumbWidth = 240;
-    int mHeroThumbHeight = 240;
-    int mMeasuredMargin;
+    // initial value for Thumb's number before measuring the screen size
+    int mNumOfThumbs = -1;
+    int mThumbWidthInPixel;
+    int mThumbHeightInPixel;
+    int mHeroThumbWidthInPixel;
+    int mHeroThumbHeightInPixel;
+    int mMeasuredMarginInPixel;
     final SparseArray<Bitmap> mBitmaps = new SparseArray<>();
+
+    // flag to determine if the number of thumbs in thumbs bar is set by user through
+    // setNumberofThumbs API or auto-calculated according to android tv design spec.
+    private boolean mIsUserSets = false;
 
     public ThumbsBar(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -50,7 +53,20 @@ public class ThumbsBar extends LinearLayout {
 
     public ThumbsBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        setNumberOfThumbs(DEFAULT_NUM_OF_THUMBS);
+        // According to the spec,
+        // the width of non-hero thumb should be 80% of HeroThumb's Width, i.e. 0.8 * 192dp = 154dp
+        mThumbWidthInPixel = context.getResources().getDimensionPixelSize(
+                R.dimen.lb_playback_transport_thumbs_width);
+        mThumbHeightInPixel = context.getResources().getDimensionPixelSize(
+                R.dimen.lb_playback_transport_thumbs_height);
+        // According to the spec, the width of HeroThumb should be 192dp
+        mHeroThumbHeightInPixel = context.getResources().getDimensionPixelSize(
+                R.dimen.lb_playback_transport_hero_thumbs_width);
+        mHeroThumbWidthInPixel = context.getResources().getDimensionPixelSize(
+                R.dimen.lb_playback_transport_hero_thumbs_height);
+        // According to the spec, the margin between thumbs to be 4dp
+        mMeasuredMarginInPixel = context.getResources().getDimensionPixelSize(
+                R.dimen.lb_playback_transport_thumbs_margin);
     }
 
     /**
@@ -64,8 +80,8 @@ public class ThumbsBar extends LinearLayout {
      * Set size of thumb view in pixels
      */
     public void setThumbSize(int width, int height) {
-        mThumbHeight = height;
-        mThumbWidth = width;
+        mThumbHeightInPixel = height;
+        mThumbWidthInPixel = width;
         int heroIndex = getHeroIndex();
         for (int i = 0; i < getChildCount(); i++) {
             if (heroIndex != i) {
@@ -91,8 +107,8 @@ public class ThumbsBar extends LinearLayout {
      * Set size of hero thumb view in pixels, it is usually larger than other thumbs.
      */
     public void setHeroThumbSize(int width, int height) {
-        mHeroThumbHeight = height;
-        mHeroThumbWidth = width;
+        mHeroThumbHeightInPixel = height;
+        mHeroThumbWidthInPixel = width;
         int heroIndex = getHeroIndex();
         for (int i = 0; i < getChildCount(); i++) {
             if (heroIndex == i) {
@@ -115,23 +131,34 @@ public class ThumbsBar extends LinearLayout {
     }
 
     /**
-     * Set number of thumb views. It must be odd or it will be increasing one.
+     * Set the space between thumbs in pixels
+     */
+    public void setThumbSpace(int spaceInPixel) {
+        mMeasuredMarginInPixel = spaceInPixel;
+        requestLayout();
+    }
+
+    /**
+     * Set number of thumb views.
      */
     public void setNumberOfThumbs(int numOfThumbs) {
-        if (numOfThumbs < 0) {
-            throw new IllegalArgumentException();
-        }
-        if ((numOfThumbs & 1) == 0) {
-            // make it odd number
-            numOfThumbs++;
-        }
+        mIsUserSets = true;
         mNumOfThumbs = numOfThumbs;
+        setNumberOfThumbsInternal();
+    }
+
+    /**
+     * Helper function for setNumberOfThumbs.
+     * Will Update the layout settings in ThumbsBar based on mNumOfThumbs
+     */
+    private void setNumberOfThumbsInternal() {
         while (getChildCount() > mNumOfThumbs) {
             removeView(getChildAt(getChildCount() - 1));
         }
         while (getChildCount() < mNumOfThumbs) {
             View view = createThumbView(this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(mThumbWidth, mThumbHeight);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(mThumbWidthInPixel,
+                    mThumbHeightInPixel);
             addView(view, lp);
         }
         int heroIndex = getHeroIndex();
@@ -139,30 +166,65 @@ public class ThumbsBar extends LinearLayout {
             View child = getChildAt(i);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) child.getLayoutParams();
             if (heroIndex == i) {
-                lp.width = mHeroThumbWidth;
-                lp.height = mHeroThumbHeight;
+                lp.width = mHeroThumbWidthInPixel;
+                lp.height = mHeroThumbHeightInPixel;
             } else {
-                lp.width = mThumbWidth;
-                lp.height = mThumbHeight;
+                lp.width = mThumbWidthInPixel;
+                lp.height = mThumbHeightInPixel;
             }
             child.setLayoutParams(lp);
         }
+    }
+
+    /**
+     * Helper function to compute how many thumbs should be put in the screen
+     * Assume we should put x's non-hero thumbs in the screen, the equation should be
+     *   192dp (width of hero thumbs) +
+     *   154dp (width of common thumbs) * x +
+     *   4dp (width of the margin between thumbs) * x
+     *     = width
+     * So the calculated number of non-hero thumbs should be (width - 192dp) / 158dp.
+     * If the calculated number of non-hero thumbs is less than 2, it will be updated to 2
+     * or if the calculated number or non-hero thumbs is not an even number, it will be
+     * decremented by one.
+     * This processing is used to make sure the arrangement of non-hero thumbs
+     * in ThumbsBar is symmetrical.
+     * Also there should be a hero thumb in the middle of the ThumbsBar,
+     * the final result should be non-hero thumbs (after processing) + 1.
+     *
+     * @param  widthInPixel measured width in pixel
+     * @return The number of thumbs
+     */
+    private int calculateNumOfThumbs(int widthInPixel) {
+        int nonHeroThumbNum = (widthInPixel - mHeroThumbWidthInPixel)
+                / (mThumbWidthInPixel + mMeasuredMarginInPixel);
+        if (nonHeroThumbNum < 2) {
+            // If the calculated number of non-hero thumbs is less than 2,
+            // it will be updated to 2
+            nonHeroThumbNum = 2;
+        } else if ((nonHeroThumbNum & 1) != 0) {
+            // If the calculated number or non-hero thumbs is not an even number,
+            // it will be decremented by one.
+            nonHeroThumbNum--;
+        }
+        // Count Hero Thumb to the final result
+        return nonHeroThumbNum + 1;
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int width = getMeasuredWidth();
-        int spaceForMargin = 0;
-        while (mNumOfThumbs > 1) {
-            spaceForMargin = width - mHeroThumbWidth - mThumbWidth * (mNumOfThumbs - 1);
-            if (spaceForMargin < mMinimalMargin * (mNumOfThumbs - 1)) {
-                setNumberOfThumbs(mNumOfThumbs - 2);
-            } else {
-                break;
+        // If the number of thumbs in ThumbsBar is not set by user explicitly, it will be
+        // recalculated based on Android TV Design Spec
+        if (!mIsUserSets) {
+            int numOfThumbs = calculateNumOfThumbs(width);
+            // Set new number of thumbs when calculation result is different with current number
+            if (mNumOfThumbs != numOfThumbs) {
+                mNumOfThumbs = numOfThumbs;
+                setNumberOfThumbsInternal();
             }
         }
-        mMeasuredMargin = mNumOfThumbs > 0 ? spaceForMargin / (mNumOfThumbs - 1) : 0;
     }
 
     @Override
@@ -177,7 +239,7 @@ public class ThumbsBar extends LinearLayout {
         int heroCenter = getPaddingTop() + heroView.getMeasuredHeight() / 2;
 
         for (int i = heroIndex - 1; i >= 0; i--) {
-            heroLeft -= mMeasuredMargin;
+            heroLeft -= mMeasuredMarginInPixel;
             View child = getChildAt(i);
             child.layout(heroLeft - child.getMeasuredWidth(),
                     heroCenter - child.getMeasuredHeight() / 2,
@@ -186,7 +248,7 @@ public class ThumbsBar extends LinearLayout {
             heroLeft -= child.getMeasuredWidth();
         }
         for (int i = heroIndex + 1; i < mNumOfThumbs; i++) {
-            heroRight += mMeasuredMargin;
+            heroRight += mMeasuredMarginInPixel;
             View child = getChildAt(i);
             child.layout(heroRight,
                     heroCenter - child.getMeasuredHeight() / 2,

@@ -380,7 +380,7 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
             } else {
                 mPositionsLength = 0;
             }
-            mControlsVh.view.setVisibility(View.INVISIBLE);
+            mControlsVh.view.setVisibility(View.GONE);
             mSecondaryControlsVh.view.setVisibility(View.INVISIBLE);
             mDescriptionViewHolder.view.setVisibility(View.INVISIBLE);
             mThumbsBar.setVisibility(View.VISIBLE);
