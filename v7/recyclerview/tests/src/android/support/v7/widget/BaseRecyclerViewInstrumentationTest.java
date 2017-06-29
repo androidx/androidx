@@ -38,10 +38,12 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.recyclerview.test.R;
 import android.support.v7.recyclerview.test.SameActivityTestRule;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -793,6 +795,37 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
     }
 
+    public class EditTextAdapter extends RecyclerView.Adapter<TestViewHolder> {
+
+        final ArrayList<Editable> mEditables;
+        public EditTextAdapter(int count) {
+            mEditables = new ArrayList<>();
+            for (int i = 0; i < count; ++i) {
+                mEditables.add(Editable.Factory.getInstance().newEditable("Sample Text " + i));
+            }
+        }
+
+        @Override
+        public TestViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            final EditText editText = new EditText(parent.getContext());
+            editText.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            final TestViewHolder viewHolder = new TestViewHolder(editText);
+            return viewHolder;
+        }
+
+        @Override
+        public void onBindViewHolder(TestViewHolder holder, int position) {
+            ((EditText) holder.itemView).setText(Editable.Factory.getInstance().newEditable(
+                    mEditables.get(position)));
+        }
+
+        @Override
+        public int getItemCount() {
+            return mEditables.size();
+        }
+    }
+
     public class TestAdapter extends RecyclerView.Adapter<TestViewHolder>
             implements AttachDetachCountingAdapter {
 
@@ -1197,6 +1230,27 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         }
     }
 
+
+    public static View findFirstFullyVisibleChild(RecyclerView parent) {
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            View child = parent.getChildAt(i);
+            if (isViewFullyInBound(parent, child)) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    public static View findLastFullyVisibleChild(RecyclerView parent) {
+        for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+            View child = parent.getChildAt(i);
+            if (isViewFullyInBound(parent, child)) {
+                return child;
+            }
+        }
+        return null;
+    }
+
     /**
      * Returns whether a child of RecyclerView is partially in bound. A child is
      * partially in-bounds if it's either fully or partially visible on the screen.
@@ -1232,7 +1286,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
      * @param child The child view to be checked whether is fully within RV's bounds.
      * @return True if the child view is fully visible; false otherwise.
      */
-    public boolean isViewFullyInBound(RecyclerView parent, View child) {
+    public static boolean isViewFullyInBound(RecyclerView parent, View child) {
         if (child == null) {
             return false;
         }
