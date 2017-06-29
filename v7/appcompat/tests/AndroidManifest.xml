@@ -79,6 +79,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="android.support.v7.widget.AppCompatButtonAutoSizeActivity"
+            android:label="@string/app_compat_button_auto_size_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
             android:name="android.support.v7.widget.AppCompatImageButtonActivity"
             android:label="@string/app_compat_image_button_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
