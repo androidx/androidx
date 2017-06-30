@@ -47,7 +47,6 @@ import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -185,7 +184,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
         verifyLegacyIntent(receiver.blockingGetIntent());
     }
 
-    @MediumTest
+    @LargeTest
     @Test
     public void testRequestPinShortcut_v4_withCallback()  throws Throwable {
         if (Build.VERSION.SDK_INT >= 26) {

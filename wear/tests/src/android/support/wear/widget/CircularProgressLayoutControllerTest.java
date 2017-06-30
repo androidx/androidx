@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.widget.CircularProgressDrawable;
@@ -76,6 +77,7 @@ public class CircularProgressLayoutControllerTest {
         verify(mMockDrawable).stop();
     }
 
+    @LargeTest
     @Test
     @UiThreadTest
     public void testIsTimerRunningAfterStart() {

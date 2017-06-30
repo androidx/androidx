@@ -45,6 +45,7 @@ import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.espresso.core.deps.guava.base.Preconditions;
 import android.support.test.espresso.matcher.ViewMatchers;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.v4.view.ViewCompat;
@@ -303,7 +304,7 @@ public class BottomSheetBehaviorTest extends
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testSwipeDownToCollapse() throws Throwable {
         checkSetState(BottomSheetBehavior.STATE_EXPANDED, ViewMatchers.isDisplayed());
         Espresso.onView(ViewMatchers.withId(R.id.bottom_sheet))
@@ -362,7 +363,7 @@ public class BottomSheetBehaviorTest extends
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testSkipCollapsed() throws Throwable {
         getBehavior().setSkipCollapsed(true);
         checkSetState(BottomSheetBehavior.STATE_EXPANDED, ViewMatchers.isDisplayed());
@@ -500,7 +501,7 @@ public class BottomSheetBehaviorTest extends
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testNestedScroll() throws Throwable {
         final ViewGroup bottomSheet = getBottomSheet();
         final BottomSheetBehavior behavior = getBehavior();

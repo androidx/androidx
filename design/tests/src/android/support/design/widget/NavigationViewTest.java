@@ -69,7 +69,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.IdRes;
 import android.support.design.test.R;
 import android.support.design.testutils.TestDrawable;
-import android.support.test.filters.MediumTest;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
@@ -90,7 +90,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-@MediumTest
+@LargeTest
 public class NavigationViewTest
         extends BaseInstrumentationTestCase<NavigationViewActivity> {
     private static final int[] MENU_CONTENT_ITEM_IDS = { R.id.destination_home,

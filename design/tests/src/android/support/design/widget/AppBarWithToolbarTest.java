@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import android.graphics.Rect;
 import android.support.design.test.R;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
@@ -37,6 +38,7 @@ public class AppBarWithToolbarTest extends AppBarLayoutBaseTest {
     /**
      * Tests a Toolbar with fitSystemWindows = undefined, with a fitSystemWindows = true parent
      */
+    @LargeTest
     @Test
     public void testScrollToolbarWithFitSystemWindowsParent() throws Throwable {
         configureContent(R.layout.design_appbar_toolbar_scroll_fitsystemwindows_parent,
