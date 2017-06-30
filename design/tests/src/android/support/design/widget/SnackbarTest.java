@@ -50,6 +50,7 @@ import android.support.test.espresso.action.CoordinatesProvider;
 import android.support.test.espresso.action.GeneralSwipeAction;
 import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
@@ -102,6 +103,7 @@ public class SnackbarTest extends BaseInstrumentationTestCase<SnackbarActivity> 
         SnackbarUtils.dismissTransientBottomBarAndWaitUntilFullyDismissed(snackbar);
     }
 
+    @LargeTest
     @Test
     public void testBasicContent() throws Throwable {
         // Verify different combinations of snackbar content (message and action) and duration
@@ -235,6 +237,7 @@ public class SnackbarTest extends BaseInstrumentationTestCase<SnackbarActivity> 
                 Snackbar.Callback.DISMISS_EVENT_MANUAL);
     }
 
+    @LargeTest
     @Test
     public void testDismissViaTimeout() throws Throwable {
         verifyDismissCallback(
@@ -245,6 +248,7 @@ public class SnackbarTest extends BaseInstrumentationTestCase<SnackbarActivity> 
                 Snackbar.Callback.DISMISS_EVENT_TIMEOUT);
     }
 
+    @LargeTest
     @Test
     public void testSwipeUpDismissesViaTimeout() throws Throwable {
         verifyDismissCallback(

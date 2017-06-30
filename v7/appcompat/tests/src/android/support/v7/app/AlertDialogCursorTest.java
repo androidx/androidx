@@ -44,6 +44,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.espresso.DataInteraction;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -295,6 +296,7 @@ public class AlertDialogCursorTest {
         verifyMultiChoiceItemsState(expectedContent, expectedAfterClickLast);
     }
 
+    @LargeTest
     @Test
     public void testMultiChoiceItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithChecked,
@@ -405,6 +407,7 @@ public class AlertDialogCursorTest {
         verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex);
     }
 
+    @LargeTest
     @Test
     public void testSingleChoiceItemsFromCursor() {
         mCursor = mDatabase.query("test", mProjectionWithoutChecked,
