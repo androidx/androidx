@@ -176,6 +176,14 @@
     <!-- radius of thumb when focused -->
     <dimen name="lb_playback_transport_progressbar_active_radius">6dp</dimen>
 
+    <!-- Thumbs bar -->
+    <dimen name="lb_playback_transport_thumbs_width">154dp</dimen>
+    <dimen name="lb_playback_transport_thumbs_height">154dp</dimen>
+    <dimen name="lb_playback_transport_hero_thumbs_width">192dp</dimen>
+    <dimen name="lb_playback_transport_hero_thumbs_height">192dp</dimen>
+    <dimen name="lb_playback_transport_thumbs_margin">4dp</dimen>
+    <dimen name="lb_playback_transport_thumbs_bottom_margin">18dp</dimen>
+
     <dimen name="lb_playback_transport_time_margin">8dp</dimen>
     <dimen name="lb_playback_transport_time_margin_top">8dp</dimen>
 
