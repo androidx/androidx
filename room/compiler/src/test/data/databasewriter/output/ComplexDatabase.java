@@ -32,9 +32,22 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 _db.execSQL("DROP TABLE IF EXISTS `User`");
             }
 
+            protected void onCreate(SupportSQLiteDatabase _db) {
+                if (mCallbacks != null) {
+                    for (int _i = 0, _size = mCallbacks.size(); _i < _size; _i++) {
+                        mCallbacks.get(_i).onCreate(_db);
+                    }
+                }
+            }
+
             public void onOpen(SupportSQLiteDatabase _db) {
                 mDatabase = _db;
                 internalInitInvalidationTracker(_db);
+                if (mCallbacks != null) {
+                    for (int _i = 0, _size = mCallbacks.size(); _i < _size; _i++) {
+                        mCallbacks.get(_i).onOpen(_db);
+                    }
+                }
             }
 
             protected void validateMigration(SupportSQLiteDatabase _db) {

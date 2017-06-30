@@ -128,7 +128,7 @@ public class MigrationTestHelper extends TestWatcher {
         SchemaBundle schemaBundle = loadSchema(version);
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mInstrumentation.getTargetContext(), name, mOpenFactory, container, true);
+                mInstrumentation.getTargetContext(), name, mOpenFactory, container, null, true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash());
@@ -170,7 +170,7 @@ public class MigrationTestHelper extends TestWatcher {
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
         container.addMigrations(migrations);
         DatabaseConfiguration configuration = new DatabaseConfiguration(
-                mInstrumentation.getTargetContext(), name, mOpenFactory, container, true);
+                mInstrumentation.getTargetContext(), name, mOpenFactory, container, null, true);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 schemaBundle.getDatabase().getIdentityHash());
@@ -394,8 +394,11 @@ public class MigrationTestHelper extends TestWatcher {
         }
 
         @Override
-        protected void onOpen(SupportSQLiteDatabase database) {
+        protected void onCreate(SupportSQLiteDatabase database) {
+        }
 
+        @Override
+        protected void onOpen(SupportSQLiteDatabase database) {
         }
     }
 }
