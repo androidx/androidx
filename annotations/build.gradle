@@ -1,5 +1,4 @@
 apply plugin: 'java'
-archivesBaseName = 'support-annotations'
 
 sourceSets {
     main.java.srcDir 'src'

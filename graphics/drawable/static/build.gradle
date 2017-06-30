@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-vector-drawable'
 
 dependencies {
     compile project(':support-annotations')
