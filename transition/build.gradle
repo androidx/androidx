@@ -1,7 +1,5 @@
 apply plugin: android.support.SupportLibraryPlugin
 
-archivesBaseName = 'transition'
-
 dependencies {
     compile project(':support-annotations')
     compile project(':support-v4')
