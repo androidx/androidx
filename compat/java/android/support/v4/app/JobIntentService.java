@@ -309,6 +309,7 @@ public abstract class JobIntentService extends Service {
                 work = mParams.dequeueWork();
             }
             if (work != null) {
+                work.getIntent().setExtrasClassLoader(mService.getClassLoader());
                 return new WrapperWorkItem(work);
             } else {
                 return null;
@@ -393,13 +394,13 @@ public abstract class JobIntentService extends Service {
         }
 
         @Override
+        protected void onCancelled(Void aVoid) {
+            processorFinished();
+        }
+
+        @Override
         protected void onPostExecute(Void aVoid) {
-            if (mCompatQueue != null) {
-                synchronized (mCompatQueue) {
-                    mCurProcessor = null;
-                    checkForMoreCompatWorkLocked();
-                }
-            }
+            processorFinished();
         }
     }
 
@@ -602,11 +603,22 @@ public abstract class JobIntentService extends Service {
         }
     }
 
-    void checkForMoreCompatWorkLocked() {
-        // The async task has finished, but we may have gotten more work scheduled in the
-        // meantime.  If so,
-        if (mCompatQueue != null && mCompatQueue.size() > 0) {
-            ensureProcessorRunningLocked();
+    void processorFinished() {
+        if (mCompatQueue != null) {
+            synchronized (mCompatQueue) {
+                mCurProcessor = null;
+                // The async task has finished, but we may have gotten more work scheduled in the
+                // meantime.  If so, we need to restart the new processor to execute it.  If there
+                // is no more work at this point, either the service is in the process of being
+                // destroyed (because we called stopSelf on the last intent started for it), or
+                // someone has already called startService with a new Intent that will be
+                // arriving shortly.  In either case, we want to just leave the service
+                // waiting -- either to get destroyed, or get a new onStartCommand() callback
+                // which will then kick off a new processor.
+                if (mCompatQueue != null && mCompatQueue.size() > 0) {
+                    ensureProcessorRunningLocked();
+                }
+            }
         }
     }
 
