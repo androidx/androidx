@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'recyclerview-v7'
 
 dependencies {
     compile project(':support-annotations')

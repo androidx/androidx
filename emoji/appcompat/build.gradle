@@ -15,7 +15,6 @@
  */
 
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-emoji-appcompat'
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')

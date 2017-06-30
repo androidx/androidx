@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'mediarouter-v7'
 
 dependencies {
     compile project(":support-appcompat-v7")

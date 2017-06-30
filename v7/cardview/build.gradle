@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'cardview-v7'
 
 dependencies {
     compile project(':support-annotations')
