@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-emoji-bundled'
 
 ext {
     fontDir = project(':noto-emoji-compat').projectDir

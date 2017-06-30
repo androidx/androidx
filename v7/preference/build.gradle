@@ -15,7 +15,6 @@
  */
 
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'preference-v7'
 
 dependencies {
     compile project(':support-v4')

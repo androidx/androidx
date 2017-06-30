@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'recommendation'
 
 dependencies {
     compile project(':support-v4')

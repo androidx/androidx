@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'wear'
 
 dependencies {
     compile project(':support-annotations')

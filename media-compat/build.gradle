@@ -1,5 +1,4 @@
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-media-compat'
 
 dependencies {
     compile project(':support-annotations')
