@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.testutils.PollingCheck;
@@ -50,7 +51,7 @@ import org.junit.runner.RunWith;
 
 import java.lang.ref.WeakReference;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
 

@@ -25,6 +25,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.transition.test.R;
 import android.view.Gravity;
@@ -61,6 +62,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
         }
     }
 
+    @LargeTest
     @Test
     public void testSlideOut() throws Throwable {
         for (int i = 0; i < sSlideEdgeArray.length; i++) {
@@ -144,6 +146,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
         }
     }
 
+    @LargeTest
     @Test
     public void testSlideIn() throws Throwable {
         for (int i = 0; i < sSlideEdgeArray.length; i++) {
