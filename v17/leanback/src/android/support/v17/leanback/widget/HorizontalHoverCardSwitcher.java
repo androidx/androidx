@@ -47,7 +47,7 @@ public final class HorizontalHoverCardSwitcher extends PresenterSwitcher {
         // end edge with row view's end edge, otherwise align start edges.
         view.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
         MarginLayoutParams params = (MarginLayoutParams) view.getLayoutParams();
-        boolean isRtl = ViewCompat.getLayoutDirection(view) == View.LAYOUT_DIRECTION_RTL;
+        boolean isRtl = ViewCompat.getLayoutDirection(view) == ViewCompat.LAYOUT_DIRECTION_RTL;
         if (!isRtl && mCardLeft + view.getMeasuredWidth() > rightLimit) {
             params.leftMargin = rightLimit  - view.getMeasuredWidth();
         } else if (isRtl && mCardLeft < leftLimit) {

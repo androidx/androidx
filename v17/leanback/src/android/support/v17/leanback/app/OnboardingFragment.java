@@ -152,7 +152,7 @@ import java.util.List;
  * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingLogoStyle
  */
 abstract public class OnboardingFragment extends Fragment {
-    private static final String TAG = "OnboardingFragment";
+    private static final String TAG = "OnboardingF";
     private static final boolean DEBUG = false;
 
     private static final long LOGO_SPLASH_PAUSE_DURATION_MS = 1333;

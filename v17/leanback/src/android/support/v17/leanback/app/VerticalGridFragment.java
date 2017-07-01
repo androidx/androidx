@@ -38,7 +38,7 @@ import android.view.ViewGroup;
  * an {@link ObjectAdapter}.
  */
 public class VerticalGridFragment extends BaseFragment {
-    static final String TAG = "VerticalGridFragment";
+    static final String TAG = "VerticalGF";
     static boolean DEBUG = false;
 
     private ObjectAdapter mAdapter;
