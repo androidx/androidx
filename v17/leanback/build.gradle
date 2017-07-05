@@ -1,21 +1,21 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile project(':support-compat')
-    compile project(':support-core-ui')
-    compile project(':support-media-compat')
-    compile project(':support-fragment')
-    compile project(':support-recyclerview-v7')
+    api project(':support-compat')
+    api project(':support-core-ui')
+    api project(':support-media-compat')
+    api project(':support-fragment')
+    api project(':support-recyclerview-v7')
 
-    androidTestCompile (libs.test_runner) {
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker_mockito
-    androidTestCompile libs.multidex
+    androidTestImplementation libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation libs.multidex
 }
 
 android {

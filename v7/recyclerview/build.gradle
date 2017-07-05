@@ -1,24 +1,24 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile project(':support-annotations')
-    compile project(':support-compat')
-    compile project(':support-core-ui')
+    api project(':support-annotations')
+    api project(':support-compat')
+    api project(':support-core-ui')
 
-    androidTestCompile (libs.test_runner) {
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.junit
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker_mockito
-    androidTestCompile project(':support-testutils')
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation project(':support-testutils')
 
-    testCompile libs.junit
-    testCompile libs.mockito_core
-    testCompile ("$libs.test_runner") {
+    testImplementation libs.junit
+    testImplementation libs.mockito_core
+    testImplementation ("$libs.test_runner") {
         exclude module: 'support-annotations'
     }
 }

@@ -1,14 +1,15 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile project(':support-vector-drawable')
-    androidTestCompile (libs.test_runner) {
+    api project(':support-vector-drawable')
+    api project(':support-core-ui')
+
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    compile project(path: ':support-core-ui')
 }
 
 android {

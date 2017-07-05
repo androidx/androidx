@@ -17,10 +17,10 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile project(':support-v4')
-    compile project(':support-appcompat-v7')
-    compile project(':support-recyclerview-v7')
-    compile project(':support-preference-v7')
+    api project(':support-v4')
+    api project(':support-appcompat-v7')
+    api project(':support-recyclerview-v7')
+    api project(':support-preference-v7')
 }
 
 android {

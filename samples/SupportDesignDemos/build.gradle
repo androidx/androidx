@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-design')
+    implementation project(':support-design')
 }
 
 android {

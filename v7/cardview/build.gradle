@@ -1,7 +1,7 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile project(':support-annotations')
+    api project(':support-annotations')
 }
 
 android {
