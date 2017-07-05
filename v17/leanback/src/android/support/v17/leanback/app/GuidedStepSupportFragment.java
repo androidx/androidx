@@ -237,7 +237,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     @RestrictTo(LIBRARY_GROUP)
     public static final int SLIDE_FROM_BOTTOM = 1;
 
-    private static final String TAG = "GuidedStepSupportFragment";
+    private static final String TAG = "GuidedStepF";
     private static final boolean DEBUG = false;
 
     /**
