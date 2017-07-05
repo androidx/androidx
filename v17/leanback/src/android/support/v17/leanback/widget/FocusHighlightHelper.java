@@ -25,6 +25,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.app.HeadersFragment;
 import android.support.v17.leanback.graphics.ColorOverlayDimmer;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -272,11 +273,15 @@ public class FocusHighlightHelper {
         void lazyInit(View view) {
             if (!mInitialized) {
                 Resources res = view.getResources();
-                mSelectScale = mScaleEnabled
-                        ? Float.parseFloat(res.getString(R.dimen.lb_browse_header_select_scale))
-                        : 1f;
-                mDuration =
-                        Integer.parseInt(res.getString(R.dimen.lb_browse_header_select_duration));
+                TypedValue value = new TypedValue();
+                if (mScaleEnabled) {
+                    res.getValue(R.dimen.lb_browse_header_select_scale, value, true);
+                    mSelectScale = value.getFloat();
+                } else {
+                    mSelectScale = 1f;
+                }
+                res.getValue(R.dimen.lb_browse_header_select_duration, value, true);
+                mDuration = value.data;
                 mInitialized = true;
             }
         }

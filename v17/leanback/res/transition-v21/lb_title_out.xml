@@ -18,7 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:lb="http://schemas.android.com/apk/res-auto"
     class="android.support.v17.leanback.transition.SlideKitkat"
-    android:interpolator="@animator/lb_decelerator_2"
+    android:interpolator="@anim/lb_decelerator_2"
     lb:lb_slideEdge="top" >
     <targets>
         <target android:targetId="@id/browse_title_group" />
