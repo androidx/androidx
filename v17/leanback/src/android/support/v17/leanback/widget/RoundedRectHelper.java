@@ -13,8 +13,9 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.support.v17.leanback.R;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v17.leanback.R;
 import android.view.View;
 
 /**
@@ -71,6 +72,7 @@ final class RoundedRectHelper {
     /**
      * Implementation used on api 21 (and above).
      */
+    @RequiresApi(21)
     private static final class Api21Impl implements Impl {
         Api21Impl() {
         }

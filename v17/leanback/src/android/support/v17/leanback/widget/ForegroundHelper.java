@@ -2,6 +2,7 @@ package android.support.v17.leanback.widget;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 
 final class ForegroundHelper {
@@ -22,6 +23,7 @@ final class ForegroundHelper {
     /**
      * Implementation used on api 23 (and above).
      */
+    @RequiresApi(23)
     private static final class ForegroundHelperApi23Impl implements ForegroundHelperVersionImpl {
         ForegroundHelperApi23Impl() {
         }
