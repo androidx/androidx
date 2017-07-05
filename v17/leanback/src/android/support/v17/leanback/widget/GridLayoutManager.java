@@ -504,7 +504,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * override child visibility
      */
-    int mChildVisibility = -1;
+    @Visibility
+    int mChildVisibility;
 
     /**
      * Pixels that scrolled in secondary forward direction. Negative value means backward.
@@ -668,6 +669,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     public GridLayoutManager(BaseGridView baseGridView) {
         mBaseGridView = baseGridView;
+        mChildVisibility = -1;
     }
 
     public void setOrientation(int orientation) {
