@@ -145,7 +145,7 @@ public class CircledImageView extends View {
 
         mCircleColor = a.getColorStateList(R.styleable.CircledImageView_background_color);
         if (mCircleColor == null) {
-            mCircleColor = ColorStateList.valueOf(android.R.color.darker_gray);
+            mCircleColor = ColorStateList.valueOf(context.getColor(android.R.color.darker_gray));
         }
 
         mCircleRadius = a.getDimension(R.styleable.CircledImageView_background_radius, 0);
