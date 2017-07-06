@@ -2562,7 +2562,7 @@ public final class MediaRouter {
 
         private void setSelectedRouteInternal(RouteInfo route, int unselectReason) {
             // TODO: Remove the following logging when no longer needed.
-            if (mBluetoothRoute != null && route != null && route.isDefault()) {
+            if (sGlobal == null || mBluetoothRoute != null && route != null && route.isDefault()) {
                 final StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
                 StringBuffer sb = new StringBuffer();
                 // callStack[3] is the caller of this method.
@@ -2571,8 +2571,13 @@ public final class MediaRouter {
                     sb.append(caller.getClassName() + "." + caller.getMethodName()
                             + ":" + caller.getLineNumber()).append("  ");
                 }
-                Log.w(TAG, "Default route is selected while a BT route is available: pkgName="
-                        + mApplicationContext.getPackageName() + ", callers=" + sb.toString());
+                if (sGlobal == null) {
+                    Log.w(TAG, "setSelectedRouteInternal is called while sGlobal is null: pkgName="
+                            + mApplicationContext.getPackageName() + ", callers=" + sb.toString());
+                } else {
+                    Log.w(TAG, "Default route is selected while a BT route is available: pkgName="
+                            + mApplicationContext.getPackageName() + ", callers=" + sb.toString());
+                }
             }
 
             if (mSelectedRoute != route) {
