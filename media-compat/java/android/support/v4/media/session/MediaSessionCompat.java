@@ -149,83 +149,71 @@ public class MediaSessionCompat {
 
     /**
      * Predefined custom action to follow an artist, album, or playlist. The extra bundle must have
-     * {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the follow action. The
+     * {@link #ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the follow action. The
      * bundle can also have an optional string argument,
-     * {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to follow (e.g., the
+     * {@link #ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to follow (e.g., the
      * name of the artist to follow). If this argument is omitted, the currently playing media will
      * be the target of the action. Thus, the session must perform the follow action with the
      * current metadata. If there's no specified attribute in the current metadata, the controller
      * must not omit this argument.
      *
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE_VALUE
      * @see Callback#onCustomAction
      */
     public static final String ACTION_FOLLOW = "android.support.v4.media.session.action.FOLLOW";
 
     /**
      * Predefined custom action to unfollow an artist, album, or playlist. The extra bundle must
-     * have {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the unfollow action.
+     * have {@link #ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the unfollow action.
      * The bundle can also have an optional string argument,
-     * {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to unfollow (e.g., the
+     * {@link #ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to unfollow (e.g., the
      * name of the artist to unfollow). If this argument is omitted, the currently playing media
      * will be the target of the action. Thus, the session must perform the unfollow action with the
      * current metadata. If there's no specified attribute in the current metadata, the controller
      * must not omit this argument.
      *
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE_VALUE
      * @see Callback#onCustomAction
      */
     public static final String ACTION_UNFOLLOW = "android.support.v4.media.session.action.UNFOLLOW";
 
     /**
-     * Argument for use with {@link #ACTION_FOLLOW} and {@link #ACTION_UNFOLLOW} indicating the
-     * media attribute of the follow/unfollow action. It should be one of the following:
+     * Argument to indicate the media attribute. It should be one of the following:
      * <ul>
      * <li>{@link #MEDIA_ATTRIBUTE_ARTIST}</li>
      * <li>{@link #MEDIA_ATTRIBUTE_PLAYLIST}</li>
      * <li>{@link #MEDIA_ATTRIBUTE_ALBUM}</li>
      * </ul>
-     *
-     * @see #ACTION_FOLLOW
-     * @see #ACTION_UNFOLLOW
      */
-    public static final String ACTION_ARGUMENT_MEDIA_ATTRIBUTE =
-            "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE";
+    public static final String ARGUMENT_MEDIA_ATTRIBUTE =
+            "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE";
 
     /**
-     * String argument for use with {@link #ACTION_FOLLOW} and {@link #ACTION_UNFOLLOW} indicating
-     * the value of the media attribute of the follow/unfollow action (e.g., the name of the artist
-     * to follow).
-     *
-     * @see #ACTION_FOLLOW
-     * @see #ACTION_UNFOLLOW
+     * String argument to indicate the value of the media attribute (e.g., the name of the artist).
      */
-    public static final String ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE =
-            "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
+    public static final String ARGUMENT_MEDIA_ATTRIBUTE_VALUE =
+            "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
 
     /**
-     * The media attribute of the follow action which indicates that the target of the action is an
-     * artist.
+     * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the artist.
      *
-     * @see ACTION_ARGUMENT_MEDIA_ATTRIBUTE
+     * @see ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ARTIST = 0;
 
     /**
-     * The media attribute of the follow action which indicates that the target of the action is an
-     * album.
+     * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the album.
      *
-     * @see ACTION_ARGUMENT_MEDIA_ATTRIBUTE
+     * @see ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ALBUM = 1;
 
     /**
-     * The media attribute of the follow action which indicates that the target of the action is a
-     * playlist.
+     * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the playlist.
      *
-     * @see ACTION_ARGUMENT_MEDIA_ATTRIBUTE
+     * @see ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_PLAYLIST = 2;
 
@@ -283,6 +271,12 @@ public class MediaSessionCompat {
             "android.support.v4.media.session.action.SET_SHUFFLE_MODE";
 
     /**
+     * Custom action to invoke setRating() with extra fields.
+     */
+    static final String ACTION_SET_RATING =
+            "android.support.v4.media.session.action.SET_RATING";
+
+    /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
      */
     static final String ACTION_ARGUMENT_MEDIA_ID =
@@ -300,6 +294,12 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_URI =
             "android.support.v4.media.session.action.ARGUMENT_URI";
+
+    /**
+     * Argument for use with {@link #ACTION_SET_RATING} indicating the rate to be set.
+     */
+    static final String ACTION_ARGUMENT_RATING =
+            "android.support.v4.media.session.action.ARGUMENT_RATING";
 
     /**
      * Argument for use with various actions indicating extra bundle.
@@ -1105,9 +1105,18 @@ public class MediaSessionCompat {
         /**
          * Override to handle the item being rated.
          *
-         * @param rating
+         * @param rating The rating being set.
          */
         public void onSetRating(RatingCompat rating) {
+        }
+
+        /**
+         * Override to handle the item being rated.
+         *
+         * @param rating The rating being set.
+         * @param extras The extras can include information about the media item being rated.
+         */
+        public void onSetRating(RatingCompat rating, Bundle extras) {
         }
 
         /**
@@ -1359,6 +1368,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void onSetRating(Object ratingObj, Bundle extras) {
+                Callback.this.onSetRating(RatingCompat.fromRating(ratingObj), extras);
+            }
+
+            @Override
             public void onCustomAction(String action, Bundle extras) {
                 if (action.equals(ACTION_PLAY_FROM_URI)) {
                     Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
@@ -1390,6 +1404,11 @@ public class MediaSessionCompat {
                 } else if (action.equals(ACTION_SET_SHUFFLE_MODE)) {
                     int shuffleMode = extras.getInt(ACTION_ARGUMENT_SHUFFLE_MODE);
                     Callback.this.onSetShuffleMode(shuffleMode);
+                } else if (action.equals(ACTION_SET_RATING)) {
+                    extras.setClassLoader(RatingCompat.class.getClassLoader());
+                    RatingCompat rating = extras.getParcelable(ACTION_ARGUMENT_RATING);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onSetRating(rating, bundle);
                 } else {
                     Callback.this.onCustomAction(action, extras);
                 }
@@ -2673,6 +2692,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void rateWithExtras(RatingCompat rating, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_RATE_EXTRA, rating, extras);
+            }
+
+            @Override
             public void setCaptioningEnabled(boolean enabled) throws RemoteException {
                 postToHandler(MessageHandler.MSG_SET_CAPTIONING_ENABLED, enabled);
             }
@@ -2820,6 +2844,7 @@ public class MediaSessionCompat {
             private static final int MSG_REWIND = 17;
             private static final int MSG_SEEK_TO = 18;
             private static final int MSG_RATE = 19;
+            private static final int MSG_RATE_EXTRA = 31;
             private static final int MSG_CUSTOM_ACTION = 20;
             private static final int MSG_MEDIA_BUTTON = 21;
             private static final int MSG_SET_VOLUME = 22;
@@ -2928,6 +2953,9 @@ public class MediaSessionCompat {
                         break;
                     case MSG_RATE:
                         cb.onSetRating((RatingCompat) msg.obj);
+                        break;
+                    case MSG_RATE_EXTRA:
+                        cb.onSetRating((RatingCompat) msg.obj, msg.getData());
                         break;
                     case MSG_CUSTOM_ACTION:
                         cb.onCustomAction((String) msg.obj, msg.getData());
@@ -3586,6 +3614,12 @@ public class MediaSessionCompat {
 
             @Override
             public void rate(RatingCompat rating) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void rateWithExtras(RatingCompat rating, Bundle extras) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
             }
