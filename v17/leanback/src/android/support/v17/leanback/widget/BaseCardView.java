@@ -891,7 +891,7 @@ public class BaseCardView extends FrameLayout {
          * @param source The layout params to copy from.
          */
         public LayoutParams(LayoutParams source) {
-            super(source);
+            super((ViewGroup.MarginLayoutParams) source);
 
             this.viewType = source.viewType;
         }
