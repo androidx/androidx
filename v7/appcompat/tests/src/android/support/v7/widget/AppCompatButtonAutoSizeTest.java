@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package android.support.v7.widget;
 
-import android.support.v7.appcompat.test.R;
-import android.support.v7.testutils.BaseTestActivity;
+import android.support.test.filters.MediumTest;
+import android.support.test.runner.AndroidJUnit4;
 
-/**
- * This activity is used to test the auto-size feature of the {@link AppCompatTextView}
- * class.
- */
-public class AppCompatTextViewAutoSizeActivity extends BaseTestActivity {
+import org.junit.runner.RunWith;
+
+@MediumTest
+@RunWith(AndroidJUnit4.class)
+public class AppCompatButtonAutoSizeTest extends
+        AppCompatBaseAutoSizeTest<AppCompatButtonAutoSizeActivity, AppCompatButton> {
+
+    public AppCompatButtonAutoSizeTest() {
+        super(AppCompatButtonAutoSizeActivity.class);
+    }
+
     @Override
-    protected int getContentViewLayoutResId() {
-        return R.layout.appcompat_textview_autosize_activity;
+    protected AppCompatButton getNewAutoSizeViewInstance() {
+        return new AppCompatButton(mActivity);
     }
 }
