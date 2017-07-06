@@ -35,11 +35,6 @@ android {
         ]
         main.res.srcDir 'res'
     }
-
-    lintOptions {
-        // Remove this once all NewApi breakages have been fixed.
-        disable "NewApi"
-    }
 }
 
 supportLibrary {
