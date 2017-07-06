@@ -181,9 +181,9 @@ public final class MediaControllerCompat {
             case MediaSessionCompat.ACTION_FOLLOW:
             case MediaSessionCompat.ACTION_UNFOLLOW:
                 if (args == null
-                        || !args.containsKey(MediaSessionCompat.ACTION_ARGUMENT_MEDIA_ATTRIBUTE)) {
+                        || !args.containsKey(MediaSessionCompat.ARGUMENT_MEDIA_ATTRIBUTE)) {
                     throw new IllegalArgumentException("An extra field "
-                            + MediaSessionCompat.ACTION_ARGUMENT_MEDIA_ATTRIBUTE + " is required "
+                            + MediaSessionCompat.ARGUMENT_MEDIA_ATTRIBUTE + " is required "
                             + "for this action " + action + ".");
                 }
                 break;
@@ -1088,12 +1088,26 @@ public final class MediaControllerCompat {
 
         /**
          * Rates the current content. This will cause the rating to be set for
-         * the current user. The Rating type must match the type returned by
-         * {@link #getRatingType()}.
+         * the current user. The rating type of the given {@link RatingCompat} must match the type
+         * returned by {@link #getRatingType()}.
          *
          * @param rating The rating to set for the current content
          */
         public abstract void setRating(RatingCompat rating);
+
+        /**
+         * Rates a media item. This will cause the rating to be set for
+         * the specific media item. The rating type of the given {@link RatingCompat} must match
+         * the type returned by {@link #getRatingType()}.
+         *
+         * @param rating The rating to set for the media item.
+         * @param extras Optional arguments that can include information about the media item
+         *               to be rated.
+         *
+         * @see MediaSessionCompat#ARGUMENT_MEDIA_ATTRIBUTE
+         * @see MediaSessionCompat#ARGUMENT_MEDIA_ATTRIBUTE_VALUE
+         */
+        public abstract void setRating(RatingCompat rating, Bundle extras);
 
         /**
          * Enables/disables captioning for this session.
@@ -1721,6 +1735,15 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void setRating(RatingCompat rating, Bundle extras) {
+            try {
+                mBinder.rateWithExtras(rating, extras);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setRating.", e);
+            }
+        }
+
+        @Override
         public void setCaptioningEnabled(boolean enabled) {
             try {
                 mBinder.setCaptioningEnabled(enabled);
@@ -2266,6 +2289,14 @@ public final class MediaControllerCompat {
         public void setRating(RatingCompat rating) {
             MediaControllerCompatApi21.TransportControls.setRating(mControlsObj,
                     rating != null ? rating.getRating() : null);
+        }
+
+        @Override
+        public void setRating(RatingCompat rating, Bundle extras) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_RATING, rating);
+            bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_RATING, bundle);
         }
 
         @Override

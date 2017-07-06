@@ -7540,6 +7540,7 @@ package android.support.v4.media.session {
     method public abstract void sendCustomAction(java.lang.String, android.os.Bundle);
     method public abstract void setCaptioningEnabled(boolean);
     method public abstract void setRating(android.support.v4.media.RatingCompat);
+    method public abstract void setRating(android.support.v4.media.RatingCompat, android.os.Bundle);
     method public abstract void setRepeatMode(int);
     method public abstract void setShuffleMode(int);
     method public abstract deprecated void setShuffleModeEnabled(boolean);
@@ -7581,12 +7582,12 @@ package android.support.v4.media.session {
     method public void setSessionActivity(android.app.PendingIntent);
     method public void setShuffleMode(int);
     method public deprecated void setShuffleModeEnabled(boolean);
-    field public static final java.lang.String ACTION_ARGUMENT_MEDIA_ATTRIBUTE = "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE";
-    field public static final java.lang.String ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE = "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
     field public static final java.lang.String ACTION_FLAG_AS_INAPPROPRIATE = "android.support.v4.media.session.action.FLAG_AS_INAPPROPRIATE";
     field public static final java.lang.String ACTION_FOLLOW = "android.support.v4.media.session.action.FOLLOW";
     field public static final java.lang.String ACTION_SKIP_AD = "android.support.v4.media.session.action.SKIP_AD";
     field public static final java.lang.String ACTION_UNFOLLOW = "android.support.v4.media.session.action.UNFOLLOW";
+    field public static final java.lang.String ARGUMENT_MEDIA_ATTRIBUTE = "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE";
+    field public static final java.lang.String ARGUMENT_MEDIA_ATTRIBUTE_VALUE = "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
     field public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1; // 0x1
     field public static final int FLAG_HANDLES_QUEUE_COMMANDS = 4; // 0x4
     field public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 2; // 0x2
@@ -7618,6 +7619,7 @@ package android.support.v4.media.session {
     method public void onSeekTo(long);
     method public void onSetCaptioningEnabled(boolean);
     method public void onSetRating(android.support.v4.media.RatingCompat);
+    method public void onSetRating(android.support.v4.media.RatingCompat, android.os.Bundle);
     method public void onSetRepeatMode(int);
     method public void onSetShuffleMode(int);
     method public deprecated void onSetShuffleModeEnabled(boolean);
