@@ -83,6 +83,89 @@ public class ExifInterfaceTest {
                     263.34763236326, -1e10, 347.325252623, -4000.346323236};
     private static final double[] TEST_ALTITUDE_VALUES = new double[]
             {0, -2000, 10000, -355.99999999999, 18.02038};
+    private static final int[][] TEST_ROTATION_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, -90, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 0, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 90, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 180, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 270, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 540, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, -90, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_NORMAL, 0, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_NORMAL, 90, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_NORMAL, 180,ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_NORMAL, 270,ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_NORMAL, 540,ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_90, -90, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, 0, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_90, 90, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_90, 180,ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_90, 270,ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, 540,ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_180, -90, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_180, 0, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_180, 90, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_180, 180,ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_180, 270,ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_180, 540,ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, -90, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_270, 0, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_270, 90, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, 180,ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_270, 270,ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_270, 540,ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, -90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 0, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 180,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 270,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 540,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, -90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 0,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 180,
+                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 270, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 540,
+                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, -90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 0, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 180,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 270,ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 540,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, -90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 0, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 180,ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 270,ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 540,ExifInterface.ORIENTATION_TRANSPOSE},
+    };
+    private static final int[][] TEST_FLIP_VERTICALLY_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_90}
+    };
+    private static final int[][] TEST_FLIP_HORIZONTALLY_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_270}
+    };
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_MAKE,
@@ -374,6 +457,67 @@ public class ExifInterfaceTest {
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(currentTimeStamp, exif.getDateTime());
+    }
+
+    @Test
+    @SmallTest
+    public void testRotation() throws IOException {
+        File imageFile = new File(
+                Environment.getExternalStorageDirectory(), EXIF_BYTE_ORDER_II_JPEG);
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+
+        int num;
+        // Test flip vertically.
+        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_FLIP_VERTICALLY_STATE_MACHINE[num][0]));
+            exif.flipVertically();
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
+                    TEST_FLIP_VERTICALLY_STATE_MACHINE[num][1]);
+
+        }
+
+        // Test flip horizontally.
+        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][0]));
+            exif.flipHorizontally();
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
+                    TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][1]);
+
+        }
+
+        // Test rotate by degrees
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                Integer.toString(ExifInterface.ORIENTATION_NORMAL));
+        try {
+            exif.rotate(108);
+            fail("Rotate with 108 degree should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Success
+        }
+
+        for (num = 0; num < TEST_ROTATION_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_ROTATION_STATE_MACHINE[num][0]));
+            exif.rotate(TEST_ROTATION_STATE_MACHINE[num][1]);
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION, TEST_ROTATION_STATE_MACHINE[num][2]);
+        }
+
+        // Test reset the rotation.
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                Integer.toString(ExifInterface.ORIENTATION_FLIP_HORIZONTAL));
+        exif.resetOrientation();
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertIntTag(exif, ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
     }
 
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {

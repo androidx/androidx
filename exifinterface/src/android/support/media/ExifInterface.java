@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -391,10 +392,15 @@ public class ExifInterface {
     public static final int ORIENTATION_FLIP_VERTICAL = 4;  // upside down mirror
     // flipped about top-left <--> bottom-right axis
     public static final int ORIENTATION_TRANSPOSE = 5;
-    public static final int ORIENTATION_ROTATE_90 = 6;  // rotate 90 cw to right it
+    public static final int ORIENTATION_ROTATE_90 = 6;  // rotate 90 degree clockwise
     // flipped about top-right <--> bottom-left axis
     public static final int ORIENTATION_TRANSVERSE = 7;
-    public static final int ORIENTATION_ROTATE_270 = 8;  // rotate 270 to right it
+    public static final int ORIENTATION_ROTATE_270 = 8;  // rotate 270 degree clockwise
+    private static final List<Integer> ROTATION_ORDER = Arrays.asList(ORIENTATION_NORMAL,
+            ORIENTATION_ROTATE_90, ORIENTATION_ROTATE_180, ORIENTATION_ROTATE_270);
+    private static final List<Integer> FLIPPED_ROTATION_ORDER = Arrays.asList(
+            ORIENTATION_FLIP_HORIZONTAL, ORIENTATION_TRANSVERSE, ORIENTATION_FLIP_VERTICAL,
+            ORIENTATION_TRANSPOSE);
 
     // Constants used for white balance
     public static final int WHITEBALANCE_AUTO = 0;
@@ -1433,7 +1439,7 @@ public class ExifInterface {
     }
 
     /**
-     * Set the value of the specified tag.
+     * Sets the value of the specified tag.
      *
      * @param tag the name of the tag.
      * @param value the value of the tag.
@@ -1570,6 +1576,122 @@ public class ExifInterface {
                 }
             }
         }
+    }
+
+    /**
+     * Resets the {@link #TAG_ORIENTATION} of the image to be {@link #ORIENTATION_NORMAL}.
+     */
+    public void resetOrientation() {
+        setAttribute(TAG_ORIENTATION, Integer.toString(ORIENTATION_NORMAL));
+    }
+
+    /**
+     * Rotates the image by the given degree clockwise. The degree should be a multiple of
+     * 90 (e.g, 90, 180, -90, etc.).
+     *
+     * @param degree The degree of rotation.
+     */
+    public void rotate(int degree) {
+        if (degree % 90 !=0) {
+            throw new IllegalArgumentException("degree should be a multiple of 90");
+        }
+
+        int currentOrientation = getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL);
+        int currentIndex, newIndex;
+        int resultOrientation;
+        if (ROTATION_ORDER.contains(currentOrientation)) {
+            currentIndex = ROTATION_ORDER.indexOf(currentOrientation);
+            newIndex = (currentIndex + degree / 90) % 4;
+            newIndex += newIndex < 0 ? 4 : 0;
+            resultOrientation = ROTATION_ORDER.get(newIndex);
+        } else if (FLIPPED_ROTATION_ORDER.contains(currentOrientation)) {
+            currentIndex = FLIPPED_ROTATION_ORDER.indexOf(currentOrientation);
+            newIndex = (currentIndex + degree / 90) % 4;
+            newIndex += newIndex < 0 ? 4 : 0;
+            resultOrientation = FLIPPED_ROTATION_ORDER.get(newIndex);
+        } else {
+            resultOrientation = ORIENTATION_UNDEFINED;
+        }
+
+        setAttribute(TAG_ORIENTATION, Integer.toString(resultOrientation));
+    }
+
+    /**
+     * Flips the image vertically.
+     */
+    public void flipVertically() {
+        int currentOrientation = getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL);
+        int resultOrientation;
+        switch (currentOrientation) {
+            case ORIENTATION_FLIP_HORIZONTAL:
+                resultOrientation = ORIENTATION_ROTATE_180;
+                break;
+            case ORIENTATION_ROTATE_180:
+                resultOrientation = ORIENTATION_FLIP_HORIZONTAL;
+                break;
+            case ORIENTATION_FLIP_VERTICAL:
+                resultOrientation = ORIENTATION_NORMAL;
+                break;
+            case ORIENTATION_TRANSPOSE:
+                resultOrientation = ORIENTATION_ROTATE_270;
+                break;
+            case ORIENTATION_ROTATE_90:
+                resultOrientation = ORIENTATION_TRANSVERSE;
+                break;
+            case ORIENTATION_TRANSVERSE:
+                resultOrientation = ORIENTATION_ROTATE_90;
+                break;
+            case ORIENTATION_ROTATE_270:
+                resultOrientation = ORIENTATION_TRANSPOSE;
+                break;
+            case ORIENTATION_NORMAL:
+                resultOrientation = ORIENTATION_FLIP_VERTICAL;
+                break;
+            case ORIENTATION_UNDEFINED:
+            default:
+                resultOrientation = ORIENTATION_UNDEFINED;
+                break;
+        }
+        setAttribute(TAG_ORIENTATION, Integer.toString(resultOrientation));
+    }
+
+    /**
+     * Flips the image horizontally.
+     */
+    public void flipHorizontally() {
+        int currentOrientation = getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL);
+        int resultOrientation;
+        switch (currentOrientation) {
+            case ORIENTATION_FLIP_HORIZONTAL:
+                resultOrientation = ORIENTATION_NORMAL;
+                break;
+            case ORIENTATION_ROTATE_180:
+                resultOrientation = ORIENTATION_FLIP_VERTICAL;
+                break;
+            case ORIENTATION_FLIP_VERTICAL:
+                resultOrientation = ORIENTATION_ROTATE_180;
+                break;
+            case ORIENTATION_TRANSPOSE:
+                resultOrientation = ORIENTATION_ROTATE_90;
+                break;
+            case ORIENTATION_ROTATE_90:
+                resultOrientation = ORIENTATION_TRANSPOSE;
+                break;
+            case ORIENTATION_TRANSVERSE:
+                resultOrientation = ORIENTATION_ROTATE_270;
+                break;
+            case ORIENTATION_ROTATE_270:
+                resultOrientation = ORIENTATION_TRANSVERSE;
+                break;
+            case ORIENTATION_NORMAL:
+                resultOrientation = ORIENTATION_FLIP_HORIZONTAL;
+                break;
+            case ORIENTATION_UNDEFINED:
+            default:
+                resultOrientation = ORIENTATION_UNDEFINED;
+                break;
+        }
+        setAttribute(TAG_ORIENTATION, Integer.toString(resultOrientation));
     }
 
     /**
