@@ -298,6 +298,41 @@ public class RecyclerViewCacheTest {
     }
 
     @Test
+    public void prefetchAfterOrientationChange() {
+        LinearLayoutManager layout = new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(layout);
+
+        // 100x100 pixel views
+        mRecyclerView.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = new View(getContext());
+                view.setMinimumWidth(100);
+                view.setMinimumHeight(100);
+                assertTrue(mRecyclerView.isComputingLayout());
+                return new RecyclerView.ViewHolder(view) {};
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {}
+
+            @Override
+            public int getItemCount() {
+                return 100;
+            }
+        });
+
+        layout(100, 100);
+
+        layout.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        // Prefetch an item after changing orientation, before layout - shouldn't crash
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(1, 1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
+    }
+
+    @Test
     public void prefetchDrag() {
         // event dispatch requires a parent
         ViewGroup parent = new FrameLayout(getContext());
