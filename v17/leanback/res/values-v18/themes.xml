@@ -16,18 +16,13 @@
 -->
 
 <resources>
+    <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
+        <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
+        <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
+        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
+        <item name="defaultBrandColorDark">@color/lb_default_brand_color_dark</item>
 
-    <style name="TextAppearance.LeanbackBase" parent="android:TextAppearance.Material" />
-
-    <style name="Widget.LeanbackBase" parent="android:Widget.Material" />
-
-    <style name="Widget.Leanback.DetailsActionButtonStyleBase" parent="android:Widget.Material.Button.Borderless">
-        <item name="android:background">@drawable/lb_action_bg</item>
+        <item name="android:windowOverscan">true</item>
+        <item name="guidedStepTheme">@style/Theme.Leanback.GuidedStep</item>
     </style>
-
-    <style name="Widget.Leanback.OnboardingStartButtonStyleBase">
-        <item name="android:elevation">1.5dp</item>
-        <item name="android:stateListAnimator">@null</item>
-    </style>
-
 </resources>

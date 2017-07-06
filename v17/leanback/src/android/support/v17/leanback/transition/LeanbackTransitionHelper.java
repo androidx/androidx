@@ -17,6 +17,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 
@@ -36,6 +37,7 @@ public class LeanbackTransitionHelper {
      * Kitkat does not allow load custom transition from resource, calling
      * LeanbackTransitionHelperKitKat to build custom transition in code.
      */
+    @RequiresApi(19)
     static class LeanbackTransitionHelperKitKatImpl implements LeanbackTransitionHelperVersion {
 
         @Override
