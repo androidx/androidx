@@ -20,9 +20,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CircularProgressDrawable;
 import android.support.wear.R;
 import android.util.AttributeSet;
@@ -44,12 +48,13 @@ import android.widget.FrameLayout;
  * <p>Alternatively, this layout can be used to show indeterminate progress by calling {@link
  * #setIndeterminate(boolean)} method.
  */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class CircularProgressLayout extends FrameLayout {
 
     /**
-     * Update interval for 30 fps.
+     * Update interval for 60 fps.
      */
-    private static final long DEFAULT_UPDATE_INTERVAL = 1000 / 30;
+    private static final long DEFAULT_UPDATE_INTERVAL = 1000 / 60;
 
     /**
      * Starting rotation for the progress indicator. Geometric clockwise [0..360] degree range
@@ -110,6 +115,7 @@ public class CircularProgressLayout extends FrameLayout {
 
         mProgressDrawable = new CircularProgressDrawable(context);
         mProgressDrawable.setProgressRotation(DEFAULT_ROTATION);
+        mProgressDrawable.setStrokeCap(Paint.Cap.BUTT);
         setBackground(mProgressDrawable);
 
         // If a child view is added, make it center aligned so it fits in the progress drawable.
@@ -149,7 +155,8 @@ public class CircularProgressLayout extends FrameLayout {
                         R.dimen.circular_progress_layout_stroke_width)));
 
         setBackgroundColor(a.getColor(R.styleable.CircularProgressLayout_backgroundColor,
-                r.getColor(R.color.circular_progress_layout_background_color, null)));
+                ContextCompat.getColor(context,
+                        R.color.circular_progress_layout_background_color)));
 
         setIndeterminate(a.getBoolean(R.styleable.CircularProgressLayout_indeterminate, false));
 
