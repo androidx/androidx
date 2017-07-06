@@ -1310,6 +1310,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             return;
         }
 
+        ensureLayoutState();
         final int layoutDirection = delta > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
         final int absDy = Math.abs(delta);
         updateLayoutState(layoutDirection, absDy, true, state);
