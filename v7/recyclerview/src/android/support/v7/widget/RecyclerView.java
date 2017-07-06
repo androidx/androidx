@@ -3168,6 +3168,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
                 mAdapterUpdateDuringMeasure = false;
                 resumeRequestLayout(false);
+            } else if (mState.mRunPredictiveAnimations) {
+                // If mAdapterUpdateDuringMeasure is false and mRunPredictiveAnimations is true:
+                // this means there is already an onMeasure() call performed to handle the pending
+                // adapter change, two onMeasure() calls can happen if RV is a child of LinearLayout
+                // with layout_width=MATCH_PARENT. RV cannot call LM.onMeasure() second time
+                // because getViewForPosition() will crash when LM uses a child to measure.
+                defaultOnMeasure(widthSpec, heightSpec);
+                return;
             }
 
             if (mAdapter != null) {
