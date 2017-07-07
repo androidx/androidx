@@ -669,6 +669,19 @@ public class EmojiCompat {
     }
 
     /**
+     * Returns signature for the currently loaded emoji assets. The signature is a SHA that is
+     * constructed using emoji assets. Can be used to detect if currently loaded asset is different
+     * then previous executions. When used on devices running API 18 or below, returns empty string.
+     *
+     * @throws IllegalStateException if not initialized yet
+     */
+    @NonNull
+    public String getAssetSignature() {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        return mHelper.getAssetSignature();
+    }
+
+    /**
      * Updates the EditorInfo attributes in order to communicate information to Keyboards. When
      * used on devices running API 18 or below, does not update EditorInfo attributes.
      *
@@ -951,6 +964,10 @@ public class EmojiCompat {
         void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
             // intentionally empty
         }
+
+        String getAssetSignature() {
+            return "";
+        }
     }
 
     @RequiresApi(19)
@@ -1031,6 +1048,12 @@ public class EmojiCompat {
         @Override
         void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
             mProcessor.setGlyphChecker(glyphChecker);
+        }
+
+        @Override
+        String getAssetSignature() {
+            final String sha = mMetadataRepo.getMetadataList().sourceSha();
+            return sha == null ? "" : sha;
         }
     }
 }

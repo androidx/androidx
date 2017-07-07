@@ -1815,6 +1815,7 @@ package android.support.text.emoji {
 
   public class EmojiCompat {
     method public static android.support.text.emoji.EmojiCompat get();
+    method public java.lang.String getAssetSignature();
     method public int getLoadState();
     method public static boolean handleDeleteSurroundingText(android.view.inputmethod.InputConnection, android.text.Editable, int, int, boolean);
     method public static boolean handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent);
