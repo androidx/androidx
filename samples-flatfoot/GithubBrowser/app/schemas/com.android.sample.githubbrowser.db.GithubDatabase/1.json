@@ -1,0 +1,393 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "b1b39c866af4b7b44d7ea3c6202c4352",
+    "entities": [
+      {
+        "tableName": "PersonData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`login` TEXT, `id` TEXT, `avatar_url` TEXT, `repos_url` TEXT, `name` TEXT, `company` TEXT, `blog` TEXT, `location` TEXT, `email` TEXT, `public_repos` INTEGER, `followers` INTEGER, `following` INTEGER, `created_at` TEXT, PRIMARY KEY(`login`))",
+        "fields": [
+          {
+            "fieldPath": "login",
+            "columnName": "login",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "avatar_url",
+            "columnName": "avatar_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repos_url",
+            "columnName": "repos_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "company",
+            "columnName": "company",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "blog",
+            "columnName": "blog",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "public_repos",
+            "columnName": "public_repos",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "followers",
+            "columnName": "followers",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "following",
+            "columnName": "following",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "created_at",
+            "columnName": "created_at",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "login"
+          ],
+          "autoGenerate": false
+        },
+        "indices": []
+      },
+      {
+        "tableName": "SearchQueryData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`searchQuery` TEXT, `searchKind` INTEGER, `timestamp` INTEGER, `indexOfLastFetchedPage` INTEGER, `numberOfFetchedItems` INTEGER, `hasNoMoreData` INTEGER, PRIMARY KEY(`searchQuery`, `searchKind`))",
+        "fields": [
+          {
+            "fieldPath": "searchQuery",
+            "columnName": "searchQuery",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "searchKind",
+            "columnName": "searchKind",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "indexOfLastFetchedPage",
+            "columnName": "indexOfLastFetchedPage",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "numberOfFetchedItems",
+            "columnName": "numberOfFetchedItems",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hasNoMoreData",
+            "columnName": "hasNoMoreData",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "searchQuery",
+            "searchKind"
+          ],
+          "autoGenerate": false
+        },
+        "indices": []
+      },
+      {
+        "tableName": "GeneralRepoSearchData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`searchQuery` TEXT, `resultIndex` INTEGER, `repoId` TEXT, PRIMARY KEY(`searchQuery`, `resultIndex`, `repoId`))",
+        "fields": [
+          {
+            "fieldPath": "searchQuery",
+            "columnName": "searchQuery",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "resultIndex",
+            "columnName": "resultIndex",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repoId",
+            "columnName": "repoId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "searchQuery",
+            "resultIndex",
+            "repoId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": []
+      },
+      {
+        "tableName": "RepositoryData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT, `name` TEXT, `full_name` TEXT, `description` TEXT, `created_at` TEXT, `stargazers_count` INTEGER, `language` TEXT, `forks_count` INTEGER, `open_issues_count` INTEGER, `subscribers_count` INTEGER, `owner_login` TEXT, `owner_id` TEXT, `owner_avatar_url` TEXT, `owner_repos_url` TEXT, `owner_name` TEXT, `owner_company` TEXT, `owner_blog` TEXT, `owner_location` TEXT, `owner_email` TEXT, `owner_public_repos` INTEGER, `owner_followers` INTEGER, `owner_following` INTEGER, `owner_created_at` TEXT, `organization_login` TEXT, `organization_id` TEXT, `organization_avatar_url` TEXT, `organization_repos_url` TEXT, `organization_name` TEXT, `organization_company` TEXT, `organization_blog` TEXT, `organization_location` TEXT, `organization_email` TEXT, `organization_public_repos` INTEGER, `organization_followers` INTEGER, `organization_following` INTEGER, `organization_created_at` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "full_name",
+            "columnName": "full_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "created_at",
+            "columnName": "created_at",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "stargazers_count",
+            "columnName": "stargazers_count",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "forks_count",
+            "columnName": "forks_count",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "open_issues_count",
+            "columnName": "open_issues_count",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "subscribers_count",
+            "columnName": "subscribers_count",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "owner.login",
+            "columnName": "owner_login",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.id",
+            "columnName": "owner_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.avatar_url",
+            "columnName": "owner_avatar_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.repos_url",
+            "columnName": "owner_repos_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.name",
+            "columnName": "owner_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.company",
+            "columnName": "owner_company",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.blog",
+            "columnName": "owner_blog",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.location",
+            "columnName": "owner_location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.email",
+            "columnName": "owner_email",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "owner.public_repos",
+            "columnName": "owner_public_repos",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "owner.followers",
+            "columnName": "owner_followers",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "owner.following",
+            "columnName": "owner_following",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "owner.created_at",
+            "columnName": "owner_created_at",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.login",
+            "columnName": "organization_login",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.id",
+            "columnName": "organization_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.avatar_url",
+            "columnName": "organization_avatar_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.repos_url",
+            "columnName": "organization_repos_url",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.name",
+            "columnName": "organization_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.company",
+            "columnName": "organization_company",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.blog",
+            "columnName": "organization_blog",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.location",
+            "columnName": "organization_location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.email",
+            "columnName": "organization_email",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "organization.public_repos",
+            "columnName": "organization_public_repos",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "organization.followers",
+            "columnName": "organization_followers",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "organization.following",
+            "columnName": "organization_following",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "organization.created_at",
+            "columnName": "organization_created_at",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": []
+      },
+      {
+        "tableName": "ContributorSearchData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`searchQuery` TEXT, `resultIndex` INTEGER, `contributorId` TEXT, `contributions` INTEGER, PRIMARY KEY(`searchQuery`, `resultIndex`, `contributorId`))",
+        "fields": [
+          {
+            "fieldPath": "searchQuery",
+            "columnName": "searchQuery",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "resultIndex",
+            "columnName": "resultIndex",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "contributorId",
+            "columnName": "contributorId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contributions",
+            "columnName": "contributions",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "searchQuery",
+            "resultIndex",
+            "contributorId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": []
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b1b39c866af4b7b44d7ea3c6202c4352\")"
+    ]
+  }
+}

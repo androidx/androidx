@@ -1,0 +1,20 @@
+apply plugin: 'kotlin'
+apply plugin: 'maven'
+apply plugin: 'checkstyle'
+
+sourceSets {
+    test.java.srcDirs += 'src/tests/kotlin'
+}
+
+dependencies {
+    compile project(":lifecycle:common")
+    compile libs.kotlin.stdlib
+    compile libs.auto_common
+    compile libs.javapoet
+    testCompile libs.google_compile_testing
+    testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+}
+
+archivesBaseName = "compiler"
+
+createKotlinCheckstyle(project)

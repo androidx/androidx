@@ -1,0 +1,84 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def ffLibs
+if (hasProperty("libs")) {
+    ffLibs = libs
+} else {
+    apply from: "${ext.supportRootFolder}/buildSrc/dependencies.gradle"
+    ffLibs = libs
+}
+def ffVersions = [:]
+ffVersions.kotlin = "1.1.1"
+ffVersions.auto_common = "0.6"
+ffVersions.javapoet = "1.8.0"
+ffVersions.compile_testing = "0.9"
+ffVersions.localize_maven = "1.2"
+ffVersions.support_lib = "25.3.1"
+ffVersions.intellij_annotations = "12.0"
+ffVersions.rxjava2 = "2.0.6"
+ffVersions.reactivestreams = "1.0.0"
+// this Xerial version is newer than we want but we need it to fix
+// https://github.com/xerial/sqlite-jdbc/issues/97
+ffVersions.xerial = "3.16.1"
+ffVersions.antlr = "4.5.3"
+ffVersions.commons_codec = "1.10"
+ffVersions.gson = "2.8.0"
+
+ffLibs.kotlin = [
+        stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
+        gradle_plugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$ffVersions.kotlin"
+]
+ffLibs.auto_common = "com.google.auto:auto-common:$ffVersions.auto_common"
+ffLibs.apache = [
+    commons : [
+            codec : "commons-codec:commons-codec:$ffVersions.commons_codec"
+    ]
+]
+
+def getSupportLib(String name, String version, String artifactName = null) {
+    def sourceProject = findProject(name)
+    if (sourceProject != null) {
+        return sourceProject
+    }
+    if (artifactName == null) {
+        artifactName = name
+    }
+    return "com.android.support$artifactName:$version"
+}
+ffLibs.support = [
+        annotations : getSupportLib(":support-annotations", ffVersions.support_lib),
+        core_utils : getSupportLib(':support-core-utils', ffVersions.support_lib),
+        fragments : getSupportLib(':support-fragment', ffVersions.support_lib),
+        app_compat : getSupportLib(':support-appcompat-v7', ffVersions.support_lib, ":appcompat-v7")
+]
+
+ffLibs.localize_maven = "com.android.databinding:localizemaven:$ffVersions.localize_maven"
+ffLibs.javapoet = "com.squareup:javapoet:$ffVersions.javapoet"
+ffLibs.antlr = "org.antlr:antlr4:$ffVersions.antlr"
+ffLibs.xerial = "org.xerial:sqlite-jdbc:$ffVersions.xerial"
+ffLibs.google_compile_testing = "com.google.testing.compile:compile-testing:$ffVersions.compile_testing"
+ffLibs.ij_annotations = "com.intellij:annotations:$ffVersions.intellij_annotations"
+ffLibs.reactive_streams = "org.reactivestreams:reactive-streams:$ffVersions.reactivestreams"
+ffLibs.rx_java = "io.reactivex.rxjava2:rxjava:$ffVersions.rxjava2"
+ffLibs.gson = "com.google.code.gson:gson:$ffVersions.gson"
+
+ext.tools = [:]
+ext.tools.current_sdk = gradle.ext.currentSdk
+ext.tools.build_tools_version = rootProject.ext.buildToolsVersion
+ext.flatfoot = [:]
+ext.flatfoot.release_version = "1.0.0-alpha3"
+ext.flatfoot.min_sdk = 14

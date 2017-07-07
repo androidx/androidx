@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>android.arch.lifecycle</groupId>
+  <artifactId>compiler</artifactId>
+  <versioning>
+    <versions>
+      <version>1.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20170509055334</lastUpdated>
+  </versioning>
+</metadata>
