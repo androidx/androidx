@@ -176,6 +176,10 @@ public class ThumbsBar extends LinearLayout {
         }
     }
 
+    private static int roundUp(int num, int divisor) {
+        return (num + divisor - 1) / divisor;
+    }
+
     /**
      * Helper function to compute how many thumbs should be put in the screen
      * Assume we should put x's non-hero thumbs in the screen, the equation should be
@@ -196,16 +200,16 @@ public class ThumbsBar extends LinearLayout {
      * @return The number of thumbs
      */
     private int calculateNumOfThumbs(int widthInPixel) {
-        int nonHeroThumbNum = (widthInPixel - mHeroThumbWidthInPixel)
-                / (mThumbWidthInPixel + mMeasuredMarginInPixel);
+        int nonHeroThumbNum = roundUp(widthInPixel - mHeroThumbWidthInPixel,
+                mThumbWidthInPixel + mMeasuredMarginInPixel);
         if (nonHeroThumbNum < 2) {
             // If the calculated number of non-hero thumbs is less than 2,
             // it will be updated to 2
             nonHeroThumbNum = 2;
         } else if ((nonHeroThumbNum & 1) != 0) {
             // If the calculated number or non-hero thumbs is not an even number,
-            // it will be decremented by one.
-            nonHeroThumbNum--;
+            // it will be increased by one.
+            nonHeroThumbNum++;
         }
         // Count Hero Thumb to the final result
         return nonHeroThumbNum + 1;
