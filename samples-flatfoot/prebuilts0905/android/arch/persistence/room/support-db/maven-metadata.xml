@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>android.arch.persistence.room</groupId>
+  <artifactId>support-db</artifactId>
+  <versioning>
+    <versions>
+      <version>1.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20170509055321</lastUpdated>
+  </versioning>
+</metadata>

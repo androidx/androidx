@@ -1,0 +1,57 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
+
+    defaultConfig {
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+dependencies {
+    compile project(":lifecycle:common")
+    compile project(":lifecycle:runtime")
+    compile project(":arch:core")
+    compile libs.support.fragments
+
+    testCompile project(":arch:core-testing")
+    testCompile libs.junit
+    testCompile libs.mockito_core
+
+    testCompile(libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile(libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile libs.support.app_compat
+    androidTestCompile(libs.espresso_core, {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+}
+
+createAndroidCheckstyle(project)
+
+//noinspection GroovyUnusedAssignment
+archivesBaseName = "extensions"

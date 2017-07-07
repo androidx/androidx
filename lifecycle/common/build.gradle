@@ -1,0 +1,14 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.7
+
+dependencies {
+    testCompile libs.junit
+    testCompile libs.mockito_core
+    compile libs.support.annotations
+}
+
+archivesBaseName = "common"
+
+createAndroidCheckstyle(project)
