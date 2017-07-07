@@ -1,0 +1,1 @@
+-keep public class * extends android.arch.persistence.room.RoomDatabase

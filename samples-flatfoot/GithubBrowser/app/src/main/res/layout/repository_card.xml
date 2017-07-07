@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="repo" type="com.android.sample.githubbrowser.data.RepositoryData"/>
+        <variable name="repoClickCallback"
+                  type="com.android.sample.githubbrowser.view.RepoClickCallback"/>
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> repoClickCallback.onClick(repo)}">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="6dp"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="2dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp">
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="4dp"
+                    android:text="@{repo.name}"
+                    android:textColor="#222"
+                    android:textSize="18sp"/>
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/name"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="4dp"
+                    android:text="@{repo.description}"
+                    android:textColor="#444"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/created"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="8dp"
+                    android:textColor="#444"
+                    android:textSize="14sp"
+                    app:jsonDate="@{repo.created_at}"/>
+
+                <TextView
+                    android:id="@+id/forked"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:drawableLeft="@drawable/ic_content_copy_black_18dp"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="10dp"
+                    android:text="@{Integer.toString(repo.forks_count)}"
+                    android:textColor="#444"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/starred"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@id/forked"
+                    android:drawableLeft="@drawable/ic_star_black_18dp"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="6dp"
+                    android:text="@{Integer.toString(repo.stargazers_count)}"
+                    android:textColor="#444"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/bugs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toLeftOf="@id/starred"
+                    android:drawableLeft="@drawable/ic_bug_report_black_18dp"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="6dp"
+                    android:text="@{Integer.toString(repo.open_issues_count)}"
+                    android:textColor="#444"
+                    android:textSize="14sp"/>
+
+            </RelativeLayout>
+
+        </android.support.v7.widget.CardView>
+
+    </FrameLayout>
+</layout>

@@ -1,0 +1,303 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import org.gradle.internal.os.OperatingSystem
+
+def root = ext.supportRootFolder
+ext.usePrebuilts = "true" // for doclava
+ext.inAppToolkitProject = rootProject.name == "app-toolkit"
+
+if (ext.inAppToolkitProject) {
+    apply from: "${ext.supportRootFolder}/buildSrc/init.gradle"
+    init.loadDefaultVersions()
+    init.setSdkInLocalPropertiesFile()
+}
+
+def checkoutRoot = "${root}/../.."
+ext.checkoutRoot = checkoutRoot
+ext.prebuiltsRoot = "$checkoutRoot/prebuilts"
+ext.prebuiltsRootUri = "file://${prebuiltsRoot}"
+
+final String platform = OperatingSystem.current().isMacOsX() ? 'darwin' : 'linux'
+final String fullSdkPath = new File("${checkoutRoot}/prebuilts/fullsdk-${platform}").getCanonicalPath()
+System.setProperty('android.home', fullSdkPath)
+File props = file("local.properties")
+props.write "sdk.dir=${fullSdkPath}"
+
+def buildDir
+def distDir
+def supportLibBuildDir
+
+if (ext.runningInBuildServer) {
+    supportLibBuildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/support/build').getCanonicalFile();
+    buildDir = new File(System.env.OUT_DIR + '/gradle/frameworks/app-toolkit/build').getCanonicalFile()
+    distDir = new File(System.env.DIST_DIR).getCanonicalFile()
+} else {
+    supportLibBuildDir = file("${checkoutRoot}/out/host/gradle/frameworks/support/build")
+    buildDir = file("${checkoutRoot}/out/host/gradle/frameworks/app-toolkit/build")
+    distDir = file("${checkoutRoot}/out/dist")
+}
+
+def localMavenRepo = "file://${new File(buildDir, "flatfoot_repo").absolutePath}"
+ext.testApkDistOut = distDir
+ext.testResultsDistDir = new File(distDir, "host-test-reports")
+ext.localMavenRepo = localMavenRepo
+file(localMavenRepo).delete()
+file(localMavenRepo).mkdirs()
+
+ext.repoNames = ["$prebuiltsRootUri/maven_repo",
+                 "$prebuiltsRootUri/gradle-plugin",
+                 "$prebuiltsRootUri/tools/common/m2/repository",
+                 "$prebuiltsRootUri/tools/common/m2/internal",
+                 "$prebuiltsRootUri/tools/common/offline-m2",
+                 "$prebuiltsRootUri/maven_repo/android",
+                 "file://$fullSdkPath/extras/android/m2repository",
+                 "file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
+
+apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
+ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
+
+// repository creation task
+def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
+    description: "Anchor task for everything we want to run in build server.")
+
+if (ext.inAppToolkitProject) {
+    // always build offline docs for flatfoot specific builds.
+    ext.docs.dac = [
+            libraryroot: "android/arch",
+            dataname: "ARCH_DATA"
+    ]
+    repos.addMavenRepositories(repositories)
+    init.setupRepoOutAndBuildNumber()
+    init.configureSubProjects()
+    init.setupRelease()
+    init.enableDoclavaAndJDiff(this)
+    rootProject.tasks["generateDocs"].exclude '**/R.java'
+}
+
+
+// flatfoot docs
+def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
+    from rootProject.docsDir
+    destinationDir distDir
+    baseName = String.format("flatfoot-docs-%s", rootProject.ext.flatfoot.release_version)
+}
+
+buildServerAnchorTask.dependsOn zipFlatfootDocsTask
+zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
+
+def createNoMetadataRepoZip = rootProject.tasks.create(name:  "createNoMetadataRepoZip", type : Zip) {
+    from zipTree(rootProject.tasks["createTopOfTreeRepository"].getArchivePath())
+    destinationDir rootProject.ext.distDir
+    into 'm2repository'
+    baseName = String.format("top-of-tree-m2repository-%s-no-metadata", project.ext.buildNumber)
+    dependsOn rootProject.tasks["createTopOfTreeRepository"]
+    exclude "**/maven-metadata*"
+}
+
+buildServerAnchorTask.dependsOn createNoMetadataRepoZip
+
+// Disable API checks for now.
+checkApiRelease.enabled = false
+checkApi.enabled = false
+generateApi.enabled = false
+
+buildServerAnchorTask.dependsOn createArchive
+
+rootProject.ext.flatfootProjectGroups = [
+        "room" : "android.arch.persistence.room",
+        "lifecycle" : "android.arch.lifecycle",
+        "arch" : "android.arch.core",
+        "navigation" : "android.arch.navigation"]
+
+subprojects {
+    configurations.all {
+        resolutionStrategy {
+            force "com.google.guava:guava-jdk5:17.0"
+        }
+    }
+    repos.addMavenRepositories(project.repositories)
+    if (project.name == 'doclava' || project.name == 'jdiff') {
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof org.gradle.api.tasks.testing.Test) {
+                task.enabled = false
+            }
+        }
+        return
+    }
+
+    def mavenGroup = project.getPath().split(":")[1]
+    def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
+    if (finalGroup == null) {
+        return
+    }
+    project.group = finalGroup
+    project.version = flatfoot.release_version
+
+    if (project.getPath().contains("integration-tests")) {
+        // disable upload tasks
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof Upload || task.name == "generateSourceProps") {
+                task.enabled = false
+            }
+        }
+    } else {
+        // add license to pom
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof Upload) {
+                task.repositories {
+                    mavenDeployer {
+                        repository(url: project.uri(project.rootProject.supportRepoOut))
+                        pom.project {
+                            url "https://developer.android.com/topic/libraries/architecture/index.html"
+                            inceptionYear 2017
+                            licenses {
+                                license {
+                                    name 'The Apache Software License, Version 2.0'
+                                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                                    distribution 'repo'
+                                }
+                            }
+                            scm {
+                                url "http://source.android.com"
+                                connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
+                            }
+                            developers {
+                                developer {
+                                    name 'The Android Open Source Project'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    project.plugins.whenPluginAdded { plugin ->
+        def isAndroidLibrary = "com.android.build.gradle.LibraryPlugin"
+                .equals(plugin.class.name)
+        def isJavaLibrary = "org.gradle.api.plugins.JavaPlugin".equals(plugin.class.name)
+        if (isAndroidLibrary) {
+            // it is an android lib, enable sources.
+            def sourcesTask = project.tasks.create(name: "sourcesJar", type : Jar) {
+                classifier = 'sources'
+                from android.sourceSets.main.getJava().getSrcDirs()
+            }
+            project.artifacts {
+                archives sourcesTask
+            }
+        } else if(isJavaLibrary && project.name == "common") {
+            // it is a shared lib, enable sources.
+            def sourcesTask = project.tasks.create(name: "sourcesJar", type : Jar) {
+                classifier = 'sources'
+                from sourceSets.main.allSource
+            }
+            project.artifacts {
+                archives sourcesTask
+            }
+        }
+    }
+
+    project.tasks.whenTaskAdded { task ->
+        if (task.name.startsWith("assembleAndroidTest")) {
+            buildServerAnchorTask.dependsOn task
+        }
+        if (task.name.startsWith("assembleDebug")) {
+            buildServerAnchorTask.dependsOn task
+        }
+    }
+
+    if (enablePublicRepos) {
+        project.afterEvaluate {
+            apply plugin: 'com.android.databinding.localizemaven'
+            project.localizeMaven {
+                localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
+                otherRepoDirs = repoNames
+                licenseInformation = [
+                        [
+                                libraries: ["org.jetbrains:annotations",
+                                            "org.jetbrains.kotlin:kotlin-compiler-runner"],
+                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
+                        ],
+                        [
+                                libraries: ["com.google.code.gson:gson"],
+                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
+                        ]
+
+                ]
+            }
+        }
+    }
+}
+
+def createKotlinCheckstyle(Project project) {
+    def fs = files();
+    fs += files(project.sourceSets.main.allJava.srcDirs.collect{fileTree(it)})
+    fs += files(project.sourceSets.test.allJava.srcDirs.collect{fileTree(it)})
+    fs = fs.filter{file -> file.name.endsWith(".kt")}
+    def kotlinCheckstyle = createCheckstyleTask(project, 'checkstyleKotlin',
+            "${project.rootProject.ext.supportRootFolder}/app-toolkit/kotlin-checkstyle.xml",
+            fs.files)
+
+    project.tasks.findByName("check").dependsOn(kotlinCheckstyle)
+    // poor man's line length check
+    def lineCheck = project.tasks.create(name : "lineLengthCheck") {
+        (project.sourceSets.main.allJava.getSourceDirectories() +
+            project.sourceSets.test.allJava.getSourceDirectories()).each { sourceDir ->
+                  fileTree(dir : sourceDir, include : "**/*.kt").each{ file ->
+                      file.readLines().eachWithIndex { line, index ->
+                          if (line.size() > 100) {
+                              project.logger.error("line too long: file: $file" +
+                                      " index:$index line: $line")
+                          }
+                      }
+                  }
+        }
+    }
+    kotlinCheckstyle.dependsOn(lineCheck)
+}
+
+def createAndroidCheckstyle(Project project) {
+    def fs = files()
+    if (project.hasProperty('android')) {
+        fs += files(project.android.sourceSets.main.java.getSrcDirs().collect {fileTree(it)})
+    }
+    if (project.sourceSets.hasProperty('main')) {
+        fs += files(project.sourceSets.main.allJava)
+    }
+    fs = fs.filter{file -> file.name.endsWith(".java")}
+
+    def checkStyle = createCheckstyleTask(project, 'checkstyleAndroid',
+            "${project.rootProject.ext.checkoutRoot}/prebuilts/checkstyle/android-style.xml",
+            fs.files)
+    project.tasks.findByName("check").dependsOn(checkStyle)
+}
+
+def createCheckstyleTask(project, taskName, configFile, inputFiles) {
+    def arguments = ['-c', configFile]
+    arguments.addAll(inputFiles)
+    def checkStyle = project.tasks.create(name : taskName, type: JavaExec) {
+        inputs.files(inputFiles).skipWhenEmpty()
+        main = "com.puppycrawl.tools.checkstyle.Main"
+        args = arguments
+        classpath = files(file("${project.rootProject.ext.checkoutRoot}/prebuilts/checkstyle/checkstyle.jar").path)
+    }
+    return checkStyle;
+}
+
+ext.createKotlinCheckstyle = this.&createKotlinCheckstyle
+ext.createAndroidCheckstyle = this.&createAndroidCheckstyle
