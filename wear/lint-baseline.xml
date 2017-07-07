@@ -1,31 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha4">
-
-    <issue
-        id="DuplicateIds"
-        message="Duplicate id `@+id/off`, already defined earlier in this layout"
-        errorLine1="        android:id=&quot;@+id/off&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/drawable-v21/ws_switch_thumb_material_anim.xml"
-            line="27"
-            column="9"/>
-        <location
-            file="res/drawable-v21/ws_switch_thumb_material_anim.xml"
-            line="19"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ResourceAsColor"
-        message="Should pass resolved color instead of resource id here: `getResources().getColor(android.R.color.darker_gray)`"
-        errorLine1="            mCircleColor = ColorStateList.valueOf(android.R.color.darker_gray);"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/wear/widget/CircledImageView.java"
-            line="148"
-            column="51"/>
-    </issue>
+<issues format="4" by="lint 3.0.0-alpha5">
 
     <issue
         id="WrongConstant"
