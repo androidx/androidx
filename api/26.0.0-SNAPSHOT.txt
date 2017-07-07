@@ -12098,6 +12098,7 @@ package android.support.v7.widget {
   public class PagerSnapHelper extends android.support.v7.widget.SnapHelper {
     ctor public PagerSnapHelper();
     method public int[] calculateDistanceToFinalSnap(android.support.v7.widget.RecyclerView.LayoutManager, android.view.View);
+    method protected android.support.v7.widget.LinearSmoothScroller createSnapScroller(android.support.v7.widget.RecyclerView.LayoutManager);
     method public android.view.View findSnapView(android.support.v7.widget.RecyclerView.LayoutManager);
     method public int findTargetSnapPosition(android.support.v7.widget.RecyclerView.LayoutManager, int, int);
   }
