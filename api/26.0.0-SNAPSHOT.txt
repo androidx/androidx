@@ -13084,6 +13084,22 @@ package android.support.wear.widget {
     method public void onLayoutFinished(android.view.View, android.support.v7.widget.RecyclerView);
   }
 
+  public class RoundedDrawable extends android.graphics.drawable.Drawable {
+    ctor public RoundedDrawable();
+    method public void draw(android.graphics.Canvas);
+    method public int getBackgroundColor();
+    method public android.graphics.drawable.Drawable getDrawable();
+    method public int getOpacity();
+    method public int getRadius();
+    method public boolean isClipEnabled();
+    method public void setAlpha(int);
+    method public void setBackgroundColor(int);
+    method public void setClipEnabled(boolean);
+    method public void setColorFilter(android.graphics.ColorFilter);
+    method public void setDrawable(android.graphics.drawable.Drawable);
+    method public void setRadius(int);
+  }
+
   public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
     ctor public SwipeDismissFrameLayout(android.content.Context);
     ctor public SwipeDismissFrameLayout(android.content.Context, android.util.AttributeSet);
