@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"உயர் தரத்தை முடக்கு"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"விரிவான வசனங்களை இயக்கு"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"விரிவான வசனங்களை முடக்கு"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"பிக்ச்சர் இன் பிக்ச்சர் பயன்முறைக்குச் செல்"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"பிக்ச்சர்-இன்-பிக்ச்சர் பயன்முறைக்குச் செல்"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"மீடியா கட்டுப்பாடுகள் காட்டப்படுகின்றன"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"மீடியா கட்டுப்பாடுகள் மறைக்கப்பட்டுள்ளன. கட்டுப்பாடுகளைக் காட்ட, டிபேடை அழுத்தவும்"</string>
