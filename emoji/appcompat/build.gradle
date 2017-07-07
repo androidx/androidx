@@ -17,18 +17,18 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':support-emoji')
-    compile project(':support-appcompat-v7')
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':support-emoji')
+    api project(':support-appcompat-v7')
 
-    androidTestCompile (libs.test_runner) {
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker_mockito
+    androidTestImplementation libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
 }
 
 android {

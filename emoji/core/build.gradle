@@ -6,18 +6,18 @@ ext {
 
 evaluationDependsOn(':noto-emoji-compat')
 dependencies {
-    compile project(':support-compat')
-    compile files(project(':noto-emoji-compat').configurations.parser.artifacts.getFiles())
+    api project(':support-compat')
+    api files(project(':noto-emoji-compat').configurations.parser.artifacts.getFiles())
 
-    androidTestCompile (libs.test_runner) {
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker_mockito
-    androidTestCompile project(':support-testutils')
+    androidTestImplementation libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation project(':support-testutils')
 }
 
 android {

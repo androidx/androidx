@@ -1,27 +1,27 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile project(':support-v4')
-    compile project(':support-appcompat-v7')
-    compile project(':support-recyclerview-v7')
-    compile project(':support-transition')
+    api project(':support-v4')
+    api project(':support-appcompat-v7')
+    api project(':support-recyclerview-v7')
+    api project(':support-transition')
 
-    androidTestCompile (libs.test_runner) {
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_contrib) {
+    androidTestImplementation (libs.espresso_contrib) {
         exclude group: 'com.android.support'
     }
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker_mockito
-    androidTestCompile project(':support-testutils')
-    androidTestCompile libs.multidex
+    androidTestImplementation libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation project(':support-testutils')
+    androidTestImplementation libs.multidex
 
-    testCompile libs.junit
-    testCompile ("$libs.test_runner") {
+    testImplementation libs.junit
+    testImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
 }
