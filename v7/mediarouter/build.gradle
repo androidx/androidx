@@ -1,16 +1,16 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    compile project(":support-appcompat-v7")
-    compile project(":support-palette-v7")
+    api project(":support-appcompat-v7")
+    api project(":support-palette-v7")
 
-    androidTestCompile (libs.test_runner) {
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.test_rules
+    androidTestImplementation libs.test_rules
 }
 
 android {
