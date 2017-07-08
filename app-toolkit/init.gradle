@@ -98,17 +98,6 @@ def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArc
 buildServerAnchorTask.dependsOn zipFlatfootDocsTask
 zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
 
-def createNoMetadataRepoZip = rootProject.tasks.create(name:  "createNoMetadataRepoZip", type : Zip) {
-    from zipTree(rootProject.tasks["createTopOfTreeRepository"].getArchivePath())
-    destinationDir rootProject.ext.distDir
-    into 'm2repository'
-    baseName = String.format("top-of-tree-m2repository-%s-no-metadata", project.ext.buildNumber)
-    dependsOn rootProject.tasks["createTopOfTreeRepository"]
-    exclude "**/maven-metadata*"
-}
-
-buildServerAnchorTask.dependsOn createNoMetadataRepoZip
-
 // Disable API checks for now.
 checkApiRelease.enabled = false
 checkApi.enabled = false
