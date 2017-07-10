@@ -189,5 +189,8 @@
 
         <activity android:name=".VideoSupportActivity"
             android:exported="true" />
+
+        <activity android:name=".VideoActivityWithDetailedCard"
+                  android:exported="true" />
     </application>
 </manifest>
