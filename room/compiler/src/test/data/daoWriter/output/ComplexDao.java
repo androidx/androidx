@@ -300,7 +300,7 @@ public class ComplexDao_Impl extends ComplexDao {
             protected void finalize() {
                 _statement.release();
             }
-        }.getLiveData();
+        };
     }
 
     @Override
@@ -360,7 +360,7 @@ public class ComplexDao_Impl extends ComplexDao {
             protected void finalize() {
                 _statement.release();
             }
-        }.getLiveData();
+        };
     }
 
     @Override

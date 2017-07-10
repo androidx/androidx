@@ -97,7 +97,7 @@ public class ComputableLiveDataTest {
             final ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
             //noinspection unchecked
             Observer<Integer> observer = mock(Observer.class);
-            computable.getLiveData().observeForever(observer);
+            computable.observeForever(observer);
             verify(observer, never()).onChanged(anyInt());
             // wait for first compute call
             assertThat(computeCounter.tryAcquire(1, 2, TimeUnit.SECONDS), is(true));
@@ -130,7 +130,7 @@ public class ComputableLiveDataTest {
         TestComputable computable = new TestComputable(1);
         mLifecycleOwner.handleEvent(Lifecycle.Event.ON_CREATE);
         final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
+        computable.observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
                 //noinspection ConstantConditions
@@ -149,7 +149,7 @@ public class ComputableLiveDataTest {
         TestComputable computable = new TestComputable(1, 2);
         mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
+        computable.observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
                 //noinspection ConstantConditions
@@ -169,7 +169,7 @@ public class ComputableLiveDataTest {
         TestComputable computable = new TestComputable(1, 2);
         mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         final AtomicInteger mValue = new AtomicInteger(-1);
-        computable.getLiveData().observe(mLifecycleOwner, new Observer<Integer>() {
+        computable.observe(mLifecycleOwner, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
                 //noinspection ConstantConditions
