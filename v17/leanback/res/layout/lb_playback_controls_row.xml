@@ -67,7 +67,7 @@
             <Space
                 android:id="@+id/spacer"
                 android:layout_width="match_parent"
-                android:layout_height="24dp" />
+                android:layout_height="16dp" />
 
             <FrameLayout
                 android:id="@+id/controls_dock"
