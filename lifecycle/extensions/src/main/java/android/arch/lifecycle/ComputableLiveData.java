@@ -18,7 +18,6 @@ package android.arch.lifecycle;
 
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
@@ -33,10 +32,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> The type of the live data
  * @hide internal
  */
+@SuppressWarnings("WeakerAccess")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class ComputableLiveData<T> {
-
-    private final LiveData<T> mLiveData;
+public abstract class ComputableLiveData<T> extends LiveData<T> {
 
     private AtomicBoolean mInvalid = new AtomicBoolean(true);
     private AtomicBoolean mComputing = new AtomicBoolean(false);
@@ -49,24 +47,11 @@ public abstract class ComputableLiveData<T> {
      */
     @SuppressWarnings("WeakerAccess")
     public ComputableLiveData() {
-        mLiveData = new LiveData<T>() {
-            @Override
-            protected void onActive() {
-                // TODO if we make this class public, we should accept an executor
-                AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
-            }
-        };
     }
 
-    /**
-     * Returns the LiveData managed by this class.
-     *
-     * @return A LiveData that is controlled by ComputableLiveData.
-     */
-    @SuppressWarnings("WeakerAccess")
-    @NonNull
-    public LiveData<T> getLiveData() {
-        return mLiveData;
+    @Override
+    protected final void onActive() {
+        AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
     }
 
     @VisibleForTesting
@@ -87,7 +72,7 @@ public abstract class ComputableLiveData<T> {
                             value = compute();
                         }
                         if (computed) {
-                            mLiveData.postValue(value);
+                            postValue(value);
                         }
                     } finally {
                         // release compute lock
@@ -111,7 +96,7 @@ public abstract class ComputableLiveData<T> {
         @MainThread
         @Override
         public void run() {
-            boolean isActive = mLiveData.hasActiveObservers();
+            boolean isActive = hasActiveObservers();
             if (mInvalid.compareAndSet(false, true)) {
                 if (isActive) {
                     // TODO if we make this class public, we should accept an executor.
