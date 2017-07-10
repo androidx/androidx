@@ -20,7 +20,6 @@ import android.arch.persistence.room.Update
 import android.arch.persistence.room.processor.ProcessorErrors
         .UPDATE_METHODS_MUST_RETURN_VOID_OR_INT
 import android.arch.persistence.room.processor.ProcessorErrors.UPDATE_MISSING_PARAMS
-import android.arch.persistence.room.processor.ProcessorErrors.UPDATE_MULTIPLE_ENTITY_TYPES
 import android.arch.persistence.room.vo.UpdateMethod
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -34,8 +33,6 @@ import javax.lang.model.type.DeclaredType
 @RunWith(JUnit4::class)
 class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Update::class) {
     override fun invalidReturnTypeError(): String = UPDATE_METHODS_MUST_RETURN_VOID_OR_INT
-
-    override fun differentTypesError(): String = UPDATE_MULTIPLE_ENTITY_TYPES
 
     override fun noParamsError(): String = UPDATE_MISSING_PARAMS
 

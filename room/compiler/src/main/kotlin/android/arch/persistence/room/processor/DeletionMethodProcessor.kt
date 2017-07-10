@@ -38,17 +38,15 @@ class DeletionMethodProcessor(baseContext: Context,
                 ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
         )
 
-        val (entity, params) = delegate.extractParams(
+        val (entities, params) = delegate.extractParams(
                 missingParamError = ProcessorErrors
-                        .DELETION_MISSING_PARAMS,
-                multipleEntitiesError = ProcessorErrors
-                        .DELETION_MULTIPLE_ENTITY_TYPES
+                        .DELETION_MISSING_PARAMS
         )
 
         return DeletionMethod(
                 element = delegate.executableElement,
                 name = delegate.executableElement.simpleName.toString(),
-                entity = entity,
+                entities = entities,
                 returnCount = returnTypeName == TypeName.INT,
                 parameters = params
         )

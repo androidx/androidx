@@ -36,4 +36,7 @@ abstract interface UpdateDao {
 
     @Update
     int multiPKey(MultiPKeyEntity entity);
+
+    @Update
+    void updateUserAndBook(User user, Book book);
 }

@@ -46,17 +46,15 @@ class UpdateMethodProcessor(baseContext: Context,
                 ProcessorErrors.UPDATE_METHODS_MUST_RETURN_VOID_OR_INT
         )
 
-        val (entity, params) = delegate.extractParams(
+        val (entities, params) = delegate.extractParams(
                 missingParamError = ProcessorErrors
-                        .UPDATE_MISSING_PARAMS,
-                multipleEntitiesError = ProcessorErrors
-                        .UPDATE_MULTIPLE_ENTITY_TYPES
+                        .UPDATE_MISSING_PARAMS
         )
 
         return UpdateMethod(
                 element = delegate.executableElement,
                 name = delegate.executableElement.simpleName.toString(),
-                entity = entity,
+                entities = entities,
                 onConflictStrategy = onConflict,
                 returnCount = returnTypeName == TypeName.INT,
                 parameters = params

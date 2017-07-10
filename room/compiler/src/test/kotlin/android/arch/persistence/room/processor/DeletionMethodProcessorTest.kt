@@ -19,7 +19,6 @@ import android.arch.persistence.room.Delete
 import android.arch.persistence.room.processor.ProcessorErrors.DELETION_MISSING_PARAMS
 import android.arch.persistence.room.processor.ProcessorErrors
         .DELETION_METHODS_MUST_RETURN_VOID_OR_INT
-import android.arch.persistence.room.processor.ProcessorErrors.DELETION_MULTIPLE_ENTITY_TYPES
 import android.arch.persistence.room.vo.DeletionMethod
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -30,8 +29,6 @@ import javax.lang.model.type.DeclaredType
 @RunWith(JUnit4::class)
 class DeletionMethodProcessorTest : ShortcutMethodProcessorTest<DeletionMethod>(Delete::class) {
     override fun invalidReturnTypeError(): String = DELETION_METHODS_MUST_RETURN_VOID_OR_INT
-
-    override fun differentTypesError(): String = DELETION_MULTIPLE_ENTITY_TYPES
 
     override fun noParamsError(): String = DELETION_MISSING_PARAMS
 
