@@ -19,9 +19,6 @@ package android.arch.core.internal;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.core.internal.SafeIterableMap;
-import android.support.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -31,7 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 @RunWith(JUnit4.class)
-@SmallTest
 public class SafeIterableMapTest {
 
     @Test
