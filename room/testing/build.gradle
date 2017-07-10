@@ -52,7 +52,7 @@ dependencies {
     compile project(":room:db")
     compile project(":room:db-impl")
     compile project(":room:migration")
-    compile project(":arch:core")
+    compile project(":arch:runtime")
     compile libs.support.core_utils
     compile libs.junit
 }

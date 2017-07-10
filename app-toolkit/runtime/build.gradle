@@ -48,6 +48,7 @@ android {
 
 dependencies {
     compile libs.support.annotations
+    compile project(":arch:common")
     testCompile libs.junit
     testCompile libs.mockito_core
     testCompile(libs.test_runner) {
@@ -55,7 +56,7 @@ dependencies {
     }
 }
 
-archivesBaseName = "core"
+archivesBaseName = "runtime"
 
 createAndroidCheckstyle(project)
 
