@@ -49,6 +49,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -94,6 +96,26 @@ public class InvalidationTrackerTest {
     public void tableIds() {
         assertThat(mTracker.mTableIdLookup.get("a"), is(0));
         assertThat(mTracker.mTableIdLookup.get("b"), is(1));
+    }
+
+    @Test
+    public void testWeak() throws InterruptedException {
+        final AtomicInteger data = new AtomicInteger(0);
+        InvalidationTracker.Observer observer = new InvalidationTracker.Observer("a") {
+            @Override
+            public void onInvalidated(@NonNull Set<String> tables) {
+                data.incrementAndGet();
+            }
+        };
+        mTracker.addWeakObserver(observer);
+        setVersions(1, 0);
+        refreshSync();
+        assertThat(data.get(), is(1));
+        observer = null;
+        forceGc();
+        setVersions(2, 0);
+        refreshSync();
+        assertThat(data.get(), is(1));
     }
 
     @Test
@@ -303,5 +325,15 @@ public class InvalidationTrackerTest {
         Set<String> getInvalidatedTables() {
             return mInvalidatedTables;
         }
+    }
+
+    private static void forceGc() {
+        // Use a random index in the list to detect the garbage collection each time because
+        // .get() may accidentally trigger a strong reference during collection.
+        ArrayList<WeakReference<byte[]>> leak = new ArrayList<>();
+        do {
+            WeakReference<byte[]> arr = new WeakReference<>(new byte[100]);
+            leak.add(arr);
+        } while (leak.get((int) (Math.random() * leak.size())).get() != null);
     }
 }

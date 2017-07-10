@@ -27,20 +27,25 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.persistence.room.InvalidationTrackerTrojan;
 import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.support.annotation.Nullable;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -53,6 +58,7 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class LiveDataQueryTest extends TestDatabaseTest {
+
     @Test
     public void observeById() throws InterruptedException, ExecutionException {
         final LiveData<User> userLiveData = mUserDao.liveUserById(5);
@@ -105,7 +111,6 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         user1.setName("dog frida");
         mUserDao.insert(user1);
         assertThat(observer.get(), is(Collections.singletonList(user1)));
-
 
         observer.reset();
         final User user2 = TestUtil.createUser(5);
@@ -196,6 +201,42 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         assertThat(withPets.pets, is(Arrays.asList(pets)));
     }
 
+    @Test
+    public void handleGc() throws ExecutionException, InterruptedException {
+        LiveData<User> liveData = mUserDao.liveUserById(3);
+        final LatchObserver<User> observer = new LatchObserver<>();
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        observe(liveData, lifecycleOwner, observer);
+        assertThat(observer.get(), is(nullValue()));
+        observer.reset();
+        final User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        assertThat(observer.get(), is(notNullValue()));
+        observer.reset();
+        forceGc();
+        String name = UUID.randomUUID().toString();
+        mUserDao.updateById(3, name);
+        assertThat(observer.get().getName(), is(name));
+
+        // release references
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                lifecycleOwner.handleEvent(Lifecycle.Event.ON_DESTROY);
+            }
+        });
+        WeakReference<LiveData> weakLiveData = new WeakReference<LiveData>(liveData);
+        //noinspection UnusedAssignment
+        liveData = null;
+        forceGc();
+        mUserDao.updateById(3, "Bar");
+        forceGc();
+        assertThat(InvalidationTrackerTrojan.countObservers(mDatabase.getInvalidationTracker()),
+                is(0));
+        assertThat(weakLiveData.get(), nullValue());
+    }
+
     private void observe(final LiveData liveData, final LifecycleOwner provider,
             final Observer observer) throws ExecutionException, InterruptedException {
         FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
@@ -210,7 +251,18 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         futureTask.get();
     }
 
+    private static void forceGc() {
+        // Use a random index in the list to detect the garbage collection each time because
+        // .get() may accidentally trigger a strong reference during collection.
+        ArrayList<WeakReference<byte[]>> leak = new ArrayList<>();
+        do {
+            WeakReference<byte[]> arr = new WeakReference<>(new byte[100]);
+            leak.add(arr);
+        } while (leak.get((int) (Math.random() * leak.size())).get() != null);
+    }
+
     static class TestLifecycleOwner implements LifecycleOwner {
+
         private LifecycleRegistry mLifecycle;
 
         TestLifecycleOwner() {
@@ -228,13 +280,17 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     private class LatchObserver<T> implements Observer<T> {
+
         static final int TIMEOUT = 3;
+
         T mLastData;
+
         CountDownLatch mSetLatch = new CountDownLatch(1);
 
         void reset() {
             mSetLatch = new CountDownLatch(1);
         }
+
         @Override
         public void onChanged(@Nullable T o) {
             mLastData = o;
