@@ -26,7 +26,7 @@ import android.support.annotation.RestrictTo;
  * TODO: Don't use this from outside, we don't know what the API will look like yet.
  * @hide
  */
-@RestrictTo({RestrictTo.Scope.LIBRARY_GROUP, RestrictTo.Scope.TESTS})
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class TaskExecutor {
     /**
      * Executes the given task in the disk IO thread pool.

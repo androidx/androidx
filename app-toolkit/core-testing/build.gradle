@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-    compile project(":arch:core")
+    compile project(":arch:runtime")
     compile libs.support.annotations
     compile libs.support.core_utils
     compile(libs.junit) {
