@@ -30,7 +30,6 @@ import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.InsertionMethod
 import android.arch.persistence.room.vo.QueryMethod
 import android.arch.persistence.room.vo.ShortcutMethod
-import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -122,7 +121,8 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
             val fieldImpl = PreparedStatementWriter(queryWriter)
                     .createAnonymous(this@DaoWriter, dbField)
             val methodBody = createPreparedDeleteQueryMethodBody(method, fieldSpec, queryWriter)
-            PreparedStmtQuery(fieldSpec, fieldImpl, methodBody)
+            PreparedStmtQuery(mapOf(method.parameters.first().name
+                    to (fieldSpec to fieldImpl)), methodBody)
         }
     }
 
@@ -170,13 +170,15 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
             }
             addStatement("this.$N = $N", dbField, dbParam)
             shortcutMethods.filterNot {
-                it.field == null || it.fieldImpl == null
-            }.groupBy {
-                it.field?.name
+                it.fields.isEmpty()
+            }.map {
+                it.fields.values
+            }.flatten().groupBy {
+                it.first.name
             }.map {
                 it.value.first()
             }.forEach {
-                addStatement("this.$N = $L", it.field, it.fieldImpl)
+                addStatement("this.$N = $L", it.first, it.second)
             }
         }.build()
     }
@@ -201,28 +203,27 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         return dao.insertionMethods
                 .map { insertionMethod ->
                     val onConflict = OnConflictProcessor.onConflictText(insertionMethod.onConflict)
-                    val entity = insertionMethod.entity
+                    val entities = insertionMethod.entities
 
-                    if (entity == null) {
-                        null
-                    } else {
-                        val fieldSpec = getOrCreateField(
-                                InsertionMethodField(entity, onConflict))
-                        val implSpec = EntityInsertionAdapterWriter(entity, onConflict)
+                    val fields = entities.mapValues {
+                        val spec = getOrCreateField(InsertionMethodField(it.value, onConflict))
+                        val impl = EntityInsertionAdapterWriter(it.value, onConflict)
                                 .createAnonymous(this@DaoWriter, dbField.name)
-                        val methodImpl = overrideWithoutAnnotations(insertionMethod.element,
-                                declaredDao).apply {
-                            addCode(createInsertionMethodBody(insertionMethod, fieldSpec))
-                        }.build()
-                        PreparedStmtQuery(fieldSpec, implSpec, methodImpl)
+                        spec to impl
                     }
+                    val methodImpl = overrideWithoutAnnotations(insertionMethod.element,
+                            declaredDao).apply {
+                        addCode(createInsertionMethodBody(insertionMethod, fields))
+                    }.build()
+                    PreparedStmtQuery(fields, methodImpl)
                 }.filterNotNull()
     }
 
     private fun createInsertionMethodBody(method: InsertionMethod,
-                                          insertionAdapter: FieldSpec?): CodeBlock {
+                                          insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>)
+            : CodeBlock {
         val insertionType = method.insertionType
-        if (insertionAdapter == null || insertionType == null) {
+        if (insertionAdapters.isEmpty() || insertionType == null) {
             return CodeBlock.builder().build()
         }
         val scope = CodeGenScope(this)
@@ -240,6 +241,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
 
             beginControlFlow("try").apply {
                 method.parameters.forEach { param ->
+                    val insertionAdapter = insertionAdapters[param.name]?.first
                     if (needsReturnType) {
                         // if it has more than 1 parameter, we would've already printed the error
                         // so we don't care about re-declaring the variable here
@@ -289,25 +291,28 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                                                            implCallback: (T, Entity) -> TypeSpec)
             : List<PreparedStmtQuery> {
         return methods.map { method ->
-            val entity = method.entity
+            val entities = method.entities
 
-            if (entity == null) {
+            if (entities.isEmpty()) {
                 null
             } else {
-                val fieldSpec = getOrCreateField(DeleteOrUpdateAdapterField(entity, methodPrefix))
-                val implSpec = implCallback(method, entity)
+                val fields = entities.mapValues {
+                    val spec = getOrCreateField(DeleteOrUpdateAdapterField(it.value, methodPrefix))
+                    val impl = implCallback(method, it.value)
+                    spec to impl
+                }
                 val methodSpec = overrideWithoutAnnotations(method.element, declaredDao).apply {
-                    addCode(createDeleteOrUpdateMethodBody(method, fieldSpec))
+                    addCode(createDeleteOrUpdateMethodBody(method, fields))
                 }.build()
-                PreparedStmtQuery(fieldSpec, implSpec, methodSpec)
+                PreparedStmtQuery(fields, methodSpec)
             }
-
         }.filterNotNull()
     }
 
     private fun createDeleteOrUpdateMethodBody(method: ShortcutMethod,
-                                               adapter: FieldSpec?): CodeBlock {
-        if (adapter == null) {
+                                               adapters: Map<String, Pair<FieldSpec, TypeSpec>>)
+            : CodeBlock {
+        if (adapters.isEmpty()) {
             return CodeBlock.builder().build()
         }
         val scope = CodeGenScope(this)
@@ -323,6 +328,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
             addStatement("$N.beginTransaction()", dbField)
             beginControlFlow("try").apply {
                 method.parameters.forEach { param ->
+                    val adapter = adapters[param.name]?.first
                     addStatement("$L$N.$L($L)",
                             if (resultVar == null) "" else "$resultVar +=",
                             adapter, param.handleMethodName(), param.name)
@@ -396,8 +402,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         }
     }
 
-    data class PreparedStmtQuery(val field: FieldSpec?,
-                                 val fieldImpl: TypeSpec?,
+    data class PreparedStmtQuery(val fields: Map<String, Pair<FieldSpec, TypeSpec>>,
                                  val methodImpl: MethodSpec)
 
     private class InsertionMethodField(val entity: Entity, val onConflictText: String)

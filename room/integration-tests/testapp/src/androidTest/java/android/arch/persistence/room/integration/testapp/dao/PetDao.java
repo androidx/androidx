@@ -19,6 +19,7 @@ package android.arch.persistence.room.integration.testapp.dao;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
+import android.arch.persistence.room.Query;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 
 @Dao
@@ -28,4 +29,7 @@ public interface PetDao {
 
     @Insert
     void insertAll(Pet[] pets);
+
+    @Query("SELECT COUNT(*) FROM Pet")
+    int count();
 }

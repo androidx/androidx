@@ -116,23 +116,11 @@ object ProcessorErrors {
     val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
             " @Insert but does not have any parameters to insert."
 
-    val INSERTION_METHOD_PARAMETERS_MUST_HAVE_THE_SAME_ENTITY_TYPE = "Parameter types in " +
-            "insertion methods must be the same type. If you want to insert entities from " +
-            "different types atomically, use a transaction."
-
     val DELETION_MISSING_PARAMS = "Method annotated with" +
             " @Delete but does not have any parameters to delete."
 
-    val DELETION_MULTIPLE_ENTITY_TYPES = "Parameter types in " +
-            "deletion methods must be the same type. If you want to delete entities from " +
-            "different types atomically, use a transaction."
-
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
             " @Update but does not have any parameters to update."
-
-    val UPDATE_MULTIPLE_ENTITY_TYPES = "Parameter types in " +
-            "update methods must be the same type. If you want to update entities from " +
-            "different types atomically, use a transaction."
 
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
             "annotated with @Entity or a collection/array of it."

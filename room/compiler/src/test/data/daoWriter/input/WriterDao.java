@@ -26,4 +26,6 @@ abstract interface WriterDao {
     void insertUsers(User user1, List<User> others);
     @Insert(onConflict=OnConflictStrategy.REPLACE)
     void insertUsers(User[] users);
+    @Insert
+    void insertUserAndBook(User user, Book book);
 }

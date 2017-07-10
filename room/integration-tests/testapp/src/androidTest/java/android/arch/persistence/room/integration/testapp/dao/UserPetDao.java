@@ -18,7 +18,12 @@ package android.arch.persistence.room.integration.testapp.dao;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
+import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
+import android.arch.persistence.room.integration.testapp.vo.Pet;
+import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPet;
 import android.arch.persistence.room.integration.testapp.vo.UserAndPetNonNull;
@@ -55,4 +60,13 @@ public interface UserPetDao {
 
     @Query("SELECT * FROM User u where u.mId = :userId")
     LiveData<UserAndAllPets> liveUserWithPets(int userId);
+
+    @Insert
+    void insertUserAndPet(User user, Pet pet);
+
+    @Update
+    void updateUsersAndPets(User[] users, Pet[] pets);
+
+    @Delete
+    void delete2UsersAndPets(User user1, User user2, Pet[] pets);
 }
