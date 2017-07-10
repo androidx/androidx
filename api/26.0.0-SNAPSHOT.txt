@@ -8251,6 +8251,10 @@ package android.support.v4.util {
     method public void trimToSize(int);
   }
 
+  public class ObjectsCompat {
+    method public static boolean equals(java.lang.Object, java.lang.Object);
+  }
+
   public class Pair<F, S> {
     ctor public Pair(F, S);
     method public static <A, B> android.support.v4.util.Pair<A, B> create(A, B);
@@ -8323,14 +8327,6 @@ package android.support.v4.util {
     method public void setValueAt(int, E);
     method public int size();
     method public E valueAt(int);
-  }
-
-}
-
-package android.support.v4.utils {
-
-  public class ObjectUtils {
-    method public static boolean objectEquals(java.lang.Object, java.lang.Object);
   }
 
 }
