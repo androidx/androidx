@@ -20,7 +20,6 @@ import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
-import static android.support.v4.utils.ObjectUtils.objectEquals;
 
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -40,6 +39,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.util.ObjectsCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v7.app.OverlayListView.OverlayObject;
 import android.support.v7.graphics.Palette;
@@ -1444,8 +1444,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         @Override
         protected void onPostExecute(Bitmap art) {
             mFetchArtTask = null;
-            if (!objectEquals(mArtIconBitmap, mIconBitmap)
-                    || !objectEquals(mArtIconUri, mIconUri)) {
+            if (!ObjectsCompat.equals(mArtIconBitmap, mIconBitmap)
+                    || !ObjectsCompat.equals(mArtIconUri, mIconUri)) {
                 mArtIconBitmap = mIconBitmap;
                 mArtIconLoadedBitmap = art;
                 mArtIconUri = mIconUri;
