@@ -23,9 +23,11 @@ buildscript {
     init.setSdkInLocalPropertiesFile()
     repos.addMavenRepositories(repositories)
 
+    apply from: 'app-toolkit/dependencies.gradle'
     dependencies {
         classpath libs.gradle
         classpath libs.jacoco
+        classpath libs.kotlin.gradle_plugin
     }
 }
 
@@ -43,4 +45,5 @@ init.enableDoclavaAndJDiff(this)
 
 ///// FLATFOOT START
 
+apply from: "app-toolkit/init.gradle"
 ///// FLATFOOT END

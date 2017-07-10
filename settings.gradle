@@ -181,8 +181,4 @@ project(':noto-emoji-compat').projectDir = new File(externalRoot, 'noto-fonts/em
 
 ///// FLATFOOT START
 apply from: "app-toolkit/settings.gradle"
-include ':navigation:runtime'
-project(':navigation:runtime').projectDir = new File(rootDir, "navigation/runtime")
-include ':navigation:integration-tests:testapp'
-project(':navigation:integration-tests:testapp').projectDir = new File(rootDir, "navigation/integration-tests/testapp")
 ///// FLATFOOT END

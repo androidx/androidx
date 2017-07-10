@@ -111,8 +111,6 @@ rootProject.ext.flatfootProjectGroups = [
         "arch" : "android.arch.core",
         "navigation" : "android.arch.navigation"]
 
-rootProject.ext.flatfootProjectGroups = ["room", "lifecycle", "apptoolkit", "navigation"]
-
 subprojects {
     configurations.all {
         resolutionStrategy {
