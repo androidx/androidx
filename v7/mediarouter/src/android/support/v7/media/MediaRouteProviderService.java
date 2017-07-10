@@ -16,7 +16,6 @@
 
 package android.support.v7.media;
 
-import static android.support.v4.utils.ObjectUtils.objectEquals;
 import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
 import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_LIBRARY_GROUP;
 import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_UNSELECT_REASON;
@@ -57,6 +56,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.ObjectsCompat;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -462,7 +462,7 @@ public abstract class MediaRouteProviderService extends Service {
         if (selectorBuilder != null) {
             composite = new MediaRouteDiscoveryRequest(selectorBuilder.build(), activeScan);
         }
-        if (!objectEquals(mCompositeDiscoveryRequest, composite)) {
+        if (!ObjectsCompat.equals(mCompositeDiscoveryRequest, composite)) {
             mCompositeDiscoveryRequest = composite;
             mProvider.setDiscoveryRequest(composite);
             return true;
@@ -612,7 +612,7 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         public boolean setDiscoveryRequest(MediaRouteDiscoveryRequest request) {
-            if (!objectEquals(mDiscoveryRequest, request)) {
+            if (!ObjectsCompat.equals(mDiscoveryRequest, request)) {
                 mDiscoveryRequest = request;
                 return updateCompositeDiscoveryRequest();
             }
