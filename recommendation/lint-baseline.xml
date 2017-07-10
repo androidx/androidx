@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 2.4.0-alpha6">
-
-    <issue
-        id="MissingSuperCall"
-        message="Overriding method should call `super.onAnimationEnd`"
-        errorLine1="                public void onAnimationEnd(Animation animation) {"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/app/FragmentManager.java"
-            line="1604"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="MissingSuperCall"
-        message="Overriding method should call `super.onAnimationEnd`"
-        errorLine1="        public void onAnimationEnd(Animation animation) {"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/app/FragmentManager.java"
-            line="3935"
-            column="21"/>
-    </issue>
+<issues format="4" by="lint 3.0.0-alpha5">
 
     <issue
         id="WrongConstant"
