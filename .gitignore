@@ -15,3 +15,4 @@ local.properties
 **/out
 buildSrc/build
 lifecycle/common/build
+jacoco.exec
