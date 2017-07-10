@@ -15,7 +15,6 @@
  */
 package android.arch.persistence.room.processor
 
-import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.ShortcutQueryParameter
 import com.google.auto.common.MoreElements
@@ -48,27 +47,21 @@ class ShortcutMethodProcessor(baseContext : Context,
         return executableType.returnType
     }
 
-    fun extractParams(missingParamError : String, multipleEntitiesError : String)
-            : Pair<Entity?, List<ShortcutQueryParameter>> {
+    fun extractParams(missingParamError: String)
+            : Pair<Map<String, Entity>, List<ShortcutQueryParameter>> {
         val params = executableElement.parameters
                 .map { ShortcutParameterProcessor(
                         baseContext = context,
                         containing = containing,
                         element = it).process() }
         context.checker.check(params.isNotEmpty(), executableElement, missingParamError)
-        val distinctTypes = params
-                .map { it.entityType }
-                .filterNotNull()
-                .distinctBy { it.typeName() } // TypeName implement equals
-        context.checker.check(distinctTypes.size < 2, executableElement, multipleEntitiesError)
-        val entityTypeMirror = distinctTypes.firstOrNull()
-        val entity = if (entityTypeMirror == null) {
-            null
-        } else {
-            EntityProcessor(
-                    baseContext = context,
-                    element = MoreTypes.asTypeElement(entityTypeMirror)).process()
-        }
-        return Pair(entity, params)
+        val entities = params
+                .filter { it.entityType != null }
+                .associateBy({ it.name }, {
+                    EntityProcessor(
+                            baseContext = context,
+                            element = MoreTypes.asTypeElement(it.entityType)).process()
+                })
+        return Pair(entities, params)
     }
 }

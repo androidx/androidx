@@ -196,13 +196,13 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         }
         daoMethods.forEach { daoMethod ->
             daoMethod.dao.shortcutMethods.forEach { method ->
-                method.entity?.let {
-                    check(method.element, daoMethod.dao, it.typeName)
+                method.entities.forEach {
+                    check(method.element, daoMethod.dao, it.value.typeName)
                 }
             }
             daoMethod.dao.insertionMethods.forEach { method ->
-                method.entity?.let {
-                    check(method.element, daoMethod.dao, it.typeName)
+                method.entities.forEach {
+                    check(method.element, daoMethod.dao, it.value.typeName)
                 }
             }
         }

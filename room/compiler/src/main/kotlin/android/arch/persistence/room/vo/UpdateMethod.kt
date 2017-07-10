@@ -20,7 +20,7 @@ import android.arch.persistence.room.OnConflictStrategy
 import javax.lang.model.element.ExecutableElement
 
 class UpdateMethod(element: ExecutableElement, name: String,
-                   entity: Entity?, returnCount: Boolean,
+                   entities: Map<String, Entity>, returnCount: Boolean,
                    parameters: List<ShortcutQueryParameter>,
                    @OnConflictStrategy val onConflictStrategy: Int) : ShortcutMethod(
-        element, name, entity, returnCount, parameters)
+        element, name, entities, returnCount, parameters)

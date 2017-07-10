@@ -52,11 +52,9 @@ class InsertionMethodProcessor(baseContext: Context,
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS)
 
-        val (entity, params) = delegate.extractParams(
+        val (entities, params) = delegate.extractParams(
                 missingParamError = ProcessorErrors
-                        .INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT,
-                multipleEntitiesError = ProcessorErrors
-                        .INSERTION_METHOD_PARAMETERS_MUST_HAVE_THE_SAME_ENTITY_TYPE
+                        .INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT
         )
 
         // TODO we can support more types
@@ -79,7 +77,7 @@ class InsertionMethodProcessor(baseContext: Context,
                 element = executableElement,
                 name = executableElement.simpleName.toString(),
                 returnType = returnType,
-                entity = entity,
+                entities = entities,
                 parameters = params,
                 onConflict = onConflict,
                 insertionType = insertionType

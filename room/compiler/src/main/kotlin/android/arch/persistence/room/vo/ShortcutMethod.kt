@@ -22,5 +22,5 @@ import javax.lang.model.element.ExecutableElement
  * Base class for shortcut methods in @DAO.
  */
 abstract class ShortcutMethod(val element: ExecutableElement, val name: String,
-                              val entity: Entity?, val returnCount: Boolean,
+                              val entities: Map<String, Entity>, val returnCount: Boolean,
                               val parameters: List<ShortcutQueryParameter>)
