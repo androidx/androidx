@@ -123,6 +123,32 @@ public class EmojiEditTextHelperTest {
 
         mEmojiEditTextHelper.setMaxEmojiCount(1);
 
-        assertEquals(emojiTextWatcher.getMaxEmojiCount(), 1);
+        assertEquals(1, emojiTextWatcher.getMaxEmojiCount());
     }
+
+    @Test
+    public void testSetEmojiReplaceStrategy() {
+        mEditText = mock(EditText.class);
+        mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
+
+        //assert the default value
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_DEFAULT,
+                mEmojiEditTextHelper.getEmojiReplaceStrategy());
+
+        // capture TextWatcher
+        final ArgumentCaptor<TextWatcher> argumentCaptor = ArgumentCaptor.forClass(
+                TextWatcher.class);
+        verify(mEditText, times(1)).addTextChangedListener(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue(), instanceOf(EmojiTextWatcher.class));
+        final EmojiTextWatcher emojiTextWatcher = (EmojiTextWatcher) argumentCaptor.getValue();
+
+        mEmojiEditTextHelper.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT);
+
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT,
+                mEmojiEditTextHelper.getEmojiReplaceStrategy());
+
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT,
+                emojiTextWatcher.getEmojiReplaceStrategy());
+    }
+
 }

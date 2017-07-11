@@ -15,11 +15,15 @@
  */
 package android.support.text.emoji.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.EmojiSpan;
 import android.support.v4.util.Preconditions;
 import android.text.method.KeyListener;
 import android.view.inputmethod.EditorInfo;
@@ -63,9 +67,10 @@ import android.widget.TextView;
  *
  */
 public final class EmojiEditTextHelper {
-
     private final HelperInternal mHelper;
-    private int mMaxEmojiCount;
+    private int mMaxEmojiCount = EditTextAttributeHelper.MAX_EMOJI_COUNT;
+    @EmojiCompat.ReplaceStrategy
+    private int mEmojiReplaceStrategy = EmojiCompat.REPLACE_STRATEGY_DEFAULT;
 
     /**
      * Default constructor.
@@ -95,7 +100,6 @@ public final class EmojiEditTextHelper {
         mMaxEmojiCount = maxEmojiCount;
         mHelper.setMaxEmojiCount(maxEmojiCount);
     }
-
 
     /**
      * Returns the maximum number of EmojiSpans to be added to a CharSequence.
@@ -141,6 +145,36 @@ public final class EmojiEditTextHelper {
         return mHelper.onCreateInputConnection(inputConnection, outAttrs);
     }
 
+    /**
+     * Sets whether to replace all emoji with {@link EmojiSpan}s. Default value is
+     * {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT}.
+     *
+     * @param replaceStrategy should be one of {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
+        mEmojiReplaceStrategy = replaceStrategy;
+        mHelper.setEmojiReplaceStrategy(replaceStrategy);
+    }
+
+    /**
+     * Returns whether to replace all emoji with {@link EmojiSpan}s. Default value is
+     * {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT}.
+     *
+     * @return one of {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    int getEmojiReplaceStrategy() {
+        return mEmojiReplaceStrategy;
+    }
+
     private static class HelperInternal {
 
         KeyListener getKeyListener(@NonNull KeyListener keyListener) {
@@ -152,7 +186,11 @@ public final class EmojiEditTextHelper {
             return inputConnection;
         }
 
-        public void setMaxEmojiCount(int maxEmojiCount) {
+        void setMaxEmojiCount(int maxEmojiCount) {
+            // do nothing
+        }
+
+        void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
             // do nothing
         }
     }
@@ -170,8 +208,13 @@ public final class EmojiEditTextHelper {
         }
 
         @Override
-        public void setMaxEmojiCount(int maxEmojiCount) {
+        void setMaxEmojiCount(int maxEmojiCount) {
             mTextWatcher.setMaxEmojiCount(maxEmojiCount);
+        }
+
+        @Override
+        void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
+            mTextWatcher.setEmojiReplaceStrategy(replaceStrategy);
         }
 
         @Override
