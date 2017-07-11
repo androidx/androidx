@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-dynamic-animation')
+    implementation project(':support-dynamic-animation')
 }
 
 android {

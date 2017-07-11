@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-v13')
+    implementation project(':support-v13')
 }
 
 android {
