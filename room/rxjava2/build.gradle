@@ -49,7 +49,7 @@ android {
 dependencies {
     compile project(":room:common")
     compile project(":room:runtime")
-    compile project(":arch:core")
+    compile project(":arch:runtime")
     compile libs.support.core_utils
     compile libs.rx_java
     testCompile libs.junit

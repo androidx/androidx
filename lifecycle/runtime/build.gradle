@@ -31,7 +31,7 @@ android {
 
 dependencies {
     compile project(":lifecycle:common")
-    compile project(":arch:core")
+    compile project(":arch:runtime")
     // necessary for IJ to resolve dependencies.
     compile libs.support.annotations
 

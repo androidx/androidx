@@ -27,8 +27,11 @@ if (inAppToolkitProject) {
 
 println "support root:${supportRoot}"
 
-include ':arch:core'
-project(':arch:core').projectDir = new File(supportRoot, "app-toolkit/core")
+include ':arch:runtime'
+project(':arch:runtime').projectDir = new File(supportRoot, "app-toolkit/runtime")
+
+include ':arch:common'
+project(':arch:common').projectDir = new File(supportRoot, "app-toolkit/common")
 
 include ':arch:core-testing'
 project(':arch:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")

@@ -32,7 +32,7 @@ android {
 dependencies {
     compile project(":lifecycle:common")
     compile project(":lifecycle:runtime")
-    compile project(":arch:core")
+    compile project(":arch:runtime")
     compile libs.support.fragments
 
     testCompile project(":arch:core-testing")

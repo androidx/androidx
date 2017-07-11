@@ -20,13 +20,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
+import java.util.concurrent.Executor;
+
 /**
  * A static class that serves as a central point to execute common tasks.
  * <p>
  *
  * @hide This API is not final.
  */
-@RestrictTo({RestrictTo.Scope.LIBRARY_GROUP, RestrictTo.Scope.TESTS})
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AppToolkitTaskExecutor extends TaskExecutor {
     private static volatile AppToolkitTaskExecutor sInstance;
 
@@ -35,6 +37,22 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
 
     @NonNull
     private TaskExecutor mDefaultTaskExecutor;
+
+    @NonNull
+    private static final Executor sMainThreadExecutor = new Executor() {
+        @Override
+        public void execute(Runnable command) {
+            getInstance().postToMainThread(command);
+        }
+    };
+
+    @NonNull
+    private static final Executor sIOThreadExecutor = new Executor() {
+        @Override
+        public void execute(Runnable command) {
+            getInstance().executeOnDiskIO(command);
+        }
+    };
 
     private AppToolkitTaskExecutor() {
         mDefaultTaskExecutor = new DefaultTaskExecutor();
@@ -80,6 +98,16 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
     @Override
     public void postToMainThread(Runnable runnable) {
         mDelegate.postToMainThread(runnable);
+    }
+
+    @NonNull
+    public static Executor getMainThreadExecutor() {
+        return sMainThreadExecutor;
+    }
+
+    @NonNull
+    public static Executor getIOThreadExecutor() {
+        return sIOThreadExecutor;
     }
 
     @Override
