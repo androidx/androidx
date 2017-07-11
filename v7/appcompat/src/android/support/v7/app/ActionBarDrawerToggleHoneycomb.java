@@ -42,7 +42,7 @@ import java.lang.reflect.Method;
  */
 @RequiresApi(11)
 class ActionBarDrawerToggleHoneycomb {
-    private static final String TAG = "ActionBarDrawerToggleHoneycomb";
+    private static final String TAG = "ActionBarDrawerToggleHC";
 
     private static final int[] THEME_ATTRS = new int[] {
             R.attr.homeAsUpIndicator

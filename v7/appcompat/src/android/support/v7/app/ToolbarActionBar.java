@@ -22,7 +22,6 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.view.WindowCallbackWrapper;
-import android.support.v7.view.menu.ListMenuPresenter;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPresenter;
 import android.support.v7.widget.DecorToolbar;
@@ -48,8 +47,6 @@ class ToolbarActionBar extends ActionBar {
 
     private boolean mLastMenuVisibility;
     private ArrayList<OnMenuVisibilityListener> mMenuVisibilityListeners = new ArrayList<>();
-
-    private ListMenuPresenter mListMenuPresenter;
 
     private final Runnable mMenuInvalidator = new Runnable() {
         @Override

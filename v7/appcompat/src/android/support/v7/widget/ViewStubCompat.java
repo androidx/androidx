@@ -18,6 +18,7 @@ package android.support.v7.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -147,6 +148,7 @@ public final class ViewStubCompat extends View {
         setMeasuredDimension(0, 0);
     }
 
+    @SuppressLint("MissingSuperCall") // Intentionally not calling super method.
     @Override
     public void draw(Canvas canvas) {
     }

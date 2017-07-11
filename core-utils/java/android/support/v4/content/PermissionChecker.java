@@ -89,6 +89,7 @@ public final class PermissionChecker {
      * @return The permission check result which is either {@link #PERMISSION_GRANTED}
      *     or {@link #PERMISSION_DENIED} or {@link #PERMISSION_DENIED_APP_OP}.
      */
+    @PermissionResult
     public static int checkPermission(@NonNull Context context, @NonNull String permission,
             int pid, int uid, String packageName) {
         if (context.checkPermission(permission, pid, uid) == PackageManager.PERMISSION_DENIED) {
@@ -125,6 +126,7 @@ public final class PermissionChecker {
      * @return The permission check result which is either {@link #PERMISSION_GRANTED}
      *     or {@link #PERMISSION_DENIED} or {@link #PERMISSION_DENIED_APP_OP}.
      */
+    @PermissionResult
     public static int checkSelfPermission(@NonNull Context context,
             @NonNull String permission) {
         return checkPermission(context, permission, android.os.Process.myPid(),
@@ -142,10 +144,11 @@ public final class PermissionChecker {
      * @return The permission check result which is either {@link #PERMISSION_GRANTED}
      *     or {@link #PERMISSION_DENIED} or {@link #PERMISSION_DENIED_APP_OP}.
      */
+    @PermissionResult
     public static int checkCallingPermission(@NonNull Context context,
             @NonNull String permission, String packageName) {
         if (Binder.getCallingPid() == Process.myPid()) {
-            return PackageManager.PERMISSION_DENIED;
+            return PERMISSION_DENIED;
         }
         return checkPermission(context, permission, Binder.getCallingPid(),
                 Binder.getCallingUid(), packageName);
@@ -160,6 +163,7 @@ public final class PermissionChecker {
      * @return The permission check result which is either {@link #PERMISSION_GRANTED}
      *     or {@link #PERMISSION_DENIED} or {@link #PERMISSION_DENIED_APP_OP}.
      */
+    @PermissionResult
     public static int checkCallingOrSelfPermission(@NonNull Context context,
             @NonNull String permission) {
         String packageName = (Binder.getCallingPid() == Process.myPid())
