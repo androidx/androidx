@@ -25,6 +25,7 @@ import android.content.res.TypedArray;
 import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
@@ -35,6 +36,7 @@ import android.text.TextDirectionHeuristics;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
 
@@ -53,6 +55,7 @@ import java.util.List;
  * fill its layout based on the TextView's characteristics and boundaries.
  */
 class AppCompatTextViewAutoSizeHelper {
+    private static final String TAG = "ACTVAutoSizeHelper";
     private static final RectF TEMP_RECTF = new RectF();
     // Default minimum size for auto-sizing text in scaled pixels.
     private static final int DEFAULT_AUTO_SIZE_MIN_TEXT_SIZE_IN_SP = 12;
@@ -60,6 +63,9 @@ class AppCompatTextViewAutoSizeHelper {
     private static final int DEFAULT_AUTO_SIZE_MAX_TEXT_SIZE_IN_SP = 112;
     // Default value for the step size in pixels.
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
+    // Cache of TextView methods used via reflection; the key is the method name and the value is
+    // the method itself or null if it can not be found.
+    private static Hashtable<String, Method> sTextViewMethodByNameCache = new Hashtable<>();
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
     // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when
@@ -82,9 +88,7 @@ class AppCompatTextViewAutoSizeHelper {
     // build the steps set using mAutoSizeMinTextSizeInPx, mAutoSizeMaxTextSizeInPx and
     // mAutoSizeStepGranularityInPx.
     private boolean mHasPresetAutoSizeValues = false;
-
     private TextPaint mTempTextPaint;
-    private Hashtable<String, Method> mMethodByNameCache = new Hashtable<>();
 
     private final TextView mTextView;
     private final Context mContext;
@@ -606,23 +610,14 @@ class AppCompatTextViewAutoSizeHelper {
                 // Do not auto-size right after setting the text size.
                 mNeedsAutoSizeText = false;
 
+                final String methodName = "nullLayouts";
                 try {
-                    final String methodName = "nullLayouts";
-                    Method method = mMethodByNameCache.get(methodName);
-                    if (method == null) {
-                        method = TextView.class.getDeclaredMethod(methodName);
-                        if (method != null) {
-                            method.setAccessible(true);
-                            // Cache update.
-                            mMethodByNameCache.put(methodName, method);
-                        }
-                    }
-
+                    Method method = getTextViewMethod(methodName);
                     if (method != null) {
                         method.invoke(mTextView);
                     }
                 } catch (Exception ex) {
-                    // Nothing to do.
+                    Log.w(TAG, "Failed to invoke TextView#" + methodName + "() method", ex);
                 }
 
                 if (!isInLayout) {
@@ -754,25 +749,18 @@ class AppCompatTextViewAutoSizeHelper {
                 includePad);
     }
 
-    private <T> T invokeAndReturnWithDefault(@NonNull Object object, @NonNull String methodName,
-            @NonNull T defaultValue) {
+    private <T> T invokeAndReturnWithDefault(@NonNull Object object,
+            @NonNull final String methodName, @NonNull final T defaultValue) {
         T result = null;
         boolean exceptionThrown = false;
 
         try {
             // Cache lookup.
-            Method method = mMethodByNameCache.get(methodName);
-            if (method == null) {
-                method = TextView.class.getDeclaredMethod(methodName);
-                if (method != null) {
-                    method.setAccessible(true);
-                    // Cache update.
-                    mMethodByNameCache.put(methodName, method);
-                }
-            }
+            Method method = getTextViewMethod(methodName);
             result = (T) method.invoke(object);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             exceptionThrown = true;
+            Log.w(TAG, "Failed to invoke TextView#" + methodName + "() method", ex);
         } finally {
             if (result == null && exceptionThrown) {
                 result = defaultValue;
@@ -780,6 +768,26 @@ class AppCompatTextViewAutoSizeHelper {
         }
 
         return result;
+    }
+
+    @Nullable
+    private Method getTextViewMethod(@NonNull final String methodName) {
+        try {
+            Method method = sTextViewMethodByNameCache.get(methodName);
+            if (method == null) {
+                method = TextView.class.getDeclaredMethod(methodName);
+                if (method != null) {
+                    method.setAccessible(true);
+                    // Cache update.
+                    sTextViewMethodByNameCache.put(methodName, method);
+                }
+            }
+
+            return method;
+        } catch (Exception ex) {
+            Log.w(TAG, "Failed to retrieve TextView#" + methodName + "() method", ex);
+            return null;
+        }
     }
 
     /**
