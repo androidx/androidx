@@ -26,6 +26,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.EmojiSpan;
 import android.util.AttributeSet;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -49,31 +50,31 @@ public class EmojiExtractEditText extends ExtractEditText {
 
     public EmojiExtractEditText(Context context) {
         super(context);
-        init(null /*attrs*/, 0 /*defStyleAttr*/);
+        init(null /*attrs*/, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
     public EmojiExtractEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(attrs, android.R.attr.editTextStyle);
+        init(attrs, android.R.attr.editTextStyle, 0 /*defStyleRes*/);
     }
 
     public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(attrs, defStyleAttr);
+        init(attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public EmojiExtractEditText(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(attrs, defStyleAttr);
+        init(attrs, defStyleAttr, defStyleRes);
     }
 
-    private void init(@Nullable AttributeSet attrs, int defStyleAttr) {
+    private void init(@Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (!mInitialized) {
             mInitialized = true;
             final EditTextAttributeHelper attrHelper = new EditTextAttributeHelper(this, attrs,
-                    defStyleAttr);
+                    defStyleAttr, defStyleRes);
             setMaxEmojiCount(attrHelper.getMaxEmojiCount());
             setKeyListener(super.getKeyListener());
         }
@@ -101,6 +102,30 @@ public class EmojiExtractEditText extends ExtractEditText {
      */
     public void setMaxEmojiCount(@IntRange(from = 0) int maxEmojiCount) {
         getEmojiEditTextHelper().setMaxEmojiCount(maxEmojiCount);
+    }
+
+    /**
+     * Sets whether to replace all emoji with {@link EmojiSpan}s. Default value is
+     * {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT}.
+     *
+     * @param replaceStrategy should be one of {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
+     */
+    public void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
+        getEmojiEditTextHelper().setEmojiReplaceStrategy(replaceStrategy);
+    }
+
+    /**
+     * Returns whether to replace all emoji with {@link EmojiSpan}s. Default value is
+     * {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT}.
+     *
+     * @return one of {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
+     */
+    public int getEmojiReplaceStrategy() {
+        return getEmojiEditTextHelper().getEmojiReplaceStrategy();
     }
 
     /**

@@ -17,11 +17,14 @@
 package android.support.text.emoji.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.inputmethodservice.InputMethodService;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.EmojiSpan;
 import android.support.text.emoji.R;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -55,44 +58,48 @@ import android.widget.LinearLayout;
  *     }
  * }
  * </pre>
+ *
+ * @attr ref android.support.text.emoji.R.styleable#EmojiExtractTextLayout_emojiReplaceStrategy
  */
 public class EmojiExtractTextLayout extends LinearLayout {
 
     private ExtractButtonCompat mExtractAction;
+    private EmojiExtractEditText mExtractEditText;
     private ViewGroup mExtractAccessories;
     private View.OnClickListener mButtonOnClickListener;
 
     /**
-     * Prevent calling {@link #init(Context)} multiple times in case super() constructors
-     * call other constructors.
+     * Prevent calling {@link #init(Context, AttributeSet, int)}} multiple times in case super()
+     * constructors call other constructors.
      */
     private boolean mInitialized;
 
     public EmojiExtractTextLayout(Context context) {
         super(context);
-        init(context);
+        init(context, null /*attrs*/, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
     public EmojiExtractTextLayout(Context context,
             @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init(context, attrs, 0 /*defStyleAttr*/, 0 /*defStyleRes*/);
     }
 
     public EmojiExtractTextLayout(Context context,
             @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init(context, attrs, defStyleAttr, 0 /*defStyleRes*/);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public EmojiExtractTextLayout(Context context, AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context);
+        init(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private void init(@NonNull Context context) {
+    private void init(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         if (!mInitialized) {
             mInitialized = true;
             setOrientation(HORIZONTAL);
@@ -101,7 +108,46 @@ public class EmojiExtractTextLayout extends LinearLayout {
                             true /*attachToRoot*/);
             mExtractAccessories = view.findViewById(R.id.inputExtractAccessories);
             mExtractAction = view.findViewById(R.id.inputExtractAction);
+            mExtractEditText = view.findViewById(android.R.id.inputExtractEditText);
+
+            if (attrs != null) {
+                final TypedArray a = context.obtainStyledAttributes(attrs,
+                        R.styleable.EmojiExtractTextLayout, defStyleAttr, defStyleRes);
+                final int replaceStrategy = a.getInteger(
+                        R.styleable.EmojiExtractTextLayout_emojiReplaceStrategy,
+                        EmojiCompat.REPLACE_STRATEGY_DEFAULT);
+                mExtractEditText.setEmojiReplaceStrategy(replaceStrategy);
+                a.recycle();
+            }
         }
+    }
+
+    /**
+     * Sets whether to replace all emoji with {@link EmojiSpan}s. Default value is
+     * {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT}.
+     *
+     * @param replaceStrategy should be one of {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
+     *
+     * @attr ref android.support.text.emoji.R.styleable#EmojiExtractTextLayout_emojiReplaceStrategy
+     */
+    public void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
+        mExtractEditText.setEmojiReplaceStrategy(replaceStrategy);
+    }
+
+    /**
+     * Returns whether to replace all emoji with {@link EmojiSpan}s. Default value is
+     * {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT}.
+     *
+     * @return one of {@link EmojiCompat#REPLACE_STRATEGY_DEFAULT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
+     *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
+     *
+     * @attr ref android.support.text.emoji.R.styleable#EmojiExtractTextLayout_emojiReplaceStrategy
+     */
+    public int getEmojiReplaceStrategy() {
+        return mExtractEditText.getEmojiReplaceStrategy();
     }
 
     /**

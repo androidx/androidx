@@ -1951,7 +1951,9 @@ package android.support.text.emoji.widget {
     ctor public EmojiExtractTextLayout(android.content.Context, android.util.AttributeSet);
     ctor public EmojiExtractTextLayout(android.content.Context, android.util.AttributeSet, int);
     ctor public EmojiExtractTextLayout(android.content.Context, android.util.AttributeSet, int, int);
+    method public int getEmojiReplaceStrategy();
     method public void onUpdateExtractingViews(android.inputmethodservice.InputMethodService, android.view.inputmethod.EditorInfo);
+    method public void setEmojiReplaceStrategy(int);
   }
 
   public class EmojiTextView extends android.widget.TextView {
