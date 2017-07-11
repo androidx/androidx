@@ -36,11 +36,12 @@ public class EditTextAttributeHelper {
     static final int MAX_EMOJI_COUNT = Integer.MAX_VALUE;
     private int mMaxEmojiCount;
 
-    public EditTextAttributeHelper(@NonNull View view, AttributeSet attrs, int defStyleAttr) {
+    public EditTextAttributeHelper(@NonNull View view, AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         if (attrs != null) {
             final Context context = view.getContext();
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EmojiEditText,
-                    defStyleAttr, 0);
+                    defStyleAttr, defStyleRes);
             mMaxEmojiCount = a.getInteger(R.styleable.EmojiEditText_maxEmojiCount, MAX_EMOJI_COUNT);
             a.recycle();
         }
