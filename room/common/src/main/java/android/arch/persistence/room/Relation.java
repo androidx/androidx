@@ -57,7 +57,7 @@ package android.arch.persistence.room;
  * public class UserAllPets {
  *   {@literal @}Embedded
  *   public User user;
- *   {@literal @}Relation(parentColumn = "user.id", entityColumn = "userId", entity = Pet.class)
+ *   {@literal @}Relation(parentColumn = "id", entityColumn = "userId", entity = Pet.class)
  *   public List<PetNameAndId> pets;
  * }
  * {@literal @}Dao
@@ -78,7 +78,7 @@ package android.arch.persistence.room;
  * public class UserAndAllPets {
  *   {@literal @}Embedded
  *   public User user;
- *   {@literal @}Relation(parentColumn = "user.id", entityColumn = "userId", entity = Pet.class,
+ *   {@literal @}Relation(parentColumn = "id", entityColumn = "userId", entity = Pet.class,
  *           projection = {"name"})
  *   public List<String> petNames;
  * }
