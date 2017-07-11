@@ -54,12 +54,15 @@ public class MainDemoActivity extends Activity {
                 this, SimpleWearableRecyclerViewDemo.class));
         contentMap.put("Wearable Switch", new Intent(
                 this, WearableSwitchDemo.class));
+        contentMap.put("Circular Progress Layout", new Intent(
+                this, CircularProgressLayoutDemo.class));
 
         return contentMap;
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder {
         Button mView;
+
         ViewHolder(Button itemView) {
             super(itemView);
             mView = itemView;

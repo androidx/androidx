@@ -24,6 +24,8 @@
         </activity>
         <activity android:name="com.example.android.support.wear.app.WearableSwitchDemo">
         </activity>
+        <activity android:name="com.example.android.support.wear.app.CircularProgressLayoutDemo">
+        </activity>
         <activity android:name="com.example.android.support.wear.app.MainDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
