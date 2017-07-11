@@ -177,6 +177,9 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         mViewHolder.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
         mViewHolder.mActionsRow.setVisibility(View.VISIBLE);
         mViewHolder.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        // switch focusability to VISIBLE wont trigger focusableViewAvailable() on O because
+        // shared element details_frame is still INVISIBLE. b/63544781
+        mViewHolder.mActionsRow.requestFocus();
         mViewHolder.mDetailsDescriptionFrame.setVisibility(View.VISIBLE);
     }
 
