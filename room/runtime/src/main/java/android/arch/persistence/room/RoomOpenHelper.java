@@ -58,6 +58,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     public void onCreate(SupportSQLiteDatabase db) {
         updateIdentity(db);
         mDelegate.createAllTables(db);
+        mDelegate.onCreate(db);
     }
 
     @Override
@@ -133,6 +134,8 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         protected abstract void createAllTables(SupportSQLiteDatabase database);
 
         protected abstract void onOpen(SupportSQLiteDatabase database);
+
+        protected abstract void onCreate(SupportSQLiteDatabase database);
 
         /**
          * Called after a migration run to validate database integrity.
