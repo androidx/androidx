@@ -35,6 +35,7 @@ import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -206,6 +207,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         assertThat(withPets.pets, is(Arrays.asList(pets)));
     }
 
+    @MediumTest
     @Test
     public void handleGc() throws ExecutionException, InterruptedException, TimeoutException {
         LiveData<User> liveData = mUserDao.liveUserById(3);
