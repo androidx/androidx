@@ -26,6 +26,7 @@ android {
         targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
@@ -52,6 +53,7 @@ dependencies {
     compile project(":room:db-impl")
     compile project(':room:runtime')
     compile project(':arch:runtime')
+    compile 'com.android.support:multidex:1.0.1'
 
     compile libs.support.app_compat
     annotationProcessor project(":room:compiler")
@@ -71,6 +73,7 @@ dependencies {
     androidTestCompile project(':lifecycle:runtime')
     androidTestCompile project(':room:testing')
     androidTestCompile project(':room:rxjava2')
+    androidTestCompile project(':arch:core-testing')
     androidTestCompile libs.rx_java
     testCompile libs.mockito_core
 }
