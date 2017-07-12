@@ -4,10 +4,17 @@ ext {
     fontDir = project(':noto-emoji-compat').projectDir
 }
 
-evaluationDependsOn(':noto-emoji-compat')
+configurations {
+    repackage
+}
+
 dependencies {
+    repackage project(path: ':noto-emoji-compat', configuration: "parser")
+    // Wrap the noto-emoji-compat dependency in a FileCollection so that the Android Gradle plugin
+    // treats this as local jar and package it inside the aar.
+    api files(configurations.repackage)
+
     api project(':support-compat')
-    api files(project(':noto-emoji-compat').configurations.parser.artifacts.getFiles())
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
