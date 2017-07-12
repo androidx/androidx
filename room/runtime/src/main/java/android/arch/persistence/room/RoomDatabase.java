@@ -56,6 +56,9 @@ public abstract class RoomDatabase {
     private final InvalidationTracker mInvalidationTracker;
     private boolean mAllowMainThreadQueries;
 
+    @Nullable
+    protected List<Callback> mCallbacks;
+
     /**
      * Creates a RoomDatabase.
      * <p>
@@ -75,6 +78,7 @@ public abstract class RoomDatabase {
     @CallSuper
     public void init(DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
+        mCallbacks = configuration.callbacks;
         mAllowMainThreadQueries = configuration.allowMainThreadQueries;
     }
 
@@ -285,6 +289,7 @@ public abstract class RoomDatabase {
         private final Class<T> mDatabaseClass;
         private final String mName;
         private final Context mContext;
+        private ArrayList<Callback> mCallbacks;
 
         private SupportSQLiteOpenHelper.Factory mFactory;
         private boolean mInMemory;
@@ -355,6 +360,20 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Adds a {@link Callback} to this database.
+         *
+         * @param callback The callback.
+         * @return this
+         */
+        public Builder<T> addCallback(@NonNull Callback callback) {
+            if (mCallbacks == null) {
+                mCallbacks = new ArrayList<>();
+            }
+            mCallbacks.add(callback);
+            return this;
+        }
+
+        /**
          * Creates the databases and initializes it.
          * <p>
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -377,7 +396,7 @@ public abstract class RoomDatabase {
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
-                            mAllowMainThreadQueries);
+                            mCallbacks, mAllowMainThreadQueries);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
@@ -473,6 +492,29 @@ public abstract class RoomDatabase {
                 }
             }
             return result;
+        }
+    }
+
+    /**
+     * Callback for {@link RoomDatabase}.
+     */
+    public abstract static class Callback {
+
+        /**
+         * Called when the database is created for the first time. This is called after all the
+         * tables are created.
+         *
+         * @param db The database.
+         */
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+        }
+
+        /**
+         * Called when the database has been opened.
+         *
+         * @param db The database.
+         */
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
         }
     }
 }

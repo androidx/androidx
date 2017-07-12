@@ -16,7 +16,6 @@
 
 package android.arch.persistence.room.writer
 
-import android.support.annotation.VisibleForTesting
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.N
 import android.arch.persistence.room.ext.RoomTypeNames
@@ -26,6 +25,7 @@ import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
 import android.arch.persistence.room.vo.Database
 import android.arch.persistence.room.vo.Entity
+import android.support.annotation.VisibleForTesting
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeSpec
@@ -67,7 +67,8 @@ class SQLiteOpenHelperWriter(val database : Database) {
             superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
             addMethod(createCreateAllTables())
             addMethod(createDropAllTables())
-            addMethod(createOnOpen())
+            addMethod(createOnCreate(scope.fork()))
+            addMethod(createOnOpen(scope.fork()))
             addMethod(createValidateMigration(scope.fork()))
         }.build()
     }
@@ -85,7 +86,15 @@ class SQLiteOpenHelperWriter(val database : Database) {
         }.build()
     }
 
-    private fun createOnOpen(): MethodSpec {
+    private fun createOnCreate(scope: CodeGenScope): MethodSpec {
+        return MethodSpec.methodBuilder("onCreate").apply {
+            addModifiers(PROTECTED)
+            addParameter(SupportDbTypeNames.DB, "_db")
+            invokeCallbacks(scope, "onCreate")
+        }.build()
+    }
+
+    private fun createOnOpen(scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("onOpen").apply {
             addModifiers(PUBLIC)
             addParameter(SupportDbTypeNames.DB, "_db")
@@ -94,6 +103,7 @@ class SQLiteOpenHelperWriter(val database : Database) {
                 addStatement("_db.execSQL($S)", "PRAGMA foreign_keys = ON")
             }
             addStatement("internalInitInvalidationTracker(_db)")
+            invokeCallbacks(scope, "onOpen")
         }.build()
     }
 
@@ -115,6 +125,19 @@ class SQLiteOpenHelperWriter(val database : Database) {
                 addStatement("_db.execSQL($S)", createDropTableQuery(it))
             }
         }.build()
+    }
+
+    private fun MethodSpec.Builder.invokeCallbacks(scope: CodeGenScope, methodName: String) {
+        val iVar = scope.getTmpVar("_i")
+        val sizeVar = scope.getTmpVar("_size")
+        beginControlFlow("if (mCallbacks != null)").apply {
+            beginControlFlow("for (int $N = 0, $N = mCallbacks.size(); $N < $N; $N++)",
+                    iVar, sizeVar, iVar, sizeVar, iVar).apply {
+                addStatement("mCallbacks.get($N).$N(_db)", iVar, methodName)
+            }
+            endControlFlow()
+        }
+        endControlFlow()
     }
 
     @VisibleForTesting
