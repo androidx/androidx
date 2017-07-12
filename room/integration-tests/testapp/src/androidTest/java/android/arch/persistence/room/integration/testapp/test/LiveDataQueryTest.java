@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
@@ -34,10 +35,10 @@ import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,10 +49,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Tests invalidation tracking.
@@ -59,18 +60,19 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class LiveDataQueryTest extends TestDatabaseTest {
+    @Rule
+    public CountingTaskExecutorRule mExecutorRule = new CountingTaskExecutorRule();
 
     @Test
-    public void observeById() throws InterruptedException, ExecutionException {
+    public void observeById() throws InterruptedException, ExecutionException, TimeoutException {
         final LiveData<User> userLiveData = mUserDao.liveUserById(5);
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();
         testOwner.handleEvent(Lifecycle.Event.ON_CREATE);
-        final LatchObserver<User> observer = new LatchObserver<>();
+        final TestObserver<User> observer = new TestObserver<>();
         observe(userLiveData, testOwner, observer);
-
-        observer.assertNoUpdate();
-
+        assertThat(observer.hasValue(), is(false));
         observer.reset();
+
         testOwner.handleEvent(Lifecycle.Event.ON_START);
         assertThat(observer.get(), is(nullValue()));
 
@@ -95,15 +97,16 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         observer.reset();
         u5.setName("baba");
         mUserDao.insertOrReplace(u5);
-        observer.assertNoUpdate();
+        assertThat(observer.hasValue(), is(false));
     }
 
     @Test
-    public void observeListQuery() throws InterruptedException, ExecutionException {
+    public void observeListQuery() throws InterruptedException, ExecutionException,
+            TimeoutException {
         final LiveData<List<User>> userLiveData = mUserDao.liveUsersListByName("frida");
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-        final LatchObserver<List<User>> observer = new LatchObserver<>();
+        final TestObserver<List<User>> observer = new TestObserver<>();
         observe(userLiveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(Collections.<User>emptyList()));
 
@@ -130,20 +133,21 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final User user3 = TestUtil.createUser(9);
         user3.setName("painter frida");
         mUserDao.insertOrReplace(user3);
-        observer.assertNoUpdate();
+        assertThat(observer.hasValue(), is(false));
 
         observer.reset();
         final User user4 = TestUtil.createUser(11);
         user4.setName("friday");
         mUserDao.insertOrReplace(user4);
-        observer.assertNoUpdate();
+        assertThat(observer.hasValue(), is(false));
 
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         assertThat(observer.get(), is(Arrays.asList(user4, user3)));
     }
 
     @Test
-    public void liveDataWithPojo() throws ExecutionException, InterruptedException {
+    public void liveDataWithPojo() throws ExecutionException, InterruptedException,
+            TimeoutException {
         User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
         users[0].setAge(10);
         users[0].setWeight(15);
@@ -160,7 +164,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
 
-        final LatchObserver<AvgWeightByAge> observer = new LatchObserver<>();
+        final TestObserver<AvgWeightByAge> observer = new TestObserver<>();
         LiveData<AvgWeightByAge> liveData = mUserDao.maxWeightByAgeGroup();
 
         observe(liveData, lifecycleOwner, observer);
@@ -179,9 +183,9 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
-    public void withRelation() throws ExecutionException, InterruptedException {
+    public void withRelation() throws ExecutionException, InterruptedException, TimeoutException {
         final LiveData<UserAndAllPets> liveData = mUserPetDao.liveUserWithPets(3);
-        final LatchObserver<UserAndAllPets> observer = new LatchObserver<>();
+        final TestObserver<UserAndAllPets> observer = new TestObserver<>();
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         observe(liveData, lifecycleOwner, observer);
@@ -203,10 +207,9 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
-    @MediumTest
-    public void handleGc() throws ExecutionException, InterruptedException {
+    public void handleGc() throws ExecutionException, InterruptedException, TimeoutException {
         LiveData<User> liveData = mUserDao.liveUserById(3);
-        final LatchObserver<User> observer = new LatchObserver<>();
+        final TestObserver<User> observer = new TestObserver<>();
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
         observe(liveData, lifecycleOwner, observer);
@@ -253,6 +256,10 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         futureTask.get();
     }
 
+    private void drain() throws TimeoutException, InterruptedException {
+        mExecutorRule.drainTasks(1, TimeUnit.MINUTES);
+    }
+
     private static void forceGc() {
         // Use a random index in the list to detect the garbage collection each time because
         // .get() may accidentally trigger a strong reference during collection.
@@ -281,31 +288,29 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         }
     }
 
-    private class LatchObserver<T> implements Observer<T> {
-
-        static final int TIMEOUT = 3;
-
-        T mLastData;
-
-        CountDownLatch mSetLatch = new CountDownLatch(1);
+    private class TestObserver<T> implements Observer<T> {
+        private T mLastData;
+        private boolean mHasValue = false;
 
         void reset() {
-            mSetLatch = new CountDownLatch(1);
+            mHasValue = false;
+            mLastData = null;
         }
 
         @Override
         public void onChanged(@Nullable T o) {
             mLastData = o;
-            mSetLatch.countDown();
+            mHasValue = true;
         }
 
-        void assertNoUpdate() throws InterruptedException {
-            assertThat(mSetLatch.await(TIMEOUT, TimeUnit.SECONDS),
-                    is(false));
+        boolean hasValue() throws TimeoutException, InterruptedException {
+            drain();
+            return mHasValue;
         }
 
-        T get() throws InterruptedException {
-            assertThat(mSetLatch.await(TIMEOUT, TimeUnit.SECONDS), is(true));
+        T get() throws InterruptedException, TimeoutException {
+            drain();
+            assertThat(hasValue(), is(true));
             return mLastData;
         }
     }
