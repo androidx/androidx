@@ -3258,6 +3258,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public boolean dispatchCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (mCurState < Fragment.CREATED) {
+            return false;
+        }
         boolean show = false;
         ArrayList<Fragment> newMenus = null;
         for (int i = 0; i < mAdded.size(); i++) {
@@ -3288,6 +3291,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public boolean dispatchPrepareOptionsMenu(Menu menu) {
+        if (mCurState < Fragment.CREATED) {
+            return false;
+        }
         boolean show = false;
         for (int i = 0; i < mAdded.size(); i++) {
             Fragment f = mAdded.get(i);
@@ -3301,6 +3307,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public boolean dispatchOptionsItemSelected(MenuItem item) {
+        if (mCurState < Fragment.CREATED) {
+            return false;
+        }
         for (int i = 0; i < mAdded.size(); i++) {
             Fragment f = mAdded.get(i);
             if (f != null) {
@@ -3313,6 +3322,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public boolean dispatchContextItemSelected(MenuItem item) {
+        if (mCurState < Fragment.CREATED) {
+            return false;
+        }
         for (int i = 0; i < mAdded.size(); i++) {
             Fragment f = mAdded.get(i);
             if (f != null) {
@@ -3325,6 +3337,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public void dispatchOptionsMenuClosed(Menu menu) {
+        if (mCurState < Fragment.CREATED) {
+            return;
+        }
         for (int i = 0; i < mAdded.size(); i++) {
             Fragment f = mAdded.get(i);
             if (f != null) {
