@@ -38,7 +38,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-
 /**
  * A Layout that arranges its children in a single column or a single row. The direction of
  * the row can be set by calling {@link #setOrientation(int) setOrientation()}.
@@ -610,7 +609,7 @@ public class LinearLayoutCompat extends ViewGroup {
         final int baselineChildIndex = mBaselineAlignedChildIndex;
         final boolean useLargestChild = mUseLargestChild;
 
-        int largestChildHeight = Integer.MIN_VALUE;
+        int largestChildHeight = 0;
 
         // See how tall everyone is. Also remember max width.
         for (int i = 0; i < count; ++i) {
@@ -956,7 +955,7 @@ public class LinearLayoutCompat extends ViewGroup {
 
         final boolean isExactly = widthMode == MeasureSpec.EXACTLY;
 
-        int largestChildWidth = Integer.MIN_VALUE;
+        int largestChildWidth = 0;
 
         // See how wide everyone is. Also remember max height.
         for (int i = 0; i < count; ++i) {
