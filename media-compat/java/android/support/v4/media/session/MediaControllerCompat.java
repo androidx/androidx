@@ -46,6 +46,7 @@ import android.view.KeyEvent;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -192,6 +193,9 @@ public final class MediaControllerCompat {
 
     private final MediaControllerImpl mImpl;
     private final MediaSessionCompat.Token mToken;
+    // This set is used to keep references to registered callbacks to prevent them being GCed,
+    // since we only keep weak references for callbacks in this class and its inner classes.
+    private final HashSet<Callback> mRegisteredCallbacks = new HashSet<>();
 
     /**
      * Creates a media controller from a session.
@@ -534,7 +538,9 @@ public final class MediaControllerCompat {
         if (handler == null) {
             handler = new Handler();
         }
+        callback.setHandler(handler);
         mImpl.registerCallback(callback, handler);
+        mRegisteredCallbacks.add(callback);
     }
 
     /**
@@ -547,7 +553,12 @@ public final class MediaControllerCompat {
         if (callback == null) {
             throw new IllegalArgumentException("callback must not be null");
         }
-        mImpl.unregisterCallback(callback);
+        try {
+            mRegisteredCallbacks.remove(callback);
+            mImpl.unregisterCallback(callback);
+        } finally {
+            callback.setHandler(null);
+        }
     }
 
     /**
@@ -598,13 +609,11 @@ public final class MediaControllerCompat {
         MessageHandler mHandler;
         boolean mHasExtraCallback;
 
-        boolean mRegistered = false;
-
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 21) {
-                mCallbackObj = MediaControllerCompatApi21.createCallback(new StubApi21());
+                mCallbackObj = MediaControllerCompatApi21.createCallback(new StubApi21(this));
             } else {
-                mCallbackObj = new StubCompat();
+                mCallbackObj = new StubCompat(this);
             }
         }
 
@@ -728,136 +737,221 @@ public final class MediaControllerCompat {
         }
 
         /**
-         * Sets the handler to use for pre 21 callbacks.
+         * Set the handler to use for callbacks.
          */
-        private void setHandler(Handler handler) {
-            mHandler = new MessageHandler(handler.getLooper());
+        void setHandler(Handler handler) {
+            if (handler == null) {
+                if (mHandler != null) {
+                    mHandler.mRegistered = false;
+                    mHandler.removeCallbacksAndMessages(null);
+                    mHandler = null;
+                }
+            } else {
+                mHandler = new MessageHandler(handler.getLooper());
+                mHandler.mRegistered = true;
+            }
         }
 
-        private class StubApi21 implements MediaControllerCompatApi21.Callback {
-            StubApi21() {
+        void postToHandler(int what, Object obj, Bundle data) {
+            if (mHandler != null) {
+                Message msg = mHandler.obtainMessage(what, obj);
+                msg.setData(data);
+                msg.sendToTarget();
+            }
+        }
+
+        private static class StubApi21 implements MediaControllerCompatApi21.Callback {
+            private final WeakReference<MediaControllerCompat.Callback> mCallback;
+
+            StubApi21(MediaControllerCompat.Callback callback) {
+                mCallback = new WeakReference<>(callback);
             }
 
             @Override
             public void onSessionDestroyed() {
-                Callback.this.onSessionDestroyed();
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.onSessionDestroyed();
+                }
             }
 
             @Override
             public void onSessionEvent(String event, Bundle extras) {
-                if (mHasExtraCallback && android.os.Build.VERSION.SDK_INT < 23) {
-                    // Ignore. ExtraCallback will handle this.
-                } else {
-                    Callback.this.onSessionEvent(event, extras);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    if (callback.mHasExtraCallback && android.os.Build.VERSION.SDK_INT < 23) {
+                        // Ignore. ExtraCallback will handle this.
+                    } else {
+                        callback.onSessionEvent(event, extras);
+                    }
                 }
             }
 
             @Override
             public void onPlaybackStateChanged(Object stateObj) {
-                if (mHasExtraCallback) {
-                    // Ignore. ExtraCallback will handle this.
-                } else {
-                    Callback.this.onPlaybackStateChanged(
-                            PlaybackStateCompat.fromPlaybackState(stateObj));
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    if (callback.mHasExtraCallback) {
+                        // Ignore. ExtraCallback will handle this.
+                    } else {
+                        callback.onPlaybackStateChanged(
+                                PlaybackStateCompat.fromPlaybackState(stateObj));
+                    }
                 }
             }
 
             @Override
             public void onMetadataChanged(Object metadataObj) {
-                Callback.this.onMetadataChanged(MediaMetadataCompat.fromMediaMetadata(metadataObj));
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.onMetadataChanged(MediaMetadataCompat.fromMediaMetadata(metadataObj));
+                }
             }
 
             @Override
             public void onQueueChanged(List<?> queue) {
-                Callback.this.onQueueChanged(QueueItem.fromQueueItemList(queue));
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.onQueueChanged(QueueItem.fromQueueItemList(queue));
+                }
             }
 
             @Override
             public void onQueueTitleChanged(CharSequence title) {
-                Callback.this.onQueueTitleChanged(title);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.onQueueTitleChanged(title);
+                }
             }
 
             @Override
             public void onExtrasChanged(Bundle extras) {
-                Callback.this.onExtrasChanged(extras);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.onExtrasChanged(extras);
+                }
             }
 
             @Override
             public void onAudioInfoChanged(
                     int type, int stream, int control, int max, int current) {
-                Callback.this.onAudioInfoChanged(
-                        new PlaybackInfo(type, stream, control, max, current));
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.onAudioInfoChanged(
+                            new PlaybackInfo(type, stream, control, max, current));
+                }
             }
         }
 
-        private class StubCompat extends IMediaControllerCallback.Stub {
+        private static class StubCompat extends IMediaControllerCallback.Stub {
+            private final WeakReference<MediaControllerCompat.Callback> mCallback;
 
-            StubCompat() {
+            StubCompat(MediaControllerCompat.Callback callback) {
+                mCallback = new WeakReference<>(callback);
             }
 
             @Override
             public void onEvent(String event, Bundle extras) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_EVENT, event, extras);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_EVENT, event, extras);
+                }
             }
 
             @Override
             public void onSessionDestroyed() throws RemoteException {
-                mHandler.post(MessageHandler.MSG_DESTROYED, null, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_DESTROYED, null, null);
+                }
             }
 
             @Override
             public void onPlaybackStateChanged(PlaybackStateCompat state) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_PLAYBACK_STATE, state, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_UPDATE_PLAYBACK_STATE, state, null);
+                }
             }
 
             @Override
             public void onMetadataChanged(MediaMetadataCompat metadata) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_METADATA, metadata, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_UPDATE_METADATA, metadata, null);
+                }
             }
 
             @Override
             public void onQueueChanged(List<QueueItem> queue) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_QUEUE, queue, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_UPDATE_QUEUE, queue, null);
+                }
             }
 
             @Override
             public void onQueueTitleChanged(CharSequence title) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_QUEUE_TITLE, title, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_UPDATE_QUEUE_TITLE, title, null);
+                }
             }
 
             @Override
             public void onCaptioningEnabledChanged(boolean enabled) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_CAPTIONING_ENABLED, enabled, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(
+                            MessageHandler.MSG_UPDATE_CAPTIONING_ENABLED, enabled, null);
+                }
             }
 
             @Override
             public void onRepeatModeChanged(int repeatMode) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_REPEAT_MODE, repeatMode, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_UPDATE_REPEAT_MODE, repeatMode, null);
+                }
             }
 
             @Override
             public void onShuffleModeChangedDeprecated(boolean enabled) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_SHUFFLE_MODE_DEPRECATED, enabled, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(
+                            MessageHandler.MSG_UPDATE_SHUFFLE_MODE_DEPRECATED, enabled, null);
+                }
             }
 
             @Override
             public void onShuffleModeChanged(int shuffleMode) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_SHUFFLE_MODE, shuffleMode, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(
+                            MessageHandler.MSG_UPDATE_SHUFFLE_MODE, shuffleMode, null);
+                }
             }
 
             @Override
             public void onExtrasChanged(Bundle extras) throws RemoteException {
-                mHandler.post(MessageHandler.MSG_UPDATE_EXTRAS, extras, null);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_UPDATE_EXTRAS, extras, null);
+                }
             }
 
             @Override
             public void onVolumeInfoChanged(ParcelableVolumeInfo info) throws RemoteException {
-                PlaybackInfo pi = null;
-                if (info != null) {
-                    pi = new PlaybackInfo(info.volumeType, info.audioStream, info.controlType,
-                            info.maxVolume, info.currentVolume);
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    PlaybackInfo pi = null;
+                    if (info != null) {
+                        pi = new PlaybackInfo(info.volumeType, info.audioStream, info.controlType,
+                                info.maxVolume, info.currentVolume);
+                    }
+                    callback.postToHandler(MessageHandler.MSG_UPDATE_VOLUME, pi, null);
                 }
-                mHandler.post(MessageHandler.MSG_UPDATE_VOLUME, pi, null);
             }
         }
 
@@ -875,7 +969,9 @@ public final class MediaControllerCompat {
             private static final int MSG_UPDATE_CAPTIONING_ENABLED = 11;
             private static final int MSG_UPDATE_SHUFFLE_MODE = 12;
 
-            public MessageHandler(Looper looper) {
+            boolean mRegistered = false;
+
+            MessageHandler(Looper looper) {
                 super(looper);
             }
 
@@ -922,12 +1018,6 @@ public final class MediaControllerCompat {
                         onSessionDestroyed();
                         break;
                 }
-            }
-
-            public void post(int what, Object obj, Bundle data) {
-                Message msg = obtainMessage(what, obj);
-                msg.setData(data);
-                msg.sendToTarget();
             }
         }
     }
@@ -1295,8 +1385,6 @@ public final class MediaControllerCompat {
             try {
                 mBinder.asBinder().linkToDeath(callback, 0);
                 mBinder.registerCallbackListener((IMediaControllerCallback) callback.mCallbackObj);
-                callback.setHandler(handler);
-                callback.mRegistered = true;
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in registerCallback.", e);
                 callback.onSessionDestroyed();
@@ -1312,7 +1400,6 @@ public final class MediaControllerCompat {
                 mBinder.unregisterCallbackListener(
                         (IMediaControllerCallback) callback.mCallbackObj);
                 mBinder.asBinder().unlinkToDeath(callback, 0);
-                callback.mRegistered = false;
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in unregisterCallback.", e);
             }
@@ -1816,7 +1903,6 @@ public final class MediaControllerCompat {
             MediaControllerCompatApi21.registerCallback(
                     mControllerObj, callback.mCallbackObj, handler);
             if (mExtraBinder != null) {
-                callback.setHandler(handler);
                 ExtraCallback extraCallback = new ExtraCallback(callback);
                 mCallbackMap.put(callback, extraCallback);
                 callback.mHasExtraCallback = true;
@@ -1826,7 +1912,6 @@ public final class MediaControllerCompat {
                     Log.e(TAG, "Dead object in registerCallback.", e);
                 }
             } else {
-                callback.setHandler(handler);
                 synchronized (mPendingCallbacks) {
                     mPendingCallbacks.add(callback);
                 }
@@ -2087,38 +2172,15 @@ public final class MediaControllerCompat {
             }
         }
 
-        private static class ExtraCallback extends IMediaControllerCallback.Stub {
-            private Callback mCallback;
-
+        private static class ExtraCallback extends Callback.StubCompat {
             ExtraCallback(Callback callback) {
-                mCallback = callback;
-            }
-
-            @Override
-            public void onEvent(final String event, final Bundle extras) throws RemoteException {
-                mCallback.mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onSessionEvent(event, extras);
-                    }
-                });
+                super(callback);
             }
 
             @Override
             public void onSessionDestroyed() throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
-            }
-
-            @Override
-            public void onPlaybackStateChanged(final PlaybackStateCompat state)
-                    throws RemoteException {
-                mCallback.mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onPlaybackStateChanged(state);
-                    }
-                });
             }
 
             @Override
@@ -2137,47 +2199,6 @@ public final class MediaControllerCompat {
             public void onQueueTitleChanged(CharSequence title) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
-            }
-
-            @Override
-            public void onCaptioningEnabledChanged(final boolean enabled) throws RemoteException {
-                mCallback.mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onCaptioningEnabledChanged(enabled);
-                    }
-                });
-            }
-
-            @Override
-            public void onRepeatModeChanged(final int repeatMode) throws RemoteException {
-                mCallback.mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onRepeatModeChanged(repeatMode);
-                    }
-                });
-            }
-
-            @Override
-            public void onShuffleModeChangedDeprecated(final boolean enabled)
-                    throws RemoteException {
-                mCallback.mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onShuffleModeChanged(enabled);
-                    }
-                });
-            }
-
-            @Override
-            public void onShuffleModeChanged(final int shuffleMode) throws RemoteException {
-                mCallback.mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onShuffleModeChanged(shuffleMode);
-                    }
-                });
             }
 
             @Override
