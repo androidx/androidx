@@ -1284,6 +1284,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
 
         @Override
+        public boolean isEnabled(int position) {
+            return false;
+        }
+
+        @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             View v = convertView;
             if (v == null) {
