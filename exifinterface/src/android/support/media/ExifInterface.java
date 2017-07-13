@@ -409,7 +409,7 @@ public class ExifInterface {
     // Maximum size for checking file type signature (see image_type_recognition_lite.cc)
     private static final int SIGNATURE_CHECK_SIZE = 5000;
 
-    private static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff};
+    static final byte[] JPEG_SIGNATURE = new byte[] {(byte) 0xff, (byte) 0xd8, (byte) 0xff};
     private static final String RAF_SIGNATURE = "FUJIFILMCCD-RAW";
     private static final int RAF_OFFSET_TO_JPEG_IMAGE_OFFSET = 84;
     private static final int RAF_INFO_SIZE = 160;
@@ -445,11 +445,11 @@ public class ExifInterface {
     // image metadata from GPS longitude to camera model name.
 
     // Types of Exif byte alignments (see JEITA CP-3451C Section 4.5.2)
-    private static final short BYTE_ALIGN_II = 0x4949;  // II: Intel order
-    private static final short BYTE_ALIGN_MM = 0x4d4d;  // MM: Motorola order
+    static final short BYTE_ALIGN_II = 0x4949;  // II: Intel order
+    static final short BYTE_ALIGN_MM = 0x4d4d;  // MM: Motorola order
 
     // TIFF Header Fixed Constant (see JEITA CP-3451C Section 4.5.2)
-    private static final byte START_CODE = 0x2a; // 42
+    static final byte START_CODE = 0x2a; // 42
     private static final int IFD_OFFSET = 8;
 
     // Formats for the value in IFD entry (See TIFF 6.0 Section 2, "Image File Directory".)
@@ -468,12 +468,12 @@ public class ExifInterface {
     // Format indicating a new IFD entry (See Adobe PageMaker® 6.0 TIFF Technical Notes, "New Tag")
     private static final int IFD_FORMAT_IFD = 13;
     // Names for the data formats for debugging purpose.
-    private static final String[] IFD_FORMAT_NAMES = new String[] {
+    static final String[] IFD_FORMAT_NAMES = new String[] {
             "", "BYTE", "STRING", "USHORT", "ULONG", "URATIONAL", "SBYTE", "UNDEFINED", "SSHORT",
             "SLONG", "SRATIONAL", "SINGLE", "DOUBLE"
     };
     // Sizes of the components of each IFD value format
-    private static final int[] IFD_FORMAT_BYTES_PER_FORMAT = new int[] {
+    static final int[] IFD_FORMAT_BYTES_PER_FORMAT = new int[] {
             0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 1
     };
     private static final byte[] EXIF_ASCII_PREFIX = new byte[] {
@@ -915,7 +915,7 @@ public class ExifInterface {
     }
 
     // A class for indicating EXIF tag.
-    private static class ExifTag {
+    static class ExifTag {
         public final int number;
         public final String name;
         public final int primaryFormat;
@@ -933,6 +933,24 @@ public class ExifInterface {
             this.number = number;
             this.primaryFormat = primaryFormat;
             this.secondaryFormat = secondaryFormat;
+        }
+
+        private boolean isFormatCompatible(int format) {
+            if (primaryFormat == IFD_FORMAT_UNDEFINED || format == IFD_FORMAT_UNDEFINED) {
+                return true;
+            } else if (primaryFormat == format || secondaryFormat == format) {
+                return true;
+            } else if ((primaryFormat == IFD_FORMAT_ULONG || secondaryFormat == IFD_FORMAT_ULONG)
+                    && format == IFD_FORMAT_USHORT) {
+                return true;
+            } else if ((primaryFormat == IFD_FORMAT_SLONG || secondaryFormat == IFD_FORMAT_SLONG)
+                    && format == IFD_FORMAT_SSHORT) {
+                return true;
+            } else if ((primaryFormat == IFD_FORMAT_DOUBLE || secondaryFormat == IFD_FORMAT_DOUBLE)
+                    && format == IFD_FORMAT_SINGLE) {
+                return true;
+            }
+            return false;
         }
     }
 
@@ -1162,19 +1180,19 @@ public class ExifInterface {
             IFD_TYPE_ORF_CAMERA_SETTINGS, IFD_TYPE_ORF_IMAGE_PROCESSING, IFD_TYPE_PEF})
     public @interface IfdType {}
 
-    private static final int IFD_TYPE_PRIMARY = 0;
+    static final int IFD_TYPE_PRIMARY = 0;
     private static final int IFD_TYPE_EXIF = 1;
     private static final int IFD_TYPE_GPS = 2;
     private static final int IFD_TYPE_INTEROPERABILITY = 3;
-    private static final int IFD_TYPE_THUMBNAIL = 4;
-    private static final int IFD_TYPE_PREVIEW = 5;
+    static final int IFD_TYPE_THUMBNAIL = 4;
+    static final int IFD_TYPE_PREVIEW = 5;
     private static final int IFD_TYPE_ORF_MAKER_NOTE = 6;
     private static final int IFD_TYPE_ORF_CAMERA_SETTINGS = 7;
     private static final int IFD_TYPE_ORF_IMAGE_PROCESSING = 8;
     private static final int IFD_TYPE_PEF = 9;
 
     // List of Exif tag groups
-    private static final ExifTag[][] EXIF_TAGS = new ExifTag[][] {
+    static final ExifTag[][] EXIF_TAGS = new ExifTag[][] {
             IFD_TIFF_TAGS, IFD_EXIF_TAGS, IFD_GPS_TAGS, IFD_INTEROPERABILITY_TAGS,
             IFD_THUMBNAIL_TAGS, IFD_TIFF_TAGS, ORF_MAKER_NOTE_TAGS, ORF_CAMERA_SETTINGS_TAGS,
             ORF_IMAGE_PROCESSING_TAGS, PEF_TAGS
@@ -1217,11 +1235,11 @@ public class ExifInterface {
 
     private static final Charset ASCII = Charset.forName("US-ASCII");
     // Identifier for EXIF APP1 segment in JPEG
-    private static final byte[] IDENTIFIER_EXIF_APP1 = "Exif\0\0".getBytes(ASCII);
+    static final byte[] IDENTIFIER_EXIF_APP1 = "Exif\0\0".getBytes(ASCII);
     // JPEG segment markers, that each marker consumes two bytes beginning with 0xff and ending with
     // the indicator. There is no SOF4, SOF8, SOF16 markers in JPEG and SOFx markers indicates start
     // of frame(baseline DCT) and the image size info exists in its beginning part.
-    private static final byte MARKER = (byte) 0xff;
+    static final byte MARKER = (byte) 0xff;
     private static final byte MARKER_SOI = (byte) 0xd8;
     private static final byte MARKER_SOF0 = (byte) 0xc0;
     private static final byte MARKER_SOF1 = (byte) 0xc1;
@@ -1237,9 +1255,9 @@ public class ExifInterface {
     private static final byte MARKER_SOF14 = (byte) 0xce;
     private static final byte MARKER_SOF15 = (byte) 0xcf;
     private static final byte MARKER_SOS = (byte) 0xda;
-    private static final byte MARKER_APP1 = (byte) 0xe1;
+    static final byte MARKER_APP1 = (byte) 0xe1;
     private static final byte MARKER_COM = (byte) 0xfe;
-    private static final byte MARKER_EOI = (byte) 0xd9;
+    static final byte MARKER_EOI = (byte) 0xd9;
 
     // Supported Image File Types
     private static final int IMAGE_TYPE_UNKNOWN = 0;
@@ -2592,16 +2610,16 @@ public class ExifInterface {
             readImageFileDirectory(makerNoteDataInputStream, IFD_TYPE_ORF_MAKER_NOTE);
 
             // Retrieve & update preview image offset & length values
-            ExifAttribute imageLengthAttribute = (ExifAttribute)
+            ExifAttribute imageStartAttribute = (ExifAttribute)
                     mAttributes[IFD_TYPE_ORF_CAMERA_SETTINGS].get(TAG_ORF_PREVIEW_IMAGE_START);
-            ExifAttribute bitsPerSampleAttribute = (ExifAttribute)
+            ExifAttribute imageLengthAttribute = (ExifAttribute)
                     mAttributes[IFD_TYPE_ORF_CAMERA_SETTINGS].get(TAG_ORF_PREVIEW_IMAGE_LENGTH);
 
-            if (imageLengthAttribute != null && bitsPerSampleAttribute != null) {
+            if (imageStartAttribute != null && imageLengthAttribute != null) {
                 mAttributes[IFD_TYPE_PREVIEW].put(TAG_JPEG_INTERCHANGE_FORMAT,
-                        imageLengthAttribute);
+                        imageStartAttribute);
                 mAttributes[IFD_TYPE_PREVIEW].put(TAG_JPEG_INTERCHANGE_FORMAT_LENGTH,
-                        bitsPerSampleAttribute);
+                        imageLengthAttribute);
             }
 
             // TODO: Check this behavior in other ORF files
@@ -2855,13 +2873,12 @@ public class ExifInterface {
         }
         // See TIFF 6.0 Section 2: TIFF Structure, Figure 1.
         short numberOfDirectoryEntry = dataInputStream.readShort();
+        if (DEBUG) {
+            Log.d(TAG, "numberOfDirectoryEntry: " + numberOfDirectoryEntry);
+        }
         if (dataInputStream.mPosition + 12 * numberOfDirectoryEntry > dataInputStream.mLength) {
             // Return if the size of entries is too big.
             return;
-        }
-
-        if (DEBUG) {
-            Log.d(TAG, "numberOfDirectoryEntry: " + numberOfDirectoryEntry);
         }
 
         // See TIFF 6.0 Section 2: TIFF Structure, "Image File Directory".
@@ -2887,7 +2904,13 @@ public class ExifInterface {
                 Log.w(TAG, "Skip the tag entry since tag number is not defined: " + tagNumber);
             } else if (dataFormat <= 0 || dataFormat >= IFD_FORMAT_BYTES_PER_FORMAT.length) {
                 Log.w(TAG, "Skip the tag entry since data format is invalid: " + dataFormat);
+            } else if (!tag.isFormatCompatible(dataFormat)) {
+                Log.w(TAG, "Skip the tag entry since data format (" + IFD_FORMAT_NAMES[dataFormat]
+                        + ") is unexpected for tag: " + tag.name);
             } else {
+                if (dataFormat == IFD_FORMAT_UNDEFINED) {
+                    dataFormat = tag.primaryFormat;
+                }
                 byteCount = (long) numberOfComponents * IFD_FORMAT_BYTES_PER_FORMAT[dataFormat];
                 if (byteCount < 0 || byteCount > Integer.MAX_VALUE) {
                     Log.w(TAG, "Skip the tag entry since the number of components is invalid: "

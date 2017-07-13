@@ -29,6 +29,7 @@ import android.location.Location;
 import android.os.Environment;
 import android.support.exifinterface.test.R;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -47,6 +48,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -325,16 +328,85 @@ public class ExifInterfaceTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDoNotFailOnCorruptedImage() throws Throwable {
-        // To keep the compatibility with old versions of ExifInterface, even on a corrupted image,
-        // it shouldn't raise any exceptions except an IOException when unable to open a file.
-        byte[] bytes = new byte[1024];
-        try {
-            new ExifInterface(new ByteArrayInputStream(bytes));
-            // Always success
-        } catch (IOException e) {
-            fail("Should not reach here!");
+        // ExifInterface shouldn't raise any exceptions except an IOException when unable to open
+        // a file, even with a corrupted image. Generates 10,000 randomly corrupted image stream
+        // for testing. Uses Epoch date count as random seed so that we can reproduce a broken test.
+        Random random = new Random(System.currentTimeMillis() / 86400);
+        byte[] bytes = new byte[8096];
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        for (int i = 0; i < 10000; i++) {
+            buffer.clear();
+            random.nextBytes(bytes);
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.JPEG_SIGNATURE);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.MARKER_APP1);
+            }
+            buffer.putShort((short) (random.nextInt(100) + 300));
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.IDENTIFIER_EXIF_APP1);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort(ExifInterface.BYTE_ALIGN_MM);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.put((byte) 0);
+                buffer.put(ExifInterface.START_CODE);
+            }
+            buffer.putInt(8);
+
+            // Primary Tags
+            int numberOfDirectory = random.nextInt(8) + 1;
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort((short) numberOfDirectory);
+            }
+            for (int j = 0; j < numberOfDirectory; j++) {
+                generateRandomExifTag(buffer, ExifInterface.IFD_TYPE_PRIMARY, random);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putInt(buffer.position() - 8);
+            }
+
+            // Thumbnail Tags
+            numberOfDirectory = random.nextInt(8) + 1;
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort((short) numberOfDirectory);
+            }
+            for (int j = 0; j < numberOfDirectory; j++) {
+                generateRandomExifTag(buffer, ExifInterface.IFD_TYPE_THUMBNAIL, random);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putInt(buffer.position() - 8);
+            }
+
+            // Preview Tags
+            numberOfDirectory = random.nextInt(8) + 1;
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort((short) numberOfDirectory);
+            }
+            for (int j = 0; j < numberOfDirectory; j++) {
+                generateRandomExifTag(buffer, ExifInterface.IFD_TYPE_PREVIEW, random);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putInt(buffer.position() - 8);
+            }
+
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.MARKER);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.MARKER_EOI);
+            }
+
+            try {
+                new ExifInterface(new ByteArrayInputStream(bytes));
+                // Always success
+            } catch (IOException e) {
+                fail("Should not reach here!");
+            }
         }
     }
 
@@ -706,6 +778,31 @@ public class ExifInterfaceTest {
 
         // Since ExifInterface does not support for saving attributes for RAW files, do not test
         // about writing back in here.
+    }
+
+    private void generateRandomExifTag(ByteBuffer buffer, int ifdType, Random random) {
+        ExifInterface.ExifTag[] tagGroup = ExifInterface.EXIF_TAGS[ifdType];
+        ExifInterface.ExifTag tag = tagGroup[random.nextInt(tagGroup.length)];
+        if (!randomlyCorrupted(random)) {
+            buffer.putShort((short) tag.number);
+        }
+        int dataFormat = random.nextInt(ExifInterface.IFD_FORMAT_NAMES.length);
+        if (!randomlyCorrupted(random)) {
+            buffer.putShort((short) dataFormat);
+        }
+        buffer.putInt(1);
+        int dataLength = ExifInterface.IFD_FORMAT_BYTES_PER_FORMAT[dataFormat];
+        if (dataLength > 4) {
+            buffer.putShort((short) random.nextInt(8096 - dataLength));
+            buffer.position(buffer.position() + 2);
+        } else {
+            buffer.position(buffer.position() + 4);
+        }
+    }
+
+    private boolean randomlyCorrupted(Random random) {
+        // Corrupts somewhere in a possibility of 1/500.
+        return random.nextInt(500) == 0;
     }
 
     private void closeQuietly(Closeable closeable) {
