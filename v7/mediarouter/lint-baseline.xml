@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha5">
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by LocationManager.getLastKnownLocation: android.permission.ACCESS_COARSE_LOCATION or android.permission.ACCESS_FINE_LOCATION"
-        errorLine1="                    return mLocationManager.getLastKnownLocation(provider);"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/v7/app/TwilightManager.java"
-            line="128"
-            column="28"/>
-    </issue>
+<issues format="4" by="lint 3.0.0-alpha6">
 
     <issue
         id="MissingSuperCall"
@@ -21,32 +10,6 @@
             file="src/android/support/v7/app/MediaRouteButton.java"
             line="380"
             column="17"/>
-    </issue>
-
-    <issue
-        id="MissingSuperCall"
-        message="Overriding method should call `super.draw`"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                ~~~~">
-        <location
-            file="src/android/support/v7/widget/ViewStubCompat.java"
-            line="151"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="DuplicateIds"
-        message="Duplicate id `@+id/image`, already defined earlier in this layout"
-        errorLine1="        &lt;ImageView android:id=&quot;@+id/image&quot;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="res/layout/abc_activity_chooser_view.xml"
-            line="62"
-            column="20"/>
-        <location
-            file="res/layout/abc_activity_chooser_view.xml"
-            line="40"
-            column="20"/>
     </issue>
 
     <issue
@@ -61,149 +24,6 @@
     </issue>
 
     <issue
-        id="ResourceType"
-        message="Expected resource of type xml"
-        errorLine1="                    final XmlPullParser parser = res.getXml(resId);"
-        errorLine2="                                                            ~~~~~">
-        <location
-            file="src/android/support/v7/widget/AppCompatDrawableManager.java"
-            line="347"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type layout"
-        errorLine1="            parser = mContext.getResources().getLayout(menuRes);"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/android/support/v7/view/SupportMenuInflater.java"
-            line="123"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -2147483648)"
-        errorLine1="                                MeasureSpec.makeMeasureSpec(largestChildHeight,"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/v7/widget/LinearLayoutCompat.java"
-            line="868"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="Range"
-        message="Value must be ≥ 0 (was -2147483648)"
-        errorLine1="                                MeasureSpec.makeMeasureSpec(largestChildWidth, MeasureSpec.EXACTLY),"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/android/support/v7/widget/LinearLayoutCompat.java"
-            line="1286"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (ActionBarDrawerToggleHoneycomb)"
-        errorLine1="                Log.w(TAG, &quot;Couldn&apos;t set home-as-up indicator via JB-MR2 API&quot;, e);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/android/support/v7/app/ActionBarDrawerToggleHoneycomb.java"
-            line="62"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (ActionBarDrawerToggleHoneycomb)"
-        errorLine1="            Log.w(TAG, &quot;Couldn&apos;t set home-as-up indicator&quot;);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/app/ActionBarDrawerToggleHoneycomb.java"
-            line="67"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 30 (ActionBarDrawerToggleHoneycomb)"
-        errorLine1="                Log.w(TAG, &quot;Couldn&apos;t set content description via JB-MR2 API&quot;, e);"
-        errorLine2="                      ~~~">
-        <location
-            file="src/android/support/v7/app/ActionBarDrawerToggleHoneycomb.java"
-            line="87"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (AppCompatDrawableManager)"
-        errorLine1="                        Log.d(TAG, &quot;[loadDrawableFromDelegates] Skipping drawable: &quot;"
-        errorLine2="                              ~~~">
-        <location
-            file="src/android/support/v7/widget/AppCompatDrawableManager.java"
-            line="315"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (AppCompatDrawableManager)"
-        errorLine1="                    Log.i(TAG, &quot;[loadDrawableFromDelegates] Returning cached drawable: &quot; +"
-        errorLine2="                          ~~~">
-        <location
-            file="src/android/support/v7/widget/AppCompatDrawableManager.java"
-            line="337"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (AppCompatDrawableManager)"
-        errorLine1="                            Log.i(TAG, &quot;[loadDrawableFromDelegates] Saved drawable to cache: &quot; +"
-        errorLine2="                                  ~~~">
-        <location
-            file="src/android/support/v7/widget/AppCompatDrawableManager.java"
-            line="372"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (AppCompatDrawableManager)"
-        errorLine1="                    Log.e(TAG, &quot;Exception while inflating drawable&quot;, e);"
-        errorLine2="                          ~~~">
-        <location
-            file="src/android/support/v7/widget/AppCompatDrawableManager.java"
-            line="377"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (AppCompatDrawableManager)"
-        errorLine1="                Log.d(TAG, &quot;[tintDrawableUsingColorFilter] Tinted &quot;"
-        errorLine2="                      ~~~">
-        <location
-            file="src/android/support/v7/widget/AppCompatDrawableManager.java"
-            line="482"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="LongLogTag"
-        message="The logging tag can be at most 23 characters, was 24 (AppCompatDrawableManager)"
-        errorLine1="            Log.d(TAG, &quot;Mutated drawable is not the same instance as the input.&quot;);"
-        errorLine2="                  ~~~">
-        <location
-            file="src/android/support/v7/widget/AppCompatDrawableManager.java"
-            line="698"
-            column="19"/>
-    </issue>
-
-    <issue
         id="LongLogTag"
         message="The logging tag can be at most 23 characters, was 24 (MediaRouteActionProvider)"
         errorLine1="            Log.e(TAG, &quot;onCreateActionView: this ActionProvider is already associated &quot; +"
@@ -212,17 +32,6 @@
             file="src/android/support/v7/app/MediaRouteActionProvider.java"
             line="248"
             column="19"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: PixelFormat.UNKNOWN, PixelFormat.TRANSLUCENT, PixelFormat.TRANSPARENT, PixelFormat.OPAQUE"
-        errorLine1="        return 0;"
-        errorLine2="               ~">
-        <location
-            file="src/android/support/v7/widget/ActionBarBackgroundDrawable.java"
-            line="59"
-            column="16"/>
     </issue>
 
     <issue
@@ -243,7 +52,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/android/support/v7/app/ToolbarActionBar.java"
-            line="254"
+            line="251"
             column="36"/>
     </issue>
 
@@ -254,7 +63,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/android/support/v7/app/ToolbarActionBar.java"
-            line="254"
+            line="251"
             column="36"/>
     </issue>
 

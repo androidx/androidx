@@ -23,6 +23,7 @@ import static android.support.v7.widget.ThemeUtils.getDisabledThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColor;
 import static android.support.v7.widget.ThemeUtils.getThemeAttrColorStateList;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -70,7 +71,7 @@ public final class AppCompatDrawableManager {
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme);
     }
 
-    private static final String TAG = "AppCompatDrawableManager";
+    private static final String TAG = "AppCompatDrawableManag";
     private static final boolean DEBUG = false;
     private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
     private static final String SKIP_DRAWABLE_TAG = "appcompat_skip_skip";
@@ -344,7 +345,7 @@ public final class AppCompatDrawableManager {
             if (tv.string != null && tv.string.toString().endsWith(".xml")) {
                 // If the resource is an XML file, let's try and parse it
                 try {
-                    final XmlPullParser parser = res.getXml(resId);
+                    @SuppressLint("ResourceType") final XmlPullParser parser = res.getXml(resId);
                     final AttributeSet attrs = Xml.asAttributeSet(parser);
                     int type;
                     while ((type = parser.next()) != XmlPullParser.START_TAG &&
