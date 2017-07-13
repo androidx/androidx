@@ -25,6 +25,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.PorterDuff;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.RestrictTo;
 import android.support.v4.internal.view.SupportMenu;
 import android.support.v4.view.ActionProvider;
@@ -111,7 +112,7 @@ public class SupportMenuInflater extends MenuInflater {
      *            added to this Menu.
      */
     @Override
-    public void inflate(int menuRes, Menu menu) {
+    public void inflate(@LayoutRes int menuRes, Menu menu) {
         // If we're not dealing with a SupportMenu instance, let super handle
         if (!(menu instanceof SupportMenu)) {
             super.inflate(menuRes, menu);
