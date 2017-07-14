@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2016 The Android Open Source Project
   ~
@@ -12,12 +13,21 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
-
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.arch.persistence.room.integration.testapp">
-    <application android:allowBackup="true"
-                 android:debuggable="true"
-                 android:name="android.support.multidex.MultiDexApplication"
-                 android:supportsRtl="true"/>
-</manifest>
+    <application
+        android:allowBackup="true"
+        android:name="android.support.multidex.MultiDexApplication"
+        android:supportsRtl="true">
+        <activity
+            android:name=".LazyListActivity"
+            android:label="Room LazyList"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+  </manifest>
