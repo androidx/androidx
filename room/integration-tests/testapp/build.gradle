@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 
 project.ext.noDocs = true
 
@@ -26,7 +26,6 @@ android {
         targetSdkVersion tools.current_sdk
         versionCode 1
         versionName "1.0"
-        multiDexEnabled true
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
@@ -53,8 +52,15 @@ dependencies {
     compile project(":room:db-impl")
     compile project(':room:runtime')
     compile project(':arch:runtime')
-    compile 'com.android.support:multidex:1.0.1'
+    compile project(':arch:common')
+    compile project(':paging:common')
+    compile project(':lifecycle:extensions')
+    compile project(':lifecycle:runtime')
+    compile project(':lifecycle:common')
+    compile project(':room:rxjava2')
+    compile project(':paging:runtime')
 
+    compile libs.support.recyclerview
     compile libs.support.app_compat
     annotationProcessor project(":room:compiler")
     androidTestAnnotationProcessor project(":room:compiler")
