@@ -82,9 +82,8 @@ if (ext.inAppToolkitProject) {
     init.setupRepoOutAndBuildNumber()
     init.configureSubProjects()
     init.setupRelease()
-//   TODO: fix apptoolkit docs
-//    init.enableDoclavaAndJDiff(this)
-//    rootProject.tasks["generateDocs"].exclude '**/R.java'
+    init.enableDoclavaAndJDiff(this)
+    rootProject.tasks["generateDocs"].exclude '**/R.java'
 }
 
 
@@ -96,15 +95,7 @@ def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArc
 }
 
 buildServerAnchorTask.dependsOn zipFlatfootDocsTask
-
-//TODO: fix apptoolkit docs
-// zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
-
-// TODO: fix apptoolkit
-// Disable API checks for now.
-//checkApiRelease.enabled = false
-//checkApi.enabled = false
-//generateApi.enabled = false
+zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
 
 buildServerAnchorTask.dependsOn createArchive
 
@@ -138,7 +129,9 @@ subprojects {
         return
     }
     project.group = finalGroup
-    project.version = flatfoot.release_version
+    if (!project.version) {
+        project.version = flatfoot.release_version
+    }
 
     if (project.getPath().contains("integration-tests")) {
         // disable upload tasks
