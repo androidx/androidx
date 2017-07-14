@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
+import android.support.annotation.WorkerThread;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.ArraySet;
 import android.util.Log;
@@ -394,6 +395,18 @@ public class InvalidationTracker {
         if (mPendingRefresh.compareAndSet(false, true)) {
             AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
         }
+    }
+
+    /**
+     * Check versions for tables, and run observers synchronously if tables have been updated.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WorkerThread
+    public void refreshVersionsSync() {
+        syncTriggers();
+        mRefreshRunnable.run();
     }
 
     /**

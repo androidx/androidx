@@ -45,7 +45,7 @@ android {
 
 allprojects {
     dependencies {
-        compile project(":arch:runtime")
+        compile project(":arch:common")
         compile project(":lifecycle:common")
         compile project(":lifecycle:extensions")
         compile project(":lifecycle:runtime")

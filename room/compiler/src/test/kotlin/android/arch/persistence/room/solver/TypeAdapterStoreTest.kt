@@ -20,6 +20,7 @@ import COMMON
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.LifecyclesTypeNames
+import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.ext.ReactiveStreamsTypeNames
 import android.arch.persistence.room.ext.RoomTypeNames.STRING_UTIL
 import android.arch.persistence.room.ext.RxJava2TypeNames
@@ -27,10 +28,15 @@ import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
+import android.arch.persistence.room.solver.binderprovider.CountedDataSourceQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.LiveLazyListQueryResultBinderProvider
 import android.arch.persistence.room.solver.types.CompositeAdapter
 import android.arch.persistence.room.solver.types.TypeConverter
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
+import android.arch.util.paging.CountedDataSource
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
@@ -203,7 +209,7 @@ class TypeAdapterStoreTest {
             val publisherElement = invocation.processingEnv.elementUtils
                     .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
             assertThat(publisherElement, notNullValue())
-            assertThat(invocation.context.typeAdapterStore.isRxJava2Publisher(
+            assertThat(FlowableQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(publisherElement.asType())), `is`(true))
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
     }
@@ -215,7 +221,7 @@ class TypeAdapterStoreTest {
             val publisher = invocation.processingEnv.elementUtils
                     .getTypeElement(ReactiveStreamsTypeNames.PUBLISHER.toString())
             assertThat(publisher, notNullValue())
-            assertThat(invocation.context.typeAdapterStore.isRxJava2Publisher(
+            assertThat(FlowableQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(publisher.asType())), `is`(true))
         }.compilesWithoutError()
     }
@@ -227,7 +233,7 @@ class TypeAdapterStoreTest {
             val flowable = invocation.processingEnv.elementUtils
                     .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())
             assertThat(flowable, notNullValue())
-            assertThat(invocation.context.typeAdapterStore.isRxJava2Publisher(
+            assertThat(FlowableQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(flowable.asType())), `is`(true))
         }.compilesWithoutError()
     }
@@ -239,8 +245,32 @@ class TypeAdapterStoreTest {
             val liveData = invocation.processingEnv.elementUtils
                     .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())
             assertThat(liveData, notNullValue())
-            assertThat(invocation.context.typeAdapterStore.isLiveData(
+            assertThat(LiveDataQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(liveData.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun findCountedDataSource() {
+        simpleRun {
+            invocation ->
+            val countedDataSource = invocation.processingEnv.elementUtils
+                    .getTypeElement(CountedDataSource::class.java.canonicalName)
+            assertThat(countedDataSource, notNullValue())
+            assertThat(CountedDataSourceQueryResultBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(countedDataSource.asType())), `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun findLazyListProvider() {
+        simpleRun(jfos = COMMON.LIVE_LAZY_LIST_PROVIDER) {
+            invocation ->
+            val lazyListProvider = invocation.processingEnv.elementUtils
+                    .getTypeElement(PagingTypeNames.LIVE_LAZY_LIST_PROVIDER.toString())
+            assertThat(lazyListProvider, notNullValue())
+            assertThat(LiveLazyListQueryResultBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(lazyListProvider.asType())), `is`(true))
         }.compilesWithoutError()
     }
 

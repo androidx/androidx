@@ -109,6 +109,7 @@ rootProject.ext.flatfootProjectGroups = [
         "room" : "android.arch.persistence.room",
         "lifecycle" : "android.arch.lifecycle",
         "arch" : "android.arch.core",
+        "paging" : "android.arch.paging",
         "navigation" : "android.arch.navigation"]
 
 subprojects {
@@ -129,6 +130,7 @@ subprojects {
 
     def mavenGroup = project.getPath().split(":")[1]
     def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
+
     if (finalGroup == null) {
         return
     }
