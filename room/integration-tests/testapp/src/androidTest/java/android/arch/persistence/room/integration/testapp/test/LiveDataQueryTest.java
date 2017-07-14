@@ -44,7 +44,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -263,13 +262,10 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     private static void forceGc() {
-        // Use a random index in the list to detect the garbage collection each time because
-        // .get() may accidentally trigger a strong reference during collection.
-        ArrayList<WeakReference<byte[]>> leak = new ArrayList<>();
-        do {
-            WeakReference<byte[]> arr = new WeakReference<>(new byte[100]);
-            leak.add(arr);
-        } while (leak.get((int) (Math.random() * leak.size())).get() != null);
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
     }
 
     static class TestLifecycleOwner implements LifecycleOwner {
