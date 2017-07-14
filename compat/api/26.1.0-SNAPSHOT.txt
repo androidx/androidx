@@ -351,6 +351,10 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.CarExtender.UnreadConversation.Builder setReplyAction(android.app.PendingIntent, android.support.v4.app.RemoteInput);
   }
 
+  public static class NotificationCompat.DecoratedCustomViewStyle extends android.support.v4.app.NotificationCompat.Style {
+    ctor public NotificationCompat.DecoratedCustomViewStyle();
+  }
+
   public static abstract interface NotificationCompat.Extender {
     method public abstract android.support.v4.app.NotificationCompat.Builder extend(android.support.v4.app.NotificationCompat.Builder);
   }
