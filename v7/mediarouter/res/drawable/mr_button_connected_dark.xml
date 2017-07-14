@@ -40,4 +40,12 @@
     <item android:drawable="@drawable/ic_mr_button_connected_20_dark" android:duration="42" />
     <item android:drawable="@drawable/ic_mr_button_connected_21_dark" android:duration="42" />
     <item android:drawable="@drawable/ic_mr_button_connected_22_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_23_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_24_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_25_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_26_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_27_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_28_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_29_dark" android:duration="42" />
+    <item android:drawable="@drawable/ic_mr_button_connected_30_dark" android:duration="42" />
 </animation-list>
