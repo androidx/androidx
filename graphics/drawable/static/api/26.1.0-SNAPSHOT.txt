@@ -1,0 +1,16 @@
+package android.support.graphics.drawable {
+
+   abstract class VectorDrawableCommon extends android.graphics.drawable.Drawable {
+  }
+
+  public class VectorDrawableCompat extends android.support.graphics.drawable.VectorDrawableCommon {
+    method public static android.support.graphics.drawable.VectorDrawableCompat create(android.content.res.Resources, int, android.content.res.Resources.Theme);
+    method public static android.support.graphics.drawable.VectorDrawableCompat createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void draw(android.graphics.Canvas);
+    method public int getOpacity();
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter);
+  }
+
+}
+
