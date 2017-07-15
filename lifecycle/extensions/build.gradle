@@ -53,6 +53,3 @@ dependencies {
 }
 
 createAndroidCheckstyle(project)
-
-//noinspection GroovyUnusedAssignment
-archivesBaseName = "extensions"
