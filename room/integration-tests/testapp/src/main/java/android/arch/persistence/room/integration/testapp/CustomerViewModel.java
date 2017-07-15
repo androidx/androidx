@@ -23,8 +23,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.database.Customer;
 import android.arch.persistence.room.integration.testapp.database.SampleDatabase;
-import android.arch.util.paging.LazyList;
-import android.arch.util.paging.ListConfig;
+import android.arch.util.paging.PagedList;
 
 import java.util.UUID;
 
@@ -33,17 +32,17 @@ import java.util.UUID;
  */
 public class CustomerViewModel extends AndroidViewModel {
     private SampleDatabase mDatabase;
-    private LiveData<LazyList<Customer>> mLiveCustomerList;
+    private LiveData<PagedList<Customer>> mLiveCustomerList;
     private static int sCustomerId = 0;
 
     public CustomerViewModel(Application application) {
         super(application);
         createDb();
         mLiveCustomerList = mDatabase.getCustomerDao().loadPagedAgeOrder().create(
-                ListConfig.builder()
-                        .pageSize(10)
-                        .prefetchDistance(10)
-                        .create());
+                new PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .setPrefetchDistance(10)
+                        .build());
     }
 
     private void createDb() {
@@ -53,7 +52,6 @@ public class CustomerViewModel extends AndroidViewModel {
 
     public void setDatabase(SampleDatabase database) {
         mDatabase = database;
-
     }
 
     void insertCustomer() {
@@ -69,7 +67,7 @@ public class CustomerViewModel extends AndroidViewModel {
         });
     }
 
-    LiveData<LazyList<Customer>> getLazyList() {
+    LiveData<PagedList<Customer>> getLivePagedList() {
         return mLiveCustomerList;
     }
 }

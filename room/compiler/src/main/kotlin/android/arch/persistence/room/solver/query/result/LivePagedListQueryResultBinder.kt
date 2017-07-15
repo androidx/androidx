@@ -18,7 +18,6 @@ package android.arch.persistence.room.solver.query.result
 
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.PagingTypeNames
-import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
@@ -26,7 +25,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
-class LiveLazyListQueryResultBinder(
+class LivePagedListQueryResultBinder(
         val countedDataSourceQueryResultBinder: CountedDataSourceQueryResultBinder)
     : QueryResultBinder(countedDataSourceQueryResultBinder.listAdapter) {
     @Suppress("HasPlatformType")
@@ -34,13 +33,13 @@ class LiveLazyListQueryResultBinder(
     override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
                                   scope: CodeGenScope) {
         scope.builder().apply {
-            val lazyListProvider = TypeSpec
+            val pagedListProvider = TypeSpec
                     .anonymousClassBuilder("").apply {
-                superclass(ParameterizedTypeName.get(PagingTypeNames.LIVE_LAZY_LIST_PROVIDER,
+                superclass(ParameterizedTypeName.get(PagingTypeNames.LIVE_PAGED_LIST_PROVIDER,
                         typeName))
                 addMethod(createCreateDataSourceMethod(roomSQLiteQueryVar, dbField, scope))
             }.build()
-            addStatement("return $L", lazyListProvider)
+            addStatement("return $L", pagedListProvider)
         }
     }
 
