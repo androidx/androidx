@@ -16,7 +16,6 @@
 import org.gradle.internal.os.OperatingSystem
 
 def root = ext.supportRootFolder
-ext.usePrebuilts = "true" // for doclava
 ext.inAppToolkitProject = rootProject.name == "app-toolkit"
 
 if (ext.inAppToolkitProject) {

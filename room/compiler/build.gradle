@@ -51,8 +51,6 @@ dependencies {
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
-archivesBaseName = "compiler"
-
 def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
     def outFolder = file(antlrOut)
     outputs.dir(outFolder)

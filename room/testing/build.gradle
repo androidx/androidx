@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.builder.core.BuilderConstants
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -56,8 +55,6 @@ dependencies {
     compile libs.support.core_utils
     compile libs.junit
 }
-
-archivesBaseName = "testing"
 
 createAndroidCheckstyle(project)
 
