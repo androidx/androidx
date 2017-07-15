@@ -63,5 +63,3 @@ allprojects {
 }
 
 createAndroidCheckstyle(project)
-
-archivesBaseName = "reactivestreams"

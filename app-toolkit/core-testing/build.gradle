@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -60,8 +61,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 }
-
-archivesBaseName = "core-testing"
 
 createAndroidCheckstyle(project)
 

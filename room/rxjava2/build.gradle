@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.builder.core.BuilderConstants
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -56,8 +55,6 @@ dependencies {
     testCompile libs.mockito_core
     testCompile project(":arch:core-testing")
 }
-
-archivesBaseName = "rxjava2"
 
 createAndroidCheckstyle(project)
 

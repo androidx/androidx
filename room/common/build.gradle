@@ -25,6 +25,4 @@ dependencies {
     testCompile libs.mockito_core
 }
 
-archivesBaseName = "common"
-
 createAndroidCheckstyle(project)
