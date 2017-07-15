@@ -15,6 +15,4 @@ dependencies {
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
-archivesBaseName = "compiler"
-
 createKotlinCheckstyle(project)

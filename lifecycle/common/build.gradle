@@ -9,6 +9,4 @@ dependencies {
     compile libs.support.annotations
 }
 
-archivesBaseName = "common"
-
 createAndroidCheckstyle(project)

@@ -31,5 +31,3 @@ dependencies {
     testCompile libs.ij_annotations
     testCompile libs.mockito_core
 }
-
-archivesBaseName = "migration"
