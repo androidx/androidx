@@ -477,11 +477,12 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
             return true
         }
         val types = context.processingEnv.typeUtils
+
         val matching = candidates
                 .filter {
-                    types.isSameType(field.element.asType(), getType(it))
-                            && field.nameWithVariations.contains(it.simpleName.toString())
-                            || nameVariations.contains(it.simpleName.toString())
+                    types.isAssignable(getType(it), field.element.asType())
+                            && (field.nameWithVariations.contains(it.simpleName.toString())
+                            || nameVariations.contains(it.simpleName.toString()))
                 }
                 .groupBy {
                     if (it.hasAnyOf(PUBLIC)) PUBLIC else PROTECTED
