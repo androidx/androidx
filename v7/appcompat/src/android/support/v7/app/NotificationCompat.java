@@ -29,8 +29,17 @@ import android.widget.RemoteViews;
 
 /**
  * An extension of {@link android.support.v4.app.NotificationCompat} which adds additional styles.
+ * @deprecated Use {@link android.support.v4.app.NotificationCompat}.
  */
+@Deprecated
 public class NotificationCompat extends android.support.v4.app.NotificationCompat {
+
+    /**
+     * @deprecated Use the static classes in {@link android.support.v4.app.NotificationCompat}.
+     */
+    @Deprecated
+    public NotificationCompat() {
+    }
 
     /**
      * Extracts a {@link MediaSessionCompat.Token} from the extra values
