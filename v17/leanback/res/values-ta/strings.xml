@@ -53,8 +53,6 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"மீடியா கட்டுப்பாடுகள் மறைக்கப்பட்டுள்ளன. கட்டுப்பாடுகளைக் காட்ட, டிபேடை அழுத்தவும்"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"முடி"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"தொடர்க"</string>
-    <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
-    <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer பிழைக் குறியீடு: %1$d கூடுதல் %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"தொடங்குக"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"அடுத்து"</string>

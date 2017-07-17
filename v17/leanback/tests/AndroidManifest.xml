@@ -22,11 +22,11 @@
         <activity android:name="android.support.v17.leanback.widget.GridActivity"
                   android:exported="true"/>
 
-        <activity android:name="android.support.v17.leanback.widget.TimePickerActivity"
+        <activity android:name="android.support.v17.leanback.widget.picker.TimePickerActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
 
-        <activity android:name="android.support.v17.leanback.widget.DatePickerActivity"
+        <activity android:name="android.support.v17.leanback.widget.picker.DatePickerActivity"
                   android:exported="true"
                   android:theme="@style/Theme.Leanback"/>
 
