@@ -303,8 +303,8 @@ package android.support.v7.app {
     ctor public AppCompatDialogFragment();
   }
 
-  public class NotificationCompat extends android.support.v4.app.NotificationCompat {
-    ctor public NotificationCompat();
+  public deprecated class NotificationCompat extends android.support.v4.app.NotificationCompat {
+    ctor public deprecated NotificationCompat();
     method public static deprecated android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
   }
 
