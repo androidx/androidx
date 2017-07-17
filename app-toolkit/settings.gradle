@@ -90,6 +90,9 @@ project(':room:rxjava2').projectDir = new File(supportRoot, "room/rxjava2")
 include ':room:integration-tests:testapp'
 project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "room/integration-tests/testapp")
 
+include ':room:integration-tests:kotlintestapp'
+project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRoot, "room/integration-tests/kotlintestapp")
+
 /////////////////////////////
 //
 // SupportLib
