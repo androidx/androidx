@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.v17.leanback.widget;
+package android.support.v17.leanback.widget.picker;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,14 +27,17 @@ import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
-import android.support.v17.leanback.widget.picker.TimePicker;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
+import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -43,8 +47,6 @@ public class TimePickerTest {
     private static final long TRANSITION_LENGTH = 1000;
     private static final long UPDATE_LENGTH = 1000;
 
-
-    Context mContext;
     View mViewAbove;
     TimePicker mTimePicker12HourView;
     TimePicker mTimePicker24HourView;
@@ -54,6 +56,12 @@ public class TimePickerTest {
     public ActivityTestRule<TimePickerActivity> mActivityTestRule =
             new ActivityTestRule<>(TimePickerActivity.class, false, false);
     private TimePickerActivity mActivity;
+    private Context mContext;
+
+    @Before
+    public void setUp() throws Exception {
+        mContext = InstrumentationRegistry.getTargetContext();
+    }
 
     public void initActivity(Intent intent) throws Throwable {
         mActivity = mActivityTestRule.launchActivity(intent);
@@ -67,7 +75,7 @@ public class TimePickerTest {
             }
         });
 
-        if (intent.getIntExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        if (intent.getIntExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets) == R.layout.timepicker_with_other_widgets) {
             mViewAbove = mActivity.findViewById(R.id.above_picker);
             mViewBelow = mActivity.findViewById(R.id.below_picker);
@@ -79,7 +87,7 @@ public class TimePickerTest {
                     mTimePicker24HourView.setActivated(!mTimePicker24HourView.isActivated());
                 }
             });
-        } else if (intent.getIntExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        } else if (intent.getIntExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets) == R.layout.timepicker_alone) {
             // A layout with only a TimePicker widget that is initially activated.
             mActivityTestRule.runOnUiThread(new Runnable() {
@@ -95,9 +103,10 @@ public class TimePickerTest {
     @Test
     public void testSetHourIn24hFormat() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
+
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -152,7 +161,7 @@ public class TimePickerTest {
     @Test
     public void testSetHourIn12hFormat() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -209,7 +218,7 @@ public class TimePickerTest {
     @Test
     public void testSetMinuteIn24hFormat() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -246,7 +255,7 @@ public class TimePickerTest {
     @Test
     public void testSetMinuteIn12hFormat() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -284,7 +293,7 @@ public class TimePickerTest {
     @Test
     public void testAmToPmTransition() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -326,7 +335,7 @@ public class TimePickerTest {
     @Test
     public void testPmToAmTransition() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -368,7 +377,7 @@ public class TimePickerTest {
     @Test
     public void test12To24HourFormatTransition() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -400,7 +409,7 @@ public class TimePickerTest {
     @Test
     public void test24To12HourFormatTransition() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_with_other_widgets);
         initActivity(intent);
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -433,7 +442,7 @@ public class TimePickerTest {
     public void testInitiallyActiveTimePicker()
             throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(DatePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
+        intent.putExtra(TimePickerActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.timepicker_alone);
         initActivity(intent);
 
@@ -473,12 +482,106 @@ public class TimePickerTest {
         sendKeys(KeyEvent.KEYCODE_DPAD_RIGHT);
         Thread.sleep(TRANSITION_LENGTH);
         assertThat("The third column of TimePicker should hold focus after scrolling right",
-                mTimePickerInnerView.getChildAt(4).hasFocus(), is(true));
+                mTimePickerInnerView.getChildAt(3).hasFocus(), is(true));
 
         sendKeys(KeyEvent.KEYCODE_DPAD_UP);
         Thread.sleep(TRANSITION_LENGTH);
         assertThat("The third column of TimePicker should still hold focus after scrolling down",
-                mTimePickerInnerView.getChildAt(4).hasFocus(), is(true));
+                mTimePickerInnerView.getChildAt(3).hasFocus(), is(true));
+    }
+
+    @Test
+    public void testExtractSeparatorsForDifferentLocales() throws Throwable {
+        // A typical time pattern for different locales in 12-hour format
+        TimePicker timePicker = new TimePicker(mContext, null) {
+            @Override
+            String getBestHourMinutePattern() {
+                return "h:mm a";
+            }
+        };
+        List<CharSequence> actualSeparators = timePicker.extractSeparators();
+        List<String> expectedSeparators = Arrays.asList(new String[] {"", ":", "", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // time pattern for ja_JP in 12 hour format
+        timePicker = new TimePicker(mContext, null) {
+            @Override
+            String getBestHourMinutePattern() {
+                return "aK:mm";
+            }
+
+            @Override
+            public boolean is24Hour() {
+                return false;
+            }
+        };
+        actualSeparators = timePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[] {"", "", ":", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // time pattern for fr_CA in 24 hour format
+        timePicker = new TimePicker(mContext, null) {
+            @Override
+            String getBestHourMinutePattern() {
+                return "HH 'h' mm";
+            }
+
+            @Override
+            public boolean is24Hour() {
+                return true;
+            }
+        };
+        actualSeparators = timePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[] {"", "h", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // time pattern for hsb_DE in 24 hour format
+        timePicker = new TimePicker(mContext, null) {
+            @Override
+            String getBestHourMinutePattern() {
+                return "H:mm 'hodz'";
+            }
+
+            @Override
+            public boolean is24Hour() {
+                return true;
+            }
+        };
+        actualSeparators = timePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[] {"", ":", "hodz"});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // time pattern for ko_KR in 12 hour format
+        timePicker = new TimePicker(mContext, null) {
+            @Override
+            String getBestHourMinutePattern() {
+                return "a h:mm";
+            }
+
+            @Override
+            public boolean is24Hour() {
+                return false;
+            }
+        };
+        actualSeparators = timePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[] {"", "", ":", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // time pattern for fa_IR in 24 hour format
+        timePicker = new TimePicker(mContext, null) {
+            @Override
+            String getBestHourMinutePattern() {
+                return "H:mm";
+            }
+
+            @Override
+            public boolean is24Hour() {
+                return true;
+            }
+        };
+        actualSeparators = timePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[] {"", ":", ""});
+        assertEquals(expectedSeparators, actualSeparators);
     }
 
     private void sendKeys(int ...keys) {

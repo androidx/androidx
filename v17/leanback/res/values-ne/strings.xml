@@ -55,8 +55,6 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"मिडियाका नियन्त्रणहरू लुकेका छन्, देखाउनका लागि d-pad लाई थिच्नुहोस्"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"समाप्त गर्नुहोस्"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"जारी राख्नुहोस्"</string>
-    <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
-    <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"MediaPlayer को त्रुटि सम्बन्धी कोड %1$d अतिरिक्त %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"सुरु गरौँ"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"अर्को"</string>
