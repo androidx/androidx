@@ -226,6 +226,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // getLayoutInflater()
     LayoutInflater mLayoutInflater;
 
+    // Keep track of whether or not this Fragment has run performCreate(). Retained instance
+    // fragments can have mRetaining set to true without going through creation, so we must
+    // track it separately.
+    boolean mIsCreated;
+
     /**
      * State information that has been retrieved from a fragment instance
      * through {@link FragmentManager#saveFragmentInstanceState(Fragment)
@@ -2208,6 +2213,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mState = CREATED;
         mCalled = false;
         onCreate(savedInstanceState);
+        mIsCreated = true;
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onCreate()");
@@ -2469,6 +2475,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         mState = INITIALIZING;
         mCalled = false;
+        mIsCreated = false;
         onDestroy();
         if (!mCalled) {
             throw new SuperNotCalledException("Fragment " + this

@@ -1130,6 +1130,86 @@ public class FragmentLifecycleTest {
         assertFalse(fragment.onPrepareOptionsMenuCalled);
     }
 
+    /**
+     * When a retained instance fragment is saved while in the back stack, it should go
+     * through onCreate() when it is popped back.
+     */
+    @Test
+    @UiThreadTest
+    public void retainInstanceWithOnCreate() throws Throwable {
+        FragmentController fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        OnCreateFragment fragment1 = new OnCreateFragment();
+
+        fm.beginTransaction()
+                .add(fragment1, "1")
+                .commit();
+        fm.beginTransaction()
+                .remove(fragment1)
+                .addToBackStack(null)
+                .commit();
+
+        Pair<Parcelable, FragmentManagerNonConfig> savedState =
+                FragmentTestUtil.destroy(mActivityRule, fc);
+        Pair<Parcelable, FragmentManagerNonConfig> restartState =
+                Pair.create(savedState.first, null);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, restartState);
+
+        // Save again, but keep the state
+        savedState = FragmentTestUtil.destroy(mActivityRule, fc);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+
+        fm = fc.getSupportFragmentManager();
+
+        fm.popBackStackImmediate();
+        OnCreateFragment fragment2 = (OnCreateFragment) fm.findFragmentByTag("1");
+        assertTrue(fragment2.onCreateCalled);
+        fm.popBackStackImmediate();
+    }
+
+    /**
+     * A retained instance fragment should go through onCreate() once, even through save and
+     * restore.
+     */
+    @Test
+    @UiThreadTest
+    public void retainInstanceOneOnCreate() throws Throwable {
+        FragmentController fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, null);
+        FragmentManager fm = fc.getSupportFragmentManager();
+
+        OnCreateFragment fragment = new OnCreateFragment();
+
+        fm.beginTransaction()
+                .add(fragment, "fragment")
+                .commit();
+        fm.executePendingTransactions();
+
+        fm.beginTransaction()
+                .remove(fragment)
+                .addToBackStack(null)
+                .commit();
+
+        assertTrue(fragment.onCreateCalled);
+        fragment.onCreateCalled = false;
+
+        Pair<Parcelable, FragmentManagerNonConfig> savedState =
+                FragmentTestUtil.destroy(mActivityRule, fc);
+
+        fc = FragmentTestUtil.createController(mActivityRule);
+        FragmentTestUtil.resume(mActivityRule, fc, savedState);
+        fm = fc.getSupportFragmentManager();
+
+        fm.popBackStackImmediate();
+        assertFalse(fragment.onCreateCalled);
+    }
+
     private void assertAnimationsMatch(FragmentManager fm, int enter, int exit, int popEnter,
             int popExit) {
         FragmentManagerImpl fmImpl = (FragmentManagerImpl) fm;
@@ -1476,6 +1556,20 @@ public class FragmentLifecycleTest {
             onPrepareOptionsMenuCalled = true;
             assertNotNull(getContext());
             super.onPrepareOptionsMenu(menu);
+        }
+    }
+
+    public static class OnCreateFragment extends Fragment {
+        public boolean onCreateCalled;
+
+        public OnCreateFragment() {
+            setRetainInstance(true);
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            onCreateCalled = true;
         }
     }
 }
