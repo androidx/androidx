@@ -71,6 +71,9 @@ public abstract class UserDao {
     @Delete
     public abstract int deleteAll(User[] users);
 
+    @Query("delete from user")
+    public abstract int deleteEverything();
+
     @Update
     public abstract int update(User user);
 
@@ -97,6 +100,9 @@ public abstract class UserDao {
 
     @Query("update user set mId = mId + :amount")
     public abstract void incrementIds(int amount);
+
+    @Query("update user set mAge = mAge + 1")
+    public abstract void incrementAgeOfAll();
 
     @Query("select mId from user order by mId ASC")
     public abstract List<Integer> loadIds();
