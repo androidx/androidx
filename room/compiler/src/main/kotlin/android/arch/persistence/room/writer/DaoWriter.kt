@@ -121,7 +121,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
             val fieldImpl = PreparedStatementWriter(queryWriter)
                     .createAnonymous(this@DaoWriter, dbField)
             val methodBody = createPreparedDeleteQueryMethodBody(method, fieldSpec, queryWriter)
-            PreparedStmtQuery(mapOf(method.parameters.first().name
+            PreparedStmtQuery(mapOf(PreparedStmtQuery.NO_PARAM_FIELD
                     to (fieldSpec to fieldImpl)), methodBody)
         }
     }
@@ -402,8 +402,22 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         }
     }
 
+    /**
+     * Represents a query statement prepared in Dao implementation.
+     *
+     * @param fields This map holds all the member fields necessary for this query. The key is the
+     * corresponding parameter name in the defining query method. The value is a pair from the field
+     * declaration to definition.
+     * @param methodImpl The body of the query method implementation.
+     */
     data class PreparedStmtQuery(val fields: Map<String, Pair<FieldSpec, TypeSpec>>,
-                                 val methodImpl: MethodSpec)
+                                 val methodImpl: MethodSpec) {
+        companion object {
+            // The key to be used in `fields` where the method requires a field that is not
+            // associated with any of its parameters
+            const val NO_PARAM_FIELD = "-"
+        }
+    }
 
     private class InsertionMethodField(val entity: Entity, val onConflictText: String)
         : SharedFieldSpec(

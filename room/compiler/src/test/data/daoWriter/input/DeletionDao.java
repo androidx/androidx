@@ -45,4 +45,7 @@ abstract interface DeletionDao {
 
     @Delete
     void deleteUserAndBook(User user, Book book);
+
+    @Query("DELETE FROM user")
+    int deleteEverything();
 }

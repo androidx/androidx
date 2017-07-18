@@ -39,4 +39,10 @@ abstract interface UpdateDao {
 
     @Update
     void updateUserAndBook(User user, Book book);
+
+    @Query("UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = :uid")
+    void ageUserByUid(String uid);
+
+    @Query("UPDATE User SET ageColumn = ageColumn + 1")
+    void ageUserAll();
 }
