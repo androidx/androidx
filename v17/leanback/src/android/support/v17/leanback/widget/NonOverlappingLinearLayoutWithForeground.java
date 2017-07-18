@@ -64,7 +64,7 @@ class NonOverlappingLinearLayoutWithForeground extends LinearLayout {
     public void setForegroundCompat(Drawable d) {
         if (VERSION.SDK_INT >= VERSION_M) {
             // From M,  foreground is naturally supported.
-            ForegroundHelper.getInstance().setForeground(this, d);
+            ForegroundHelper.setForeground(this, d);
         } else {
             // before M, do our own customized foreground draw.
             if (mForeground != d) {
@@ -81,7 +81,7 @@ class NonOverlappingLinearLayoutWithForeground extends LinearLayout {
 
     public Drawable getForegroundCompat() {
         if (VERSION.SDK_INT >= VERSION_M) {
-            return ForegroundHelper.getInstance().getForeground(this);
+            return ForegroundHelper.getForeground(this);
         } else {
             return mForeground;
         }
