@@ -529,10 +529,14 @@ abstract public class BaseWrapContentTest extends BaseRecyclerViewInstrumentatio
 
         @Override
         public String toString() {
+            StringBuilder sb = new StringBuilder(32);
+            sb.append("Rect("); sb.append(padding.left); sb.append(",");
+            sb.append(padding.top); sb.append("-"); sb.append(padding.right);
+            sb.append(","); sb.append(padding.bottom); sb.append(")");
             return "WrapContentConfig{"
                     + "unlimitedWidth=" + unlimitedWidth
                     + ",unlimitedHeight=" + unlimitedHeight
-                    + ",padding=" + padding
+                    + ",padding=" + sb.toString()
                     + '}';
         }
 
