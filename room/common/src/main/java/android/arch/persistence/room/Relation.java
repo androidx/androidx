@@ -16,6 +16,11 @@
 
 package android.arch.persistence.room;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * A convenience annotation which can be used in a Pojo to automatically fetch relation entities.
  * When the Pojo is returned from a query, all of its relations are also fetched by Room.
@@ -88,7 +93,12 @@ package android.arch.persistence.room;
  * cannot have relations. This is a design decision to avoid common pitfalls in {@link Entity}
  * setups. You can read more about it in the main Room documentation. When loading data, you can
  * simply work around this limitation by creating Pojo classes that extend the {@link Entity}.
+ *
+ * Note that the {@code @Relation} annotated field cannot be a constructor parameter, it must be
+ * public or have a public setter.
  */
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.CLASS)
 public @interface Relation {
     /**
      * The entity to fetch the item from. You don't need to set this if the entity matches the
