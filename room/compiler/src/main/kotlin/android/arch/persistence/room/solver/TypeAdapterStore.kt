@@ -30,6 +30,8 @@ import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBi
 import android.arch.persistence.room.solver.binderprovider.InstantQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveLazyListQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.RxMaybeQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.RxSingleQueryResultBinderProvider
 import android.arch.persistence.room.solver.query.parameter.ArrayQueryParameterAdapter
 import android.arch.persistence.room.solver.query.parameter.BasicQueryParameterAdapter
 import android.arch.persistence.room.solver.query.parameter.CollectionQueryParameterAdapter
@@ -130,6 +132,8 @@ class TypeAdapterStore private constructor(val context: Context,
             CursorQueryResultBinderProvider(context),
             LiveDataQueryResultBinderProvider(context),
             FlowableQueryResultBinderProvider(context),
+            RxMaybeQueryResultBinderProvider(context),
+            RxSingleQueryResultBinderProvider(context),
             CountedDataSourceQueryResultBinderProvider(context),
             LiveLazyListQueryResultBinderProvider(context),
             InstantQueryResultBinderProvider(context)

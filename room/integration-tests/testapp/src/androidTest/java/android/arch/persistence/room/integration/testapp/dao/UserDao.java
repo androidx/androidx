@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 @SuppressWarnings("SameParameterValue")
 @Dao
@@ -125,6 +127,18 @@ public abstract class UserDao {
 
     @Query("select * from user where mId = :id")
     public abstract Flowable<User> flowableUserById(int id);
+
+    @Query("select * from user where mId = :id")
+    public abstract Maybe<User> maybeUserById(int id);
+
+    @Query("select * from user where mId IN (:ids)")
+    public abstract Maybe<List<User>> maybeUsersByIds(int... ids);
+
+    @Query("select * from user where mId = :id")
+    public abstract Single<User> singleUserById(int id);
+
+    @Query("select * from user where mId IN (:ids)")
+    public abstract Single<List<User>> singleUsersByIds(int... ids);
 
     @Query("select COUNT(*) from user")
     public abstract Flowable<Integer> flowableCountUsers();
