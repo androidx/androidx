@@ -105,7 +105,8 @@ public class MigrationTest {
     }
 
     private MigrationDb getLatestDb() {
-        MigrationDb db = Room.databaseBuilder(InstrumentationRegistry.getContext(),
+        MigrationDb db = Room.databaseBuilder(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(),
                 MigrationDb.class, TEST_DB).addMigrations(ALL_MIGRATIONS).build();
         // trigger open
         db.beginTransaction();
