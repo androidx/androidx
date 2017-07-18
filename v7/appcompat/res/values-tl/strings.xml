@@ -21,8 +21,6 @@
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"Mag-navigate pataas"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"Higit pang mga opsyon"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"I-collapse"</string>
-    <string name="abc_action_bar_home_description_format" msgid="1397052879051804371">"%1$s, %2$s"</string>
-    <string name="abc_action_bar_home_subtitle_description_format" msgid="6623331958280229229">"%1$s, %2$s, %3$s"</string>
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"Maghanap"</string>
     <string name="abc_search_hint" msgid="7723749260725869598">"Maghanap…"</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"Query sa paghahanap"</string>
@@ -33,7 +31,6 @@
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Tingnan lahat"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"Ibahagi sa/kay %s"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Ibahagi sa/kay"</string>
-    <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"999+"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"I-ON"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"I-OFF"</string>
     <string name="search_menu_title" msgid="146198913615257606">"Maghanap"</string>
