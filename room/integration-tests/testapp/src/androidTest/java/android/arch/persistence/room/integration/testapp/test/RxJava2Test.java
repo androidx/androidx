@@ -19,13 +19,13 @@ package android.arch.persistence.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.TaskExecutor;
+import android.arch.persistence.room.EmptyResultSetException;
+import android.arch.persistence.room.integration.testapp.vo.User;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-
-import android.arch.core.executor.AppToolkitTaskExecutor;
-import android.arch.core.executor.TaskExecutor;
-import android.arch.persistence.room.integration.testapp.vo.User;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -33,7 +33,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.TestScheduler;
 import io.reactivex.subscribers.TestSubscriber;
 
@@ -73,6 +78,107 @@ public class RxJava2Test extends TestDatabaseTest {
 
     private void drain() throws InterruptedException {
         mTestScheduler.triggerActions();
+    }
+
+    @Test
+    public void maybeUser_Empty() throws InterruptedException {
+        TestObserver<User> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.maybeUserById(3).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        testObserver.assertNoValues();
+        disposable.dispose();
+    }
+
+    @Test
+    public void maybeUser_WithData() throws InterruptedException {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        TestObserver<User> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.maybeUserById(3).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        testObserver.assertValue(user);
+
+        disposable.dispose();
+    }
+
+    @Test
+    public void maybeUsers_EmptyList() throws InterruptedException {
+        TestObserver<List<User>> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.maybeUsersByIds(3, 5, 7).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        testObserver.assertValue(Collections.<User>emptyList());
+        disposable.dispose();
+    }
+
+    @Test
+    public void maybeUsers_WithValue() throws InterruptedException {
+        User[] users = TestUtil.createUsersArray(3, 5);
+        mUserDao.insertAll(users);
+        TestObserver<List<User>> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.maybeUsersByIds(3, 5, 7).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        // since this is a clean db, it is ok to rely on the order for the test.
+        testObserver.assertValue(Arrays.asList(users));
+        disposable.dispose();
+    }
+
+    @Test
+    public void singleUser_Empty() throws InterruptedException {
+        TestObserver<User> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.singleUserById(3).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        // figure out which error we should dispatch
+        testObserver.assertError(EmptyResultSetException.class);
+        testObserver.assertNoValues();
+        disposable.dispose();
+    }
+
+    @Test
+    public void singleUser_WithData() throws InterruptedException {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        TestObserver<User> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.singleUserById(3).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        testObserver.assertValue(user);
+
+        disposable.dispose();
+    }
+
+    @Test
+    public void singleUsers_EmptyList() throws InterruptedException {
+        TestObserver<List<User>> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.singleUsersByIds(3, 5, 7).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        testObserver.assertValue(Collections.<User>emptyList());
+        disposable.dispose();
+    }
+
+    @Test
+    public void singleUsers_WithValue() throws InterruptedException {
+        User[] users = TestUtil.createUsersArray(3, 5);
+        mUserDao.insertAll(users);
+        TestObserver<List<User>> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.singleUsersByIds(3, 5, 7).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        // since this is a clean db, it is ok to rely on the order for the test.
+        testObserver.assertValue(Arrays.asList(users));
+        disposable.dispose();
     }
 
     @Test
