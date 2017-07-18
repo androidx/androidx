@@ -71,6 +71,52 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun getterWithBadType() {
+        singleEntity("""
+                @PrimaryKey
+                private int id;
+                public float getId() {return 0f;}
+                public void setId(int id) {this.id = id;}
+                """) { entity, invocation -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
+    }
+
+    @Test
+    fun setterWithBadType() {
+        singleEntity("""
+                @PrimaryKey
+                private int id;
+                public int getId() {return id;}
+                public void setId(float id) {}
+                """) { entity, invocation -> }
+                .failsToCompile()
+                .withErrorContaining(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
+    }
+
+    @Test
+    fun setterWithAssignableType() {
+        singleEntity("""
+                @PrimaryKey
+                private int id;
+                public int getId() {return id;}
+                public void setId(Integer id) {}
+                """) { entity, invocation -> }
+                .compilesWithoutError()
+    }
+
+    @Test
+    fun getterWithAssignableType() {
+        singleEntity("""
+                @PrimaryKey
+                private int id;
+                public Integer getId() {return id;}
+                public void setId(int id) {}
+                """) { entity, invocation -> }
+                .compilesWithoutError()
+    }
+
+    @Test
     fun noSetter() {
         singleEntity("""
                 @PrimaryKey
