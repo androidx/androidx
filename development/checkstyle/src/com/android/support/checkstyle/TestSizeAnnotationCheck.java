@@ -24,13 +24,15 @@ import com.puppycrawl.tools.checkstyle.utils.AnnotationUtility;
 /**
  * A check that verifies that all the methods marked with @Test have a matching test size
  * annotation such as @SmallTest, @MediumTest or @LargeTest. This is needed to make sure
- * that newly added tests get run in the automatted test runner.
+ * that newly added tests get run in the automated test runner.
  */
 public class TestSizeAnnotationCheck extends AbstractCheck {
     private static final String SMALL_TEST = "SmallTest";
     private static final String MEDIUM_TEST = "MediumTest";
     private static final String LARGE_TEST = "LargeTest";
     private static final String TEST = "Test";
+    private static final String RUN_WITH = "RunWith";
+    private static final String JUNIT4 = "JUnit4";
 
     private static final String MESSAGE = "Method with @Test annotation must have a @SmallTest, "
             + "@MediumTest, or @LargeTest annotation. See https://goo.gl/c2I0WP for recommended "
@@ -43,6 +45,10 @@ public class TestSizeAnnotationCheck extends AbstractCheck {
 
     @Override
     public void visitToken(DetailAST ast) {
+        if (isJUnit4Runner(ast)) {
+            // Tests that run with JUnit4 do not require test size annotations.
+            return;
+        }
         final boolean classHasTestSizeAnnotation =
                 AnnotationUtility.containsAnnotation(ast, SMALL_TEST)
                         || AnnotationUtility.containsAnnotation(ast, MEDIUM_TEST)
@@ -62,5 +68,30 @@ public class TestSizeAnnotationCheck extends AbstractCheck {
                 }
             }
         }
+    }
+
+    /**
+     * Checks whether this test class is annotated with @RunWith(JUnit4.class).
+     */
+    private boolean isJUnit4Runner(DetailAST ast) {
+        DetailAST runner = AnnotationUtility.getAnnotation(ast, RUN_WITH);
+
+        // We make an assumption that @RunWith annotation will have this structure:
+        //      @RunWith
+        //         |
+        //        EXPR
+        //          |
+        //    -----DOT-------
+        //  /                \
+        // Runner name     class
+
+        if (runner == null // There is no @RunWith annotation
+                || runner.findFirstToken(TokenTypes.EXPR) == null // Annotation has no value.
+                || runner.findFirstToken(TokenTypes.EXPR).getFirstChild() == null
+                || runner.findFirstToken(TokenTypes.EXPR).getFirstChild().getFirstChild() == null) {
+            return false;
+        }
+        return JUNIT4.equals(
+                runner.findFirstToken(TokenTypes.EXPR).getFirstChild().getFirstChild().getText());
     }
 }
