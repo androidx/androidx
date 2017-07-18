@@ -3,6 +3,7 @@ package foo.bar;
 import android.arch.persistence.db.SupportSQLiteStatement;
 import android.arch.persistence.room.EntityDeletionOrUpdateAdapter;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.SharedSQLiteStatement;
 import java.lang.Override;
 import java.lang.String;
 import java.util.List;
@@ -15,6 +16,10 @@ public class UpdateDao_Impl implements UpdateDao {
   private final EntityDeletionOrUpdateAdapter __updateAdapterOfMultiPKeyEntity;
 
   private final EntityDeletionOrUpdateAdapter __updateAdapterOfBook;
+
+  private final SharedSQLiteStatement __preparedStmtOfAgeUserByUid;
+
+  private final SharedSQLiteStatement __preparedStmtOfAgeUserAll;
 
   public UpdateDao_Impl(RoomDatabase __db) {
     this.__db = __db;
@@ -82,6 +87,20 @@ public class UpdateDao_Impl implements UpdateDao {
         stmt.bindLong(1, value.bookId);
         stmt.bindLong(2, value.uid);
         stmt.bindLong(3, value.bookId);
+      }
+    };
+    this.__preparedStmtOfAgeUserByUid = new SharedSQLiteStatement(__db) {
+      @Override
+      public String createQuery() {
+        final String _query = "UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfAgeUserAll = new SharedSQLiteStatement(__db) {
+      @Override
+      public String createQuery() {
+        final String _query = "UPDATE User SET ageColumn = ageColumn + 1";
+        return _query;
       }
     };
   }
@@ -182,6 +201,38 @@ public class UpdateDao_Impl implements UpdateDao {
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();
+    }
+  }
+
+  @Override
+  public void ageUserByUid(String uid) {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserByUid.acquire();
+    __db.beginTransaction();
+    try {
+      int _argIndex = 1;
+      if (uid == null) {
+        _stmt.bindNull(_argIndex);
+      } else {
+        _stmt.bindString(_argIndex, uid);
+      }
+      _stmt.executeUpdateDelete();
+      __db.setTransactionSuccessful();
+    } finally {
+      __db.endTransaction();
+      __preparedStmtOfAgeUserByUid.release(_stmt);
+    }
+  }
+
+  @Override
+  public void ageUserAll() {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+    __db.beginTransaction();
+    try {
+      _stmt.executeUpdateDelete();
+      __db.setTransactionSuccessful();
+    } finally {
+      __db.endTransaction();
+      __preparedStmtOfAgeUserAll.release(_stmt);
     }
   }
 }

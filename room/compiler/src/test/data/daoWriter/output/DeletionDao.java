@@ -21,6 +21,8 @@ public class DeletionDao_Impl implements DeletionDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteByUid;
 
+  private final SharedSQLiteStatement __preparedStmtOfDeleteEverything;
+
   public DeletionDao_Impl(RoomDatabase __db) {
     this.__db = __db;
     this.__deletionAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
@@ -69,6 +71,13 @@ public class DeletionDao_Impl implements DeletionDao {
       @Override
       public String createQuery() {
         final String _query = "DELETE FROM user where uid = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteEverything = new SharedSQLiteStatement(__db) {
+      @Override
+      public String createQuery() {
+        final String _query = "DELETE FROM user";
         return _query;
       }
     };
@@ -186,6 +195,20 @@ public class DeletionDao_Impl implements DeletionDao {
     } finally {
       __db.endTransaction();
       __preparedStmtOfDeleteByUid.release(_stmt);
+    }
+  }
+
+  @Override
+  public int deleteEverything() {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteEverything.acquire();
+    __db.beginTransaction();
+    try {
+      final int _result = _stmt.executeUpdateDelete();
+      __db.setTransactionSuccessful();
+      return _result;
+    } finally {
+      __db.endTransaction();
+      __preparedStmtOfDeleteEverything.release(_stmt);
     }
   }
 

@@ -223,6 +223,16 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void deleteEverything() {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        assertThat(mUserDao.count(), is(1));
+        int count = mUserDao.deleteEverything();
+        assertThat(count, is(1));
+        assertThat(mUserDao.count(), is(0));
+    }
+
+    @Test
     public void findByBoolean() {
         User user1 = TestUtil.createUser(3);
         user1.setAdmin(true);
@@ -288,6 +298,20 @@ public class SimpleEntityReadWriteTest {
         mUserDao.insertAll(usersArr);
         mUserDao.incrementIds(1);
         assertThat(mUserDao.loadIds(), is(Arrays.asList(3, 5, 7)));
+    }
+
+    @Test
+    public void incrementAgeOfAll() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7);
+        users[0].setAge(3);
+        users[1].setAge(5);
+        users[2].setAge(7);
+        mUserDao.insertAll(users);
+        assertThat(mUserDao.count(), is(3));
+        mUserDao.incrementAgeOfAll();
+        for (User user : mUserDao.loadByIds(3, 5, 7)) {
+            assertThat(user.getAge(), is(user.getId() + 1));
+        }
     }
 
     @Test
