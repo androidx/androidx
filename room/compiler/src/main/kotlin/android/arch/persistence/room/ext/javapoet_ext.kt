@@ -115,6 +115,8 @@ object CommonTypeNames {
 
 object RxJava2TypeNames {
     val FLOWABLE = ClassName.get("io.reactivex", "Flowable")
+    val MAYBE = ClassName.get("io.reactivex", "Maybe")
+    val SINGLE = ClassName.get("io.reactivex", "Single")
 }
 
 object ReactiveStreamsTypeNames {
@@ -123,6 +125,8 @@ object ReactiveStreamsTypeNames {
 
 object RoomRxJava2TypeNames {
     val RX_ROOM = ClassName.get("android.arch.persistence.room", "RxRoom")
+    val RX_EMPTY_RESULT_SET_EXCEPTION = ClassName.get("android.arch.persistence.room",
+            "EmptyResultSetException")
 }
 
 fun TypeName.defaultValue() : String {
