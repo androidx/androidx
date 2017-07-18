@@ -68,6 +68,12 @@ import java.lang.annotation.Target;
  * (like fetching an {@link Entity} row that does not exist).
  * You can return {@code Flowable<T[]>} or {@code Flowable<List<T>>} to workaround this limitation.
  * <p>
+ * Both {@code Flowable<T>} and {@code Publisher<T>} will observe the database for changes and
+ * re-dispatch if data changes. If you want to query the database without observing changes, you can
+ * use {@code Maybe<T>} or {@code Single<T>}. If a {@code Single<T>} query returns {@code null},
+ * Room will throw
+ * {@link android.arch.persistence.room.EmptyResultSetException EmptyResultSetException}.
+ * <p>
  * UPDATE or DELETE queries can return {@code void} or {@code int}. If it is an {@code int},
  * the value is the number of rows affected by this query.
  * <p>
