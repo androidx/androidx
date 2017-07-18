@@ -16,7 +16,9 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
-
+// disable paging for now.
+project.ext.noDocs = true
+uploadArchives.enabled = false
 android {
     compileSdkVersion tools.current_sdk
     buildToolsVersion tools.build_tools_version

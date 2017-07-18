@@ -54,7 +54,7 @@ dependencies {
     api project(":room:db")
     api project(":room:db-impl")
     api project(":arch:runtime")
-    api project(":paging:common")
+    provided project(":paging:common")
 
     provided project(":lifecycle:runtime")
     provided project(":lifecycle:extensions")
