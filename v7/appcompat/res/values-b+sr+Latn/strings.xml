@@ -21,8 +21,6 @@
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"Kretanje nagore"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"Još opcija"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"Skupi"</string>
-    <string name="abc_action_bar_home_description_format" msgid="1397052879051804371">"%1$s, %2$s"</string>
-    <string name="abc_action_bar_home_subtitle_description_format" msgid="6623331958280229229">"%1$s, %2$s, %3$s"</string>
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"Pretraga"</string>
     <string name="abc_search_hint" msgid="7723749260725869598">"Pretražite..."</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"Upit za pretragu"</string>
@@ -33,7 +31,6 @@
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"Prikaži sve"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"Deli sa aplikacijom %s"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Deli sa"</string>
-    <string name="status_bar_notification_info_overflow" msgid="2869576371154716097">"&gt;999"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"UKLJUČI"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"ISKLJUČI"</string>
     <string name="search_menu_title" msgid="146198913615257606">"Pretraži"</string>
