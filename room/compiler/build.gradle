@@ -36,7 +36,6 @@ dependencies {
     compile libs.antlr
     compile libs.xerial
     compile libs.apache.commons.codec
-    compile project(":paging:common")
     testCompile libs.google_compile_testing
     testCompile project(":paging:common")
     testCompile libs.junit
