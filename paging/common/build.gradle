@@ -18,7 +18,9 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 sourceCompatibility = 1.7
-
+// disable paging for now.
+project.ext.noDocs = true
+uploadArchives.enabled = false
 dependencies {
     compile libs.support.annotations
     compile project(":arch:common")
