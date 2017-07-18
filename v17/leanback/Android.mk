@@ -32,7 +32,6 @@ LOCAL_SRC_FILES := \
     $(call all-java-files-under, jbmr2) \
     $(call all-java-files-under, kitkat) \
     $(call all-java-files-under, api21) \
-    $(call all-java-files-under, api23) \
     $(call all-java-files-under, src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \

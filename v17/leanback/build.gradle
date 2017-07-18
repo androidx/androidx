@@ -30,7 +30,6 @@ android {
                 'jbmr2',
                 'kitkat',
                 'api21',
-                'api23',
                 'src'
         ]
         main.res.srcDir 'res'
