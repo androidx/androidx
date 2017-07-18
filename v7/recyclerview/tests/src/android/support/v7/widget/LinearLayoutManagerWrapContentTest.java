@@ -107,7 +107,7 @@ public class LinearLayoutManagerWrapContentTest extends BaseWrapContentTest {
         });
     }
 
-    @Parameterized.Parameters(name = "{0} {1}")
+    @Parameterized.Parameters(name = "{0},{1}")
     public static Iterable<Object[]> data() {
         List<Object[]> params = new ArrayList<>();
         List<Rect> paddings = Arrays.asList(

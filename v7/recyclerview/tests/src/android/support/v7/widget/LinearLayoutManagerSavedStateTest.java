@@ -90,7 +90,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     public String describe() {
-                        return "doing nothing";
+                        return "doing_nothing";
                     }
                 },
                 new PostLayoutRunnable() {
@@ -103,7 +103,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     public String describe() {
-                        return "scroll to position";
+                        return "scroll_to_position";
                     }
                 },
                 new PostLayoutRunnable() {
@@ -117,7 +117,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     public String describe() {
-                        return "scroll to position with positive offset";
+                        return "scroll_to_position_with_positive_offset";
                     }
                 },
                 new PostLayoutRunnable() {
@@ -131,7 +131,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     public String describe() {
-                        return "scroll to position with negative offset";
+                        return "scroll_to_position_with_negative_offset";
                     }
                 }
         };
@@ -158,7 +158,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     public String describe() {
-                        return "Changing orientation";
+                        return "Changing_orientation";
                     }
                 },
                 new PostRestoreRunnable() {
@@ -175,7 +175,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     public String describe() {
-                        return "Changing stack from end";
+                        return "Changing_stack_from_end";
                     }
                 },
                 new PostRestoreRunnable() {
@@ -192,7 +192,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     public String describe() {
-                        return "Changing reverse layout";
+                        return "Changing_reverse_layout";
                     }
                 },
                 new PostRestoreRunnable() {
@@ -209,7 +209,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     String describe() {
-                        return "Change should recycle children";
+                        return "Change_should_recycle_children";
                     }
                 },
                 new PostRestoreRunnable() {
@@ -227,7 +227,7 @@ public class LinearLayoutManagerSavedStateTest extends BaseLinearLayoutManagerTe
 
                     @Override
                     String describe() {
-                        return "Scroll to position " + position ;
+                        return "Scroll_to_position_" + position;
                     }
 
                     @Override
