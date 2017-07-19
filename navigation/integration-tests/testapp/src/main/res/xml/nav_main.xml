@@ -13,7 +13,9 @@
   -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:startDestination="@+id/launcher_home">
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/launcher_home"
+    tools:ignore="DuplicateIds">
     <fragment android:id="@+id/launcher_home"
               android:icon="@drawable/ic_home"
               android:label="@string/home"
