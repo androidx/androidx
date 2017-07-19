@@ -3137,6 +3137,7 @@ public class GridWidgetTest {
 
     }
 
+
     @Test
     public void testZeroFixedSecondarySize() throws Throwable {
         Intent intent = new Intent();
