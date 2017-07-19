@@ -84,6 +84,11 @@ if (ext.inAppToolkitProject) {
     init.setupRelease()
     init.enableDoclavaAndJDiff(this)
     rootProject.tasks["generateDocs"].exclude '**/R.java'
+} else {
+    // Disable API checks for now.
+    checkApiRelease.enabled = false
+    checkApi.enabled = false
+    generateApi.enabled = false
 }
 
 
