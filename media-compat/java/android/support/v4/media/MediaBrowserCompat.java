@@ -1164,7 +1164,7 @@ public final class MediaBrowserCompat {
                 mSubscriptions.put(parentId, sub);
             }
             Bundle copiedOptions = options == null ? null : new Bundle(options);
-            sub.putCallback(copiedOptions, callback);
+            sub.putCallback(mContext, copiedOptions, callback);
 
             // If we are connected, tell the service that we are watching. If we aren't
             // connected, the service will be told when we connect.
@@ -1390,7 +1390,7 @@ public final class MediaBrowserCompat {
             }
 
             // Tell the app.
-            SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
+            SubscriptionCallback subscriptionCallback = subscription.getCallback(mContext, options);
             if (subscriptionCallback != null) {
                 if (options == null) {
                     if (list == null) {
@@ -1577,6 +1577,7 @@ public final class MediaBrowserCompat {
     @RequiresApi(21)
     static class MediaBrowserImplApi21 implements MediaBrowserImpl, MediaBrowserServiceCallbackImpl,
             ConnectionCallback.ConnectionCallbackInternal {
+        final Context mContext;
         protected final Object mBrowserObj;
         protected final Bundle mRootHints;
         protected final CallbackHandler mHandler = new CallbackHandler(this);
@@ -1588,6 +1589,7 @@ public final class MediaBrowserCompat {
 
         public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
+            mContext = context;
             if (rootHints == null) {
                 rootHints = new Bundle();
             }
@@ -1658,7 +1660,7 @@ public final class MediaBrowserCompat {
             }
             callback.setSubscription(sub);
             Bundle copiedOptions = options == null ? null : new Bundle(options);
-            sub.putCallback(copiedOptions, callback);
+            sub.putCallback(mContext, copiedOptions, callback);
 
             if (mServiceBinderWrapper == null) {
                 // TODO: When MediaBrowser is connected to framework's MediaBrowserService,
@@ -1910,7 +1912,7 @@ public final class MediaBrowserCompat {
             }
 
             // Tell the app.
-            SubscriptionCallback subscriptionCallback = subscription.getCallback(options);
+            SubscriptionCallback subscriptionCallback = subscription.getCallback(mContext, options);
             if (subscriptionCallback != null) {
                 if (options == null) {
                     if (list == null) {
@@ -1998,7 +2000,10 @@ public final class MediaBrowserCompat {
             return mCallbacks;
         }
 
-        public SubscriptionCallback getCallback(Bundle options) {
+        public SubscriptionCallback getCallback(Context context, Bundle options) {
+            if (options != null) {
+                options.setClassLoader(context.getClassLoader());
+            }
             for (int i = 0; i < mOptionsList.size(); ++i) {
                 if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
                     return mCallbacks.get(i);
@@ -2007,7 +2012,10 @@ public final class MediaBrowserCompat {
             return null;
         }
 
-        public void putCallback(Bundle options, SubscriptionCallback callback) {
+        public void putCallback(Context context, Bundle options, SubscriptionCallback callback) {
+            if (options != null) {
+                options.setClassLoader(context.getClassLoader());
+            }
             for (int i = 0; i < mOptionsList.size(); ++i) {
                 if (MediaBrowserCompatUtils.areSameOptions(mOptionsList.get(i), options)) {
                     mCallbacks.set(i, callback);
