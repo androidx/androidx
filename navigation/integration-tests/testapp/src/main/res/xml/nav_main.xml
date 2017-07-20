@@ -20,7 +20,7 @@
               android:icon="@drawable/ic_home"
               android:label="@string/home"
               app:navType="primary"
-              android:name="com.android.support.navigation.testapp.MainFragment">
+              android:name="android.arch.navigation.testapp.MainFragment">
         <argument app:name="myarg" app:defaultValue="Home" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
@@ -28,17 +28,17 @@
               android:icon="@drawable/ic_android"
               android:label="@string/android"
               app:navType="primary"
-              android:name="com.android.support.navigation.testapp.AndroidFragment">
+              android:name="android.arch.navigation.testapp.AndroidFragment">
         <argument app:name="myarg" app:defaultValue="Android!" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <fragment android:id="@+id/first_screen"
-        android:name="com.android.support.navigation.testapp.MainFragment">
+        android:name="android.arch.navigation.testapp.MainFragment">
         <argument app:name="myarg" app:defaultValue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment"/>
     </fragment>
     <fragment android:id="@+id/next_fragment"
-        android:name="com.android.support.navigation.testapp.MainFragment">
+        android:name="android.arch.navigation.testapp.MainFragment">
         <argument app:name="myarg" app:defaultValue="two" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
@@ -52,7 +52,7 @@
               android:icon="@drawable/ic_help"
               android:label="@string/help"
               app:navType="secondary"
-              android:name="com.android.support.navigation.testapp.HelpActivity"
+              android:name="android.arch.navigation.testapp.HelpActivity"
               app:dataPattern="http://www.example.com/{topic}">
         <argument app:name="topic" app:defaultValue="help_topic"/>
     </activity>

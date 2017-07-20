@@ -23,7 +23,7 @@ android {
     buildToolsVersion tools.build_tools_version
 
     defaultConfig {
-        applicationId "com.android.support.navigation.testapp"
+        applicationId "android.arch.navigation.testapp"
         minSdkVersion flatfoot.min_sdk
         targetSdkVersion tools.current_sdk
         versionCode 1

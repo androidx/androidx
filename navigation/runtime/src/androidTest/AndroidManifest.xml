@@ -18,6 +18,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.support.navigation.test">
     <application>
-        <activity android:name="android.support.navigation.app.nav.activity.NavigationActivity" />
+        <activity android:name="android.arch.navigation.activity.NavigationActivity" />
     </application>
 </manifest>

@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/my_nav_host_fragment"
-        android:name="android.support.navigation.app.nav.NavHostFragment"
+        android:name="android.arch.navigation.NavHostFragment"
         app:navGraph="@xml/nav_main"
         app:defaultNavHost="true"
         android:layout_toRightOf="@id/nav_view"
