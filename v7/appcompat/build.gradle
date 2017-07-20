@@ -4,7 +4,7 @@ dependencies {
     api project(':support-annotations')
     api project(':support-v4')
     api project(':support-vector-drawable')
-    api project(':support-animated-vector-drawable')
+    api project(':animated-vector-drawable')
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
