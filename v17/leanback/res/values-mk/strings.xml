@@ -27,7 +27,7 @@ limitations under the License.
     <string name="lb_control_display_rewind_multiplier" msgid="3097220783222910245">"%1$dX"</string>
     <string name="lb_playback_controls_play" msgid="731953341987346903">"Пушти"</string>
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"Пауза"</string>
-    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Брзо премотај напред"</string>
+    <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"Премотај напред"</string>
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"Премотај напред %1$dX"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"Премотај назад"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"Премотај назад %1$dX"</string>
