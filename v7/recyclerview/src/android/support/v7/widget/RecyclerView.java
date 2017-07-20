@@ -3174,7 +3174,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 // adapter change, two onMeasure() calls can happen if RV is a child of LinearLayout
                 // with layout_width=MATCH_PARENT. RV cannot call LM.onMeasure() second time
                 // because getViewForPosition() will crash when LM uses a child to measure.
-                defaultOnMeasure(widthSpec, heightSpec);
+                setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
                 return;
             }
 
