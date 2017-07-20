@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
-import android.support.test.espresso.core.deps.guava.collect.ImmutableSet;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.preference.PreferenceManager;
@@ -38,6 +37,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -51,9 +53,11 @@ public class PreferencePersistTest {
 
     private static final float FLOAT_PRECISION = 0.01f;
 
-    private static final Set<String> TEST_STR_SET = ImmutableSet.of("a", "b");
-    private static final Set<String> TEST_STR_SET2 = ImmutableSet.of("c", "d");
-    private static final Set<String> TEST_DEFAULT_STR_SET = ImmutableSet.of("e");
+    private static final String[] A_B = {"a", "b"};
+    private static final String[] C_D = {"c", "d"};
+    private static final Set<String> TEST_STR_SET = new HashSet<>(Arrays.asList(A_B));
+    private static final Set<String> TEST_STR_SET2 = new HashSet<>(Arrays.asList(C_D));
+    private static final Set<String> TEST_DEFAULT_STR_SET = Collections.singleton("e");
 
     private PreferenceWrapper mPreference;
     private SharedPreferences mSharedPref;
