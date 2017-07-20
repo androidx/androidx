@@ -86,7 +86,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateTo() throws Throwable {
+    public void testNavigate() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.xml.nav_simple);
@@ -94,54 +94,54 @@ public class NavControllerTest {
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
 
-        navController.navigateTo(R.id.second_test);
+        navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         assertThat(navigator.mBackStack.size(), is(2));
     }
 
     @Test
-    public void testNavigateToWithNoDefaultValue() throws Throwable {
-        Bundle returnedArgs = navigateToWithArgs(null);
+    public void testNavigateWithNoDefaultValue() throws Throwable {
+        Bundle returnedArgs = navigateWithArgs(null);
 
         // Test that arguments without a default value aren't passed through at all
         assertThat(returnedArgs.containsKey("test_no_default_value"), is(false));
     }
 
     @Test
-    public void testNavigateToWithDefaultArgs() throws Throwable {
-        Bundle returnedArgs = navigateToWithArgs(null);
+    public void testNavigateWithDefaultArgs() throws Throwable {
+        Bundle returnedArgs = navigateWithArgs(null);
 
         // Test that default values are passed through
         assertThat(returnedArgs.getString("test_default_value"), is("default"));
     }
 
     @Test
-    public void testNavigateToWithArgs() throws Throwable {
+    public void testNavigateWithArgs() throws Throwable {
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);
-        Bundle returnedArgs = navigateToWithArgs(args);
+        Bundle returnedArgs = navigateWithArgs(args);
 
         // Test that programmatically constructed arguments are passed through
         assertThat(returnedArgs.getString(TEST_ARG), is(TEST_ARG_VALUE));
     }
 
     @Test
-    public void testNavigateToWithOverriddenDefaultArgs() throws Throwable {
+    public void testNavigateWithOverriddenDefaultArgs() throws Throwable {
         Bundle args = new Bundle();
         args.putString(TEST_OVERRIDDEN_VALUE_ARG, TEST_OVERRIDDEN_VALUE_ARG_VALUE);
-        Bundle returnedArgs = navigateToWithArgs(args);
+        Bundle returnedArgs = navigateWithArgs(args);
 
         // Test that default values can be overridden by programmatic values
         assertThat(returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG),
                 is(TEST_OVERRIDDEN_VALUE_ARG_VALUE));
     }
 
-    private Bundle navigateToWithArgs(Bundle args) throws Throwable {
+    private Bundle navigateWithArgs(Bundle args) throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.xml.nav_arguments);
 
-        navController.navigateTo(R.id.second_test, args);
+        navController.navigate(R.id.second_test, args);
 
         TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
         args = navigator.mBackStack.peekLast().second;
@@ -151,7 +151,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateToThenPop() throws Throwable {
+    public void testNavigateThenPop() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.xml.nav_simple);
@@ -159,7 +159,7 @@ public class NavControllerTest {
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
 
-        navController.navigateTo(R.id.second_test);
+        navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -169,7 +169,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateToThenNavigateUp() throws Throwable {
+    public void testNavigateThenNavigateUp() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.xml.nav_simple);
@@ -177,7 +177,7 @@ public class NavControllerTest {
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         assertThat(navigator.mBackStack.size(), is(1));
 
-        navController.navigateTo(R.id.second_test);
+        navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         assertThat(navigator.mBackStack.size(), is(2));
 
@@ -188,7 +188,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigate() throws Throwable {
+    public void testNavigateViaAction() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.xml.nav_simple);
@@ -202,7 +202,7 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testNavigateWithArgs() throws Throwable {
+    public void testNavigateViaActionWithArgs() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
         navController.setGraph(R.xml.nav_arguments);

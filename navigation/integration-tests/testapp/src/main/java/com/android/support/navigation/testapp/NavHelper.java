@@ -137,7 +137,8 @@ public class NavHelper {
      * Attempt to navigate to the {@link NavDestination} associated with the given MenuItem. This
      * MenuItem should have been added via one of the helper methods in this class.
      *
-     * <p>Importantly, it assumes the {@link MenuItem#getItemId() menu item id} matches the
+     * <p>Importantly, it assumes the {@link MenuItem#getItemId() menu item id} matches a valid
+     * {@link NavDestination#getAction(int) action id} or
      * {@link NavDestination#getId() destination id} to be navigated to.</p>
      *
      * @param navController The NavController that hosts the destination.
@@ -148,7 +149,7 @@ public class NavHelper {
     public static boolean handleMenuItemSelected(NavController navController,
             @NonNull MenuItem item) {
         try {
-            navController.navigateTo(item.getItemId(), null,
+            navController.navigate(item.getItemId(), null,
                     new NavOptions.Builder()
                             .setPopUpTo(navController.getGraph().getStartDestination(), false)
                             .setLaunchSingleTop(true)

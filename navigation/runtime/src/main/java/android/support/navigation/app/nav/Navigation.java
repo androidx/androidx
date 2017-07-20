@@ -110,66 +110,36 @@ public class Navigation {
     }
 
     /**
-     * Create an {@link android.view.View.OnClickListener} for navigating via an action.
+     * Create an {@link android.view.View.OnClickListener} for navigating
+     * to a destination. This supports both navigating via an
+     * {@link NavDestination#getAction(int) action} and directly navigating to a destination.
      *
-     * @param actionId navigation action to take when the view is clicked
+     * @param resId an {@link NavDestination#getAction(int) action} id or a destination id to
+     *              navigate to when the view is clicked
      * @return a new click listener for setting on an arbitrary view
      */
-    public static View.OnClickListener createNavigateOnClickListener(@IdRes final int actionId) {
-        return createNavigateOnClickListener(actionId, null);
+    public static View.OnClickListener createNavigateOnClickListener(@IdRes final int resId) {
+        return createNavigateOnClickListener(resId, null);
     }
 
     /**
-     * Create an {@link android.view.View.OnClickListener} for navigating via an action.
+     * Create an {@link android.view.View.OnClickListener} for navigating
+     * to a destination. This supports both navigating via an
+     * {@link NavDestination#getAction(int) action} and directly navigating to a destination.
      *
-     * @param actionId navigation action to take when the view is clicked
+     * @param resId an {@link NavDestination#getAction(int) action} id or a destination id to
+     *              navigate to when the view is clicked
      * @param args arguments to pass to the final destination
      * @return a new click listener for setting on an arbitrary view
      */
-    public static View.OnClickListener createNavigateOnClickListener(@IdRes final int actionId,
+    public static View.OnClickListener createNavigateOnClickListener(@IdRes final int resId,
                                                                      final Bundle args) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final NavController controller = findController(view);
                 if (controller != null) {
-                    controller.navigate(actionId, args);
-                } else {
-                    throw new IllegalStateException(
-                            "OnClickListener#onClick could not find NavController for view "
-                            + view);
-                }
-            }
-        };
-    }
-
-    /**
-     * Create an {@link android.view.View.OnClickListener} for navigating
-     * to an explicit destination.
-     *
-     * @param destId destination to navigate to when the view is clicked
-     * @return a new click listener for setting on an arbitrary view
-     */
-    public static View.OnClickListener createNavigateToOnClickListener(@IdRes final int destId) {
-        return createNavigateToOnClickListener(destId, null);
-    }
-
-    /**
-     * Create an {@link android.view.View.OnClickListener} for navigating
-     * to an explicit destination.
-     *
-     * @param destId destination to navigate to when the view is clicked
-     * @param args arguments to pass to the final destination
-     * @return a new click listener for setting on an arbitrary view
-     */
-    public static View.OnClickListener createNavigateToOnClickListener(@IdRes final int destId,
-                                                                       final Bundle args) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final NavController controller = findController(view);
-                if (controller != null) {
-                    controller.navigateTo(destId, args);
+                    controller.navigate(resId, args);
                 } else {
                     throw new IllegalStateException(
                             "OnClickListener#onClick could not find NavController for view "

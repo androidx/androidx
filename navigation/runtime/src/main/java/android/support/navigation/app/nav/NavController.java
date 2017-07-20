@@ -21,7 +21,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
@@ -472,108 +471,67 @@ public class NavController implements NavigatorProvider {
     }
 
     /**
-     * Navigate directly to a destination.
+     * Navigate to a destination from the current navigation graph. This supports both navigating
+     * via an {@link NavDestination#getAction(int) action} and directly navigating to a destination.
      *
-     * <p>Requests navigation to the given destination id from the current navigation graph.
-     * Apps should generally prefer {@link #navigate(int) navigating by action} when possible.</p>
-     *
-     * @param resid destination id to navigate to
+     * @param resId an {@link NavDestination#getAction(int) action} id or a destination id to
+     *              navigate to
      */
-    public final void navigateTo(@IdRes int resid) {
-        navigateTo(resid, null);
+    public final void navigate(@IdRes int resId) {
+        navigate(resId, null);
     }
 
     /**
-     * Navigate directly to a destination.
+     * Navigate to a destination from the current navigation graph. This supports both navigating
+     * via an {@link NavDestination#getAction(int) action} and directly navigating to a destination.
      *
-     * <p>Requests navigation to the given destination id from the current navigation graph.
-     * Apps should generally prefer {@link #navigate(int) navigating by action} when possible.</p>
-     *
-     * @param resid destination id to navigate to
+     * @param resId an {@link NavDestination#getAction(int) action} id or a destination id to
+     *              navigate to
      * @param args arguments to pass to the destination
      */
-    public final void navigateTo(@IdRes int resid, Bundle args) {
-        navigateTo(resid, args, null);
+    public final void navigate(@IdRes int resId, Bundle args) {
+        navigate(resId, args, null);
     }
 
     /**
-     * Navigate directly to a destination.
+     * Navigate to a destination from the current navigation graph. This supports both navigating
+     * via an {@link NavDestination#getAction(int) action} and directly navigating to a destination.
      *
-     * <p>Requests navigation to the given destination id from the current navigation graph.
-     * Apps should generally prefer {@link #navigate(int) navigating by action} when possible.</p>
-     *
-     * @param resid destination id to navigate to
+     * @param resId an {@link NavDestination#getAction(int) action} id or a destination id to
+     *              navigate to
      * @param args arguments to pass to the destination
      * @param navOptions special options for this navigation operation
      */
-    public void navigateTo(@IdRes int resid, Bundle args, NavOptions navOptions) {
-        NavDestination node = findDestination(resid);
+    public void navigate(@IdRes int resId, Bundle args, NavOptions navOptions) {
+        NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
+        if (currentNode == null) {
+            throw new IllegalStateException("no current navigation node");
+        }
+        @IdRes int destId = resId;
+        final NavAction navAction = currentNode.getAction(resId);
+        if (navAction != null) {
+            NavOptions options = navOptions != null ? navOptions : navAction.getNavOptions();
+            if (navAction.getDestinationId() == 0 && options != null && options.getPopUpTo() != 0) {
+                // Allow actions to leave out a destinationId only if they have a non-zero popUpTo
+                popBackStack(options.getPopUpTo(), options.isPopUpToInclusive());
+                return;
+            } else {
+                destId = navAction.getDestinationId();
+            }
+        }
+        NavDestination node = findDestination(destId);
         if (node == null) {
-            final String dest = mContext.getResources().getResourceName(resid);
+            final String dest = mContext.getResources().getResourceName(destId);
             throw new IllegalArgumentException("navigation destination " + dest
+                    + (navAction != null
+                    ? " referenced from action " + mContext.getResources().getResourceName(resId)
+                    : "")
                     + " is unknown to this NavController");
         }
         if (navOptions != null && navOptions.getPopUpTo() != 0) {
             popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
         }
         node.navigate(args, navOptions);
-    }
-
-    /**
-     * Navigate via an action defined on the current destination.
-     *
-     * <p>Requests navigation to the given {@link NavDestination#getAction(int) action},
-     * appropriate for the current location, e.g. "next" or "home."</p>
-     *
-     * @param action navigation action to invoke
-     */
-    public void navigate(@IdRes int action) {
-        navigate(action, null);
-    }
-
-    /**
-     * Navigate via an action defined on the current destination.
-     *
-     * <p>Requests navigation to the given {@link NavDestination#getAction(int) action},
-     * appropriate for the current location, e.g. "next" or "home."</p>
-     *
-     * @param action navigation action to invoke
-     * @param args arguments to pass to the destination
-     */
-    public void navigate(@IdRes int action, Bundle args) {
-        navigate(action, args, null);
-    }
-
-    /**
-     * Navigate via an action defined on the current destination.
-     *
-     * <p>Requests navigation to the given {@link NavDestination#getAction(int) action},
-     * appropriate for the current location, e.g. "next" or "home."</p>
-     *
-     * @param action navigation action to invoke
-     * @param args arguments to pass to the destination
-     * @param navOptions special options for this navigation operation. This will be used instead
-     *                   of any NavOptions attached to the action.
-     */
-    public void navigate(@IdRes int action, Bundle args, NavOptions navOptions) {
-        NavDestination currentNode = mBackStack.isEmpty() ? mGraph : mBackStack.peekLast();
-        if (currentNode == null) {
-            throw new IllegalStateException("no current navigation node");
-        }
-        final NavAction navAction = currentNode.getAction(action);
-        if (navAction == null) {
-            final Resources res = mContext.getResources();
-            throw new IllegalStateException("no destination defined from "
-                    + res.getResourceName(currentNode.getId())
-                    + " for action " + res.getResourceName(action));
-        }
-        NavOptions options = navOptions != null ? navOptions : navAction.getNavOptions();
-        if (navAction.getDestinationId() == 0 && options != null && options.getPopUpTo() != 0) {
-            // Allow actions to leave out a destinationId only if they have a non-zero popUpTo
-            popBackStack(options.getPopUpTo(), options.isPopUpToInclusive());
-        } else {
-            navigateTo(navAction.getDestinationId(), args, options);
-        }
     }
 
     /**
