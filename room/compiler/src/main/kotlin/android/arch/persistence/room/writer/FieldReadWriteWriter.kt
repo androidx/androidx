@@ -27,6 +27,7 @@ import android.arch.persistence.room.vo.Field
 import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.FieldWithIndex
 import android.arch.persistence.room.vo.Pojo
+import android.arch.persistence.room.vo.RelationCollector
 import com.squareup.javapoet.TypeName
 
 /**
@@ -166,7 +167,8 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                            outPojo : Pojo,
                            cursorVar: String,
                            fieldsWithIndices: List<FieldWithIndex>,
-                           scope: CodeGenScope) {
+                           scope: CodeGenScope,
+                           relationCollectors : List<RelationCollector>) {
             fun visitNode(node: Node) {
                 val fieldParent = node.fieldParent
                 fun readNode() {
@@ -203,6 +205,16 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                                 cursorVar = cursorVar,
                                 scope = scope)
                     }
+                    // assign relationship fields which will be read later
+                    relationCollectors.filter { (relation) ->
+                        relation.field.parent === fieldParent
+                    }.forEach {
+                        it.writeReadParentKeyCode(
+                                cursorVarName = cursorVar,
+                                itemVar = node.varName,
+                                fieldsWithIndices = fieldsWithIndices,
+                                scope = scope)
+                    }
                     // assign sub modes to fields if they were not part of the constructor.
                     node.subNodes.map {
                         val setter = it.fieldParent?.setter
@@ -211,9 +223,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         } else {
                             null
                         }
-                    }.filterNotNull().forEach { pair ->
-                        val varName = pair.first
-                        val setter = pair.second
+                    }.filterNotNull().forEach { (varName, setter) ->
                         setter.writeSet(
                                 ownerVar = node.varName,
                                 inVar = varName,

@@ -22,6 +22,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
+import android.arch.persistence.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
@@ -60,6 +61,9 @@ public interface UserPetDao {
 
     @Query("SELECT * FROM User u where u.mId = :userId")
     LiveData<UserAndAllPets> liveUserWithPets(int userId);
+
+    @Query("SELECT * FROM User u where u.mId = :uid")
+    EmbeddedUserAndAllPets loadUserAndPetsAsEmbedded(int uid);
 
     @Insert
     void insertUserAndPet(User user, Pet pet);
