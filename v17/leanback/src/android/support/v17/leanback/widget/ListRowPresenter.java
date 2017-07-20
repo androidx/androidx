@@ -829,6 +829,7 @@ public class ListRowPresenter extends RowPresenter {
     public void freeze(RowPresenter.ViewHolder holder, boolean freeze) {
         ViewHolder vh = (ViewHolder) holder;
         vh.mGridView.setScrollEnabled(!freeze);
+        vh.mGridView.setAnimateChildLayout(!freeze);
     }
 
     @Override
