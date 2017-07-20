@@ -186,6 +186,12 @@ public abstract class UserDao {
     @Query("SELECT * FROM user ORDER BY mAge DESC")
     public abstract CountedDataSource<User> loadUsersByAgeDesc();
 
+    @Query("DELETE FROM User WHERE mId IN (:ids) AND mAge == :age")
+    public abstract int deleteByAgeAndIds(int age, List<Integer> ids);
+
+    @Query("UPDATE User set mWeight = :weight WHERE mId IN (:ids) AND mAge == :age")
+    public abstract int updateByAgeAndIds(float weight, int age, List<Integer> ids);
+
     // QueryLoader
 
     @Query("SELECT COUNT(*) from user")

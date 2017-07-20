@@ -449,4 +449,27 @@ public class SimpleEntityReadWriteTest {
         assertTrue("SQLiteConstraintException expected", caught);
         assertThat(mUserDao.count(), is(0));
     }
+
+    @Test
+    public void multipleInParamsFollowedByASingleParam_delete() {
+        User user = TestUtil.createUser(3);
+        user.setAge(30);
+        mUserDao.insert(user);
+        assertThat(mUserDao.deleteByAgeAndIds(20, Arrays.asList(3, 5)), is(0));
+        assertThat(mUserDao.count(), is(1));
+        assertThat(mUserDao.deleteByAgeAndIds(30, Arrays.asList(3, 5)), is(1));
+        assertThat(mUserDao.count(), is(0));
+    }
+
+    @Test
+    public void multipleInParamsFollowedByASingleParam_update() {
+        User user = TestUtil.createUser(3);
+        user.setAge(30);
+        user.setWeight(10f);
+        mUserDao.insert(user);
+        assertThat(mUserDao.updateByAgeAndIds(3f, 20, Arrays.asList(3, 5)), is(0));
+        assertThat(mUserDao.loadByIds(3)[0].getWeight(), is(10f));
+        assertThat(mUserDao.updateByAgeAndIds(3f, 30, Arrays.asList(3, 5)), is(1));
+        assertThat(mUserDao.loadByIds(3)[0].getWeight(), is(3f));
+    }
 }
