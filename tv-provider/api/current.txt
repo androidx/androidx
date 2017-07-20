@@ -531,6 +531,7 @@ package android.support.media.tv {
     method public int getWatchNextType();
     method public android.content.ContentValues toContentValues();
     method public java.lang.String toString();
+    field public static final int WATCH_NEXT_TYPE_UNKNOWN = -1; // 0xffffffff
   }
 
   public static final class WatchNextProgram.Builder {
