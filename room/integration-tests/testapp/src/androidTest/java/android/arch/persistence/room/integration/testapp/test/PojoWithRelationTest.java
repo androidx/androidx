@@ -17,17 +17,18 @@
 package android.arch.persistence.room.integration.testapp.test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
-
+import android.arch.persistence.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.Toy;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.arch.persistence.room.integration.testapp.vo.UserIdAndPetNames;
 import android.arch.persistence.room.integration.testapp.vo.UserWithPetsAndToys;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -130,5 +131,14 @@ public class PojoWithRelationTest extends TestDatabaseTest {
 
         assertThat(userAndAllPets.get(1).pets, is(Arrays.asList(pets_2)));
         assertThat(userAndAllPets.get(3).pets, is(Arrays.asList(pets_2)));
+    }
+
+    @Test
+    public void embeddedRelation() {
+        createData();
+        EmbeddedUserAndAllPets relationContainer = mUserPetDao.loadUserAndPetsAsEmbedded(1);
+        assertThat(relationContainer.getUserAndAllPets(), notNullValue());
+        assertThat(relationContainer.getUserAndAllPets().user.getId(), is(1));
+        assertThat(relationContainer.getUserAndAllPets().pets.size(), is(2));
     }
 }

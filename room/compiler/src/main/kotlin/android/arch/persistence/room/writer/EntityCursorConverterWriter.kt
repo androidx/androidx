@@ -78,6 +78,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
                     outPojo = entity,
                     cursorVar = cursorParam.name,
                     fieldsWithIndices = fieldsWithIndices,
+                    relationCollectors = emptyList(), // no relationship for entities
                     scope = scope)
             addStatement("return $L", entityVar)
         }

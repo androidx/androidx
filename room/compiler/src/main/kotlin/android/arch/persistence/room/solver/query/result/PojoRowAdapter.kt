@@ -112,14 +112,8 @@ class PojoRowAdapter(context: Context, val info: QueryResultInfo,
                     outPojo = pojo,
                     cursorVar = cursorVarName,
                     fieldsWithIndices = mapping.fieldsWithIndices,
+                    relationCollectors = relationCollectors,
                     scope = scope)
-            relationCollectors.forEach {
-                it.writeReadParentKeyCode(
-                        cursorVarName = cursorVarName,
-                        itemVar = outVarName,
-                        fieldsWithIndices = mapping.fieldsWithIndices,
-                        scope = scope)
-            }
         }
     }
 
