@@ -16,14 +16,5 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.v7.preference.tests">
-    <!-- Workaround for the Android test runner + Mockito 2 bug -->
-    <!--suppress AndroidDomInspection -->
-    <instrumentation>
-        <!--suppress AndroidElementNotAllowed -->
-        <meta-data
-            android:name="notPackage"
-            android:value="net.bytebuddy" />
-    </instrumentation>
-
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 </manifest>
