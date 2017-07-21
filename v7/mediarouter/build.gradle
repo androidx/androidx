@@ -1,8 +1,8 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    api project(":support-appcompat-v7")
-    api project(":support-palette-v7")
+    api project(":appcompat-v7")
+    api project(":palette-v7")
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
