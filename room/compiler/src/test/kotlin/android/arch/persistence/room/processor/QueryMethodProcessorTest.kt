@@ -46,6 +46,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import createVerifierFromEntities
+import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
@@ -55,7 +56,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito
-import javax.lang.model.element.Element
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
@@ -77,10 +77,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         fun getParams() = arrayOf(true, false)
 
         fun createField(name: String, columnName: String? = null): Field {
+            val (element, type) = mockElementAndType()
             return Field(
-                    element = Mockito.mock(Element::class.java),
+                    element = element,
                     name = name,
-                    type = Mockito.mock(TypeMirror::class.java),
+                    type = type,
                     columnName = columnName ?: name,
                     affinity = null
             )
