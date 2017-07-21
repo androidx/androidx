@@ -18,8 +18,8 @@ apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
     api project(':support-v4')
-    api project(':support-appcompat-v7')
-    api project(':support-recyclerview-v7')
+    api project(':appcompat-v7')
+    api project(':recyclerview-v7')
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'

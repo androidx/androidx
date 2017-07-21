@@ -2,11 +2,11 @@ apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
     api project(':support-v4')
-    api project(':support-appcompat-v7')
-    api project(':support-recyclerview-v7')
-    api project(':support-preference-v7')
-    api project(':support-preference-v14')
-    api project(':support-leanback-v17')
+    api project(':appcompat-v7')
+    api project(':recyclerview-v7')
+    api project(':preference-v7')
+    api project(':preference-v14')
+    api project(':leanback-v17')
 }
 
 android {

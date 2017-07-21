@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':support-leanback-v17')
-    implementation project(':support-preference-leanback-v17')
+    implementation project(':leanback-v17')
+    implementation project(':preference-leanback-v17')
 }
 
 android {
