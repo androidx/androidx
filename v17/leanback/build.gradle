@@ -5,7 +5,7 @@ dependencies {
     api project(':support-core-ui')
     api project(':support-media-compat')
     api project(':support-fragment')
-    api project(':support-recyclerview-v7')
+    api project(':recyclerview-v7')
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'

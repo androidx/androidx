@@ -3,8 +3,8 @@ apply plugin: android.support.SupportLibraryPlugin
 dependencies {
     api project(':support-annotations')
     api project(':support-core-ui')
-    api project(':support-percent')
-    api project(':support-recyclerview-v7')
+    api project(':percent')
+    api project(':recyclerview-v7')
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
