@@ -33,8 +33,9 @@ fun load(fullClassName: String, folder: String): JavaFileObject {
     return JavaFileObjects.forSourceString(fullClassName, code)
 }
 
-fun processClass(vararg fullClassNames: String): CompileTester {
-    val processedWith = JavaSourcesSubject.assertThat(
-            *fullClassNames.map { load(it, "") }.toTypedArray()).processedWith(LifecycleProcessor())
+fun processClass(className: String, vararg fullClassNames: String): CompileTester {
+    val javaFiles = fullClassNames.map { load(it, "") }.toTypedArray()
+    val processedWith = JavaSourcesSubject.assertThat(load(className, ""), *javaFiles)
+            .processedWith(LifecycleProcessor())
     return checkNotNull(processedWith)
 }

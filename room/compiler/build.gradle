@@ -24,6 +24,14 @@ sourceSets {
     main.java.srcDirs += antlrOut
 }
 project.ext.noDocs = true
+
+// Temporary hack to stop AS to adding two guavas into test's classpath
+configurations.all {
+    resolutionStrategy {
+        force libs.guava
+    }
+}
+
 dependencies {
     // taken from ButterKnife
     def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
