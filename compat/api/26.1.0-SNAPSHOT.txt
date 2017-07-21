@@ -525,14 +525,14 @@ package android.support.v4.app {
    deprecated class RemoteInputCompatBase {
   }
 
-  public static abstract class RemoteInputCompatBase.RemoteInput {
-    ctor public RemoteInputCompatBase.RemoteInput();
-    method protected abstract boolean getAllowFreeFormInput();
-    method protected abstract java.util.Set<java.lang.String> getAllowedDataTypes();
-    method protected abstract java.lang.CharSequence[] getChoices();
-    method protected abstract android.os.Bundle getExtras();
-    method protected abstract java.lang.CharSequence getLabel();
-    method protected abstract java.lang.String getResultKey();
+  public static abstract deprecated class RemoteInputCompatBase.RemoteInput {
+    ctor public deprecated RemoteInputCompatBase.RemoteInput();
+    method protected abstract deprecated boolean getAllowFreeFormInput();
+    method protected abstract deprecated java.util.Set<java.lang.String> getAllowedDataTypes();
+    method protected abstract deprecated java.lang.CharSequence[] getChoices();
+    method protected abstract deprecated android.os.Bundle getExtras();
+    method protected abstract deprecated java.lang.CharSequence getLabel();
+    method protected abstract deprecated java.lang.String getResultKey();
   }
 
   public final class ServiceCompat {
