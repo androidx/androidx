@@ -20,15 +20,6 @@ dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':support-emoji')
     api project(':support-appcompat-v7')
-
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
 }
 
 android {
