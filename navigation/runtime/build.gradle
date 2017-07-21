@@ -83,6 +83,3 @@ android.libraryVariants.all { variant ->
         destinationDir new File(project.buildDir, "libJar")
     }
 }
-
-// remove when we want to ship navigation
-project.ext.noDocs = true

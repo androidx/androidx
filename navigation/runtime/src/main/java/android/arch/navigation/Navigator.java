@@ -128,7 +128,7 @@ public abstract class Navigator<D extends NavDestination> {
      * Attempt to pop this navigator's back stack, performing the appropriate navigation.
      *
      * <p>Implementations should {@link #dispatchOnNavigatorNavigated} to notify
-     * listeners of the resulting navigation destination and return {@link true} if navigation
+     * listeners of the resulting navigation destination and return {@code true} if navigation
      * was successful. Implementations should return {@code false} if navigation could not
      * be performed, for example if the navigator's back stack was empty.</p>
      *

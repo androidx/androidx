@@ -53,15 +53,34 @@ public class NavOptions {
         mExitAnim = exitAnim;
     }
 
-    boolean shouldLaunchSingleTop() {
+    /**
+     * Whether this navigation action should launch as single-top (i.e., there will be at most
+     * one copy of a given destination on the top of the back stack).
+     * <p>
+     * This functions similarly to how {@link android.content.Intent#FLAG_ACTIVITY_SINGLE_TOP}
+     * works with activites.
+     */
+    public boolean shouldLaunchSingleTop() {
         return (mLaunchMode & LAUNCH_SINGLE_TOP) != 0;
     }
 
-    boolean shouldLaunchDocument() {
+    /**
+     * Whether this navigation action should launch the destination in a new document.
+     * <p>
+     * This functions similarly to how {@link android.content.Intent#FLAG_ACTIVITY_NEW_DOCUMENT}
+     * works with activites.
+     */
+    public boolean shouldLaunchDocument() {
         return (mLaunchMode & LAUNCH_DOCUMENT) != 0;
     }
 
-    boolean shouldClearTask() {
+    /**
+     * Whether this navigation action should clear the entire back stack
+     * <p>
+     * This functions similarly to how {@link android.content.Intent#FLAG_ACTIVITY_CLEAR_TASK}
+     * works with activites.
+     */
+    public boolean shouldClearTask() {
         return (mLaunchMode & LAUNCH_CLEAR_TASK) != 0;
     }
 
