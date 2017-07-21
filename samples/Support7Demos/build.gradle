@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':support-appcompat-v7')
-    implementation project(':support-cardview-v7')
-    implementation project(':support-gridlayout-v7')
-    implementation project(':support-mediarouter-v7')
-    implementation project(':support-palette-v7')
-    implementation project(':support-recyclerview-v7')
+    implementation project(':appcompat-v7')
+    implementation project(':cardview-v7')
+    implementation project(':gridlayout-v7')
+    implementation project(':mediarouter-v7')
+    implementation project(':palette-v7')
+    implementation project(':recyclerview-v7')
 }
 
 android {
