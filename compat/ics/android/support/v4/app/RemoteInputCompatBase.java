@@ -26,14 +26,57 @@ import java.util.Set;
 @Deprecated
 class RemoteInputCompatBase {
 
+    /**
+     * @deprecated This class was not meant to be made public.
+     */
+    @Deprecated
     public abstract static class RemoteInput {
+        /**
+         * @deprecated This method was not meant to be made public.
+         */
+        @Deprecated
+        public RemoteInput() {}
+
+        /**
+         * @deprecated This method was not meant to be made public.
+         */
+        @Deprecated
         protected abstract String getResultKey();
+
+        /**
+         * @deprecated This method was not meant to be made public.
+         */
+        @Deprecated
         protected abstract CharSequence getLabel();
+
+        /**
+         * @deprecated This method was not meant to be made public.
+         */
+        @Deprecated
         protected abstract CharSequence[] getChoices();
+
+        /**
+         * @deprecated This method was not meant to be made public.
+         */
+        @Deprecated
         protected abstract boolean getAllowFreeFormInput();
+
+        /**
+         * @deprecated This method was not meant to be made public.
+         */
+        @Deprecated
         protected abstract Bundle getExtras();
+
+        /**
+         * @deprecated This method was not meant to be made public.
+         */
+        @Deprecated
         protected abstract Set<String> getAllowedDataTypes();
 
+        /**
+         * @deprecated This class was not meant to be made public.
+         */
+        @Deprecated
         public interface Factory {
             RemoteInput build(String resultKey, CharSequence label,
                     CharSequence[] choices, boolean allowFreeFormInput, Bundle extras,
