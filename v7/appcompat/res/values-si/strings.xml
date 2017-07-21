@@ -29,7 +29,7 @@
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"හඬ සෙවීම"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"යෙදුමක් තෝරන්න"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"සියල්ල බලන්න"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="7165123711973476752">"%s සමඟ බෙදාගන්න"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> සමඟ බෙදා ගන්න"</string>
     <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"සමඟ බෙදාගන්න"</string>
     <string name="abc_capital_on" msgid="3405795526292276155">"ක්‍රියාත්මකයි"</string>
     <string name="abc_capital_off" msgid="121134116657445385">"ක්‍රියාවිරහිතයි"</string>
