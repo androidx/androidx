@@ -17,6 +17,7 @@
 package android.arch.core.internal;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Test;
@@ -25,7 +26,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 
 @RunWith(JUnit4.class)
 public class SafeIterableMapTest {
@@ -167,7 +168,7 @@ public class SafeIterableMapTest {
         SafeIterableMap<Integer, Integer> map = from(1, 2, 3, 4).to(10, 20, 30, 40);
         int index = 0;
         int[] expected = new int[]{1, 4};
-        for (Map.Entry<Integer, Integer> i : map) {
+        for (Entry<Integer, Integer> i : map) {
             assertThat(i.getKey(), is(expected[index++]));
             if (index == 1) {
                 assertThat(map.remove(2), is(20));
@@ -179,7 +180,7 @@ public class SafeIterableMapTest {
     @Test
     public void testRemoveDuringIteration2() {
         SafeIterableMap<Integer, Integer> map = from(1, 2).to(10, 20);
-        Iterator<Map.Entry<Integer, Integer>> iter = map.iterator();
+        Iterator<Entry<Integer, Integer>> iter = map.iterator();
         assertThat(map.remove(2), is(20));
         assertThat(map.remove(1), is(10));
         assertThat(iter.hasNext(), is(false));
@@ -189,7 +190,7 @@ public class SafeIterableMapTest {
     public void testRemoveDuringIteration3() {
         SafeIterableMap<Integer, Integer> map = from(1, 2, 3, 4).to(10, 20, 30, 40);
         int index = 0;
-        Iterator<Map.Entry<Integer, Integer>> iter = map.iterator();
+        Iterator<Entry<Integer, Integer>> iter = map.iterator();
         assertThat(map.remove(1), is(10));
         assertThat(map.remove(2), is(20));
         int[] expected = new int[]{3, 4};
@@ -203,7 +204,7 @@ public class SafeIterableMapTest {
         SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
         int[] expected = new int[]{1, 2, 3, 4};
         int index = 0;
-        for (Map.Entry<Integer, Boolean> entry : map) {
+        for (Entry<Integer, Boolean> entry : map) {
             assertThat(entry.getKey(), is(expected[index++]));
             if (index == 1) {
                 map.putIfAbsent(5, true);
@@ -216,7 +217,7 @@ public class SafeIterableMapTest {
         SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
         int[] expected = new int[]{1, 2, 4};
         int index = 0;
-        for (Map.Entry<Integer, Boolean> entry : map) {
+        for (Entry<Integer, Boolean> entry : map) {
             assertThat(entry.getKey(), is(expected[index++]));
             if (index == 1) {
                 map.remove(3);
@@ -247,13 +248,13 @@ public class SafeIterableMapTest {
     }
 
     @Test
-    public void testIteratorWithAdditions() {
+    public void testIteratorWithAdditions1() {
         SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
         int[] expected = new int[]{1, 2, 3, 5};
         int index = 0;
-        Iterator<Map.Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
+        Iterator<Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
         while (iterator.hasNext()) {
-            Map.Entry<Integer, Boolean> entry = iterator.next();
+            Entry<Integer, Boolean> entry = iterator.next();
             assertThat(entry.getKey(), is(expected[index++]));
             if (index == 3) {
                 map.remove(4);
@@ -261,6 +262,181 @@ public class SafeIterableMapTest {
             }
         }
     }
+
+    @Test
+    public void testIteratorWithAdditions2() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1);
+        int[] expected = new int[]{1, 2, 3};
+        int index = 0;
+        Iterator<Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
+        while (iterator.hasNext()) {
+            Entry<Integer, Boolean> entry = iterator.next();
+            assertThat(entry.getKey(), is(expected[index++]));
+            if (index == 1) {
+                map.putIfAbsent(2, true);
+                map.putIfAbsent(3, true);
+            }
+        }
+        assertThat(index, is(3));
+    }
+
+
+    @Test
+    public void testIteratorWithAdditions3() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3);
+        int[] expected = new int[]{1};
+        int index = 0;
+        Iterator<Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
+        while (iterator.hasNext()) {
+            Entry<Integer, Boolean> entry = iterator.next();
+            assertThat(entry.getKey(), is(expected[index++]));
+            map.remove(2);
+            map.remove(3);
+        }
+        assertThat(index, is(1));
+    }
+
+    @Test
+    public void testIteratorWithAdditions4() {
+        SafeIterableMap<Integer, Boolean> map = mapOf();
+        int[] expected = new int[]{1, 2, 3};
+        int index = 0;
+        Iterator<Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
+        map.putIfAbsent(1, true);
+        while (iterator.hasNext()) {
+            Entry<Integer, Boolean> entry = iterator.next();
+            assertThat(entry.getKey(), is(expected[index++]));
+            if (index == 1) {
+                map.putIfAbsent(2, false);
+            }
+            if (index == 2) {
+                map.putIfAbsent(3, false);
+            }
+        }
+        assertThat(index, is(3));
+    }
+
+    @Test
+    public void testDescendingIteration() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
+        int[] expected = new int[]{4, 3, 2, 1};
+        int index = 0;
+        for (Iterator<Entry<Integer, Boolean>> iter = map.descendingIterator(); iter.hasNext(); ) {
+            assertThat(iter.next().getKey(), is(expected[index++]));
+        }
+        assertThat(index, is(4));
+    }
+
+    @Test
+    public void testDescendingIterationRemove1() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
+        int[] expected = new int[]{4, 3, 2};
+        int index = 0;
+        for (Iterator<Entry<Integer, Boolean>> iter = map.descendingIterator(); iter.hasNext(); ) {
+            if (index == 1) {
+                map.remove(1);
+            }
+            assertThat(iter.next().getKey(), is(expected[index++]));
+        }
+        assertThat(index, is(3));
+        assertThat(map.size(), is(3));
+    }
+
+    @Test
+    public void testDescendingIterationRemove2() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
+        int[] expected = new int[]{3, 2, 1};
+        int index = 0;
+        for (Iterator<Entry<Integer, Boolean>> iter = map.descendingIterator(); iter.hasNext(); ) {
+            if (index == 0) {
+                map.remove(4);
+            }
+            assertThat(iter.next().getKey(), is(expected[index++]));
+        }
+        assertThat(index, is(3));
+        assertThat(map.size(), is(3));
+    }
+
+    @Test
+    public void testDescendingIterationRemove3() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
+        int[] expected = new int[]{4, 1};
+        int index = 0;
+        for (Iterator<Entry<Integer, Boolean>> iter = map.descendingIterator(); iter.hasNext(); ) {
+            if (index == 1) {
+                map.remove(3);
+                map.remove(2);
+            }
+            assertThat(iter.next().getKey(), is(expected[index++]));
+        }
+        assertThat(index, is(2));
+        assertThat(map.size(), is(2));
+    }
+
+    @Test
+    public void testDescendingIterationAddition() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
+        int[] expected = new int[]{4, 3, 2, 1};
+        int index = 0;
+        for (Iterator<Entry<Integer, Boolean>> iter = map.descendingIterator(); iter.hasNext(); ) {
+            if (index == 0) {
+                map.putIfAbsent(5, false);
+            }
+            assertThat(iter.next().getKey(), is(expected[index++]));
+        }
+        assertThat(index, is(4));
+        assertThat(map.size(), is(5));
+    }
+
+    @Test
+    public void testDescendingIteratorEmpty() {
+        SafeIterableMap<Integer, Boolean> map = mapOf();
+        Iterator<Entry<Integer, Boolean>> iterator = map.descendingIterator();
+        assertThat(iterator.hasNext(), is(false));
+    }
+
+    @Test
+    public void testIteratorEmpty() {
+        SafeIterableMap<Integer, Boolean> map = mapOf();
+        Iterator<Entry<Integer, Boolean>> iterator = map.iterator();
+        assertThat(iterator.hasNext(), is(false));
+    }
+
+    @Test
+    public void testIteratorWithAdditionEmpty() {
+        SafeIterableMap<Integer, Boolean> map = mapOf();
+        Iterator<Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
+        assertThat(iterator.hasNext(), is(false));
+    }
+
+    @Test
+    public void testEldest() {
+        SafeIterableMap<Integer, Boolean> map = mapOf();
+        assertThat(map.eldest(), nullValue());
+        map.putIfAbsent(1, false);
+        assertThat(map.eldest().getKey(), is(1));
+        map.putIfAbsent(2, false);
+        assertThat(map.eldest().getKey(), is(1));
+        map.remove(1);
+        assertThat(map.eldest().getKey(), is(2));
+        map.remove(2);
+        assertThat(map.eldest(), nullValue());
+    }
+
+    @Test
+    public void testNewest() {
+        SafeIterableMap<Integer, Boolean> map = mapOf();
+        assertThat(map.newest(), nullValue());
+        map.putIfAbsent(1, false);
+        assertThat(map.newest().getKey(), is(1));
+        map.putIfAbsent(2, false);
+        assertThat(map.newest().getKey(), is(2));
+        map.remove(2);
+        assertThat(map.eldest().getKey(), is(1));
+        map.remove(1);
+        assertThat(map.newest(), nullValue());
+    }
+
 
     // for most operations we don't care about values, so we create map from key to true
     @SafeVarargs
