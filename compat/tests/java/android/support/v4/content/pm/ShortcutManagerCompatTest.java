@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doReturn;
@@ -110,7 +111,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
         ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
         doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
         when(mockShortcutManager.requestPinShortcut(
-                any(ShortcutInfo.class), any(IntentSender.class))).thenReturn(true);
+                any(ShortcutInfo.class), nullable(IntentSender.class))).thenReturn(true);
 
         assertTrue(ShortcutManagerCompat.requestPinShortcut(mContext, mInfoCompat, null));
         ArgumentCaptor<ShortcutInfo> captor = ArgumentCaptor.forClass(ShortcutInfo.class);
