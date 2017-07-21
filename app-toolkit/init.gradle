@@ -107,11 +107,6 @@ rootProject.ext.flatfootProjectGroups = [
         "navigation" : "android.arch.navigation"]
 
 subprojects {
-    configurations.all {
-        resolutionStrategy {
-            force "com.google.guava:guava-jdk5:17.0"
-        }
-    }
     repos.addMavenRepositories(project.repositories)
     if (project.name == 'doclava' || project.name == 'jdiff') {
         project.tasks.whenTaskAdded { task ->
