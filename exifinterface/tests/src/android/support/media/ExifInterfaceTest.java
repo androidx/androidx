@@ -29,7 +29,6 @@ import android.location.Location;
 import android.os.Environment;
 import android.support.exifinterface.test.R;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -328,7 +327,7 @@ public class ExifInterfaceTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testDoNotFailOnCorruptedImage() throws Throwable {
         // ExifInterface shouldn't raise any exceptions except an IOException when unable to open
         // a file, even with a corrupted image. Generates 10,000 randomly corrupted image stream
