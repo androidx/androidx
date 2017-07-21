@@ -43,7 +43,6 @@ import android.support.test.espresso.action.Press;
 import android.support.test.espresso.action.Swipe;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.assertion.ViewAssertions;
-import android.support.test.espresso.core.deps.guava.base.Preconditions;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
@@ -58,6 +57,7 @@ import android.view.ViewGroup;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class BottomSheetBehaviorTest extends
@@ -229,8 +229,8 @@ public class BottomSheetBehaviorTest extends
         }
 
         private static float[][] interpolate(float[] start, float[] end, int steps) {
-            Preconditions.checkElementIndex(1, start.length);
-            Preconditions.checkElementIndex(1, end.length);
+            Assert.assertTrue(1 < start.length);
+            Assert.assertTrue(1 < end.length);
             float[][] res = new float[steps][2];
             for(int i = 1; i < steps + 1; ++i) {
                 res[i - 1][0] = start[0] + (end[0] - start[0]) * (float)i / ((float)steps + 2.0F);
