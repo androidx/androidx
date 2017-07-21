@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    compile project(':support-design')
-    compile project(':support-appcompat-v7')
+    compile project(':design')
+    compile project(':appcompat-v7')
     compile project(':support-content')
 }
