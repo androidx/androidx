@@ -2488,7 +2488,7 @@ public class NotificationCompat {
          * Adds a message for display by this notification. Convenience call for a simple
          * {@link Message} in {@link #addMessage(Message)}
          * @param text A {@link CharSequence} to be displayed as the message content
-         * @param timestamp Time at which the message arrived
+         * @param timestamp Time at which the message arrived in ms since Unix epoch
          * @param sender A {@link CharSequence} to be used for displaying the name of the
          * sender. Should be <code>null</code> for messages by the current user, in which case
          * the platform will insert {@link #getUserDisplayName()}.
@@ -2715,7 +2715,7 @@ public class NotificationCompat {
             /**
              * Constructor
              * @param text A {@link CharSequence} to be displayed as the message content
-             * @param timestamp Time at which the message arrived
+             * @param timestamp Time at which the message arrived in ms since Unix epoch
              * @param sender A {@link CharSequence} to be used for displaying the name of the
              * sender. Should be <code>null</code> for messages by the current user, in which case
              * the platform will insert {@link MessagingStyle#getUserDisplayName()}.
@@ -2770,7 +2770,7 @@ public class NotificationCompat {
             }
 
             /**
-             * Get the time at which this message arrived
+             * Get the time at which this message arrived in ms since Unix epoch
              */
             public long getTimestamp() {
                 return mTimestamp;
