@@ -18,13 +18,8 @@ package android.support.v7.widget;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.test.runner.MonitoringInstrumentation;
 import android.view.WindowManager;
-
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class TestActivity extends Activity {
     // This is not great but the only way to do this until test runner adds support to not kill
@@ -35,7 +30,6 @@ public class TestActivity extends Activity {
     private volatile TestedFrameLayout mContainer;
     boolean mVisible;
     boolean mAllowFinish;
-    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +37,6 @@ public class TestActivity extends Activity {
         overridePendingTransition(0, 0);
 
         mContainer = new TestedFrameLayout(this);
-        mHandler = new Handler(Looper.getMainLooper());
-
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(mContainer);
@@ -53,21 +45,6 @@ public class TestActivity extends Activity {
 
     public TestedFrameLayout getContainer() {
         return mContainer;
-    }
-
-    public void resetContent() throws InterruptedException {
-        final CountDownLatch done = new CountDownLatch(1);
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mContainer = new TestedFrameLayout(TestActivity.this);
-                setContentView(mContainer);
-                done.countDown();
-            }
-        });
-        if (!done.await(5, TimeUnit.SECONDS)) {
-            throw new AssertionError("could not cleanup activity contents in 5 seconds");
-        }
     }
 
     @Override
@@ -96,13 +73,5 @@ public class TestActivity extends Activity {
             }
         }
         super.finish();
-    }
-
-    public void setAllowFinish(boolean allowFinish) {
-        mAllowFinish = allowFinish;
-    }
-
-    public boolean canBeReUsed() {
-        return getWindow() != null && mVisible && !mAllowFinish;
     }
 }
