@@ -353,11 +353,11 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         val scope = CodeGenScope(this)
         val sqlVar = scope.getTmpVar("_sql")
         val stmtVar = scope.getTmpVar("_stmt")
-        queryWriter.prepareQuery(sqlVar, scope)
+        val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
         scope.builder().apply {
             addStatement("$T $L = $N.compileStatement($L)",
                     SupportDbTypeNames.SQLITE_STMT, stmtVar, dbField, sqlVar)
-            queryWriter.bindArgs(stmtVar, emptyList(), scope)
+            queryWriter.bindArgs(stmtVar, listSizeArgs, scope)
             addStatement("$N.beginTransaction()", dbField)
             beginControlFlow("try").apply {
                 if (method.returnsValue) {

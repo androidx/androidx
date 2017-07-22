@@ -50,8 +50,9 @@ class QueryWriter constructor(val parameters : List<QueryParameter>,
         bindArgs(outRoomSQLiteQueryVar, listSizeVars, scope)
     }
 
-    fun prepareQuery(outSqlQueryName: String, scope: CodeGenScope) {
-        createSqlQueryAndArgs(outSqlQueryName, null, scope)
+    fun prepareQuery(outSqlQueryName: String, scope: CodeGenScope)
+            : List<Pair<QueryParameter, String>> {
+        return createSqlQueryAndArgs(outSqlQueryName, null, scope)
     }
 
     private fun createSqlQueryAndArgs(outSqlQueryName: String, outArgsName: String?,
