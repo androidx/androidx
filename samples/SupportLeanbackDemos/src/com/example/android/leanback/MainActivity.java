@@ -146,6 +146,10 @@ public class MainActivity extends Activity {
             addAction(actions, VideoActivityWithDetailedCard.class,
                     R.string.video_play_with_detail_card,
                     R.string.video_play_with_detail_card_description);
+
+            addAction(actions, MusicExampleActivity.class,
+                    R.string.music,
+                    R.string.music_description);
         }
 
         private void addAction(List<GuidedAction> actions, Class cls, int titleRes, int descRes) {
