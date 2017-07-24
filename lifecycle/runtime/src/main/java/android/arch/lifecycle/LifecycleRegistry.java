@@ -16,11 +16,6 @@
 
 package android.arch.lifecycle;
 
-import android.arch.core.internal.SafeIterableMap;
-import android.support.annotation.NonNull;
-
-import java.util.Map;
-
 import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
 import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
 import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
@@ -33,33 +28,54 @@ import static android.arch.lifecycle.Lifecycle.State.INITIALIZED;
 import static android.arch.lifecycle.Lifecycle.State.RESUMED;
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
+import android.arch.core.internal.FastSafeIterableMap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 /**
  * An implementation of {@link Lifecycle} that can handle multiple observers.
  * <p>
  * It is used by Fragments and Support Library Activities. You can also directly use it if you have
  * a custom LifecycleOwner.
  */
-@SuppressWarnings("WeakerAccess")
 public class LifecycleRegistry extends Lifecycle {
 
     /**
      * Custom list that keeps observers and can handle removals / additions during traversal.
+     *
+     * Invariant: at any moment of time for observer1 & observer2:
+     * if addition_order(observer1) < addition_order(observer2), then
+     * state(observer1) >= state(observer2),
      */
-    private SafeIterableMap<LifecycleObserver, ObserverWithState> mObserverSet =
-            new SafeIterableMap<>();
+    private FastSafeIterableMap<LifecycleObserver, ObserverWithState> mObserverMap =
+            new FastSafeIterableMap<>();
     /**
      * Current state
      */
     private State mState;
     /**
-     * Latest event that was provided via {@link #handleLifecycleEvent(Event)}.
-     */
-    private Event mLastEvent;
-
-    /**
      * The provider that owns this Lifecycle.
      */
     private final LifecycleOwner mLifecycleOwner;
+
+    private int mAddingObserverCounter = 0;
+
+    private boolean mHandlingEvent = false;
+    private boolean mNewEventOccurred = false;
+
+    // we have to keep it for cases:
+    // void onStart() {
+    //     mRegistry.removeObserver(this);
+    //     mRegistry.add(newObserver);
+    // }
+    // newObserver should be brought only to CREATED state during the execution of
+    // this onStart method. our invariant with mObserverMap doesn't help, because parent observer
+    // is no longer in the map.
+    private ArrayList<State> mParentStates = new ArrayList<>();
 
     /**
      * Creates a new LifecycleRegistry for the given provider.
@@ -80,6 +96,7 @@ public class LifecycleRegistry extends Lifecycle {
      *
      * @param state new state
      */
+    @SuppressWarnings("WeakerAccess")
     public void markState(State state) {
         mState = state;
     }
@@ -93,21 +110,71 @@ public class LifecycleRegistry extends Lifecycle {
      * @param event The event that was received
      */
     public void handleLifecycleEvent(Lifecycle.Event event) {
-        if (mLastEvent == event) {
+        mState = getStateAfter(event);
+        if (mHandlingEvent || mAddingObserverCounter != 0) {
+            mNewEventOccurred = true;
+            // we will figure out what to do on upper level.
             return;
         }
-        mLastEvent = event;
-        mState = getStateAfter(event);
-        for (Map.Entry<LifecycleObserver, ObserverWithState> entry : mObserverSet) {
-            entry.getValue().sync();
+        mHandlingEvent = true;
+        sync();
+        mHandlingEvent = false;
+    }
+
+    private boolean isSynced() {
+        if (mObserverMap.size() == 0) {
+            return true;
         }
+        State eldestObserverState = mObserverMap.eldest().getValue().mState;
+        State newestObserverState = mObserverMap.newest().getValue().mState;
+        return eldestObserverState == newestObserverState && mState == newestObserverState;
+    }
+
+    private State calculateTargetState(LifecycleObserver observer) {
+        Entry<LifecycleObserver, ObserverWithState> previous = mObserverMap.ceil(observer);
+
+        State siblingState = previous != null ? previous.getValue().mState : null;
+        State parentState = !mParentStates.isEmpty() ? mParentStates.get(mParentStates.size() - 1)
+                : null;
+        return min(min(mState, siblingState), parentState);
     }
 
     @Override
     public void addObserver(LifecycleObserver observer) {
-        ObserverWithState observerWithState = new ObserverWithState(observer);
-        mObserverSet.putIfAbsent(observer, observerWithState);
-        observerWithState.sync();
+        State initialState = mState == DESTROYED ? DESTROYED : INITIALIZED;
+        ObserverWithState statefulObserver = new ObserverWithState(observer, initialState);
+        ObserverWithState previous = mObserverMap.putIfAbsent(observer, statefulObserver);
+
+        if (previous != null) {
+            return;
+        }
+
+        boolean isReentrance = mAddingObserverCounter != 0 || mHandlingEvent;
+
+        State targetState = calculateTargetState(observer);
+        mAddingObserverCounter++;
+        while ((statefulObserver.mState.compareTo(targetState) < 0
+                && mObserverMap.contains(observer))) {
+            pushParentState(statefulObserver.mState);
+            statefulObserver.dispatchEvent(mLifecycleOwner, upEvent(statefulObserver.mState));
+            popParentState();
+            // mState / subling may have been changed recalculate
+            targetState = calculateTargetState(observer);
+        }
+
+        if (!isReentrance) {
+            // we do sync only on the top level.
+            sync();
+        }
+        mAddingObserverCounter--;
+    }
+
+    private void popParentState() {
+        mParentStates.remove(mParentStates.size() - 1);
+    }
+
+    private void pushParentState(State state) {
+        mParentStates.add(state);
     }
 
     @Override
@@ -124,7 +191,7 @@ public class LifecycleRegistry extends Lifecycle {
         // lost an internet and as a result you removed this observer. If you get destruction
         // events in removeObserver, you should have a special case in your onStop method that
         // checks if your web connection died and you shouldn't try to report anything to a server.
-        mObserverSet.remove(observer);
+        mObserverMap.remove(observer);
     }
 
     /**
@@ -132,8 +199,9 @@ public class LifecycleRegistry extends Lifecycle {
      *
      * @return The number of observers.
      */
+    @SuppressWarnings("WeakerAccess")
     public int getObserverCount() {
-        return mObserverSet.size();
+        return mObserverMap.size();
     }
 
     @Override
@@ -159,7 +227,7 @@ public class LifecycleRegistry extends Lifecycle {
         throw new IllegalArgumentException("Unexpected event value " + event);
     }
 
-    static Event downEvent(State state) {
+    private static Event downEvent(State state) {
         switch (state) {
             case INITIALIZED:
                 throw new IllegalArgumentException();
@@ -175,7 +243,7 @@ public class LifecycleRegistry extends Lifecycle {
         throw new IllegalArgumentException("Unexpected state value " + state);
     }
 
-    static Event upEvent(State state) {
+    private static Event upEvent(State state) {
         switch (state) {
             case INITIALIZED:
             case DESTROYED:
@@ -190,24 +258,73 @@ public class LifecycleRegistry extends Lifecycle {
         throw new IllegalArgumentException("Unexpected state value " + state);
     }
 
-    class ObserverWithState {
-        private State mObserverCurrentState = INITIALIZED;
-        private GenericLifecycleObserver mCallback;
+    private void forwardPass() {
+        Iterator<Entry<LifecycleObserver, ObserverWithState>> ascendingIterator =
+                mObserverMap.iteratorWithAdditions();
+        while (ascendingIterator.hasNext() && !mNewEventOccurred) {
+            Entry<LifecycleObserver, ObserverWithState> entry = ascendingIterator.next();
+            ObserverWithState observer = entry.getValue();
+            while ((observer.mState.compareTo(mState) < 0 && !mNewEventOccurred
+                    && mObserverMap.contains(entry.getKey()))) {
+                pushParentState(observer.mState);
+                observer.dispatchEvent(mLifecycleOwner, upEvent(observer.mState));
+                popParentState();
+            }
+        }
+    }
 
-        ObserverWithState(LifecycleObserver observer) {
-            mCallback = Lifecycling.getCallback(observer);
+    private void backwardPass() {
+        Iterator<Entry<LifecycleObserver, ObserverWithState>> descendingIterator =
+                mObserverMap.descendingIterator();
+        while (descendingIterator.hasNext() && !mNewEventOccurred) {
+            Entry<LifecycleObserver, ObserverWithState> entry = descendingIterator.next();
+            ObserverWithState observer = entry.getValue();
+            while ((observer.mState.compareTo(mState) > 0 && !mNewEventOccurred
+                    && mObserverMap.contains(entry.getKey()))) {
+                Event event = downEvent(observer.mState);
+                pushParentState(getStateAfter(event));
+                observer.dispatchEvent(mLifecycleOwner, event);
+                popParentState();
+            }
+        }
+    }
+
+    // happens only on the top of stack (never in reentrance),
+    // so it doesn't have to take in account parents
+    private void sync() {
+        while (!isSynced()) {
+            mNewEventOccurred = false;
+            // no need to check eldest for nullability, because isSynced does it for us.
+            if (mState.compareTo(mObserverMap.eldest().getValue().mState) < 0) {
+                backwardPass();
+            }
+            Entry<LifecycleObserver, ObserverWithState> newest = mObserverMap.newest();
+            if (!mNewEventOccurred && newest != null
+                    && mState.compareTo(newest.getValue().mState) > 0) {
+                forwardPass();
+            }
+        }
+        mNewEventOccurred = false;
+    }
+
+    static State min(@NonNull State state1, @Nullable State state2) {
+        return state2 != null && state2.compareTo(state1) < 0 ? state2 : state1;
+    }
+
+    static class ObserverWithState {
+        State mState;
+        GenericLifecycleObserver mLifecycleObserver;
+
+        ObserverWithState(LifecycleObserver observer, State initialState) {
+            mLifecycleObserver = Lifecycling.getCallback(observer);
+            mState = initialState;
         }
 
-        void sync() {
-            if (mState == DESTROYED && mObserverCurrentState == INITIALIZED) {
-                mObserverCurrentState = DESTROYED;
-            }
-            while (mObserverCurrentState != mState) {
-                Event event = mObserverCurrentState.isAtLeast(mState)
-                        ? downEvent(mObserverCurrentState) : upEvent(mObserverCurrentState);
-                mObserverCurrentState = getStateAfter(event);
-                mCallback.onStateChanged(mLifecycleOwner, event);
-            }
+        void dispatchEvent(LifecycleOwner owner, Event event) {
+            State newState = getStateAfter(event);
+            mState = min(mState, newState);
+            mLifecycleObserver.onStateChanged(owner, event);
+            mState = newState;
         }
     }
 }
