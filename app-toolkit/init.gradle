@@ -228,8 +228,17 @@ subprojects {
 
 def createKotlinCheckstyle(Project project) {
     def fs = files();
-    fs += files(project.sourceSets.main.allJava.srcDirs.collect{fileTree(it)})
-    fs += files(project.sourceSets.test.allJava.srcDirs.collect{fileTree(it)})
+    if (project.sourceSets.hasProperty('main')) {
+        fs += files(project.sourceSets.main.allJava.srcDirs.collect { fileTree(it) })
+    }
+    if (project.sourceSets.hasProperty('test')) {
+        fs += files(project.sourceSets.test.allJava.srcDirs.collect { fileTree(it) })
+    }
+    if (project.hasProperty('android')) {
+        fs += files(project.android.sourceSets.main.java.getSrcDirs().collect {fileTree(it)})
+        fs += files(project.android.sourceSets.test.java.getSrcDirs().collect {fileTree(it)})
+        fs += files(project.android.sourceSets.androidTest.java.getSrcDirs().collect {fileTree(it)})
+    }
     fs = fs.filter{file -> file.name.endsWith(".kt")}
     def kotlinCheckstyle = createCheckstyleTask(project, 'checkstyleKotlin',
             "${project.rootProject.ext.supportRootFolder}/app-toolkit/kotlin-checkstyle.xml",
@@ -238,8 +247,7 @@ def createKotlinCheckstyle(Project project) {
     project.tasks.findByName("check").dependsOn(kotlinCheckstyle)
     // poor man's line length check
     def lineCheck = project.tasks.create(name : "lineLengthCheck") {
-        (project.sourceSets.main.allJava.getSourceDirectories() +
-            project.sourceSets.test.allJava.getSourceDirectories()).each { sourceDir ->
+        fs.each { sourceDir ->
                   fileTree(dir : sourceDir, include : "**/*.kt").each{ file ->
                       file.readLines().eachWithIndex { line, index ->
                           if (line.size() > 100) {
