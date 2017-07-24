@@ -128,18 +128,18 @@ public class LifecycleRegistryTest {
     }
 
     @Test
-    public void constructionDestruction1() {
+    public void constructionOrder() {
         fullyInitializeRegistry();
         final TestObserver observer = mock(TestObserver.class);
         mRegistry.addObserver(observer);
-        InOrder constructionVerifier = inOrder(observer);
-        constructionVerifier.verify(observer).onCreate();
-        constructionVerifier.verify(observer).onStart();
-        constructionVerifier.verify(observer).onResume();
+        InOrder inOrder = inOrder(observer);
+        inOrder.verify(observer).onCreate();
+        inOrder.verify(observer).onStart();
+        inOrder.verify(observer).onResume();
     }
 
     @Test
-    public void constructionDestruction2() {
+    public void constructionDestruction1() {
         fullyInitializeRegistry();
         final TestObserver observer = spy(new TestObserver() {
             @Override
@@ -155,7 +155,7 @@ public class LifecycleRegistryTest {
     }
 
     @Test
-    public void constructionDestruction3() {
+    public void constructionDestruction2() {
         fullyInitializeRegistry();
         final TestObserver observer = spy(new TestObserver() {
             @Override
@@ -193,6 +193,67 @@ public class LifecycleRegistryTest {
     }
 
     @Test
+    public void addDuringTraversing() {
+        final TestObserver observer3 = mock(TestObserver.class);
+        final TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            public void onStart() {
+                mRegistry.addObserver(observer3);
+            }
+        });
+        final TestObserver observer2 = mock(TestObserver.class);
+
+        mRegistry.addObserver(observer1);
+        mRegistry.addObserver(observer2);
+
+        dispatchEvent(ON_CREATE);
+        dispatchEvent(ON_START);
+
+        InOrder inOrder = inOrder(observer1, observer2, observer3);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer2).onStart();
+        inOrder.verify(observer3).onStart();
+    }
+
+    @Test
+    public void addDuringAddition() {
+        final TestObserver observer3 = mock(TestObserver.class);
+        final TestObserver observer2 = spy(new TestObserver() {
+            @Override
+            public void onCreate() {
+                mRegistry.addObserver(observer3);
+            }
+        });
+
+        final TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            public void onResume() {
+                mRegistry.addObserver(observer2);
+            }
+        });
+
+        mRegistry.addObserver(observer1);
+
+        dispatchEvent(ON_CREATE);
+        dispatchEvent(ON_START);
+        dispatchEvent(ON_RESUME);
+
+        InOrder inOrder = inOrder(observer1, observer2, observer3);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer1).onResume();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer2).onStart();
+        inOrder.verify(observer2).onResume();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer3).onStart();
+        inOrder.verify(observer3).onResume();
+    }
+
+    @Test
     public void subscribeToDead() {
         dispatchEvent(ON_CREATE);
         final TestObserver observer1 = mock(TestObserver.class);
@@ -207,6 +268,295 @@ public class LifecycleRegistryTest {
         dispatchEvent(ON_CREATE);
         verify(observer1).onCreate();
         verify(observer2).onCreate();
+    }
+
+    @Test
+    public void downEvents() {
+        fullyInitializeRegistry();
+        final TestObserver observer1 = mock(TestObserver.class);
+        final TestObserver observer2 = mock(TestObserver.class);
+        mRegistry.addObserver(observer1);
+        mRegistry.addObserver(observer2);
+        InOrder orderVerifier = inOrder(observer1, observer2);
+        dispatchEvent(ON_PAUSE);
+        orderVerifier.verify(observer2).onPause();
+        orderVerifier.verify(observer1).onPause();
+        dispatchEvent(ON_STOP);
+        orderVerifier.verify(observer2).onStop();
+        orderVerifier.verify(observer1).onStop();
+        dispatchEvent(ON_DESTROY);
+        orderVerifier.verify(observer2).onDestroy();
+        orderVerifier.verify(observer1).onDestroy();
+    }
+
+    @Test
+    public void downEventsAddition() {
+        dispatchEvent(ON_CREATE);
+        dispatchEvent(ON_START);
+        final TestObserver observer1 = mock(TestObserver.class);
+        final TestObserver observer3 = mock(TestObserver.class);
+        final TestObserver observer2 = spy(new TestObserver() {
+            @Override
+            void onStop() {
+                mRegistry.addObserver(observer3);
+            }
+        });
+        mRegistry.addObserver(observer1);
+        mRegistry.addObserver(observer2);
+        InOrder orderVerifier = inOrder(observer1, observer2, observer3);
+        dispatchEvent(ON_STOP);
+        orderVerifier.verify(observer2).onStop();
+        orderVerifier.verify(observer3).onCreate();
+        orderVerifier.verify(observer1).onStop();
+        dispatchEvent(ON_DESTROY);
+        orderVerifier.verify(observer3).onDestroy();
+        orderVerifier.verify(observer2).onDestroy();
+        orderVerifier.verify(observer1).onDestroy();
+    }
+
+    @Test
+    public void downEventsRemoveAll() {
+        fullyInitializeRegistry();
+        final TestObserver observer1 = mock(TestObserver.class);
+        final TestObserver observer3 = mock(TestObserver.class);
+        final TestObserver observer2 = spy(new TestObserver() {
+            @Override
+            void onStop() {
+                mRegistry.removeObserver(observer3);
+                mRegistry.removeObserver(this);
+                mRegistry.removeObserver(observer1);
+                assertThat(mRegistry.getObserverCount(), is(0));
+            }
+        });
+        mRegistry.addObserver(observer1);
+        mRegistry.addObserver(observer2);
+        mRegistry.addObserver(observer3);
+        InOrder orderVerifier = inOrder(observer1, observer2, observer3);
+        dispatchEvent(ON_PAUSE);
+        orderVerifier.verify(observer3).onPause();
+        orderVerifier.verify(observer2).onPause();
+        orderVerifier.verify(observer1).onPause();
+        dispatchEvent(ON_STOP);
+        orderVerifier.verify(observer3).onStop();
+        orderVerifier.verify(observer2).onStop();
+        orderVerifier.verify(observer1, never()).onStop();
+        dispatchEvent(ON_PAUSE);
+        orderVerifier.verify(observer3, never()).onPause();
+        orderVerifier.verify(observer2, never()).onPause();
+        orderVerifier.verify(observer1, never()).onPause();
+    }
+
+    @Test
+    public void deadParentInAddition() {
+        fullyInitializeRegistry();
+        final TestObserver observer2 = mock(TestObserver.class);
+        final TestObserver observer3 = mock(TestObserver.class);
+
+        TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            void onStart() {
+                mRegistry.removeObserver(this);
+                assertThat(mRegistry.getObserverCount(), is(0));
+                mRegistry.addObserver(observer2);
+                mRegistry.addObserver(observer3);
+            }
+        });
+
+        mRegistry.addObserver(observer1);
+
+        InOrder inOrder = inOrder(observer1, observer2, observer3);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer2).onStart();
+        inOrder.verify(observer2).onResume();
+        inOrder.verify(observer3).onStart();
+        inOrder.verify(observer3).onResume();
+    }
+
+    @Test
+    public void deadParentWhileTraversing() {
+        final TestObserver observer2 = mock(TestObserver.class);
+        final TestObserver observer3 = mock(TestObserver.class);
+        TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            void onStart() {
+                mRegistry.removeObserver(this);
+                assertThat(mRegistry.getObserverCount(), is(0));
+                mRegistry.addObserver(observer2);
+                mRegistry.addObserver(observer3);
+            }
+        });
+        InOrder inOrder = inOrder(observer1, observer2, observer3);
+        mRegistry.addObserver(observer1);
+        dispatchEvent(ON_CREATE);
+        dispatchEvent(ON_START);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer2).onStart();
+        inOrder.verify(observer3).onStart();
+    }
+
+    @Test
+    public void removeCascade() {
+        final TestObserver observer3 = mock(TestObserver.class);
+        final TestObserver observer4 = mock(TestObserver.class);
+
+        final TestObserver observer2 = spy(new TestObserver() {
+            @Override
+            void onStart() {
+                mRegistry.removeObserver(this);
+            }
+        });
+
+        TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            void onResume() {
+                mRegistry.removeObserver(this);
+                mRegistry.addObserver(observer2);
+                mRegistry.addObserver(observer3);
+                mRegistry.addObserver(observer4);
+            }
+        });
+        fullyInitializeRegistry();
+        mRegistry.addObserver(observer1);
+        InOrder inOrder = inOrder(observer1, observer2, observer3, observer4);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer1).onResume();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer2).onStart();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer3).onStart();
+        inOrder.verify(observer4).onCreate();
+        inOrder.verify(observer4).onStart();
+        inOrder.verify(observer3).onResume();
+        inOrder.verify(observer4).onResume();
+    }
+
+    @Test
+    public void changeStateDuringDescending() {
+        final TestObserver observer2 = mock(TestObserver.class);
+        final TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            void onPause() {
+                // but tonight I bounce back
+                mRegistry.handleLifecycleEvent(ON_RESUME);
+                mRegistry.addObserver(observer2);
+            }
+        });
+        fullyInitializeRegistry();
+        mRegistry.addObserver(observer1);
+        mRegistry.handleLifecycleEvent(ON_PAUSE);
+        InOrder inOrder = inOrder(observer1, observer2);
+        inOrder.verify(observer1).onPause();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer2).onStart();
+        inOrder.verify(observer1).onResume();
+        inOrder.verify(observer2).onResume();
+    }
+
+    @Test
+    public void siblingLimitationCheck() {
+        fullyInitializeRegistry();
+        final TestObserver observer2 = mock(TestObserver.class);
+        final TestObserver observer3 = mock(TestObserver.class);
+        final TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            void onStart() {
+                mRegistry.addObserver(observer2);
+            }
+
+            @Override
+            void onResume() {
+                mRegistry.addObserver(observer3);
+            }
+        });
+        mRegistry.addObserver(observer1);
+        InOrder inOrder = inOrder(observer1, observer2, observer3);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer1).onResume();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer2).onStart();
+        inOrder.verify(observer2).onResume();
+        inOrder.verify(observer3).onStart();
+        inOrder.verify(observer3).onResume();
+    }
+
+    @Test
+    public void siblingRemovalLimitationCheck1() {
+        fullyInitializeRegistry();
+        final TestObserver observer2 = mock(TestObserver.class);
+        final TestObserver observer3 = mock(TestObserver.class);
+        final TestObserver observer4 = mock(TestObserver.class);
+        final TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            void onStart() {
+                mRegistry.addObserver(observer2);
+            }
+
+            @Override
+            void onResume() {
+                mRegistry.removeObserver(observer2);
+                mRegistry.addObserver(observer3);
+                mRegistry.addObserver(observer4);
+            }
+        });
+        mRegistry.addObserver(observer1);
+        InOrder inOrder = inOrder(observer1, observer2, observer3, observer4);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer1).onResume();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer3).onStart();
+        inOrder.verify(observer4).onCreate();
+        inOrder.verify(observer4).onStart();
+        inOrder.verify(observer3).onResume();
+        inOrder.verify(observer4).onResume();
+    }
+
+    @Test
+    public void siblingRemovalLimitationCheck2() {
+        fullyInitializeRegistry();
+        final TestObserver observer2 = mock(TestObserver.class);
+        final TestObserver observer3 = spy(new TestObserver() {
+            @Override
+            void onCreate() {
+                mRegistry.removeObserver(observer2);
+            }
+        });
+        final TestObserver observer4 = mock(TestObserver.class);
+        final TestObserver observer1 = spy(new TestObserver() {
+            @Override
+            void onStart() {
+                mRegistry.addObserver(observer2);
+            }
+
+            @Override
+            void onResume() {
+                mRegistry.addObserver(observer3);
+                mRegistry.addObserver(observer4);
+            }
+        });
+
+        mRegistry.addObserver(observer1);
+        InOrder inOrder = inOrder(observer1, observer2, observer3, observer4);
+        inOrder.verify(observer1).onCreate();
+        inOrder.verify(observer1).onStart();
+        inOrder.verify(observer2).onCreate();
+        inOrder.verify(observer1).onResume();
+        inOrder.verify(observer3).onCreate();
+        inOrder.verify(observer3).onStart();
+        inOrder.verify(observer4).onCreate();
+        inOrder.verify(observer4).onStart();
+        inOrder.verify(observer3).onResume();
+        inOrder.verify(observer4).onResume();
     }
 
     private void dispatchEvent(Lifecycle.Event event) {
