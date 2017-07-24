@@ -19,6 +19,7 @@ package android.arch.persistence.room.testing;
 import android.app.Instrumentation;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
+import android.arch.persistence.db.framework.FrameworkSQLiteOpenHelperFactory;
 import android.arch.persistence.room.DatabaseConfiguration;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
@@ -87,6 +88,18 @@ public class MigrationTestHelper extends TestWatcher {
      *
      * @param instrumentation The instrumentation instance.
      * @param assetsFolder    The asset folder in the assets directory.
+     */
+    public MigrationTestHelper(Instrumentation instrumentation, String assetsFolder) {
+        this(instrumentation, assetsFolder, new FrameworkSQLiteOpenHelperFactory());
+    }
+
+    /**
+     * Creates a new migration helper. It uses the Instrumentation context to load the schema
+     * (falls back to the app resources) and the target context to create the database.
+     *
+     * @param instrumentation The instrumentation instance.
+     * @param assetsFolder    The asset folder in the assets directory.
+     * @param openFactory     Factory class that allows creation of {@link SupportSQLiteOpenHelper}
      */
     public MigrationTestHelper(Instrumentation instrumentation, String assetsFolder,
             SupportSQLiteOpenHelper.Factory openFactory) {

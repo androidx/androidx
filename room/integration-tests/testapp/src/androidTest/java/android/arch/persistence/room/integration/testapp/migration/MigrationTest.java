@@ -52,7 +52,7 @@ public class MigrationTest {
 
     public MigrationTest() {
         helper = new MigrationTestHelper(InstrumentationRegistry.getInstrumentation(),
-                MigrationDb.class.getCanonicalName(), new FrameworkSQLiteOpenHelperFactory());
+                MigrationDb.class.getCanonicalName());
     }
 
     @Test
