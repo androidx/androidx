@@ -64,9 +64,9 @@ ffLibs.support = [
         annotations : getSupportLib(":support-annotations", ffVersions.support_lib),
         core_utils : getSupportLib(':support-core-utils', ffVersions.support_lib),
         fragments : getSupportLib(':support-fragment', ffVersions.support_lib),
-        app_compat : getSupportLib(':support-appcompat-v7', ffVersions.support_lib, ":appcompat-v7"),
-        design : getSupportLib(':support-design', ffVersions.support_lib, ":design"),
-        recyclerview : getSupportLib(':support-recyclerview-v7', ffVersions.support_lib, ":recyclerview-v7")
+        app_compat : getSupportLib(':appcompat-v7', ffVersions.support_lib),
+        design : getSupportLib(':design', ffVersions.support_lib),
+        recyclerview : getSupportLib(':recyclerview-v7', ffVersions.support_lib)
 ]
 
 ffLibs.localize_maven = "com.android.databinding:localizemaven:$ffVersions.localize_maven"
