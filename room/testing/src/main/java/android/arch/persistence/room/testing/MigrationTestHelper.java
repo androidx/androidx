@@ -343,8 +343,9 @@ public class MigrationTestHelper extends TestWatcher {
             if (mVerifyDroppedTables) {
                 // now ensure tables that should be removed are removed.
                 Cursor cursor = db.query("SELECT name FROM sqlite_master WHERE type='table'"
-                                + " AND name NOT IN(?, ?)",
-                        new String[]{Room.MASTER_TABLE_NAME, "android_metadata"});
+                                + " AND name NOT IN(?, ?, ?)",
+                        new String[]{Room.MASTER_TABLE_NAME, "android_metadata",
+                                "sqlite_sequence"});
                 //noinspection TryFinallyCanBeTryWithResources
                 try {
                     while (cursor.moveToNext()) {
