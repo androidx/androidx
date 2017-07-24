@@ -24,8 +24,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * A map class that can keep a list associated pairs of keys and values
- * and allows modifications while traversing.
+ * LinkedList, which pretends to be a map and supports modifications during iterations.
  * It is NOT thread safe.
  *
  * @param <K> Key type
@@ -33,27 +32,24 @@ import java.util.WeakHashMap;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@SuppressWarnings("WeakerAccess")
 public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
     private Entry<K, V> mStart;
     private Entry<K, V> mEnd;
     // using WeakHashMap over List<WeakReference>, so we don't have to manually remove
     // WeakReferences that have null in them.
-    private WeakHashMap<ListIterator<K, V>, Boolean> mIterators = new WeakHashMap<>();
+    private WeakHashMap<SupportRemove<K, V>, Boolean> mIterators = new WeakHashMap<>();
     private int mSize = 0;
-    @SuppressWarnings("unchecked")
-    private static final Entry UNREACHABLE = new Entry(new Object(), new Object());
 
-    private Entry<K, V> find(K k) {
-        Entry<K, V> toRemove = mStart;
-        while (toRemove != null) {
-            if (toRemove.mKey.equals(k)) {
+    protected Entry<K, V> get(K k) {
+        Entry<K, V> currentNode = mStart;
+        while (currentNode != null) {
+            if (currentNode.mKey.equals(k)) {
                 break;
             }
-            toRemove = toRemove.mNext;
+            currentNode = currentNode.mNext;
         }
-        return toRemove;
+        return currentNode;
     }
 
     /**
@@ -66,22 +62,28 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
      * or {@code null} if there was no mapping for the key
      */
     public V putIfAbsent(@NonNull K key, @NonNull V v) {
-        Entry<K, V> entry = find(key);
+        Entry<K, V> entry = get(key);
         if (entry != null) {
             return entry.mValue;
         }
+        put(key, v);
+        return null;
+    }
+
+    protected Entry<K, V> put(@NonNull K key, @NonNull V v) {
         Entry<K, V> newEntry = new Entry<>(key, v);
         mSize++;
         if (mEnd == null) {
             mStart = newEntry;
             mEnd = mStart;
-            return null;
+            return newEntry;
         }
 
         mEnd.mNext = newEntry;
         newEntry.mPrevious = mEnd;
         mEnd = newEntry;
-        return null;
+        return newEntry;
+
     }
 
     /**
@@ -92,13 +94,13 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
      * or {@code null} if there was no mapping for the key
      */
     public V remove(@NonNull K key) {
-        Entry<K, V> toRemove = find(key);
+        Entry<K, V> toRemove = get(key);
         if (toRemove == null) {
             return null;
         }
         mSize--;
         if (!mIterators.isEmpty()) {
-            for (ListIterator<K, V> iter : mIterators.keySet()) {
+            for (SupportRemove<K, V> iter : mIterators.keySet()) {
                 iter.supportRemove(toRemove);
             }
         }
@@ -127,65 +129,50 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         return mSize;
     }
 
+    /**
+     * @return an ascending iterator, which doesn't include new elements added during an
+     * iteration.
+     */
+    @NonNull
     @Override
-    public ListIterator<K, V> iterator() {
-        ListIterator<K, V> iterator = new ListIterator<>(mStart, mEnd);
+    public Iterator<Map.Entry<K, V>> iterator() {
+        ListIterator<K, V> iterator = new AscendingIterator<>(mStart, mEnd);
         mIterators.put(iterator, false);
         return iterator;
     }
 
     /**
-     * return an iterator with additions
+     * @return an descending iterator, which doesn't include new elements added during an
+     * iteration.
      */
-    public ListIterator<K, V> iteratorWithAdditions() {
-        @SuppressWarnings("unchecked")
-        ListIterator<K, V> iterator = new ListIterator<>(mStart, UNREACHABLE);
+    public Iterator<Map.Entry<K, V>> descendingIterator() {
+        DescendingIterator<K, V> iterator = new DescendingIterator<>(mEnd, mStart);
         mIterators.put(iterator, false);
         return iterator;
     }
 
-    private static class ListIterator<K, V> implements Iterator<Map.Entry<K, V>> {
-        Entry<K, V> mExpectedEnd;
-        Entry<K, V> mNext;
+    /**
+     * return an iterator with additions.
+     */
+    public IteratorWithAdditions iteratorWithAdditions() {
+        @SuppressWarnings("unchecked")
+        IteratorWithAdditions iterator = new IteratorWithAdditions();
+        mIterators.put(iterator, false);
+        return iterator;
+    }
 
-        ListIterator(Entry<K, V> start, Entry<K, V> expectedEnd) {
-            this.mExpectedEnd = expectedEnd;
-            this.mNext = start;
-        }
+    /**
+     * @return eldest added entry or null
+     */
+    public Map.Entry<K, V> eldest() {
+        return mStart;
+    }
 
-        @Override
-        public boolean hasNext() {
-            return mNext != null;
-        }
-
-        void supportRemove(@NonNull Entry<K, V> entry) {
-            if (mExpectedEnd == entry && entry == mNext) {
-                mNext = null;
-                mExpectedEnd = null;
-            }
-
-            if (mExpectedEnd == entry) {
-                mExpectedEnd = mExpectedEnd.mPrevious;
-            }
-
-            if (mNext == entry) {
-                mNext = nextNode();
-            }
-        }
-
-        private Entry<K, V> nextNode() {
-            if (mNext == mExpectedEnd || mExpectedEnd == null) {
-                return null;
-            }
-            return mNext.mNext;
-        }
-
-        @Override
-        public Map.Entry<K, V> next() {
-            Map.Entry<K, V> result = mNext;
-            mNext = nextNode();
-            return result;
-        }
+    /**
+     * @return newest added entry or null
+     */
+    public Map.Entry<K, V> newest() {
+        return mEnd;
     }
 
     @Override
@@ -200,8 +187,8 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         if (this.size() != map.size()) {
             return false;
         }
-        ListIterator<K, V> iterator1 = iterator();
-        ListIterator iterator2 = map.iterator();
+        Iterator<Map.Entry<K, V>> iterator1 = iterator();
+        Iterator iterator2 = map.iterator();
         while (iterator1.hasNext() && iterator2.hasNext()) {
             Map.Entry<K, V> next1 = iterator1.next();
             Object next2 = iterator2.next();
@@ -217,7 +204,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
-        ListIterator<K, V> iterator = iterator();
+        Iterator<Map.Entry<K, V>> iterator = iterator();
         while (iterator.hasNext()) {
             builder.append(iterator.next().toString());
             if (iterator.hasNext()) {
@@ -228,7 +215,125 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         return builder.toString();
     }
 
-    private static class Entry<K, V> implements Map.Entry<K, V> {
+    private abstract static class ListIterator<K, V> implements Iterator<Map.Entry<K, V>>,
+            SupportRemove<K, V> {
+        Entry<K, V> mExpectedEnd;
+        Entry<K, V> mNext;
+
+        ListIterator(Entry<K, V> start, Entry<K, V> expectedEnd) {
+            this.mExpectedEnd = expectedEnd;
+            this.mNext = start;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return mNext != null;
+        }
+
+        @Override
+        public void supportRemove(@NonNull Entry<K, V> entry) {
+            if (mExpectedEnd == entry && entry == mNext) {
+                mNext = null;
+                mExpectedEnd = null;
+            }
+
+            if (mExpectedEnd == entry) {
+                mExpectedEnd = backward(mExpectedEnd);
+            }
+
+            if (mNext == entry) {
+                mNext = nextNode();
+            }
+        }
+
+        private Entry<K, V> nextNode() {
+            if (mNext == mExpectedEnd || mExpectedEnd == null) {
+                return null;
+            }
+            return forward(mNext);
+        }
+
+        @Override
+        public Map.Entry<K, V> next() {
+            Map.Entry<K, V> result = mNext;
+            mNext = nextNode();
+            return result;
+        }
+
+        abstract Entry<K, V> forward(Entry<K, V> entry);
+
+        abstract Entry<K, V> backward(Entry<K, V> entry);
+    }
+
+    static class AscendingIterator<K, V> extends ListIterator<K, V> {
+        AscendingIterator(Entry<K, V> start, Entry<K, V> expectedEnd) {
+            super(start, expectedEnd);
+        }
+
+        @Override
+        Entry<K, V> forward(Entry<K, V> entry) {
+            return entry.mNext;
+        }
+
+        @Override
+        Entry<K, V> backward(Entry<K, V> entry) {
+            return entry.mPrevious;
+        }
+    }
+
+    private static class DescendingIterator<K, V> extends ListIterator<K, V> {
+
+        DescendingIterator(Entry<K, V> start, Entry<K, V> expectedEnd) {
+            super(start, expectedEnd);
+        }
+
+        @Override
+        Entry<K, V> forward(Entry<K, V> entry) {
+            return entry.mPrevious;
+        }
+
+        @Override
+        Entry<K, V> backward(Entry<K, V> entry) {
+            return entry.mNext;
+        }
+    }
+
+    private class IteratorWithAdditions implements Iterator<Map.Entry<K, V>>, SupportRemove<K, V> {
+        private Entry<K, V> mCurrent;
+        private boolean mFirstStep = true;
+
+        @Override
+        public void supportRemove(@NonNull Entry<K, V> entry) {
+            if (entry == mCurrent) {
+                mCurrent = mCurrent.mPrevious;
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (mFirstStep) {
+                return mStart != null;
+            }
+            return mCurrent != null && mCurrent.mNext != null;
+        }
+
+        @Override
+        public Map.Entry<K, V> next() {
+            if (mFirstStep) {
+                mFirstStep = false;
+                mCurrent = mStart;
+            } else {
+                mCurrent = mCurrent != null ? mCurrent.mNext : null;
+            }
+            return mCurrent;
+        }
+    }
+
+    interface SupportRemove<K, V> {
+        void supportRemove(@NonNull Entry<K, V> entry);
+    }
+
+    static class Entry<K, V> implements Map.Entry<K, V> {
         @NonNull
         final K mKey;
         @NonNull
