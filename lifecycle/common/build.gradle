@@ -1,3 +1,5 @@
+import android.support.LibraryVersions
+
 apply plugin: 'java'
 apply plugin: 'maven'
 
@@ -10,4 +12,4 @@ dependencies {
 }
 
 createAndroidCheckstyle(project)
-version = "1.0.0-SNAPSHOT"
+version = LibraryVersions.LIFECYCLES.toString()
