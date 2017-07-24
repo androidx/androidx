@@ -238,8 +238,9 @@ public class MigrationTest {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` (`id` INTEGER,"
-                    + " `name` TEXT, PRIMARY KEY(`id`))");
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` ("
+                    + "`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + " `name` TEXT)");
         }
     };
 
