@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.android.builder.core.BuilderConstants
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
@@ -65,14 +64,8 @@ dependencies {
     })
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: rootProject.ext.localMavenRepo)
-            pom.artifactId = "runtime"
-        }
-    }
-}
+createAndroidCheckstyle(project)
+version = "0.5.0-SNAPSHOT"
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
@@ -83,6 +76,3 @@ android.libraryVariants.all { variant ->
         destinationDir new File(project.buildDir, "libJar")
     }
 }
-
-// remove when we want to ship navigation
-project.ext.noDocs = true
