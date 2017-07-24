@@ -50,7 +50,7 @@ public abstract class MigrationDb extends RoomDatabase {
     @Entity
     static class Entity2 {
         public static final String TABLE_NAME = "Entity2";
-        @PrimaryKey
+        @PrimaryKey(autoGenerate = true)
         public int id;
         public String addedInV3;
         public String name;

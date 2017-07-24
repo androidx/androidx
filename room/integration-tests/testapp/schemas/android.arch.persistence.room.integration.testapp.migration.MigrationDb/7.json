@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "885b872dd8718be5726ae37479ad74e0",
+    "identityHash": "3e20645b9e4557e60301d30835f0d706",
     "entities": [
       {
         "tableName": "Entity1",
@@ -39,7 +39,7 @@
       },
       {
         "tableName": "Entity2",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `addedInV3` TEXT, `name` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `addedInV3` TEXT, `name` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -61,7 +61,7 @@
           "columnNames": [
             "id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [],
         "foreignKeys": []
@@ -105,7 +105,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"885b872dd8718be5726ae37479ad74e0\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3e20645b9e4557e60301d30835f0d706\")"
     ]
   }
 }
