@@ -56,6 +56,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RunWith(JUnit4.class)
 public class InvalidationTrackerTest {
@@ -75,6 +76,8 @@ public class InvalidationTrackerTest {
         doReturn(statement).when(sqliteDb).compileStatement(eq(InvalidationTracker.CLEANUP_SQL));
         doReturn(sqliteDb).when(mOpenHelper).getWritableDatabase();
         doReturn(true).when(mRoomDatabase).isOpen();
+        ReentrantLock closeLock = new ReentrantLock();
+        doReturn(closeLock).when(mRoomDatabase).getCloseLock();
         //noinspection ResultOfMethodCallIgnored
         doReturn(mOpenHelper).when(mRoomDatabase).getOpenHelper();
 
