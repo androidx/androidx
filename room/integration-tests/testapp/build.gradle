@@ -81,7 +81,8 @@ dependencies {
     androidTestCompile project(':room:rxjava2')
     androidTestCompile project(':arch:core-testing')
     androidTestCompile libs.rx_java
-    testCompile libs.mockito_core
+    androidTestCompile libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
 }
 
 createAndroidCheckstyle(project)

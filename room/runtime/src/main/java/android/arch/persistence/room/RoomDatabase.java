@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Base class for all Room databases. All classes that are annotated with {@link Database} must
@@ -58,6 +60,18 @@ public abstract class RoomDatabase {
 
     @Nullable
     protected List<Callback> mCallbacks;
+
+    private final ReentrantLock mCloseLock = new ReentrantLock();
+
+    /**
+     * {@link InvalidationTracker} uses this lock to prevent the database from closing while it is
+     * querying database updates.
+     *
+     * @return The lock for {@link #close()}.
+     */
+    Lock getCloseLock() {
+        return mCloseLock;
+    }
 
     /**
      * Creates a RoomDatabase.
@@ -125,7 +139,12 @@ public abstract class RoomDatabase {
      */
     public void close() {
         if (isOpen()) {
-            mOpenHelper.close();
+            try {
+                mCloseLock.lock();
+                mOpenHelper.close();
+            } finally {
+                mCloseLock.unlock();
+            }
         }
     }
 
