@@ -4,9 +4,7 @@ dependencies {
     api project(':support-compat')
     api project(':support-core-utils')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation libs.test_runner, { exclude module: 'support-annotations' }
 }
 
 android {

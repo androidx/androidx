@@ -5,22 +5,16 @@ dependencies {
     api project(':support-compat')
     api project(':support-core-ui')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation libs.junit
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
     androidTestImplementation project(':support-testutils')
 
     testImplementation libs.junit
     testImplementation libs.mockito_core
-    testImplementation ("$libs.test_runner") {
-        exclude module: 'support-annotations'
-    }
+    testImplementation libs.test_runner, { exclude module: 'support-annotations' }
 }
 
 android {
