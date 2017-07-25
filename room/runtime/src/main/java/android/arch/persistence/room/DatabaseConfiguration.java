@@ -60,6 +60,11 @@ public class DatabaseConfiguration {
     public final boolean allowMainThreadQueries;
 
     /**
+     * If true, Room should crash if a migration is missing.
+     */
+    public final boolean requireMigration;
+
+    /**
      * Creates a database configuration with the given values.
      *
      * @param context The application context.
@@ -68,6 +73,8 @@ public class DatabaseConfiguration {
      * @param migrationContainer The migration container for migrations.
      * @param callbacks The list of callbacks for database events.
      * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
+     * @param requireMigration True if Room should require a valid migration if version changes,
+     *                        instead of recreating the tables.
      *
      * @hide
      */
@@ -76,12 +83,14 @@ public class DatabaseConfiguration {
             @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
             @NonNull RoomDatabase.MigrationContainer migrationContainer,
             @Nullable List<RoomDatabase.Callback> callbacks,
-            boolean allowMainThreadQueries) {
+            boolean allowMainThreadQueries,
+            boolean requireMigration) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
         this.migrationContainer = migrationContainer;
         this.callbacks = callbacks;
         this.allowMainThreadQueries = allowMainThreadQueries;
+        this.requireMigration = requireMigration;
     }
 }
