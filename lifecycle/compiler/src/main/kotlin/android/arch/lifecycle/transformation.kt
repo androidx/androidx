@@ -16,12 +16,14 @@
 
 package android.arch.lifecycle
 
+import android.arch.lifecycle.model.AdapterClass
+import android.arch.lifecycle.model.EventMethod
+import android.arch.lifecycle.model.EventMethodCall
 import android.arch.lifecycle.model.LifecycleObserverInfo
-import android.arch.lifecycle.model.StateMethod
 import com.google.auto.common.MoreTypes
-import java.util.*
+import com.google.common.collect.HashMultimap
+import java.util.LinkedList
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.NoType
 import javax.lang.model.type.TypeMirror
@@ -52,52 +54,34 @@ private fun superObservers(world: Map<TypeElement, LifecycleObserverInfo>,
 }
 
 private fun mergeAndVerifyMethods(processingEnv: ProcessingEnvironment,
-                                  classMethods: List<StateMethod>,
-                                  parentMethods: List<StateMethod>): List<StateMethod> {
-    return parentMethods + classMethods.filter { (method, onLifecycleEvent) ->
-        val baseMethod = parentMethods.find { m ->
-            method.simpleName == m.method.simpleName
-                    && method.parameters.size == m.method.parameters.size
+                                  type: TypeElement,
+                                  classMethods: List<EventMethod>,
+                                  parentMethods: List<EventMethod>): List<EventMethod> {
+    // need to update parent methods like that because:
+    // 1. visibility can be expanded
+    // 2. we want to preserve order
+    val updatedParentMethods = parentMethods.map { parentMethod ->
+        val overrideMethod = classMethods.find { (method) ->
+            processingEnv.elementUtils.overrides(method, parentMethod.method, type)
         }
-        if (baseMethod != null
-                && baseMethod.onLifecycleEvent != onLifecycleEvent) {
-            processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
-                    ErrorMessages.INVALID_STATE_OVERRIDE_METHOD, method)
+        if (overrideMethod != null) {
+            if (overrideMethod.onLifecycleEvent != parentMethod.onLifecycleEvent) {
+                processingEnv.messager.printMessage(Diagnostic.Kind.ERROR,
+                        ErrorMessages.INVALID_STATE_OVERRIDE_METHOD, overrideMethod.method)
+            }
+            overrideMethod
+        } else {
+            parentMethod
         }
-        baseMethod == null
     }
-
+    return updatedParentMethods + classMethods.filterNot { updatedParentMethods.contains(it) }
 }
 
-fun transformToOutput(processingEnv: ProcessingEnvironment,
-                      world: Map<TypeElement, LifecycleObserverInfo>): List<LifecycleObserverInfo> {
-    val superObservers = world.mapValues { superObservers(world, it.value) }
-    val packagePrivateMethods = world.mapValues { observer ->
-        if (observer.value.type.kind.isInterface) {
-            emptyList()
-        } else {
-            observer.value.methods.filter {
-                it.method.isPackagePrivate() || it.method.isProtected()
-            }.map { it.method }
-        }
-    }
-
-    val ppMethodsToType = packagePrivateMethods.entries.fold(
-            mapOf<ExecutableElement, TypeElement>(), { map, entry ->
-        map + entry.value.associate { it to entry.key }
-    })
-
-    world.values.forEach {
-        val observers = superObservers[it.type]!!
-        val currentPackage = it.type.getPackageQName()
-        observers.filter { superObserver ->
-            superObserver.type.getPackageQName() != currentPackage
-                    && packagePrivateMethods[superObserver.type]!!.isNotEmpty()
-        }.forEach { it.syntheticMethods.addAll(packagePrivateMethods[it.type]!!) }
-    }
-
-
+fun flattenObservers(processingEnv: ProcessingEnvironment,
+                     world: Map<TypeElement, LifecycleObserverInfo>): List<LifecycleObserverInfo> {
     val flattened: MutableMap<LifecycleObserverInfo, LifecycleObserverInfo> = mutableMapOf()
+    val superObservers = world.mapValues { superObservers(world, it.value) }
+
     fun traverse(observer: LifecycleObserverInfo) {
         if (observer in flattened) {
             return
@@ -108,25 +92,43 @@ fun transformToOutput(processingEnv: ProcessingEnvironment,
             return
         }
         observers.filter { it !in flattened }.forEach(::traverse)
-        val currentPackage = observer.type.getPackageQName()
         val methods = observers
-                .fold(emptyList<StateMethod>(), { list, parentObserver ->
-                    mergeAndVerifyMethods(processingEnv, parentObserver.methods, list)
-                })
-                .map {
-                    val packageName = ppMethodsToType[it.method]?.getPackageQName()
-                    if (packageName == null || packageName == currentPackage) {
-                        it
-                    } else {
-                        StateMethod(it.method, it.onLifecycleEvent, ppMethodsToType[it.method])
-                    }
+                .map(flattened::get)
+                .fold(emptyList<EventMethod>()) { list, parentObserver ->
+                    mergeAndVerifyMethods(processingEnv, observer.type, parentObserver!!.methods, list)
                 }
 
         flattened[observer] = LifecycleObserverInfo(observer.type,
-                mergeAndVerifyMethods(processingEnv, observer.methods, methods),
-                observer.syntheticMethods)
+                mergeAndVerifyMethods(processingEnv, observer.type, observer.methods, methods))
     }
 
     world.values.forEach(::traverse)
     return flattened.values.toList()
+}
+
+fun transformToOutput(processingEnv: ProcessingEnvironment,
+                      world: Map<TypeElement, LifecycleObserverInfo>): List<AdapterClass> {
+    val flatObservers = flattenObservers(processingEnv, world)
+    val syntheticMethods = HashMultimap.create<TypeElement, EventMethodCall>()
+    val adapterCalls = flatObservers.map { (type, methods) ->
+        val calls = methods.map { eventMethod ->
+            val executable = eventMethod.method
+            if (type.getPackageQName() != eventMethod.packageName()
+                    && (executable.isPackagePrivate() || executable.isProtected())) {
+                EventMethodCall(eventMethod, eventMethod.type)
+            } else {
+                EventMethodCall(eventMethod)
+            }
+        }
+        calls.filter { it.syntheticAccess != null }.forEach { eventMethod ->
+            syntheticMethods.put(eventMethod.method.type, eventMethod)
+        }
+        type to calls
+    }.toMap()
+
+    return adapterCalls.map { (type, calls) ->
+        val methods = syntheticMethods.get(type) ?: setOf()
+        val synthetic = methods.map { eventMethod -> eventMethod!!.method.method }.toSet()
+        AdapterClass(type, calls, synthetic)
+    }
 }

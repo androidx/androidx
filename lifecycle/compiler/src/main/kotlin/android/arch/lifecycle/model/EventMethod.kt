@@ -16,8 +16,16 @@
 
 package android.arch.lifecycle.model
 
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.getPackageQName
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
-data class LifecycleObserverInfo(
-        val type: TypeElement,
-        val methods: List<EventMethod>)
+data class EventMethod(val method: ExecutableElement,
+                       val onLifecycleEvent: OnLifecycleEvent,
+                       val type: TypeElement) {
+
+    fun packageName() = type.getPackageQName()
+}
+
+data class EventMethodCall(val method: EventMethod, val syntheticAccess: TypeElement? = null)

@@ -16,9 +16,9 @@
 
 package android.arch.lifecycle.model
 
-import android.arch.lifecycle.OnLifecycleEvent
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
-data class StateMethod(val method: ExecutableElement, val onLifecycleEvent: OnLifecycleEvent,
-                       val syntheticAccess: TypeElement? = null)
+data class AdapterClass(val type: TypeElement,
+                        val calls: List<EventMethodCall>,
+                        val syntheticMethods: Set<ExecutableElement>)

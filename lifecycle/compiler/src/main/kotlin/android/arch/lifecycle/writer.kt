@@ -16,16 +16,22 @@
 
 package android.arch.lifecycle
 
-import android.arch.lifecycle.model.LifecycleObserverInfo
-import android.arch.lifecycle.model.StateMethod
-import com.squareup.javapoet.*
+import android.arch.lifecycle.model.AdapterClass
+import android.arch.lifecycle.model.EventMethodCall
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.FieldSpec
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.annotation.processing.Filer
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
-fun writeModels(infos: List<LifecycleObserverInfo>, filer: Filer) {
-    infos.forEach({ info -> writeAdapter(info, filer) })
+fun writeModels(infos: List<AdapterClass>, filer: Filer) {
+    infos.forEach({ adapter -> writeAdapter(adapter, filer) })
 }
 
 private val LIFECYCLE_OWNER = ClassName.get(LifecycleOwner::class.java)
@@ -35,11 +41,11 @@ private val T = "\$T"
 private val N = "\$N"
 private val L = "\$L"
 
-private fun writeAdapter(observer: LifecycleObserverInfo, filer: Filer) {
+private fun writeAdapter(adapter: AdapterClass, filer: Filer) {
     val ownerParam = ParameterSpec.builder(LIFECYCLE_OWNER, "owner").build()
     val eventParam = ParameterSpec.builder(ClassName.get(LIFECYCLE_EVENT), "event").build()
     val receiverName = "mReceiver"
-    val receiverField = FieldSpec.builder(ClassName.get(observer.type), receiverName,
+    val receiverField = FieldSpec.builder(ClassName.get(adapter.type), receiverName,
             Modifier.FINAL).build()
 
     val dispatchMethodBuilder = MethodSpec.methodBuilder("onStateChanged")
@@ -49,16 +55,16 @@ private fun writeAdapter(observer: LifecycleObserverInfo, filer: Filer) {
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Override::class.java)
     val dispatchMethod = dispatchMethodBuilder.apply {
-        observer.methods
-                .groupBy { stateMethod -> stateMethod.onLifecycleEvent.value }
+        adapter.calls
+                .groupBy { (eventMethod) -> eventMethod.onLifecycleEvent.value }
                 .forEach { entry ->
                     val event = entry.key
-                    val methods = entry.value
+                    val calls = entry.value
                     if (event == Lifecycle.Event.ON_ANY) {
-                        writeMethodCalls(eventParam, methods, ownerParam, receiverField)
+                        writeMethodCalls(eventParam, calls, ownerParam, receiverField)
                     } else {
                         beginControlFlow("if ($N == $T.$L)", eventParam, LIFECYCLE_EVENT, event)
-                                .writeMethodCalls(eventParam, methods, ownerParam, receiverField)
+                                .writeMethodCalls(eventParam, calls, ownerParam, receiverField)
                         endControlFlow()
                     }
                 }
@@ -71,9 +77,10 @@ private fun writeAdapter(observer: LifecycleObserverInfo, filer: Filer) {
             .addStatement("return $N", receiverField)
             .build()
 
-    val receiverParam = ParameterSpec.builder(ClassName.get(observer.type), "receiver").build()
+    val receiverParam = ParameterSpec.builder(
+            ClassName.get(adapter.type), "receiver").build()
 
-    val syntheticMethods = observer.syntheticMethods.map {
+    val syntheticMethods = adapter.syntheticMethods.map {
         val method = MethodSpec.methodBuilder(syntheticName(it))
                 .returns(TypeName.VOID)
                 .addModifiers(Modifier.PUBLIC)
@@ -98,8 +105,8 @@ private fun writeAdapter(observer: LifecycleObserverInfo, filer: Filer) {
             .addStatement("this.$N = $N", receiverField, receiverParam)
             .build()
 
-    val adapterName = getAdapterName(observer.type)
-    val adapter = TypeSpec.classBuilder(adapterName)
+    val adapterName = getAdapterName(adapter.type)
+    val adapterTypeSpec = TypeSpec.classBuilder(adapterName)
             .addModifiers(Modifier.PUBLIC)
             .addSuperinterface(ClassName.get(GenericLifecycleObserver::class.java))
             .addField(receiverField)
@@ -108,24 +115,24 @@ private fun writeAdapter(observer: LifecycleObserverInfo, filer: Filer) {
             .addMethod(getWrappedMethod)
             .addMethods(syntheticMethods)
             .build()
-    JavaFile.builder(observer.type.getPackageQName(), adapter)
+    JavaFile.builder(adapter.type.getPackageQName(), adapterTypeSpec)
             .build().writeTo(filer)
 }
 
 private fun MethodSpec.Builder.writeMethodCalls(eventParam: ParameterSpec,
-                                                methods: List<StateMethod>,
+                                                calls: List<EventMethodCall>,
                                                 ownerParam: ParameterSpec,
                                                 receiverField: FieldSpec) {
-    methods.forEach { method ->
+    calls.forEach { (method, syntheticAccess) ->
         val count = method.method.parameters.size
-        if (method.syntheticAccess == null) {
+        if (syntheticAccess == null) {
             val paramString = generateParamString(count)
             addStatement("$N.$L($paramString)", receiverField,
                     method.method.name(),
                     *takeParams(count, ownerParam, eventParam))
 
         } else {
-            val originalType = method.syntheticAccess
+            val originalType = syntheticAccess
             val paramString = generateParamString(count + 1)
             val className = ClassName.get(originalType.getPackageQName(),
                     getAdapterName(originalType))

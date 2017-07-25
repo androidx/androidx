@@ -16,8 +16,8 @@
 
 package android.arch.lifecycle
 
+import android.arch.lifecycle.model.EventMethod
 import android.arch.lifecycle.model.LifecycleObserverInfo
-import android.arch.lifecycle.model.StateMethod
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import javax.annotation.processing.ProcessingEnvironment
@@ -44,7 +44,7 @@ fun collectAndVerifyInput(processingEnv: ProcessingEnvironment,
             val method = MoreElements.asExecutable(elem)
             if (validator.validateClass(enclosingElement)
                     && validator.validateMethod(method, onState.value)) {
-                StateMethod(method, onState)
+                EventMethod(method, onState, MoreElements.asType(enclosingElement))
             } else {
                 null
             }
