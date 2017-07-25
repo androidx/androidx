@@ -28,6 +28,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.migration.Migration;
 import android.arch.persistence.room.testing.MigrationTestHelper;
 import android.arch.persistence.room.util.TableInfo;
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -221,6 +222,36 @@ public class MigrationTest {
         assertThat(info.foreignKeys.size(), is(1));
     }
 
+    @Test
+    public void missingMigration() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 1);
+        database.close();
+        try {
+            Context targetContext = InstrumentationRegistry.getTargetContext();
+            MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                    .build();
+            db.dao().loadAllEntity1s();
+            throw new AssertionError("Should've failed :/");
+        } catch (IllegalStateException ignored) {
+        }
+    }
+
+    @Test
+    public void missingMigrationNuke() throws IOException {
+        SupportSQLiteDatabase database = helper.createDatabase(TEST_DB, 1);
+        final MigrationDb.Dao_V1 dao = new MigrationDb.Dao_V1(database);
+        dao.insertIntoEntity1(2, "foo");
+        dao.insertIntoEntity1(3, "bar");
+        database.close();
+
+        Context targetContext = InstrumentationRegistry.getTargetContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .fallbackToDestructiveMigration()
+                .build();
+        assertThat(db.dao().loadAllEntity1s().size(), is(0));
+        db.close();
+    }
+
     private void testFailure(int startVersion, int endVersion) throws IOException {
         final SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, startVersion);
         db.close();
@@ -232,10 +263,11 @@ public class MigrationTest {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
+        //noinspection ConstantConditions
         assertThat(throwable.getMessage(), containsString("Migration failed"));
     }
 
-    static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` ("
@@ -244,7 +276,7 @@ public class MigrationTest {
         }
     };
 
-    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE " + MigrationDb.Entity2.TABLE_NAME
@@ -252,7 +284,7 @@ public class MigrationTest {
         }
     };
 
-    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+    private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER,"
@@ -260,7 +292,7 @@ public class MigrationTest {
         }
     };
 
-    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+    private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER,"
@@ -272,14 +304,14 @@ public class MigrationTest {
         }
     };
 
-    static final Migration MIGRATION_5_6 = new Migration(5, 6) {
+    private static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("DROP TABLE " + MigrationDb.Entity3.TABLE_NAME);
         }
     };
 
-    static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+    private static final Migration MIGRATION_6_7 = new Migration(6, 7) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS " + MigrationDb.Entity4.TABLE_NAME
