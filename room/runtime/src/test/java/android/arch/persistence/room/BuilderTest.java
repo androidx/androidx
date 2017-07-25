@@ -108,6 +108,15 @@ public class BuilderTest {
     }
 
     @Test
+    public void skipMigration() {
+        Context context = mock(Context.class);
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
+                .fallbackToDestructiveMigration().build();
+        DatabaseConfiguration config = ((BuilderTest_TestDatabase_Impl) db).mConfig;
+        assertThat(config.requireMigration, is(false));
+    }
+
+    @Test
     public void createBasic() {
         Context context = mock(Context.class);
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
