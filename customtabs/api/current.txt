@@ -6,6 +6,7 @@ package android.support.customtabs {
     method public void onMessageChannelReady(android.os.Bundle);
     method public void onNavigationEvent(int, android.os.Bundle);
     method public void onPostMessage(java.lang.String, android.os.Bundle);
+    method public void onRelationshipValidationResult(int, android.net.Uri, boolean, android.os.Bundle);
     field public static final int NAVIGATION_ABORTED = 4; // 0x4
     field public static final int NAVIGATION_FAILED = 3; // 0x3
     field public static final int NAVIGATION_FINISHED = 2; // 0x2
@@ -88,13 +89,19 @@ package android.support.customtabs {
     method protected abstract int postMessage(android.support.customtabs.CustomTabsSessionToken, java.lang.String, android.os.Bundle);
     method protected abstract boolean requestPostMessageChannel(android.support.customtabs.CustomTabsSessionToken, android.net.Uri);
     method protected abstract boolean updateVisuals(android.support.customtabs.CustomTabsSessionToken, android.os.Bundle);
+    method protected abstract boolean validateRelationship(android.support.customtabs.CustomTabsSessionToken, int, android.net.Uri, android.os.Bundle);
     method protected abstract boolean warmup(long);
     field public static final java.lang.String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
     field public static final java.lang.String KEY_URL = "android.support.customtabs.otherurls.URL";
+    field public static final int RELATION_HANDLE_ALL_URLS = 2; // 0x2
+    field public static final int RELATION_USE_AS_ORIGIN = 1; // 0x1
     field public static final int RESULT_FAILURE_DISALLOWED = -1; // 0xffffffff
     field public static final int RESULT_FAILURE_MESSAGING_ERROR = -3; // 0xfffffffd
     field public static final int RESULT_FAILURE_REMOTE_ERROR = -2; // 0xfffffffe
     field public static final int RESULT_SUCCESS = 0; // 0x0
+  }
+
+  public static abstract class CustomTabsService.Relation implements java.lang.annotation.Annotation {
   }
 
   public static abstract class CustomTabsService.Result implements java.lang.annotation.Annotation {
@@ -113,6 +120,7 @@ package android.support.customtabs {
     method public boolean setActionButton(android.graphics.Bitmap, java.lang.String);
     method public boolean setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent);
     method public deprecated boolean setToolbarItem(int, android.graphics.Bitmap, java.lang.String);
+    method public boolean validateRelationship(int, android.net.Uri, android.os.Bundle);
   }
 
   public class CustomTabsSessionToken {
