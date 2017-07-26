@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -38,8 +39,10 @@ import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 import android.text.TextUtils;
+import android.text.method.TransformationMethod;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -361,6 +364,30 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
             @Override
             public void run() {
                 autoSizeView.setHeight(autoSizeView.getHeight() / 4);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+
+        assertTrue(autoSizeView.getTextSize() < initialTextSize);
+    }
+
+    @Test
+    @MediumTest
+    public void testAutoSizeCallers_setTransformationMethod() throws Throwable {
+        final T autoSizeView = prepareAndRetrieveAutoSizeTestData(R.id.view_autosize_uniform,
+                false);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeView.setTransformationMethod(null);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+        final float initialTextSize = autoSizeView.getTextSize();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                autoSizeView.setTransformationMethod(new DoubleTextTransformationMethod());
             }
         });
         mInstrumentation.waitForIdleSync();
@@ -1203,6 +1230,24 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
         }
 
         return view;
+    }
+
+    /* Transformation method which duplicates text. */
+    private final class DoubleTextTransformationMethod implements TransformationMethod {
+        DoubleTextTransformationMethod() {
+            /* Nothing to do. */
+        }
+
+        @Override
+        public CharSequence getTransformation(CharSequence source, View view) {
+            return new StringBuilder().append(source).append(source).toString();
+        }
+
+        @Override
+        public void onFocusChanged(View view, CharSequence sourceText, boolean focused,
+                int direction, Rect previouslyFocusedRect) {
+            /* Nothing to do. */
+        }
     }
 
     // Returns a new instance of the auto-sizable view for mActivity.
