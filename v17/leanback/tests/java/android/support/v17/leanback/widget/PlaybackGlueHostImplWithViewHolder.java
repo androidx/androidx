@@ -56,12 +56,13 @@ public class PlaybackGlueHostImplWithViewHolder extends PlaybackGlueHostImpl
         if (mViewHolder == null && mPlaybackRowPresenter != null && mRow != null) {
             mViewHolder = (PlaybackRowPresenter.ViewHolder)
                     mPlaybackRowPresenter.onCreateViewHolder(mRootView = new FrameLayout(mContext));
+            // Bind ViewHolder before measure/layout so child views will get proper size
+            mPlaybackRowPresenter.onBindViewHolder(mViewHolder, mRow);
             mRootView.addView(mViewHolder.view, mLayoutWidth, mLayoutHeight);
             mRootView.measure(
                     View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.AT_MOST),
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
             mRootView.layout(0, 0, mRootView.getMeasuredWidth(), mRootView.getMeasuredHeight());
-            mPlaybackRowPresenter.onBindViewHolder(mViewHolder, mRow);
             if (mViewHolder instanceof PlaybackSeekUi) {
                 ((PlaybackSeekUi) mViewHolder).setPlaybackSeekUiClient(mChainedClient);
             }
