@@ -18,7 +18,7 @@
 <!-- Note: clipChildren/clipToPadding false are needed to apply shadows to child
      views with no padding of their own. Also to allow for negative margin on description. -->
 
-<android.support.v17.leanback.widget.PlaybackTransportRowView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -68,9 +68,10 @@
             android:layout_marginBottom="@dimen/lb_playback_transport_thumbs_bottom_margin" />
     </FrameLayout>
 
-    <LinearLayout
+    <android.support.v17.leanback.widget.PlaybackTransportRowView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/transport_row"
         android:orientation="vertical"
         android:paddingStart="?attr/browsePaddingStart"
         android:paddingEnd="?attr/browsePaddingEnd"
@@ -134,5 +135,5 @@
         </RelativeLayout>
 
 
-    </LinearLayout>
-</android.support.v17.leanback.widget.PlaybackTransportRowView>
+    </android.support.v17.leanback.widget.PlaybackTransportRowView>
+</LinearLayout>
