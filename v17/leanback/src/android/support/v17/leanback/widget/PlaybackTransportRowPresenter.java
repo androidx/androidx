@@ -666,8 +666,8 @@ public class PlaybackTransportRowPresenter extends PlaybackRowPresenter {
         vh.mSecondaryControlsVh = (ControlBarPresenter.ViewHolder) mSecondaryControlsPresenter
                 .onCreateViewHolder(vh.mSecondaryControlsDock);
         vh.mSecondaryControlsDock.addView(vh.mSecondaryControlsVh.view);
-        ((PlaybackTransportRowView) vh.view).setOnUnhandledKeyListener(
-                new PlaybackTransportRowView.OnUnhandledKeyListener() {
+        ((PlaybackTransportRowView) vh.view.findViewById(R.id.transport_row))
+                .setOnUnhandledKeyListener(new PlaybackTransportRowView.OnUnhandledKeyListener() {
                 @Override
                 public boolean onUnhandledKey(KeyEvent event) {
                     if (vh.getOnKeyListener() != null) {
