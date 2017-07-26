@@ -51,6 +51,13 @@ public class FastSafeIterableMap<K, V> extends SafeIterableMap<K, V> {
         return null;
     }
 
+    @Override
+    public V remove(@NonNull K key) {
+        V removed = super.remove(key);
+        mHashMap.remove(key);
+        return removed;
+    }
+
     /**
      * Returns {@code true} if this map contains a mapping for the specified
      * key.
