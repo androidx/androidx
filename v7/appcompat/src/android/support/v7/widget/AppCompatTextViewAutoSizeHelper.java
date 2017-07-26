@@ -34,6 +34,7 @@ import android.text.StaticLayout;
 import android.text.TextDirectionHeuristic;
 import android.text.TextDirectionHeuristics;
 import android.text.TextPaint;
+import android.text.method.TransformationMethod;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -660,7 +661,15 @@ class AppCompatTextViewAutoSizeHelper {
     }
 
     private boolean suggestedSizeFitsInSpace(int suggestedSizeInPx, RectF availableSpace) {
-        final CharSequence text = mTextView.getText();
+        CharSequence text = mTextView.getText();
+        TransformationMethod transformationMethod = mTextView.getTransformationMethod();
+        if (transformationMethod != null) {
+            CharSequence transformedText = transformationMethod.getTransformation(text, mTextView);
+            if (transformedText != null) {
+                text = transformedText;
+            }
+        }
+
         final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;
         if (mTempTextPaint == null) {
             mTempTextPaint = new TextPaint();
