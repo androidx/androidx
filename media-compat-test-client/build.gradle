@@ -18,6 +18,7 @@ apply plugin: android.support.SupportLibraryPlugin
 dependencies {
     api project(':support-annotations')
     api project(':support-media-compat')
+    api project(':support-media-compat-test-lib')
 }
 
 android {
