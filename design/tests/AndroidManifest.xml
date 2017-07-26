@@ -19,7 +19,6 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application
-        android:name="android.support.multidex.MultiDexApplication"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design">
 
