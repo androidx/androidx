@@ -13,16 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: android.support.SupportLibraryPlugin
 
-dependencies {
-    api project(':support-annotations')
-    api project(':support-media-compat')
-    api project(':support-media-compat-test-lib')
-}
+package android.support.mediacompat.testlib;
 
-android {
-    defaultConfig {
-        minSdkVersion 14
-    }
+public class MediaBrowserServiceConstants {
+    public static final String MEDIA_BROWSER = "MEDIA_BROWSER";
 }

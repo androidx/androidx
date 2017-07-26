@@ -167,7 +167,7 @@ project(':support-testutils').projectDir = new File(rootDir, 'testutils')
 
 /////////////////////////////
 //
-// Applications for tests
+// Applications and libraries for tests
 //
 /////////////////////////////
 
@@ -176,6 +176,9 @@ project(':support-media-compat-test-client').projectDir = new File(rootDir, 'med
 
 include ':support-media-compat-test-service'
 project(':support-media-compat-test-service').projectDir = new File(rootDir, 'media-compat-test-service')
+
+include ':support-media-compat-test-lib'
+project(':support-media-compat-test-lib').projectDir = new File(rootDir, 'media-compat-test-lib')
 
 /////////////////////////////
 //
