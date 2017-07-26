@@ -6,19 +6,12 @@ dependencies {
     api project(':recyclerview-v7')
     api project(':transition')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_contrib) {
-        exclude group: 'com.android.support'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_contrib, { exclude group: 'com.android.support' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation project(':support-testutils')
-    androidTestImplementation libs.multidex
 
     testImplementation libs.junit
     testImplementation (libs.test_runner) {
@@ -31,7 +24,6 @@ android {
         minSdkVersion 14
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
-        multiDexEnabled true
     }
 
     sourceSets {

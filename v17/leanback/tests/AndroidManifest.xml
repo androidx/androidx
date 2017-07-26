@@ -18,7 +18,6 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application
-        android:name="android.support.multidex.MultiDexApplication"
         android:supportsRtl="true">
         <activity android:name="android.support.v17.leanback.widget.GridActivity"
                   android:exported="true"/>
