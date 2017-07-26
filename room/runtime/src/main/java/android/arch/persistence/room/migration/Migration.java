@@ -52,6 +52,9 @@ public abstract class Migration {
      * Should run the necessary migrations.
      * <p>
      * This class cannot access any generated Dao in this method.
+     * <p>
+     * This method is already called inside a transaction and that transaction might actually be a
+     * composite transaction of all necessary {@code Migration}s.
      *
      * @param database The database instance
      */
