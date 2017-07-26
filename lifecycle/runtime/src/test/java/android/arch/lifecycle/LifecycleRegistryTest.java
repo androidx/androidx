@@ -559,6 +559,16 @@ public class LifecycleRegistryTest {
         inOrder.verify(observer4).onResume();
     }
 
+    @Test
+    public void sameObserverReAddition() {
+        TestObserver observer = mock(TestObserver.class);
+        mRegistry.addObserver(observer);
+        mRegistry.removeObserver(observer);
+        mRegistry.addObserver(observer);
+        dispatchEvent(ON_CREATE);
+        verify(observer).onCreate();
+    }
+
     private void dispatchEvent(Lifecycle.Event event) {
         when(mLifecycle.getCurrentState()).thenReturn(LifecycleRegistry.getStateAfter(event));
         mRegistry.handleLifecycleEvent(event);
