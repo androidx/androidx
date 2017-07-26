@@ -16,20 +16,14 @@ dependencies {
 
     api project(':support-compat')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation project(':support-testutils')
 }
 
 android {
-    compileSdkVersion project.ext.currentSdk
-
     defaultConfig {
         minSdkVersion 14
     }

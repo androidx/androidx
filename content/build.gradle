@@ -15,30 +15,24 @@
  */
 
 apply plugin: android.support.SupportLibraryPlugin
-archivesBaseName = 'support-content'
-
-android {
-    defaultConfig {
-        minSdkVersion 14
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-
-    sourceSets {
-        main.java.srcDirs = ['src']
-        main.res.srcDir 'res'
-    }
-}
 
 dependencies {
     compile project(':support-annotations')
     compile project(':support-compat')
 
-    androidTestCompile libs.junit
-    androidTestCompile (libs.test_runner) {
-        exclude module: 'support-annotations'
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.test_runner,   { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 14
     }
-    androidTestCompile (libs.espresso_core) {
-        exclude module: 'support-annotations'
+
+    sourceSets {
+        main.java.srcDirs = ['src']
+        main.res.srcDir 'res'
     }
 }
 
