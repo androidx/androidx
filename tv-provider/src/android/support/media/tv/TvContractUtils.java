@@ -20,6 +20,10 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.media.tv.TvContentRating;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Static helper methods for working with {@link android.media.tv.TvContract}.
@@ -28,26 +32,34 @@ import android.text.TextUtils;
 @RestrictTo(LIBRARY_GROUP)
 public class TvContractUtils {
 
+    static final TvContentRating[] EMPTY = new TvContentRating[0];
+
     private static final String TAG = "TvContractUtils";
     private static final boolean DEBUG = false;
     private static final String DELIMITER = ",";
 
     /**
      * Parses a string of comma-separated ratings into an array of {@link TvContentRating}.
+     * <p>Invalid strings are droppped. Duplicates are not removed. The order is preserved.</p>
      *
      * @param commaSeparatedRatings String containing various ratings, separated by commas.
      * @return An array of TvContentRatings.
      */
     public static TvContentRating[] stringToContentRatings(String commaSeparatedRatings) {
         if (TextUtils.isEmpty(commaSeparatedRatings)) {
-            return null;
+            return EMPTY;
         }
         String[] ratings = commaSeparatedRatings.split("\\s*,\\s*");
-        TvContentRating[] contentRatings = new TvContentRating[ratings.length];
-        for (int i = 0; i < contentRatings.length; ++i) {
-            contentRatings[i] = TvContentRating.unflattenFromString(ratings[i]);
+        List<TvContentRating> contentRatings = new ArrayList<>(ratings.length);
+        for (String rating : ratings) {
+            try {
+                contentRatings.add(TvContentRating.unflattenFromString(rating));
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "Can't parse the content rating: '" + rating + "', skipping", e);
+            }
         }
-        return contentRatings;
+        return contentRatings.size() == 0 ? EMPTY
+                : contentRatings.toArray(new TvContentRating[contentRatings.size()]);
     }
 
     /**
