@@ -284,7 +284,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     public Typeface createFromResourcesFontFile(
             Context context, Resources resources, int id, String path, int style) {
         if (!isFontFamilyPrivateAPIAvailable()) {
-            super.createFromResourcesFontFile(context, resources, id, path, style);
+            return super.createFromResourcesFontFile(context, resources, id, path, style);
         }
         Object fontFamily = newFamily();
         if (!addFontFromAssetManager(context, fontFamily, path,
