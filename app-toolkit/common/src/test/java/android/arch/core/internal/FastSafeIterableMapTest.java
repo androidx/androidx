@@ -20,9 +20,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
+@RunWith(JUnit4.class)
 public class FastSafeIterableMapTest {
     @Test
     public void testCeil() {
@@ -42,8 +44,8 @@ public class FastSafeIterableMapTest {
         map.putIfAbsent(10, 20);
         map.putIfAbsent(20, 40);
         map.putIfAbsent(30, 60);
-        MatcherAssert.assertThat(map.putIfAbsent(5, 10), is((Integer) null));
-        MatcherAssert.assertThat(map.putIfAbsent(10, 30), is(20));
+        assertThat(map.putIfAbsent(5, 10), is((Integer) null));
+        assertThat(map.putIfAbsent(10, 30), is(20));
     }
 
     @Test
@@ -52,10 +54,22 @@ public class FastSafeIterableMapTest {
         map.putIfAbsent(10, 20);
         map.putIfAbsent(20, 40);
         map.putIfAbsent(30, 60);
-        MatcherAssert.assertThat(map.contains(10), is(true));
-        MatcherAssert.assertThat(map.contains(11), is(false));
+        assertThat(map.contains(10), is(true));
+        assertThat(map.contains(11), is(false));
+        assertThat(new FastSafeIterableMap<Integer, Integer>().contains(0), is(false));
+    }
 
-        MatcherAssert.assertThat(new FastSafeIterableMap<Integer, Integer>().contains(0),
-                is(false));
+
+    @Test
+    public void testRemove() {
+        FastSafeIterableMap<Integer, Integer> map = new FastSafeIterableMap<>();
+        map.putIfAbsent(10, 20);
+        map.putIfAbsent(20, 40);
+        assertThat(map.contains(10), is(true));
+        assertThat(map.contains(20), is(true));
+        assertThat(map.remove(10), is(20));
+        assertThat(map.contains(10), is(false));
+        assertThat(map.putIfAbsent(10, 30), nullValue());
+        assertThat(map.putIfAbsent(10, 40), is(30));
     }
 }
