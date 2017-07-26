@@ -24,6 +24,12 @@ android {
         minSdkVersion 14
         targetSdkVersion project.ext.currentSdk
     }
+
+    lintOptions {
+        abortOnError true
+        check 'NewApi'
+    }
+
 }
 
 dependencies {
@@ -31,3 +37,4 @@ dependencies {
     compile project(':appcompat-v7')
     compile project(':support-content')
 }
+
