@@ -17,4 +17,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.mediacompat.service.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+
+    <application>
+        <service android:name="android.support.mediacompat.service.StubMediaBrowserServiceCompat">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
+    </application>
 </manifest>
