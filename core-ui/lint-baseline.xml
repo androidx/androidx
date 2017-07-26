@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha5">
+<issues format="4" by="lint 3.0.0-alpha7">
 
     <issue
         id="WrongConstant"
@@ -10,6 +10,17 @@
             file="java/android/support/v4/widget/DrawerLayout.java"
             line="1075"
             column="47"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: Canvas.ALL_SAVE_FLAG"
+        errorLine1="        final int save = canvas.save(Canvas.CLIP_SAVE_FLAG);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/android/support/v4/widget/SlidingPaneLayout.java"
+            line="997"
+            column="38"/>
     </issue>
 
 </issues>
