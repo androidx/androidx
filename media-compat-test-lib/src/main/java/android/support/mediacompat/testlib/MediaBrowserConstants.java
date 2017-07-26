@@ -16,6 +16,11 @@
 
 package android.support.mediacompat.testlib;
 
-public class MediaBrowserServiceConstants {
-    public static final String MEDIA_BROWSER = "MEDIA_BROWSER";
+/**
+ * Constants for testing the media browser and service.
+ */
+public class MediaBrowserConstants {
+    public static final String MEDIA_ID_ROOT = "test_media_id_root";
+    public static final String EXTRAS_KEY = "test_extras_key";
+    public static final String EXTRAS_VALUE = "test_extras_value";
 }
