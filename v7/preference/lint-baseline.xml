@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha6">
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type anim"
-        errorLine1="            parser = resources.getAnimation(id);"
-        errorLine2="                                            ~~">
-        <location
-            file="src/android/support/graphics/drawable/AnimatorInflaterCompat.java"
-            line="130"
-            column="45"/>
-    </issue>
+<issues format="4" by="lint 3.0.0-alpha7">
 
     <issue
         id="Suspicious0dp"
@@ -32,39 +21,6 @@
             file="res/layout-v11/preference_dropdown.xml"
             line="30"
             column="9"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
-        errorLine1="                            + gravityToString(childGravity) + &quot; but this &quot; + TAG + &quot; already has a &quot;"
-        errorLine2="                                              ~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/DrawerLayout.java"
-            line="1075"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ActionBar.DISPLAY_USE_LOGO, ActionBar.DISPLAY_SHOW_HOME, ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_CUSTOM"
-        errorLine1="        setDisplayOptions(options, 0xffffffff);"
-        errorLine2="                                   ~~~~~~~~~~">
-        <location
-            file="src/android/support/v7/app/ToolbarActionBar.java"
-            line="251"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ActionBar.DISPLAY_USE_LOGO, ActionBar.DISPLAY_SHOW_HOME, ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_CUSTOM"
-        errorLine1="        setDisplayOptions(options, 0xffffffff);"
-        errorLine2="                                   ~~~~~~~~~~">
-        <location
-            file="src/android/support/v7/app/ToolbarActionBar.java"
-            line="251"
-            column="36"/>
     </issue>
 
 </issues>
