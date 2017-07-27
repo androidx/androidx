@@ -32,7 +32,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.IntDef;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.RequiresPermission;
 import android.support.annotation.RestrictTo;
 
@@ -43,14 +42,6 @@ import java.lang.annotation.RetentionPolicy;
  * Helper for accessing features in {@link ConnectivityManager}.
  */
 public final class ConnectivityManagerCompat {
-
-    interface ConnectivityManagerCompatImpl {
-        boolean isActiveNetworkMetered(ConnectivityManager cm);
-
-        @RestrictBackgroundStatus
-        int getRestrictBackgroundStatus(ConnectivityManager cm);
-    }
-
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
@@ -85,10 +76,25 @@ public final class ConnectivityManagerCompat {
      */
     public static final int RESTRICT_BACKGROUND_STATUS_ENABLED = 3;
 
-    static class ConnectivityManagerCompatBaseImpl implements ConnectivityManagerCompatImpl {
-        @SuppressWarnings("deprecation")
-        @Override
-        public boolean isActiveNetworkMetered(ConnectivityManager cm) {
+    /**
+     * Returns if the currently active data network is metered. A network is
+     * classified as metered when the user is sensitive to heavy data usage on
+     * that connection due to monetary costs, data limitations or
+     * battery/performance issues. You should check this before doing large
+     * data transfers, and warn the user or delay the operation until another
+     * network is available.
+     * <p>This method requires the caller to hold the permission
+     * {@link android.Manifest.permission#ACCESS_NETWORK_STATE}.
+     *
+     * @return {@code true} if large transfers should be avoided, otherwise
+     *        {@code false}.
+     */
+    @SuppressWarnings("deprecation")
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+    public static boolean isActiveNetworkMetered(ConnectivityManager cm) {
+        if (Build.VERSION.SDK_INT >= 16) {
+            return cm.isActiveNetworkMetered();
+        } else {
             final NetworkInfo info = cm.getActiveNetworkInfo();
             if (info == null) {
                 // err on side of caution
@@ -113,58 +119,6 @@ public final class ConnectivityManagerCompat {
                     return true;
             }
         }
-
-        @Override
-        public int getRestrictBackgroundStatus(ConnectivityManager cm) {
-            return RESTRICT_BACKGROUND_STATUS_ENABLED;
-        }
-    }
-
-    @RequiresApi(16)
-    static class ConnectivityManagerCompatApi16Impl extends ConnectivityManagerCompatBaseImpl {
-        @Override
-        public boolean isActiveNetworkMetered(ConnectivityManager cm) {
-            return cm.isActiveNetworkMetered();
-        }
-    }
-
-    @RequiresApi(24)
-    static class ConnectivityManagerCompatApi24Impl extends ConnectivityManagerCompatApi16Impl {
-        @Override
-        public int getRestrictBackgroundStatus(ConnectivityManager cm) {
-            //noinspection ResourceType
-            return cm.getRestrictBackgroundStatus();
-        }
-    }
-
-    private static final ConnectivityManagerCompatImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new ConnectivityManagerCompatApi24Impl();
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new ConnectivityManagerCompatApi16Impl();
-        } else {
-            IMPL = new ConnectivityManagerCompatBaseImpl();
-        }
-    }
-
-    /**
-     * Returns if the currently active data network is metered. A network is
-     * classified as metered when the user is sensitive to heavy data usage on
-     * that connection due to monetary costs, data limitations or
-     * battery/performance issues. You should check this before doing large
-     * data transfers, and warn the user or delay the operation until another
-     * network is available.
-     * <p>This method requires the caller to hold the permission
-     * {@link android.Manifest.permission#ACCESS_NETWORK_STATE}.
-     *
-     * @return {@code true} if large transfers should be avoided, otherwise
-     *        {@code false}.
-     */
-    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
-    public static boolean isActiveNetworkMetered(ConnectivityManager cm) {
-        return IMPL.isActiveNetworkMetered(cm);
     }
 
     /**
@@ -174,6 +128,7 @@ public final class ConnectivityManagerCompat {
      * potentially-stale value from
      * {@link ConnectivityManager#EXTRA_NETWORK_INFO}. May be {@code null}.
      */
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static NetworkInfo getNetworkInfoFromBroadcast(ConnectivityManager cm, Intent intent) {
         final NetworkInfo info = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
         if (info != null) {
@@ -193,7 +148,11 @@ public final class ConnectivityManagerCompat {
      */
     @RestrictBackgroundStatus
     public static int getRestrictBackgroundStatus(ConnectivityManager cm) {
-        return IMPL.getRestrictBackgroundStatus(cm);
+        if (Build.VERSION.SDK_INT >= 24) {
+            return cm.getRestrictBackgroundStatus();
+        } else {
+            return RESTRICT_BACKGROUND_STATUS_ENABLED;
+        }
     }
 
     private ConnectivityManagerCompat() {}
