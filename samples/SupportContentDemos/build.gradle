@@ -27,7 +27,8 @@ android {
 
     lintOptions {
         abortOnError true
-        check 'NewApi'
+        disable "SetTextI18n", "AppCompatResource", "WrongConstant", "AllowBackup",
+                "GoogleAppIndexingWarning", "AlwaysShowAction"
     }
 
 }
