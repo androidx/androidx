@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-package android.support.v4.app;
+package android.support.transition;
+
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Rect;
-import android.support.annotation.RequiresApi;
-import android.transition.Transition;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
+import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
+import android.support.v4.app.FragmentTransitionImpl;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiresApi(21)
-class FragmentTransitionCompat21 extends FragmentTransitionImpl {
+
+/**
+ * @hide
+ */
+// This is instantiated in android.support.v4.app.FragmentTransition
+@SuppressWarnings("unused")
+@RestrictTo(LIBRARY_GROUP)
+public class FragmentTransitionSupport extends FragmentTransitionImpl {
 
     @Override
     public boolean canHandle(Object transition) {
@@ -79,7 +86,7 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
 
             transition.setEpicenterCallback(new Transition.EpicenterCallback() {
                 @Override
-                public Rect onGetEpicenter(Transition transition) {
+                public Rect onGetEpicenter(@NonNull Transition transition) {
                     return epicenter;
                 }
             });
@@ -111,9 +118,6 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
         }
     }
 
-    /**
-     * Returns true if there are any targets based on ID, transition or type.
-     */
     private static boolean hasSimpleTarget(Transition transition) {
         return !isNullOrEmpty(transition.getTargetIds())
                 || !isNullOrEmpty(transition.getTargetNames())
@@ -142,11 +146,11 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
         Transition exitTransition = (Transition) exitTransitionObj;
         exitTransition.addListener(new Transition.TransitionListener() {
             @Override
-            public void onTransitionStart(Transition transition) {
+            public void onTransitionStart(@NonNull Transition transition) {
             }
 
             @Override
-            public void onTransitionEnd(Transition transition) {
+            public void onTransitionEnd(@NonNull Transition transition) {
                 transition.removeListener(this);
                 fragmentView.setVisibility(View.GONE);
                 final int numViews = exitingViews.size();
@@ -156,15 +160,15 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
             }
 
             @Override
-            public void onTransitionCancel(Transition transition) {
+            public void onTransitionCancel(@NonNull Transition transition) {
             }
 
             @Override
-            public void onTransitionPause(Transition transition) {
+            public void onTransitionPause(@NonNull Transition transition) {
             }
 
             @Override
-            public void onTransitionResume(Transition transition) {
+            public void onTransitionResume(@NonNull Transition transition) {
             }
         });
     }
@@ -213,7 +217,7 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
         final Transition overallTransition = (Transition) overallTransitionObj;
         overallTransition.addListener(new Transition.TransitionListener() {
             @Override
-            public void onTransitionStart(Transition transition) {
+            public void onTransitionStart(@NonNull Transition transition) {
                 if (enterTransition != null) {
                     replaceTargets(enterTransition, enteringViews, null);
                 }
@@ -226,19 +230,19 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
             }
 
             @Override
-            public void onTransitionEnd(Transition transition) {
+            public void onTransitionEnd(@NonNull Transition transition) {
             }
 
             @Override
-            public void onTransitionCancel(Transition transition) {
+            public void onTransitionCancel(@NonNull Transition transition) {
             }
 
             @Override
-            public void onTransitionPause(Transition transition) {
+            public void onTransitionPause(@NonNull Transition transition) {
             }
 
             @Override
-            public void onTransitionResume(Transition transition) {
+            public void onTransitionResume(@NonNull Transition transition) {
             }
         });
     }
@@ -267,7 +271,7 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
             }
         } else if (!hasSimpleTarget(transition)) {
             List<View> targets = transition.getTargets();
-            if (targets != null && targets.size() == oldTargets.size()
+            if (targets.size() == oldTargets.size()
                     && targets.containsAll(oldTargets)) {
                 // We have an exact match. We must have added these earlier in addTargets
                 final int targetCount = newTargets == null ? 0 : newTargets.size();
@@ -303,7 +307,7 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
             Transition transition = (Transition) transitionObj;
             transition.setEpicenterCallback(new Transition.EpicenterCallback() {
                 @Override
-                public Rect onGetEpicenter(Transition transition) {
+                public Rect onGetEpicenter(@NonNull Transition transition) {
                     if (epicenter == null || epicenter.isEmpty()) {
                         return null;
                     }

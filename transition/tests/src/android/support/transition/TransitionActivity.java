@@ -16,13 +16,13 @@
 
 package android.support.transition;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.transition.test.R;
+import android.support.v4.app.FragmentActivity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-public class TransitionActivity extends Activity {
+public class TransitionActivity extends FragmentActivity {
 
     private LinearLayout mRoot;
 

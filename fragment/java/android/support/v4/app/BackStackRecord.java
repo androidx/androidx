@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.util.LogWriter;
@@ -174,7 +173,6 @@ final class BackStackState implements Parcelable {
 final class BackStackRecord extends FragmentTransaction implements
         FragmentManager.BackStackEntry, FragmentManagerImpl.OpGenerator {
     static final String TAG = FragmentManagerImpl.TAG;
-    static final boolean SUPPORTS_TRANSITIONS = Build.VERSION.SDK_INT >= 21;
 
     final FragmentManagerImpl mManager;
 
@@ -507,7 +505,7 @@ final class BackStackRecord extends FragmentTransaction implements
 
     @Override
     public FragmentTransaction addSharedElement(View sharedElement, String name) {
-        if (SUPPORTS_TRANSITIONS) {
+        if (FragmentTransition.supportsTransition()) {
             String transitionName = ViewCompat.getTransitionName(sharedElement);
             if (transitionName == null) {
                 throw new IllegalArgumentException("Unique transitionNames are required for all" +
