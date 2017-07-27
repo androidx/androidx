@@ -329,4 +329,25 @@
     <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Large" parent="TextAppearance.AppCompat.Widget.PopupMenu.Large" />
     <style name="TextAppearance.AppCompat.Light.Widget.PopupMenu.Small" parent="TextAppearance.AppCompat.Widget.PopupMenu.Small" />
 
+    <!-- These styles have moved to support-compat and should be removed when
+         android.support.v7.app.NotificationCompat is removed -->
+    <style name="TextAppearance.AppCompat.Notification" parent="@android:style/TextAppearance.StatusBar.EventContent" />
+    <style name="TextAppearance.AppCompat.Notification.Title" parent="@android:style/TextAppearance.StatusBar.EventContent.Title" />
+    <style name="TextAppearance.AppCompat.Notification.Info">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+    <style name="TextAppearance.AppCompat.Notification.Time">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+    <style name="TextAppearance.AppCompat.Notification.Line2" parent="TextAppearance.AppCompat.Notification.Info" />
+
+    <!-- These styles have moved to media-compat and should be removed when
+         android.support.v7.app.NotificationCompat is removed -->
+    <style name="TextAppearance.AppCompat.Notification.Title.Media" />
+    <style name="TextAppearance.AppCompat.Notification.Media" />
+    <style name="TextAppearance.AppCompat.Notification.Info.Media" />
+    <style name="TextAppearance.AppCompat.Notification.Time.Media" />
+    <style name="TextAppearance.AppCompat.Notification.Line2.Media" parent="TextAppearance.AppCompat.Notification.Info.Media" />
 </resources>
