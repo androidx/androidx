@@ -27,18 +27,18 @@ class InvalidCasesTest(val name: String, val errorMsg: String) {
         @JvmStatic
         @Parameterized.Parameters(name = "failingCase({0})")
         fun data() : Collection<Array<Any>> = listOf(
-                arrayOf<Any>("foo.InvalidFirstArg1", LifecycleProcessor.INVALID_FIRST_ARGUMENT),
-                arrayOf<Any>("foo.InvalidFirstArg2", LifecycleProcessor.INVALID_FIRST_ARGUMENT),
-                arrayOf<Any>("foo.InvalidSecondArg", LifecycleProcessor.INVALID_SECOND_ARGUMENT),
-                arrayOf<Any>("foo.TooManyArgs1", LifecycleProcessor.TOO_MANY_ARGS),
-                arrayOf<Any>("foo.TooManyArgs2", LifecycleProcessor.TOO_MANY_ARGS_NOT_ON_ANY),
+                arrayOf<Any>("foo.InvalidFirstArg1", ErrorMessages.INVALID_FIRST_ARGUMENT),
+                arrayOf<Any>("foo.InvalidFirstArg2", ErrorMessages.INVALID_FIRST_ARGUMENT),
+                arrayOf<Any>("foo.InvalidSecondArg", ErrorMessages.INVALID_SECOND_ARGUMENT),
+                arrayOf<Any>("foo.TooManyArgs1", ErrorMessages.TOO_MANY_ARGS),
+                arrayOf<Any>("foo.TooManyArgs2", ErrorMessages.TOO_MANY_ARGS_NOT_ON_ANY),
                 arrayOf<Any>("foo.InvalidMethodModifier",
-                        LifecycleProcessor.INVALID_METHOD_MODIFIER),
-                arrayOf<Any>("foo.InvalidClassModifier", LifecycleProcessor.INVALID_CLASS_MODIFIER),
+                        ErrorMessages.INVALID_METHOD_MODIFIER),
+                arrayOf<Any>("foo.InvalidClassModifier", ErrorMessages.INVALID_CLASS_MODIFIER),
                 arrayOf<Any>("foo.InvalidInheritance1",
-                        LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD),
+                        ErrorMessages.INVALID_STATE_OVERRIDE_METHOD),
                 arrayOf<Any>("foo.InvalidInheritance2",
-                        LifecycleProcessor.INVALID_STATE_OVERRIDE_METHOD)
+                        ErrorMessages.INVALID_STATE_OVERRIDE_METHOD)
         )
     }
 
