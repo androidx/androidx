@@ -25,6 +25,7 @@
     <string name="changeTransform">Change Transform</string>
     <string name="changeImageTransform">Change Image Transform</string>
     <string name="reparentImage">Reparent Image</string>
+    <string name="fragmentTransition">Fragment Transition</string>
     <string name="toggle">Toggle</string>
     <string name="begin">Begin</string>
     <string name="hello_world">Hello, world!</string>
