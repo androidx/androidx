@@ -839,7 +839,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             mLayoutParams = layoutParams;
         }
 
-        private void addItems(int pos, int count, String prefix) {
+        void addItems(int pos, int count, String prefix) {
             for (int i = 0; i < count; i++, pos++) {
                 mItems.add(pos, new Item(pos, prefix));
             }
