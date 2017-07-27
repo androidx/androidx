@@ -12,4 +12,15 @@
             column="47"/>
     </issue>
 
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: Canvas.ALL_SAVE_FLAG"
+        errorLine1="        final int save = canvas.save(Canvas.CLIP_SAVE_FLAG);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/android/support/v4/widget/SlidingPaneLayout.java"
+            line="997"
+            column="38"/>
+    </issue>
+
 </issues>
