@@ -254,8 +254,28 @@ public class NavController implements NavigatorProvider {
      * @return true if navigation was successful, false otherwise
      */
     public boolean navigateUp() {
-        // TODO check current task; if we're in one from a viewer context on another task, jump.
-        return popBackStack();
+        if (mBackStack.size() == 1) {
+            // If there's only one entry, then we've deep linked into a specific destination
+            // so we should build the parent destination to provide the proper Up behavior
+            NavDestination currentDestination = getCurrentDestination();
+            int destId = currentDestination.getId();
+            NavGraph parent = currentDestination.getParent();
+            while (parent != null) {
+                if (parent.getStartDestination() != destId) {
+                    navigate(parent.getStartDestination(), null,
+                            new NavOptions.Builder()
+                                    .setClearTask(true)
+                                    .build());
+                    return true;
+                }
+                destId = parent.getId();
+                parent = parent.getParent();
+            }
+            // We're already at the startDestination of the graph so there's no 'Up' to go to
+            return false;
+        } else {
+            return popBackStack();
+        }
     }
 
     void dispatchOnNavigated(NavDestination destination) {
@@ -528,8 +548,12 @@ public class NavController implements NavigatorProvider {
                     : "")
                     + " is unknown to this NavController");
         }
-        if (navOptions != null && navOptions.getPopUpTo() != 0) {
-            popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
+        if (navOptions != null) {
+            if (navOptions.shouldClearTask()) {
+                popBackStack(0, true);
+            } else if (navOptions.getPopUpTo() != 0) {
+                popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
+            }
         }
         node.navigate(args, navOptions);
     }

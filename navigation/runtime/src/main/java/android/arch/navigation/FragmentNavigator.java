@@ -137,11 +137,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         ft.add(newState, StateFragment.FRAGMENT_TAG);
 
         final boolean initialNavigation = mFragmentManager.getFragments().isEmpty();
+        final boolean isClearTask = navOptions != null && navOptions.shouldClearTask();
         // TODO Build first class singleTop behavior for fragments
         final boolean isSingleTopReplacement = navOptions != null && oldState != null
                 && navOptions.shouldLaunchSingleTop()
                 && oldState.mCurrentDestId == destId;
-        if (!initialNavigation && !isSingleTopReplacement) {
+        if (!initialNavigation && !isClearTask && !isSingleTopReplacement) {
             ft.addToBackStack(getBackStackName(destId));
         } else {
             ft.runOnCommit(new Runnable() {
