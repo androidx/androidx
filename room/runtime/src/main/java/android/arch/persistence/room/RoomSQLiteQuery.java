@@ -208,6 +208,11 @@ public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram
         mBlobBindings[index] = value;
     }
 
+    @Override
+    public void close() throws Exception {
+        // no-op. not calling release because it is internal API.
+    }
+
     /**
      * Copies arguments from another RoomSQLiteQuery into this query.
      *

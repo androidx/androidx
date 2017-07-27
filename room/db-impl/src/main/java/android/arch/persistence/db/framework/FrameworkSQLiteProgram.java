@@ -58,4 +58,9 @@ class FrameworkSQLiteProgram implements SupportSQLiteProgram {
     public void clearBindings() {
         mDelegate.clearBindings();
     }
+
+    @Override
+    public void close() throws Exception {
+        mDelegate.close();
+    }
 }
