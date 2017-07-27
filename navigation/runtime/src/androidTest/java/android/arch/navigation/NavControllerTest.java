@@ -43,6 +43,7 @@ public class NavControllerTest {
     private static final String TEST_ARG_VALUE = "value";
     private static final String TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value";
     private static final String TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override";
+    private static final String TEST_DEEP_LINK_ACTION = "deep_link";
 
     @Rule
     public ActivityTestRule<NavigationActivity> mActivityRule =
@@ -237,6 +238,13 @@ public class NavControllerTest {
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(1));
+
+        // Test that the deep link Intent was passed through even though we don't pass in any args
+        Intent deepLinkIntent = navigator.mBackStack.peekLast().second
+                .getParcelable(NavController.KEY_DEEP_LINK_INTENT);
+        assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
+        //noinspection ConstantConditions
+        assertThat(deepLinkIntent.getAction(), is(TEST_DEEP_LINK_ACTION));
     }
 
     @Test
@@ -251,6 +259,13 @@ public class NavControllerTest {
         TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
         assertThat(navigator.mBackStack.size(), is(1));
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
+
+        // Test that the deep link Intent was passed in alongside our args
+        Intent deepLinkIntent = navigator.mBackStack.peekLast().second
+                .getParcelable(NavController.KEY_DEEP_LINK_INTENT);
+        assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
+        //noinspection ConstantConditions
+        assertThat(deepLinkIntent.getAction(), is(TEST_DEEP_LINK_ACTION));
     }
 
     @Test
@@ -288,6 +303,7 @@ public class NavControllerTest {
 
         Intent intent = navController.createDeepLinkIntent(destId, args);
         assertThat(intent, is(notNullValue(Intent.class)));
+        intent.setAction(TEST_DEEP_LINK_ACTION);
 
         // Now launch the deeplink Intent
         NavigationActivity deeplinkActivity = launchActivity(intent);
