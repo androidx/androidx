@@ -252,7 +252,53 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void preditiveMeasuredCrashTest() throws Throwable {
+    public void setAdapterNotifyItemRangeInsertedCrashTest() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final TestLayoutManager lm = new LayoutAllLayoutManager(true);
+        lm.setSupportsPredictive(true);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        lm.expectLayouts(1);
+        setAdapter(new TestAdapter(1));
+        lm.waitForLayout(2);
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final TestAdapter adapter2 = new TestAdapter(0);
+                rv.setAdapter(adapter2);
+                adapter2.addItems(0, 1, "1");
+                adapter2.notifyItemRangeInserted(0, 1);
+            }
+        });
+        lm.waitForLayout(2);
+    }
+
+    @Test
+    public void swapAdapterNotifyItemRangeInsertedCrashTest() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final TestLayoutManager lm = new LayoutAllLayoutManager(true);
+        lm.setSupportsPredictive(true);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        lm.expectLayouts(1);
+        setAdapter(new TestAdapter(1));
+        lm.waitForLayout(2);
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final TestAdapter adapter2 = new TestAdapter(0);
+                rv.swapAdapter(adapter2, true);
+                adapter2.addItems(0, 1, "1");
+                adapter2.notifyItemRangeInserted(0, 1);
+            }
+        });
+        lm.waitForLayout(2);
+    }
+
+    @Test
+    public void predictiveMeasuredCrashTest() throws Throwable {
         final RecyclerView rv = new RecyclerView(getActivity());
         final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true) {
             @Override
