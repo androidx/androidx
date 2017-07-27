@@ -59,6 +59,9 @@ public abstract class UserDao {
     @Query("select * from user where mId IN(:ids)")
     public abstract User[] loadByIds(int... ids);
 
+    @Query("select * from user where custommm = :customField")
+    public abstract List<User> findByCustomField(String customField);
+
     @Insert
     public abstract void insert(User user);
 
