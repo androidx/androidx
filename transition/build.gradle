@@ -2,7 +2,8 @@ apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
-    api project(':support-v4')
+    api project(':support-compat')
+    compileOnly project(':support-fragment')
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
@@ -12,6 +13,8 @@ dependencies {
     }
     androidTestImplementation libs.mockito_core
     androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation project(':support-v4')
+    androidTestImplementation project(':appcompat-v7')
 }
 
 android {
@@ -33,6 +36,10 @@ android {
                 'res',
                 'res-public'
         ]
+    }
+
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
     }
 
     aaptOptions {
