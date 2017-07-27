@@ -260,8 +260,8 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * </pre>
      *
      * <p>If you are using this style, consider using the corresponding styles like
-     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification} or
-     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification_Title} in
+     * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification} or
+     * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Title} in
      * your custom views in order to get the correct styling on each platform version.
      *
      * @deprecated Use {@link android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle}
@@ -308,9 +308,9 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
      * </pre>
      *
      * <p>If you are using this style, consider using the corresponding styles like
-     * {@link android.support.mediacompat.R.style#TextAppearance_Compat_Notification_Media} or
+     * {@link android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Media} or
      * {@link
-     * android.support.mediacompat.R.style#TextAppearance_Compat_Notification_Title_Media} in
+     * android.support.v7.appcompat.R.style#TextAppearance_AppCompat_Notification_Title_Media} in
      * your custom views in order to get the correct styling on each platform version.
      *
      * @see android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle
