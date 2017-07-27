@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha6">
+<issues format="4" by="lint 3.0.0-alpha7">
 
     <issue
         id="DuplicateIds"
@@ -25,17 +25,6 @@
             file="src/android/support/wear/widget/CircledImageView.java"
             line="148"
             column="51"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END"
-        errorLine1="                            + gravityToString(childGravity) + &quot; but this &quot; + TAG + &quot; already has a &quot;"
-        errorLine2="                                              ~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/widget/DrawerLayout.java"
-            line="1075"
-            column="47"/>
     </issue>
 
 </issues>
