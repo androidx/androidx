@@ -33,6 +33,7 @@ abstract class BaseEntityParserTest {
         const val ENTITY_PREFIX = """
             package foo.bar;
             import android.arch.persistence.room.*;
+            import android.support.annotation.NonNull;
             @Entity%s
             public class MyEntity %s {
             """

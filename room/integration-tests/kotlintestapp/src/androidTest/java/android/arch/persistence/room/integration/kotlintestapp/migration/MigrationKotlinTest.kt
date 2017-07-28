@@ -247,7 +247,7 @@ class MigrationKotlinTest {
 
     internal val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` (`id` INTEGER,"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` (`id` INTEGER NOT NULL,"
                     + " `name` TEXT, PRIMARY KEY(`id`))")
         }
     }
@@ -261,14 +261,14 @@ class MigrationKotlinTest {
 
     internal val MIGRATION_3_4: Migration = object : Migration(3, 4) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER,"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER NOT NULL,"
                     + " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))")
         }
     }
 
     internal val MIGRATION_4_5: Migration = object : Migration(4, 5) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER,"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER NOT NULL,"
                     + " `name` TEXT, PRIMARY KEY(`id`))")
             database.execSQL("INSERT INTO Entity3_New(`id`, `name`) "
                     + "SELECT `id`, `name` FROM Entity3")
@@ -287,7 +287,7 @@ class MigrationKotlinTest {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL("CREATE TABLE IF NOT EXISTS "
                     + MigrationDbKotlin.Entity4.TABLE_NAME
-                    + " (`id` INTEGER, `name` TEXT, PRIMARY KEY(`id`),"
+                    + " (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`),"
                     + " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)"
                     + " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)")
         }

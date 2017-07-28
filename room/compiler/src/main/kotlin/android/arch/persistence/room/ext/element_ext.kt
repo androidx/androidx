@@ -41,6 +41,11 @@ fun Element.hasAnnotation(klass: KClass<out Annotation>): Boolean {
     return MoreElements.isAnnotationPresent(this, klass.java)
 }
 
+fun Element.isNonNull() =
+        asType().kind.isPrimitive
+                || hasAnnotation(android.support.annotation.NonNull::class)
+                || hasAnnotation(org.jetbrains.annotations.NotNull::class)
+
 /**
  * Checks if it has all of the annotations
  */

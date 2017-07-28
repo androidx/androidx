@@ -323,6 +323,21 @@ class EntityProcessorTest : BaseEntityParserTest() {
         }.compilesWithoutError().withWarningCount(0)
     }
 
+    @Test
+    fun notNull() {
+        singleEntity(
+                """
+                @PrimaryKey int id;
+                @NonNull public String name;
+                """
+        ) { entity, _ ->
+            val field = fieldsByName(entity, "name").first()
+            assertThat(field.name, `is`("name"))
+            assertThat(field.columnName, `is`("name"))
+            assertThat(field.nonNull, `is`(true))
+        }.compilesWithoutError()
+    }
+
     private fun fieldsByName(entity : Pojo, vararg fieldNames : String) : List<Field> {
         return fieldNames
                 .map { name -> entity.fields.find { it.name == name } }
