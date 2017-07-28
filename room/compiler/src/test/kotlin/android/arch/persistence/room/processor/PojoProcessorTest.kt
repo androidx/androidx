@@ -45,6 +45,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import simpleRun
 import javax.lang.model.element.Element
@@ -431,10 +432,13 @@ class PojoProcessorTest {
                     FieldProcessor.BindingScope.TWO_WAY, null).process()
             assertThat(pojo5, sameInstance(pojo4))
 
+            val type = invocation.context.COMMON_TYPES.STRING
+            val mockElement = mock(Element::class.java)
+            doReturn(type).`when`(mockElement).asType()
             val fakeField = Field(
-                    element = mock(Element::class.java),
+                    element = mockElement,
                     name = "foo",
-                    type = invocation.context.COMMON_TYPES.STRING,
+                    type = type,
                     affinity = SQLTypeAffinity.TEXT,
                     columnName = "foo",
                     parent = null,

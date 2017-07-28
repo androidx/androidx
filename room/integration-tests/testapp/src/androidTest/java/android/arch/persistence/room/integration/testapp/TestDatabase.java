@@ -23,6 +23,7 @@ import android.arch.persistence.room.TypeConverters;
 import android.arch.persistence.room.integration.testapp.dao.BlobEntityDao;
 import android.arch.persistence.room.integration.testapp.dao.PetCoupleDao;
 import android.arch.persistence.room.integration.testapp.dao.PetDao;
+import android.arch.persistence.room.integration.testapp.dao.ProductDao;
 import android.arch.persistence.room.integration.testapp.dao.SchoolDao;
 import android.arch.persistence.room.integration.testapp.dao.ToyDao;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
@@ -30,6 +31,7 @@ import android.arch.persistence.room.integration.testapp.dao.UserPetDao;
 import android.arch.persistence.room.integration.testapp.vo.BlobEntity;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.PetCouple;
+import android.arch.persistence.room.integration.testapp.vo.Product;
 import android.arch.persistence.room.integration.testapp.vo.School;
 import android.arch.persistence.room.integration.testapp.vo.Toy;
 import android.arch.persistence.room.integration.testapp.vo.User;
@@ -37,7 +39,7 @@ import android.arch.persistence.room.integration.testapp.vo.User;
 import java.util.Date;
 
 @Database(entities = {User.class, Pet.class, School.class, PetCouple.class, Toy.class,
-        BlobEntity.class},
+        BlobEntity.class, Product.class},
         version = 1, exportSchema = false)
 @TypeConverters(TestDatabase.Converters.class)
 public abstract class TestDatabase extends RoomDatabase {
@@ -48,6 +50,7 @@ public abstract class TestDatabase extends RoomDatabase {
     public abstract PetCoupleDao getPetCoupleDao();
     public abstract ToyDao getToyDao();
     public abstract BlobEntityDao getBlobEntityDao();
+    public abstract ProductDao getProductDao();
 
     @SuppressWarnings("unused")
     public static class Converters {

@@ -201,8 +201,8 @@ public class MigrationTest {
                     7, false, new Migration(6, 7) {
                         @Override
                         public void migrate(SupportSQLiteDatabase database) {
-                            database.execSQL("CREATE TABLE Entity4 (`id` INTEGER, `name` TEXT,"
-                                    + " PRIMARY KEY(`id`))");
+                            database.execSQL("CREATE TABLE Entity4 (`id` INTEGER NOT NULL,"
+                                    + " `name` TEXT, PRIMARY KEY(`id`))");
                         }
                     });
         } catch (Throwable t) {
@@ -271,7 +271,7 @@ public class MigrationTest {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `Entity2` ("
-                    + "`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                     + " `name` TEXT)");
         }
     };
@@ -287,7 +287,7 @@ public class MigrationTest {
     private static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER,"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER NOT NULL,"
                     + " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))");
         }
     };
@@ -295,7 +295,7 @@ public class MigrationTest {
     private static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER,"
+            database.execSQL("CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER NOT NULL,"
                     + " `name` TEXT, PRIMARY KEY(`id`))");
             database.execSQL("INSERT INTO Entity3_New(`id`, `name`) "
                     + "SELECT `id`, `name` FROM Entity3");
@@ -315,7 +315,7 @@ public class MigrationTest {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS " + MigrationDb.Entity4.TABLE_NAME
-                    + " (`id` INTEGER, `name` TEXT, PRIMARY KEY(`id`),"
+                    + " (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`),"
                     + " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)"
                     + " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)");
         }
