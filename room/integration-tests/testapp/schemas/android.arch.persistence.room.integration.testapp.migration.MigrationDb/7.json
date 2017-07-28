@@ -2,21 +2,23 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "3e20645b9e4557e60301d30835f0d706",
+    "identityHash": "03ff272b825e27b5c15545c85fe1b845",
     "entities": [
       {
         "tableName": "Entity1",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `name` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -39,22 +41,25 @@
       },
       {
         "tableName": "Entity2",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `addedInV3` TEXT, `name` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `addedInV3` TEXT, `name` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "addedInV3",
             "columnName": "addedInV3",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -68,17 +73,19 @@
       },
       {
         "tableName": "Entity4",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER, `name` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -105,7 +112,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3e20645b9e4557e60301d30835f0d706\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"03ff272b825e27b5c15545c85fe1b845\")"
     ]
   }
 }

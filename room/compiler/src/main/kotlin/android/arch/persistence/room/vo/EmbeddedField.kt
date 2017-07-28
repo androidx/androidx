@@ -42,4 +42,8 @@ data class EmbeddedField(val field : Field, val prefix : String = "",
             return parent.isDescendantOf(other)
         }
     }
+
+    fun isNonNullRecursively(): Boolean {
+        return field.nonNull && (parent == null || parent.isNonNullRecursively())
+    }
 }

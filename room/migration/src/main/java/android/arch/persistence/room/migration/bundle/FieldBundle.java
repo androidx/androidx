@@ -34,11 +34,14 @@ public class FieldBundle {
     private String mColumnName;
     @SerializedName("affinity")
     private String mAffinity;
+    @SerializedName("notNull")
+    private boolean mNonNull;
 
-    public FieldBundle(String fieldPath, String columnName, String affinity) {
+    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull) {
         mFieldPath = fieldPath;
         mColumnName = columnName;
         mAffinity = affinity;
+        mNonNull = nonNull;
     }
 
     public String getFieldPath() {
@@ -51,5 +54,9 @@ public class FieldBundle {
 
     public String getAffinity() {
         return mAffinity;
+    }
+
+    public boolean isNonNull() {
+        return mNonNull;
     }
 }

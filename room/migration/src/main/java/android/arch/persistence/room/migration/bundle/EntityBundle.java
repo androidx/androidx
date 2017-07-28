@@ -166,7 +166,7 @@ public class EntityBundle {
     }
 
     /**
-     * @return Creates the list of SQL queries that are necessary to create this entitiy.
+     * @return Creates the list of SQL queries that are necessary to create this entity.
      */
     public Collection<String> buildCreateQueries() {
         List<String> result = new ArrayList<>();
