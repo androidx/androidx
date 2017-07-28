@@ -89,6 +89,10 @@
             android:name="android.support.design.widget.AppBarWithScrollbarsActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
 
+        <activity
+            android:name="android.support.design.widget.AppBarHorizontalScrollingActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
     </application>
 
 </manifest>
