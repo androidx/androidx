@@ -16,6 +16,12 @@
 
 apply plugin: 'com.android.application'
 
+dependencies {
+    implementation project(':design')
+    implementation project(':appcompat-v7')
+    implementation project(':support-content')
+}
+
 android {
     compileSdkVersion project.ext.currentSdk
 
@@ -29,12 +35,4 @@ android {
         abortOnError true
         check 'NewApi'
     }
-
 }
-
-dependencies {
-    compile project(':design')
-    compile project(':appcompat-v7')
-    compile project(':support-content')
-}
-
