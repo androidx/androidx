@@ -38,17 +38,18 @@ import java.util.Objects;
 /**
  * Maintains and draws a drawable inside rounded rectangular bounds.
  *
- * The drawable set by the {@link #setDrawable(Drawable)} method will be drawn within the rounded
+ * <p>The drawable set by the {@link #setDrawable(Drawable)} method will be drawn within the rounded
  * bounds specified by {@link #setBounds(Rect)} and {@link #setRadius(int)} when the
  * {@link #draw(Canvas)} method is called.
  *
- * By default, RoundedDrawable will apply padding to the drawable inside to fit the drawable into
+ * <p>By default, RoundedDrawable will apply padding to the drawable inside to fit the drawable into
  * the rounded rectangle. If clipping is enabled by the {@link #setClipEnabled(boolean)} method, it
  * will clip the drawable to a rounded rectangle instead of resizing it.
  *
- * The {@link #setRadius(int)} method is used to specify the amount of border radius applied to the
- * corners of inner drawable, regardless of whether or not the clipping is enabled, border radius
- * will be applied to prevent overflowing of the drawable from specified rounded rectangular area.
+ * <p>The {@link #setRadius(int)} method is used to specify the amount of border radius applied to
+ * the corners of inner drawable, regardless of whether or not the clipping is enabled, border
+ * radius will be applied to prevent overflowing of the drawable from specified rounded rectangular
+ * area.
  */
 @TargetApi(Build.VERSION_CODES.N)
 public class RoundedDrawable extends Drawable {
