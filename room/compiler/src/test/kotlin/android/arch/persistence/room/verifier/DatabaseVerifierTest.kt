@@ -36,6 +36,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import simpleRun
 import java.sql.Connection
@@ -203,8 +204,10 @@ class DatabaseVerifierTest {
     }
 
     private fun field(name: String, type: TypeMirror, affinity: SQLTypeAffinity): Field {
+        val element = mock(Element::class.java)
+        doReturn(type).`when`(element).asType()
         val f = Field(
-                element = mock(Element::class.java),
+                element = element,
                 name = name,
                 type = type,
                 columnName = name,

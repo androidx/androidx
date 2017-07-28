@@ -2,26 +2,29 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4ea44fe58127a3ea1d2b0d9f6155e91d",
+    "identityHash": "64fa560604c57044726b190dadbd8258",
     "entities": [
       {
         "tableName": "Book",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` TEXT, `title` TEXT, `bookPublisherId` TEXT, PRIMARY KEY(`bookId`), FOREIGN KEY(`bookPublisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` TEXT NOT NULL, `title` TEXT NOT NULL, `bookPublisherId` TEXT NOT NULL, PRIMARY KEY(`bookId`), FOREIGN KEY(`bookPublisherId`) REFERENCES `Publisher`(`publisherId`) ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "bookId",
             "columnName": "bookId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "title",
             "columnName": "title",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "bookPublisherId",
             "columnName": "bookPublisherId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -47,17 +50,19 @@
       },
       {
         "tableName": "Author",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authorId` TEXT, `name` TEXT, PRIMARY KEY(`authorId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authorId` TEXT NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`authorId`))",
         "fields": [
           {
             "fieldPath": "authorId",
             "columnName": "authorId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -71,17 +76,19 @@
       },
       {
         "tableName": "Publisher",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publisherId` TEXT, `name` TEXT, PRIMARY KEY(`publisherId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publisherId` TEXT NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`publisherId`))",
         "fields": [
           {
             "fieldPath": "publisherId",
             "columnName": "publisherId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "name",
             "columnName": "name",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -95,17 +102,19 @@
       },
       {
         "tableName": "BookAuthor",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` TEXT, `authorId` TEXT, PRIMARY KEY(`bookId`, `authorId`), FOREIGN KEY(`bookId`) REFERENCES `Book`(`bookId`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`authorId`) REFERENCES `Author`(`authorId`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookId` TEXT NOT NULL, `authorId` TEXT NOT NULL, PRIMARY KEY(`bookId`, `authorId`), FOREIGN KEY(`bookId`) REFERENCES `Book`(`bookId`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`authorId`) REFERENCES `Author`(`authorId`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "bookId",
             "columnName": "bookId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "authorId",
             "columnName": "authorId",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -144,7 +153,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4ea44fe58127a3ea1d2b0d9f6155e91d\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"64fa560604c57044726b190dadbd8258\")"
     ]
   }
 }

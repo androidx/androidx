@@ -150,13 +150,15 @@ public class TableInfo {
             if (cursor.getColumnCount() > 0) {
                 int nameIndex = cursor.getColumnIndex("name");
                 int typeIndex = cursor.getColumnIndex("type");
+                int notNullIndex = cursor.getColumnIndex("notnull");
                 int pkIndex = cursor.getColumnIndex("pk");
 
                 while (cursor.moveToNext()) {
                     final String name = cursor.getString(nameIndex);
                     final String type = cursor.getString(typeIndex);
+                    final boolean notNull = 0 != cursor.getInt(notNullIndex);
                     final int primaryKeyPosition = cursor.getInt(pkIndex);
-                    columns.put(name, new Column(name, type, primaryKeyPosition));
+                    columns.put(name, new Column(name, type, notNull, primaryKeyPosition));
                 }
             }
         } finally {
@@ -209,6 +211,10 @@ public class TableInfo {
          */
         public final String type;
         /**
+         * Whether or not the column can be NULL.
+         */
+        public final boolean notNull;
+        /**
          * The position of the column in the list of primary keys, 0 if the column is not part
          * of the primary key.
          * <p>
@@ -224,9 +230,10 @@ public class TableInfo {
         public final int primaryKeyPosition;
 
         // if you change this constructor, you must change TableInfoWriter.kt
-        public Column(String name, String type, int primaryKeyPosition) {
+        public Column(String name, String type, boolean notNull, int primaryKeyPosition) {
             this.name = name;
             this.type = type;
+            this.notNull = notNull;
             this.primaryKeyPosition = primaryKeyPosition;
         }
 
@@ -242,8 +249,9 @@ public class TableInfo {
                 if (isPrimaryKey() != column.isPrimaryKey()) return false;
             }
 
-            //noinspection SimplifiableIfStatement
             if (!name.equals(column.name)) return false;
+            //noinspection SimplifiableIfStatement
+            if (notNull != column.notNull) return false;
             return type != null ? type.equalsIgnoreCase(column.type) : column.type == null;
         }
 
@@ -260,6 +268,7 @@ public class TableInfo {
         public int hashCode() {
             int result = name.hashCode();
             result = 31 * result + (type != null ? type.hashCode() : 0);
+            result = 31 * result + (notNull ? 1231 : 1237);
             result = 31 * result + primaryKeyPosition;
             return result;
         }
@@ -269,6 +278,7 @@ public class TableInfo {
             return "Column{"
                     + "name='" + name + '\''
                     + ", type='" + type + '\''
+                    + ", notNull=" + notNull
                     + ", primaryKeyPosition=" + primaryKeyPosition
                     + '}';
         }

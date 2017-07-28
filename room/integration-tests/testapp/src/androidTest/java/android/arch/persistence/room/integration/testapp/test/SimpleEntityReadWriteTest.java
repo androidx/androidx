@@ -17,11 +17,13 @@
 package android.arch.persistence.room.integration.testapp.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,10 +31,12 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.dao.BlobEntityDao;
 import android.arch.persistence.room.integration.testapp.dao.PetDao;
+import android.arch.persistence.room.integration.testapp.dao.ProductDao;
 import android.arch.persistence.room.integration.testapp.dao.UserDao;
 import android.arch.persistence.room.integration.testapp.dao.UserPetDao;
 import android.arch.persistence.room.integration.testapp.vo.BlobEntity;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
+import android.arch.persistence.room.integration.testapp.vo.Product;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.content.Context;
@@ -63,6 +67,7 @@ public class SimpleEntityReadWriteTest {
     private BlobEntityDao mBlobEntityDao;
     private PetDao mPetDao;
     private UserPetDao mUserPetDao;
+    private ProductDao mProductDao;
 
     @Before
     public void createDb() {
@@ -72,6 +77,7 @@ public class SimpleEntityReadWriteTest {
         mPetDao = db.getPetDao();
         mUserPetDao = db.getUserPetDao();
         mBlobEntityDao = db.getBlobEntityDao();
+        mProductDao = db.getProductDao();
     }
 
     @Test
@@ -81,6 +87,20 @@ public class SimpleEntityReadWriteTest {
         mUserDao.insert(user);
         List<User> byName = mUserDao.findUsersByName("george");
         assertThat(byName.get(0), equalTo(user));
+    }
+
+    @Test
+    public void insertNull() throws Exception {
+        @SuppressWarnings("ConstantConditions")
+        Product product = new Product(1, null);
+        Throwable throwable = null;
+        try {
+            mProductDao.insert(product);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertNotNull("Was expecting an exception", throwable);
+        assertThat(throwable, instanceOf(SQLiteConstraintException.class));
     }
 
     @Test
