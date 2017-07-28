@@ -1033,7 +1033,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // bail out if layout is frozen
         setLayoutFrozen(false);
         setAdapterInternal(adapter, true, removeAndRecycleExistingViews);
-        setDataSetChangedAfterLayout();
         requestLayout();
     }
     /**
@@ -1102,7 +1101,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
         mState.mStructureChanged = true;
-        markKnownViewsInvalid();
+        setDataSetChangedAfterLayout();
     }
 
     /**
@@ -4255,8 +4254,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     /**
      * Call this method to signal that *all* adapter content has changed (generally, because of
-     * swapAdapter, or notifyDataSetChanged), and that once layout occurs, all attached items should
-     * be discarded or animated.
+     * setAdapter, swapAdapter, or notifyDataSetChanged), and that once layout occurs, all
+     * attached items should be discarded or animated.
      *
      * Attached items are labeled as invalid, and all cached items are discarded.
      *
