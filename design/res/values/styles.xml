@@ -115,7 +115,6 @@
     </style>
 
     <style name="Widget.Design.AppBarLayout" parent="Base.Widget.Design.AppBarLayout">
-        <item name="android:paddingLeft">300px</item>
     </style>
 
     <style name="Widget.Design.CoordinatorLayout" parent="android:Widget">
