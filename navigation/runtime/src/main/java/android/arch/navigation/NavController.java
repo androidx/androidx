@@ -56,6 +56,11 @@ public class NavController implements NavigatorProvider {
     private static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
     private static final String KEY_DEEP_LINK_EXTRAS =
             "android-support-nav:controller:deepLinkExtras";
+    /**
+     * The {@link Intent} that triggered a deep link to the current destination.
+     */
+    public static final String KEY_DEEP_LINK_INTENT =
+            "android-support-nav:controller:deepLinkIntent";
 
     private Context mContext;
     private Activity mActivity;
@@ -452,7 +457,12 @@ public class NavController implements NavigatorProvider {
                 while (!mBackStack.isEmpty()) {
                     mBackStack.peekLast().getNavigator().popBackStack();
                 }
-                node.navigate(extras.getBundle(KEY_DEEP_LINK_EXTRAS), null);
+                Bundle bundle = extras.getBundle(KEY_DEEP_LINK_EXTRAS);
+                if (bundle == null) {
+                    bundle = new Bundle();
+                }
+                bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
+                node.navigate(bundle, null);
             }
         }
         return true;
