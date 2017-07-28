@@ -56,8 +56,8 @@ public class TableInfoTest {
                         + "name TEXT)");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", 1),
-                        new TableInfo.Column("name", "TEXT", 0)),
+                toMap(new TableInfo.Column("id", "INTEGER", false, 1),
+                        new TableInfo.Column("name", "TEXT", false, 0)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -68,8 +68,8 @@ public class TableInfoTest {
                         + "name TEXT, PRIMARY KEY(name, id))");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", 2),
-                        new TableInfo.Column("name", "TEXT", 1)),
+                toMap(new TableInfo.Column("id", "INTEGER", false, 2),
+                        new TableInfo.Column("name", "TEXT", false, 1)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -81,9 +81,9 @@ public class TableInfoTest {
         mDb.execSQL("ALTER TABLE foo ADD COLUMN added REAL;");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", 0),
-                        new TableInfo.Column("name", "TEXT", 1),
-                        new TableInfo.Column("added", "REAL", 0)),
+                toMap(new TableInfo.Column("id", "INTEGER", false, 0),
+                        new TableInfo.Column("name", "TEXT", false, 1),
+                        new TableInfo.Column("added", "REAL", false, 0)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -93,7 +93,7 @@ public class TableInfoTest {
                 "CREATE TABLE foo (name TEXT NOT NULL)");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("name", "TEXT", 0)),
+                toMap(new TableInfo.Column("name", "TEXT", true, 0)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -104,7 +104,7 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("name", "TEXT", 0)),
+                toMap(new TableInfo.Column("name", "TEXT", false, 0)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -175,7 +175,7 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("n", "INTEGER", 0)),
+                toMap(new TableInfo.Column("n", "INTEGER", false, 0)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 

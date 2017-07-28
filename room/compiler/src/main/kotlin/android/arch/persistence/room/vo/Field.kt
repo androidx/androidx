@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room.vo
 
+import android.arch.persistence.room.ext.isNonNull
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.migration.bundle.FieldBundle
 import android.arch.persistence.room.parser.SQLTypeAffinity
@@ -40,6 +41,9 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
     // reads this field from a cursor column
     var cursorValueReader: CursorValueReader? = null
     val typeName: TypeName by lazy { type.typeName() }
+
+    /** Whether the table column for this field should be NOT NULL */
+    val nonNull = element.isNonNull() && (parent == null || parent.isNonNullRecursively())
 
     /**
      * Used when reporting errors on duplicate names
@@ -106,15 +110,17 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
      * definition to be used in create query
      */
     fun databaseDefinition(autoIncrementPKey : Boolean) : String {
-        val columnSpec = if (autoIncrementPKey) {
-            " PRIMARY KEY AUTOINCREMENT"
-        } else {
-            ""
+        val columnSpec = StringBuilder("")
+        if (autoIncrementPKey) {
+            columnSpec.append(" PRIMARY KEY AUTOINCREMENT")
+        }
+        if (nonNull) {
+            columnSpec.append(" NOT NULL")
         }
         return "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}$columnSpec"
     }
 
     fun toBundle(): FieldBundle = FieldBundle(pathWithDotNotation, columnName,
-            affinity?.name ?: SQLTypeAffinity.TEXT.name
+            affinity?.name ?: SQLTypeAffinity.TEXT.name, nonNull
     )
 }
