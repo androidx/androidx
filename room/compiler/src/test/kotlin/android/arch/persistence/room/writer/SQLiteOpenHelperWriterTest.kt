@@ -63,7 +63,8 @@ class SQLiteOpenHelperWriterTest {
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` TEXT, `name` TEXT, `age` INTEGER, PRIMARY KEY(`uuid`))"))
+                    " `MyEntity` (`uuid` TEXT, `name` TEXT, `age` INTEGER NOT NULL," +
+                    " PRIMARY KEY(`uuid`))"))
         }.compilesWithoutError()
     }
 
@@ -79,7 +80,7 @@ class SQLiteOpenHelperWriterTest {
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` TEXT, `name` TEXT, `age` INTEGER," +
+                    " `MyEntity` (`uuid` TEXT, `name` TEXT, `age` INTEGER NOT NULL," +
                     " PRIMARY KEY(`uuid`, `name`))"))
         }.compilesWithoutError()
     }
@@ -97,8 +98,8 @@ class SQLiteOpenHelperWriterTest {
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    " `name` TEXT, `age` INTEGER)"))
+                    " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    " `name` TEXT, `age` INTEGER NOT NULL)"))
         }.compilesWithoutError()
     }
 

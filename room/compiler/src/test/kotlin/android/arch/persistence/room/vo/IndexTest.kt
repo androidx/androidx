@@ -17,14 +17,12 @@
 package android.arch.persistence.room.vo
 
 import android.arch.persistence.room.parser.SQLTypeAffinity
+import mockElementAndType
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.mock
-import javax.lang.model.element.Element
-import javax.lang.model.type.TypeMirror
 
 @RunWith(JUnit4::class)
 class IndexTest {
@@ -45,11 +43,12 @@ class IndexTest {
     }
 
     private fun mockField(columnName : String): Field {
+        val (element, type) = mockElementAndType()
         return Field(
-                element = mock(Element::class.java),
+                element = element,
                 name = columnName + "_field",
                 affinity = SQLTypeAffinity.TEXT,
-                type = mock(TypeMirror::class.java),
+                type = type,
                 columnName = columnName
         )
     }
