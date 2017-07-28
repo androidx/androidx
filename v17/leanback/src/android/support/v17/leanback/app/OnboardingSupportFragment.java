@@ -596,6 +596,9 @@ abstract public class OnboardingSupportFragment extends Fragment {
 
     boolean startLogoAnimation() {
         final Context context = getContext();
+        if (context == null) {
+            return false;
+        }
         Animator animator = null;
         if (mLogoResourceId != 0) {
             mLogoView.setVisibility(View.VISIBLE);
@@ -716,12 +719,15 @@ abstract public class OnboardingSupportFragment extends Fragment {
      *                          been done in the past, {@code false} otherwise
      */
     protected final void startEnterAnimation(boolean force) {
+        final Context context = getContext();
+        if (context == null) {
+            return;
+        }
         hideLogoView();
         if (mEnterAnimationFinished && !force) {
             return;
         }
         List<Animator> animators = new ArrayList<>();
-        final Context context = getContext();
         Animator animator = AnimatorInflater.loadAnimator(context,
                 R.animator.lb_onboarding_page_indicator_enter);
         animator.setTarget(getPageCount() <= 1 ? mStartButton : mPageIndicator);
