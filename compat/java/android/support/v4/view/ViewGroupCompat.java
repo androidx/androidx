@@ -19,6 +19,7 @@ package android.support.v4.view;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.compat.R;
 import android.support.v4.view.ViewCompat.ScrollAxis;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,10 +56,14 @@ public final class ViewGroupCompat {
         }
 
         public void setTransitionGroup(ViewGroup group, boolean isTransitionGroup) {
+            group.setTag(R.id.tag_transition_group, isTransitionGroup);
         }
 
         public boolean isTransitionGroup(ViewGroup group) {
-            return false;
+            Boolean explicit = (Boolean) group.getTag(R.id.tag_transition_group);
+            return (explicit != null && explicit)
+                    || group.getBackground() != null
+                    || ViewCompat.getTransitionName(group) != null;
         }
 
         public int getNestedScrollAxes(ViewGroup group) {

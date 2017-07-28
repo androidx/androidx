@@ -4,6 +4,7 @@ dependencies {
     api project(':support-compat')
     api project(':support-core-ui')
     api project(':support-core-utils')
+    api project(':support-annotations')
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
