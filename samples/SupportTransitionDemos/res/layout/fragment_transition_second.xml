@@ -14,11 +14,26 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources>
-    <item type="id" name="title"/>
-    <item type="id" name="text"/>
-    <item type="id" name="text2"/>
-    <item type="id" name="line1"/>
-    <item type="id" name="line3"/>
-    <item name="tag_transition_group" type="id"/>
-</resources>
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/red"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="end|center_vertical"
+        android:background="#f00"/>
+
+    <View
+        android:id="@+id/blue"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="end|bottom"
+        android:background="#00f"/>
+
+</FrameLayout>
