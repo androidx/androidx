@@ -214,6 +214,8 @@ public class SearchBar extends RelativeLayout {
                 if (DEBUG) Log.v(TAG, "EditText.onFocusChange " + hasFocus);
                 if (hasFocus) {
                     showNativeKeyboard();
+                } else {
+                    hideNativeKeyboard();
                 }
                 updateUi(hasFocus);
             }
