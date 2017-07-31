@@ -19,6 +19,7 @@ package com.example.android.support.content.demos;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.content.ContentPager;
 import android.support.content.ContentPager.ContentCallback;
 import android.support.content.LoaderQueryRunner;
@@ -33,6 +34,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.Locale;
 
 /**
  * ContentPager demo activity.
@@ -160,8 +163,9 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
         }
 
         void loadPage(int page) {
-            assert page >= 0;
-            assert page <= (UnpagedDemoDataProvider.TOTAL_SIZE / PAGE_SIZE) - 1;
+            if (page < 0 || page >= (UnpagedDemoDataProvider.TOTAL_SIZE / PAGE_SIZE)) {
+                throw new IndexOutOfBoundsException();
+            }
 
             mCurrentPage = page;
             int offset = mCurrentPage * mPageSize;
@@ -180,7 +184,7 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
                 return;
             }
 
-            holder.view.setText(String.format(
+            holder.view.setText(String.format(Locale.US,
                     "%d.%d (%d): %s",
                     mCurrentPage,
                     mCursor.getInt(0),
@@ -194,7 +198,7 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onCursorReady(Query query, Cursor cursor) {
+        public void onCursorReady(@NonNull Query query, Cursor cursor) {
             if (cursor == null) {
                 msg("Content query returned a null cursor: " + query.getUri());
             }
