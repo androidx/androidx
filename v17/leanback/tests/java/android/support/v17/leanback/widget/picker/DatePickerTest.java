@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package android.support.v17.leanback.widget;
+package android.support.v17.leanback.widget.picker;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -27,15 +28,18 @@ import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v17.leanback.test.R;
-import android.support.v17.leanback.widget.picker.DatePicker;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
+import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -55,9 +59,13 @@ public class DatePickerTest {
             new ActivityTestRule<>(DatePickerActivity.class, false, false);
     private DatePickerActivity mActivity;
 
+    @Before
+    public void setUp() throws Exception {
+        mContext = InstrumentationRegistry.getTargetContext();
+    }
+
     public void initActivity(Intent intent) throws Throwable {
         mActivity = mActivityTestRule.launchActivity(intent);
-        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         mDatePickerView = (DatePicker) mActivity.findViewById(R.id.date_picker);
         mDatePickerInnerView = (ViewGroup) mDatePickerView.findViewById(R.id.picker);
         mDatePickerView.setActivatedVisibleItemCount(3);
@@ -373,6 +381,86 @@ public class DatePickerTest {
                         + " alpha", alphaNonZeroRowsCount, is(1));
             }
         }
+    }
+
+    @Test
+    public void testExtractSeparatorsForDifferentLocales() throws Throwable {
+        // date pattern for en_US (English)
+        DatePicker datePicker = new DatePicker(mContext, null) {
+            @Override
+            String getBestYearMonthDayPattern(String datePickerFormat) {
+                return "M/d/y";
+            }
+        };
+        List<CharSequence> actualSeparators = datePicker.extractSeparators();
+        List<String> expectedSeparators = Arrays.asList(new String[]{"", "/", "/", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // date pattern for fa_IR (Farsi)
+        datePicker = new DatePicker(mContext, null) {
+            @Override
+            String getBestYearMonthDayPattern(String datePickerFormat) {
+                return "y/M/d";
+            }
+        };
+        actualSeparators = datePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[]{"", "/", "/", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // date pattern for ar_EG (Arabic)
+        datePicker = new DatePicker(mContext, null) {
+            @Override
+            String getBestYearMonthDayPattern(String datePickerFormat) {
+                return "d/M/y";
+            }
+        };
+        actualSeparators = datePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[]{"", "/", "/", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // date pattern for cs_CZ (Czech)
+        datePicker = new DatePicker(mContext, null) {
+            @Override
+            String getBestYearMonthDayPattern(String datePickerFormat) {
+                return "d. M. y";
+            }
+        };
+        actualSeparators = datePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[]{"", ".", ".", ""});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // date pattern for hr_HR (Croatian)
+        datePicker = new DatePicker(mContext, null) {
+            @Override
+            String getBestYearMonthDayPattern(String datePickerFormat) {
+                return "dd. MM. y.";
+            }
+        };
+        actualSeparators = datePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[]{"", ".", ".", "."});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // date pattern for hr_HR (Bulgarian)
+        datePicker = new DatePicker(mContext, null) {
+            @Override
+            String getBestYearMonthDayPattern(String datePickerFormat) {
+                return "d.MM.y 'r'.";
+            }
+        };
+        actualSeparators = datePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[]{"", ".", ".", "r."});
+        assertEquals(expectedSeparators, actualSeparators);
+
+        // date pattern for en_XA (English pseudo-locale)
+        datePicker = new DatePicker(mContext, null) {
+            @Override
+            String getBestYearMonthDayPattern(String datePickerFormat) {
+                return "[M/d/y]";
+            }
+        };
+        actualSeparators = datePicker.extractSeparators();
+        expectedSeparators = Arrays.asList(new String[]{"[", "/", "/", "]"});
+        assertEquals(expectedSeparators, actualSeparators);
     }
 
     private void sendKeys(int ...keys) {

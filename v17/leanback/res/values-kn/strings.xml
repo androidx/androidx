@@ -53,8 +53,6 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"ಮಾಧ್ಯಮ ನಿಯಂತ್ರಣಗಳನ್ನು ಮರೆಮಾಡಲಾಗಿದೆ, ತೋರಿಸಲು d-pad ಒತ್ತಿರಿ"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"ಪೂರ್ಣಗೊಳಿಸು"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"ಮುಂದುವರಿಸು"</string>
-    <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
-    <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"ಮೀಡಿಯಾ ಪ್ಲೇಯರ್ ದೋಷ ಕೋಡ್ %1$d ಹೆಚ್ಚುವರಿ %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ಪ್ರಾರಂಭಿಸಿ"</string>
     <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"ಮುಂದೆ"</string>
