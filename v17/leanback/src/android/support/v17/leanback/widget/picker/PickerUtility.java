@@ -17,7 +17,7 @@
 package android.support.v17.leanback.widget.picker;
 
 import android.content.res.Resources;
-import android.support.v17.leanback.R;
+import android.os.Build;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
@@ -29,11 +29,13 @@ import java.util.Locale;
  */
 class PickerUtility {
 
+    // Whether the API version supports the use of {@link DateFormat#getBestDateTimePattern()}
+    static final boolean SUPPORTS_BEST_DATE_TIME_PATTERN =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
     public static class DateConstant {
         public final Locale locale;
         public final String[] months;
         public final String[] days;
-        public final String dateSeparator;
 
         private DateConstant(Locale locale, Resources resources) {
             this.locale = locale;
@@ -42,7 +44,6 @@ class PickerUtility {
             Calendar calendar = Calendar.getInstance(locale);
             days = createStringIntArrays(calendar.getMinimum(Calendar.DAY_OF_MONTH),
                     calendar.getMaximum(Calendar.DAY_OF_MONTH), "%02d");
-            dateSeparator = resources.getString(R.string.lb_date_separator);
         }
     }
 
@@ -52,7 +53,6 @@ class PickerUtility {
         public final String[] hours24;
         public final String[] minutes;
         public final String[] ampm;
-        public final String timeSeparator;
 
         private TimeConstant(Locale locale, Resources resources) {
             this.locale = locale;
@@ -61,7 +61,6 @@ class PickerUtility {
             hours24 = createStringIntArrays(0, 23, "%02d");
             minutes = createStringIntArrays(0, 59, "%02d");
             ampm = symbols.getAmPmStrings();
-            timeSeparator = resources.getString(R.string.lb_time_separator);
         }
     }
 
