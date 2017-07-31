@@ -655,10 +655,6 @@ package android.support.v4.content {
     field public static final deprecated int FLAG_ACTIVITY_TASK_ON_HOME = 16384; // 0x4000
   }
 
-  public final deprecated class ParallelExecutorCompat {
-    method public static deprecated java.util.concurrent.Executor getParallelExecutor();
-  }
-
   public final class SharedPreferencesCompat {
   }
 
