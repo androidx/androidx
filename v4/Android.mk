@@ -27,7 +27,7 @@ LOCAL_MODULE := android-support-v4
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 # Some projects expect to inherit android-support-annotations from
 # android-support-v4, so we need to keep it static until they can be fixed.
-LOCAL_STATIC_JAVA_LIBRARIES := \
+LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-compat \
     android-support-media-compat \
     android-support-core-utils \

@@ -51,19 +51,13 @@
     <public type="attr" name="itemIconTint"/>
     <public type="attr" name="itemTextAppearance"/>
     <public type="attr" name="itemTextColor"/>
-    <public type="attr" name="keylines"/>
-    <public type="attr" name="layout_anchor"/>
-    <public type="attr" name="layout_anchorGravity"/>
-    <public type="attr" name="layout_behavior"/>
     <public type="attr" name="layout_collapseMode"/>
     <public type="attr" name="layout_collapseParallaxMultiplier"/>
-    <public type="attr" name="layout_keyline"/>
     <public type="attr" name="layout_scrollFlags"/>
     <public type="attr" name="layout_scrollInterpolator"/>
     <public type="attr" name="menu"/>
     <public type="attr" name="pressedTranslationZ"/>
     <public type="attr" name="rippleColor"/>
-    <public type="attr" name="statusBarBackground"/>
     <public type="attr" name="statusBarScrim"/>
     <public type="attr" name="tabBackground"/>
     <public type="attr" name="tabContentStart"/>
