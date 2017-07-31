@@ -1269,8 +1269,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (TRACE) TraceCompat.beginSection("processRowSizeSecondary");
         CircularIntArray[] rows = mGrid == null ? null : mGrid.getItemPositionsInRows();
         boolean changed = false;
-        int scrapChildWidth = -1;
-        int scrapChildHeight = -1;
+        int scrapeChildSize = -1;
 
         for (int rowIndex = 0; rowIndex < mNumRows; rowIndex++) {
             CircularIntArray row = rows == null ? null : rows[rowIndex];
@@ -1281,7 +1280,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 final int rowIndexStart = row.get(rowItemPairIndex);
                 final int rowIndexEnd = row.get(rowItemPairIndex + 1);
                 for (int i = rowIndexStart; i <= rowIndexEnd; i++) {
-                    final View view = findViewByPosition(i);
+                    final View view = findViewByPosition(i - mPositionDeltaInPreLayout);
                     if (view == null) {
                         continue;
                     }
@@ -1299,27 +1298,49 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
             final int itemCount = mState.getItemCount();
             if (!mBaseGridView.hasFixedSize() && measure && rowSize < 0 && itemCount > 0) {
-                if (scrapChildWidth < 0 && scrapChildHeight < 0) {
-                    int position;
-                    if (mFocusPosition == NO_POSITION) {
+                if (scrapeChildSize < 0) {
+                    // measure a child that is close to mFocusPosition but not currently visible
+                    int position = mFocusPosition;
+                    if (position < 0) {
                         position = 0;
-                    } else if (mFocusPosition >= itemCount) {
+                    } else if (position >= itemCount) {
                         position = itemCount - 1;
-                    } else {
-                        position = mFocusPosition;
                     }
-                    measureScrapChild(position,
-                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                            mMeasuredDimension);
-                    scrapChildWidth = mMeasuredDimension[0];
-                    scrapChildHeight = mMeasuredDimension[1];
-                    if (DEBUG) {
-                        Log.v(TAG, "measured scrap child: " + scrapChildWidth + " "
-                                + scrapChildHeight);
+                    if (getChildCount() > 0) {
+                        int firstPos = mBaseGridView.getChildViewHolder(
+                                getChildAt(0)).getLayoutPosition();
+                        int lastPos = mBaseGridView.getChildViewHolder(
+                                getChildAt(getChildCount() - 1)).getLayoutPosition();
+                        // if mFocusPosition is between first and last, choose either
+                        // first - 1 or last + 1
+                        if (position >= firstPos && position <= lastPos) {
+                            position = (position - firstPos <= lastPos - position)
+                                    ? (firstPos - 1) : (lastPos + 1);
+                            // try the other value if the position is invalid. if both values are
+                            // invalid, skip measureScrapChild below.
+                            if (position < 0 && lastPos < itemCount - 1) {
+                                position = lastPos + 1;
+                            } else if (position >= itemCount && firstPos > 0) {
+                                position = firstPos - 1;
+                            }
+                        }
+                    }
+                    if (position >= 0 && position < itemCount) {
+                        measureScrapChild(position,
+                                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                                mMeasuredDimension);
+                        scrapeChildSize = mOrientation == HORIZONTAL ? mMeasuredDimension[0] :
+                                mMeasuredDimension[1];
+                        if (DEBUG) {
+                            Log.v(TAG, "measured scrap child: " + mMeasuredDimension[0] + " "
+                                    + mMeasuredDimension[1]);
+                        }
                     }
                 }
-                rowSize = mOrientation == HORIZONTAL ? scrapChildHeight : scrapChildWidth;
+                if (scrapeChildSize >= 0) {
+                    rowSize = scrapeChildSize;
+                }
             }
             if (rowSize < 0) {
                 rowSize = 0;
@@ -1404,7 +1425,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mRowSizeSecondary = new int[mNumRows];
             }
 
-            // Measure all current children and update cached row heights
+            if (mState.isPreLayout()) {
+                updatePositionDeltaInPreLayout();
+            }
+            // Measure all current children and update cached row height or column width
             processRowSizeSecondary(true);
 
             switch (modeSecondary) {
@@ -2057,6 +2081,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         mPositionToRowInPostLayout.clear();
     }
 
+    // in prelayout, first child's getViewPosition can be smaller than old adapter position
+    // if there were items removed before first visible index. For example:
+    // visible items are 3, 4, 5, 6, deleting 1, 2, 3 from adapter; the view position in
+    // prelayout are not 3(deleted), 4, 5, 6. Instead it's 1(deleted), 2, 3, 4.
+    // So there is a delta (2 in this case) between last cached position and prelayout position.
+    void updatePositionDeltaInPreLayout() {
+        if (getChildCount() > 0) {
+            View view = getChildAt(0);
+            LayoutParams lp = (LayoutParams) view.getLayoutParams();
+            mPositionDeltaInPreLayout = mGrid.getFirstVisibleIndex()
+                    - lp.getViewLayoutPosition();
+        } else {
+            mPositionDeltaInPreLayout = 0;
+        }
+    }
+
     // Lays out items based on the current scroll position
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -2094,6 +2134,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         saveContext(recycler, state);
         if (state.isPreLayout()) {
+            updatePositionDeltaInPreLayout();
             int childCount = getChildCount();
             if (mGrid != null && childCount > 0) {
                 int minChangedEdge = Integer.MAX_VALUE;
@@ -2105,12 +2146,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 for (int i = 0; i < childCount; i++) {
                     View view = getChildAt(i);
                     LayoutParams lp = (LayoutParams) view.getLayoutParams();
-                    if (i == 0) {
-                        // first child's layout position can be smaller than index if there were
-                        // items removed before first visible index.
-                        mPositionDeltaInPreLayout = mGrid.getFirstVisibleIndex()
-                                - lp.getViewLayoutPosition();
-                    }
                     int newAdapterPosition = mBaseGridView.getChildAdapterPosition(view);
                     // if either of following happening
                     // 1. item itself has changed or layout parameter changed
