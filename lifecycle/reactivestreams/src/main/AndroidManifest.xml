@@ -16,4 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.arch.lifecycle.reactivestreams">
+    <application>
+        <meta-data android:name="android.arch.lifecycle.reactivestreams.VERSION"
+                   android:value="${version}" />
+    </application>
 </manifest>

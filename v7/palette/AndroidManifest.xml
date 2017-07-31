@@ -17,6 +17,7 @@
           package="android.support.v7.palette">
     <uses-sdk android:minSdkVersion="14"/>
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.v7.palette.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

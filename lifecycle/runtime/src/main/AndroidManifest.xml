@@ -17,4 +17,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.arch.lifecycle">
+    <application>
+        <meta-data android:name="android.arch.lifecycle.VERSION"
+                   android:value="${version}" />
+    </application>
 </manifest>
