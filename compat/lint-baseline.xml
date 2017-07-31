@@ -1,37 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issues format="4" by="lint 3.0.0-alpha7">
 
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getActiveNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="            final NetworkInfo info = cm.getActiveNetworkInfo();"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/net/ConnectivityManagerCompat.java"
-            line="92"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.isActiveNetworkMetered: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="            return cm.isActiveNetworkMetered();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/net/ConnectivityManagerCompat.java"
-            line="127"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="MissingPermission"
-        message="Missing permissions required by ConnectivityManager.getNetworkInfo: android.permission.ACCESS_NETWORK_STATE"
-        errorLine1="            return cm.getNetworkInfo(info.getType());"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="java/android/support/v4/net/ConnectivityManagerCompat.java"
-            line="180"
-            column="20"/>
-    </issue>
-
 </issues>
