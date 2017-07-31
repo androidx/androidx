@@ -20,13 +20,11 @@
 
     <application android:icon="@drawable/app_sample_code" android:label="SupportWearDemos"
             android:theme="@android:style/Theme.DeviceDefault">
-        <activity android:name="com.example.android.support.wear.app.SimpleWearableRecyclerViewDemo">
-        </activity>
-        <activity android:name="com.example.android.support.wear.app.WearableSwitchDemo">
-        </activity>
-        <activity android:name="com.example.android.support.wear.app.CircularProgressLayoutDemo">
-        </activity>
-        <activity android:name="com.example.android.support.wear.app.MainDemoActivity">
+        <activity android:name=".app.SimpleWearableRecyclerViewDemo" />
+        <activity android:name=".app.WearableSwitchDemo" />
+        <activity android:name=".app.CircularProgressLayoutDemo" />
+        <activity android:name=".app.drawers.WearableDrawersDemo" android:exported="true" />
+        <activity android:name=".app.MainDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
