@@ -920,8 +920,7 @@ public class GridWidgetTest {
 
     void preparePredictiveLayout() throws Throwable {
         Intent intent = new Intent();
-        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
-                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_linear);
         intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
         initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
@@ -1013,6 +1012,50 @@ public class GridWidgetTest {
         waitForItemAnimation();
         assertEquals(0, mGridView.getSelectedPosition());
         assertEquals(RecyclerView.SCROLL_STATE_IDLE, mGridView.getScrollState());
+    }
+
+    @Test
+    public void testPredictiveOnMeasureWrapContent() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear_wrap_content);
+        int count = 50;
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, count);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        waitForScrollIdle(mVerifyLayout);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setHasFixedSize(false);
+            }
+        });
+
+        for (int i = 0; i < 30; i++) {
+            final int oldCount = count;
+            final int newCount = i;
+            mActivityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (oldCount > 0) {
+                        mActivity.removeItems(0, oldCount);
+                    }
+                    if (newCount > 0) {
+                        int[] newItems = new int[newCount];
+                        for (int i = 0; i < newCount; i++) {
+                            newItems[i] = 400;
+                        }
+                        mActivity.addItems(0, newItems);
+                    }
+                }
+            });
+            waitForItemAnimationStart();
+            waitForItemAnimation();
+            count = newCount;
+        }
+
     }
 
     @Test
