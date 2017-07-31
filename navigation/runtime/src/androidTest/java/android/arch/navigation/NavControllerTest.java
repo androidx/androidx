@@ -237,7 +237,7 @@ public class NavControllerTest {
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(1));
+        assertThat(navigator.mBackStack.size(), is(2));
 
         // Test that the deep link Intent was passed through even though we don't pass in any args
         Intent deepLinkIntent = navigator.mBackStack.peekLast().second
@@ -257,7 +257,7 @@ public class NavControllerTest {
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(1));
+        assertThat(navigator.mBackStack.size(), is(2));
         assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
 
         // Test that the deep link Intent was passed in alongside our args
@@ -266,18 +266,6 @@ public class NavControllerTest {
         assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
         //noinspection ConstantConditions
         assertThat(deepLinkIntent.getAction(), is(TEST_DEEP_LINK_ACTION));
-    }
-
-    @Test
-    public void testDeeplinkNavigateUp() throws Throwable {
-        NavigationActivity activity = launchDeepLink(R.xml.nav_deep_link, R.id.deep_link_test,
-                null);
-        NavController navController = activity.getNavController();
-        navController.navigateUp();
-
-        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
-        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
-        assertThat(navigator.mBackStack.size(), is(1));
     }
 
     private NavigationActivity launchActivity() throws Throwable {

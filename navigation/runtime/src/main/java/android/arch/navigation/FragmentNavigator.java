@@ -155,6 +155,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             });
         }
         ft.commit();
+        mFragmentManager.executePendingTransactions();
     }
 
     private StateFragment getState() {

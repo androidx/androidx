@@ -261,16 +261,17 @@ public class NavController implements NavigatorProvider {
     public boolean navigateUp() {
         if (mBackStack.size() == 1) {
             // If there's only one entry, then we've deep linked into a specific destination
-            // so we should build the parent destination to provide the proper Up behavior
+            // on another task so we need to find the parent and start our task from there
             NavDestination currentDestination = getCurrentDestination();
             int destId = currentDestination.getId();
             NavGraph parent = currentDestination.getParent();
             while (parent != null) {
                 if (parent.getStartDestination() != destId) {
-                    navigate(parent.getStartDestination(), null,
-                            new NavOptions.Builder()
-                                    .setClearTask(true)
-                                    .build());
+                    Intent parentIntent = createDeepLinkIntent(parent.getId(), null);
+                    mContext.startActivity(parentIntent);
+                    if (mActivity != null) {
+                        mActivity.finish();
+                    }
                     return true;
                 }
                 destId = parent.getId();
@@ -441,6 +442,28 @@ public class NavController implements NavigatorProvider {
         if (deepLink == null || deepLink.length == 0) {
             return false;
         }
+        Bundle bundle = extras.getBundle(KEY_DEEP_LINK_EXTRAS);
+        if (bundle == null) {
+            bundle = new Bundle();
+        }
+        bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
+        if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
+            // Start with a cleared task starting at our root when we're on our own task
+            mGraph.navigate(bundle, new NavOptions.Builder()
+                    .setClearTask(true).setEnterAnim(0).setExitAnim(0).build());
+            while (mBackStack.size() < deepLink.length) {
+                int destinationId = deepLink[mBackStack.size()];
+                NavDestination node = findDestination(destinationId);
+                if (node == null) {
+                    throw new IllegalStateException("unknown destination during deep link: "
+                            + mContext.getResources().getResourceName(destinationId));
+                }
+                node.navigate(bundle,
+                        new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build());
+            }
+            return true;
+        }
+        // Assume we're on another apps' task and only start the final destination
         NavGraph graph = mGraph;
         for (int i = 0; i < deepLink.length; i++) {
             int destinationId = deepLink[i];
@@ -453,16 +476,9 @@ public class NavController implements NavigatorProvider {
                 // We're not at the final NavDestination yet, so keep going through the chain
                 graph = (NavGraph) node;
             } else {
-                // Clear the back stack, then navigate to the last NavDestination
-                while (!mBackStack.isEmpty()) {
-                    mBackStack.peekLast().getNavigator().popBackStack();
-                }
-                Bundle bundle = extras.getBundle(KEY_DEEP_LINK_EXTRAS);
-                if (bundle == null) {
-                    bundle = new Bundle();
-                }
-                bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
-                node.navigate(bundle, null);
+                // Navigate to the last NavDestination, clearing any existing destinations
+                node.navigate(bundle, new NavOptions.Builder()
+                        .setClearTask(true).setEnterAnim(0).setExitAnim(0).build());
             }
         }
         return true;
