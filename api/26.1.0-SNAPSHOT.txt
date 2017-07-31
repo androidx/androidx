@@ -5609,7 +5609,8 @@ package android.support.v17.leanback.widget.picker {
     method public final int getPickerItemLayoutId();
     method public final int getPickerItemTextViewId();
     method public int getSelectedColumn();
-    method public final java.lang.CharSequence getSeparator();
+    method public final deprecated java.lang.CharSequence getSeparator();
+    method public final java.util.List<java.lang.CharSequence> getSeparators();
     method public float getVisibleItemCount();
     method public void onColumnValueChanged(int, int);
     method public void removeOnValueChangedListener(android.support.v17.leanback.widget.picker.Picker.PickerValueListener);
@@ -5620,6 +5621,7 @@ package android.support.v17.leanback.widget.picker {
     method public final void setPickerItemTextViewId(int);
     method public void setSelectedColumn(int);
     method public final void setSeparator(java.lang.CharSequence);
+    method public final void setSeparators(java.util.List<java.lang.CharSequence>);
     method public void setVisibleItemCount(float);
   }
 

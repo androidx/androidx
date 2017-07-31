@@ -54,8 +54,6 @@ limitations under the License.
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Медиа удирдлага нуугдсан байна, харуулахын тулд d-pad-г дарна уу"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Дуусгах"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Үргэлжлүүлэх"</string>
-    <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
-    <string name="lb_time_separator" msgid="2763247350845477227">":"</string>
     <!-- no translation found for lb_media_player_error (3650250994187305396) -->
     <skip />
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"ЭХЭЛЦГЭЭЕ"</string>
