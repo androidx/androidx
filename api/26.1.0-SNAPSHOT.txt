@@ -7017,10 +7017,6 @@ package android.support.v4.content {
     method public static java.lang.String[] matchesMany(java.lang.String[], java.lang.String);
   }
 
-  public final deprecated class ParallelExecutorCompat {
-    method public static deprecated java.util.concurrent.Executor getParallelExecutor();
-  }
-
   public final class PermissionChecker {
     method public static int checkCallingOrSelfPermission(android.content.Context, java.lang.String);
     method public static int checkCallingPermission(android.content.Context, java.lang.String, java.lang.String);
