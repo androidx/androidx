@@ -12,11 +12,6 @@ dependencies {
     androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation project(':support-testutils')
-
-    testImplementation libs.junit
-    testImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
 }
 
 android {
@@ -39,8 +34,6 @@ android {
                 'res-public'
         ]
         main.resources.srcDir 'src'
-
-        test.java.srcDir 'jvm-tests/src'
     }
 
     buildTypes.all {
