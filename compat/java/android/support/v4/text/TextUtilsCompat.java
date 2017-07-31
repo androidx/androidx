@@ -29,13 +29,7 @@ import java.util.Locale;
  * Backwards compatible version of {@link TextUtils}.
  */
 public final class TextUtilsCompat {
-    /**
-     * @deprecated This was never meant to be public. You can create your own empty {@code Locale}
-     * by calling the constructor with empty strings.
-     */
-    @Deprecated
-    public static final Locale ROOT = new Locale("", "");
-
+    private static final Locale ROOT = new Locale("", "");
     private static final String ARAB_SCRIPT_SUBTAG = "Arab";
     private static final String HEBR_SCRIPT_SUBTAG = "Hebr";
 
@@ -131,7 +125,6 @@ public final class TextUtilsCompat {
                 return ViewCompat.LAYOUT_DIRECTION_LTR;
         }
     }
-
 
     private TextUtilsCompat() {}
 }
