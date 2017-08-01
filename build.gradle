@@ -19,7 +19,6 @@ buildscript {
     apply from: 'buildSrc/repos.gradle'
 
     apply from: 'buildSrc/init.gradle'
-    init.loadDefaultVersions()
     init.setSdkInLocalPropertiesFile()
     repos.addMavenRepositories(repositories)
 
