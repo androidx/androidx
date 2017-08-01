@@ -7,7 +7,9 @@ import android.arch.persistence.room.SharedSQLiteStatement;
 import java.lang.Override;
 import java.lang.String;
 import java.util.List;
+import javax.annotation.Generated;
 
+@Generated("android.arch.persistence.room.RoomProcessor")
 public class UpdateDao_Impl implements UpdateDao {
   private final RoomDatabase __db;
 

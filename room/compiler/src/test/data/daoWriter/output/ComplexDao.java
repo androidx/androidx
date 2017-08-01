@@ -15,7 +15,9 @@ import java.lang.StringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Generated;
 
+@Generated("android.arch.persistence.room.RoomProcessor")
 public class ComplexDao_Impl extends ComplexDao {
     private final RoomDatabase __db;
 
