@@ -19,7 +19,6 @@ package android.support.v4.view.accessibility;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityRecord;
@@ -30,69 +29,6 @@ import java.util.List;
  * Helper for accessing {@link AccessibilityRecord}.
  */
 public class AccessibilityRecordCompat {
-
-    static class AccessibilityRecordCompatBaseImpl {
-        public int getMaxScrollX(AccessibilityRecord record) {
-            return 0;
-        }
-
-        public int getMaxScrollY(AccessibilityRecord record) {
-            return 0;
-        }
-
-        public void setMaxScrollX(AccessibilityRecord record, int maxScrollX) {
-        }
-
-        public void setMaxScrollY(AccessibilityRecord record, int maxScrollY) {
-        }
-
-        public void setSource(AccessibilityRecord record, View root, int virtualDescendantId) {
-        }
-    }
-
-    @RequiresApi(15)
-    static class AccessibilityRecordCompatApi15Impl extends AccessibilityRecordCompatBaseImpl {
-        @Override
-        public int getMaxScrollX(AccessibilityRecord record) {
-            return record.getMaxScrollX();
-        }
-
-        @Override
-        public int getMaxScrollY(AccessibilityRecord record) {
-            return record.getMaxScrollY();
-        }
-
-        @Override
-        public void setMaxScrollX(AccessibilityRecord record, int maxScrollX) {
-            record.setMaxScrollX(maxScrollX);
-        }
-
-        @Override
-        public void setMaxScrollY(AccessibilityRecord record, int maxScrollY) {
-            record.setMaxScrollY(maxScrollY);
-        }
-    }
-
-    @RequiresApi(16)
-    static class AccessibilityRecordCompatApi16Impl extends AccessibilityRecordCompatApi15Impl {
-        @Override
-        public void setSource(AccessibilityRecord record, View root, int virtualDescendantId) {
-            record.setSource(root, virtualDescendantId);
-        }
-    }
-
-    static {
-        if (Build.VERSION.SDK_INT >= 16) { // JellyBean
-            IMPL = new AccessibilityRecordCompatApi16Impl();
-        } else if (Build.VERSION.SDK_INT >= 15) {  // ICS MR1
-            IMPL = new AccessibilityRecordCompatApi15Impl();
-        } else {
-            IMPL = new AccessibilityRecordCompatBaseImpl();
-        }
-    }
-
-    private static final AccessibilityRecordCompatBaseImpl IMPL;
-
     private final AccessibilityRecord mRecord;
 
     /**
@@ -197,7 +133,9 @@ public class AccessibilityRecordCompat {
      */
     public static void setSource(@NonNull AccessibilityRecord record, View root,
             int virtualDescendantId) {
-        IMPL.setSource(record, root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 16) {
+            record.setSource(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -538,7 +476,11 @@ public class AccessibilityRecordCompat {
      * @return The max scroll.
      */
     public static int getMaxScrollX(AccessibilityRecord record) {
-        return IMPL.getMaxScrollX(record);
+        if (Build.VERSION.SDK_INT >= 15) {
+            return record.getMaxScrollX();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -560,7 +502,9 @@ public class AccessibilityRecordCompat {
      * @param maxScrollX The max scroll.
      */
     public static void setMaxScrollX(AccessibilityRecord record, int maxScrollX) {
-        IMPL.setMaxScrollX(record, maxScrollX);
+        if (Build.VERSION.SDK_INT >= 15) {
+            record.setMaxScrollX(maxScrollX);
+        }
     }
 
     /**
@@ -582,7 +526,11 @@ public class AccessibilityRecordCompat {
      * @return The max scroll.
      */
     public static int getMaxScrollY(AccessibilityRecord record) {
-        return IMPL.getMaxScrollY(record);
+        if (Build.VERSION.SDK_INT >= 15) {
+            return record.getMaxScrollY();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -604,7 +552,9 @@ public class AccessibilityRecordCompat {
      * @param maxScrollY The max scroll.
      */
     public static void setMaxScrollY(AccessibilityRecord record, int maxScrollY) {
-        IMPL.setMaxScrollY(record, maxScrollY);
+        if (Build.VERSION.SDK_INT >= 15) {
+            record.setMaxScrollY(maxScrollY);
+        }
     }
 
     /**
