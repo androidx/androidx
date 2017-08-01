@@ -65,7 +65,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void foo();
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(0))
             assertThat(insertion.returnType.typeName(), `is`(TypeName.VOID))
@@ -80,7 +80,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public long foo(User user);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -98,7 +98,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void foo(NotAnEntity notValid);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -115,7 +115,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void foo(User u1, User u2);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
 
             assertThat(insertion.parameters.size, `is`(2))
@@ -137,7 +137,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public List<Long> insertUsers(List<User> users);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -160,7 +160,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void insertUsers(User[] users);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -178,7 +178,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void insertUsers(Set<User> users);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -197,7 +197,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void insertUsers(Queue<User> users);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -215,7 +215,7 @@ class InsertionMethodProcessorTest {
         singleInsertMethod("""
                 @Insert
                 abstract public void insert(Iterable<User> users);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("insert"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -233,7 +233,7 @@ class InsertionMethodProcessorTest {
                 static class MyList<Irrelevant, Item> extends ArrayList<Item> {}
                 @Insert
                 abstract public void insert(MyList<String, User> users);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.name, `is`("insert"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -252,7 +252,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void foo(User u1, Book b1);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.parameters.size, `is`(2))
             assertThat(insertion.parameters[0].type.typeName().toString(),
                     `is`("foo.bar.User"))
@@ -272,7 +272,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public void foo(User user);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.onConflict, `is`(OnConflictStrategy.ABORT))
         }.compilesWithoutError()
     }
@@ -283,7 +283,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert(onConflict = -1)
                 abstract public void foo(User user);
-                """) { insertion, invocation ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
     }
 
@@ -300,7 +300,7 @@ class InsertionMethodProcessorTest {
                     """
                 @Insert(onConflict=OnConflictStrategy.${pair.first})
                 abstract public void foo(User user);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
                 assertThat(insertion.onConflict, `is`(pair.second))
             }.compilesWithoutError()
         }
@@ -312,7 +312,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public int foo(User user);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.insertionType, `is`(nullValue()))
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.INVALID_INSERTION_METHOD_RETURN_TYPE)
@@ -324,7 +324,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public long[] foo(User user);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.insertionType, `is`(nullValue()))
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.insertionMethodReturnTypeMismatch(
@@ -338,7 +338,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public long foo(User... user);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.insertionType, `is`(nullValue()))
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.insertionMethodReturnTypeMismatch(
@@ -352,7 +352,7 @@ class InsertionMethodProcessorTest {
                 """
                 @Insert
                 abstract public long foo(User user1, User user2);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
             assertThat(insertion.insertionType, `is`(nullValue()))
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.insertionMethodReturnTypeMismatch(
@@ -379,7 +379,7 @@ class InsertionMethodProcessorTest {
                     """
                 @Insert
                 abstract public ${pair.first} foo(User$dots user);
-                """) { insertion, invocation ->
+                """) { insertion, _ ->
                 assertThat(insertion.insertMethodTypeFor(insertion.parameters.first()),
                         `is`(pair.second))
                 assertThat(pair.toString(), insertion.insertionType, `is`(pair.second))
