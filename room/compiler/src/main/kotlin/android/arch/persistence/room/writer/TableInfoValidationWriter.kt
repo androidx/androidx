@@ -44,7 +44,7 @@ class TableInfoValidationWriter(val entity : Entity) {
 
             addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
                     columnListType, entity.fields.size)
-            entity.fields.forEachIndexed { index, field ->
+            entity.fields.forEach { field ->
                 addStatement("$L.put($S, new $T($S, $S, $L, $L))",
                         columnListVar, field.columnName, RoomTypeNames.TABLE_INFO_COLUMN,
                         /*name*/ field.columnName,

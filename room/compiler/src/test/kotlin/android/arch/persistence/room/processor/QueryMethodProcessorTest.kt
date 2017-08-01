@@ -71,7 +71,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
-        val POJO = ClassName.get("foo.bar", "MyClass.Pojo")
+        val POJO: ClassName = ClassName.get("foo.bar", "MyClass.Pojo")
         @Parameterized.Parameters(name = "enableDbVerification={0}")
         @JvmStatic
         fun getParams() = arrayOf(true, false)
@@ -94,7 +94,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("SELECT * from User")
                 abstract public int[] foo();
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(parsedQuery.returnType.typeName(),
@@ -143,7 +143,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("SELECT uid from User where uid = :id")
                 abstract public long getIdById(int id);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             val section = parsedQuery.query.bindSections.first()
             val param = parsedQuery.parameters.firstOrNull()
             assertThat(section, notNullValue())
@@ -158,7 +158,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("SELECT uid from User where uid = :id")
                 abstract public long getIdById(int id);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             val section = parsedQuery.query.bindSections.first()
             val param = parsedQuery.parameters.firstOrNull()
             assertThat(section, notNullValue())
@@ -174,7 +174,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("SELECT uid from User where uid = :id OR uid = :id")
                 abstract public long getIdById(int id);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             val section = parsedQuery.query.bindSections[0]
             val section2 = parsedQuery.query.bindSections[1]
             val param = parsedQuery.parameters.firstOrNull()
@@ -192,7 +192,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("SELECT uid from User where uid = :id OR uid = :uid")
                 abstract public long getIdById(int id);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             val section = parsedQuery.query.bindSections[0]
             val section2 = parsedQuery.query.bindSections[1]
             val param = parsedQuery.parameters.firstOrNull()
@@ -213,7 +213,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("SELECT uid from User where name = :bar AND uid = :id OR uid = :uid")
                 abstract public long getIdById(int id);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             val bar = parsedQuery.query.bindSections[0]
             val id = parsedQuery.query.bindSections[1]
             val uid = parsedQuery.query.bindSections[2]
@@ -236,7 +236,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("SELECT uid from User where name = :bar")
                 abstract public long getIdById(int bar, int whyNotUseMe);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             val bar = parsedQuery.query.bindSections[0]
             val barParam = parsedQuery.parameters.firstOrNull()
             assertThat(bar, notNullValue())
@@ -254,7 +254,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("select * from User where uid = :_blah")
                 abstract public long getSth(int _blah);
                 """
-        ) { parsedQuery, invocation -> }
+        ) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
     }
@@ -265,7 +265,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("select * from User")
                 abstract public <T> java.util.List<T> foo(int x);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             val expected: TypeName = ParameterizedTypeName.get(ClassName.get(List::class.java),
                     TypeVariableName.get("T"))
             assertThat(parsedQuery.returnType.typeName(), `is`(expected))
@@ -279,7 +279,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("select * from :1 :2")
                 abstract public long foo(int x);
-                """) { parsedQuery, invocation ->
+                """) { _, _ ->
             // do nothing
         }.failsToCompile()
                 .withErrorContaining("UNEXPECTED_CHAR=:")
@@ -296,7 +296,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Dao
                 static abstract class ExtendingModel extends BaseModel<Integer> {
                 }
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             assertThat(parsedQuery.returnType.typeName(),
                     `is`(ClassName.get(Integer::class.java) as TypeName))
         }.compilesWithoutError()
@@ -326,7 +326,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("DELETE from User where uid = :id")
                 abstract public float foo(int id);
-                """) { parsedQuery, invocation ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
         )
@@ -338,7 +338,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("DELETE from User where uid = :id")
                 abstract public int foo(int id);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.INT))
@@ -351,7 +351,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """
                 @Query("DELETE from User where uid = :id")
                 abstract public void foo(int id);
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
             assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
@@ -380,7 +380,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("select name from user where uid = :id")
                 abstract ${LifecyclesTypeNames.LIVE_DATA}<String> nameLiveData(String id);
                 """
-        ) { parsedQuery, invocation ->
+        ) { parsedQuery, _ ->
             assertThat(parsedQuery.returnType.typeName(),
                     `is`(ParameterizedTypeName.get(LifecyclesTypeNames.LIVE_DATA,
                             String::class.typeName()) as TypeName))
@@ -396,7 +396,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("delete from user where uid = :id")
                 abstract ${LifecyclesTypeNames.LIVE_DATA}<Integer> deleteLiveData(String id);
                 """
-        ) { parsedQuery, invocation ->
+        ) { _, _ ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT)
     }
@@ -408,7 +408,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @SkipQueryVerification
                 @Query("SELECT foo from User")
                 abstract public int[] foo();
-                """) { parsedQuery, invocation ->
+                """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
             assertThat(parsedQuery.returnType.typeName(),
@@ -437,7 +437,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         pojoTest("""
                 String name;
                 String lName;
-                """, listOf("name", "lastName as lName")) { adapter, queryMethod, invocation ->
+                """, listOf("name", "lastName as lName")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
             assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
         }?.compilesWithoutError()?.withWarningCount(0)
@@ -448,7 +448,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         pojoTest("""
                 String name;
                 String lastName;
-                """, listOf("name", "lastName")) { adapter, queryMethod, invocation ->
+                """, listOf("name", "lastName")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
             assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
         }?.compilesWithoutError()?.withWarningCount(0)
@@ -462,7 +462,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             int uid;
             @ColumnInfo(name = "ageColumn")
             int age;
-        """, listOf("*")) { adapter, queryMethod, invocation ->
+        """, listOf("*")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
             assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
         }?.compilesWithoutError()?.withWarningCount(0)
@@ -474,7 +474,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             @ColumnInfo(name = "MAX(ageColumn)")
             int maxAge;
             String name;
-            """, listOf("MAX(ageColumn)", "name")) { adapter, queryMethod, invocation ->
+            """, listOf("MAX(ageColumn)", "name")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
             assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
         }?.compilesWithoutError()?.withWarningCount(0)
@@ -485,7 +485,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         pojoTest("""
                 String nameX;
                 String lastNameX;
-                """, listOf("name", "lastName")) { adapter, queryMethod, invocation ->
+                """, listOf("name", "lastName")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("name", "lastName")))
             assertThat(adapter?.mapping?.unusedFields, `is`(adapter?.pojo?.fields))
         }?.failsToCompile()
@@ -510,7 +510,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             @ColumnInfo(name = "MAX(ageColumn)")
             int maxAge;
             String name;
-            """, listOf("MAX(age)", "name")) { adapter, queryMethod, invocation ->
+            """, listOf("MAX(age)", "name")) { _, _, _ ->
         }?.failsToCompile()
                 ?.withErrorContaining("no such column: age")
                 ?.and()
@@ -523,7 +523,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         pojoTest("""
             String name;
             String lastName;
-            """, listOf("uid", "name", "lastName")) { adapter, queryMethod, invocation ->
+            """, listOf("uid", "name", "lastName")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("uid")))
             assertThat(adapter?.mapping?.unusedFields, `is`(emptyList()))
         }?.compilesWithoutError()?.withWarningContaining(
@@ -541,7 +541,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         pojoTest("""
             String name;
             String lastName;
-            """, listOf("lastName")) { adapter, queryMethod, invocation ->
+            """, listOf("lastName")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
             assertThat(adapter?.mapping?.unusedFields, `is`(
                     adapter?.pojo?.fields?.filter { it.name == "name" }
@@ -561,7 +561,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         pojoTest("""
             String name;
             String lastName;
-            """, listOf("uid", "name")) { adapter, queryMethod, invocation ->
+            """, listOf("uid", "name")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("uid")))
             assertThat(adapter?.mapping?.unusedFields, `is`(
                     adapter?.pojo?.fields?.filter { it.name == "lastName" }
