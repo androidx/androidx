@@ -17,7 +17,6 @@
 package android.support.v4.view.accessibility;
 
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityRecord;
 
@@ -25,79 +24,6 @@ import android.view.accessibility.AccessibilityRecord;
  * Helper for accessing features in {@link AccessibilityEvent}.
  */
 public final class AccessibilityEventCompat {
-
-    static class AccessibilityEventCompatBaseImpl {
-        public void setContentChangeTypes(AccessibilityEvent event, int types) {
-        }
-
-        public int getContentChangeTypes(AccessibilityEvent event) {
-            return 0;
-        }
-
-        public void setMovementGranularity(AccessibilityEvent event, int granularity) {
-        }
-
-        public int getMovementGranularity(AccessibilityEvent event) {
-            return 0;
-        }
-
-        public void setAction(AccessibilityEvent event, int action) {
-        }
-
-        public int getAction(AccessibilityEvent event) {
-            return 0;
-        }
-    }
-
-    @RequiresApi(16)
-    static class AccessibilityEventCompatApi16Impl extends AccessibilityEventCompatBaseImpl {
-        @Override
-        public void setMovementGranularity(AccessibilityEvent event, int granularity) {
-            event.setMovementGranularity(granularity);
-        }
-
-        @Override
-        public int getMovementGranularity(AccessibilityEvent event) {
-            return event.getMovementGranularity();
-        }
-
-        @Override
-        public void setAction(AccessibilityEvent event, int action) {
-            event.setAction(action);
-        }
-
-        @Override
-        public int getAction(AccessibilityEvent event) {
-            return event.getAction();
-        }
-    }
-
-    @RequiresApi(19)
-    static class AccessibilityEventCompatApi19Impl extends AccessibilityEventCompatApi16Impl {
-
-        @Override
-        public void setContentChangeTypes(AccessibilityEvent event, int types) {
-            event.setContentChangeTypes(types);
-        }
-
-        @Override
-        public int getContentChangeTypes(AccessibilityEvent event) {
-            return event.getContentChangeTypes();
-        }
-    }
-
-    private static final AccessibilityEventCompatBaseImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 19) { // KitKat
-            IMPL = new AccessibilityEventCompatApi19Impl();
-        } else if (Build.VERSION.SDK_INT >= 16) { // Jellybean
-            IMPL = new AccessibilityEventCompatApi16Impl();
-        } else {
-            IMPL = new AccessibilityEventCompatBaseImpl();
-        }
-    }
-
     /**
      * Represents the event of a hover enter over a {@link android.view.View}.
      * @deprecated Use {@link  AccessibilityEvent#TYPE_VIEW_HOVER_ENTER} directly.
@@ -335,7 +261,9 @@ public final class AccessibilityEventCompat {
      * @see #getContentChangeTypes(AccessibilityEvent)
      */
     public static void setContentChangeTypes(AccessibilityEvent event, int changeTypes) {
-        IMPL.setContentChangeTypes(event, changeTypes);
+        if (Build.VERSION.SDK_INT >= 19) {
+            event.setContentChangeTypes(changeTypes);
+        }
     }
 
     /**
@@ -352,7 +280,11 @@ public final class AccessibilityEventCompat {
      *         </ul>
      */
     public static int getContentChangeTypes(AccessibilityEvent event) {
-        return IMPL.getContentChangeTypes(event);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return event.getContentChangeTypes();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -363,7 +295,9 @@ public final class AccessibilityEventCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setMovementGranularity(AccessibilityEvent event, int granularity) {
-        IMPL.setMovementGranularity(event, granularity);
+        if (Build.VERSION.SDK_INT >= 16) {
+            event.setMovementGranularity(granularity);
+        }
     }
 
     /**
@@ -372,7 +306,11 @@ public final class AccessibilityEventCompat {
      * @return The granularity.
      */
     public int getMovementGranularity(AccessibilityEvent event) {
-        return IMPL.getMovementGranularity(event);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return event.getMovementGranularity();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -393,7 +331,9 @@ public final class AccessibilityEventCompat {
      * @see AccessibilityNodeInfoCompat#performAction(int)
      */
     public void setAction(AccessibilityEvent event, int action) {
-        IMPL.setAction(event, action);
+        if (Build.VERSION.SDK_INT >= 16) {
+            event.setAction(action);
+        }
     }
 
     /**
@@ -402,6 +342,10 @@ public final class AccessibilityEventCompat {
      * @return The action.
      */
     public int getAction(AccessibilityEvent event) {
-        return IMPL.getAction(event);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return event.getAction();
+        } else {
+            return 0;
+        }
     }
 }
