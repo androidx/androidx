@@ -37,7 +37,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 
 /**
- * Helper for accessing features in {@link TextView} in a backwards compatible fashion.
+ * Helper for accessing features in {@link TextView}.
  */
 public final class TextViewCompat {
 

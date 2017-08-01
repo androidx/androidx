@@ -16,7 +16,6 @@
 
 package android.support.v7.media;
 
-import static android.support.v4.utils.ObjectUtils.objectEquals;
 import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
 import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_LIBRARY_GROUP;
 import static android.support.v7.media.MediaRouteProviderProtocol.CLIENT_DATA_UNSELECT_REASON;
@@ -56,12 +55,13 @@ import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.annotation.VisibleForTesting;
+import android.support.v4.util.ObjectsCompat;
 import android.util.Log;
 import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Base class for media route provider services.
@@ -192,7 +192,8 @@ public abstract class MediaRouteProviderService extends Service {
                         MediaRouteProviderDescriptor descriptor = mProvider.getDescriptor();
                         sendReply(messenger, SERVICE_MSG_REGISTERED,
                                 requestId, SERVICE_VERSION_CURRENT,
-                                createDescriptorBundleForClient(descriptor, client), null);
+                                createDescriptorBundleForClientVersion(descriptor,
+                                        client.mVersion), null);
                     }
                     return true;
                 }
@@ -413,32 +414,29 @@ public abstract class MediaRouteProviderService extends Service {
         for (int i = 0; i < count; i++) {
             ClientRecord client = mClients.get(i);
             sendReply(client.mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
-                    createDescriptorBundleForClient(descriptor, client), null);
+                    createDescriptorBundleForClientVersion(descriptor, client.mVersion), null);
             if (DEBUG) {
                 Log.d(TAG, client + ": Sent descriptor change event, descriptor=" + descriptor);
             }
         }
     }
 
-    private Bundle createDescriptorBundleForClient(MediaRouteProviderDescriptor descriptor,
-            ClientRecord client) {
+    @VisibleForTesting
+    static Bundle createDescriptorBundleForClientVersion(MediaRouteProviderDescriptor descriptor,
+            int clientVersion) {
         if (descriptor == null) {
             return null;
         }
-        List<MediaRouteDescriptor> routes = descriptor.getRoutes();
-        for (int i = routes.size() - 1; i >= 0; i--) {
-            if (client.mVersion < routes.get(i).getMinClientVersion()
-                    || client.mVersion > routes.get(i).getMaxClientVersion()) {
-                routes.remove(i);
+        MediaRouteProviderDescriptor.Builder builder =
+                new MediaRouteProviderDescriptor.Builder(descriptor);
+        builder.setRoutes(null);
+        for (MediaRouteDescriptor route : descriptor.getRoutes()) {
+            if (clientVersion >= route.getMinClientVersion()
+                    && clientVersion <= route.getMaxClientVersion()) {
+                builder.addRoute(route);
             }
         }
-
-        // Keep the values of the bundle from descriptor excepts routes values.
-        Bundle bundle = descriptor.asBundle();
-        bundle.remove(MediaRouteProviderDescriptor.KEY_ROUTES);
-        return new MediaRouteProviderDescriptor.Builder(
-                MediaRouteProviderDescriptor.fromBundle(bundle))
-                .addRoutes(routes).build().asBundle();
+        return builder.build().asBundle();
     }
 
     boolean updateCompositeDiscoveryRequest() {
@@ -464,7 +462,7 @@ public abstract class MediaRouteProviderService extends Service {
         if (selectorBuilder != null) {
             composite = new MediaRouteDiscoveryRequest(selectorBuilder.build(), activeScan);
         }
-        if (!objectEquals(mCompositeDiscoveryRequest, composite)) {
+        if (!ObjectsCompat.equals(mCompositeDiscoveryRequest, composite)) {
             mCompositeDiscoveryRequest = composite;
             mProvider.setDiscoveryRequest(composite);
             return true;
@@ -614,7 +612,7 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         public boolean setDiscoveryRequest(MediaRouteDiscoveryRequest request) {
-            if (!objectEquals(mDiscoveryRequest, request)) {
+            if (!ObjectsCompat.equals(mDiscoveryRequest, request)) {
                 mDiscoveryRequest = request;
                 return updateCompositeDiscoveryRequest();
             }

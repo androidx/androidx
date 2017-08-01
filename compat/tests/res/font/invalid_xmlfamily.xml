@@ -1,5 +1,3 @@
-<invalid-tag xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto">
-  <font android:fontStyle="normal" android:fontWeight="400" android:font="@font/samplefont"
-        app:fontStyle="normal" app:fontWeight="400" app:font="@font/samplefont" />
+<invalid-tag xmlns:app="http://schemas.android.com/apk/res-auto">
+  <font app:fontStyle="normal" app:fontWeight="400" app:font="@font/samplefont" />
 </invalid-tag>

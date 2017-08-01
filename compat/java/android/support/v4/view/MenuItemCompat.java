@@ -19,9 +19,9 @@ package android.support.v4.view;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.internal.view.SupportMenuItem;
-import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -29,8 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 /**
- * Helper for accessing features in {@link android.view.MenuItem}
- * introduced after API level 14 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.view.MenuItem}.
  * <p class="note"><strong>Note:</strong> You cannot get an instance of this class. Instead,
  * it provides <em>static</em> methods that correspond to the methods in {@link
  * android.view.MenuItem}, but take a {@link android.view.MenuItem} object as an additional
@@ -274,7 +273,7 @@ public final class MenuItemCompat {
      */
     static final MenuVersionImpl IMPL;
     static {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new MenuItemCompatApi26Impl();
         } else {
             IMPL = new MenuItemCompatBaseImpl();

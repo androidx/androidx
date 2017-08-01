@@ -27,7 +27,6 @@ import android.content.res.Resources.Theme;
 import android.content.res.XmlResourceParser;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
@@ -46,8 +45,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * Helper for accessing features in {@link android.content.res.Resources}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.res.Resources}.
  */
 public final class ResourcesCompat {
     private static final String TAG = "ResourcesCompat";
@@ -195,10 +193,6 @@ public final class ResourcesCompat {
         if (context.isRestricted()) {
             return null;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Use framework support.
-            return context.getResources().getFont(id);
-        }
         return loadFont(context, id, new TypedValue(), Typeface.NORMAL, null);
     }
 
@@ -255,7 +249,7 @@ public final class ResourcesCompat {
                 return TypefaceCompat.createFromResourcesFamilyXml(
                         context, familyEntry, wrapper, id, style, targetView);
             }
-            return TypefaceCompat.createFromResourcesFontFile(context, wrapper, id, style);
+            return TypefaceCompat.createFromResourcesFontFile(context, wrapper, id, file, style);
         } catch (XmlPullParserException e) {
             Log.e(TAG, "Failed to parse xml resource " + file, e);
         } catch (IOException e) {

@@ -25,9 +25,11 @@ import static junit.framework.Assert.fail;
 
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.os.Environment;
 import android.support.exifinterface.test.R;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -46,6 +48,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test {@link ExifInterface}.
@@ -66,6 +71,8 @@ public class ExifInterfaceTest {
 
     private static final String TEST_TEMP_FILE_NAME = "testImage";
     private static final double DELTA = 1e-8;
+    // We translate double to rational in a 1/10000 precision.
+    private static final double RATIONAL_DELTA = 0.0001;
     private static final int TEST_LAT_LONG_VALUES_ARRAY_LENGTH = 8;
     private static final double[] TEST_LATITUDE_VALID_VALUES = new double[]
             {0, 45, 90, -60, 0.00000001, -89.999999999, 14.2465923626, -68.3434534737};
@@ -77,12 +84,97 @@ public class ExifInterfaceTest {
     private static final double[] TEST_LONGITUDE_INVALID_VALUES = new double[]
             {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 180.0000000001,
                     263.34763236326, -1e10, 347.325252623, -4000.346323236};
+    private static final double[] TEST_ALTITUDE_VALUES = new double[]
+            {0, -2000, 10000, -355.99999999999, 18.02038};
+    private static final int[][] TEST_ROTATION_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, -90, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 0, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 90, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 180, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 270, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 540, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, -90, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_NORMAL, 0, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_NORMAL, 90, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_NORMAL, 180,ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_NORMAL, 270,ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_NORMAL, 540,ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_90, -90, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, 0, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_90, 90, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_90, 180,ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_90, 270,ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, 540,ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_180, -90, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_180, 0, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_180, 90, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_180, 180,ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_180, 270,ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_180, 540,ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, -90, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_270, 0, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_270, 90, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, 180,ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_270, 270,ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_270, 540,ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, -90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 0, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 180,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 270,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 540,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, -90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 0,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 180,
+                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 270, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 540,
+                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, -90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 0, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 180,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 270,ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 540,ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, -90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 0, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 180,ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 270,ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 540,ExifInterface.ORIENTATION_TRANSPOSE},
+    };
+    private static final int[][] TEST_FLIP_VERTICALLY_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_90}
+    };
+    private static final int[][] TEST_FLIP_HORIZONTALLY_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_270}
+    };
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_MAKE,
             ExifInterface.TAG_MODEL,
             ExifInterface.TAG_F_NUMBER,
-            ExifInterface.TAG_DATETIME,
+            ExifInterface.TAG_DATETIME_ORIGINAL,
             ExifInterface.TAG_EXPOSURE_TIME,
             ExifInterface.TAG_FLASH,
             ExifInterface.TAG_FOCAL_LENGTH,
@@ -118,7 +210,7 @@ public class ExifInterfaceTest {
         public final String make;
         public final String model;
         public final float aperture;
-        public final String datetime;
+        public final String dateTimeOriginal;
         public final float exposureTime;
         public final float flash;
         public final String focalLength;
@@ -161,7 +253,7 @@ public class ExifInterfaceTest {
             make = getString(typedArray, 7);
             model = getString(typedArray, 8);
             aperture = typedArray.getFloat(9, 0f);
-            datetime = getString(typedArray, 10);
+            dateTimeOriginal = getString(typedArray, 10);
             exposureTime = typedArray.getFloat(11, 0f);
             flash = typedArray.getFloat(12, 0f);
             focalLength = getString(typedArray, 13);
@@ -236,17 +328,118 @@ public class ExifInterfaceTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDoNotFailOnCorruptedImage() throws Throwable {
-        // To keep the compatibility with old versions of ExifInterface, even on a corrupted image,
-        // it shouldn't raise any exceptions except an IOException when unable to open a file.
-        byte[] bytes = new byte[1024];
-        try {
-            new ExifInterface(new ByteArrayInputStream(bytes));
-            // Always success
-        } catch (IOException e) {
-            fail("Should not reach here!");
+        // ExifInterface shouldn't raise any exceptions except an IOException when unable to open
+        // a file, even with a corrupted image. Generates 10,000 randomly corrupted image stream
+        // for testing. Uses Epoch date count as random seed so that we can reproduce a broken test.
+        Random random = new Random(System.currentTimeMillis() / 86400);
+        byte[] bytes = new byte[8096];
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        for (int i = 0; i < 10000; i++) {
+            buffer.clear();
+            random.nextBytes(bytes);
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.JPEG_SIGNATURE);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.MARKER_APP1);
+            }
+            buffer.putShort((short) (random.nextInt(100) + 300));
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.IDENTIFIER_EXIF_APP1);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort(ExifInterface.BYTE_ALIGN_MM);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.put((byte) 0);
+                buffer.put(ExifInterface.START_CODE);
+            }
+            buffer.putInt(8);
+
+            // Primary Tags
+            int numberOfDirectory = random.nextInt(8) + 1;
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort((short) numberOfDirectory);
+            }
+            for (int j = 0; j < numberOfDirectory; j++) {
+                generateRandomExifTag(buffer, ExifInterface.IFD_TYPE_PRIMARY, random);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putInt(buffer.position() - 8);
+            }
+
+            // Thumbnail Tags
+            numberOfDirectory = random.nextInt(8) + 1;
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort((short) numberOfDirectory);
+            }
+            for (int j = 0; j < numberOfDirectory; j++) {
+                generateRandomExifTag(buffer, ExifInterface.IFD_TYPE_THUMBNAIL, random);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putInt(buffer.position() - 8);
+            }
+
+            // Preview Tags
+            numberOfDirectory = random.nextInt(8) + 1;
+            if (!randomlyCorrupted(random)) {
+                buffer.putShort((short) numberOfDirectory);
+            }
+            for (int j = 0; j < numberOfDirectory; j++) {
+                generateRandomExifTag(buffer, ExifInterface.IFD_TYPE_PREVIEW, random);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.putInt(buffer.position() - 8);
+            }
+
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.MARKER);
+            }
+            if (!randomlyCorrupted(random)) {
+                buffer.put(ExifInterface.MARKER_EOI);
+            }
+
+            try {
+                new ExifInterface(new ByteArrayInputStream(bytes));
+                // Always success
+            } catch (IOException e) {
+                fail("Should not reach here!");
+            }
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testSetGpsInfo() throws IOException {
+        final String provider = "ExifInterfaceTest";
+        final long timestamp = System.currentTimeMillis();
+        final float speedInMeterPerSec = 36.627533f;
+        Location location = new Location(provider);
+        location.setLatitude(TEST_LATITUDE_VALID_VALUES[TEST_LATITUDE_VALID_VALUES.length - 1]);
+        location.setLongitude(TEST_LONGITUDE_VALID_VALUES[TEST_LONGITUDE_VALID_VALUES.length - 1]);
+        location.setAltitude(TEST_ALTITUDE_VALUES[TEST_ALTITUDE_VALUES.length - 1]);
+        location.setSpeed(speedInMeterPerSec);
+        location.setTime(timestamp);
+        ExifInterface exif = createTestExifInterface();
+        exif.setGpsInfo(location);
+
+        double[] latLong = exif.getLatLong();
+        assertNotNull(latLong);
+        assertEquals(TEST_LATITUDE_VALID_VALUES[TEST_LATITUDE_VALID_VALUES.length - 1],
+                latLong[0], DELTA);
+        assertEquals(TEST_LONGITUDE_VALID_VALUES[TEST_LONGITUDE_VALID_VALUES.length - 1],
+                latLong[1], DELTA);
+        assertEquals(TEST_ALTITUDE_VALUES[TEST_ALTITUDE_VALUES.length - 1], exif.getAltitude(0),
+                RATIONAL_DELTA);
+        assertEquals("K", exif.getAttribute(ExifInterface.TAG_GPS_SPEED_REF));
+        assertEquals(speedInMeterPerSec, exif.getAttributeDouble(ExifInterface.TAG_GPS_SPEED, 0.0)
+                * 1000 / TimeUnit.HOURS.toSeconds(1), RATIONAL_DELTA);
+        assertEquals(provider, exif.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD));
+        // GPS time's precision is secs.
+        assertEquals(TimeUnit.MILLISECONDS.toSeconds(timestamp),
+                TimeUnit.MILLISECONDS.toSeconds(exif.getGpsDateTime()));
     }
 
     @Test
@@ -293,6 +486,110 @@ public class ExifInterfaceTest {
             assertNull(exif.getLatLong());
             assertLatLongValuesAreNotSet(exif);
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testSetAltitude() throws IOException {
+        for (int i = 0; i < TEST_ALTITUDE_VALUES.length; i++) {
+            ExifInterface exif = createTestExifInterface();
+            exif.setAltitude(TEST_ALTITUDE_VALUES[i]);
+            assertEquals(TEST_ALTITUDE_VALUES[i], exif.getAltitude(Double.NaN), RATIONAL_DELTA);
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void testSetDateTime() throws IOException {
+        final String dateTimeValue = "2017:02:02 22:22:22";
+        final String dateTimeOriginalValue = "2017:01:01 11:11:11";
+
+        File imageFile = new File(
+                Environment.getExternalStorageDirectory(), EXIF_BYTE_ORDER_II_JPEG);
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        exif.setAttribute(ExifInterface.TAG_DATETIME, dateTimeValue);
+        exif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, dateTimeOriginalValue);
+        exif.saveAttributes();
+
+        // Check that the DATETIME value is not overwritten by DATETIME_ORIGINAL's value.
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(dateTimeValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL));
+
+        // Now remove the DATETIME value.
+        exif.setAttribute(ExifInterface.TAG_DATETIME, null);
+        exif.saveAttributes();
+
+        // When the DATETIME has no value, then it should be set to DATETIME_ORIGINAL's value.
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+
+        long currentTimeStamp = System.currentTimeMillis();
+        exif.setDateTime(currentTimeStamp);
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(currentTimeStamp, exif.getDateTime());
+    }
+
+    @Test
+    @SmallTest
+    public void testRotation() throws IOException {
+        File imageFile = new File(
+                Environment.getExternalStorageDirectory(), EXIF_BYTE_ORDER_II_JPEG);
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+
+        int num;
+        // Test flip vertically.
+        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_FLIP_VERTICALLY_STATE_MACHINE[num][0]));
+            exif.flipVertically();
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
+                    TEST_FLIP_VERTICALLY_STATE_MACHINE[num][1]);
+
+        }
+
+        // Test flip horizontally.
+        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][0]));
+            exif.flipHorizontally();
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
+                    TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][1]);
+
+        }
+
+        // Test rotate by degrees
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                Integer.toString(ExifInterface.ORIENTATION_NORMAL));
+        try {
+            exif.rotate(108);
+            fail("Rotate with 108 degree should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Success
+        }
+
+        for (num = 0; num < TEST_ROTATION_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_ROTATION_STATE_MACHINE[num][0]));
+            exif.rotate(TEST_ROTATION_STATE_MACHINE[num][1]);
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION, TEST_ROTATION_STATE_MACHINE[num][2]);
+        }
+
+        // Test reset the rotation.
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                Integer.toString(ExifInterface.ORIENTATION_FLIP_HORIZONTAL));
+        exif.resetOrientation();
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertIntTag(exif, ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
     }
 
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {
@@ -390,7 +687,8 @@ public class ExifInterfaceTest {
         assertStringTag(exifInterface, ExifInterface.TAG_MAKE, expectedValue.make);
         assertStringTag(exifInterface, ExifInterface.TAG_MODEL, expectedValue.model);
         assertFloatTag(exifInterface, ExifInterface.TAG_F_NUMBER, expectedValue.aperture);
-        assertStringTag(exifInterface, ExifInterface.TAG_DATETIME, expectedValue.datetime);
+        assertStringTag(exifInterface, ExifInterface.TAG_DATETIME_ORIGINAL,
+                expectedValue.dateTimeOriginal);
         assertFloatTag(exifInterface, ExifInterface.TAG_EXPOSURE_TIME, expectedValue.exposureTime);
         assertFloatTag(exifInterface, ExifInterface.TAG_FLASH, expectedValue.flash);
         assertStringTag(exifInterface, ExifInterface.TAG_FOCAL_LENGTH, expectedValue.focalLength);
@@ -480,6 +778,31 @@ public class ExifInterfaceTest {
 
         // Since ExifInterface does not support for saving attributes for RAW files, do not test
         // about writing back in here.
+    }
+
+    private void generateRandomExifTag(ByteBuffer buffer, int ifdType, Random random) {
+        ExifInterface.ExifTag[] tagGroup = ExifInterface.EXIF_TAGS[ifdType];
+        ExifInterface.ExifTag tag = tagGroup[random.nextInt(tagGroup.length)];
+        if (!randomlyCorrupted(random)) {
+            buffer.putShort((short) tag.number);
+        }
+        int dataFormat = random.nextInt(ExifInterface.IFD_FORMAT_NAMES.length);
+        if (!randomlyCorrupted(random)) {
+            buffer.putShort((short) dataFormat);
+        }
+        buffer.putInt(1);
+        int dataLength = ExifInterface.IFD_FORMAT_BYTES_PER_FORMAT[dataFormat];
+        if (dataLength > 4) {
+            buffer.putShort((short) random.nextInt(8096 - dataLength));
+            buffer.position(buffer.position() + 2);
+        } else {
+            buffer.position(buffer.position() + 4);
+        }
+    }
+
+    private boolean randomlyCorrupted(Random random) {
+        // Corrupts somewhere in a possibility of 1/500.
+        return random.nextInt(500) == 0;
     }
 
     private void closeQuietly(Closeable closeable) {

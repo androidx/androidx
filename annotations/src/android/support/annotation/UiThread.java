@@ -35,6 +35,14 @@ import java.lang.annotation.Target;
  *
  *  public abstract void setText(@NonNull String text) { ... }
  * </code></pre>
+ *
+ * <p class="note"><b>Note:</b> Ordinarily, an app's UI thread is also the main
+ * thread. However, However, under special circumstances, an app's UI thread
+ * might not be its main thread; for more information, see
+ * <a href="/studio/write/annotations.html#thread-annotations">Thread
+ * annotations</a>.
+ *
+ * @see android.support.annotation.MainThread
  */
 @Documented
 @Retention(CLASS)

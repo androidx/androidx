@@ -33,16 +33,16 @@ import android.view.View;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class EditTextAttributeHelper {
-
+    static final int MAX_EMOJI_COUNT = Integer.MAX_VALUE;
     private int mMaxEmojiCount;
 
-    public EditTextAttributeHelper(@NonNull View view, AttributeSet attrs, int defStyleAttr) {
-        if (view != null && attrs != null) {
+    public EditTextAttributeHelper(@NonNull View view, AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
+        if (attrs != null) {
             final Context context = view.getContext();
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EmojiEditText,
-                    defStyleAttr, 0);
-            mMaxEmojiCount = a.getInteger(R.styleable.EmojiEditText_maxEmojiCount,
-                    EmojiTextWatcher.MAX_EMOJI_COUNT);
+                    defStyleAttr, defStyleRes);
+            mMaxEmojiCount = a.getInteger(R.styleable.EmojiEditText_maxEmojiCount, MAX_EMOJI_COUNT);
             a.recycle();
         }
     }

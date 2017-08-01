@@ -636,20 +636,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         setNestedScrollingEnabled(nestedScrollingEnabled);
     }
 
-    @Override
-    public String toString() {
-        return super.toString()
-                + ", adapter:" + mAdapter
-                + ", layout:" + mLayout
-                + ", context:" + getContext();
-    }
-
     /**
      * Label appended to all public exception strings, used to help find which RV in an app is
      * hitting an exception.
      */
     String exceptionLabel() {
-        return " " + this;
+        return " " + super.toString()
+                + ", adapter:" + mAdapter
+                + ", layout:" + mLayout
+                + ", context:" + getContext();
     }
 
     /**
@@ -677,7 +672,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             int defStyleAttr, int defStyleRes) {
         if (className != null) {
             className = className.trim();
-            if (className.length() != 0) {  // Can't use isEmpty since it was added in API 9.
+            if (!className.isEmpty()) {
                 className = getFullClassName(context, className);
                 try {
                     ClassLoader classLoader;
@@ -1038,7 +1033,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         // bail out if layout is frozen
         setLayoutFrozen(false);
         setAdapterInternal(adapter, true, removeAndRecycleExistingViews);
-        setDataSetChangedAfterLayout();
         requestLayout();
     }
     /**
@@ -1107,7 +1101,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
         mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
         mState.mStructureChanged = true;
-        markKnownViewsInvalid();
+        setDataSetChangedAfterLayout();
     }
 
     /**
@@ -3149,6 +3143,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 }
                 mAdapterUpdateDuringMeasure = false;
                 resumeRequestLayout(false);
+            } else if (mState.mRunPredictiveAnimations) {
+                // If mAdapterUpdateDuringMeasure is false and mRunPredictiveAnimations is true:
+                // this means there is already an onMeasure() call performed to handle the pending
+                // adapter change, two onMeasure() calls can happen if RV is a child of LinearLayout
+                // with layout_width=MATCH_PARENT. RV cannot call LM.onMeasure() second time
+                // because getViewForPosition() will crash when LM uses a child to measure.
+                setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
+                return;
             }
 
             if (mAdapter != null) {
@@ -4234,8 +4236,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     /**
      * Call this method to signal that *all* adapter content has changed (generally, because of
-     * swapAdapter, or notifyDataSetChanged), and that once layout occurs, all attached items should
-     * be discarded or animated.
+     * setAdapter, swapAdapter, or notifyDataSetChanged), and that once layout occurs, all
+     * attached items should be discarded or animated.
      *
      * Attached items are labeled as invalid, and all cached items are discarded.
      *

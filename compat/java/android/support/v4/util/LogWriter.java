@@ -24,8 +24,7 @@ import android.util.Log;
 import java.io.Writer;
 
 /**
- * Helper for accessing features in {@link android.util.LogWriter}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.util.LogWriter}.
  *
  * @hide
  */

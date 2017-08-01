@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-dynamic-animation')
+    implementation project(':support-dynamic-animation')
 }
 
 android {
@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         minSdkVersion 16
+        targetSdkVersion project.ext.currentSdk
     }
 
     sourceSets {
@@ -27,6 +28,7 @@ android {
 
     lintOptions {
         abortOnError true
+        check 'NewApi'
     }
 
     compileOptions {

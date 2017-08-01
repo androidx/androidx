@@ -37,10 +37,11 @@ import java.lang.ref.WeakReference;
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(19)
 final class EmojiTextWatcher implements android.text.TextWatcher {
-    static final int MAX_EMOJI_COUNT = Integer.MAX_VALUE;
     private final EditText mEditText;
     private InitCallback mInitCallback;
-    private int mMaxEmojiCount = MAX_EMOJI_COUNT;
+    private int mMaxEmojiCount = EditTextAttributeHelper.MAX_EMOJI_COUNT;
+    @EmojiCompat.ReplaceStrategy
+    private int mEmojiReplaceStrategy = EmojiCompat.REPLACE_STRATEGY_DEFAULT;
 
     EmojiTextWatcher(EditText editText) {
         mEditText = editText;
@@ -52,6 +53,14 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
 
     int getMaxEmojiCount() {
         return mMaxEmojiCount;
+    }
+
+    @EmojiCompat.ReplaceStrategy int getEmojiReplaceStrategy() {
+        return mEmojiReplaceStrategy;
+    }
+
+    void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
+        mEmojiReplaceStrategy = replaceStrategy;
     }
 
     @Override
@@ -66,10 +75,15 @@ final class EmojiTextWatcher implements android.text.TextWatcher {
             switch (EmojiCompat.get().getLoadState()){
                 case EmojiCompat.LOAD_STATE_SUCCEEDED:
                     final Spannable s = (Spannable) charSequence;
-                    EmojiCompat.get().process(s, start, start + after, mMaxEmojiCount);
+                    EmojiCompat.get().process(s, start, start + after, mMaxEmojiCount,
+                            mEmojiReplaceStrategy);
                     break;
                 case EmojiCompat.LOAD_STATE_LOADING:
                     EmojiCompat.get().registerInitCallback(getInitCallback());
+                    break;
+                case EmojiCompat.LOAD_STATE_FAILED:
+                default:
+                    break;
             }
         }
     }

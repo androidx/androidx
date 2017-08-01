@@ -22,7 +22,6 @@ import static android.view.View.SYSTEM_UI_FLAG_LOW_PROFILE;
 import android.content.Context;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -85,11 +84,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
             view.setLongClickable(false);
             view.setOnHoverListener(null);
         } else {
-            if (sActiveHandler != null && sActiveHandler.mAnchor == view) {
-                sActiveHandler.update(tooltipText);
-            } else {
-                new TooltipCompatHandler(view, tooltipText);
-            }
+            new TooltipCompatHandler(view, tooltipText);
         }
     }
 
@@ -116,8 +111,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         }
         AccessibilityManager manager = (AccessibilityManager)
                 mAnchor.getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-        if (manager.isEnabled()
-                && AccessibilityManagerCompat.isTouchExplorationEnabled(manager)) {
+        if (manager.isEnabled() && manager.isTouchExplorationEnabled()) {
             return false;
         }
         switch (event.getAction()) {
@@ -188,9 +182,5 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         }
         mAnchor.removeCallbacks(mShowRunnable);
         mAnchor.removeCallbacks(mHideRunnable);
-    }
-
-    private void update(CharSequence tooltipText) {
-        mPopup.updateContent(tooltipText);
     }
 }

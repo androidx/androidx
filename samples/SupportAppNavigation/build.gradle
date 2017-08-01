@@ -17,7 +17,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-v4')
+    implementation project(':support-v4')
 }
 
 android {
@@ -25,6 +25,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
+        targetSdkVersion project.ext.currentSdk
     }
 
     sourceSets {
@@ -33,8 +34,16 @@ android {
         main.res.srcDirs = ['res']
     }
 
+    signingConfigs {
+        debug {
+            // Use a local debug keystore to avoid build server issues.
+            storeFile project.rootProject.init.debugKeystore
+        }
+    }
+
     lintOptions {
         abortOnError true
+        check 'NewApi'
     }
 
     compileOptions {

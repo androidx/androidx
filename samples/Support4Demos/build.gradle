@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-v4')
+    implementation project(':support-v4')
 }
 
 android {
@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
+        targetSdkVersion project.ext.currentSdk
     }
 
     sourceSets {
@@ -28,6 +29,7 @@ android {
     lintOptions {
         checkReleaseBuilds false
         abortOnError true
+        check 'NewApi'
     }
 
     compileOptions {

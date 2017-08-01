@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Helper for accessing features in {@link Bundle} in a backwards compatible fashion.
+ * Helper for accessing features in {@link Bundle}.
  */
 public final class BundleCompat {
 

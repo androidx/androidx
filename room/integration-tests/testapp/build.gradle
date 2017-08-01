@@ -1,0 +1,91 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+apply plugin: 'com.android.application'
+
+project.ext.noDocs = true
+
+android {
+    compileSdkVersion tools.current_sdk
+    buildToolsVersion tools.build_tools_version
+
+    defaultConfig {
+        minSdkVersion flatfoot.min_sdk
+        targetSdkVersion tools.current_sdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
+}
+
+dependencies {
+    compile project(":room:common")
+    compile project(":room:db")
+    compile project(":room:db-impl")
+    compile project(':room:runtime')
+    compile project(':arch:runtime')
+    compile project(':arch:common')
+    compile project(':paging:common')
+    compile project(':lifecycle:extensions')
+    compile project(':lifecycle:runtime')
+    compile project(':lifecycle:common')
+    compile project(':room:rxjava2')
+    compile project(':paging:runtime')
+
+    compile libs.support.recyclerview
+    compile libs.support.app_compat
+    annotationProcessor project(":room:compiler")
+    androidTestAnnotationProcessor project(":room:compiler")
+
+    androidTestCompile(libs.test_runner) {
+        exclude module: 'support-annotations'
+        exclude module: 'hamcrest-core'
+    }
+    androidTestCompile(libs.espresso_core, {
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude module: "hamcrest-core"
+    })
+    // IJ's gradle integration just cannot figure this out ...
+    androidTestCompile project(':lifecycle:extensions')
+    androidTestCompile project(':lifecycle:common')
+    androidTestCompile project(':lifecycle:runtime')
+    androidTestCompile project(':room:testing')
+    androidTestCompile project(':room:rxjava2')
+    androidTestCompile project(':arch:core-testing')
+    androidTestCompile libs.rx_java
+    androidTestCompile libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
+}
+
+createAndroidCheckstyle(project)
+tasks['check'].dependsOn(tasks['connectedCheck'])
+
+uploadArchives.enabled = false

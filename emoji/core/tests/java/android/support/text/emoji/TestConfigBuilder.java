@@ -34,12 +34,12 @@ public class TestConfigBuilder {
             super(new TestEmojiDataLoader());
         }
 
-        TestConfig(final EmojiCompat.MetadataLoader metadataLoader) {
+        TestConfig(final EmojiCompat.MetadataRepoLoader metadataLoader) {
             super(metadataLoader);
         }
     }
 
-    public static class WaitingDataLoader implements EmojiCompat.MetadataLoader {
+    public static class WaitingDataLoader implements EmojiCompat.MetadataRepoLoader {
         private final CountDownLatch mLoaderLatch;
         private final CountDownLatch mTestLatch;
         private final boolean mSuccess;
@@ -63,7 +63,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull final EmojiCompat.LoaderCallback loaderCallback) {
+        public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -84,7 +84,7 @@ public class TestConfigBuilder {
         }
     }
 
-    public static class TestEmojiDataLoader implements EmojiCompat.MetadataLoader {
+    public static class TestEmojiDataLoader implements EmojiCompat.MetadataRepoLoader {
         static final Object sMetadataRepoLock = new Object();
         // keep a static instance to in order not to slow down the tests
         @GuardedBy("sMetadataRepoLock")
@@ -94,7 +94,7 @@ public class TestConfigBuilder {
         }
 
         @Override
-        public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
+        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             if (sMetadataRepo == null) {
                 synchronized (sMetadataRepoLock) {
                     if (sMetadataRepo == null) {

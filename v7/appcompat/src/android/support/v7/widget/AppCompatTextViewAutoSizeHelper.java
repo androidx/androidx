@@ -25,8 +25,8 @@ import android.content.res.TypedArray;
 import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.text.Layout;
@@ -36,6 +36,7 @@ import android.text.TextDirectionHeuristics;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
 
@@ -54,6 +55,7 @@ import java.util.List;
  * fill its layout based on the TextView's characteristics and boundaries.
  */
 class AppCompatTextViewAutoSizeHelper {
+    private static final String TAG = "ACTVAutoSizeHelper";
     private static final RectF TEMP_RECTF = new RectF();
     // Default minimum size for auto-sizing text in scaled pixels.
     private static final int DEFAULT_AUTO_SIZE_MIN_TEXT_SIZE_IN_SP = 12;
@@ -61,6 +63,9 @@ class AppCompatTextViewAutoSizeHelper {
     private static final int DEFAULT_AUTO_SIZE_MAX_TEXT_SIZE_IN_SP = 112;
     // Default value for the step size in pixels.
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
+    // Cache of TextView methods used via reflection; the key is the method name and the value is
+    // the method itself or null if it can not be found.
+    private static Hashtable<String, Method> sTextViewMethodByNameCache = new Hashtable<>();
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
     // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when
@@ -83,9 +88,7 @@ class AppCompatTextViewAutoSizeHelper {
     // build the steps set using mAutoSizeMinTextSizeInPx, mAutoSizeMaxTextSizeInPx and
     // mAutoSizeStepGranularityInPx.
     private boolean mHasPresetAutoSizeValues = false;
-
     private TextPaint mTempTextPaint;
-    private Hashtable<String, Method> mMethodByNameCache = new Hashtable<>();
 
     private final TextView mTextView;
     private final Context mContext;
@@ -210,7 +213,9 @@ class AppCompatTextViewAutoSizeHelper {
                             autoSizeMinTextSizeInPx,
                             autoSizeMaxTextSizeInPx,
                             DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX);
-                    setupAutoSizeText();
+                    if (setupAutoSizeText()) {
+                        autoSizeText();
+                    }
                     break;
                 default:
                     throw new IllegalArgumentException(
@@ -266,7 +271,9 @@ class AppCompatTextViewAutoSizeHelper {
             validateAndSetAutoSizeTextTypeUniformConfiguration(autoSizeMinTextSizeInPx,
                     autoSizeMaxTextSizeInPx,
                     autoSizeStepGranularityInPx);
-            setupAutoSizeText();
+            if (setupAutoSizeText()) {
+                autoSizeText();
+            }
         }
     }
 
@@ -320,7 +327,10 @@ class AppCompatTextViewAutoSizeHelper {
             } else {
                 mHasPresetAutoSizeValues = false;
             }
-            setupAutoSizeText();
+
+            if (setupAutoSizeText()) {
+                autoSizeText();
+            }
         }
     }
 
@@ -493,20 +503,19 @@ class AppCompatTextViewAutoSizeHelper {
         mHasPresetAutoSizeValues = false;
     }
 
-    private void setupAutoSizeText() {
+    private boolean setupAutoSizeText() {
         if (supportsAutoSizeText()
                 && mAutoSizeTextType == TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM) {
             // Calculate the sizes set based on minimum size, maximum size and step size if we do
             // not have a predefined set of sizes or if the current sizes array is empty.
             if (!mHasPresetAutoSizeValues || mAutoSizeTextSizesInPx.length == 0) {
                 // Calculate sizes to choose from based on the current auto-size configuration.
-                int autoSizeValuesLength = (int) Math.ceil(
-                        (mAutoSizeMaxTextSizeInPx - mAutoSizeMinTextSizeInPx)
-                                / mAutoSizeStepGranularityInPx);
-                // Also reserve a slot for the max size if it fits.
-                if ((mAutoSizeMaxTextSizeInPx - mAutoSizeMinTextSizeInPx)
-                        % mAutoSizeStepGranularityInPx == 0) {
+                int autoSizeValuesLength = 1;
+                float currentSize = Math.round(mAutoSizeMinTextSizeInPx);
+                while (Math.round(currentSize + mAutoSizeStepGranularityInPx)
+                        <= Math.round(mAutoSizeMaxTextSizeInPx)) {
                     autoSizeValuesLength++;
+                    currentSize += mAutoSizeStepGranularityInPx;
                 }
                 int[] autoSizeTextSizesInPx = new int[autoSizeValuesLength];
                 float sizeToAdd = mAutoSizeMinTextSizeInPx;
@@ -518,17 +527,11 @@ class AppCompatTextViewAutoSizeHelper {
             }
 
             mNeedsAutoSizeText = true;
-
-            // If the build version is at least 26 there is no need to auto-size using this
-            // helper because the job has been delegated to the actual TextView but the
-            // configuration still needs to be done for the case where this function is called
-            // from {@link #loadFromAttributes}, in which case the auto-size configuration
-            // attributes set up in this function will be read by {@link AppCompatTextHelper}
-            // and after passed on to the actual TextView which will take care of auto-sizing.
-            if (!BuildCompat.isAtLeastO()) {
-                autoSizeText();
-            }
+        } else {
+            mNeedsAutoSizeText = false;
         }
+
+        return mNeedsAutoSizeText;
     }
 
     /**
@@ -538,31 +541,41 @@ class AppCompatTextViewAutoSizeHelper {
      */
     @RestrictTo(LIBRARY_GROUP)
     void autoSizeText() {
-        if (mTextView.getMeasuredHeight() <= 0 || mTextView.getMeasuredWidth() <= 0) {
+        if (!isAutoSizeEnabled()) {
             return;
         }
 
-        final int maxWidth = mTextView.getWidth() - mTextView.getTotalPaddingLeft()
-                - mTextView.getTotalPaddingRight();
-        final int maxHeight = Build.VERSION.SDK_INT >= 21
-                ? mTextView.getHeight() - mTextView.getExtendedPaddingBottom()
-                        - mTextView.getExtendedPaddingBottom()
-                : mTextView.getHeight() - mTextView.getCompoundPaddingBottom()
-                        - mTextView.getCompoundPaddingTop();
+        if (mNeedsAutoSizeText) {
+            if (mTextView.getMeasuredHeight() <= 0 || mTextView.getMeasuredWidth() <= 0) {
+                return;
+            }
 
-        if (maxWidth <= 0 || maxHeight <= 0) {
-            return;
-        }
+            final boolean horizontallyScrolling = invokeAndReturnWithDefault(
+                    mTextView, "getHorizontallyScrolling", false);
+            final int availableWidth = horizontallyScrolling
+                    ? VERY_WIDE
+                    : mTextView.getMeasuredWidth() - mTextView.getTotalPaddingLeft()
+                            - mTextView.getTotalPaddingRight();
+            final int availableHeight = mTextView.getHeight() - mTextView.getCompoundPaddingBottom()
+                    - mTextView.getCompoundPaddingTop();
 
-        synchronized (TEMP_RECTF) {
-            TEMP_RECTF.setEmpty();
-            TEMP_RECTF.right = maxWidth;
-            TEMP_RECTF.bottom = maxHeight;
-            final float optimalTextSize = findLargestTextSizeWhichFits(TEMP_RECTF);
-            if (optimalTextSize != mTextView.getTextSize()) {
-                setTextSizeInternal(TypedValue.COMPLEX_UNIT_PX, optimalTextSize);
+            if (availableWidth <= 0 || availableHeight <= 0) {
+                return;
+            }
+
+            synchronized (TEMP_RECTF) {
+                TEMP_RECTF.setEmpty();
+                TEMP_RECTF.right = availableWidth;
+                TEMP_RECTF.bottom = availableHeight;
+                final float optimalTextSize = findLargestTextSizeWhichFits(TEMP_RECTF);
+                if (optimalTextSize != mTextView.getTextSize()) {
+                    setTextSizeInternal(TypedValue.COMPLEX_UNIT_PX, optimalTextSize);
+                }
             }
         }
+        // Always try to auto-size if enabled. Functions that do not want to trigger auto-sizing
+        // after the next layout pass should set this to false.
+        mNeedsAutoSizeText = true;
     }
 
     private void clearAutoSizeConfiguration() {
@@ -588,30 +601,31 @@ class AppCompatTextViewAutoSizeHelper {
         if (size != mTextView.getPaint().getTextSize()) {
             mTextView.getPaint().setTextSize(size);
 
+            boolean isInLayout = false;
+            if (Build.VERSION.SDK_INT >= 18) {
+                isInLayout = mTextView.isInLayout();
+            }
+
             if (mTextView.getLayout() != null) {
                 // Do not auto-size right after setting the text size.
                 mNeedsAutoSizeText = false;
 
+                final String methodName = "nullLayouts";
                 try {
-                    final String methodName = "nullLayouts";
-                    Method method = mMethodByNameCache.get(methodName);
-                    if (method == null) {
-                        method = TextView.class.getDeclaredMethod(methodName);
-                        if (method != null) {
-                            method.setAccessible(true);
-                            // Cache update.
-                            mMethodByNameCache.put(methodName, method);
-                        }
-                    }
-
+                    Method method = getTextViewMethod(methodName);
                     if (method != null) {
                         method.invoke(mTextView);
                     }
                 } catch (Exception ex) {
-                    // Nothing to do.
+                    Log.w(TAG, "Failed to invoke TextView#" + methodName + "() method", ex);
                 }
 
-                mTextView.requestLayout();
+                if (!isInLayout) {
+                    mTextView.requestLayout();
+                } else {
+                    mTextView.forceLayout();
+                }
+
                 mTextView.invalidate();
             }
         }
@@ -648,12 +662,6 @@ class AppCompatTextViewAutoSizeHelper {
     private boolean suggestedSizeFitsInSpace(int suggestedSizeInPx, RectF availableSpace) {
         final CharSequence text = mTextView.getText();
         final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;
-        final boolean horizontallyScrolling = invokeAndReturnWithDefault(
-                mTextView, "getHorizontallyScrolling", false);
-        final int availableWidth = horizontallyScrolling
-                ? VERY_WIDE
-                : mTextView.getMeasuredWidth() - mTextView.getTotalPaddingLeft()
-                        - mTextView.getTotalPaddingRight();
         if (mTempTextPaint == null) {
             mTempTextPaint = new TextPaint();
         } else {
@@ -666,11 +674,13 @@ class AppCompatTextViewAutoSizeHelper {
         Layout.Alignment alignment = invokeAndReturnWithDefault(
                 mTextView, "getLayoutAlignment", Layout.Alignment.ALIGN_NORMAL);
         final StaticLayout layout = Build.VERSION.SDK_INT >= 23
-                ? createStaticLayoutForMeasuring(text, alignment, availableWidth, maxLines)
-                : createStaticLayoutForMeasuringPre23(text, alignment, availableWidth);
-
+                ? createStaticLayoutForMeasuring(
+                        text, alignment, Math.round(availableSpace.right), maxLines)
+                : createStaticLayoutForMeasuringPre23(
+                        text, alignment, Math.round(availableSpace.right));
         // Lines overflow.
-        if (maxLines != -1 && layout.getLineCount() > maxLines) {
+        if (maxLines != -1 && (layout.getLineCount() > maxLines
+                || (layout.getLineEnd(layout.getLineCount() - 1)) != text.length())) {
             return false;
         }
 
@@ -739,25 +749,18 @@ class AppCompatTextViewAutoSizeHelper {
                 includePad);
     }
 
-    private <T> T invokeAndReturnWithDefault(@NonNull Object object, @NonNull String methodName,
-            @NonNull T defaultValue) {
+    private <T> T invokeAndReturnWithDefault(@NonNull Object object,
+            @NonNull final String methodName, @NonNull final T defaultValue) {
         T result = null;
         boolean exceptionThrown = false;
 
         try {
             // Cache lookup.
-            Method method = mMethodByNameCache.get(methodName);
-            if (method == null) {
-                method = TextView.class.getDeclaredMethod(methodName);
-                if (method != null) {
-                    method.setAccessible(true);
-                    // Cache update.
-                    mMethodByNameCache.put(methodName, method);
-                }
-            }
+            Method method = getTextViewMethod(methodName);
             result = (T) method.invoke(object);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             exceptionThrown = true;
+            Log.w(TAG, "Failed to invoke TextView#" + methodName + "() method", ex);
         } finally {
             if (result == null && exceptionThrown) {
                 result = defaultValue;
@@ -765,6 +768,26 @@ class AppCompatTextViewAutoSizeHelper {
         }
 
         return result;
+    }
+
+    @Nullable
+    private Method getTextViewMethod(@NonNull final String methodName) {
+        try {
+            Method method = sTextViewMethodByNameCache.get(methodName);
+            if (method == null) {
+                method = TextView.class.getDeclaredMethod(methodName);
+                if (method != null) {
+                    method.setAccessible(true);
+                    // Cache update.
+                    sTextViewMethodByNameCache.put(methodName, method);
+                }
+            }
+
+            return method;
+        } catch (Exception ex) {
+            Log.w(TAG, "Failed to retrieve TextView#" + methodName + "() method", ex);
+            return null;
+        }
     }
 
     /**
@@ -777,18 +800,6 @@ class AppCompatTextViewAutoSizeHelper {
     boolean isAutoSizeEnabled() {
         return supportsAutoSizeText()
                 && mAutoSizeTextType != TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE;
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    boolean getNeedsAutoSizeText() {
-        return mNeedsAutoSizeText;
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    void setNeedsAutoSizeText(boolean needsAutoSizeText) {
-        mNeedsAutoSizeText = needsAutoSizeText;
     }
 
     /**

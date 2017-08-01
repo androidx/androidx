@@ -35,7 +35,7 @@ import android.support.v7.mediarouter.R;
 import android.support.v7.widget.TooltipCompat;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
+import android.util.SparseArray;
 import android.view.SoundEffectConstants;
 import android.view.View;
 
@@ -91,6 +91,9 @@ public class MediaRouteButton extends View {
 
     private boolean mAttachedToWindow;
 
+    private static final SparseArray<Drawable.ConstantState> sRemoteIndicatorCache =
+            new SparseArray<>(2);
+    private RemoteIndicatorLoader mRemoteIndicatorLoader;
     private Drawable mRemoteIndicator;
     private boolean mRemoteActive;
     private boolean mIsConnecting;
@@ -128,28 +131,24 @@ public class MediaRouteButton extends View {
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.MediaRouteButton, defStyleAttr, 0);
         mButtonTint = a.getColorStateList(R.styleable.MediaRouteButton_mediaRouteButtonTint);
-        setRemoteIndicatorDrawable(a.getDrawable(
-                R.styleable.MediaRouteButton_externalRouteEnabledDrawableStatic));
-        final TypedValue value = new TypedValue();
-        a.getValue(R.styleable.MediaRouteButton_externalRouteEnabledDrawable, value);
-        new AsyncTask<Void, Void, Drawable>() {
-            @Override
-            protected Drawable doInBackground(Void... params) {
-                return getContext().getResources().getDrawable(value.resourceId);
-            }
-
-            @Override
-            protected void onPostExecute(Drawable result) {
-                if (result != null) {
-                    setRemoteIndicatorDrawable(result);
-                }
-            }
-        }.execute();
         mMinWidth = a.getDimensionPixelSize(
                 R.styleable.MediaRouteButton_android_minWidth, 0);
         mMinHeight = a.getDimensionPixelSize(
                 R.styleable.MediaRouteButton_android_minHeight, 0);
+        int remoteIndicatorResId = a.getResourceId(
+                R.styleable.MediaRouteButton_externalRouteEnabledDrawable, 0);
         a.recycle();
+
+        if (remoteIndicatorResId != 0) {
+            Drawable.ConstantState remoteIndicatorState =
+                    sRemoteIndicatorCache.get(remoteIndicatorResId);
+            if (remoteIndicatorState != null) {
+                setRemoteIndicatorDrawable(remoteIndicatorState.newDrawable());
+            } else {
+                mRemoteIndicatorLoader = new RemoteIndicatorLoader(remoteIndicatorResId);
+                mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        }
 
         updateContentDescription();
         setClickable(true);
@@ -336,22 +335,40 @@ public class MediaRouteButton extends View {
      * Sets a drawable to use as the remote route indicator.
      */
     public void setRemoteIndicatorDrawable(Drawable d) {
+        if (mRemoteIndicatorLoader != null) {
+            mRemoteIndicatorLoader.cancel(false);
+        }
+
         if (mRemoteIndicator != null) {
             mRemoteIndicator.setCallback(null);
             unscheduleDrawable(mRemoteIndicator);
         }
-        if (mButtonTint != null) {
-            d = DrawableCompat.wrap(d.mutate());
-            DrawableCompat.setTintList(d, mButtonTint);
-        }
-        mRemoteIndicator = d;
         if (d != null) {
+            if (mButtonTint != null) {
+                d = DrawableCompat.wrap(d.mutate());
+                DrawableCompat.setTintList(d, mButtonTint);
+            }
             d.setCallback(this);
             d.setState(getDrawableState());
             d.setVisible(getVisibility() == VISIBLE, false);
         }
+        mRemoteIndicator = d;
 
         refreshDrawableState();
+        if (mAttachedToWindow && mRemoteIndicator != null
+                && mRemoteIndicator.getCurrent() instanceof AnimationDrawable) {
+            AnimationDrawable curDrawable = (AnimationDrawable) mRemoteIndicator.getCurrent();
+            if (mIsConnecting) {
+                if (!curDrawable.isRunning()) {
+                    curDrawable.start();
+                }
+            } else if (mRemoteActive) {
+                if (curDrawable.isRunning()) {
+                    curDrawable.stop();
+                }
+                curDrawable.selectDrawable(curDrawable.getNumberOfFrames() - 1);
+            }
+        }
     }
 
     @Override
@@ -561,6 +578,37 @@ public class MediaRouteButton extends View {
         @Override
         public void onProviderChanged(MediaRouter router, MediaRouter.ProviderInfo provider) {
             refreshRoute();
+        }
+    }
+
+    private final class RemoteIndicatorLoader extends AsyncTask<Void, Void, Drawable> {
+        private final int mResId;
+
+        RemoteIndicatorLoader(int resId) {
+            mResId = resId;
+        }
+
+        @Override
+        protected Drawable doInBackground(Void... params) {
+            return getContext().getResources().getDrawable(mResId);
+        }
+
+        @Override
+        protected void onPostExecute(Drawable remoteIndicator) {
+            cacheAndReset(remoteIndicator);
+            setRemoteIndicatorDrawable(remoteIndicator);
+        }
+
+        @Override
+        protected void onCancelled(Drawable remoteIndicator) {
+            cacheAndReset(remoteIndicator);
+        }
+
+        private void cacheAndReset(Drawable remoteIndicator) {
+            if (remoteIndicator != null) {
+                sRemoteIndicatorCache.put(mResId, remoteIndicator.getConstantState());
+            }
+            mRemoteIndicatorLoader = null;
         }
     }
 }

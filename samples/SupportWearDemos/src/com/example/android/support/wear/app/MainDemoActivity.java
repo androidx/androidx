@@ -50,15 +50,19 @@ public class MainDemoActivity extends Activity {
 
     private Map<String, Intent> createContentMap() {
         Map<String, Intent> contentMap = new HashMap<>();
-        Intent intent = new Intent();
-        intent.setClass(MainDemoActivity.this, SimpleWearableRecyclerViewDemo.class);
-        contentMap.put("Wearable Recycler View", intent);
+        contentMap.put("Wearable Recycler View", new Intent(
+                this, SimpleWearableRecyclerViewDemo.class));
+        contentMap.put("Wearable Switch", new Intent(
+                this, WearableSwitchDemo.class));
+        contentMap.put("Circular Progress Layout", new Intent(
+                this, CircularProgressLayoutDemo.class));
 
         return contentMap;
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder {
         Button mView;
+
         ViewHolder(Button itemView) {
             super(itemView);
             mView = itemView;

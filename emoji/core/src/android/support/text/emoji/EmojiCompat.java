@@ -105,22 +105,10 @@ public class EmojiCompat {
     public static final int LOAD_STATE_SUCCEEDED = 1;
 
     /**
-     * @deprecated Use {@link #LOAD_STATE_SUCCEEDED} instead.
-     */
-    @Deprecated
-    public static final int LOAD_STATE_SUCCESS = 1;
-
-    /**
      * An unrecoverable error occurred during initialization of EmojiCompat. Calls to functions
      * such as {@link #process(CharSequence)} will fail.
      */
     public static final int LOAD_STATE_FAILED = 2;
-
-    /**
-     * @deprecated Use {@link #LOAD_STATE_FAILED} instead.
-     */
-    @Deprecated
-    public static final int LOAD_STATE_FAILURE = 2;
 
     /**
      * @hide
@@ -155,6 +143,12 @@ public class EmojiCompat {
     public @interface ReplaceStrategy {
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
+
     private static final Object sInstanceLock = new Object();
 
     @GuardedBy("sInstanceLock")
@@ -180,9 +174,9 @@ public class EmojiCompat {
     private final CompatInternal mHelper;
 
     /**
-     * MetadataLoader instance given in the Config instance.
+     * Metadata loader instance given in the Config instance.
      */
-    private final MetadataLoader mMetadataLoader;
+    private final MetadataRepoLoader mMetadataLoader;
 
     /**
      * @see Config#setReplaceAll(boolean)
@@ -525,6 +519,7 @@ public class EmojiCompat {
         // since charSequence might be null here we have to check it. Passing through here to the
         // main function so that it can do all the checks including isInitialized. It will also
         // be the main point that decides what to return.
+        //noinspection ConstantConditions
         @IntRange(from = 0) final int length = charSequence == null ? 0 : charSequence.length();
         return process(charSequence, 0, length);
     }
@@ -558,7 +553,7 @@ public class EmojiCompat {
     @CheckResult
     public CharSequence process(@NonNull final CharSequence charSequence,
             @IntRange(from = 0) final int start, @IntRange(from = 0) final int end) {
-        return process(charSequence, start, end, EmojiProcessor.EMOJI_COUNT_UNLIMITED);
+        return process(charSequence, start, end, EMOJI_COUNT_UNLIMITED);
     }
 
     /**
@@ -641,6 +636,7 @@ public class EmojiCompat {
         Preconditions.checkArgument(start <= end, "start should be <= than end");
 
         // early return since there is nothing to do
+        //noinspection ConstantConditions
         if (charSequence == null) {
             return charSequence;
         }
@@ -673,6 +669,19 @@ public class EmojiCompat {
     }
 
     /**
+     * Returns signature for the currently loaded emoji assets. The signature is a SHA that is
+     * constructed using emoji assets. Can be used to detect if currently loaded asset is different
+     * then previous executions. When used on devices running API 18 or below, returns empty string.
+     *
+     * @throws IllegalStateException if not initialized yet
+     */
+    @NonNull
+    public String getAssetSignature() {
+        Preconditions.checkState(isInitialized(), "Not initialized yet");
+        return mHelper.getAssetSignature();
+    }
+
+    /**
      * Updates the EditorInfo attributes in order to communicate information to Keyboards. When
      * used on devices running API 18 or below, does not update EditorInfo attributes.
      *
@@ -686,6 +695,7 @@ public class EmojiCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
+        //noinspection ConstantConditions
         if (isInitialized() && outAttrs != null && outAttrs.extras != null) {
             mHelper.updateEditorInfoAttrs(outAttrs);
         }
@@ -733,32 +743,32 @@ public class EmojiCompat {
     /**
      * Interface to load emoji metadata.
      */
-    public interface MetadataLoader {
+    public interface MetadataRepoLoader {
         /**
          * Start loading the metadata. When the loading operation is finished {@link
-         * LoaderCallback#onLoaded(MetadataRepo)} or {@link LoaderCallback#onFailed(Throwable)}
-         * should be called. When used on devices running API 18 or below, this function is never
-         * called.
+         * MetadataRepoLoaderCallback#onLoaded(MetadataRepo)} or
+         * {@link MetadataRepoLoaderCallback#onFailed(Throwable)} should be called. When used on
+         * devices running API 18 or below, this function is never called.
          *
          * @param loaderCallback callback to signal the loading state
          */
-        void load(@NonNull LoaderCallback loaderCallback);
+        void load(@NonNull MetadataRepoLoaderCallback loaderCallback);
     }
 
     /**
-     * Callback to inform EmojiCompat about the state of the metadata load. Passed to MetadataLoader
-     * during {@link MetadataLoader#load(LoaderCallback)} call.
+     * Callback to inform EmojiCompat about the state of the metadata load. Passed to
+     * MetadataRepoLoader during {@link MetadataRepoLoader#load(MetadataRepoLoaderCallback)} call.
      */
-    public abstract static class LoaderCallback {
+    public abstract static class MetadataRepoLoaderCallback {
         /**
-         * Called by {@link MetadataLoader} when metadata is loaded successfully.
+         * Called by {@link MetadataRepoLoader} when metadata is loaded successfully.
          *
          * @param metadataRepo MetadataRepo instance, cannot be {@code null}
          */
         public abstract void onLoaded(@NonNull MetadataRepo metadataRepo);
 
         /**
-         * Called by {@link MetadataLoader} if an error occurs while loading the metadata.
+         * Called by {@link MetadataRepoLoader} if an error occurs while loading the metadata.
          *
          * @param throwable the exception that caused the failure, {@code nullable}
          */
@@ -772,7 +782,7 @@ public class EmojiCompat {
      * @see #init(EmojiCompat.Config)
      */
     public abstract static class Config {
-        private final MetadataLoader mMetadataLoader;
+        private final MetadataRepoLoader mMetadataLoader;
         private boolean mReplaceAll;
         private Set<InitCallback> mInitCallbacks;
         private boolean mEmojiSpanIndicatorEnabled;
@@ -781,9 +791,9 @@ public class EmojiCompat {
         /**
          * Default constructor.
          *
-         * @param metadataLoader MetadataLoader instance, cannot be {@code null}
+         * @param metadataLoader MetadataRepoLoader instance, cannot be {@code null}
          */
-        protected Config(@NonNull final MetadataLoader metadataLoader) {
+        protected Config(@NonNull final MetadataRepoLoader metadataLoader) {
             Preconditions.checkNotNull(metadataLoader, "metadataLoader cannot be null.");
             mMetadataLoader = metadataLoader;
         }
@@ -860,11 +870,9 @@ public class EmojiCompat {
         }
 
         /**
-         * Returns the {@link MetadataLoader}.
-         * @hide
+         * Returns the {@link MetadataRepoLoader}.
          */
-        @RestrictTo(LIBRARY_GROUP)
-        public final MetadataLoader getMetadataLoader() {
+        protected final MetadataRepoLoader getMetadataRepoLoader() {
             return mMetadataLoader;
         }
     }
@@ -877,6 +885,7 @@ public class EmojiCompat {
         private final Throwable mThrowable;
         private final int mLoadState;
 
+        @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
         ListenerDispatcher(@NonNull final InitCallback initCallback,
                 @LoadState final int loadState) {
             this(Arrays.asList(Preconditions.checkNotNull(initCallback,
@@ -920,7 +929,7 @@ public class EmojiCompat {
      * Internal helper class to behave no-op for certain functions.
      */
     private static class CompatInternal {
-        protected final EmojiCompat mEmojiCompat;
+        final EmojiCompat mEmojiCompat;
 
         CompatInternal(EmojiCompat emojiCompat) {
             mEmojiCompat = emojiCompat;
@@ -955,10 +964,14 @@ public class EmojiCompat {
         void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
             // intentionally empty
         }
+
+        String getAssetSignature() {
+            return "";
+        }
     }
 
     @RequiresApi(19)
-    private static class CompatInternal19 extends CompatInternal {
+    private static final class CompatInternal19 extends CompatInternal {
         /**
          * Responsible to process a CharSequence and add the spans. @{code Null} until the time the
          * metadata is loaded.
@@ -978,7 +991,7 @@ public class EmojiCompat {
         @Override
         void loadMetadata() {
             try {
-                mEmojiCompat.mMetadataLoader.load(new LoaderCallback() {
+                final MetadataRepoLoaderCallback callback = new MetadataRepoLoaderCallback() {
                     @Override
                     public void onLoaded(@NonNull MetadataRepo metadataRepo) {
                         onMetadataLoadSuccess(metadataRepo);
@@ -988,13 +1001,15 @@ public class EmojiCompat {
                     public void onFailed(@Nullable Throwable throwable) {
                         mEmojiCompat.onMetadataLoadFailed(throwable);
                     }
-                });
+                };
+                mEmojiCompat.mMetadataLoader.load(callback);
             } catch (Throwable t) {
                 mEmojiCompat.onMetadataLoadFailed(t);
             }
         }
 
         private void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
+            //noinspection ConstantConditions
             if (metadataRepo == null) {
                 mEmojiCompat.onMetadataLoadFailed(
                         new IllegalArgumentException("metadataRepo cannot be null"));
@@ -1033,6 +1048,12 @@ public class EmojiCompat {
         @Override
         void setGlyphChecker(@NonNull EmojiProcessor.GlyphChecker glyphChecker) {
             mProcessor.setGlyphChecker(glyphChecker);
+        }
+
+        @Override
+        String getAssetSignature() {
+            final String sha = mMetadataRepo.getMetadataList().sourceSha();
+            return sha == null ? "" : sha;
         }
     }
 }

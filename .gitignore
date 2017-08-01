@@ -14,3 +14,5 @@ local.properties
 *.iml
 **/out
 buildSrc/build
+lifecycle/common/build
+jacoco.exec

@@ -37,7 +37,6 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.BackgroundHelper;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.util.Log;
 import android.view.View;
@@ -674,7 +673,7 @@ public final class BackgroundManager {
         // Activity transition below O has ghost effect for null window background where we
         // need set a transparent background to force redraw the whole window.
         mContext.getWindow().getDecorView().setBackground(
-                BuildCompat.isAtLeastO() ? null : new ColorDrawable(Color.TRANSPARENT));
+                Build.VERSION.SDK_INT >= 26 ? null : new ColorDrawable(Color.TRANSPARENT));
     }
 
     void attachToViewInternal(View sceneRoot) {

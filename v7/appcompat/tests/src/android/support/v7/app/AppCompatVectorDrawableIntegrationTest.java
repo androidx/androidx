@@ -24,17 +24,23 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.test.annotation.UiThreadTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.appcompat.test.R;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.widget.ImageView;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SmallTest
-public class AppCompatVectorDrawableIntegrationTest
-        extends BaseInstrumentationTestCase<AppCompatVectorDrawableIntegrationActivity> {
+@RunWith(AndroidJUnit4.class)
+public class AppCompatVectorDrawableIntegrationTest {
+    @Rule
+    public final ActivityTestRule<AppCompatVectorDrawableIntegrationActivity> mActivityTestRule;
 
     private Bitmap mBitmap;
     private Canvas mCanvas;
@@ -46,7 +52,8 @@ public class AppCompatVectorDrawableIntegrationTest
     private static final int CENTER_Y = HEIGHT / 2;
 
     public AppCompatVectorDrawableIntegrationTest() {
-        super(AppCompatVectorDrawableIntegrationActivity.class);
+        mActivityTestRule =
+                new ActivityTestRule<>(AppCompatVectorDrawableIntegrationActivity.class);
     }
 
     @Before

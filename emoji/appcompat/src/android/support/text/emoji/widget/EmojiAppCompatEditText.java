@@ -29,9 +29,16 @@ import android.view.inputmethod.InputConnection;
  * AppCompatEditText widget enhanced with emoji capability by using {@link EmojiEditTextHelper}.
  * When used on devices running API 18 or below, this widget acts as a regular
  * {@link AppCompatEditText}.
+ *
+ * @attr ref android.support.text.emoji.R.styleable#EmojiEditText_maxEmojiCount
  */
 public class EmojiAppCompatEditText extends AppCompatEditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;
+
+    /**
+     * Prevent calling {@link #init(AttributeSet, int)} multiple times in case super() constructors
+     * call other constructors.
+     */
     private boolean mInitialized;
 
     public EmojiAppCompatEditText(Context context) {
@@ -53,7 +60,7 @@ public class EmojiAppCompatEditText extends AppCompatEditText {
         if (!mInitialized) {
             mInitialized = true;
             final EditTextAttributeHelper attrHelper = new EditTextAttributeHelper(this, attrs,
-                    defStyleAttr);
+                    defStyleAttr, 0);
             setMaxEmojiCount(attrHelper.getMaxEmojiCount());
             setKeyListener(super.getKeyListener());
         }
@@ -79,6 +86,8 @@ public class EmojiAppCompatEditText extends AppCompatEditText {
      *                      should be equal or greater than 0
      *
      * @see EmojiCompat#process(CharSequence, int, int, int)
+     *
+     * @attr ref android.support.text.emoji.R.styleable#EmojiEditText_maxEmojiCount
      */
     public void setMaxEmojiCount(@IntRange(from = 0) int maxEmojiCount) {
         getEmojiEditTextHelper().setMaxEmojiCount(maxEmojiCount);
@@ -89,6 +98,8 @@ public class EmojiAppCompatEditText extends AppCompatEditText {
      *
      * @see #setMaxEmojiCount(int)
      * @see EmojiCompat#process(CharSequence, int, int, int)
+     *
+     * @attr ref android.support.text.emoji.R.styleable#EmojiEditText_maxEmojiCount
      */
     public int getMaxEmojiCount() {
         return getEmojiEditTextHelper().getMaxEmojiCount();

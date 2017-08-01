@@ -44,12 +44,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -296,6 +295,41 @@ public class RecyclerViewCacheTest {
         mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
 
         verify(mockAdapter, times(2)).onCreateViewHolder(mRecyclerView, 0);
+    }
+
+    @Test
+    public void prefetchAfterOrientationChange() {
+        LinearLayoutManager layout = new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false);
+        mRecyclerView.setLayoutManager(layout);
+
+        // 100x100 pixel views
+        mRecyclerView.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = new View(getContext());
+                view.setMinimumWidth(100);
+                view.setMinimumHeight(100);
+                assertTrue(mRecyclerView.isComputingLayout());
+                return new RecyclerView.ViewHolder(view) {};
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {}
+
+            @Override
+            public int getItemCount() {
+                return 100;
+            }
+        });
+
+        layout(100, 100);
+
+        layout.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        // Prefetch an item after changing orientation, before layout - shouldn't crash
+        mRecyclerView.mPrefetchRegistry.setPrefetchVector(1, 1);
+        mRecyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
     }
 
     @Test
@@ -687,15 +721,11 @@ public class RecyclerViewCacheTest {
 
         verify(mockAdapter, times(2)).onCreateViewHolder(any(ViewGroup.class), anyInt());
         verify(mockAdapter, times(2)).onBindViewHolder(
-                argThat(new BaseMatcher<RecyclerView.ViewHolder>() {
+                argThat(new ArgumentMatcher<RecyclerView.ViewHolder>() {
                     @Override
-                    public boolean matches(Object item) {
-                        RecyclerView.ViewHolder holder = (RecyclerView.ViewHolder) item;
+                    public boolean matches(RecyclerView.ViewHolder holder) {
                         return holder.itemView == holder.mNestedRecyclerView.get();
                     }
-
-                    @Override
-                    public void describeTo(Description description) { }
                 }),
                 anyInt(),
                 any(List.class));

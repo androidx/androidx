@@ -42,6 +42,8 @@ import android.support.annotation.RequiresApi;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.custom.FitWindowsContentLayout;
 import android.support.v7.testutils.BaseTestActivity;
@@ -50,24 +52,31 @@ import android.view.Menu;
 import android.view.View;
 import android.view.WindowInsets;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SmallTest
-public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
-        extends BaseInstrumentationTestCase<A> {
+@RunWith(AndroidJUnit4.class)
+public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
+    @Rule
+    public final ActivityTestRule<A> mActivityTestRule;
+
 
     protected BaseBasicsTestCase(Class<A> activityClass) {
-        super(activityClass);
+        mActivityTestRule = new ActivityTestRule<>(activityClass);
     }
 
     @Test
     public void testActionBarExists() {
-        assertNotNull("ActionBar is not null", getActivity().getSupportActionBar());
+        assertNotNull("ActionBar is not null",
+                mActivityTestRule.getActivity().getSupportActionBar());
     }
 
     @Test
     public void testDefaultActionBarTitle() {
-        assertEquals(getActivity().getTitle(), getActivity().getSupportActionBar().getTitle());
+        assertEquals(mActivityTestRule.getActivity().getTitle(),
+                mActivityTestRule.getActivity().getSupportActionBar().getTitle());
     }
 
     @UiThreadTest
@@ -84,10 +93,10 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     @RequiresApi(16)
     public void testFitSystemWindowsReachesContent() {
         final FitWindowsContentLayout content =
-                (FitWindowsContentLayout) getActivity().findViewById(R.id.test_content);
+                mActivityTestRule.getActivity().findViewById(R.id.test_content);
         assertNotNull(content);
 
-        if (!canShowSystemUi(getActivity())) {
+        if (!canShowSystemUi(mActivityTestRule.getActivity())) {
             // Device cannot show system UI so setSystemUiVisibility will do nothing.
             return;
         }
@@ -103,10 +112,10 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     @SdkSuppress(minSdkVersion = 21)
     @RequiresApi(21)
     public void testOnApplyWindowInsetsReachesContent() {
-        final View content = getActivity().findViewById(R.id.test_content);
+        final View content = mActivityTestRule.getActivity().findViewById(R.id.test_content);
         assertNotNull(content);
 
-        if (!canShowSystemUi(getActivity())) {
+        if (!canShowSystemUi(mActivityTestRule.getActivity())) {
             // Device cannot show system UI so setSystemUiVisibility will do nothing.
             return;
         }
@@ -128,7 +137,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     @Test
     @UiThreadTest
     public void testSupportActionModeCallbacks() {
-        final A activity = getActivity();
+        final A activity = mActivityTestRule.getActivity();
 
         // Create a mock action mode callback which returns true from onCreateActionMode
         final ActionMode.Callback callback = mock(ActionMode.Callback.class);
@@ -152,7 +161,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     @Test
     @UiThreadTest
     public void testSupportActionModeCallbacksInvalidate() {
-        final A activity = getActivity();
+        final A activity = mActivityTestRule.getActivity();
 
         // Create a mock action mode callback which returns true from onCreateActionMode
         final ActionMode.Callback callback = mock(ActionMode.Callback.class);
@@ -176,7 +185,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     @Test
     @UiThreadTest
     public void testSupportActionModeCallbacksWithFalseOnCreate() {
-        final A activity = getActivity();
+        final A activity = mActivityTestRule.getActivity();
 
         // Create a mock action mode callback which returns true from onCreateActionMode
         final ActionMode.Callback callback = mock(ActionMode.Callback.class);
@@ -206,7 +215,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity>
     }
 
     protected void testSupportActionModeAppCompatCallbacks(final boolean fromWindow) {
-        final A activity = getActivity();
+        final A activity = mActivityTestRule.getActivity();
 
         // Create a mock action mode callback which returns true from onCreateActionMode
         final ActionMode.Callback amCallback = mock(ActionMode.Callback.class);

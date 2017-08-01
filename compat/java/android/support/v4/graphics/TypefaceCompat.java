@@ -21,8 +21,8 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Build;
+import android.os.CancellationSignal;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -32,15 +32,10 @@ import android.support.v4.content.res.FontResourcesParserCompat.ProviderResource
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.util.LruCache;
-import android.util.Log;
 import android.widget.TextView;
 
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.util.Map;
-
 /**
- * Helper for accessing features in {@link Typeface} in a backwards compatible fashion.
+ * Helper for accessing features in {@link Typeface}.
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
@@ -49,16 +44,15 @@ public class TypefaceCompat {
 
     private static final TypefaceCompatImpl sTypefaceCompatImpl;
     static {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            sTypefaceCompatImpl = new TypefaceCompatBaseImpl();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            sTypefaceCompatImpl = new TypefaceCompatApi26Impl();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && TypefaceCompatApi24Impl.isUsable()) {
+            sTypefaceCompatImpl = new TypefaceCompatApi24Impl();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            sTypefaceCompatImpl = new TypefaceCompatApi21Impl();
         } else {
-            if (!TypefaceCompatApi24Impl.isUsable()) {
-                Log.w(TAG, "Unable to collect necessary private methods."
-                        + "Fallback to legacy implementation.");
-                sTypefaceCompatImpl = new TypefaceCompatBaseImpl();
-            } else {
-                sTypefaceCompatImpl = new TypefaceCompatApi24Impl();
-            }
+            sTypefaceCompatImpl = new TypefaceCompatBaseImpl();
         }
     }
 
@@ -73,8 +67,12 @@ public class TypefaceCompat {
                 Context context, FontFamilyFilesResourceEntry entry, Resources resources,
                 int style);
 
-        Typeface createTypeface(Context context, @NonNull FontInfo[] fonts,
-                Map<Uri, ByteBuffer> uriBuffer);
+        Typeface createFromFontInfo(Context context,
+                @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts,
+                int style);
+
+        Typeface createFromResourcesFontFile(
+                Context context, Resources resources, int id, String path, int style);
     }
 
     private TypefaceCompat() {}
@@ -93,7 +91,7 @@ public class TypefaceCompat {
      *
      * @param resources Resources instance
      * @param id a resource id
-     * @param a style to be used for this resource, -1 if not availbale.
+     * @param style style to be used for this resource, -1 if not available.
      * @return Unique id for a given resource and id.
      */
     private static String createResourceUid(final Resources resources, int id, int style) {
@@ -129,35 +127,20 @@ public class TypefaceCompat {
      */
     @Nullable
     public static Typeface createFromResourcesFontFile(
-            Context context, Resources resources, int id, int style) {
-        final File tmpFile = TypefaceCompatUtil.getTempFile(context);
-        if (tmpFile == null) {
-            return null;
+            Context context, Resources resources, int id, String path, int style) {
+        Typeface typeface = sTypefaceCompatImpl.createFromResourcesFontFile(
+                context, resources, id, path, style);
+        if (typeface != null) {
+            sTypefaceCache.put(createResourceUid(resources, id, style), typeface);
         }
-        try {
-            if (!TypefaceCompatUtil.copyToFile(tmpFile, resources, id)) {
-                return null;
-            }
-            Typeface typeface = Typeface.createFromFile(tmpFile.getPath());
-            if (typeface != null) {
-                sTypefaceCache.put(createResourceUid(resources, id, style), typeface);
-            }
-            return typeface;
-        } catch (RuntimeException e) {
-            // This was thrown from Typeface.createFromFile when a Typeface could not be loaded.
-            // such as due to an invalid ttf or unreadable file. We don't want to throw that
-            // exception anymore.
-            return null;
-        } finally {
-            tmpFile.delete();
-        }
+        return typeface;
     }
 
     /**
      * Create a Typeface from a given FontInfo list and a map that matches them to ByteBuffers.
      */
-    public static Typeface createTypeface(Context context, @NonNull FontInfo[] fonts,
-            Map<Uri, ByteBuffer> uriBuffer) {
-        return sTypefaceCompatImpl.createTypeface(context, fonts, uriBuffer);
+    public static Typeface createFromFontInfo(Context context,
+            @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
+        return sTypefaceCompatImpl.createFromFontInfo(context, cancellationSignal, fonts, style);
     }
 }

@@ -19,7 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.android.supportpreference">
 
-    <uses-sdk android:targetSdkVersion="24"
+    <uses-sdk
         tools:overrideLibrary="android.support.v17.preference, android.support.v17.leanback" />
 
     <uses-feature android:name="android.software.Leanback" android:required="false" />

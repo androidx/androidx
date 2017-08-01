@@ -22,8 +22,7 @@ import android.graphics.Rect;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 /**
- * Helper for accessing {@link android.view.accessibility.AccessibilityWindowInfo}
- * in a backwards compatible fashion.
+ * Helper for accessing {@link android.view.accessibility.AccessibilityWindowInfo}.
  */
 public class AccessibilityWindowInfoCompat {
     private Object mInfo;

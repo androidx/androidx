@@ -2,21 +2,16 @@ apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'leanback-v17'
 
 dependencies {
-    compile project(':support-compat')
-    compile project(':support-core-ui')
-    compile project(':support-media-compat')
-    compile project(':support-fragment')
-    compile project(':support-recyclerview-v7')
+    api project(':support-compat')
+    api project(':support-core-ui')
+    api project(':support-media-compat')
+    api project(':support-fragment')
+    api project(':support-recyclerview-v7')
 
-    androidTestCompile (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker
-    androidTestCompile libs.dexmaker_mockito
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
 }
 
 android {
@@ -34,11 +29,6 @@ android {
                 'src'
         ]
         main.res.srcDir 'res'
-    }
-
-    lintOptions {
-        // Remove this once all NewApi breakages have been fixed.
-        disable "NewApi"
     }
 }
 

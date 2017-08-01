@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,8 +65,7 @@ public final class NotificationManagerCompat {
      * Notification extras key: if set to true, the posted notification should use
      * the side channel for delivery instead of using notification manager.
      */
-    public static final String EXTRA_USE_SIDE_CHANNEL =
-            NotificationCompatJellybean.EXTRA_USE_SIDE_CHANNEL;
+    public static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
 
     /**
      * Intent action to register for on a service to receive side channel
@@ -411,7 +409,7 @@ public final class NotificationManagerCompat {
             }
             mCachedEnabledPackages = enabledPackages;
             List<ResolveInfo> resolveInfos = mContext.getPackageManager().queryIntentServices(
-                    new Intent().setAction(ACTION_BIND_SIDE_CHANNEL), PackageManager.GET_SERVICES);
+                    new Intent().setAction(ACTION_BIND_SIDE_CHANNEL), 0);
             Set<ComponentName> enabledComponents = new HashSet<ComponentName>();
             for (ResolveInfo resolveInfo : resolveInfos) {
                 if (!enabledPackages.contains(resolveInfo.serviceInfo.packageName)) {

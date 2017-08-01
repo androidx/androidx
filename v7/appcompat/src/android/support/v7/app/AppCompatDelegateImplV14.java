@@ -26,11 +26,11 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
-import android.support.v4.os.BuildCompat;
 import android.support.v7.view.SupportActionModeWrapper;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -217,7 +217,7 @@ class AppCompatDelegateImplV14 extends AppCompatDelegateImplV11 {
                 res.updateConfiguration(config, metrics);
 
                 // We may need to flush the Resources' drawable cache due to framework bugs.
-                if (!BuildCompat.isAtLeastO()) {
+                if (!(Build.VERSION.SDK_INT >= 26)) {
                     ResourcesFlusher.flush(res);
                 }
             }

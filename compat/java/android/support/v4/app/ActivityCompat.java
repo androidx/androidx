@@ -41,8 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Helper for accessing features in {@link android.app.Activity}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.app.Activity}.
  */
 public class ActivityCompat extends ContextCompat {
 

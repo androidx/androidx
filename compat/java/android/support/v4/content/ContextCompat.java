@@ -30,7 +30,6 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -38,8 +37,7 @@ import android.util.TypedValue;
 import java.io.File;
 
 /**
- * Helper for accessing features in {@link android.content.Context}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.Context}.
  */
 public class ContextCompat {
     private static final String TAG = "ContextCompat";
@@ -557,7 +555,7 @@ public class ContextCompat {
      * @see Context#startService()
      */
     public static void startForegroundService(Context context, Intent intent) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             context.startForegroundService(intent);
         } else {
             // Pre-O behavior.

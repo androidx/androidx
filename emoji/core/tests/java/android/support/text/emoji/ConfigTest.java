@@ -102,9 +102,9 @@ public class ConfigTest {
     public void testInitCallback_callsFailCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);
-        final EmojiCompat.MetadataLoader loader = mock(EmojiCompat.MetadataLoader.class);
-        doThrow(new RuntimeException("")).when(loader).load(any(EmojiCompat.LoaderCallback
-                .class));
+        final EmojiCompat.MetadataRepoLoader loader = mock(EmojiCompat.MetadataRepoLoader.class);
+        doThrow(new RuntimeException("")).when(loader)
+                .load(any(EmojiCompat.MetadataRepoLoaderCallback.class));
 
         final EmojiCompat.Config config = new TestConfigBuilder.TestConfig(loader)
                 .registerInitCallback(initCallback1)

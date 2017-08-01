@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.eq;
@@ -46,7 +47,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import android.support.v7.app.BaseInstrumentationTestCase;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.appcompat.test.R;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -60,9 +62,16 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestActivity> {
+@RunWith(AndroidJUnit4.class)
+public class ListPopupWindowTest {
+    @Rule
+    public final ActivityTestRule<PopupTestActivity> mActivityTestRule =
+            new ActivityTestRule<>(PopupTestActivity.class);
+
     private FrameLayout mContainer;
 
     private Button mButton;
@@ -86,15 +95,11 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         }
     }
 
-    public ListPopupWindowTest() {
-        super(PopupTestActivity.class);
-    }
-
     @Before
     public void setUp() throws Exception {
         final PopupTestActivity activity = mActivityTestRule.getActivity();
-        mContainer = (FrameLayout) activity.findViewById(R.id.container);
-        mButton = (Button) mContainer.findViewById(R.id.test_button);
+        mContainer = activity.findViewById(R.id.container);
+        mButton = mContainer.findViewById(R.id.test_button);
         mItemClickListener = new PopupItemClickListener();
     }
 
@@ -177,9 +182,14 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         Builder popupBuilder = new Builder().setModal(setupAsModal).withDismissListener();
         popupBuilder.wireToActionButton();
 
+        final View.OnClickListener mockContainerClickListener = mock(View.OnClickListener.class);
         // Also register a click listener on the top-level container
-        View.OnClickListener mockContainerClickListener = mock(View.OnClickListener.class);
-        mContainer.setOnClickListener(mockContainerClickListener);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mContainer.setOnClickListener(mockContainerClickListener);
+            }
+        });
 
         onView(withId(R.id.test_button)).perform(click());
         assertTrue("Popup window showing", mListPopupWindow.isShowing());
@@ -262,7 +272,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
         // Verify that our menu item click listener hasn't been called yet
         verify(popupBuilder.mOnItemClickListener, never()).onItemClick(
-                any(AdapterView.class), any(View.class), any(int.class), any(int.class));
+                any(AdapterView.class), any(View.class), any(int.class), anyLong());
 
         final View mainDecorView = mActivityTestRule.getActivity().getWindow().getDecorView();
         onView(withText("Charlie"))
@@ -272,7 +282,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         // position. Note that we use any() for other parameters, as we don't want to tie ourselves
         // to the specific implementation details of how ListPopupWindow displays its content.
         verify(popupBuilder.mOnItemClickListener, times(1)).onItemClick(
-                any(AdapterView.class), any(View.class), eq(2), any(int.class));
+                any(AdapterView.class), any(View.class), eq(2), anyLong());
 
         // Our item click listener also dismisses the popup
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
@@ -289,7 +299,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
 
         // Verify that our menu item click listener hasn't been called yet
         verify(popupBuilder.mOnItemClickListener, never()).onItemClick(
-                any(AdapterView.class), any(View.class), any(int.class), any(int.class));
+                any(AdapterView.class), any(View.class), any(int.class), anyLong());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -302,7 +312,7 @@ public class ListPopupWindowTest extends BaseInstrumentationTestCase<PopupTestAc
         // position. Note that we use any() for other parameters, as we don't want to tie ourselves
         // to the specific implementation details of how ListPopupWindow displays its content.
         verify(popupBuilder.mOnItemClickListener, times(1)).onItemClick(
-                any(AdapterView.class), any(View.class), eq(1), any(int.class));
+                any(AdapterView.class), any(View.class), eq(1), anyLong());
         // Our item click listener also dismisses the popup
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
     }

@@ -13,14 +13,21 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_search"
           android:title="@string/menu_search"
+          app:contentDescription="@string/menu_search"
+          app:tooltipText="@string/menu_search"
           android:icon="@drawable/ic_search"/>
     <item android:id="@+id/action_settings"
           android:title="@string/menu_settings"
+          app:contentDescription="@string/menu_settings"
+          app:tooltipText="@string/menu_settings"
           android:icon="@drawable/ic_add"/>
     <item android:id="@+id/action_music"
           android:title="@string/tab_text"
+          app:contentDescription="@string/tab_text"
+          app:tooltipText="@string/tab_text"
           android:icon="@drawable/ic_action_navigation_menu"/>
 </menu>

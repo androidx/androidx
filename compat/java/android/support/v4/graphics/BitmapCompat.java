@@ -15,13 +15,12 @@
  */
 package android.support.v4.graphics;
 
-import android.support.annotation.RequiresApi;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 /**
- * Helper for accessing features in {@link android.graphics.Bitmap}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.graphics.Bitmap}.
  */
 public final class BitmapCompat {
     static class BitmapCompatBaseImpl {

@@ -15,7 +15,6 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.wear">
-    <uses-sdk android:minSdkVersion="22"/>
     <application>
         <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
     </application>

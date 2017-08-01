@@ -31,12 +31,6 @@ import java.util.Set;
 
 @RequiresApi(16)
 class RemoteInputCompatJellybean {
-    /** Label used to denote the clip data type used for remote input transport */
-    public static final String RESULTS_CLIP_LABEL = "android.remoteinput.results";
-
-    /** Extra added to a clip data intent object to hold the results bundle. */
-    public static final String EXTRA_RESULTS_DATA = "android.remoteinput.resultsData";
-
     /** Extra added to a clip data intent object to hold the data results bundle. */
     private static final String EXTRA_DATA_TYPE_RESULTS_DATA =
             "android.remoteinput.dataTypeResultsData";
@@ -112,7 +106,7 @@ class RemoteInputCompatJellybean {
         if (clipDataIntent == null) {
             return null;
         }
-        return clipDataIntent.getExtras().getParcelable(EXTRA_RESULTS_DATA);
+        return clipDataIntent.getExtras().getParcelable(RemoteInput.EXTRA_RESULTS_DATA);
     }
 
     static Map<String, Uri> getDataResultsFromIntent(Intent intent, String remoteInputResultKey) {
@@ -145,7 +139,7 @@ class RemoteInputCompatJellybean {
         if (clipDataIntent == null) {
             clipDataIntent = new Intent();  // First time we've added a result.
         }
-        Bundle resultsBundle = clipDataIntent.getBundleExtra(EXTRA_RESULTS_DATA);
+        Bundle resultsBundle = clipDataIntent.getBundleExtra(RemoteInput.EXTRA_RESULTS_DATA);
         if (resultsBundle == null) {
             resultsBundle = new Bundle();
         }
@@ -155,8 +149,8 @@ class RemoteInputCompatJellybean {
                 resultsBundle.putCharSequence(remoteInput.getResultKey(), (CharSequence) result);
             }
         }
-        clipDataIntent.putExtra(EXTRA_RESULTS_DATA, resultsBundle);
-        intent.setClipData(ClipData.newIntent(RESULTS_CLIP_LABEL, clipDataIntent));
+        clipDataIntent.putExtra(RemoteInput.EXTRA_RESULTS_DATA, resultsBundle);
+        intent.setClipData(ClipData.newIntent(RemoteInput.RESULTS_CLIP_LABEL, clipDataIntent));
     }
 
     /**
@@ -186,7 +180,7 @@ class RemoteInputCompatJellybean {
             resultsBundle.putString(remoteInput.getResultKey(), uri.toString());
             clipDataIntent.putExtra(getExtraResultsKeyForData(mimeType), resultsBundle);
         }
-        intent.setClipData(ClipData.newIntent(RESULTS_CLIP_LABEL, clipDataIntent));
+        intent.setClipData(ClipData.newIntent(RemoteInput.RESULTS_CLIP_LABEL, clipDataIntent));
     }
 
     private static String getExtraResultsKeyForData(String mimeType) {
@@ -202,7 +196,7 @@ class RemoteInputCompatJellybean {
         if (!clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_INTENT)) {
             return null;
         }
-        if (!clipDescription.getLabel().equals(RESULTS_CLIP_LABEL)) {
+        if (!clipDescription.getLabel().equals(RemoteInput.RESULTS_CLIP_LABEL)) {
             return null;
         }
         return clipData.getItemAt(0).getIntent();

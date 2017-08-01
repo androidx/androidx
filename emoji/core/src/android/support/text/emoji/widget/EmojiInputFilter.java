@@ -56,7 +56,6 @@ final class EmojiInputFilter implements android.text.InputFilter {
             return source;
         }
 
-
         switch (EmojiCompat.get().getLoadState()){
             case EmojiCompat.LOAD_STATE_SUCCEEDED:
                 boolean process = true;
@@ -81,8 +80,11 @@ final class EmojiInputFilter implements android.text.InputFilter {
             case EmojiCompat.LOAD_STATE_LOADING:
                 EmojiCompat.get().registerInitCallback(getInitCallback());
                 return source;
+
+            case EmojiCompat.LOAD_STATE_FAILED:
+            default:
+                return source;
         }
-        return source;
     }
 
     private InitCallback getInitCallback() {

@@ -33,14 +33,14 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RequiresPermission;
 import android.support.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Helper for accessing features in {@link ConnectivityManager} introduced after
- * API level 16 in a backwards compatible fashion.
+ * Helper for accessing features in {@link ConnectivityManager}.
  */
 public final class ConnectivityManagerCompat {
 
@@ -162,6 +162,7 @@ public final class ConnectivityManagerCompat {
      * @return {@code true} if large transfers should be avoided, otherwise
      *        {@code false}.
      */
+    @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isActiveNetworkMetered(ConnectivityManager cm) {
         return IMPL.isActiveNetworkMetered(cm);
     }

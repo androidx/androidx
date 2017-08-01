@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/ws_action_drawer_peek_view_height"
+    android:layout_gravity="center"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/ws_action_drawer_peek_top_padding">
+
+    <ImageView
+        android:id="@+id/ws_action_drawer_peek_action_icon"
+        android:layout_width="@dimen/ws_peek_view_icon_size"
+        android:layout_height="@dimen/ws_peek_view_icon_size"
+        android:tint="?android:attr/colorForeground"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/ws_action_drawer_expand_icon"
+        android:layout_width="@dimen/ws_peek_view_icon_size"
+        android:layout_height="@dimen/ws_peek_view_icon_size"
+        android:layout_marginTop="@dimen/ws_action_drawer_expand_icon_top_margin"
+        android:src="@drawable/ws_ic_expand_less_white_22"
+        android:alpha="0.5"
+        android:tint="?android:attr/colorForeground"
+        tools:ignore="NegativeMargin,ContentDescription" />
+
+</LinearLayout>

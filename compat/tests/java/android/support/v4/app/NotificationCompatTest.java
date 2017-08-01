@@ -41,7 +41,6 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
-import android.support.v4.os.BuildCompat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +73,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setBadgeIconType(badgeIcon)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(badgeIcon, NotificationCompat.getBadgeIconType(n));
         } else {
             assertEquals(NotificationCompat.BADGE_ICON_NONE,
@@ -86,12 +85,12 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     public void testTimeout() throws Throwable {
         long timeout = 23552;
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setTimeout(timeout)
+                .setTimeoutAfter(timeout)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
-            assertEquals(timeout, NotificationCompat.getTimeout(n));
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(timeout, NotificationCompat.getTimeoutAfter(n));
         } else {
-            assertEquals(0, NotificationCompat.getTimeout(n));
+            assertEquals(0, NotificationCompat.getTimeoutAfter(n));
         }
     }
 
@@ -101,7 +100,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setShortcutId(shortcutId)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(shortcutId, NotificationCompat.getShortcutId(n));
         } else {
             assertEquals(null, NotificationCompat.getShortcutId(n));
@@ -112,12 +111,12 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     public void testNotificationChannel() throws Throwable {
         String channelId = "new ID";
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity())
-                .setChannel(channelId)
+                .setChannelId(channelId)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
-            assertEquals(channelId, NotificationCompat.getChannel(n));
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(channelId, NotificationCompat.getChannelId(n));
         } else {
-            assertNull(NotificationCompat.getChannel(n));
+            assertNull(NotificationCompat.getChannelId(n));
         }
     }
 
@@ -126,17 +125,17 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         String channelId = "new ID";
         Notification n  = new NotificationCompat.Builder(mActivityTestRule.getActivity(), channelId)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
-            assertEquals(channelId, NotificationCompat.getChannel(n));
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(channelId, NotificationCompat.getChannelId(n));
         } else {
-            assertNull(NotificationCompat.getChannel(n));
+            assertNull(NotificationCompat.getChannelId(n));
         }
     }
 
     @Test
     public void testNotificationActionBuilder_assignsColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(true).build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             Bundle extras = NotificationCompat.getExtras(n);
             assertTrue(Boolean.TRUE.equals(extras.get(EXTRA_COLORIZED)));
         }
@@ -145,7 +144,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     @Test
     public void testNotificationActionBuilder_unassignesColorized() throws Throwable {
         Notification n = newNotificationBuilder().setColorized(false).build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             Bundle extras = NotificationCompat.getExtras(n);
             assertTrue(Boolean.FALSE.equals(extras.get(EXTRA_COLORIZED)));
         }
@@ -154,7 +153,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
     @Test
     public void testNotificationActionBuilder_doesntAssignColorized() throws Throwable {
         Notification n = newNotificationBuilder().build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             Bundle extras = NotificationCompat.getExtras(n);
             assertFalse(extras.containsKey(EXTRA_COLORIZED));
         }
@@ -178,6 +177,18 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         NotificationCompat.Action aCopy = new NotificationCompat.Action.Builder(a).build();
 
         assertEquals(a.getAllowGeneratedReplies(), aCopy.getAllowGeneratedReplies());
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @TargetApi(24)
+    @Test
+    public void testFrameworkNotificationActionBuilder_setAllowGeneratedRepliesTrue()
+            throws Throwable {
+        Notification notif = new Notification.Builder(mContext)
+                .addAction(new Notification.Action.Builder(0, "title", null)
+                        .setAllowGeneratedReplies(true).build()).build();
+        NotificationCompat.Action action = NotificationCompat.getAction(notif, 0);
+        assertTrue(action.getAllowGeneratedReplies());
     }
 
     @Test
@@ -288,7 +299,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
         Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setGroupAlertBehavior(GROUP_ALERT_CHILDREN)
                 .build();
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(GROUP_ALERT_CHILDREN, NotificationCompat.getGroupAlertBehavior(n));
         } else {
             assertEquals(GROUP_ALERT_ALL, NotificationCompat.getGroupAlertBehavior(n));
@@ -318,7 +329,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .setGroupSummary(false)
                 .build();
 
-        if (Build.VERSION.SDK_INT >= 20 && !BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 20 && !(Build.VERSION.SDK_INT >= 26)) {
             assertNull(n.sound);
             assertNull(n.vibrate);
             assertTrue((n.defaults & DEFAULT_LIGHTS) != 0);
@@ -373,7 +384,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .setGroupSummary(false)
                 .build();
 
-        if (Build.VERSION.SDK_INT >= 20 && !BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 20 && !(Build.VERSION.SDK_INT >= 26)) {
             assertNotNull(n.sound);
             assertNotNull(n.vibrate);
             assertTrue((n.defaults & DEFAULT_LIGHTS) != 0);
@@ -404,7 +415,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestSupp
                 .setGroup(null)
                 .setGroupSummary(false)
                 .build();
-        if (!BuildCompat.isAtLeastO()) {
+        if (!(Build.VERSION.SDK_INT >= 26)) {
             assertNotNull(n.sound);
             assertNotNull(n.vibrate);
             assertTrue((n.defaults & DEFAULT_LIGHTS) != 0);

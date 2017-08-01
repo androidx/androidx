@@ -36,7 +36,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.util.Log;
@@ -62,8 +61,7 @@ import java.util.Collection;
 import java.util.WeakHashMap;
 
 /**
- * Helper for accessing features in {@link View} introduced after API
- * level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link View}.
  */
 public class ViewCompat {
     private static final String TAG = "ViewCompat";
@@ -989,6 +987,10 @@ public class ViewCompat {
         public boolean restoreDefaultFocus(@NonNull View view) {
             return view.requestFocus();
         }
+
+        public boolean hasExplicitFocusable(@NonNull View view) {
+            return view.hasFocusable();
+        }
     }
 
     @RequiresApi(15)
@@ -1572,11 +1574,16 @@ public class ViewCompat {
         public boolean restoreDefaultFocus(@NonNull View view) {
             return view.restoreDefaultFocus();
         }
+
+        @Override
+        public boolean hasExplicitFocusable(@NonNull View view) {
+            return view.hasExplicitFocusable();
+        }
     }
 
     static final ViewCompatBaseImpl IMPL;
     static {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             IMPL = new ViewCompatApi26Impl();
         } else if (Build.VERSION.SDK_INT >= 24) {
             IMPL = new ViewCompatApi24Impl();
@@ -3691,6 +3698,25 @@ public class ViewCompat {
      */
     public static boolean restoreDefaultFocus(@NonNull View view) {
         return IMPL.restoreDefaultFocus(view);
+    }
+
+    /**
+     * Returns true if this view is focusable or if it contains a reachable View
+     * for which {@link View#hasExplicitFocusable()} returns {@code true}.
+     * A "reachable hasExplicitFocusable()" is a view whose parents do not block descendants focus.
+     * Only {@link View#VISIBLE} views for which {@link View#getFocusable()} would return
+     * {@link View#FOCUSABLE} are considered focusable.
+     *
+     * <p>This method preserves the pre-{@link Build.VERSION_CODES#O} behavior of
+     * {@link View#hasFocusable()} in that only views explicitly set focusable will cause
+     * this method to return true. A view set to {@link View#FOCUSABLE_AUTO} that resolves
+     * to focusable will not.</p>
+     *
+     * @return {@code true} if the view is focusable or if the view contains a focusable
+     *         view, {@code false} otherwise
+     */
+    public static boolean hasExplicitFocusable(@NonNull View view) {
+        return IMPL.hasExplicitFocusable(view);
     }
 
     protected ViewCompat() {}

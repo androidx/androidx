@@ -16,9 +16,6 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.support.animation">
-
-    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="25" />
-
     <application android:label="@string/activity_sample_code"
             android:supportsRtl="true"
             android:icon="@drawable/app_sample_code"

@@ -58,21 +58,6 @@ public class ViewUtils {
     }
 
     /**
-     * Merge two states as returned by {@link View#getMeasuredState()} ()}.
-     * @param curState The current state as returned from a view or the result
-     * of combining multiple views.
-     * @param newState The new view state to combine.
-     * @return Returns a new integer reflecting the combination of the two
-     * states.
-     *
-     * @deprecated Use {@link View#combineMeasuredStates(int, int)} directly.
-     */
-    @Deprecated
-    public static int combineMeasuredStates(int curState, int newState) {
-        return View.combineMeasuredStates(curState, newState);
-    }
-
-    /**
      * Allow calling the hidden method {@code computeFitSystemWindows(Rect, Rect)} through
      * reflection on {@code view}.
      */

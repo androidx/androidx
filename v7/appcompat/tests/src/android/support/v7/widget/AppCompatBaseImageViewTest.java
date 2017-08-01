@@ -66,7 +66,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     @SmallTest
     public void testImageTintingAcrossStateChange() {
         final @IdRes int viewId = R.id.view_tinted_source;
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivity.getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
         @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
@@ -144,7 +144,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     @SmallTest
     public void testImageTintingAcrossModeChange() {
         final @IdRes int viewId = R.id.view_untinted_source;
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivity.getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
         @ColorInt int emeraldDefault = ResourcesCompat.getColor(
@@ -216,7 +216,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     @SmallTest
     public void testImageOpaqueTintingAcrossImageChange() {
         final @IdRes int viewId = R.id.view_tinted_no_source;
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivity.getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
         @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
@@ -271,7 +271,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     @SmallTest
     public void testImageTranslucentTintingAcrossImageChange() {
         final @IdRes int viewId = R.id.view_untinted_no_source;
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivity.getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
         @ColorInt int emeraldDefault = ResourcesCompat.getColor(
@@ -361,7 +361,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
     @SmallTest
     public void testImageTintingAcrossBackgroundTintingChange() {
         final @IdRes int viewId = R.id.view_untinted_source;
-        final Resources res = getActivity().getResources();
+        final Resources res = mActivity.getResources();
         final T view = (T) mContainer.findViewById(viewId);
 
         @ColorInt int lilacDefault = ResourcesCompat.getColor(res, R.color.lilac_default, null);
