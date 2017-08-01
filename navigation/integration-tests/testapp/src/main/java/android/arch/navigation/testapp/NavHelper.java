@@ -16,18 +16,12 @@
 
 package android.arch.navigation.testapp;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.arch.navigation.NavController;
 import android.arch.navigation.NavDestination;
-import android.arch.navigation.NavGraph;
 import android.arch.navigation.NavOptions;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -41,96 +35,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewParent;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 /**
  * Class which hooks up elements typically in the 'chrome' of your application such as global
  * navigation patterns like a navigation drawer or bottom nav bar with your {@link NavController}.
  */
 public class NavHelper {
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    @IntDef(flag = true,
-            value = {NavDestination.NAV_TYPE_SECONDARY, NavDestination.NAV_TYPE_PRIMARY})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface MenuNavTypes {}
 
     // No instances. Static utilities only.
     private NavHelper() {
-    }
-
-    /**
-     * Adds the {@link NavGraph#iterator() direct child destinations} of the given NavGraph
-     * to the given Menu.
-     * @param navGraph The NavGraph to {@link NavGraph#iterator() iterate} through, adding each
-     *                 child destination.
-     * @param menu The menu to add the children destinations to.
-     * @param type The navigation type or types to filter the destinations. This must be one or
-     *             more of {@link NavDestination#NAV_TYPE_PRIMARY} and
-     *             {@link NavDestination#NAV_TYPE_SECONDARY}.
-     * @param menuItemClickListener The OnMenuItemClickListener that should be used to handle this
-     *                              menu item
-     */
-    public static void addChildDestinationsToMenu(NavGraph navGraph, Menu menu,
-            @MenuNavTypes int type, MenuItem.OnMenuItemClickListener menuItemClickListener) {
-        for (NavDestination destination : navGraph) {
-            if ((type & destination.getNavType()) != 0) {
-                NavHelper.addDestinationToMenu(destination, menu, menuItemClickListener);
-            }
-        }
-    }
-
-    /**
-     * Adds a destination to the given Menu with the {@link NavDestination#getId() id} of the
-     * destination, the {@link NavDestination#getLabel() label} as the title, and the icon set via
-     * {@link NavDestination#setIcon(int)} or {@link NavDestination#setIcon(Drawable)}.
-     *
-     * <p>The {@link NavDestination#getNavType() navigation type} is used
-     * as the groupId for the MenuItem. For {@link NavDestination#NAV_TYPE_SECONDARY secondary}
-     * destinations, the order will be set to {@link Menu#CATEGORY_SECONDARY}.
-     *
-     * @param destination The NavDestination to add to the Menu.
-     * @param menu The menu to add this destination to.
-     * @param menuItemClickListener The OnMenuItemClickListener that should be used to handle this
-     *                              menu item
-     */
-    public static void addDestinationToMenu(NavDestination destination, Menu menu,
-            MenuItem.OnMenuItemClickListener menuItemClickListener) {
-        int order = destination.getNavType() == NavDestination.NAV_TYPE_SECONDARY
-                ? Menu.CATEGORY_SECONDARY
-                : Menu.NONE;
-        addDestinationToMenu(destination, menu, destination.getNavType(), order,
-                menuItemClickListener);
-    }
-
-    /**
-     * Adds a destination to the given Menu with the {@link NavDestination#getId() id} of the
-     * destination, the {@link NavDestination#getLabel() label} as the title, and the icon set via
-     * {@link NavDestination#setIcon(int)} or {@link NavDestination#setIcon(Drawable)}.
-     *
-     * @param destination The NavDestination to add to the Menu.
-     * @param menu The menu to add this destination to.
-     * @param groupId The {@link MenuItem#getGroupId() group identifier} of the added MenuItem
-     * @param order The {@link MenuItem#getOrder() category and order within the category} of the
-     *              added MenuItem
-     * @param menuItemClickListener The OnMenuItemClickListener that should be used to handle this
-     *                              menu item
-     */
-    public static void addDestinationToMenu(NavDestination destination, Menu menu,
-            int groupId, int order, MenuItem.OnMenuItemClickListener menuItemClickListener) {
-        MenuItem item = menu.add(groupId, destination.getId(), order,
-                destination.getLabel());
-        if (destination.getIconDrawable() != null) {
-            item.setIcon(destination.getIconDrawable());
-        } else {
-            item.setIcon(destination.getIconResourceId());
-        }
-        if (menuItemClickListener != null) {
-            item.setOnMenuItemClickListener(menuItemClickListener);
-        }
     }
 
     /**
@@ -237,34 +149,10 @@ public class NavHelper {
     }
 
     /**
-     * Adds destinations from the given NavController to a menu.
-     *
-     * <p>Only {@link NavGraph#iterator() direct child destinations} of the
-     * {@link NavController#getGraph() NavController's graph} will be added to the menu.
-     *
-     * @param navController The NavController that supplies the primary and/or secondary menu items.
-     * @param menu The menu to add the destinations to.
-     * @param type The navigation type or types to filter the destinations. This must be one or
-     *             more of {@link NavDestination#NAV_TYPE_PRIMARY} and
-     *             {@link NavDestination#NAV_TYPE_SECONDARY}.
-     */
-    public static void setupMenu(final NavController navController, Menu menu,
-            @MenuNavTypes int type) {
-        addChildDestinationsToMenu(navController.getGraph(), menu, type,
-                new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        return handleMenuItemSelected(navController, item);
-                    }
-                });
-    }
-
-    /**
-     * Sets up a {@link NavigationView} for use with a {@link NavController}. This will add all
-     * {@link NavDestination#NAV_TYPE_PRIMARY primary} and
-     * {@link NavDestination#NAV_TYPE_SECONDARY secondary} destinations from the given NavController
-     * to the NavigationView. The selected item in the NavigationView will automatically be
-     * updated when the destination changes.
+     * Sets up a {@link NavigationView} for use with a {@link NavController}. This will call
+     * {@link #handleMenuItemSelected(NavController, MenuItem)} when a menu item is selected.
+     * The selected item in the NavigationView will automatically be updated when the destination
+     * changes.
      *
      * @param navController The NavController that supplies the primary and secondary menu.
      *                      Navigation actions on this NavController will be reflected in the
@@ -277,11 +165,10 @@ public class NavHelper {
         if (navigationView == null) {
             return;
         }
-        addChildDestinationsToMenu(navController.getGraph(), navigationView.getMenu(),
-                NavDestination.NAV_TYPE_PRIMARY | NavDestination.NAV_TYPE_SECONDARY,
-                new MenuItem.OnMenuItemClickListener() {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
-                    public boolean onMenuItemClick(MenuItem item) {
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         boolean handled = handleMenuItemSelected(navController, item);
                         if (handled) {
                             ViewParent parent = navigationView.getParent();
@@ -306,10 +193,10 @@ public class NavHelper {
     }
 
     /**
-     * Sets up a {@link BottomNavigationView} for use with a {@link NavController}. This will add
-     * all {@link NavDestination#NAV_TYPE_PRIMARY primary} destinations from the given NavController
-     * to the BottomNavigationView. The selected item in the BottomNavigationView will
-     * automatically be updated when the destination changes.
+     * Sets up a {@link BottomNavigationView} for use with a {@link NavController}. This will call
+     * {@link #handleMenuItemSelected(NavController, MenuItem)} when a menu item is selected. The
+     * selected item in the BottomNavigationView will automatically be updated when the destination
+     * changes.
      *
      * @param navController The NavController that supplies the primary menu.
      *                      Navigation actions on this NavController will be reflected in the
@@ -322,7 +209,13 @@ public class NavHelper {
         if (bottomNavigationView == null) {
             return;
         }
-        setupMenu(navController, bottomNavigationView.getMenu(), NavDestination.NAV_TYPE_PRIMARY);
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        return handleMenuItemSelected(navController, item);
+                    }
+                });
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
             public void onNavigated(NavController controller, NavDestination destination) {

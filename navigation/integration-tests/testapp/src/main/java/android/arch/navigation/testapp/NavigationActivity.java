@@ -29,6 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 /**
@@ -42,7 +43,7 @@ public class NavigationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation_activity);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         NavHostFragment host = (NavHostFragment) getSupportFragmentManager()
@@ -50,12 +51,11 @@ public class NavigationActivity extends AppCompatActivity {
 
         if (host != null) {
             NavController navController = host.getNavController();
-            mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            mDrawerLayout = findViewById(R.id.drawer_layout);
             NavHelper.setupActionBar(navController, this, mDrawerLayout);
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            NavigationView navigationView = findViewById(R.id.nav_view);
             NavHelper.setupNavigationView(navController, navigationView);
-            BottomNavigationView bottomNavView =
-                    (BottomNavigationView) findViewById(R.id.bottom_nav_view);
+            BottomNavigationView bottomNavView = findViewById(R.id.bottom_nav_view);
             NavHelper.setupBottomNavigationView(navController, bottomNavView);
             navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
                 @Override
@@ -73,16 +73,21 @@ public class NavigationActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean retValue = super.onCreateOptionsMenu(menu);
-        BottomNavigationView bottomNavView =
-                (BottomNavigationView) findViewById(R.id.bottom_nav_view);
-        // Only add secondary navigation elements to the menu if there is a BottomNavigationView
-        if (bottomNavView != null) {
-            final NavController navController =
-                    Navigation.findController(this, R.id.my_nav_host_fragment);
-            NavHelper.setupMenu(navController, menu, NavDestination.NAV_TYPE_SECONDARY);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        // The NavigationView already has these same navigation items, so we only add
+        // navigation items to the menu here if there isn't a NavigationView
+        if (navigationView == null) {
+            getMenuInflater().inflate(R.menu.menu_overflow, menu);
             return true;
         }
         return retValue;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return NavHelper.handleMenuItemSelected(
+                Navigation.findController(this, R.id.my_nav_host_fragment), item)
+                || super.onOptionsItemSelected(item);
     }
 
     @Override
