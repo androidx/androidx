@@ -84,5 +84,4 @@ ext.tools = [:]
 ext.tools.current_sdk = gradle.ext.currentSdk
 ext.tools.build_tools_version = rootProject.ext.buildToolsVersion
 ext.flatfoot = [:]
-ext.flatfoot.release_version = "1.0.0-alpha7"
 ext.flatfoot.min_sdk = 14
