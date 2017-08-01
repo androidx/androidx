@@ -157,7 +157,7 @@ class DatabaseVerifierTest {
     fun testBadQuery() {
         simpleRun { invocation ->
             val verifier = createVerifier(invocation)
-            val (columns, error) = verifier.analyze("select foo from User")
+            val (_, error) = verifier.analyze("select foo from User")
             assertThat(error, notNullValue())
         }.compilesWithoutError()
     }

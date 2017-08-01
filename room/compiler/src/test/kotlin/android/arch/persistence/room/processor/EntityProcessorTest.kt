@@ -65,7 +65,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 private int id;
                 public void setId(int id) {this.id = id;}
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
     }
@@ -77,7 +77,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 private int id;
                 public float getId() {return 0f;}
                 public void setId(int id) {this.id = id;}
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD)
     }
@@ -89,7 +89,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 private int id;
                 public int getId() {return id;}
                 public void setId(float id) {}
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
     }
@@ -101,7 +101,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 private int id;
                 public int getId() {return id;}
                 public void setId(Integer id) {}
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .compilesWithoutError()
     }
 
@@ -112,7 +112,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 private int id;
                 public Integer getId() {return id;}
                 public void setId(int id) {}
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .compilesWithoutError()
     }
 
@@ -122,7 +122,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 private int id;
                 public int getId(){ return id; }
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD)
     }
@@ -135,7 +135,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) {}
                 public int getId(){ return id; }
                 public int id(){ return id; }
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining("getId, id")
     }
@@ -148,7 +148,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) {}
                 public int getId(){ return id; }
                 @Ignore public int id(){ return id; }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.fields.first().getter.name, `is`("getId"))
         }.compilesWithoutError()
     }
@@ -161,7 +161,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) {}
                 public int getId(){ return id; }
                 protected int id(){ return id; }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.fields.first().getter.name, `is`("getId"))
         }.compilesWithoutError()
     }
@@ -173,7 +173,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public void setId(int id) {}
                 public int getId(){ return id; }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.fields.first().getter.name, `is`("id"))
             assertThat(entity.fields.first().getter.callType, `is`(CallType.FIELD))
         }.compilesWithoutError()
@@ -187,7 +187,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) {}
                 public void id(int id) {}
                 public int getId(){ return id; }
-                """) { entity, invocation -> }
+                """) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining("setId, id")
     }
@@ -200,7 +200,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) {}
                 @Ignore public void id(int id) {}
                 public int getId(){ return id; }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
         }.compilesWithoutError()
     }
@@ -213,7 +213,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public void setId(int id) {}
                 protected void id(int id) {}
                 public int getId(){ return id; }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
         }.compilesWithoutError()
     }
@@ -225,7 +225,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public void setId(int id) {}
                 public int getId(){ return id; }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("id"))
             assertThat(entity.fields.first().setter.callType, `is`(CallType.FIELD))
         }.compilesWithoutError()
@@ -238,7 +238,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 int id;
                 public void setId(int id) {}
                 public int getId(){ return id; }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.fields.first().setter.name, `is`("setId"))
             assertThat(entity.fields.first().getter.name, `is`("getId"))
         }.compilesWithoutError()
@@ -249,7 +249,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         singleEntity("""
                 @PrimaryKey
                 int x;
-                """, hashMapOf(Pair("tableName", "\"foo_table\""))) { entity, invocation ->
+                """, hashMapOf(Pair("tableName", "\"foo_table\""))) { entity, _ ->
             assertThat(entity.tableName, `is`("foo_table"))
         }.compilesWithoutError()
     }
@@ -259,14 +259,14 @@ class EntityProcessorTest : BaseEntityParserTest() {
         singleEntity("""
                 @PrimaryKey
                 int x;
-                """, hashMapOf(Pair("tableName", "\" \""))) { entity, invocation ->
+                """, hashMapOf(Pair("tableName", "\" \""))) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.ENTITY_TABLE_NAME_CANNOT_BE_EMPTY)
     }
 
     @Test
     fun missingPrimaryKey() {
         singleEntity("""
-                """) { entity, invocation ->
+                """) { _, _ ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEY)
     }
@@ -276,7 +276,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         singleEntity("""
                 @PrimaryKey
                 public java.util.Date myDate;
-                """) { entity, invocation ->
+                """) { _, _ ->
 
         }.failsToCompile().withErrorContaining(ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
     }
@@ -295,7 +295,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     int y;
                 }
                 """
-        ) { entity, invocation ->
+        ) { entity, _ ->
             assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
         }.compilesWithoutError()
                 .withWarningCount(1)
@@ -318,7 +318,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     int y;
                 }
                 """
-        ) { entity, invocation ->
+        ) { entity, _ ->
             assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id")))
         }.compilesWithoutError().withWarningCount(0)
     }
@@ -355,7 +355,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo",
                             unique = false,
@@ -371,7 +371,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 @ColumnInfo(index = true)
                 public String foo;
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo",
                             unique = false,
@@ -391,7 +391,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
@@ -413,7 +413,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @ColumnInfo(name = "bar_column")
                 public String bar;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = false,
@@ -436,7 +436,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyEntity_foo_id",
                             unique = true,
@@ -456,7 +456,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "myName",
                             unique = false,
@@ -477,7 +477,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { entity, _ ->
             assertThat(entity.indices, `is`(
                     listOf(Index(name = "index_MyTable_foo",
                             unique = false,
@@ -497,7 +497,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
         )
@@ -514,7 +514,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.indexColumnDoesNotExist("bar", listOf("id, foo"))
         )
@@ -532,7 +532,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @ColumnInfo(index = true)
                 public String foo;
                 """
-                , annotation) { entity, invocation ->
+                , annotation) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.duplicateIndexInEntity("index_MyEntity_foo")
         )
@@ -556,7 +556,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 @PrimaryKey
                 public int id;
-                """, baseClass = "foo.bar.Base", jfos = listOf(parent)) { entity, invocation ->
+                """, baseClass = "foo.bar.Base", jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.compilesWithoutError()
                 .withWarningContaining(
@@ -597,7 +597,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 baseClass = "foo.bar.Parent",
                 attributes = hashMapOf("inheritSuperIndices" to "true"),
                 jfos = listOf(parent, grandParent)) {
-            entity, invocation ->
+            entity, _ ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(entity.indices.first(),
                     `is`(Index(name = "index_MyEntity_name_lastName",
@@ -626,7 +626,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """,
                 baseClass = "foo.bar.Base",
                 attributes = hashMapOf("inheritSuperIndices" to "true"),
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(entity.indices.first(),
                     `is`(Index(name = "index_MyEntity_name_lastName",
@@ -656,7 +656,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """,
                 baseClass = "foo.bar.Base",
                 attributes = hashMapOf("inheritSuperIndices" to "true"),
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(entity.indices.first(),
                     `is`(Index(name = "index_MyEntity_name",
@@ -693,7 +693,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public int id;
                 """, baseClass = "foo.bar.Parent", jfos = listOf(parent, grandParent)) {
-            entity, invocation ->
+            entity, _ ->
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.compilesWithoutError()
                 .withWarningContaining(
@@ -720,7 +720,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 @PrimaryKey
                 public int id;
-                """, baseClass = "foo.bar.Base", jfos = listOf(parent)) { entity, invocation ->
+                """, baseClass = "foo.bar.Base", jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.compilesWithoutError()
                 .withWarningContaining(
@@ -746,7 +746,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     @ColumnInfo(index = true)
                     public int a;
                 }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.compilesWithoutError()
                 .withWarningContaining(
@@ -770,7 +770,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     @ColumnInfo(index = true)
                     public int a;
                 }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION
@@ -789,7 +789,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     @ColumnInfo(index = true)
                     public int a;
                 }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.indices.isEmpty(), `is`(true))
         }.compilesWithoutError()
                 .withWarningContaining(
@@ -808,7 +808,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 static class Foo {
                     public int a;
                 }
-                """, attributes = mapOf("indices" to "@Index(\"a\")")) { entity, invocation ->
+                """, attributes = mapOf("indices" to "@Index(\"a\")")) { entity, _ ->
             assertThat(entity.indices.size, `is`(1))
             assertThat(entity.indices.first(), `is`(
                     Index(
@@ -828,7 +828,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @PrimaryKey
                 public String foo;
                 """,
-                attributes = mapOf("primaryKeys" to "\"id\"")) { entity, invocation ->
+                attributes = mapOf("primaryKeys" to "\"id\"")) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.multiplePrimaryKeyAnnotations(
                         listOf("PrimaryKey[id]", "PrimaryKey[foo]")
@@ -841,7 +841,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """
                 public int id;
                 """,
-                attributes = mapOf("primaryKeys" to "\"foo\"")) { entity, invocation ->
+                attributes = mapOf("primaryKeys" to "\"foo\"")) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.primaryKeyColumnDoesNotExist("foo", listOf("id")))
     }
@@ -853,7 +853,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 int x;
                 @PrimaryKey
                 int y;
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.primaryKey.fields.isEmpty(), `is`(true))
         }.failsToCompile()
                 .withErrorContaining(
@@ -878,7 +878,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("baseId"))
 
         }.compilesWithoutError().withWarningCount(0)
@@ -901,7 +901,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("baseId"))
         }.compilesWithoutError().withWarningCount(0)
     }
@@ -924,7 +924,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             assertThat(entity.primaryKey.autoGenerateId, `is`(false))
@@ -951,7 +951,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
         }.compilesWithoutError().withNoteContaining(
@@ -977,7 +977,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 """,
                 baseClass = "foo.bar.Base",
                 jfos = listOf(parent),
-                attributes = mapOf("primaryKeys" to "\"id\"")) { entity, invocation ->
+                attributes = mapOf("primaryKeys" to "\"id\"")) { entity, _ ->
             assertThat(entity.primaryKey.fields.size, `is`(1))
             assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
             assertThat(entity.primaryKey.autoGenerateId, `is`(false))
@@ -993,7 +993,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     """
                 @PrimaryKey(autoGenerate = true)
                 public $type id;
-                """) { entity, invocation ->
+                """) { entity, _ ->
                 assertThat(entity.primaryKey.fields.size, `is`(1))
                 assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
                 assertThat(entity.primaryKey.autoGenerateId, `is`(true))
@@ -1008,7 +1008,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     """
                 @PrimaryKey(autoGenerate = true)
                 public $type id;
-                """) { entity, invocation ->
+                """) { entity, _ ->
                 assertThat(entity.primaryKey.fields.size, `is`(1))
                 assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
                 assertThat(entity.primaryKey.autoGenerateId, `is`(true))
@@ -1031,7 +1031,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     public int a;
                     public int b;
                 }
-                """) { entity, invocation ->
+                """) { entity, _ ->
             assertThat(entity.primaryKey.fields.map { it.columnName },
                     `is`(listOf("bar_a", "bar_b")))
         }.compilesWithoutError().withWarningCount(0)
@@ -1062,7 +1062,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.map { it.columnName },
                     `is`(listOf("bar_a", "bar_b")))
         }.compilesWithoutError().withWarningCount(0)
@@ -1094,7 +1094,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 }
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.map { it.columnName },
                     `is`(listOf("bar_a", "bar_b")))
         }.compilesWithoutError().withNoteContaining(
@@ -1127,7 +1127,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 """,
                 baseClass = "foo.bar.Base",
-                jfos = listOf(parent)) { entity, invocation ->
+                jfos = listOf(parent)) { entity, _ ->
             assertThat(entity.primaryKey.fields.map { it.columnName },
                     `is`(listOf("id")))
         }.compilesWithoutError().withNoteContaining(
@@ -1143,7 +1143,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 java.util.List<User> users;
                 """, jfos = listOf(COMMON.USER)
-        ) { entity, invocation ->
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(RELATION_IN_ENTITY)
     }
 
@@ -1164,7 +1164,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_FOREIGN_KEY_ACTION)
     }
 
@@ -1184,7 +1184,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ _, _ ->
         }.failsToCompile().withErrorContaining("cannot find symbol")
     }
 
@@ -1204,7 +1204,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.NOT_AN_ENTITY)
-        ){ entity, invocation ->
+        ){ _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyNotAnEntity(
                 COMMON.NOT_AN_ENTITY_TYPE_NAME.toString()))
     }
@@ -1225,7 +1225,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyChildColumnDoesNotExist(
                 "namex", listOf("id", "name")))
     }
@@ -1246,7 +1246,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.foreignKeyColumnNumberMismatch(
                 listOf("name", "id"), listOf("lastName")))
     }
@@ -1267,7 +1267,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST)
     }
 
@@ -1287,7 +1287,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST)
     }
 
@@ -1310,7 +1310,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ entity, _ ->
             assertThat(entity.foreignKeys.size, `is`(1))
             val fKey = entity.foreignKeys.first()
             assertThat(fKey.parentTable, `is`("User"))
@@ -1342,7 +1342,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, invocation ->
+        ) { _, _ ->
         }.compilesWithoutWarnings()
     }
 
@@ -1367,7 +1367,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String lName;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, invocation ->
+        ) { entity, _ ->
             assertThat(entity.indices.size, `is`(1))
         }.compilesWithoutWarnings()
     }
@@ -1393,7 +1393,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String lName;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ) { entity, invocation ->
+        ) { entity, _ ->
             assertThat(entity.indices.size, `is`(1))
         }.compilesWithoutWarnings()
     }
@@ -1417,7 +1417,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ entity, _ ->
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutError().withWarningContaining(
                 ProcessorErrors.foreignKeyMissingIndexInChildColumn("name"))
@@ -1440,7 +1440,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String lName;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ entity, _ ->
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutError().withWarningContaining(
                 ProcessorErrors.foreignKeyMissingIndexInChildColumns(listOf("lName", "name")))
@@ -1465,7 +1465,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 String name;
                 """,
                 attributes = annotation, jfos = listOf(COMMON.USER)
-        ){ entity, invocation ->
+        ){ entity, _ ->
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutWarnings()
     }
