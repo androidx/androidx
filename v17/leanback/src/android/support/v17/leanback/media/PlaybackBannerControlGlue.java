@@ -84,38 +84,41 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
      * The adapter key for the first custom control on the left side
      * of the predefined primary controls.
      */
-    public static final int ACTION_CUSTOM_LEFT_FIRST = 0x1;
+    public static final int ACTION_CUSTOM_LEFT_FIRST =
+            PlaybackBaseControlGlue.ACTION_CUSTOM_LEFT_FIRST;
 
     /**
      * The adapter key for the skip to previous control.
      */
-    public static final int ACTION_SKIP_TO_PREVIOUS = 0x10;
+    public static final int ACTION_SKIP_TO_PREVIOUS =
+            PlaybackBaseControlGlue.ACTION_SKIP_TO_PREVIOUS;
 
     /**
      * The adapter key for the rewind control.
      */
-    public static final int ACTION_REWIND = 0x20;
+    public static final int ACTION_REWIND = PlaybackBaseControlGlue.ACTION_REWIND;
 
     /**
      * The adapter key for the play/pause control.
      */
-    public static final int ACTION_PLAY_PAUSE = 0x40;
+    public static final int ACTION_PLAY_PAUSE = PlaybackBaseControlGlue.ACTION_PLAY_PAUSE;
 
     /**
      * The adapter key for the fast forward control.
      */
-    public static final int ACTION_FAST_FORWARD = 0x80;
+    public static final int ACTION_FAST_FORWARD = PlaybackBaseControlGlue.ACTION_FAST_FORWARD;
 
     /**
      * The adapter key for the skip to next control.
      */
-    public static final int ACTION_SKIP_TO_NEXT = 0x100;
+    public static final int ACTION_SKIP_TO_NEXT = PlaybackBaseControlGlue.ACTION_SKIP_TO_NEXT;
 
     /**
      * The adapter key for the first custom control on the right side
      * of the predefined primary controls.
      */
-    public static final int ACTION_CUSTOM_RIGHT_FIRST = 0x1000;
+    public static final int ACTION_CUSTOM_RIGHT_FIRST =
+            PlaybackBaseControlGlue.ACTION_CUSTOM_RIGHT_FIRST;
 
 
     /** @hide */
@@ -195,6 +198,12 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
     private long mStartTime;
     private long mStartPosition = 0;
 
+    // Flag for is customized FastForward/ Rewind Action supported.
+    // If customized actions are not supported, the adapter can still use default behavior through
+    // setting ACTION_REWIND and ACTION_FAST_FORWARD as supported actions.
+    private boolean mIsCustomizedFastForwardSupported;
+    private boolean mIsCustomizedRewindSupported;
+
     /**
      * Constructor for the glue.
      *
@@ -234,6 +243,12 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
             throw new IllegalArgumentException("invalid rewindSpeeds array size");
         }
         mRewindSpeeds = rewindSpeeds;
+        if ((mPlayerAdapter.getSupportedActions() & ACTION_FAST_FORWARD) != 0) {
+            mIsCustomizedFastForwardSupported = true;
+        }
+        if ((mPlayerAdapter.getSupportedActions() & ACTION_REWIND) != 0) {
+            mIsCustomizedRewindSupported = true;
+        }
     }
 
     @Override
@@ -368,6 +383,38 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
         updatePlaybackState(mIsPlaying);
     }
 
+    // Helper function to increment mPlaybackSpeed when necessary. The mPlaybackSpeed will control
+    // the UI of fast forward button in control row.
+    private void incrementFastForwardPlaybackSpeed() {
+        switch (mPlaybackSpeed) {
+            case PLAYBACK_SPEED_FAST_L0:
+            case PLAYBACK_SPEED_FAST_L1:
+            case PLAYBACK_SPEED_FAST_L2:
+            case PLAYBACK_SPEED_FAST_L3:
+                mPlaybackSpeed++;
+                break;
+            default:
+                mPlaybackSpeed = PLAYBACK_SPEED_FAST_L0;
+                break;
+        }
+    }
+
+    // Helper function to decrement mPlaybackSpeed when necessary. The mPlaybackSpeed will control
+    // the UI of rewind button in control row.
+    private void decrementRewindPlaybackSpeed() {
+        switch (mPlaybackSpeed) {
+            case -PLAYBACK_SPEED_FAST_L0:
+            case -PLAYBACK_SPEED_FAST_L1:
+            case -PLAYBACK_SPEED_FAST_L2:
+            case -PLAYBACK_SPEED_FAST_L3:
+                mPlaybackSpeed--;
+                break;
+            default:
+                mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;
+                break;
+        }
+    }
+
     /**
      * Called when the given action is invoked, either by click or key event.
      */
@@ -401,37 +448,37 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
             handled = true;
         } else if (action == mFastForwardAction) {
             if (mPlayerAdapter.isPrepared() && mPlaybackSpeed < getMaxForwardSpeedId()) {
-                fakePause();
-
-                switch (mPlaybackSpeed) {
-                    case PLAYBACK_SPEED_FAST_L0:
-                    case PLAYBACK_SPEED_FAST_L1:
-                    case PLAYBACK_SPEED_FAST_L2:
-                    case PLAYBACK_SPEED_FAST_L3:
-                        mPlaybackSpeed++;
-                        break;
-                    default:
-                        mPlaybackSpeed = PLAYBACK_SPEED_FAST_L0;
-                        break;
+                // When the customized fast forward action is available, it will be executed
+                // when fast forward button is pressed. If current media item is not playing, the UI
+                // will be updated to PLAYING status.
+                if (mIsCustomizedFastForwardSupported) {
+                    // Change UI to Playing status.
+                    mIsPlaying = true;
+                    // Execute customized fast forward action.
+                    mPlayerAdapter.fastForward();
+                } else {
+                    // When the customized fast forward action is not supported, the fakePause
+                    // operation is needed to stop the media item but still indicating the media
+                    // item is playing from the UI perspective
+                    // Also the fakePause() method must be called before
+                    // incrementFastForwardPlaybackSpeed() method to make sure fake fast forward
+                    // computation is accurate.
+                    fakePause();
                 }
+                // Change mPlaybackSpeed to control the UI.
+                incrementFastForwardPlaybackSpeed();
                 onUpdatePlaybackStatusAfterUserAction();
             }
             handled = true;
         } else if (action == mRewindAction) {
             if (mPlayerAdapter.isPrepared() && mPlaybackSpeed > -getMaxRewindSpeedId()) {
-                fakePause();
-
-                switch (mPlaybackSpeed) {
-                    case -PLAYBACK_SPEED_FAST_L0:
-                    case -PLAYBACK_SPEED_FAST_L1:
-                    case -PLAYBACK_SPEED_FAST_L2:
-                    case -PLAYBACK_SPEED_FAST_L3:
-                        mPlaybackSpeed--;
-                        break;
-                    default:
-                        mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;
-                        break;
+                if (mIsCustomizedFastForwardSupported) {
+                    mIsPlaying = true;
+                    mPlayerAdapter.rewind();
+                } else {
+                    fakePause();
                 }
+                decrementRewindPlaybackSpeed();
                 onUpdatePlaybackStatusAfterUserAction();
             }
             handled = true;
@@ -551,9 +598,19 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
             // If the adapter is playing/paused, using the position from adapter instead.
             return mPlayerAdapter.getCurrentPosition();
         } else if (mPlaybackSpeed >= PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0) {
+            // If fast forward operation is supported in this scenario, current player position
+            // can be get from mPlayerAdapter.getCurrentPosition() directly
+            if (mIsCustomizedFastForwardSupported) {
+                return mPlayerAdapter.getCurrentPosition();
+            }
             int index = mPlaybackSpeed - PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0;
             speed = getFastForwardSpeeds()[index];
         } else if (mPlaybackSpeed <= -PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0) {
+            // If fast rewind is supported in this scenario, current player position
+            // can be get from mPlayerAdapter.getCurrentPosition() directly
+            if (mIsCustomizedRewindSupported) {
+                return mPlayerAdapter.getCurrentPosition();
+            }
             int index = -mPlaybackSpeed - PlaybackControlGlue.PLAYBACK_SPEED_FAST_L0;
             speed = -getRewindSpeeds()[index];
         } else {
@@ -577,13 +634,6 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
         return position;
     }
 
-    /**
-     * Returns a bitmask of actions supported by the media player.
-     * @see ACTION_ for constants that may be returned by this method.
-     */
-    public long getSupportedActions() {
-        return PlaybackBannerControlGlue.ACTION_PLAY_PAUSE;
-    }
 
     @Override
     public void play() {

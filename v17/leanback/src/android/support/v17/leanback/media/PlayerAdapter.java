@@ -16,6 +16,12 @@
 
 package android.support.v17.leanback.media;
 
+import static android.support.v17.leanback.widget.PlaybackControlsRow.ShuffleAction.INDEX_OFF;
+import static android.support.v17.leanback.widget.PlaybackControlsRow.ShuffleAction.INDEX_ON;
+import static android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction.INDEX_NONE;
+import static android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction.INDEX_ALL;
+import static android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction.INDEX_ONE;
+
 /**
  * Base class that wraps underlying media player. The class is used by PlaybackGlue, for example
  * {@link PlaybackTransportControlGlue} is bound to a PlayerAdapter.
@@ -96,6 +102,13 @@ public abstract class PlayerAdapter {
          */
         public void onBufferingStateChanged(PlayerAdapter adapter, boolean start) {
         }
+
+        /**
+         * Event for meta data changed.
+         * @param adapter The adapter that finishes current media item.
+         */
+        public void onMetadataChanged(PlayerAdapter adapter) {
+        }
     }
 
     Callback mCallback;
@@ -134,6 +147,38 @@ public abstract class PlayerAdapter {
     public abstract void pause();
 
     /**
+     * Optional method. Override this method if {@link #getSupportedActions()} include
+     * {@link PlaybackBaseControlGlue#ACTION_SKIP_TO_NEXT} to skip
+     * to next item.
+     */
+    public void next() {
+    }
+
+    /**
+     * Optional method. Override this method if {@link #getSupportedActions()} include
+     * {@link PlaybackBaseControlGlue#ACTION_SKIP_TO_PREVIOUS} to skip
+     * to previous item.
+     */
+    public void previous() {
+    }
+
+    /**
+     * Optional method. Override this method if {@link #getSupportedActions()} include
+     * {@link PlaybackBaseControlGlue#ACTION_FAST_FORWARD} to fast
+     * forward current media item.
+     */
+    public void fastForward() {
+    }
+
+    /**
+     * Optional method. Override this method if {@link #getSupportedActions()} include
+     * {@link PlaybackBaseControlGlue#ACTION_REWIND} to rewind in
+     * current media item.
+     */
+    public void rewind() {
+    }
+
+    /**
      * Seek to new position.
      * @param positionInMs New position in milliseconds.
      */
@@ -148,6 +193,29 @@ public abstract class PlayerAdapter {
     }
 
     /**
+     * Optional method. Override this method if {@link #getSupportedActions()} include
+     * {@link PlaybackBaseControlGlue#ACTION_SHUFFLE} to set the shuffle action.
+     *
+     * @param shuffleActionIndex The repeat action. Must be one of the followings:
+     *                           {@link android.support.v17.leanback.widget.PlaybackControlsRow.ShuffleAction#INDEX_OFF}
+     *                           {@link android.support.v17.leanback.widget.PlaybackControlsRow.ShuffleAction#INDEX_ON}
+     */
+    public void setShuffleAction(int shuffleActionIndex) {
+    }
+
+    /**
+     * Optional method. Override this method if {@link #getSupportedActions()} include
+     * {@link PlaybackBaseControlGlue#ACTION_REPEAT} to set the repeat action.
+     *
+     * @param repeatActionIndex The shuffle action. Must be one of the followings:
+     *                          {@link android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction#INDEX_ONE}
+     *                          {@link android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction#INDEX_ALL},
+     *                          {@link android.support.v17.leanback.widget.PlaybackControlsRow.RepeatAction#INDEX_NONE},
+     */
+    public void setRepeatAction(int repeatActionIndex) {
+    }
+
+    /**
      * Returns true if media is currently playing.
      */
     public boolean isPlaying() {
@@ -159,6 +227,14 @@ public abstract class PlayerAdapter {
      */
     public long getDuration() {
         return 0;
+    }
+
+    /**
+     * Return xor combination of values defined in PlaybackBaseControlGlue.
+     * Default is PLAY_PAUSE (unless subclass enforce to be 0)
+     */
+    public long getSupportedActions() {
+        return PlaybackBaseControlGlue.ACTION_PLAY_PAUSE;
     }
 
     /**
