@@ -7154,7 +7154,7 @@ package android.support.v4.graphics.drawable {
     method public static int getLayoutDirection(android.graphics.drawable.Drawable);
     method public static void inflate(android.graphics.drawable.Drawable, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
     method public static boolean isAutoMirrored(android.graphics.drawable.Drawable);
-    method public static void jumpToCurrentState(android.graphics.drawable.Drawable);
+    method public static deprecated void jumpToCurrentState(android.graphics.drawable.Drawable);
     method public static void setAutoMirrored(android.graphics.drawable.Drawable, boolean);
     method public static void setHotspot(android.graphics.drawable.Drawable, float, float);
     method public static void setHotspotBounds(android.graphics.drawable.Drawable, int, int, int, int);
