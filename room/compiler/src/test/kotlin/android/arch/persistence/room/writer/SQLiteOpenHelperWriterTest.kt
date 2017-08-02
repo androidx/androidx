@@ -59,7 +59,7 @@ class SQLiteOpenHelperWriterTest {
                 String name;
                 int age;
                 """.trimIndent()
-        ) { database, invocation ->
+        ) { database, _ ->
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
@@ -76,7 +76,7 @@ class SQLiteOpenHelperWriterTest {
                 String name;
                 int age;
                 """.trimIndent(), attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
-        ) { database, invocation ->
+        ) { database, _ ->
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
@@ -94,7 +94,7 @@ class SQLiteOpenHelperWriterTest {
                 String name;
                 int age;
                 """.trimIndent()
-        ) { database, invocation ->
+        ) { database, _ ->
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +

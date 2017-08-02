@@ -64,7 +64,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public void foo();
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(0))
             assertThat(shortcut.returnCount, `is`(false))
@@ -79,7 +79,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public int foo(User user);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
@@ -97,7 +97,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public void foo(NotAnEntity notValid);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
@@ -114,7 +114,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public void foo(User u1, User u2);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("foo"))
 
             assertThat(shortcut.parameters.size, `is`(2))
@@ -137,7 +137,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public int users(List<User> users);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("users"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
@@ -157,7 +157,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public void users(User[] users);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("users"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
@@ -175,7 +175,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public void modifyUsers(Set<User> users);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
@@ -194,7 +194,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public void modifyUsers(Iterable<User> users);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
@@ -214,7 +214,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 static class MyList<Irrelevant, Item> extends ArrayList<Item> {}
                 @${annotation.java.canonicalName}
                 abstract public void modifyUsers(MyList<String, User> users);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.name, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
@@ -234,7 +234,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public void foo(User u1, Book b1);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.parameters.size, `is`(2))
             assertThat(shortcut.parameters[0].type.typeName().toString(),
                     `is`("foo.bar.User"))
@@ -254,7 +254,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """
                 @${annotation.java.canonicalName}
                 abstract public long foo(User user);
-                """) { shortcut, invocation ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(invalidReturnTypeError())
     }
 
