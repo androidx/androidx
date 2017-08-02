@@ -235,54 +235,6 @@ public class NotificationCompat extends android.support.v4.app.NotificationCompa
         }
     }
 
-
-    /**
-     * Notification style for custom views that are decorated by the system.
-     *
-     * <p>Instead of providing a notification that is completely custom, a developer can set this
-     * style and still obtain system decorations like the notification header with the expand
-     * affordance and actions.
-     *
-     * <p>Use {@link android.app.Notification.Builder#setCustomContentView(RemoteViews)},
-     * {@link android.app.Notification.Builder#setCustomBigContentView(RemoteViews)} and
-     * {@link android.app.Notification.Builder#setCustomHeadsUpContentView(RemoteViews)} to set the
-     * corresponding custom views to display.
-     *
-     * <p>To use this style with your Notification, feed it to
-     * {@link android.support.v4.app.NotificationCompat.Builder#setStyle(Style)} like so:
-     * <pre class="prettyprint">
-     * Notification noti = new NotificationCompat.Builder()
-     *     .setSmallIcon(R.drawable.ic_stat_player)
-     *     .setLargeIcon(albumArtBitmap))
-     *     .setCustomContentView(contentView)
-     *     .setStyle(<b>new NotificationCompat.DecoratedCustomViewStyle()</b>)
-     *     .build();
-     * </pre>
-     *
-     * <p>If you are using this style, consider using the corresponding styles like
-     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification} or
-     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification_Title} in
-     * your custom views in order to get the correct styling on each platform version.
-     *
-     * @deprecated Use {@link android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle}
-     * and {@link android.support.compat.R.style#TextAppearance_Compat_Notification} or
-     * {@link android.support.compat.R.style#TextAppearance_Compat_Notification_Title}.
-     */
-    @Deprecated
-    public static class DecoratedCustomViewStyle extends
-            android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle {
-
-        /**
-         * @deprecated Use
-         * {@link android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle
-         * #DecoratedCustomViewStyle()}.
-         */
-        @Deprecated
-        public DecoratedCustomViewStyle() {
-            super();
-        }
-    }
-
     /**
      * Notification style for media custom views that are decorated by the system.
      *
