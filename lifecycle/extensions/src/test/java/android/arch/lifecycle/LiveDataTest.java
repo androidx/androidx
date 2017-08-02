@@ -368,6 +368,22 @@ public class LiveDataTest {
     }
 
     @Test
+    public void testRemoveDuringSetValue() {
+        mRegistry.handleLifecycleEvent(ON_START);
+        final Observer observer1 = spy(new Observer<String>() {
+            @Override
+            public void onChanged(String o) {
+                mLiveData.removeObserver(this);
+            }
+        });
+        Observer<String> observer2 = (Observer<String>) mock(Observer.class);
+        mLiveData.observeForever(observer1);
+        mLiveData.observe(mOwner, observer2);
+        mLiveData.setValue("gt");
+        verify(observer2).onChanged("gt");
+    }
+
+    @Test
     public void testDataChangeDuringStateChange() {
         mRegistry.handleLifecycleEvent(ON_START);
         mRegistry.addObserver(new LifecycleObserver() {
