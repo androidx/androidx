@@ -26,7 +26,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         app:elevation="0dp"
-        app:headerLayout="@layout/nav_view_header"/>
+        app:headerLayout="@layout/nav_view_header"
+        app:menu="@menu/menu_nav_drawer"/>
     <View
         android:layout_width="1dp"
         android:layout_height="match_parent"

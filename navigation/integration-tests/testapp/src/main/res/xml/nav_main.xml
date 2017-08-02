@@ -17,17 +17,13 @@
     app:startDestination="@+id/launcher_home"
     tools:ignore="DuplicateIds">
     <fragment android:id="@+id/launcher_home"
-              android:icon="@drawable/ic_home"
               android:label="@string/home"
-              app:navType="primary"
               android:name="android.arch.navigation.testapp.MainFragment">
         <argument app:name="myarg" app:defaultValue="Home" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <fragment android:id="@+id/android"
-              android:icon="@drawable/ic_android"
               android:label="@string/android"
-              app:navType="primary"
               android:name="android.arch.navigation.testapp.AndroidFragment">
         <argument app:name="myarg" app:defaultValue="Android!" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
@@ -43,15 +39,9 @@
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
     <activity android:id="@+id/settings_activity"
-              android:icon="@drawable/ic_settings"
-              android:label="@string/settings"
-              app:navType="secondary"
               app:action="android.settings.APPLICATION_DETAILS_SETTINGS"
-              app:data="package:com.android.support.navigation.testapp"/>
+              app:data="package:android.arch.navigation.testapp"/>
     <activity android:id="@+id/help_activity"
-              android:icon="@drawable/ic_help"
-              android:label="@string/help"
-              app:navType="secondary"
               android:name="android.arch.navigation.testapp.HelpActivity"
               app:dataPattern="http://www.example.com/{topic}">
         <argument app:name="topic" app:defaultValue="help_topic"/>
