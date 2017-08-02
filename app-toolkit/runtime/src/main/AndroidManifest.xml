@@ -16,4 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.arch.core">
+    <application>
+        <meta-data android:name="android.arch.core.VERSION"
+                   android:value="${version}" />
+    </application>
 </manifest>

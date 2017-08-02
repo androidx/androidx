@@ -17,6 +17,7 @@
         package="android.support.content">
     <uses-sdk android:minSdkVersion="14" />
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.content.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

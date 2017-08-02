@@ -19,6 +19,7 @@
     <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
     <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.media.tv.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>
