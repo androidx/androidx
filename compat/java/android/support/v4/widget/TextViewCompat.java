@@ -44,13 +44,13 @@ public final class TextViewCompat {
     /**
      * The TextView does not auto-size text (default).
      */
-    public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0;
+    public static final int AUTO_SIZE_TEXT_TYPE_NONE = TextView.AUTO_SIZE_TEXT_TYPE_NONE;
 
     /**
      * The TextView scales text size both horizontally and vertically to fit within the
      * container.
      */
-    public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1;
+    public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
