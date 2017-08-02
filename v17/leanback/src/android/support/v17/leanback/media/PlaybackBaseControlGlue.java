@@ -61,6 +61,53 @@ import java.util.List;
 public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends PlaybackGlue
         implements OnActionClickedListener, View.OnKeyListener {
 
+    /**
+     * The adapter key for the first custom control on the left side
+     * of the predefined primary controls.
+     */
+    public static final int ACTION_CUSTOM_LEFT_FIRST = 0x1;
+
+    /**
+     * The adapter key for the skip to previous control.
+     */
+    public static final int ACTION_SKIP_TO_PREVIOUS = 0x10;
+
+    /**
+     * The adapter key for the rewind control.
+     */
+    public static final int ACTION_REWIND = 0x20;
+
+    /**
+     * The adapter key for the play/pause control.
+     */
+    public static final int ACTION_PLAY_PAUSE = 0x40;
+
+    /**
+     * The adapter key for the fast forward control.
+     */
+    public static final int ACTION_FAST_FORWARD = 0x80;
+
+    /**
+     * The adapter key for the skip to next control.
+     */
+    public static final int ACTION_SKIP_TO_NEXT = 0x100;
+
+    /**
+     * The adapter key for the repeat control.
+     */
+    public static final int ACTION_REPEAT = 0x200;
+
+    /**
+     * The adapter key for the shuffle control.
+     */
+    public static final int ACTION_SHUFFLE = 0x400;
+
+    /**
+     * The adapter key for the first custom control on the right side
+     * of the predefined primary controls.
+     */
+    public static final int ACTION_CUSTOM_RIGHT_FIRST = 0x1000;
+
     static final String TAG = "PlaybackTransportGlue";
     static final boolean DEBUG = false;
 
@@ -147,6 +194,11 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
             if (mPlayerCallback != null) {
                 mPlayerCallback.onBufferingStateChanged(start);
             }
+        }
+
+        @Override
+        public void onMetadataChanged(PlayerAdapter wrapper) {
+            PlaybackBaseControlGlue.this.onMetadataChanged();
         }
     };
 
@@ -341,6 +393,16 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         mPlayerAdapter.pause();
     }
 
+    @Override
+    public void next() {
+        mPlayerAdapter.next();
+    }
+
+    @Override
+    public void previous() {
+        mPlayerAdapter.previous();
+    }
+
     protected static void notifyItemChanged(ArrayObjectAdapter adapter, Object object) {
         int index = adapter.indexOf(object);
         if (index >= 0) {
@@ -495,7 +557,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     /**
      * Event when metadata changed
      */
-    void onMetadataChanged() {
+    protected void onMetadataChanged() {
         if (mControlsRow == null) {
             return;
         }
@@ -503,7 +565,7 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         if (DEBUG) Log.v(TAG, "updateRowMetadata");
 
         mControlsRow.setImageDrawable(getArt());
-        mControlsRow.setDuration(mPlayerAdapter.getDuration());
+        mControlsRow.setDuration(getDuration());
         mControlsRow.setCurrentPosition(getCurrentPosition());
 
         if (getHost() != null) {
@@ -545,4 +607,10 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
         mPlayerAdapter.seekTo(position);
     }
 
+    /**
+     * Returns a bitmask of actions supported by the media player.
+     */
+    public long getSupportedActions() {
+        return mPlayerAdapter.getSupportedActions();
+    }
 }

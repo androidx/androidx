@@ -4,6 +4,14 @@
     android:versionCode="1"
     android:versionName="1.0">
 
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true"/>
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false"/>
+
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -192,5 +200,11 @@
 
         <activity android:name=".VideoActivityWithDetailedCard"
                   android:exported="true" />
+        <activity
+            android:name=".MusicExampleActivity"
+            android:exported="true"/>
+
+        <service android:exported="false" android:name=".MediaSessionService"/>
+
     </application>
 </manifest>
