@@ -98,4 +98,7 @@
     <string name="guidedstep_fourth_title">Fourth</string>
     <string name="guidedstep_fourth_description">Fourth step of guided sequence</string>
     <string name="guidedstep_fourth_breadcrumb">Guided Steps</string>
+
+    <string name="music">Music player</string>
+    <string name="music_description">Music player using control glue</string>
 </resources>
