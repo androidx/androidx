@@ -118,7 +118,6 @@ data class ParsedQuery(val original: String, val type: QueryType,
                 TEXT -> it.text
                 BIND_VAR -> "?"
                 NEWLINE -> "\n"
-                else -> throw IllegalArgumentException("??")
             }
         }
     }
