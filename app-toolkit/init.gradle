@@ -183,6 +183,10 @@ subprojects {
             project.artifacts {
                 archives sourcesTask
             }
+            project.android.defaultConfig {
+                // Update the version meta-data in each Manifest.
+                addManifestPlaceholders(["version" : project.version])
+            }
         } else if(isJavaLibrary && project.name == "common") {
             // it is a shared lib, enable sources.
             def sourcesTask = project.tasks.create(name: "sourcesJar", type : Jar) {
