@@ -16,4 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.arch.persistence.room">
+    <application>
+        <meta-data android:name="android.arch.persistence.room.VERSION"
+                   android:value="${version}" />
+    </application>
 </manifest>

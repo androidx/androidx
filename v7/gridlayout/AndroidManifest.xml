@@ -17,6 +17,7 @@
           package="android.support.v7.gridlayout">
     <uses-sdk android:minSdkVersion="14"/>
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.v7.gridlayout.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

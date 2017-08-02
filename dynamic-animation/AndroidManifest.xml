@@ -17,6 +17,7 @@
           package="android.support.dynamicanimation">
     <uses-sdk android:minSdkVersion="16"/>
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.dynamicanimation.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>
