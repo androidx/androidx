@@ -16,9 +16,13 @@
 apply plugin: android.support.SupportLibraryPlugin
 
 dependencies {
-    api project(':support-annotations')
-    api project(':support-media-compat')
-    api project(':support-media-compat-test-lib')
+    androidTestImplementation project(':support-annotations')
+    androidTestImplementation project(':support-media-compat')
+    androidTestImplementation project(':support-media-compat-test-lib')
+
+    androidTestImplementation(libs.test_runner) {
+        exclude module: 'support-annotations'
+    }
 }
 
 android {
