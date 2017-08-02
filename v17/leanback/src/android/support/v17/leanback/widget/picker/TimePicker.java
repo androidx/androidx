@@ -18,18 +18,17 @@ package android.support.v17.leanback.widget.picker;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -62,8 +61,6 @@ public class TimePicker extends Picker {
     PickerColumn mHourColumn;
     PickerColumn mMinuteColumn;
     PickerColumn mAmPmColumn;
-    private ViewGroup mPickerView;
-    private View mAmPmSeparatorView;
     int mColHourIndex;
     int mColMinuteIndex;
     int mColAmPmIndex;
@@ -75,6 +72,8 @@ public class TimePicker extends Picker {
     private int mCurrentHour;
     private int mCurrentMinute;
     private int mCurrentAmPmIndex;
+
+    private String mTimePickerFormat;
 
     /**
      * Constructor called when inflating a TimePicker widget. This version uses a default style of
@@ -105,8 +104,6 @@ public class TimePicker extends Picker {
         mConstant = PickerUtility.getTimeConstantInstance(Locale.getDefault(),
                 context.getResources());
 
-        setSeparator(mConstant.timeSeparator);
-        mPickerView = findViewById(R.id.picker);
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbTimePicker);
         mIs24hFormat = attributesArray.getBoolean(R.styleable.lbTimePicker_is24HourFormat,
@@ -114,25 +111,17 @@ public class TimePicker extends Picker {
         boolean useCurrentTime = attributesArray.getBoolean(R.styleable.lbTimePicker_useCurrentTime,
                 true);
 
-        updateColumns(getTimePickerFormat());
-
-        // The column range for the minute and AM/PM column is static and does not change, whereas
-        // the hour column range can change depending on whether 12 or 24 hour format is set at
-        // any given time.
-        updateHourColumn(false);
-        updateMin(mMinuteColumn, 0);
-        updateMax(mMinuteColumn, 59);
-
-        updateMin(mAmPmColumn, 0);
-        updateMax(mAmPmColumn, 1);
-
-        updateAmPmColumn();
+        // The following 2 methods must be called after setting mIs24hFormat since this attribute is
+        // used to extract the time format string.
+        updateColumns();
+        updateColumnsRange();
 
         if (useCurrentTime) {
             Calendar currentDate = PickerUtility.getCalendarForLocale(null,
                     mConstant.locale);
             setHour(currentDate.get(Calendar.HOUR_OF_DAY));
             setMinute(currentDate.get(Calendar.MINUTE));
+            setAmPmValue();
         }
     }
 
@@ -153,22 +142,104 @@ public class TimePicker extends Picker {
     }
 
     /**
+     * @return The best localized representation of time for the current locale
+     */
+    String getBestHourMinutePattern() {
+        final String hourPattern;
+        if (PickerUtility.SUPPORTS_BEST_DATE_TIME_PATTERN) {
+            hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale, mIs24hFormat ? "Hma"
+                    : "hma");
+        } else {
+            final java.text.DateFormat dateFormat =
+                    SimpleDateFormat.getTimeInstance(SimpleDateFormat.FULL, mConstant.locale);
+            if (dateFormat instanceof SimpleDateFormat) {
+                String defaultPattern = ((SimpleDateFormat) dateFormat).toPattern();
+                defaultPattern = defaultPattern.replace("s", "");
+                if (mIs24hFormat) {
+                    defaultPattern = defaultPattern.replace('h', 'H');
+                }
+                hourPattern = defaultPattern;
+            } else {
+                hourPattern = mIs24hFormat ? "H:mma" : "h:mma";
+            }
+        }
+        return TextUtils.isEmpty(hourPattern) ? "h:mma" : hourPattern;
+    }
+
+    /**
+     * Extracts the separators used to separate time fields (including before the first and after
+     * the last time field). The separators can vary based on the individual locale and 12 or
+     * 24 hour time format, defined in the Unicode CLDR and cannot be supposed to be ":".
+     *
+     * See http://unicode.org/cldr/trac/browser/trunk/common/main
+     *
+     * For example, for english in 12 hour format
+     * (time pattern of "h:mm a"), this will return {"", ":", "", ""}, where the first separator
+     * indicates nothing needs to be displayed to the left of the hour field, ":" needs to be
+     * displayed to the right of hour field, and so forth.
+     *
+     * @return The ArrayList of separators to populate between the actual time fields in the
+     * TimePicker.
+     */
+    List<CharSequence> extractSeparators() {
+        // Obtain the time format string per the current locale (e.g. h:mm a)
+        String hmaPattern = getBestHourMinutePattern();
+
+        List<CharSequence> separators = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        char lastChar = '\0';
+        // See http://www.unicode.org/reports/tr35/tr35-dates.html for hour formats
+        final char[] timeFormats = {'H', 'h', 'K', 'k', 'm', 'M', 'a'};
+        boolean processingQuote = false;
+        for (int i = 0; i < hmaPattern.length(); i++) {
+            char c = hmaPattern.charAt(i);
+            if (c == ' ') {
+                continue;
+            }
+            if (c == '\'') {
+                if (!processingQuote) {
+                    sb.setLength(0);
+                    processingQuote = true;
+                } else {
+                    processingQuote = false;
+                }
+                continue;
+            }
+            if (processingQuote) {
+                sb.append(c);
+            } else {
+                if (isAnyOf(c, timeFormats)) {
+                    if (c != lastChar) {
+                        separators.add(sb.toString());
+                        sb.setLength(0);
+                    }
+                } else {
+                    sb.append(c);
+                }
+            }
+            lastChar = c;
+        }
+        separators.add(sb.toString());
+        return separators;
+    }
+
+    private static boolean isAnyOf(char c, char[] any) {
+        for (int i = 0; i < any.length; i++) {
+            if (c == any[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      *
      * @return the time picker format string based on the current system locale and the layout
      *         direction
      */
-    private String getTimePickerFormat() {
+    private String extractTimeFields() {
         // Obtain the time format string per the current locale (e.g. h:mm a)
-        String hmaPattern;
-        if (Build.VERSION.SDK_INT >= 18) {
-            hmaPattern = DateFormat.getBestDateTimePattern(mConstant.locale, "hma");
-        } else {
-            // getTimeInstance is not very reliable and it may not include 'a' (for AM/PM)
-            // in the returned pattern string. In those cases, we assume that am/pm appears at the
-            // end of the fields. Need to find a more reliable way for API below 18.
-            hmaPattern  = ((SimpleDateFormat) java.text.DateFormat
-                    .getTimeInstance(java.text.DateFormat.FULL, mConstant.locale)).toPattern();
-        }
+        String hmaPattern = getBestHourMinutePattern();
 
         boolean isRTL = TextUtils.getLayoutDirectionFromLocale(mConstant.locale) == View
                 .LAYOUT_DIRECTION_RTL;
@@ -177,21 +248,35 @@ public class TimePicker extends Picker {
         // Hour will always appear to the left of minutes regardless of layout direction.
         String timePickerFormat = isRTL ? "mh" : "hm";
 
-        return isAmPmAtEnd ? (timePickerFormat + "a") : ("a" + timePickerFormat);
+        if (is24Hour()) {
+            return timePickerFormat;
+        } else {
+            return isAmPmAtEnd ? (timePickerFormat + "a") : ("a" + timePickerFormat);
+        }
     }
 
-    private void updateColumns(String timePickerFormat) {
-        if (TextUtils.isEmpty(timePickerFormat)) {
-            timePickerFormat = "hma";
+    private void updateColumns() {
+        String timePickerFormat = getBestHourMinutePattern();
+        if (TextUtils.equals(timePickerFormat, mTimePickerFormat)) {
+            return;
         }
-        timePickerFormat = timePickerFormat.toUpperCase();
+        mTimePickerFormat = timePickerFormat;
+
+        String timeFieldsPattern = extractTimeFields();
+        List<CharSequence> separators = extractSeparators();
+        if (separators.size() != (timeFieldsPattern.length() + 1)) {
+            throw new IllegalStateException("Separators size: " + separators.size() + " must equal"
+                    + " the size of timeFieldsPattern: " + timeFieldsPattern.length() + " + 1");
+        }
+        setSeparators(separators);
+        timeFieldsPattern = timeFieldsPattern.toUpperCase();
 
         mHourColumn = mMinuteColumn = mAmPmColumn = null;
         mColHourIndex = mColMinuteIndex = mColAmPmIndex = -1;
 
         ArrayList<PickerColumn> columns = new ArrayList<>(3);
-        for (int i = 0; i < timePickerFormat.length(); i++) {
-            switch (timePickerFormat.charAt(i)) {
+        for (int i = 0; i < timeFieldsPattern.length(); i++) {
+            switch (timeFieldsPattern.charAt(i)) {
                 case 'H':
                     columns.add(mHourColumn = new PickerColumn());
                     mHourColumn.setStaticLabels(mConstant.hours24);
@@ -214,38 +299,28 @@ public class TimePicker extends Picker {
             }
         }
         setColumns(columns);
-        mAmPmSeparatorView = mPickerView.getChildAt(mColAmPmIndex == 0 ? 1 :
-                (2 * mColAmPmIndex - 1));
     }
 
-    /**
-     * Updates the range in the hour column and notifies column changed if notifyChanged is true.
-     * Hour column can have either [0-23] or [1-12] depending on whether the 24 hour format is set
-     * or not.
-     *
-     * @param notifyChanged {code true} if we should notify data set changed on the hour column,
-     *                      {@code false} otherwise.
-     */
-    private void updateHourColumn(boolean notifyChanged) {
+    private void updateColumnsRange() {
+        // updateHourColumn(false);
         updateMin(mHourColumn, mIs24hFormat ? 0 : 1);
         updateMax(mHourColumn, mIs24hFormat ? 23 : 12);
-        if (notifyChanged) {
-            setColumnAt(mColHourIndex, mHourColumn);
+
+        updateMin(mMinuteColumn, 0);
+        updateMax(mMinuteColumn, 59);
+
+        if (mAmPmColumn != null) {
+            updateMin(mAmPmColumn, 0);
+            updateMax(mAmPmColumn, 1);
         }
     }
 
     /**
-     * Updates AM/PM column depending on whether the 24 hour format is set or not. The visibility of
-     * this column is set to {@code GONE} for a 24 hour format, and {@code VISIBLE} in 12 hour
-     * format. This method also updates the value of this column for a 12 hour format.
+     * Updates the value of AM/PM column for a 12 hour time format. The correct value should already
+     * be calculated before this method is called by calling setHour.
      */
-    private void updateAmPmColumn() {
-        if (mIs24hFormat) {
-            mColumnViews.get(mColAmPmIndex).setVisibility(GONE);
-            mAmPmSeparatorView.setVisibility(GONE);
-        } else {
-            mColumnViews.get(mColAmPmIndex).setVisibility(VISIBLE);
-            mAmPmSeparatorView.setVisibility(VISIBLE);
+    private void setAmPmValue() {
+        if (!is24Hour()) {
             setColumnValue(mColAmPmIndex, mCurrentAmPmIndex, false);
         }
     }
@@ -261,7 +336,7 @@ public class TimePicker extends Picker {
             throw new IllegalArgumentException("hour: " + hour + " is not in [0-23] range in");
         }
         mCurrentHour = hour;
-        if (!mIs24hFormat) {
+        if (!is24Hour()) {
             if (mCurrentHour >= HOURS_IN_HALF_DAY) {
                 mCurrentAmPmIndex = PM_INDEX;
                 if (mCurrentHour > HOURS_IN_HALF_DAY) {
@@ -273,7 +348,7 @@ public class TimePicker extends Picker {
                     mCurrentHour = HOURS_IN_HALF_DAY;
                 }
             }
-            updateAmPmColumn();
+            setAmPmValue();
         }
         setColumnValue(mColHourIndex, mCurrentHour, false);
     }
@@ -301,9 +376,6 @@ public class TimePicker extends Picker {
      * @see #getMinute()
      */
     public void setMinute(@IntRange(from = 0, to = 59) int minute) {
-        if (mCurrentMinute == minute) {
-            return;
-        }
         if (minute < 0 || minute > 59) {
             throw new IllegalArgumentException("minute: " + minute + " is not in [0-59] range.");
         }
@@ -334,10 +406,14 @@ public class TimePicker extends Picker {
         }
         // the ordering of these statements is important
         int currentHour = getHour();
+        int currentMinute = getMinute();
         mIs24hFormat = is24Hour;
-        updateHourColumn(true);
+        updateColumns();
+        updateColumnsRange();
+
         setHour(currentHour);
-        updateAmPmColumn();
+        setMinute(currentMinute);
+        setAmPmValue();
     }
 
     /**

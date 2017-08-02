@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.support.v17.leanback.widget;
+package android.support.v17.leanback.widget.picker;
 
 import android.app.Activity;
 import android.os.Bundle;
