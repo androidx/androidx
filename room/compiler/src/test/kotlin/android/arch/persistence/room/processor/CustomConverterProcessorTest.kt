@@ -61,7 +61,7 @@ class CustomConverterProcessorTest {
     @Test
     fun validCase() {
         singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box()))
-        { converter, invocation ->
+        { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
         }.compilesWithoutError()
@@ -69,7 +69,7 @@ class CustomConverterProcessorTest {
 
     @Test
     fun primitiveFrom() {
-        singleClass(createConverter(TypeName.SHORT, TypeName.CHAR.box())) { converter, invocation ->
+        singleClass(createConverter(TypeName.SHORT, TypeName.CHAR.box())) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
         }.compilesWithoutError()
@@ -77,7 +77,7 @@ class CustomConverterProcessorTest {
 
     @Test
     fun primitiveTo() {
-        singleClass(createConverter(TypeName.INT.box(), TypeName.DOUBLE)) { converter, invocation ->
+        singleClass(createConverter(TypeName.INT.box(), TypeName.DOUBLE)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.INT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.DOUBLE))
         }.compilesWithoutError()
@@ -85,7 +85,7 @@ class CustomConverterProcessorTest {
 
     @Test
     fun primitiveBoth() {
-        singleClass(createConverter(TypeName.INT, TypeName.DOUBLE)) { converter, invocation ->
+        singleClass(createConverter(TypeName.INT, TypeName.DOUBLE)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.INT))
             assertThat(converter?.toTypeName, `is`(TypeName.DOUBLE))
         }.compilesWithoutError()
@@ -95,7 +95,7 @@ class CustomConverterProcessorTest {
     fun nonNullButNotBoxed() {
         val string = String::class.typeName()
         val date = Date::class.typeName()
-        singleClass(createConverter(string, date)) { converter, invocation ->
+        singleClass(createConverter(string, date)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(string as TypeName))
             assertThat(converter?.toTypeName, `is`(date as TypeName))
         }
@@ -108,7 +108,7 @@ class CustomConverterProcessorTest {
         val typeVarK = TypeVariableName.get("K")
         val map = ParameterizedTypeName.get(Map::class.typeName(), typeVarK, typeVarT)
         singleClass(createConverter(list, map, listOf(typeVarK, typeVarT))) {
-            converter, invocation ->
+            _, _ ->
         }.failsToCompile().withErrorContaining(TYPE_CONVERTER_UNBOUND_GENERIC)
     }
 
@@ -118,7 +118,7 @@ class CustomConverterProcessorTest {
         val date = Date::class.typeName()
         val list = ParameterizedTypeName.get(List::class.typeName(), string)
         val map = ParameterizedTypeName.get(Map::class.typeName(), string, date)
-        singleClass(createConverter(list, map)) { converter, invocation ->
+        singleClass(createConverter(list, map)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(list as TypeName))
             assertThat(converter?.toTypeName, `is`(map as TypeName))
         }.compilesWithoutError()
@@ -131,7 +131,7 @@ class CustomConverterProcessorTest {
                 package ${CONVERTER.packageName()};
                 public class ${CONVERTER.simpleName()} {
                 }
-                """)) { converter, invocation ->
+                """)) { _, _ ->
         }.failsToCompile().withErrorContaining(TYPE_CONVERTER_EMPTY_CLASS)
     }
 
@@ -147,7 +147,7 @@ class CustomConverterProcessorTest {
                     @TypeConverter
                     public int x(short y) {return 0;}
                 }
-                """)) { converter, invocation ->
+                """)) { _, _ ->
         }.failsToCompile().withErrorContaining(TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR)
     }
 
@@ -163,7 +163,7 @@ class CustomConverterProcessorTest {
                     @TypeConverter
                     public static int x(short y) {return 0;}
                 }
-                """)) { converter, invocation ->
+                """)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
             assertThat(converter?.toTypeName, `is`(TypeName.INT))
             assertThat(converter?.isStatic, `is`(true))
@@ -181,7 +181,7 @@ class CustomConverterProcessorTest {
                     @TypeConverter static int x(short y) {return 0;}
                     @TypeConverter private static int y(boolean y) {return 0;}
                 }
-                """)) { converter, invocation ->
+                """)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT))
             assertThat(converter?.toTypeName, `is`(TypeName.INT))
             assertThat(converter?.isStatic, `is`(true))
@@ -223,7 +223,7 @@ class CustomConverterProcessorTest {
     @Test
     fun checkDuplicates() {
         singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box(), duplicate = true))
-        { converter, invocation ->
+        { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(TypeName.SHORT.box()))
             assertThat(converter?.toTypeName, `is`(TypeName.CHAR.box()))
         }.failsToCompile().withErrorContaining("Multiple methods define the same conversion")

@@ -151,7 +151,7 @@ class DatabaseProcessorTest {
             public abstract class MyDb extends RoomDatabase {
                 abstract UserDao userDao();
             }
-            """, USER, USER_DAO) { db, invocation ->
+            """, USER, USER_DAO) { db, _ ->
             assertThat(db.daoMethods.size, `is`(1))
             assertThat(db.entities.size, `is`(1))
         }.compilesWithoutError()
@@ -165,7 +165,7 @@ class DatabaseProcessorTest {
                 abstract UserDao userDao();
                 abstract BookDao bookDao();
             }
-            """, USER, USER_DAO, BOOK, BOOK_DAO) { db, invocation ->
+            """, USER, USER_DAO, BOOK, BOOK_DAO) { db, _ ->
             assertThat(db.daoMethods.size, `is`(2))
             assertThat(db.entities.size, `is`(2))
             assertThat(db.daoMethods.map { it.name }, `is`(listOf("userDao", "bookDao")))
@@ -180,7 +180,7 @@ class DatabaseProcessorTest {
             @Database(entities = {User.class, Book.class}, version = 42)
             public abstract class MyDb {
             }
-            """, USER, BOOK) { db, invocation ->
+            """, USER, BOOK) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
     }
 
@@ -201,7 +201,7 @@ class DatabaseProcessorTest {
                     @Query("SELECT * FROM nonExistentTable")
                     public java.util.List<Book> loadAllBooks();
                 }
-                """)){ db, invocation ->
+                """)){ _, _ ->
 
         }.failsToCompile().withErrorContaining("no such table: nonExistentTable")
     }
@@ -222,7 +222,7 @@ class DatabaseProcessorTest {
                     @PrimaryKey
                     int uid;
                 }
-                """)) { db, invocation ->
+                """)) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.duplicateTableNames("user",
                         listOf("foo.bar.User", "foo.bar.AnotherClass"))
@@ -247,7 +247,7 @@ class DatabaseProcessorTest {
                     @Query("SELECT nonExistingField FROM Book")
                     public java.util.List<Book> loadAllBooks();
                 }
-                """)){ db, invocation ->
+                """)){ _, _ ->
 
         }.compilesWithoutError()
     }
@@ -294,7 +294,7 @@ class DatabaseProcessorTest {
                     abstract UserDao userDao();
                     abstract UserDao userDao2();
                 }
-                """, USER, USER_DAO){db, invocation -> }
+                """, USER, USER_DAO){ _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.DAO_METHOD_CONFLICTS_WITH_OTHERS)
                 .and()
@@ -347,7 +347,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
-                """, entity1, entity2){ db, invocation ->
+                """, entity1, entity2){ _, _ ->
 
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.duplicateIndexInDatabase("index_name",
@@ -374,7 +374,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {Entity1.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
-                """, entity1, COMMON.USER){ db, invocation ->
+                """, entity1, COMMON.USER){ _, _ ->
 
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.foreignKeyMissingParentEntityInDatabase("User", "foo.bar.Entity1")
@@ -400,7 +400,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {Entity1.class, User.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
-                """, entity1, COMMON.USER){ db, invocation ->
+                """, entity1, COMMON.USER){ _, _ ->
 
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.foreignKeyMissingIndexInParent(
@@ -444,7 +444,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
-                """, entity1, entity2){ db, invocation ->
+                """, entity1, entity2){ _, _ ->
 
         }.compilesWithoutError()
     }
@@ -481,7 +481,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
-                """, entity1, entity2){ db, invocation ->
+                """, entity1, entity2){ _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.foreignKeyParentColumnDoesNotExist("foo.bar.Entity2",
                         "anotherName2", listOf("uid", "anotherName"))
@@ -521,7 +521,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
-                """, entity1, entity2){ db, invocation ->
+                """, entity1, entity2){ _, _ ->
         }.compilesWithoutError()
     }
 
@@ -532,7 +532,7 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
-                """, USER, USER_DAO, BOOK, BOOK_DAO){ db, invocation ->
+                """, USER, USER_DAO, BOOK, BOOK_DAO){ _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.shortcutEntityIsNotInDatabase(
                         database = "foo.bar.MyDb",
@@ -566,7 +566,7 @@ class DatabaseProcessorTest {
                         public static java.util.Date foo(Long input) {return null;}
                     }
                 }
-                """, USER, USER_DAO){ db, invocation ->
+                """, USER, USER_DAO){ db, _ ->
             val userDao = db.daoMethods.first().dao
             val insertionMethod = userDao.insertionMethods.find { it.name == "insert" }
             assertThat(insertionMethod, notNullValue())
@@ -597,7 +597,7 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                     public abstract UserDao userDao();
                 }
-                """, USER, USER_DAO){ db, invocation ->
+                """, USER, USER_DAO){ db, _ ->
             val userDao = db.daoMethods.first().dao
             val loadOne = userDao.queryMethods.find { it.name == "loadOnePojo" }
             assertThat(loadOne, notNullValue())
