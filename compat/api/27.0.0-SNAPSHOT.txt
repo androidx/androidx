@@ -2348,45 +2348,6 @@ package android.support.v4.widget {
     method public deprecated void startScroll(int, int, int, int, int);
   }
 
-  public final deprecated class SearchViewCompat {
-    method public static deprecated java.lang.CharSequence getQuery(android.view.View);
-    method public static deprecated boolean isIconified(android.view.View);
-    method public static deprecated boolean isQueryRefinementEnabled(android.view.View);
-    method public static deprecated boolean isSubmitButtonEnabled(android.view.View);
-    method public static deprecated android.view.View newSearchView(android.content.Context);
-    method public static deprecated void setIconified(android.view.View, boolean);
-    method public static deprecated void setImeOptions(android.view.View, int);
-    method public static deprecated void setInputType(android.view.View, int);
-    method public static deprecated void setMaxWidth(android.view.View, int);
-    method public static deprecated void setOnCloseListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnCloseListener);
-    method public static deprecated void setOnQueryTextListener(android.view.View, android.support.v4.widget.SearchViewCompat.OnQueryTextListener);
-    method public static deprecated void setQuery(android.view.View, java.lang.CharSequence, boolean);
-    method public static deprecated void setQueryHint(android.view.View, java.lang.CharSequence);
-    method public static deprecated void setQueryRefinementEnabled(android.view.View, boolean);
-    method public static deprecated void setSearchableInfo(android.view.View, android.content.ComponentName);
-    method public static deprecated void setSubmitButtonEnabled(android.view.View, boolean);
-  }
-
-  public static abstract deprecated interface SearchViewCompat.OnCloseListener {
-    method public abstract boolean onClose();
-  }
-
-  public static abstract deprecated class SearchViewCompat.OnCloseListenerCompat implements android.support.v4.widget.SearchViewCompat.OnCloseListener {
-    ctor public SearchViewCompat.OnCloseListenerCompat();
-    method public boolean onClose();
-  }
-
-  public static abstract deprecated interface SearchViewCompat.OnQueryTextListener {
-    method public abstract boolean onQueryTextChange(java.lang.String);
-    method public abstract boolean onQueryTextSubmit(java.lang.String);
-  }
-
-  public static abstract deprecated class SearchViewCompat.OnQueryTextListenerCompat implements android.support.v4.widget.SearchViewCompat.OnQueryTextListener {
-    ctor public SearchViewCompat.OnQueryTextListenerCompat();
-    method public boolean onQueryTextChange(java.lang.String);
-    method public boolean onQueryTextSubmit(java.lang.String);
-  }
-
   public final class TextViewCompat {
     method public static int getAutoSizeMaxTextSize(android.widget.TextView);
     method public static int getAutoSizeMinTextSize(android.widget.TextView);
