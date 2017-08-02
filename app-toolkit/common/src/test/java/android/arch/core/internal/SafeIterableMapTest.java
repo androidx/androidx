@@ -200,6 +200,20 @@ public class SafeIterableMapTest {
     }
 
     @Test
+    public void testRemoveDuringIteration4() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2);
+        int[] expected = new int[]{1, 2};
+        int index = 0;
+        for (Entry<Integer, Boolean> entry : map) {
+            assertThat(entry.getKey(), is(expected[index++]));
+            if (index == 1) {
+                map.remove(1);
+            }
+        }
+        assertThat(index, is(2));
+    }
+
+    @Test
     public void testAdditionDuringIteration() {
         SafeIterableMap<Integer, Boolean> map = mapOf(1, 2, 3, 4);
         int[] expected = new int[]{1, 2, 3, 4};
@@ -314,6 +328,22 @@ public class SafeIterableMapTest {
             }
         }
         assertThat(index, is(3));
+    }
+
+    @Test
+    public void testIteratorWithAddition5() {
+        SafeIterableMap<Integer, Boolean> map = mapOf(1, 2);
+        int[] expected = new int[]{1, 2};
+        int index = 0;
+        Iterator<Entry<Integer, Boolean>> iterator = map.iteratorWithAdditions();
+        while (iterator.hasNext()) {
+            Entry<Integer, Boolean> entry = iterator.next();
+            assertThat(entry.getKey(), is(expected[index++]));
+            if (index == 1) {
+                map.remove(1);
+            }
+        }
+        assertThat(index, is(2));
     }
 
     @Test
