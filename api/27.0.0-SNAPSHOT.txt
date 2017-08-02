@@ -10544,10 +10544,6 @@ package android.support.v7.app {
     ctor public deprecated NotificationCompat.Builder(android.content.Context);
   }
 
-  public static deprecated class NotificationCompat.DecoratedCustomViewStyle extends android.support.v4.app.NotificationCompat.DecoratedCustomViewStyle {
-    ctor public deprecated NotificationCompat.DecoratedCustomViewStyle();
-  }
-
   public static deprecated class NotificationCompat.DecoratedMediaCustomViewStyle extends android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle {
     ctor public deprecated NotificationCompat.DecoratedMediaCustomViewStyle();
   }
