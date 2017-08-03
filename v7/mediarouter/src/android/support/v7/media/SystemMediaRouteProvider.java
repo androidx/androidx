@@ -97,7 +97,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
      * Callbacks into the media router to synchronize state with the framework media router.
      */
     public interface SyncCallback {
-        MediaRouter.RouteInfo getSystemRouteByDescriptorId(String id);
+        void onSystemRouteSelectedByDescriptorId(String id);
     }
 
     protected Object getDefaultRoute() {
@@ -417,11 +417,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 int index = findSystemRouteRecord(routeObj);
                 if (index >= 0) {
                     SystemRouteRecord record = mSystemRouteRecords.get(index);
-                    MediaRouter.RouteInfo route = mSyncCallback.getSystemRouteByDescriptorId(
-                            record.mRouteDescriptorId);
-                    if (route != null) {
-                        route.select();
-                    }
+                    mSyncCallback.onSystemRouteSelectedByDescriptorId(record.mRouteDescriptorId);
                 }
             }
         }
