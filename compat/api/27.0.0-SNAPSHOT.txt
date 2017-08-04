@@ -715,9 +715,9 @@ package android.support.v4.content.res {
 
 package android.support.v4.database {
 
-  public final class DatabaseUtilsCompat {
-    method public static java.lang.String[] appendSelectionArgs(java.lang.String[], java.lang.String[]);
-    method public static java.lang.String concatenateWhere(java.lang.String, java.lang.String);
+  public final deprecated class DatabaseUtilsCompat {
+    method public static deprecated java.lang.String[] appendSelectionArgs(java.lang.String[], java.lang.String[]);
+    method public static deprecated java.lang.String concatenateWhere(java.lang.String, java.lang.String);
   }
 
 }
