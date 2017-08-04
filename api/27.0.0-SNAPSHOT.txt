@@ -8531,19 +8531,6 @@ package android.support.v4.view {
     field public static final int SOURCE_UNKNOWN = 0; // 0x0
   }
 
-  public final deprecated class KeyEventCompat {
-    method public static deprecated boolean dispatch(android.view.KeyEvent, android.view.KeyEvent.Callback, java.lang.Object, java.lang.Object);
-    method public static deprecated java.lang.Object getKeyDispatcherState(android.view.View);
-    method public static deprecated boolean hasModifiers(android.view.KeyEvent, int);
-    method public static deprecated boolean hasNoModifiers(android.view.KeyEvent);
-    method public static deprecated boolean isCtrlPressed(android.view.KeyEvent);
-    method public static deprecated boolean isTracking(android.view.KeyEvent);
-    method public static deprecated boolean metaStateHasModifiers(int, int);
-    method public static deprecated boolean metaStateHasNoModifiers(int);
-    method public static deprecated int normalizeMetaState(int);
-    method public static deprecated void startTracking(android.view.KeyEvent);
-  }
-
   public final class LayoutInflaterCompat {
     method public static deprecated android.support.v4.view.LayoutInflaterFactory getFactory(android.view.LayoutInflater);
     method public static deprecated void setFactory(android.view.LayoutInflater, android.support.v4.view.LayoutInflaterFactory);
