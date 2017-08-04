@@ -28,11 +28,7 @@ import java.util.ArrayList;
 
 @RequiresApi(26)
 class NotificationCompatApi26 {
-    public static class Builder implements NotificationBuilderWithBuilderAccessor,
-            NotificationBuilderWithActions {
-
-        private Notification.Builder mB;
-
+    public static class Builder extends NotificationCompatApi24.Builder {
         Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
                 RemoteViews tickerView, int number,
@@ -45,77 +41,30 @@ class NotificationCompatApi26 {
                 RemoteViews bigContentView, RemoteViews headsUpContentView,
                 String channelId, int badgeIcon, String shortcutId, long timeoutMs,
                 boolean colorized, boolean colorizedSet, int groupAlertBehavior) {
-            mB = new Notification.Builder(context, channelId)
-                    .setWhen(n.when)
-                    .setShowWhen(showWhen)
-                    .setSmallIcon(n.icon, n.iconLevel)
-                    .setContent(n.contentView)
-                    .setTicker(n.tickerText, tickerView)
-                    .setSound(n.sound, n.audioStreamType)
-                    .setVibrate(n.vibrate)
-                    .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
-                    .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
-                    .setOnlyAlertOnce((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0)
-                    .setAutoCancel((n.flags & Notification.FLAG_AUTO_CANCEL) != 0)
-                    .setDefaults(n.defaults)
-                    .setContentTitle(contentTitle)
-                    .setContentText(contentText)
-                    .setSubText(subText)
-                    .setContentInfo(contentInfo)
-                    .setContentIntent(contentIntent)
-                    .setDeleteIntent(n.deleteIntent)
-                    .setFullScreenIntent(fullScreenIntent,
-                            (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                    .setLargeIcon(largeIcon)
-                    .setNumber(number)
-                    .setUsesChronometer(useChronometer)
-                    .setPriority(priority)
-                    .setProgress(progressMax, progress, progressIndeterminate)
-                    .setLocalOnly(localOnly)
-                    .setExtras(extras)
-                    .setGroup(groupKey)
-                    .setGroupSummary(groupSummary)
-                    .setSortKey(sortKey)
-                    .setCategory(category)
-                    .setColor(color)
-                    .setVisibility(visibility)
-                    .setPublicVersion(publicVersion)
-                    .setRemoteInputHistory(remoteInputHistory)
-                    .setChannelId(channelId)
+            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
+                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
+                    progressIndeterminate, showWhen, useChronometer, priority, subText, localOnly,
+                    category, people, extras, color, visibility, publicVersion, groupKey,
+                    groupSummary, sortKey, remoteInputHistory, contentView, bigContentView,
+                    headsUpContentView, groupAlertBehavior, channelId);
+            mBuilder.setChannelId(channelId)
                     .setBadgeIconType(badgeIcon)
                     .setShortcutId(shortcutId)
                     .setTimeoutAfter(timeoutMs)
                     .setGroupAlertBehavior(groupAlertBehavior);
             if (colorizedSet) {
-                mB.setColorized(colorized);
+                mBuilder.setColorized(colorized);
             }
-            if (contentView != null) {
-                mB.setCustomContentView(contentView);
-            }
-            if (bigContentView != null) {
-                mB.setCustomBigContentView(bigContentView);
-            }
-            if (headsUpContentView != null) {
-                mB.setCustomHeadsUpContentView(headsUpContentView);
-            }
-            for (String person : people) {
-                mB.addPerson(person);
-            }
-        }
-
-        @Override
-        public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi24.addAction(mB, action);
-        }
-
-        @Override
-        public Notification.Builder getBuilder() {
-            return mB;
         }
 
         @Override
         public Notification build() {
-            return mB.build();
+            return mBuilder.build();
+        }
+
+        @Override
+        protected Notification.Builder newBuilder(Context context, String channelId) {
+            return new Notification.Builder(context, channelId);
         }
     }
 }

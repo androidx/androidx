@@ -883,7 +883,7 @@ public class NotificationCompat {
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
-                    b.mBigContentView, b.mHeadsUpContentView, b.mGroupAlertBehavior);
+                    b.mBigContentView, b.mHeadsUpContentView, b.mGroupAlertBehavior, null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);

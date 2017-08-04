@@ -42,7 +42,7 @@ class NotificationCompatApi24 {
 
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
-        private Notification.Builder b;
+        protected Notification.Builder mBuilder;
         private int mGroupAlertBehavior;
 
         public Builder(Context context, Notification n,
@@ -55,8 +55,8 @@ class NotificationCompatApi24 {
                 int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
                 String sortKey, CharSequence[] remoteInputHistory, RemoteViews contentView,
                 RemoteViews bigContentView, RemoteViews headsUpContentView,
-                int groupAlertBehavior) {
-            b = new Notification.Builder(context)
+                int groupAlertBehavior, String channelId) {
+            mBuilder = newBuilder(context, channelId)
                     .setWhen(n.when)
                     .setShowWhen(showWhen)
                     .setSmallIcon(n.icon, n.iconLevel)
@@ -93,16 +93,16 @@ class NotificationCompatApi24 {
                     .setPublicVersion(publicVersion)
                     .setRemoteInputHistory(remoteInputHistory);
             if (contentView != null) {
-                b.setCustomContentView(contentView);
+                mBuilder.setCustomContentView(contentView);
             }
             if (bigContentView != null) {
-                b.setCustomBigContentView(bigContentView);
+                mBuilder.setCustomBigContentView(bigContentView);
             }
             if (headsUpContentView != null) {
-                b.setCustomHeadsUpContentView(headsUpContentView);
+                mBuilder.setCustomHeadsUpContentView(headsUpContentView);
             }
             for (String person: people) {
-                b.addPerson(person);
+                mBuilder.addPerson(person);
             }
 
             mGroupAlertBehavior = groupAlertBehavior;
@@ -110,17 +110,17 @@ class NotificationCompatApi24 {
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi24.addAction(b, action);
+            NotificationCompatApi24.addAction(mBuilder, action);
         }
 
         @Override
         public Notification.Builder getBuilder() {
-            return b;
+            return mBuilder;
         }
 
         @Override
         public Notification build() {
-            Notification notification =  b.build();
+            Notification notification =  mBuilder.build();
 
             if (mGroupAlertBehavior != GROUP_ALERT_ALL) {
                 // if is summary and only children should alert
@@ -138,6 +138,10 @@ class NotificationCompatApi24 {
             }
 
             return notification;
+        }
+
+        protected Notification.Builder newBuilder(Context context, String channelId) {
+            return new Notification.Builder(context);
         }
 
         private void removeSoundAndVibration(Notification notification) {
