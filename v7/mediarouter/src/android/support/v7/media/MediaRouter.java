@@ -2626,16 +2626,17 @@ public final class MediaRouter {
         }
 
         @Override
-        public RouteInfo getSystemRouteByDescriptorId(String id) {
+        public void onSystemRouteSelectedByDescriptorId(String id) {
+            // System route is selected, do not sync the route we selected before.
+            mCallbackHandler.removeMessages(CallbackHandler.MSG_ROUTE_SELECTED);
             int providerIndex = findProviderInfo(mSystemProvider);
             if (providerIndex >= 0) {
                 ProviderInfo provider = mProviders.get(providerIndex);
                 int routeIndex = provider.findRouteByDescriptorId(id);
                 if (routeIndex >= 0) {
-                    return provider.mRoutes.get(routeIndex);
+                    provider.mRoutes.get(routeIndex).select();
                 }
             }
-            return null;
         }
 
         public void addRemoteControlClient(Object rcc) {
@@ -2927,16 +2928,16 @@ public final class MediaRouter {
             private void syncWithSystemProvider(int what, Object obj) {
                 switch (what) {
                     case MSG_ROUTE_ADDED:
-                        mSystemProvider.onSyncRouteAdded((RouteInfo)obj);
+                        mSystemProvider.onSyncRouteAdded((RouteInfo) obj);
                         break;
                     case MSG_ROUTE_REMOVED:
-                        mSystemProvider.onSyncRouteRemoved((RouteInfo)obj);
+                        mSystemProvider.onSyncRouteRemoved((RouteInfo) obj);
                         break;
                     case MSG_ROUTE_CHANGED:
-                        mSystemProvider.onSyncRouteChanged((RouteInfo)obj);
+                        mSystemProvider.onSyncRouteChanged((RouteInfo) obj);
                         break;
                     case MSG_ROUTE_SELECTED:
-                        mSystemProvider.onSyncRouteSelected((RouteInfo)obj);
+                        mSystemProvider.onSyncRouteSelected((RouteInfo) obj);
                         break;
                 }
             }
