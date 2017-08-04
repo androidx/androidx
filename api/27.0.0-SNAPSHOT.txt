@@ -7075,8 +7075,8 @@ package android.support.v4.content {
 
 package android.support.v4.content.pm {
 
-  public final class ActivityInfoCompat {
-    field public static final int CONFIG_UI_MODE = 512; // 0x200
+  public final deprecated class ActivityInfoCompat {
+    field public static final deprecated int CONFIG_UI_MODE = 512; // 0x200
   }
 
   public class ShortcutInfoCompat {
