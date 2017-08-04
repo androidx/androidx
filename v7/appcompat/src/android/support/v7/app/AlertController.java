@@ -501,10 +501,8 @@ class AlertController {
 
             // Only show the divider if we have a title.
             View divider = null;
-            if (mMessage != null || mListView != null || hasCustomPanel) {
-                if (!hasCustomPanel) {
-                    divider = topPanel.findViewById(R.id.titleDividerNoCustom);
-                }
+            if (mMessage != null || mListView != null) {
+                divider = topPanel.findViewById(R.id.titleDividerNoCustom);
             }
 
             if (divider != null) {
