@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -122,12 +123,15 @@ public class ImageCardView extends BaseCardView {
     public static final int CARD_TYPE_FLAG_ICON_RIGHT = 4;
     public static final int CARD_TYPE_FLAG_ICON_LEFT = 8;
 
+    private static final String ALPHA = "alpha";
+
     private ImageView mImageView;
     private ViewGroup mInfoArea;
     private TextView mTitleView;
     private TextView mContentView;
     private ImageView mBadgeImage;
     private boolean mAttachedToWindow;
+    ObjectAnimator mFadeInAnimator;
 
     /**
      * Create an ImageCardView using a given theme for customization.
@@ -179,6 +183,10 @@ public class ImageCardView extends BaseCardView {
         if (mImageView.getDrawable() == null) {
             mImageView.setVisibility(View.INVISIBLE);
         }
+        // Set Object Animator for image view.
+        mFadeInAnimator = ObjectAnimator.ofFloat(mImageView, ALPHA, 1f);
+        mFadeInAnimator.setDuration(
+                mImageView.getResources().getInteger(android.R.integer.config_shortAnimTime));
 
         mInfoArea = findViewById(R.id.info_field);
         if (hasImageOnly) {
@@ -324,7 +332,7 @@ public class ImageCardView extends BaseCardView {
 
         mImageView.setImageDrawable(drawable);
         if (drawable == null) {
-            mImageView.animate().cancel();
+            mFadeInAnimator.cancel();
             mImageView.setAlpha(1f);
             mImageView.setVisibility(View.INVISIBLE);
         } else {
@@ -332,7 +340,7 @@ public class ImageCardView extends BaseCardView {
             if (fade) {
                 fadeIn();
             } else {
-                mImageView.animate().cancel();
+                mFadeInAnimator.cancel();
                 mImageView.setAlpha(1f);
             }
         }
@@ -458,8 +466,7 @@ public class ImageCardView extends BaseCardView {
     private void fadeIn() {
         mImageView.setAlpha(0f);
         if (mAttachedToWindow) {
-            mImageView.animate().alpha(1f).setDuration(
-                    mImageView.getResources().getInteger(android.R.integer.config_shortAnimTime));
+            mFadeInAnimator.start();
         }
     }
 
@@ -480,9 +487,8 @@ public class ImageCardView extends BaseCardView {
     @Override
     protected void onDetachedFromWindow() {
         mAttachedToWindow = false;
-        mImageView.animate().cancel();
+        mFadeInAnimator.cancel();
         mImageView.setAlpha(1f);
         super.onDetachedFromWindow();
     }
-
 }
