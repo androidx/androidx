@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Yuqori sifatni o‘chirib qo‘yish"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Taglavhalarni yoqish"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Taglavhalarni o‘chirib qo‘yish"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Tasvir ichida tasvir rejimiga kirish"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Tasvir ustida tasvir rejimiga kirish"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Boshqaruv elementlari ochiq"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Boshqaruv elementlari berkitilgan, ochish uchun D-pad tugmasini bosing"</string>
