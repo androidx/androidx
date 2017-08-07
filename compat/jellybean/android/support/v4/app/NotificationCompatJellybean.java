@@ -59,9 +59,8 @@ class NotificationCompatJellybean {
     private static Field sActionIntentField;
     private static boolean sActionsAccessFailed;
 
-    public static class Builder implements NotificationBuilderWithBuilderAccessor,
-            NotificationBuilderWithActions {
-        protected Notification.Builder mBuilder;
+    public static class Builder extends NotificationCompat.NotificationCompatBaseImpl.BuilderBase
+            implements NotificationBuilderWithActions {
         protected RemoteViews mContentView;
         protected RemoteViews mBigContentView;
         protected List<Bundle> mActionExtrasList = new ArrayList<>();
@@ -76,31 +75,12 @@ class NotificationCompatJellybean {
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 Bundle extras, String groupKey, boolean groupSummary, String sortKey,
                 RemoteViews contentView, RemoteViews bigContentView, String channelId) {
-            mBuilder = newBuilder(context, channelId)
-                .setWhen(n.when)
-                .setSmallIcon(n.icon, n.iconLevel)
-                .setContent(n.contentView)
-                .setTicker(n.tickerText, tickerView)
-                .setSound(n.sound, n.audioStreamType)
-                .setVibrate(n.vibrate)
-                .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
-                .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
-                .setOnlyAlertOnce((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0)
-                .setAutoCancel((n.flags & Notification.FLAG_AUTO_CANCEL) != 0)
-                .setDefaults(n.defaults)
-                .setContentTitle(contentTitle)
-                .setContentText(contentText)
-                .setSubText(subText)
-                .setContentInfo(contentInfo)
-                .setContentIntent(contentIntent)
-                .setDeleteIntent(n.deleteIntent)
-                .setFullScreenIntent(fullScreenIntent,
-                        (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                .setLargeIcon(largeIcon)
-                .setNumber(number)
+            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
+                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
+                    progressIndeterminate, channelId);
+            mBuilder.setSubText(subText)
                 .setUsesChronometer(useChronometer)
-                .setPriority(priority)
-                .setProgress(progressMax, progress, progressIndeterminate);
+                .setPriority(priority);
             mExtras = new Bundle();
             if (extras != null) {
                 mExtras.putAll(extras);
@@ -129,11 +109,6 @@ class NotificationCompatJellybean {
         }
 
         @Override
-        public Notification.Builder getBuilder() {
-            return mBuilder;
-        }
-
-        @Override
         public Notification build() {
             Notification notif = mBuilder.build();
             // Merge in developer provided extras, but let the values already set
@@ -159,10 +134,6 @@ class NotificationCompatJellybean {
                 notif.bigContentView = mBigContentView;
             }
             return notif;
-        }
-
-        protected Notification.Builder newBuilder(Context context, String channelId) {
-            return new Notification.Builder(context);
         }
     }
 

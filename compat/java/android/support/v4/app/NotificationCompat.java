@@ -642,15 +642,14 @@ public class NotificationCompat {
     static class NotificationCompatBaseImpl implements NotificationCompatImpl {
 
         public static class BuilderBase implements NotificationBuilderWithBuilderAccessor {
-
-            private Notification.Builder mBuilder;
+            protected Notification.Builder mBuilder;
 
             BuilderBase(Context context, Notification n, CharSequence contentTitle,
                     CharSequence contentText, CharSequence contentInfo, RemoteViews tickerView,
                     int number, PendingIntent contentIntent, PendingIntent fullScreenIntent,
                     Bitmap largeIcon, int progressMax, int progress,
-                    boolean progressIndeterminate) {
-                mBuilder = new Notification.Builder(context)
+                    boolean progressIndeterminate, String channelId) {
+                mBuilder = newBuilder(context, channelId)
                         .setWhen(n.when)
                         .setSmallIcon(n.icon, n.iconLevel)
                         .setContent(n.contentView)
@@ -683,6 +682,10 @@ public class NotificationCompat {
             public Notification build() {
                 return mBuilder.getNotification();
             }
+
+            protected Notification.Builder newBuilder(Context context, String channelId) {
+                return new Notification.Builder(context);
+            }
         }
 
         @Override
@@ -691,7 +694,7 @@ public class NotificationCompat {
                     new BuilderBase(b.mContext, b.mNotification,
                             b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
                             b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                            b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
+                            b.mProgressMax, b.mProgress, b.mProgressIndeterminate, null);
             return extender.build(b, builder);
         }
 
