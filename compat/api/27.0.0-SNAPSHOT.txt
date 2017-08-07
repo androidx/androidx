@@ -673,6 +673,7 @@ package android.support.v4.content.pm {
     method public android.content.Intent[] getIntents();
     method public java.lang.CharSequence getLongLabel();
     method public java.lang.CharSequence getShortLabel();
+    method public android.content.pm.ShortcutInfo toShortcutInfo();
   }
 
   public static class ShortcutInfoCompat.Builder {
@@ -680,8 +681,6 @@ package android.support.v4.content.pm {
     method public android.support.v4.content.pm.ShortcutInfoCompat build();
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(java.lang.CharSequence);
-    method public deprecated android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.graphics.Bitmap);
-    method public deprecated android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(int);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.support.v4.graphics.drawable.IconCompat);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent[]);
@@ -766,6 +765,7 @@ package android.support.v4.graphics.drawable {
     method public static android.support.v4.graphics.drawable.IconCompat createWithContentUri(android.net.Uri);
     method public static android.support.v4.graphics.drawable.IconCompat createWithData(byte[], int, int);
     method public static android.support.v4.graphics.drawable.IconCompat createWithResource(android.content.Context, int);
+    method public android.graphics.drawable.Icon toIcon();
   }
 
 }
