@@ -28,11 +28,9 @@ limitations under the License.
     <string name="lb_playback_controls_play" msgid="731953341987346903">"प्ले गर्नुहोस्"</string>
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"रोक्नुहोस्"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"फास्ट फर्वार्ड"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for lb_playback_controls_fast_forward_multiplier (1058753672110224526) -->
-    <skip />
-    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"दोहोर्याउनुहोस्"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"पुन: वाइन्ड गर्नुहोस् %1$dX"</string>
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"द्रूत फर्वार्ड %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"रिवाइन्ड गर्नुहोस्"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"रिवाइन्ड गर्नुहोस् %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"अर्को छोड्नुहोस्"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"अघिल्लो छोड्नुहोस्"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"थप कार्यहरू"</string>
