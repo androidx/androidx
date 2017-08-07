@@ -16,8 +16,6 @@
 
 package android.support.v4.app;
 
-import static android.support.v4.app.NotificationCompat.DEFAULT_SOUND;
-import static android.support.v4.app.NotificationCompat.DEFAULT_VIBRATE;
 import static android.support.v4.app.NotificationCompat.FLAG_GROUP_SUMMARY;
 import static android.support.v4.app.NotificationCompat.GROUP_ALERT_ALL;
 import static android.support.v4.app.NotificationCompat.GROUP_ALERT_CHILDREN;
@@ -45,14 +43,8 @@ class NotificationCompatApi21 {
     private static final String KEY_PARTICIPANTS = "participants";
     private static final String KEY_TIMESTAMP = "timestamp";
 
-    public static class Builder implements NotificationBuilderWithBuilderAccessor,
-            NotificationBuilderWithActions {
-        protected Notification.Builder mBuilder;
-        protected int mGroupAlertBehavior;
-
+    public static class Builder extends NotificationCompatApi20.Builder {
         private Bundle mExtras;
-        private RemoteViews mContentView;
-        private RemoteViews mBigContentView;
         private RemoteViews mHeadsUpContentView;
 
         public Builder(Context context, Notification n,
@@ -65,37 +57,12 @@ class NotificationCompatApi21 {
                 int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
                 String sortKey, RemoteViews contentView, RemoteViews bigContentView,
                 RemoteViews headsUpContentView, int groupAlertBehavior, String channelId) {
-            mBuilder = newBuilder(context, channelId)
-                    .setWhen(n.when)
-                    .setShowWhen(showWhen)
-                    .setSmallIcon(n.icon, n.iconLevel)
-                    .setContent(n.contentView)
-                    .setTicker(n.tickerText, tickerView)
-                    .setSound(n.sound, n.audioStreamType)
-                    .setVibrate(n.vibrate)
-                    .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
-                    .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
-                    .setOnlyAlertOnce((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0)
-                    .setAutoCancel((n.flags & Notification.FLAG_AUTO_CANCEL) != 0)
-                    .setDefaults(n.defaults)
-                    .setContentTitle(contentTitle)
-                    .setContentText(contentText)
-                    .setSubText(subText)
-                    .setContentInfo(contentInfo)
-                    .setContentIntent(contentIntent)
-                    .setDeleteIntent(n.deleteIntent)
-                    .setFullScreenIntent(fullScreenIntent,
-                            (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                    .setLargeIcon(largeIcon)
-                    .setNumber(number)
-                    .setUsesChronometer(useChronometer)
-                    .setPriority(priority)
-                    .setProgress(progressMax, progress, progressIndeterminate)
-                    .setLocalOnly(localOnly)
-                    .setGroup(groupKey)
-                    .setGroupSummary(groupSummary)
-                    .setSortKey(sortKey)
-                    .setCategory(category)
+            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
+                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
+                    progressIndeterminate, showWhen, useChronometer, priority, subText, localOnly,
+                    people, extras, groupKey, groupSummary, sortKey, contentView, bigContentView,
+                    groupAlertBehavior, channelId);
+            mBuilder.setCategory(category)
                     .setColor(color)
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion);
@@ -106,20 +73,7 @@ class NotificationCompatApi21 {
             for (String person: people) {
                 mBuilder.addPerson(person);
             }
-            mContentView = contentView;
-            mBigContentView = bigContentView;
             mHeadsUpContentView = headsUpContentView;
-            mGroupAlertBehavior = groupAlertBehavior;
-        }
-
-        @Override
-        public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi20.addAction(mBuilder, action);
-        }
-
-        @Override
-        public Notification.Builder getBuilder() {
-            return mBuilder;
         }
 
         @Override
@@ -151,17 +105,6 @@ class NotificationCompatApi21 {
                 }
             }
             return notification;
-        }
-
-        protected Notification.Builder newBuilder(Context context, String channelId) {
-            return new Notification.Builder(context);
-        }
-
-        protected void removeSoundAndVibration(Notification notification) {
-            notification.sound = null;
-            notification.vibrate = null;
-            notification.defaults &= ~DEFAULT_SOUND;
-            notification.defaults &= ~DEFAULT_VIBRATE;
         }
     }
 

@@ -802,7 +802,7 @@ public class NotificationCompat {
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
-                    b.mGroupAlertBehavior);
+                    b.mGroupAlertBehavior, null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);
