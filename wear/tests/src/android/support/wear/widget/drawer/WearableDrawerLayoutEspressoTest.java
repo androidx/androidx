@@ -23,7 +23,6 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.wear.widget.util.AsyncViewActions.waitForMatchingView;
 
@@ -337,10 +336,12 @@ public class WearableDrawerLayoutEspressoTest {
         OnMenuItemClickListener mockClickListener = mock(OnMenuItemClickListener.class);
         actionDrawer.setOnMenuItemClickListener(mockClickListener);
         // WHEN the action drawer peek view is tapped
-        onView(
-                allOf(
-                        withParent(withId(R.id.action_drawer)),
-                        withId(R.id.ws_drawer_view_peek_container)))
+        onView(withId(R.id.ws_drawer_view_peek_container))
+                .perform(waitForMatchingView(
+                        allOf(
+                                withId(R.id.ws_drawer_view_peek_container),
+                                isCompletelyDisplayed()),
+                        MAX_WAIT_MS))
                 .perform(click());
         // THEN its click listener should be notified
         verify(mockClickListener).onMenuItemClick(any(MenuItem.class));
