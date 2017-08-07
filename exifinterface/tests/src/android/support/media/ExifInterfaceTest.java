@@ -32,6 +32,7 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
+import android.util.Pair;
 
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -168,6 +170,27 @@ public class ExifInterfaceTest {
             {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_90},
             {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_270}
     };
+    private static final HashMap<Integer, Pair> FLIP_STATE_AND_ROTATION_DEGREES = new HashMap<>();
+    static {
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_UNDEFINED, new Pair(false, 0));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_NORMAL, new Pair(false, 0));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_ROTATE_90, new Pair(false, 90));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_ROTATE_180, new Pair(false, 180));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_ROTATE_270, new Pair(false, 270));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair(true, 0));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_TRANSVERSE, new Pair(true, 90));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair(true, 180));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_TRANSPOSE, new Pair(true, 270));
+    }
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_MAKE,
@@ -579,6 +602,16 @@ public class ExifInterfaceTest {
             exif.saveAttributes();
             exif = new ExifInterface(imageFile.getAbsolutePath());
             assertIntTag(exif, ExifInterface.TAG_ORIENTATION, TEST_ROTATION_STATE_MACHINE[num][2]);
+        }
+
+        // Test get flip state and rotation degrees.
+        for (Integer key : FLIP_STATE_AND_ROTATION_DEGREES.keySet()) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, key.toString());
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertEquals(FLIP_STATE_AND_ROTATION_DEGREES.get(key).first, exif.isFlipped());
+            assertEquals(FLIP_STATE_AND_ROTATION_DEGREES.get(key).second,
+                    exif.getRotationDegrees());
         }
 
         // Test reset the rotation.

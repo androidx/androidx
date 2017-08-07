@@ -387,15 +387,37 @@ public class ExifInterface {
     // Constants used for the Orientation Exif tag.
     public static final int ORIENTATION_UNDEFINED = 0;
     public static final int ORIENTATION_NORMAL = 1;
-    public static final int ORIENTATION_FLIP_HORIZONTAL = 2;  // left right reversed mirror
+    /**
+     * Indicates the image is left right reversed mirror.
+     */
+    public static final int ORIENTATION_FLIP_HORIZONTAL = 2;
+    /**
+     * Indicates the image is rotated by 180 degree clockwise.
+     */
     public static final int ORIENTATION_ROTATE_180 = 3;
-    public static final int ORIENTATION_FLIP_VERTICAL = 4;  // upside down mirror
-    // flipped about top-left <--> bottom-right axis
+    /**
+     * Indicates the image is upside down mirror, it can also be represented by flip
+     * horizontally firstly and rotate 180 degree clockwise.
+     */
+    public static final int ORIENTATION_FLIP_VERTICAL = 4;
+    /**
+     * Indicates the image is flipped about top-left <--> bottom-right axis, it can also be
+     * represented by flip horizontally firstly and rotate 270 degree clockwise.
+     */
     public static final int ORIENTATION_TRANSPOSE = 5;
-    public static final int ORIENTATION_ROTATE_90 = 6;  // rotate 90 degree clockwise
-    // flipped about top-right <--> bottom-left axis
+    /**
+     * Indicates the image is rotated by 90 degree clockwise.
+     */
+    public static final int ORIENTATION_ROTATE_90 = 6;
+    /**
+     * Indicates the image is flipped about top-right <--> bottom-left axis, it can also be
+     * represented by flip horizontally firstly and rotate 90 degree clockwise.
+     */
     public static final int ORIENTATION_TRANSVERSE = 7;
-    public static final int ORIENTATION_ROTATE_270 = 8;  // rotate 270 degree clockwise
+    /**
+     * Indicates the image is rotated by 270 degree clockwise.
+     */
+    public static final int ORIENTATION_ROTATE_270 = 8;
     private static final List<Integer> ROTATION_ORDER = Arrays.asList(ORIENTATION_NORMAL,
             ORIENTATION_ROTATE_90, ORIENTATION_ROTATE_180, ORIENTATION_ROTATE_270);
     private static final List<Integer> FLIPPED_ROTATION_ORDER = Arrays.asList(
@@ -1710,6 +1732,55 @@ public class ExifInterface {
                 break;
         }
         setAttribute(TAG_ORIENTATION, Integer.toString(resultOrientation));
+    }
+
+    /**
+     * Returns if the current image orientation is flipped.
+     *
+     * @see #getRotationDegrees()
+     */
+    public boolean isFlipped() {
+        int orientation = getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL);
+        switch (orientation) {
+            case ORIENTATION_FLIP_HORIZONTAL:
+            case ORIENTATION_TRANSVERSE:
+            case ORIENTATION_FLIP_VERTICAL:
+            case ORIENTATION_TRANSPOSE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns the rotation degrees for the current image orientation. If the image is flipped,
+     * i.e., {@link #isFlipped()} returns {@code true}, the rotation degrees will be base on
+     * the assumption that the image is first flipped horizontally (along Y-axis), and then do
+     * the rotation. For example, {@link #ORIENTATION_TRANSPOSE} will be interpreted as flipped
+     * horizontally first, and then rotate 270 degrees clockwise.
+     *
+     * @return The rotation degrees of the image after the horizontal flipping is applied, if any.
+     *
+     * @see #isFlipped()
+     */
+    public int getRotationDegrees() {
+        int orientation = getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL);
+        switch (orientation) {
+            case ORIENTATION_ROTATE_90:
+            case ORIENTATION_TRANSVERSE:
+                return 90;
+            case ORIENTATION_ROTATE_180:
+            case ORIENTATION_FLIP_VERTICAL:
+                return 180;
+            case ORIENTATION_ROTATE_270:
+            case ORIENTATION_TRANSPOSE:
+                return 270;
+            case ORIENTATION_UNDEFINED:
+            case ORIENTATION_NORMAL:
+            case ORIENTATION_FLIP_HORIZONTAL:
+            default:
+                return 0;
+        }
     }
 
     /**
