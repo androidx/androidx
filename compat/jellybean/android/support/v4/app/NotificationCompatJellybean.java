@@ -61,11 +61,12 @@ class NotificationCompatJellybean {
 
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
-        private Notification.Builder b;
+        protected Notification.Builder mBuilder;
+        protected RemoteViews mContentView;
+        protected RemoteViews mBigContentView;
+        protected List<Bundle> mActionExtrasList = new ArrayList<>();
+
         private final Bundle mExtras;
-        private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
-        private RemoteViews mContentView;
-        private RemoteViews mBigContentView;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -74,8 +75,8 @@ class NotificationCompatJellybean {
                 int progressMax, int progress, boolean progressIndeterminate,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 Bundle extras, String groupKey, boolean groupSummary, String sortKey,
-                RemoteViews contentView, RemoteViews bigContentView) {
-            b = new Notification.Builder(context)
+                RemoteViews contentView, RemoteViews bigContentView, String channelId) {
+            mBuilder = newBuilder(context, channelId)
                 .setWhen(n.when)
                 .setSmallIcon(n.icon, n.iconLevel)
                 .setContent(n.contentView)
@@ -124,17 +125,17 @@ class NotificationCompatJellybean {
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
-            mActionExtrasList.add(writeActionAndGetExtras(b, action));
+            mActionExtrasList.add(writeActionAndGetExtras(mBuilder, action));
         }
 
         @Override
         public Notification.Builder getBuilder() {
-            return b;
+            return mBuilder;
         }
 
         @Override
         public Notification build() {
-            Notification notif = b.build();
+            Notification notif = mBuilder.build();
             // Merge in developer provided extras, but let the values already set
             // for keys take precedence.
             Bundle extras = getExtras(notif);
@@ -158,6 +159,10 @@ class NotificationCompatJellybean {
                 notif.bigContentView = mBigContentView;
             }
             return notif;
+        }
+
+        protected Notification.Builder newBuilder(Context context, String channelId) {
+            return new Notification.Builder(context);
         }
     }
 

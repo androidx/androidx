@@ -732,7 +732,8 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
+                    null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);
