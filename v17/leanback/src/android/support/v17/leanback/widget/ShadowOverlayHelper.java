@@ -19,8 +19,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.system.Settings;
-import android.view.ViewGroup;
 import android.view.View;
+import android.view.ViewGroup;
 
 
 /**
@@ -394,6 +394,9 @@ public final class ShadowOverlayHelper {
                     Object tag = ShadowHelper.getInstance().addDynamicShadow(
                             view, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                     view.setTag(R.id.lb_shadow_impl, tag);
+                } else if (mNeedsRoundedCorner) {
+                    RoundedRectHelper.getInstance().setClipToRoundedOutline(view,
+                            true, mRoundedCornerRadius);
                 }
             }
         }
