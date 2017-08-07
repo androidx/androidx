@@ -28,13 +28,9 @@ limitations under the License.
     <string name="lb_playback_controls_play" msgid="731953341987346903">"დაკვრა"</string>
     <string name="lb_playback_controls_pause" msgid="6189521112079849518">"პაუზა"</string>
     <string name="lb_playback_controls_fast_forward" msgid="8569951318244687220">"წინ გადახვევა"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for lb_playback_controls_fast_forward_multiplier (1058753672110224526) -->
-    <skip />
+    <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"სწრაფი გადამისამართება %1$dX"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"უკან გადახვევა"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for lb_playback_controls_rewind_multiplier (1640629531440849942) -->
-    <skip />
+    <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"გადახვევა %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"შემდეგის გამოტოვება"</string>
     <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"წინას გამოტოვება"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"დამატებითი ქმედებები"</string>
@@ -51,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"მაღალი ხარისხის გამორთვა"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"დახურული წარწერების ჩართვა"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"დახურული წარწერების გაუქმება"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"რეჟიმზე „სურათი სურათში“ გადასვლა"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"რეჟიმზე „ეკრანი ეკრანში“ გადასვლა"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"ნაჩვენებია მედიის მართვის საშუალებები"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"მედიის მართვის საშუალებები დამალულია, გამოსაჩენად დააჭირეთ D-pad-ს"</string>

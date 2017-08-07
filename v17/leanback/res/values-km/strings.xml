@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"បិទ​គុណភាព​ខ្ពស់"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"បើក​ការ​ដាក់​ចំណង​ដែល​បាន​បិទ"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"បិទ​ការ​ដាក់​ចំណង​ដែល​បាន​បិទ"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"បញ្ចូលរូបភាពនៅក្នុងរបៀបរូបភាព"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"ចូលមុខងាររូបក្នុងរូប"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"ការ​គ្រប់គ្រង​មេឌៀ​ត្រូវ​បាន​បង្ហាញ"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"ការ​គ្រប់គ្រង​មេឌៀ​ត្រូវ​បាន​លាក់ សូមចុច d-pad ដើម្បី​បង្ហាញ"</string>
