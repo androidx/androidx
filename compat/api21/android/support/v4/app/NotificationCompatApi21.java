@@ -47,12 +47,13 @@ class NotificationCompatApi21 {
 
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
-        private Notification.Builder b;
+        protected Notification.Builder mBuilder;
+        protected int mGroupAlertBehavior;
+
         private Bundle mExtras;
         private RemoteViews mContentView;
         private RemoteViews mBigContentView;
         private RemoteViews mHeadsUpContentView;
-        private int mGroupAlertBehavior;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -63,8 +64,8 @@ class NotificationCompatApi21 {
                 String category, ArrayList<String> people, Bundle extras, int color,
                 int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
                 String sortKey, RemoteViews contentView, RemoteViews bigContentView,
-                RemoteViews headsUpContentView, int groupAlertBehavior) {
-            b = new Notification.Builder(context)
+                RemoteViews headsUpContentView, int groupAlertBehavior, String channelId) {
+            mBuilder = newBuilder(context, channelId)
                     .setWhen(n.when)
                     .setShowWhen(showWhen)
                     .setSmallIcon(n.icon, n.iconLevel)
@@ -103,7 +104,7 @@ class NotificationCompatApi21 {
                 mExtras.putAll(extras);
             }
             for (String person: people) {
-                b.addPerson(person);
+                mBuilder.addPerson(person);
             }
             mContentView = contentView;
             mBigContentView = bigContentView;
@@ -113,18 +114,18 @@ class NotificationCompatApi21 {
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi20.addAction(b, action);
+            NotificationCompatApi20.addAction(mBuilder, action);
         }
 
         @Override
         public Notification.Builder getBuilder() {
-            return b;
+            return mBuilder;
         }
 
         @Override
         public Notification build() {
-            b.setExtras(mExtras);
-            Notification notification = b.build();
+            mBuilder.setExtras(mExtras);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
@@ -152,7 +153,11 @@ class NotificationCompatApi21 {
             return notification;
         }
 
-        private void removeSoundAndVibration(Notification notification) {
+        protected Notification.Builder newBuilder(Context context, String channelId) {
+            return new Notification.Builder(context);
+        }
+
+        protected void removeSoundAndVibration(Notification notification) {
             notification.sound = null;
             notification.vibrate = null;
             notification.defaults &= ~DEFAULT_SOUND;
