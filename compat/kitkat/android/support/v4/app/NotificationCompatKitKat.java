@@ -32,11 +32,12 @@ import java.util.List;
 class NotificationCompatKitKat {
     public static class Builder implements NotificationBuilderWithBuilderAccessor,
             NotificationBuilderWithActions {
-        private Notification.Builder b;
+        protected Notification.Builder mBuilder;
+        protected RemoteViews mContentView;
+        protected RemoteViews mBigContentView;
+
         private Bundle mExtras;
         private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
-        private RemoteViews mContentView;
-        private RemoteViews mBigContentView;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -45,8 +46,9 @@ class NotificationCompatKitKat {
                 int progressMax, int progress, boolean progressIndeterminate, boolean showWhen,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
-                String sortKey, RemoteViews contentView, RemoteViews bigContentView) {
-            b = new Notification.Builder(context)
+                String sortKey, RemoteViews contentView, RemoteViews bigContentView,
+                String channelId) {
+            mBuilder = newBuilder(context, channelId)
                 .setWhen(n.when)
                 .setShowWhen(showWhen)
                 .setSmallIcon(n.icon, n.iconLevel)
@@ -100,12 +102,13 @@ class NotificationCompatKitKat {
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
-            mActionExtrasList.add(NotificationCompatJellybean.writeActionAndGetExtras(b, action));
+            mActionExtrasList.add(
+                    NotificationCompatJellybean.writeActionAndGetExtras(mBuilder, action));
         }
 
         @Override
         public Notification.Builder getBuilder() {
-            return b;
+            return mBuilder;
         }
 
         @Override
@@ -117,8 +120,8 @@ class NotificationCompatKitKat {
                 mExtras.putSparseParcelableArray(
                         NotificationCompatExtras.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
-            b.setExtras(mExtras);
-            Notification notification = b.build();
+            mBuilder.setExtras(mExtras);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
@@ -126,6 +129,10 @@ class NotificationCompatKitKat {
                 notification.bigContentView = mBigContentView;
             }
             return notification;
+        }
+
+        protected Notification.Builder newBuilder(Context context, String channelId) {
+            return new Notification.Builder(context);
         }
     }
 

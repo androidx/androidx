@@ -37,12 +37,8 @@ import java.util.ArrayList;
 
 @RequiresApi(20)
 class NotificationCompatApi20 {
-    public static class Builder implements NotificationBuilderWithBuilderAccessor,
-            NotificationBuilderWithActions {
-        protected Notification.Builder mBuilder;
+    public static class Builder extends NotificationCompatKitKat.Builder {
         protected int mGroupAlertBehavior;
-        protected RemoteViews mContentView;
-        protected RemoteViews mBigContentView;
 
         private Bundle mExtras;
 
@@ -55,33 +51,12 @@ class NotificationCompatApi20 {
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
                 String sortKey, RemoteViews contentView, RemoteViews bigContentView,
                 int groupAlertBehavior, String channelId) {
-            mBuilder = newBuilder(context, channelId)
-                .setWhen(n.when)
-                .setShowWhen(showWhen)
-                .setSmallIcon(n.icon, n.iconLevel)
-                .setContent(n.contentView)
-                .setTicker(n.tickerText, tickerView)
-                .setSound(n.sound, n.audioStreamType)
-                .setVibrate(n.vibrate)
-                .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
-                .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
-                .setOnlyAlertOnce((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0)
-                .setAutoCancel((n.flags & Notification.FLAG_AUTO_CANCEL) != 0)
-                .setDefaults(n.defaults)
-                .setContentTitle(contentTitle)
-                .setContentText(contentText)
-                .setSubText(subText)
-                .setContentInfo(contentInfo)
-                .setContentIntent(contentIntent)
-                .setDeleteIntent(n.deleteIntent)
-                .setFullScreenIntent(fullScreenIntent,
-                        (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                .setLargeIcon(largeIcon)
-                .setNumber(number)
-                .setUsesChronometer(useChronometer)
-                .setPriority(priority)
-                .setProgress(progressMax, progress, progressIndeterminate)
-                .setLocalOnly(localOnly)
+            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
+                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
+                    progressIndeterminate, showWhen, useChronometer, priority, subText, localOnly,
+                    people, extras, groupKey, groupSummary, sortKey, contentView, bigContentView,
+                    channelId);
+            mBuilder.setLocalOnly(localOnly)
                 .setGroup(groupKey)
                 .setGroupSummary(groupSummary)
                 .setSortKey(sortKey);
@@ -93,19 +68,13 @@ class NotificationCompatApi20 {
                 mExtras.putStringArray(Notification.EXTRA_PEOPLE,
                         people.toArray(new String[people.size()]));
             }
-            mContentView = contentView;
-            mBigContentView = bigContentView;
+
             mGroupAlertBehavior = groupAlertBehavior;
         }
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
             NotificationCompatApi20.addAction(mBuilder, action);
-        }
-
-        @Override
-        public Notification.Builder getBuilder() {
-            return mBuilder;
         }
 
         @Override
@@ -135,10 +104,6 @@ class NotificationCompatApi20 {
             }
 
             return notification;
-        }
-
-        protected Notification.Builder newBuilder(Context context, String channelId) {
-            return new Notification.Builder(context);
         }
 
         protected void removeSoundAndVibration(Notification notification) {
