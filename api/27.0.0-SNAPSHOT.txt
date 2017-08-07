@@ -1106,11 +1106,13 @@ package android.support.media {
     method public int getAttributeInt(java.lang.String, int);
     method public deprecated boolean getLatLong(float[]);
     method public double[] getLatLong();
+    method public int getRotationDegrees();
     method public byte[] getThumbnail();
     method public android.graphics.Bitmap getThumbnailBitmap();
     method public byte[] getThumbnailBytes();
     method public long[] getThumbnailRange();
     method public boolean hasThumbnail();
+    method public boolean isFlipped();
     method public boolean isThumbnailCompressed();
     method public void resetOrientation();
     method public void rotate(int);
