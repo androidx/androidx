@@ -2211,13 +2211,16 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
-                NotificationCompatJellybean.addBigPictureStyle(builder,
-                        mBigContentTitle,
-                        mSummaryTextSet,
-                        mSummaryText,
-                        mPicture,
-                        mBigLargeIcon,
-                        mBigLargeIconSet);
+                Notification.BigPictureStyle style =
+                        new Notification.BigPictureStyle(builder.getBuilder())
+                                .setBigContentTitle(mBigContentTitle)
+                                .bigPicture(mPicture);
+                if (mBigLargeIconSet) {
+                    style.bigLargeIcon(mBigLargeIcon);
+                }
+                if (mSummaryTextSet) {
+                    style.setSummaryText(mSummaryText);
+                }
             }
         }
     }
@@ -2287,11 +2290,13 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
-                NotificationCompatJellybean.addBigTextStyle(builder,
-                        mBigContentTitle,
-                        mSummaryTextSet,
-                        mSummaryText,
-                        mBigText);
+                Notification.BigTextStyle style =
+                        new Notification.BigTextStyle(builder.getBuilder())
+                                .setBigContentTitle(mBigContentTitle)
+                                .bigText(mBigText);
+                if (mSummaryTextSet) {
+                    style.setSummaryText(mSummaryText);
+                }
             }
         }
     }
@@ -2496,11 +2501,9 @@ public class NotificationCompat {
                         }
                         completeMessage.insert(0, line);
                     }
-                    NotificationCompatJellybean.addBigTextStyle(builder,
-                            null,
-                            false,
-                            null,
-                            completeMessage);
+                    new Notification.BigTextStyle(builder.getBuilder())
+                            .setBigContentTitle(null)
+                            .bigText(completeMessage);
                 }
             }
         }
@@ -2833,11 +2836,15 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
-                NotificationCompatJellybean.addInboxStyle(builder,
-                        mBigContentTitle,
-                        mSummaryTextSet,
-                        mSummaryText,
-                        mTexts);
+                Notification.InboxStyle style =
+                        new Notification.InboxStyle(builder.getBuilder())
+                                .setBigContentTitle(mBigContentTitle);
+                if (mSummaryTextSet) {
+                    style.setSummaryText(mSummaryText);
+                }
+                for (CharSequence text: mTexts) {
+                    style.addLine(text);
+                }
             }
         }
     }
