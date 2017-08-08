@@ -51,6 +51,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -597,7 +598,6 @@ public class NotificationCompat {
 
     interface NotificationCompatImpl {
         Notification build(Builder b, BuilderExtender extender);
-        Action getAction(Notification n, int actionIndex);
     }
 
     /**
@@ -691,11 +691,6 @@ public class NotificationCompat {
                             b.mProgressMax, b.mProgress, b.mProgressIndeterminate, null);
             return extender.build(b, builder);
         }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return null;
-        }
     }
 
     @RequiresApi(16)
@@ -722,12 +717,6 @@ public class NotificationCompat {
             }
             return notification;
         }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatJellybean.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
-        }
     }
 
     @RequiresApi(19)
@@ -746,12 +735,6 @@ public class NotificationCompat {
                 b.mStyle.apply(builder);
             }
             return extender.build(b, builder);
-        }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatKitKat.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
         }
     }
 
@@ -775,12 +758,6 @@ public class NotificationCompat {
                 b.mStyle.addCompatExtras(getExtras(notification));
             }
             return notification;
-        }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatApi20.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
         }
     }
 
@@ -830,12 +807,6 @@ public class NotificationCompat {
                 b.mStyle.addCompatExtras(getExtras(notification));
             }
             return notification;
-        }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatApi24.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
         }
     }
 
@@ -3725,12 +3696,12 @@ public class NotificationCompat {
                             Action.FACTORY.newArray(parcelables.size());
                     for (int i = 0; i < actions.length; i++) {
                         if (Build.VERSION.SDK_INT >= 24) {
-                            actions[i] = NotificationCompatApi24.getActionCompatFromAction(
+                            actions[i] = NotificationCompat.getActionCompatFromAction(
                                     (Notification.Action) parcelables.get(i),
                                     Action.FACTORY,
                                     RemoteInput.FACTORY);
                         } else if (Build.VERSION.SDK_INT >= 20) {
-                            actions[i] = NotificationCompatApi20.getActionCompatFromAction(
+                            actions[i] = NotificationCompat.getActionCompatFromAction(
                                     (Notification.Action) parcelables.get(i),
                                     Action.FACTORY,
                                     RemoteInput.FACTORY);
@@ -4899,7 +4870,45 @@ public class NotificationCompat {
      * @param actionIndex The index of the action to retrieve.
      */
     public static Action getAction(Notification notification, int actionIndex) {
-        return IMPL.getAction(notification, actionIndex);
+        if (Build.VERSION.SDK_INT >= 20) {
+            return getActionCompatFromAction(notification.actions[actionIndex],
+                    Action.FACTORY, RemoteInput.FACTORY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Notification.Action action = notification.actions[actionIndex];
+            Bundle actionExtras = null;
+            SparseArray<Bundle> actionExtrasMap = notification.extras.getSparseParcelableArray(
+                    NotificationCompatExtras.EXTRA_ACTION_EXTRAS);
+            if (actionExtrasMap != null) {
+                actionExtras = actionExtrasMap.get(actionIndex);
+            }
+            return (Action) NotificationCompatJellybean.readAction(Action.FACTORY,
+                    RemoteInput.FACTORY, action.icon, action.title, action.actionIntent,
+                    actionExtras);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            return (Action) NotificationCompatJellybean.getAction(notification, actionIndex,
+                    Action.FACTORY, RemoteInput.FACTORY);
+        } else {
+            return null;
+        }
+    }
+
+    @RequiresApi(20)
+    static Action getActionCompatFromAction(Notification.Action action,
+            NotificationCompatBase.Action.Factory actionFactory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+        RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
+                action.getRemoteInputs(), remoteInputFactory);
+        final boolean allowGeneratedReplies;
+        if (Build.VERSION.SDK_INT >= 24) {
+            allowGeneratedReplies = action.getExtras().getBoolean(
+                    NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES)
+                    || action.getAllowGeneratedReplies();
+        } else {
+            allowGeneratedReplies = action.getExtras().getBoolean(
+                    NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
+        }
+        return (Action) actionFactory.build(action.icon, action.title, action.actionIntent,
+                action.getExtras(), remoteInputs, null, allowGeneratedReplies);
     }
 
     /**

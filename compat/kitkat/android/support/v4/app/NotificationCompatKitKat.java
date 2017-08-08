@@ -96,18 +96,4 @@ class NotificationCompatKitKat {
             return notification;
         }
     }
-
-    public static NotificationCompatBase.Action getAction(Notification notif,
-            int actionIndex, NotificationCompatBase.Action.Factory factory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-        Notification.Action action = notif.actions[actionIndex];
-        Bundle actionExtras = null;
-        SparseArray<Bundle> actionExtrasMap = notif.extras.getSparseParcelableArray(
-                NotificationCompatExtras.EXTRA_ACTION_EXTRAS);
-        if (actionExtrasMap != null) {
-            actionExtras = actionExtrasMap.get(actionIndex);
-        }
-        return NotificationCompatJellybean.readAction(factory, remoteInputFactory,
-                action.icon, action.title, action.actionIntent, actionExtras);
-    }
 }
