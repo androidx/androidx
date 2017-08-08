@@ -2562,22 +2562,21 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
-                List<CharSequence> texts = new ArrayList<>();
-                List<Long> timestamps = new ArrayList<>();
-                List<CharSequence> senders = new ArrayList<>();
-                List<String> dataMimeTypes = new ArrayList<>();
-                List<Uri> dataUris = new ArrayList<>();
-
+                Notification.MessagingStyle style =
+                        new Notification.MessagingStyle(mUserDisplayName)
+                                .setConversationTitle(mConversationTitle);
                 for (MessagingStyle.Message message : mMessages) {
-                    texts.add(message.getText());
-                    timestamps.add(message.getTimestamp());
-                    senders.add(message.getSender());
-                    dataMimeTypes.add(message.getDataMimeType());
-                    dataUris.add(message.getDataUri());
+                    Notification.MessagingStyle.Message frameworkMessage =
+                            new Notification.MessagingStyle.Message(
+                                    message.getText(),
+                                    message.getTimestamp(),
+                                    message.getSender());
+                    if (message.getDataMimeType() != null) {
+                        frameworkMessage.setData(message.getDataMimeType(), message.getDataUri());
+                    }
+                    style.addMessage(frameworkMessage);
                 }
-                NotificationCompatApi24.addMessagingStyle(builder, mUserDisplayName,
-                        mConversationTitle, texts, timestamps, senders,
-                        dataMimeTypes, dataUris);
+                style.setBuilder(builder.getBuilder());
             } else {
                 MessagingStyle.Message latestIncomingMessage = findLatestIncomingMessage();
                 // Set the title
