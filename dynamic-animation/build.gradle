@@ -11,7 +11,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 14
     }
 
     sourceSets {
