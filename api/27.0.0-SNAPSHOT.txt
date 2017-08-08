@@ -9365,14 +9365,14 @@ package android.support.v4.view.accessibility {
   public final class AccessibilityEventCompat {
     method public static deprecated void appendRecord(android.view.accessibility.AccessibilityEvent, android.support.v4.view.accessibility.AccessibilityRecordCompat);
     method public static deprecated android.support.v4.view.accessibility.AccessibilityRecordCompat asRecord(android.view.accessibility.AccessibilityEvent);
-    method public int getAction(android.view.accessibility.AccessibilityEvent);
+    method public static int getAction(android.view.accessibility.AccessibilityEvent);
     method public static int getContentChangeTypes(android.view.accessibility.AccessibilityEvent);
-    method public int getMovementGranularity(android.view.accessibility.AccessibilityEvent);
+    method public static int getMovementGranularity(android.view.accessibility.AccessibilityEvent);
     method public static deprecated android.support.v4.view.accessibility.AccessibilityRecordCompat getRecord(android.view.accessibility.AccessibilityEvent, int);
     method public static deprecated int getRecordCount(android.view.accessibility.AccessibilityEvent);
-    method public void setAction(android.view.accessibility.AccessibilityEvent, int);
+    method public static void setAction(android.view.accessibility.AccessibilityEvent, int);
     method public static void setContentChangeTypes(android.view.accessibility.AccessibilityEvent, int);
-    method public void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
+    method public static void setMovementGranularity(android.view.accessibility.AccessibilityEvent, int);
     field public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 4; // 0x4
     field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
     field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
