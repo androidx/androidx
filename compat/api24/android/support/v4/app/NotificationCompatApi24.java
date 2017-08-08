@@ -26,14 +26,12 @@ import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @RequiresApi(24)
 class NotificationCompatApi24 {
@@ -95,23 +93,6 @@ class NotificationCompatApi24 {
 
             return notification;
         }
-    }
-
-    public static void addMessagingStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence userDisplayName, CharSequence conversationTitle, List<CharSequence> texts,
-            List<Long> timestamps, List<CharSequence> senders, List<String> dataMimeTypes,
-            List<Uri> dataUris) {
-        Notification.MessagingStyle style = new Notification.MessagingStyle(userDisplayName)
-                .setConversationTitle(conversationTitle);
-        for (int i = 0; i < texts.size(); i++) {
-            Notification.MessagingStyle.Message message = new Notification.MessagingStyle.Message(
-                    texts.get(i), timestamps.get(i), senders.get(i));
-            if (dataMimeTypes.get(i) != null) {
-                message.setData(dataMimeTypes.get(i), dataUris.get(i));
-            }
-            style.addMessage(message);
-        }
-        style.setBuilder(b.getBuilder());
     }
 
     public static void addAction(Notification.Builder b, NotificationCompatBase.Action action) {
