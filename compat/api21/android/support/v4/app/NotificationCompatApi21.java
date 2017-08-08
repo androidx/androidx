@@ -16,8 +16,6 @@
 
 package android.support.v4.app;
 
-import static android.support.v4.app.NotificationCompat.DEFAULT_SOUND;
-import static android.support.v4.app.NotificationCompat.DEFAULT_VIBRATE;
 import static android.support.v4.app.NotificationCompat.FLAG_GROUP_SUMMARY;
 import static android.support.v4.app.NotificationCompat.GROUP_ALERT_ALL;
 import static android.support.v4.app.NotificationCompat.GROUP_ALERT_CHILDREN;
@@ -45,14 +43,9 @@ class NotificationCompatApi21 {
     private static final String KEY_PARTICIPANTS = "participants";
     private static final String KEY_TIMESTAMP = "timestamp";
 
-    public static class Builder implements NotificationBuilderWithBuilderAccessor,
-            NotificationBuilderWithActions {
-        private Notification.Builder b;
+    public static class Builder extends NotificationCompatApi20.Builder {
         private Bundle mExtras;
-        private RemoteViews mContentView;
-        private RemoteViews mBigContentView;
         private RemoteViews mHeadsUpContentView;
-        private int mGroupAlertBehavior;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -63,38 +56,13 @@ class NotificationCompatApi21 {
                 String category, ArrayList<String> people, Bundle extras, int color,
                 int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
                 String sortKey, RemoteViews contentView, RemoteViews bigContentView,
-                RemoteViews headsUpContentView, int groupAlertBehavior) {
-            b = new Notification.Builder(context)
-                    .setWhen(n.when)
-                    .setShowWhen(showWhen)
-                    .setSmallIcon(n.icon, n.iconLevel)
-                    .setContent(n.contentView)
-                    .setTicker(n.tickerText, tickerView)
-                    .setSound(n.sound, n.audioStreamType)
-                    .setVibrate(n.vibrate)
-                    .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
-                    .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
-                    .setOnlyAlertOnce((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0)
-                    .setAutoCancel((n.flags & Notification.FLAG_AUTO_CANCEL) != 0)
-                    .setDefaults(n.defaults)
-                    .setContentTitle(contentTitle)
-                    .setContentText(contentText)
-                    .setSubText(subText)
-                    .setContentInfo(contentInfo)
-                    .setContentIntent(contentIntent)
-                    .setDeleteIntent(n.deleteIntent)
-                    .setFullScreenIntent(fullScreenIntent,
-                            (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                    .setLargeIcon(largeIcon)
-                    .setNumber(number)
-                    .setUsesChronometer(useChronometer)
-                    .setPriority(priority)
-                    .setProgress(progressMax, progress, progressIndeterminate)
-                    .setLocalOnly(localOnly)
-                    .setGroup(groupKey)
-                    .setGroupSummary(groupSummary)
-                    .setSortKey(sortKey)
-                    .setCategory(category)
+                RemoteViews headsUpContentView, int groupAlertBehavior, String channelId) {
+            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
+                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
+                    progressIndeterminate, showWhen, useChronometer, priority, subText, localOnly,
+                    people, extras, groupKey, groupSummary, sortKey, contentView, bigContentView,
+                    groupAlertBehavior, channelId);
+            mBuilder.setCategory(category)
                     .setColor(color)
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion);
@@ -103,28 +71,15 @@ class NotificationCompatApi21 {
                 mExtras.putAll(extras);
             }
             for (String person: people) {
-                b.addPerson(person);
+                mBuilder.addPerson(person);
             }
-            mContentView = contentView;
-            mBigContentView = bigContentView;
             mHeadsUpContentView = headsUpContentView;
-            mGroupAlertBehavior = groupAlertBehavior;
-        }
-
-        @Override
-        public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi20.addAction(b, action);
-        }
-
-        @Override
-        public Notification.Builder getBuilder() {
-            return b;
         }
 
         @Override
         public Notification build() {
-            b.setExtras(mExtras);
-            Notification notification = b.build();
+            mBuilder.setExtras(mExtras);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
@@ -150,13 +105,6 @@ class NotificationCompatApi21 {
                 }
             }
             return notification;
-        }
-
-        private void removeSoundAndVibration(Notification notification) {
-            notification.sound = null;
-            notification.vibrate = null;
-            notification.defaults &= ~DEFAULT_SOUND;
-            notification.defaults &= ~DEFAULT_VIBRATE;
         }
     }
 
