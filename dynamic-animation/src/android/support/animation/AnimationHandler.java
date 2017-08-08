@@ -16,6 +16,10 @@
 
 package android.support.animation;
 
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.support.v4.util.SimpleArrayMap;
 import android.view.Choreographer;
@@ -47,28 +51,37 @@ class AnimationHandler {
     }
 
     /**
+     * This class is responsible for interacting with the available frame provider by either
+     * registering frame callback or posting runnable, and receiving a callback for when a
+     * new frame has arrived. This dispatcher class then notifies all the on-going animations of
+     * the new frame, so that they can update animation values as needed.
+     */
+    class AnimationCallbackDispatcher {
+        public void dispatchAnimationFrame() {
+            mCurrentFrameTime = SystemClock.uptimeMillis();
+            AnimationHandler.this.doAnimationFrame(mCurrentFrameTime);
+            if (mAnimationCallbacks.size() > 0) {
+                getProvider().postFrameCallback();
+            }
+        }
+    }
+
+    private static final long FRAME_DELAY_MS = 10;
+    public static final ThreadLocal<AnimationHandler> sAnimatorHandler = new ThreadLocal<>();
+
+    /**
      * Internal per-thread collections used to avoid set collisions as animations start and end
      * while being processed.
      * @hide
      */
     private final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
             new SimpleArrayMap<>();
-    public static final ThreadLocal<AnimationHandler> sAnimatorHandler = new ThreadLocal<>();
     private final ArrayList<AnimationFrameCallback> mAnimationCallbacks = new ArrayList<>();
+    private final AnimationCallbackDispatcher mCallbackDispatcher =
+            new AnimationCallbackDispatcher();
+
     private AnimationFrameCallbackProvider mProvider;
-
     private long mCurrentFrameTime = 0;
-    private final Choreographer.FrameCallback mFrameCallback = new Choreographer.FrameCallback() {
-        @Override
-        public void doFrame(long frameTimeNanos) {
-            mCurrentFrameTime = System.currentTimeMillis();
-            doAnimationFrame(mCurrentFrameTime);
-            if (mAnimationCallbacks.size() > 0) {
-                getProvider().postFrameCallback(this);
-            }
-        }
-    };
-
     private boolean mListDirty = false;
 
     public static AnimationHandler getInstance() {
@@ -90,16 +103,16 @@ class AnimationHandler {
      * provider can be used here to provide different timing pulse.
      */
     public void setProvider(AnimationFrameCallbackProvider provider) {
-        if (provider == null) {
-            mProvider = new MyFrameCallbackProvider();
-        } else {
-            mProvider = provider;
-        }
+        mProvider = provider;
     }
 
     private AnimationFrameCallbackProvider getProvider() {
         if (mProvider == null) {
-            mProvider = new MyFrameCallbackProvider();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mProvider = new FrameCallbackProvider16(mCallbackDispatcher);
+            } else {
+                mProvider = new FrameCallbackProvider14(mCallbackDispatcher);
+            }
         }
         return mProvider;
     }
@@ -109,7 +122,7 @@ class AnimationHandler {
      */
     public void addAnimationFrameCallback(final AnimationFrameCallback callback, long delay) {
         if (mAnimationCallbacks.size() == 0) {
-            getProvider().postFrameCallback(mFrameCallback);
+            getProvider().postFrameCallback();
         }
         if (!mAnimationCallbacks.contains(callback)) {
             mAnimationCallbacks.add(callback);
@@ -178,13 +191,55 @@ class AnimationHandler {
     /**
      * Default provider of timing pulse that uses Choreographer for frame callbacks.
      */
-    private static class MyFrameCallbackProvider implements AnimationFrameCallbackProvider {
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private static class FrameCallbackProvider16 extends AnimationFrameCallbackProvider {
 
-        final Choreographer mChoreographer = Choreographer.getInstance();
+        private final Choreographer mChoreographer = Choreographer.getInstance();
+        private final Choreographer.FrameCallback mChoreographerCallback;
+
+        FrameCallbackProvider16(AnimationCallbackDispatcher dispatcher) {
+            super(dispatcher);
+            mChoreographerCallback = new Choreographer.FrameCallback() {
+                    @Override
+                    public void doFrame(long frameTimeNanos) {
+                        mDispatcher.dispatchAnimationFrame();
+                    }
+                };
+        }
 
         @Override
-        public void postFrameCallback(Choreographer.FrameCallback callback) {
-            mChoreographer.postFrameCallback(callback);
+        void postFrameCallback() {
+            mChoreographer.postFrameCallback(mChoreographerCallback);
+        }
+    }
+
+    /**
+     * Frame provider for ICS and ICS-MR1 releases. The frame callback is achieved via posting
+     * a Runnable to the main thread Handler with a delay.
+     */
+    private static class FrameCallbackProvider14 extends AnimationFrameCallbackProvider {
+
+        private final Runnable mRunnable;
+        private final Handler mHandler;
+        private long mLastFrameTime = -1;
+
+        FrameCallbackProvider14(AnimationCallbackDispatcher dispatcher) {
+            super(dispatcher);
+            mRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mLastFrameTime = SystemClock.uptimeMillis();
+                    mDispatcher.dispatchAnimationFrame();
+                }
+            };
+            mHandler = new Handler(Looper.myLooper());
+        }
+
+        @Override
+        void postFrameCallback() {
+            long delay = FRAME_DELAY_MS - (SystemClock.uptimeMillis() - mLastFrameTime);
+            delay = Math.max(delay, 0);
+            mHandler.postDelayed(mRunnable, delay);
         }
     }
 
@@ -193,10 +248,13 @@ class AnimationHandler {
      * Specifically, we can have a custom implementation of the interface below and provide
      * timing pulse without using Choreographer. That way we could use any arbitrary interval for
      * our timing pulse in the tests.
-     *
-     * @hide
      */
-    public interface AnimationFrameCallbackProvider {
-        void postFrameCallback(Choreographer.FrameCallback callback);
+    public abstract static class AnimationFrameCallbackProvider {
+        final AnimationCallbackDispatcher mDispatcher;
+        AnimationFrameCallbackProvider(AnimationCallbackDispatcher dispatcher) {
+            mDispatcher = dispatcher;
+        }
+
+        abstract void postFrameCallback();
     }
 }
