@@ -598,10 +598,6 @@ public class NotificationCompat {
     interface NotificationCompatImpl {
         Notification build(Builder b, BuilderExtender extender);
         Action getAction(Notification n, int actionIndex);
-        Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc);
-        NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
-                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
-                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
     }
 
     /**
@@ -698,18 +694,6 @@ public class NotificationCompat {
 
         @Override
         public Action getAction(Notification n, int actionIndex) {
-            return null;
-        }
-
-        @Override
-        public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
-            return null;
-        }
-
-        @Override
-        public NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
-                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
-                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
             return null;
         }
     }
@@ -821,19 +805,6 @@ public class NotificationCompat {
                 b.mStyle.addCompatExtras(getExtras(notification));
             }
             return notification;
-        }
-
-        @Override
-        public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
-            return NotificationCompatApi21.getBundleForUnreadConversation(uc);
-        }
-
-        @Override
-        public NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
-                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
-                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-            return NotificationCompatApi21.getUnreadConversationFromBundle(
-                    b, factory, remoteInputFactory);
         }
     }
 
@@ -4458,12 +4429,19 @@ public class NotificationCompat {
      * to access values.
      */
     public static final class CarExtender implements Extender {
-        private static final String TAG = "CarExtender";
-
         private static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
         private static final String EXTRA_LARGE_ICON = "large_icon";
         private static final String EXTRA_CONVERSATION = "car_conversation";
         private static final String EXTRA_COLOR = "app_color";
+
+        private static final String KEY_AUTHOR = "author";
+        private static final String KEY_TEXT = "text";
+        private static final String KEY_MESSAGES = "messages";
+        private static final String KEY_REMOTE_INPUT = "remote_input";
+        private static final String KEY_ON_REPLY = "on_reply";
+        private static final String KEY_ON_READ = "on_read";
+        private static final String KEY_PARTICIPANTS = "participants";
+        private static final String KEY_TIMESTAMP = "timestamp";
 
         private Bitmap mLargeIcon;
         private UnreadConversation mUnreadConversation;
@@ -4492,9 +4470,94 @@ public class NotificationCompat {
                 mColor = carBundle.getInt(EXTRA_COLOR, NotificationCompat.COLOR_DEFAULT);
 
                 Bundle b = carBundle.getBundle(EXTRA_CONVERSATION);
-                mUnreadConversation = (UnreadConversation) IMPL.getUnreadConversationFromBundle(
-                        b, UnreadConversation.FACTORY, RemoteInput.FACTORY);
+                mUnreadConversation = (UnreadConversation) getUnreadConversationFromBundle(b);
             }
+        }
+
+        @RequiresApi(21)
+        private static NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
+                Bundle b) {
+            Parcelable[] parcelableMessages = b.getParcelableArray(KEY_MESSAGES);
+            String[] messages = null;
+            if (parcelableMessages != null) {
+                String[] tmp = new String[parcelableMessages.length];
+                boolean success = true;
+                for (int i = 0; i < tmp.length; i++) {
+                    if (!(parcelableMessages[i] instanceof Bundle)) {
+                        success = false;
+                        break;
+                    }
+                    tmp[i] = ((Bundle) parcelableMessages[i]).getString(KEY_TEXT);
+                    if (tmp[i] == null) {
+                        success = false;
+                        break;
+                    }
+                }
+                if (success) {
+                    messages = tmp;
+                } else {
+                    return null;
+                }
+            }
+
+            PendingIntent onRead = b.getParcelable(KEY_ON_READ);
+            PendingIntent onReply = b.getParcelable(KEY_ON_REPLY);
+
+            android.app.RemoteInput remoteInput = b.getParcelable(KEY_REMOTE_INPUT);
+
+            String[] participants = b.getStringArray(KEY_PARTICIPANTS);
+            if (participants == null || participants.length != 1) {
+                return null;
+            }
+
+            RemoteInputCompatBase.RemoteInput remoteInputCompat = remoteInput != null
+                    ? RemoteInput.FACTORY.build(remoteInput.getResultKey(),
+                    remoteInput.getLabel(),
+                    remoteInput.getChoices(),
+                    remoteInput.getAllowFreeFormInput(),
+                    remoteInput.getExtras(),
+                    null /* allowedDataTypes */)
+                    : null;
+
+            return UnreadConversation.FACTORY.build(
+                    messages,
+                    remoteInputCompat,
+                    onReply,
+                    onRead,
+                    participants, b.getLong(KEY_TIMESTAMP));
+        }
+
+        @RequiresApi(21)
+        private static Bundle getBundleForUnreadConversation(@NonNull UnreadConversation uc) {
+            Bundle b = new Bundle();
+            String author = null;
+            if (uc.getParticipants() != null && uc.getParticipants().length > 1) {
+                author = uc.getParticipants()[0];
+            }
+            Parcelable[] messages = new Parcelable[uc.getMessages().length];
+            for (int i = 0; i < messages.length; i++) {
+                Bundle m = new Bundle();
+                m.putString(KEY_TEXT, uc.getMessages()[i]);
+                m.putString(KEY_AUTHOR, author);
+                messages[i] = m;
+            }
+            b.putParcelableArray(KEY_MESSAGES, messages);
+            RemoteInputCompatBase.RemoteInput remoteInputCompat = uc.getRemoteInput();
+            if (remoteInputCompat != null) {
+                android.app.RemoteInput remoteInput =
+                        new android.app.RemoteInput.Builder(remoteInputCompat.getResultKey())
+                                .setLabel(remoteInputCompat.getLabel())
+                                .setChoices(remoteInputCompat.getChoices())
+                                .setAllowFreeFormInput(remoteInputCompat.getAllowFreeFormInput())
+                                .addExtras(remoteInputCompat.getExtras())
+                                .build();
+                b.putParcelable(KEY_REMOTE_INPUT, remoteInput);
+            }
+            b.putParcelable(KEY_ON_REPLY, uc.getReplyPendingIntent());
+            b.putParcelable(KEY_ON_READ, uc.getReadPendingIntent());
+            b.putStringArray(KEY_PARTICIPANTS, uc.getParticipants());
+            b.putLong(KEY_TIMESTAMP, uc.getLatestTimestamp());
+            return b;
         }
 
         /**
@@ -4518,7 +4581,7 @@ public class NotificationCompat {
             }
 
             if (mUnreadConversation != null) {
-                Bundle b = IMPL.getBundleForUnreadConversation(mUnreadConversation);
+                Bundle b = getBundleForUnreadConversation(mUnreadConversation);
                 carExtensions.putBundle(EXTRA_CONVERSATION, b);
             }
 
