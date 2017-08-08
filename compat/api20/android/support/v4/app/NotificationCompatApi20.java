@@ -37,13 +37,10 @@ import java.util.ArrayList;
 
 @RequiresApi(20)
 class NotificationCompatApi20 {
-    public static class Builder implements NotificationBuilderWithBuilderAccessor,
-            NotificationBuilderWithActions {
-        private Notification.Builder b;
+    public static class Builder extends NotificationCompatKitKat.Builder {
+        protected int mGroupAlertBehavior;
+
         private Bundle mExtras;
-        private RemoteViews mContentView;
-        private RemoteViews mBigContentView;
-        private int mGroupAlertBehavior;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -53,34 +50,13 @@ class NotificationCompatApi20 {
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
                 String sortKey, RemoteViews contentView, RemoteViews bigContentView,
-                int groupAlertBehavior) {
-            b = new Notification.Builder(context)
-                .setWhen(n.when)
-                .setShowWhen(showWhen)
-                .setSmallIcon(n.icon, n.iconLevel)
-                .setContent(n.contentView)
-                .setTicker(n.tickerText, tickerView)
-                .setSound(n.sound, n.audioStreamType)
-                .setVibrate(n.vibrate)
-                .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
-                .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
-                .setOnlyAlertOnce((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0)
-                .setAutoCancel((n.flags & Notification.FLAG_AUTO_CANCEL) != 0)
-                .setDefaults(n.defaults)
-                .setContentTitle(contentTitle)
-                .setContentText(contentText)
-                .setSubText(subText)
-                .setContentInfo(contentInfo)
-                .setContentIntent(contentIntent)
-                .setDeleteIntent(n.deleteIntent)
-                .setFullScreenIntent(fullScreenIntent,
-                        (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                .setLargeIcon(largeIcon)
-                .setNumber(number)
-                .setUsesChronometer(useChronometer)
-                .setPriority(priority)
-                .setProgress(progressMax, progress, progressIndeterminate)
-                .setLocalOnly(localOnly)
+                int groupAlertBehavior, String channelId) {
+            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
+                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
+                    progressIndeterminate, showWhen, useChronometer, priority, subText, localOnly,
+                    people, extras, groupKey, groupSummary, sortKey, contentView, bigContentView,
+                    channelId);
+            mBuilder.setLocalOnly(localOnly)
                 .setGroup(groupKey)
                 .setGroupSummary(groupSummary)
                 .setSortKey(sortKey);
@@ -92,25 +68,19 @@ class NotificationCompatApi20 {
                 mExtras.putStringArray(Notification.EXTRA_PEOPLE,
                         people.toArray(new String[people.size()]));
             }
-            mContentView = contentView;
-            mBigContentView = bigContentView;
+
             mGroupAlertBehavior = groupAlertBehavior;
         }
 
         @Override
         public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi20.addAction(b, action);
-        }
-
-        @Override
-        public Notification.Builder getBuilder() {
-            return b;
+            NotificationCompatApi20.addAction(mBuilder, action);
         }
 
         @Override
         public Notification build() {
-            b.setExtras(mExtras);
-            Notification notification = b.build();
+            mBuilder.setExtras(mExtras);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
@@ -136,7 +106,7 @@ class NotificationCompatApi20 {
             return notification;
         }
 
-        private void removeSoundAndVibration(Notification notification) {
+        protected void removeSoundAndVibration(Notification notification) {
             notification.sound = null;
             notification.vibrate = null;
             notification.defaults &= ~DEFAULT_SOUND;

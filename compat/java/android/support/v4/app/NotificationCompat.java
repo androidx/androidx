@@ -642,15 +642,14 @@ public class NotificationCompat {
     static class NotificationCompatBaseImpl implements NotificationCompatImpl {
 
         public static class BuilderBase implements NotificationBuilderWithBuilderAccessor {
-
-            private Notification.Builder mBuilder;
+            protected Notification.Builder mBuilder;
 
             BuilderBase(Context context, Notification n, CharSequence contentTitle,
                     CharSequence contentText, CharSequence contentInfo, RemoteViews tickerView,
                     int number, PendingIntent contentIntent, PendingIntent fullScreenIntent,
                     Bitmap largeIcon, int progressMax, int progress,
-                    boolean progressIndeterminate) {
-                mBuilder = new Notification.Builder(context)
+                    boolean progressIndeterminate, String channelId) {
+                mBuilder = newBuilder(context, channelId)
                         .setWhen(n.when)
                         .setSmallIcon(n.icon, n.iconLevel)
                         .setContent(n.contentView)
@@ -683,6 +682,10 @@ public class NotificationCompat {
             public Notification build() {
                 return mBuilder.getNotification();
             }
+
+            protected Notification.Builder newBuilder(Context context, String channelId) {
+                return new Notification.Builder(context);
+            }
         }
 
         @Override
@@ -691,7 +694,7 @@ public class NotificationCompat {
                     new BuilderBase(b.mContext, b.mNotification,
                             b.mContentTitle, b.mContentText, b.mContentInfo, b.mTickerView,
                             b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
-                            b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
+                            b.mProgressMax, b.mProgress, b.mProgressIndeterminate, null);
             return extender.build(b, builder);
         }
 
@@ -732,7 +735,8 @@ public class NotificationCompat {
                     b.mTickerView, b.mNumber, b.mContentIntent, b.mFullScreenIntent, b.mLargeIcon,
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mExtras,
-                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView);
+                    b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
+                    null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);
@@ -777,7 +781,7 @@ public class NotificationCompat {
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly,
                     b.mPeople, b.mExtras, b.mGroupKey, b.mGroupSummary, b.mSortKey,
-                    b.mContentView, b.mBigContentView);
+                    b.mContentView, b.mBigContentView, null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);
@@ -802,7 +806,7 @@ public class NotificationCompat {
                     b.mProgressMax, b.mProgress, b.mProgressIndeterminate, b.mShowWhen,
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mPeople, b.mExtras,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
-                    b.mGroupAlertBehavior);
+                    b.mGroupAlertBehavior, null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);
@@ -845,7 +849,7 @@ public class NotificationCompat {
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mContentView, b.mBigContentView,
-                    b.mHeadsUpContentView, b.mGroupAlertBehavior);
+                    b.mHeadsUpContentView, b.mGroupAlertBehavior, null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);
@@ -883,7 +887,7 @@ public class NotificationCompat {
                     b.mUseChronometer, b.mPriority, b.mSubText, b.mLocalOnly, b.mCategory,
                     b.mPeople, b.mExtras, b.mColor, b.mVisibility, b.mPublicVersion,
                     b.mGroupKey, b.mGroupSummary, b.mSortKey, b.mRemoteInputHistory, b.mContentView,
-                    b.mBigContentView, b.mHeadsUpContentView, b.mGroupAlertBehavior);
+                    b.mBigContentView, b.mHeadsUpContentView, b.mGroupAlertBehavior, null);
             addActionsToBuilder(builder, b.mActions);
             if (b.mStyle != null) {
                 b.mStyle.apply(builder);

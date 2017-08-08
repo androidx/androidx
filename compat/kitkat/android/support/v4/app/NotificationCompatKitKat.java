@@ -30,13 +30,9 @@ import java.util.List;
 
 @RequiresApi(19)
 class NotificationCompatKitKat {
-    public static class Builder implements NotificationBuilderWithBuilderAccessor,
-            NotificationBuilderWithActions {
-        private Notification.Builder b;
+    public static class Builder extends NotificationCompatJellybean.Builder {
         private Bundle mExtras;
         private List<Bundle> mActionExtrasList = new ArrayList<Bundle>();
-        private RemoteViews mContentView;
-        private RemoteViews mBigContentView;
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -45,33 +41,15 @@ class NotificationCompatKitKat {
                 int progressMax, int progress, boolean progressIndeterminate, boolean showWhen,
                 boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
                 ArrayList<String> people, Bundle extras, String groupKey, boolean groupSummary,
-                String sortKey, RemoteViews contentView, RemoteViews bigContentView) {
-            b = new Notification.Builder(context)
-                .setWhen(n.when)
-                .setShowWhen(showWhen)
-                .setSmallIcon(n.icon, n.iconLevel)
-                .setContent(n.contentView)
-                .setTicker(n.tickerText, tickerView)
-                .setSound(n.sound, n.audioStreamType)
-                .setVibrate(n.vibrate)
-                .setLights(n.ledARGB, n.ledOnMS, n.ledOffMS)
-                .setOngoing((n.flags & Notification.FLAG_ONGOING_EVENT) != 0)
-                .setOnlyAlertOnce((n.flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0)
-                .setAutoCancel((n.flags & Notification.FLAG_AUTO_CANCEL) != 0)
-                .setDefaults(n.defaults)
-                .setContentTitle(contentTitle)
-                .setContentText(contentText)
-                .setSubText(subText)
-                .setContentInfo(contentInfo)
-                .setContentIntent(contentIntent)
-                .setDeleteIntent(n.deleteIntent)
-                .setFullScreenIntent(fullScreenIntent,
-                        (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
-                .setLargeIcon(largeIcon)
-                .setNumber(number)
-                .setUsesChronometer(useChronometer)
-                .setPriority(priority)
-                .setProgress(progressMax, progress, progressIndeterminate);
+                String sortKey, RemoteViews contentView, RemoteViews bigContentView,
+                String channelId) {
+            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
+                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
+                    progressIndeterminate, useChronometer, priority, subText, localOnly,
+                    extras, groupKey, groupSummary, sortKey, contentView, bigContentView,
+                    channelId);
+            mBuilder.setShowWhen(showWhen);
+
             mExtras = new Bundle();
             if (extras != null) {
                 mExtras.putAll(extras);
@@ -99,16 +77,6 @@ class NotificationCompatKitKat {
         }
 
         @Override
-        public void addAction(NotificationCompatBase.Action action) {
-            mActionExtrasList.add(NotificationCompatJellybean.writeActionAndGetExtras(b, action));
-        }
-
-        @Override
-        public Notification.Builder getBuilder() {
-            return b;
-        }
-
-        @Override
         public Notification build() {
             SparseArray<Bundle> actionExtrasMap = NotificationCompatJellybean.buildActionExtrasMap(
                     mActionExtrasList);
@@ -117,8 +85,8 @@ class NotificationCompatKitKat {
                 mExtras.putSparseParcelableArray(
                         NotificationCompatExtras.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
-            b.setExtras(mExtras);
-            Notification notification = b.build();
+            mBuilder.setExtras(mExtras);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
