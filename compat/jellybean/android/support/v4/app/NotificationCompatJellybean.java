@@ -21,7 +21,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.util.SparseArray;
@@ -342,22 +341,7 @@ class NotificationCompatJellybean {
         return !sActionsAccessFailed;
     }
 
-    public static NotificationCompatBase.Action[] getActionsFromParcelableArrayList(
-            ArrayList<Parcelable> parcelables,
-            NotificationCompatBase.Action.Factory actionFactory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-        if (parcelables == null) {
-            return null;
-        }
-        NotificationCompatBase.Action[] actions = actionFactory.newArray(parcelables.size());
-        for (int i = 0; i < actions.length; i++) {
-            actions[i] = getActionFromBundle((Bundle) parcelables.get(i),
-                    actionFactory, remoteInputFactory);
-        }
-        return actions;
-    }
-
-    private static NotificationCompatBase.Action getActionFromBundle(Bundle bundle,
+    static NotificationCompatBase.Action getActionFromBundle(Bundle bundle,
             NotificationCompatBase.Action.Factory actionFactory,
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
         Bundle extras = bundle.getBundle(KEY_EXTRAS);
@@ -379,19 +363,7 @@ class NotificationCompatJellybean {
                 allowGeneratedReplies);
     }
 
-    public static ArrayList<Parcelable> getParcelableArrayListForActions(
-            NotificationCompatBase.Action[] actions) {
-        if (actions == null) {
-            return null;
-        }
-        ArrayList<Parcelable> parcelables = new ArrayList<Parcelable>(actions.length);
-        for (NotificationCompatBase.Action action : actions) {
-            parcelables.add(getBundleForAction(action));
-        }
-        return parcelables;
-    }
-
-    private static Bundle getBundleForAction(NotificationCompatBase.Action action) {
+    static Bundle getBundleForAction(NotificationCompatBase.Action action) {
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_ICON, action.getIcon());
         bundle.putCharSequence(KEY_TITLE, action.getTitle());
