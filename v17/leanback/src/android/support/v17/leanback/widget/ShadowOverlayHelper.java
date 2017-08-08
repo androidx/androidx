@@ -394,6 +394,9 @@ public final class ShadowOverlayHelper {
                     Object tag = ShadowHelper.getInstance().addDynamicShadow(
                             view, mUnfocusedZ, mFocusedZ, mRoundedCornerRadius);
                     view.setTag(R.id.lb_shadow_impl, tag);
+                } else if (mNeedsRoundedCorner) {
+                    RoundedRectHelper.getInstance().setClipToRoundedOutline(view,
+                            true, mRoundedCornerRadius);
                 }
             }
         }
