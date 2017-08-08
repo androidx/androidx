@@ -598,8 +598,6 @@ public class NotificationCompat {
     interface NotificationCompatImpl {
         Notification build(Builder b, BuilderExtender extender);
         Action getAction(Notification n, int actionIndex);
-        Action[] getActionsFromParcelableArrayList(ArrayList<Parcelable> parcelables);
-        ArrayList<Parcelable> getParcelableArrayListForActions(Action[] actions);
         Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc);
         NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
                 Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
@@ -704,16 +702,6 @@ public class NotificationCompat {
         }
 
         @Override
-        public Action[] getActionsFromParcelableArrayList(ArrayList<Parcelable> parcelables) {
-            return null;
-        }
-
-        @Override
-        public ArrayList<Parcelable> getParcelableArrayListForActions(Action[] actions) {
-            return null;
-        }
-
-        @Override
         public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
             return null;
         }
@@ -755,19 +743,6 @@ public class NotificationCompat {
         public Action getAction(Notification n, int actionIndex) {
             return (Action) NotificationCompatJellybean.getAction(n, actionIndex, Action.FACTORY,
                     RemoteInput.FACTORY);
-        }
-
-        @Override
-        public Action[] getActionsFromParcelableArrayList(
-                ArrayList<Parcelable> parcelables) {
-            return (Action[]) NotificationCompatJellybean.getActionsFromParcelableArrayList(
-                    parcelables, Action.FACTORY, RemoteInput.FACTORY);
-        }
-
-        @Override
-        public ArrayList<Parcelable> getParcelableArrayListForActions(
-                Action[] actions) {
-            return NotificationCompatJellybean.getParcelableArrayListForActions(actions);
         }
     }
 
@@ -822,19 +797,6 @@ public class NotificationCompat {
         public Action getAction(Notification n, int actionIndex) {
             return (Action) NotificationCompatApi20.getAction(n, actionIndex, Action.FACTORY,
                     RemoteInput.FACTORY);
-        }
-
-        @Override
-        public Action[] getActionsFromParcelableArrayList(
-                ArrayList<Parcelable> parcelables) {
-            return (Action[]) NotificationCompatApi20.getActionsFromParcelableArrayList(
-                    parcelables, Action.FACTORY, RemoteInput.FACTORY);
-        }
-
-        @Override
-        public ArrayList<Parcelable> getParcelableArrayListForActions(
-                Action[] actions) {
-            return NotificationCompatApi20.getParcelableArrayListForActions(actions);
         }
     }
 
@@ -903,19 +865,6 @@ public class NotificationCompat {
         public Action getAction(Notification n, int actionIndex) {
             return (Action) NotificationCompatApi24.getAction(n, actionIndex, Action.FACTORY,
                     RemoteInput.FACTORY);
-        }
-
-        @Override
-        public Action[] getActionsFromParcelableArrayList(
-                ArrayList<Parcelable> parcelables) {
-            return (Action[]) NotificationCompatApi24.getActionsFromParcelableArrayList(
-                    parcelables, Action.FACTORY, RemoteInput.FACTORY);
-        }
-
-        @Override
-        public ArrayList<Parcelable> getParcelableArrayListForActions(
-                Action[] actions) {
-            return NotificationCompatApi24.getParcelableArrayListForActions(actions);
         }
     }
 
@@ -3798,10 +3747,30 @@ public class NotificationCompat {
             Bundle wearableBundle = extras != null ? extras.getBundle(EXTRA_WEARABLE_EXTENSIONS)
                     : null;
             if (wearableBundle != null) {
-                Action[] actions = IMPL.getActionsFromParcelableArrayList(
-                        wearableBundle.getParcelableArrayList(KEY_ACTIONS));
-                if (actions != null) {
-                    Collections.addAll(mActions, actions);
+                final ArrayList<Parcelable> parcelables =
+                        wearableBundle.getParcelableArrayList(KEY_ACTIONS);
+                if (Build.VERSION.SDK_INT >= 16 && parcelables != null) {
+                    NotificationCompatBase.Action[] actions =
+                            Action.FACTORY.newArray(parcelables.size());
+                    for (int i = 0; i < actions.length; i++) {
+                        if (Build.VERSION.SDK_INT >= 24) {
+                            actions[i] = NotificationCompatApi24.getActionCompatFromAction(
+                                    (Notification.Action) parcelables.get(i),
+                                    Action.FACTORY,
+                                    RemoteInput.FACTORY);
+                        } else if (Build.VERSION.SDK_INT >= 20) {
+                            actions[i] = NotificationCompatApi20.getActionCompatFromAction(
+                                    (Notification.Action) parcelables.get(i),
+                                    Action.FACTORY,
+                                    RemoteInput.FACTORY);
+                        } else if (Build.VERSION.SDK_INT >= 16) {
+                            actions[i] = NotificationCompatJellybean.getActionFromBundle(
+                                    (Bundle) parcelables.get(i),
+                                    Action.FACTORY,
+                                    RemoteInput.FACTORY);
+                        }
+                    }
+                    Collections.addAll(mActions, (Action[]) actions);
                 }
 
                 mFlags = wearableBundle.getInt(KEY_FLAGS, DEFAULT_FLAGS);
@@ -3839,9 +3808,23 @@ public class NotificationCompat {
             Bundle wearableBundle = new Bundle();
 
             if (!mActions.isEmpty()) {
-                wearableBundle.putParcelableArrayList(KEY_ACTIONS,
-                        IMPL.getParcelableArrayListForActions(mActions.toArray(
-                                new Action[mActions.size()])));
+                if (Build.VERSION.SDK_INT >= 16) {
+                    ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
+                    for (NotificationCompatBase.Action action : mActions) {
+                        if (Build.VERSION.SDK_INT >= 24) {
+                            parcelables.add(
+                                    NotificationCompatApi24.getActionFromActionCompat(action));
+                        } else if (Build.VERSION.SDK_INT >= 20) {
+                            parcelables.add(
+                                    NotificationCompatApi20.getActionFromActionCompat(action));
+                        } else if (Build.VERSION.SDK_INT >= 16) {
+                            parcelables.add(NotificationCompatJellybean.getBundleForAction(action));
+                        }
+                    }
+                    wearableBundle.putParcelableArrayList(KEY_ACTIONS, parcelables);
+                } else {
+                    wearableBundle.putParcelableArrayList(KEY_ACTIONS, null);
+                }
             }
             if (mFlags != DEFAULT_FLAGS) {
                 wearableBundle.putInt(KEY_FLAGS, mFlags);
