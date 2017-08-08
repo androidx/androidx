@@ -296,7 +296,7 @@ public class ShadowOverlayContainer extends FrameLayout {
         } else {
             addView(view);
         }
-        if (mRoundedCorners && mShadowType == SHADOW_STATIC) {
+        if (mRoundedCorners && mShadowType != SHADOW_DYNAMIC) {
             RoundedRectHelper.getInstance().setClipToRoundedOutline(view, true);
         }
         mWrappedView = view;
