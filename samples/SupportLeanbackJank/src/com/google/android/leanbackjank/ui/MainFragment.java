@@ -144,6 +144,11 @@ public class MainFragment extends BrowseFragment {
             }
         };
         listRowPresenter.setShadowEnabled(!disableShadows);
+        // see b/64451726, leanback bug causes child rounded corner is incorrectly disabled when
+        // shadow is disabled. To make the test data consistent and comparable, by default treat
+        // the rounded corner option same as shadow option.
+        boolean disableRoundedCorner = disableShadows;
+        listRowPresenter.enableChildRoundedCorners(!disableRoundedCorner);
         mRowsAdapter = new ArrayObjectAdapter(listRowPresenter);
         HashMap<String, List<VideoInfo>> data = VideoProvider.buildMedia(categoryCount,
                 entriesPerCat, cardWidth, cardHeight, getActivity(), useSingleBitmap);
