@@ -1177,9 +1177,8 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
             }
         });
         mInstrumentation.waitForIdleSync();
-        final float newTextSizeInPx = 123f;
-        assertNotEquals(newTextSizeInPx, autoSizeView.getTextSize(), 0f);
 
+        final float newTextSizeInPx = autoSizeView.getTextSize() + 10f;
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
