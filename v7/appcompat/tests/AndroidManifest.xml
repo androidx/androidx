@@ -99,6 +99,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="android.support.v7.widget.AppCompatRadioButtonActivity"
+            android:label="@string/app_compat_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
             android:name="android.support.v7.widget.SearchViewTestActivity"
             android:label="@string/search_view_activity"
             android:theme="@style/Theme.AppCompat.Light"/>

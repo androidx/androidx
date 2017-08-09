@@ -89,6 +89,13 @@
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"/>
 
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/button_fontresource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            app:fontFamily="@font/samplefont" />
+
     </LinearLayout>
 
 </ScrollView>
