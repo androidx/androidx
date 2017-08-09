@@ -24,10 +24,6 @@ jar {
 uploadArchives {
     repositories {
         mavenDeployer {
-
-            repository(url: uri(rootProject.ext.supportRepoOut)) {
-            }
-
             pom.project {
                 name 'Android Support Library Annotations'
                 description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
