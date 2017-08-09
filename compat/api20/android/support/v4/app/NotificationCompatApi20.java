@@ -134,23 +134,6 @@ class NotificationCompatApi20 {
         b.addAction(actionBuilder.build());
     }
 
-    public static NotificationCompatBase.Action getAction(Notification notif,
-            int actionIndex, NotificationCompatBase.Action.Factory actionFactory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-        return getActionCompatFromAction(notif.actions[actionIndex], actionFactory, remoteInputFactory);
-    }
-
-    static NotificationCompatBase.Action getActionCompatFromAction(
-            Notification.Action action, NotificationCompatBase.Action.Factory actionFactory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-        RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
-                action.getRemoteInputs(), remoteInputFactory);
-        boolean allowGeneratedReplies = action.getExtras().getBoolean(
-                NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
-        return actionFactory.build(action.icon, action.title, action.actionIntent,
-                action.getExtras(), remoteInputs, null, allowGeneratedReplies);
-    }
-
     static Notification.Action getActionFromActionCompat(
             NotificationCompatBase.Action actionCompat) {
         Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
