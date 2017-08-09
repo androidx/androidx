@@ -51,6 +51,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -597,11 +598,6 @@ public class NotificationCompat {
 
     interface NotificationCompatImpl {
         Notification build(Builder b, BuilderExtender extender);
-        Action getAction(Notification n, int actionIndex);
-        Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc);
-        NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
-                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
-                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory);
     }
 
     /**
@@ -695,23 +691,6 @@ public class NotificationCompat {
                             b.mProgressMax, b.mProgress, b.mProgressIndeterminate, null);
             return extender.build(b, builder);
         }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return null;
-        }
-
-        @Override
-        public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
-            return null;
-        }
-
-        @Override
-        public NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
-                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
-                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-            return null;
-        }
     }
 
     @RequiresApi(16)
@@ -738,12 +717,6 @@ public class NotificationCompat {
             }
             return notification;
         }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatJellybean.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
-        }
     }
 
     @RequiresApi(19)
@@ -762,12 +735,6 @@ public class NotificationCompat {
                 b.mStyle.apply(builder);
             }
             return extender.build(b, builder);
-        }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatKitKat.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
         }
     }
 
@@ -791,12 +758,6 @@ public class NotificationCompat {
                 b.mStyle.addCompatExtras(getExtras(notification));
             }
             return notification;
-        }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatApi20.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
         }
     }
 
@@ -822,19 +783,6 @@ public class NotificationCompat {
             }
             return notification;
         }
-
-        @Override
-        public Bundle getBundleForUnreadConversation(NotificationCompatBase.UnreadConversation uc) {
-            return NotificationCompatApi21.getBundleForUnreadConversation(uc);
-        }
-
-        @Override
-        public NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
-                Bundle b, NotificationCompatBase.UnreadConversation.Factory factory,
-                RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-            return NotificationCompatApi21.getUnreadConversationFromBundle(
-                    b, factory, remoteInputFactory);
-        }
     }
 
     @RequiresApi(24)
@@ -859,12 +807,6 @@ public class NotificationCompat {
                 b.mStyle.addCompatExtras(getExtras(notification));
             }
             return notification;
-        }
-
-        @Override
-        public Action getAction(Notification n, int actionIndex) {
-            return (Action) NotificationCompatApi24.getAction(n, actionIndex, Action.FACTORY,
-                    RemoteInput.FACTORY);
         }
     }
 
@@ -3754,12 +3696,12 @@ public class NotificationCompat {
                             Action.FACTORY.newArray(parcelables.size());
                     for (int i = 0; i < actions.length; i++) {
                         if (Build.VERSION.SDK_INT >= 24) {
-                            actions[i] = NotificationCompatApi24.getActionCompatFromAction(
+                            actions[i] = NotificationCompat.getActionCompatFromAction(
                                     (Notification.Action) parcelables.get(i),
                                     Action.FACTORY,
                                     RemoteInput.FACTORY);
                         } else if (Build.VERSION.SDK_INT >= 20) {
-                            actions[i] = NotificationCompatApi20.getActionCompatFromAction(
+                            actions[i] = NotificationCompat.getActionCompatFromAction(
                                     (Notification.Action) parcelables.get(i),
                                     Action.FACTORY,
                                     RemoteInput.FACTORY);
@@ -4458,12 +4400,19 @@ public class NotificationCompat {
      * to access values.
      */
     public static final class CarExtender implements Extender {
-        private static final String TAG = "CarExtender";
-
         private static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
         private static final String EXTRA_LARGE_ICON = "large_icon";
         private static final String EXTRA_CONVERSATION = "car_conversation";
         private static final String EXTRA_COLOR = "app_color";
+
+        private static final String KEY_AUTHOR = "author";
+        private static final String KEY_TEXT = "text";
+        private static final String KEY_MESSAGES = "messages";
+        private static final String KEY_REMOTE_INPUT = "remote_input";
+        private static final String KEY_ON_REPLY = "on_reply";
+        private static final String KEY_ON_READ = "on_read";
+        private static final String KEY_PARTICIPANTS = "participants";
+        private static final String KEY_TIMESTAMP = "timestamp";
 
         private Bitmap mLargeIcon;
         private UnreadConversation mUnreadConversation;
@@ -4492,9 +4441,94 @@ public class NotificationCompat {
                 mColor = carBundle.getInt(EXTRA_COLOR, NotificationCompat.COLOR_DEFAULT);
 
                 Bundle b = carBundle.getBundle(EXTRA_CONVERSATION);
-                mUnreadConversation = (UnreadConversation) IMPL.getUnreadConversationFromBundle(
-                        b, UnreadConversation.FACTORY, RemoteInput.FACTORY);
+                mUnreadConversation = (UnreadConversation) getUnreadConversationFromBundle(b);
             }
+        }
+
+        @RequiresApi(21)
+        private static NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
+                Bundle b) {
+            Parcelable[] parcelableMessages = b.getParcelableArray(KEY_MESSAGES);
+            String[] messages = null;
+            if (parcelableMessages != null) {
+                String[] tmp = new String[parcelableMessages.length];
+                boolean success = true;
+                for (int i = 0; i < tmp.length; i++) {
+                    if (!(parcelableMessages[i] instanceof Bundle)) {
+                        success = false;
+                        break;
+                    }
+                    tmp[i] = ((Bundle) parcelableMessages[i]).getString(KEY_TEXT);
+                    if (tmp[i] == null) {
+                        success = false;
+                        break;
+                    }
+                }
+                if (success) {
+                    messages = tmp;
+                } else {
+                    return null;
+                }
+            }
+
+            PendingIntent onRead = b.getParcelable(KEY_ON_READ);
+            PendingIntent onReply = b.getParcelable(KEY_ON_REPLY);
+
+            android.app.RemoteInput remoteInput = b.getParcelable(KEY_REMOTE_INPUT);
+
+            String[] participants = b.getStringArray(KEY_PARTICIPANTS);
+            if (participants == null || participants.length != 1) {
+                return null;
+            }
+
+            RemoteInputCompatBase.RemoteInput remoteInputCompat = remoteInput != null
+                    ? RemoteInput.FACTORY.build(remoteInput.getResultKey(),
+                    remoteInput.getLabel(),
+                    remoteInput.getChoices(),
+                    remoteInput.getAllowFreeFormInput(),
+                    remoteInput.getExtras(),
+                    null /* allowedDataTypes */)
+                    : null;
+
+            return UnreadConversation.FACTORY.build(
+                    messages,
+                    remoteInputCompat,
+                    onReply,
+                    onRead,
+                    participants, b.getLong(KEY_TIMESTAMP));
+        }
+
+        @RequiresApi(21)
+        private static Bundle getBundleForUnreadConversation(@NonNull UnreadConversation uc) {
+            Bundle b = new Bundle();
+            String author = null;
+            if (uc.getParticipants() != null && uc.getParticipants().length > 1) {
+                author = uc.getParticipants()[0];
+            }
+            Parcelable[] messages = new Parcelable[uc.getMessages().length];
+            for (int i = 0; i < messages.length; i++) {
+                Bundle m = new Bundle();
+                m.putString(KEY_TEXT, uc.getMessages()[i]);
+                m.putString(KEY_AUTHOR, author);
+                messages[i] = m;
+            }
+            b.putParcelableArray(KEY_MESSAGES, messages);
+            RemoteInputCompatBase.RemoteInput remoteInputCompat = uc.getRemoteInput();
+            if (remoteInputCompat != null) {
+                android.app.RemoteInput remoteInput =
+                        new android.app.RemoteInput.Builder(remoteInputCompat.getResultKey())
+                                .setLabel(remoteInputCompat.getLabel())
+                                .setChoices(remoteInputCompat.getChoices())
+                                .setAllowFreeFormInput(remoteInputCompat.getAllowFreeFormInput())
+                                .addExtras(remoteInputCompat.getExtras())
+                                .build();
+                b.putParcelable(KEY_REMOTE_INPUT, remoteInput);
+            }
+            b.putParcelable(KEY_ON_REPLY, uc.getReplyPendingIntent());
+            b.putParcelable(KEY_ON_READ, uc.getReadPendingIntent());
+            b.putStringArray(KEY_PARTICIPANTS, uc.getParticipants());
+            b.putLong(KEY_TIMESTAMP, uc.getLatestTimestamp());
+            return b;
         }
 
         /**
@@ -4518,7 +4552,7 @@ public class NotificationCompat {
             }
 
             if (mUnreadConversation != null) {
-                Bundle b = IMPL.getBundleForUnreadConversation(mUnreadConversation);
+                Bundle b = getBundleForUnreadConversation(mUnreadConversation);
                 carExtensions.putBundle(EXTRA_CONVERSATION, b);
             }
 
@@ -4836,7 +4870,45 @@ public class NotificationCompat {
      * @param actionIndex The index of the action to retrieve.
      */
     public static Action getAction(Notification notification, int actionIndex) {
-        return IMPL.getAction(notification, actionIndex);
+        if (Build.VERSION.SDK_INT >= 20) {
+            return getActionCompatFromAction(notification.actions[actionIndex],
+                    Action.FACTORY, RemoteInput.FACTORY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Notification.Action action = notification.actions[actionIndex];
+            Bundle actionExtras = null;
+            SparseArray<Bundle> actionExtrasMap = notification.extras.getSparseParcelableArray(
+                    NotificationCompatExtras.EXTRA_ACTION_EXTRAS);
+            if (actionExtrasMap != null) {
+                actionExtras = actionExtrasMap.get(actionIndex);
+            }
+            return (Action) NotificationCompatJellybean.readAction(Action.FACTORY,
+                    RemoteInput.FACTORY, action.icon, action.title, action.actionIntent,
+                    actionExtras);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            return (Action) NotificationCompatJellybean.getAction(notification, actionIndex,
+                    Action.FACTORY, RemoteInput.FACTORY);
+        } else {
+            return null;
+        }
+    }
+
+    @RequiresApi(20)
+    static Action getActionCompatFromAction(Notification.Action action,
+            NotificationCompatBase.Action.Factory actionFactory,
+            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+        RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
+                action.getRemoteInputs(), remoteInputFactory);
+        final boolean allowGeneratedReplies;
+        if (Build.VERSION.SDK_INT >= 24) {
+            allowGeneratedReplies = action.getExtras().getBoolean(
+                    NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES)
+                    || action.getAllowGeneratedReplies();
+        } else {
+            allowGeneratedReplies = action.getExtras().getBoolean(
+                    NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
+        }
+        return (Action) actionFactory.build(action.icon, action.title, action.actionIntent,
+                action.getExtras(), remoteInputs, null, allowGeneratedReplies);
     }
 
     /**
