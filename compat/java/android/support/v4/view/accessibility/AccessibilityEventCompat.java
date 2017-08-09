@@ -294,7 +294,7 @@ public final class AccessibilityEventCompat {
      *
      * @throws IllegalStateException If called from an AccessibilityService.
      */
-    public void setMovementGranularity(AccessibilityEvent event, int granularity) {
+    public static void setMovementGranularity(AccessibilityEvent event, int granularity) {
         if (Build.VERSION.SDK_INT >= 16) {
             event.setMovementGranularity(granularity);
         }
@@ -305,7 +305,7 @@ public final class AccessibilityEventCompat {
      *
      * @return The granularity.
      */
-    public int getMovementGranularity(AccessibilityEvent event) {
+    public static int getMovementGranularity(AccessibilityEvent event) {
         if (Build.VERSION.SDK_INT >= 16) {
             return event.getMovementGranularity();
         } else {
@@ -330,7 +330,7 @@ public final class AccessibilityEventCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see AccessibilityNodeInfoCompat#performAction(int)
      */
-    public void setAction(AccessibilityEvent event, int action) {
+    public static void setAction(AccessibilityEvent event, int action) {
         if (Build.VERSION.SDK_INT >= 16) {
             event.setAction(action);
         }
@@ -341,7 +341,7 @@ public final class AccessibilityEventCompat {
      *
      * @return The action.
      */
-    public int getAction(AccessibilityEvent event) {
+    public static int getAction(AccessibilityEvent event) {
         if (Build.VERSION.SDK_INT >= 16) {
             return event.getAction();
         } else {
