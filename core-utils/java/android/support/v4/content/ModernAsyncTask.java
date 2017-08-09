@@ -71,8 +71,8 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     /**
      * An {@link Executor} that can be used to execute tasks in parallel.
      */
-    public static final Executor THREAD_POOL_EXECUTOR
-            = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
+    public static final Executor THREAD_POOL_EXECUTOR =
+            new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
                     TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
 
     private static final int MESSAGE_POST_RESULT = 0x1;
@@ -126,7 +126,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     /**
      * Creates a new asynchronous task. This constructor must be invoked on the UI thread.
      */
-    public ModernAsyncTask() {
+    ModernAsyncTask() {
         mWorker = new WorkerRunnable<Params, Result>() {
             @Override
             public Result call() throws Exception {
@@ -490,7 +490,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
     }
 
     private static class InternalHandler extends Handler {
-        public InternalHandler() {
+        InternalHandler() {
             super(Looper.getMainLooper());
         }
 
@@ -510,7 +510,7 @@ abstract class ModernAsyncTask<Params, Progress, Result> {
         }
     }
 
-    private static abstract class WorkerRunnable<Params, Result> implements Callable<Result> {
+    private abstract static class WorkerRunnable<Params, Result> implements Callable<Result> {
         Params[] mParams;
 
         WorkerRunnable() {
