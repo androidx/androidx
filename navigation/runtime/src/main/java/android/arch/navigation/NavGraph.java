@@ -18,8 +18,12 @@ package android.arch.navigation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 
@@ -60,6 +64,24 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
         setStartDestination(
                 a.getResourceId(R.styleable.NavGraphNavigator_startDestination, 0));
         a.recycle();
+    }
+
+    @Override
+    @Nullable
+    Pair<NavDestination, Bundle> matchDeepLink(@NonNull Uri uri) {
+        // First search through any deep links directly added to this NavGraph
+        Pair<NavDestination, Bundle> result = super.matchDeepLink(uri);
+        if (result != null) {
+            return result;
+        }
+        // Then search through all child destinations for a matching deep link
+        for (NavDestination child : this) {
+            Pair<NavDestination, Bundle> childResult = child.matchDeepLink(uri);
+            if (childResult != null) {
+                return childResult;
+            }
+        }
+        return null;
     }
 
     /**

@@ -17,13 +17,19 @@
 package android.arch.navigation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
+
+import java.util.ArrayList;
 
 /**
  * NavDestination represents one node within an overall navigation graph.
@@ -47,6 +53,7 @@ public class NavDestination {
     private int mId;
     private CharSequence mLabel;
     private Bundle mDefaultArgs;
+    private ArrayList<NavDeepLink> mDeepLinks;
     private SparseArrayCompat<NavAction> mActions;
 
     /**
@@ -159,6 +166,55 @@ public class NavDestination {
      */
     public void addDefaultArguments(Bundle args) {
         getDefaultArguments().putAll(args);
+    }
+
+    /**
+     * Add a deep link to this destination. Matching Uris sent to
+     * {@link NavController#onHandleDeepLink(Intent)} will trigger navigating to this destination.
+     * <p>
+     * In addition to a direct Uri match, the following features are supported:
+     * <ul>
+     *     <li>Uris without a scheme are assumed as http and https. For example,
+     *     <code>www.example.com</code> will match <code>http://www.example.com</code> and
+     *     <code>https://www.example.com</code>.</li>
+     *     <li>Placeholders in the form of <code>{placeholder_name}</code> matches 1 or more
+     *     characters. The String value of the placeholder will be available in the arguments
+     *     {@link Bundle} with a key of the same name. For example,
+     *     <code>http://www.example.com/users/{id}</code> will match
+     *     <code>http://www.example.com/users/4</code>.</li>
+     *     <li>The <code>.*</code> wildcard can be used to match 0 or more characters.</li>
+     * </ul>
+     * These Uris can be declared in your navigation XML files by adding one or more
+     * <code>&lt;deepLink app:uri="uriPattern" /&gt;</code> elements as
+     * a child to your destination.
+     * @param uriPattern The uri pattern to add as a deep link
+     * @see NavController#onHandleDeepLink(Intent)
+     */
+    public void addDeepLink(@NonNull String uriPattern) {
+        if (mDeepLinks == null) {
+            mDeepLinks = new ArrayList<>();
+        }
+        mDeepLinks.add(new NavDeepLink(uriPattern));
+    }
+
+    /**
+     * Determines if this NavDestination has a deep link matching the given Uri.
+     * @param uri The Uri to match against all deep links added in {@link #addDeepLink(String)}
+     * @return The matching {@link NavDestination} and the appropriate {@link Bundle} of arguments
+     * extracted from the Uri, or null if no match was found.
+     */
+    @Nullable
+    Pair<NavDestination, Bundle> matchDeepLink(@NonNull Uri uri) {
+        if (mDeepLinks == null) {
+            return null;
+        }
+        for (NavDeepLink deepLink : mDeepLinks) {
+            Bundle matchingArguments = deepLink.getMatchingArguments(uri);
+            if (matchingArguments != null) {
+                return Pair.create(this, matchingArguments);
+            }
+        }
+        return null;
     }
 
     /**

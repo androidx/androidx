@@ -20,5 +20,7 @@
 
     <test android:id="@+id/start_test" />
 
-    <test android:id="@+id/deep_link_test" />
+    <test android:id="@+id/deep_link_test">
+        <deepLink app:uri="www.example.com/{test}" />
+    </test>
 </navigation>
