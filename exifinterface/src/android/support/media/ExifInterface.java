@@ -3740,6 +3740,13 @@ public class ExifInterface {
      * @param tag the name of the tag.
      */
     private ExifAttribute getExifAttribute(String tag) {
+        if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
+            if (DEBUG) {
+                Log.d(TAG, "getExifAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
+                        + "TAG_PHOTOGRAPHIC_SENSITIVITY.");
+            }
+            tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
+        }
         // Retrieves all tag groups. The value from primary image tag group has a higher priority
         // than the value from the thumbnail tag group if there are more than one candidates.
         for (int i = 0; i < EXIF_TAGS.length; ++i) {
@@ -3838,6 +3845,13 @@ public class ExifInterface {
      * @param value the value of the tag.
      */
     public void setAttribute(String tag, String value) {
+        if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
+            if (DEBUG) {
+                Log.d(TAG, "setAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
+                        + "TAG_PHOTOGRAPHIC_SENSITIVITY.");
+            }
+            tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
+        }
         // Convert the given value to rational values for backwards compatibility.
         if (value != null && sTagSetForCompatibility.contains(tag)) {
             if (tag.equals(TAG_GPS_TIMESTAMP)) {
