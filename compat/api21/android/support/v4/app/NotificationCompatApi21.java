@@ -34,7 +34,6 @@ import java.util.ArrayList;
 @RequiresApi(21)
 class NotificationCompatApi21 {
     public static class Builder extends NotificationCompatApi20.Builder {
-        private Bundle mExtras;
         private RemoteViews mHeadsUpContentView;
 
         public Builder(Context context, Notification n,
@@ -56,10 +55,7 @@ class NotificationCompatApi21 {
                     .setColor(color)
                     .setVisibility(visibility)
                     .setPublicVersion(publicVersion);
-            mExtras = new Bundle();
-            if (extras != null) {
-                mExtras.putAll(extras);
-            }
+
             for (String person: people) {
                 mBuilder.addPerson(person);
             }

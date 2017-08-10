@@ -39,8 +39,6 @@ class NotificationCompatApi20 {
     public static class Builder extends NotificationCompatKitKat.Builder {
         protected int mGroupAlertBehavior;
 
-        private Bundle mExtras;
-
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
                 RemoteViews tickerView, int number,
@@ -59,14 +57,6 @@ class NotificationCompatApi20 {
                 .setGroup(groupKey)
                 .setGroupSummary(groupSummary)
                 .setSortKey(sortKey);
-            mExtras = new Bundle();
-            if (extras != null) {
-                mExtras.putAll(extras);
-            }
-            if (people != null && !people.isEmpty()) {
-                mExtras.putStringArray(Notification.EXTRA_PEOPLE,
-                        people.toArray(new String[people.size()]));
-            }
 
             mGroupAlertBehavior = groupAlertBehavior;
         }
