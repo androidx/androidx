@@ -270,7 +270,12 @@ public final class MediaControllerCompat {
     /**
      * Gets the current playback state for this session.
      *
+     * <p>If the session is not ready, {@link PlaybackStateCompat#getExtras()} on the result of
+     * this method may return null. </p>
+     *
      * @return The current PlaybackState or null
+     * @see #isSessionReady
+     * @see Callback#onSessionReady
      */
     public PlaybackStateCompat getPlaybackState() {
         return mImpl.getPlaybackState();
@@ -396,8 +401,12 @@ public final class MediaControllerCompat {
      * <li>{@link RatingCompat#RATING_5_STARS}</li>
      * <li>{@link RatingCompat#RATING_PERCENTAGE}</li>
      * </ul>
+     * <p>If the session is not ready, it will return {@link RatingCompat#RATING_NONE}.</p>
      *
-     * @return The supported rating type
+     * @return The supported rating type, or {@link RatingCompat#RATING_NONE} if the value is not
+     *         set or the session is not ready.
+     * @see #isSessionReady
+     * @see Callback#onSessionReady
      */
     public int getRatingType() {
         return mImpl.getRatingType();
@@ -406,7 +415,11 @@ public final class MediaControllerCompat {
     /**
      * Returns whether captioning is enabled for this session.
      *
+     * <p>If the session is not ready, it will return a {@code false}.</p>
+     *
      * @return {@code true} if captioning is enabled, {@code false} if disabled or not set.
+     * @see #isSessionReady
+     * @see Callback#onSessionReady
      */
     public boolean isCaptioningEnabled() {
         return mImpl.isCaptioningEnabled();
@@ -415,8 +428,11 @@ public final class MediaControllerCompat {
     /**
      * Gets the repeat mode for this session.
      *
-     * @return The latest repeat mode set to the session, or
-     *         {@link PlaybackStateCompat#REPEAT_MODE_NONE} if not set.
+     * @return The latest repeat mode set to the session,
+     *         {@link PlaybackStateCompat#REPEAT_MODE_NONE} if not set, or
+     *         {@link PlaybackStateCompat#REPEAT_MODE_INVALID} if the session is not ready yet.
+     * @see #isSessionReady
+     * @see Callback#onSessionReady
      */
     public int getRepeatMode() {
         return mImpl.getRepeatMode();
@@ -425,7 +441,8 @@ public final class MediaControllerCompat {
     /**
      * Returns whether the shuffle mode is enabled for this session.
      *
-     * @return {@code true} if the shuffle mode is enabled, {@code false} if disabled or not set.
+     * @return {@code true} if the shuffle mode is enabled, {@code false} if it is disabled, not
+     *         set, or the session is not ready.
      * @deprecated Use {@link #getShuffleMode} instead.
      */
     @Deprecated
@@ -437,7 +454,10 @@ public final class MediaControllerCompat {
      * Gets the shuffle mode for this session.
      *
      * @return The latest shuffle mode set to the session, or
-     *         {@link PlaybackStateCompat#SHUFFLE_MODE_NONE} if not set.
+     *         {@link PlaybackStateCompat#SHUFFLE_MODE_NONE} if disabled or not set, or
+     *         {@link PlaybackStateCompat#SHUFFLE_MODE_INVALID} if the session is not ready yet.
+     * @see #isSessionReady
+     * @see Callback#onSessionReady
      */
     public int getShuffleMode() {
         return mImpl.getShuffleMode();
@@ -578,6 +598,25 @@ public final class MediaControllerCompat {
     }
 
     /**
+     * Returns whether the session is ready or not.
+     *
+     * <p>If the session is not ready, following methods can work incorrectly.</p>
+     * <ul>
+     * <li>{@link #getPlaybackState()}</li>
+     * <li>{@link #getRatingType()}</li>
+     * <li>{@link #getRepeatMode()}</li>
+     * <li>{@link #getShuffleMode()}</li>
+     * <li>{@link #isCaptioningEnabled()}</li>
+     * </ul>
+     *
+     * @return true if the session is ready, false otherwise.
+     * @see Callback#onSessionReady()
+     */
+    public boolean isSessionReady() {
+        return mImpl.isSessionReady();
+    }
+
+    /**
      * Gets the session owner's package name.
      *
      * @return The package name of of the session owner.
@@ -615,6 +654,14 @@ public final class MediaControllerCompat {
             } else {
                 mCallbackObj = new StubCompat(this);
             }
+        }
+
+        /**
+         * Override to handle the session being ready.
+         *
+         * @see MediaControllerCompat#isSessionReady
+         */
+        public void onSessionReady() {
         }
 
         /**
@@ -953,6 +1000,14 @@ public final class MediaControllerCompat {
                     callback.postToHandler(MessageHandler.MSG_UPDATE_VOLUME, pi, null);
                 }
             }
+
+            @Override
+            public void onSessionReady() throws RemoteException {
+                MediaControllerCompat.Callback callback = mCallback.get();
+                if (callback != null) {
+                    callback.postToHandler(MessageHandler.MSG_SESSION_READY, null, null);
+                }
+            }
         }
 
         private class MessageHandler extends Handler {
@@ -968,6 +1023,7 @@ public final class MediaControllerCompat {
             private static final int MSG_UPDATE_SHUFFLE_MODE_DEPRECATED = 10;
             private static final int MSG_UPDATE_CAPTIONING_ENABLED = 11;
             private static final int MSG_UPDATE_SHUFFLE_MODE = 12;
+            private static final int MSG_SESSION_READY = 13;
 
             boolean mRegistered = false;
 
@@ -1016,6 +1072,9 @@ public final class MediaControllerCompat {
                         break;
                     case MSG_DESTROYED:
                         onSessionDestroyed();
+                        break;
+                    case MSG_SESSION_READY:
+                        onSessionReady();
                         break;
                 }
             }
@@ -1365,6 +1424,7 @@ public final class MediaControllerCompat {
         void adjustVolume(int direction, int flags);
         void sendCommand(String command, Bundle params, ResultReceiver cb);
 
+        boolean isSessionReady();
         String getPackageName();
         Object getMediaController();
     }
@@ -1546,7 +1606,7 @@ public final class MediaControllerCompat {
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in getRepeatMode.", e);
             }
-            return 0;
+            return PlaybackStateCompat.REPEAT_MODE_INVALID;
         }
 
         @Override
@@ -1566,7 +1626,7 @@ public final class MediaControllerCompat {
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in getShuffleMode.", e);
             }
-            return 0;
+            return PlaybackStateCompat.SHUFFLE_MODE_INVALID;
         }
 
         @Override
@@ -1628,6 +1688,11 @@ public final class MediaControllerCompat {
             } catch (RemoteException e) {
                 Log.e(TAG, "Dead object in sendCommand.", e);
             }
+        }
+
+        @Override
+        public boolean isSessionReady() {
+            return true;
         }
 
         @Override
@@ -2053,7 +2118,7 @@ public final class MediaControllerCompat {
                     Log.e(TAG, "Dead object in getRepeatMode.", e);
                 }
             }
-            return PlaybackStateCompat.REPEAT_MODE_NONE;
+            return PlaybackStateCompat.REPEAT_MODE_INVALID;
         }
 
         @Override
@@ -2077,7 +2142,7 @@ public final class MediaControllerCompat {
                     Log.e(TAG, "Dead object in getShuffleMode.", e);
                 }
             }
-            return PlaybackStateCompat.SHUFFLE_MODE_NONE;
+            return PlaybackStateCompat.SHUFFLE_MODE_INVALID;
         }
 
         @Override
@@ -2117,6 +2182,11 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public boolean isSessionReady() {
+            return mExtraBinder != null;
+        }
+
+        @Override
         public String getPackageName() {
             return MediaControllerCompatApi21.getPackageName(mControllerObj);
         }
@@ -2146,6 +2216,7 @@ public final class MediaControllerCompat {
                         Log.e(TAG, "Dead object in registerCallback.", e);
                         break;
                     }
+                    callback.onSessionReady();
                 }
                 mPendingCallbacks.clear();
             }
