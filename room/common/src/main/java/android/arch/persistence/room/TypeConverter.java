@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a method as a type converter. A class can have as many @Converter methods as it needs.
+ * Marks a method as a type converter. A class can have as many @TypeConverter methods as it needs.
  * <p>
  * Each converter method should receive 1 parameter and have non-void return type.
  *
