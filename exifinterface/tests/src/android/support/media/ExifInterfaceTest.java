@@ -211,7 +211,7 @@ public class ExifInterfaceTest {
             ExifInterface.TAG_GPS_TIMESTAMP,
             ExifInterface.TAG_IMAGE_LENGTH,
             ExifInterface.TAG_IMAGE_WIDTH,
-            ExifInterface.TAG_ISO_SPEED_RATINGS,
+            ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.TAG_WHITE_BALANCE
     };
@@ -624,6 +624,26 @@ public class ExifInterfaceTest {
 
     }
 
+    @Test
+    @SmallTest
+    public void testInterchangeabilityBetweenTwoIsoSpeedTags() throws IOException {
+        // Tests that two tags TAG_ISO_SPEED_RATINGS and TAG_PHOTOGRAPHIC_SENSITIVITY can be used
+        // interchangeably.
+        final String oldTag = ExifInterface.TAG_ISO_SPEED_RATINGS;
+        final String newTag = ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY;
+        final String isoValue = "50";
+
+        ExifInterface exif = createTestExifInterface();
+        exif.setAttribute(oldTag, isoValue);
+        assertEquals(isoValue, exif.getAttribute(oldTag));
+        assertEquals(isoValue, exif.getAttribute(newTag));
+
+        exif = createTestExifInterface();
+        exif.setAttribute(newTag, isoValue);
+        assertEquals(isoValue, exif.getAttribute(oldTag));
+        assertEquals(isoValue, exif.getAttribute(newTag));
+    }
+
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {
         // Prints thumbnail information.
         if (exifInterface.hasThumbnail()) {
@@ -739,7 +759,8 @@ public class ExifInterfaceTest {
         assertStringTag(exifInterface, ExifInterface.TAG_GPS_TIMESTAMP, expectedValue.gpsTimestamp);
         assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_LENGTH, expectedValue.imageLength);
         assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_WIDTH, expectedValue.imageWidth);
-        assertStringTag(exifInterface, ExifInterface.TAG_ISO_SPEED_RATINGS, expectedValue.iso);
+        assertStringTag(exifInterface, ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
+                expectedValue.iso);
         assertIntTag(exifInterface, ExifInterface.TAG_ORIENTATION, expectedValue.orientation);
         assertIntTag(exifInterface, ExifInterface.TAG_WHITE_BALANCE, expectedValue.whiteBalance);
     }
