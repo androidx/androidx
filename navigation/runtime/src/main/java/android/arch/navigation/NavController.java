@@ -556,13 +556,14 @@ public class NavController implements NavigatorProvider {
         @IdRes int destId = resId;
         final NavAction navAction = currentNode.getAction(resId);
         if (navAction != null) {
-            NavOptions options = navOptions != null ? navOptions : navAction.getNavOptions();
-            if (navAction.getDestinationId() == 0 && options != null && options.getPopUpTo() != 0) {
-                // Allow actions to leave out a destinationId only if they have a non-zero popUpTo
-                popBackStack(options.getPopUpTo(), options.isPopUpToInclusive());
+            if (navOptions == null) {
+                navOptions = navAction.getNavOptions();
+            }
+            destId = navAction.getDestinationId();
+            if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
+                // Handle pop only actions here. Actions with a destinationId will be handled below
+                popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
                 return;
-            } else {
-                destId = navAction.getDestinationId();
             }
         }
         NavDestination node = findDestination(destId);
