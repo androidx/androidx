@@ -44,6 +44,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.os.TraceCompat;
+import android.support.v4.util.Preconditions;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.InputDeviceCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -409,6 +410,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      */
     private int mDispatchScrollCounter = 0;
 
+    @NonNull
+    private EdgeEffectFactory mEdgeEffectFactory = new EdgeEffectFactory();
     private EdgeEffect mLeftGlow, mTopGlow, mRightGlow, mBottomGlow;
 
     ItemAnimator mItemAnimator = new DefaultItemAnimator();
@@ -2298,7 +2301,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mLeftGlow != null) {
             return;
         }
-        mLeftGlow = new EdgeEffect(getContext());
+        mLeftGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_LEFT);
         if (mClipToPadding) {
             mLeftGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
                     getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
@@ -2311,7 +2314,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mRightGlow != null) {
             return;
         }
-        mRightGlow = new EdgeEffect(getContext());
+        mRightGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_RIGHT);
         if (mClipToPadding) {
             mRightGlow.setSize(getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
                     getMeasuredWidth() - getPaddingLeft() - getPaddingRight());
@@ -2324,7 +2327,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mTopGlow != null) {
             return;
         }
-        mTopGlow = new EdgeEffect(getContext());
+        mTopGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_TOP);
         if (mClipToPadding) {
             mTopGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
                     getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
@@ -2338,7 +2341,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         if (mBottomGlow != null) {
             return;
         }
-        mBottomGlow = new EdgeEffect(getContext());
+        mBottomGlow = mEdgeEffectFactory.createEdgeEffect(this, EdgeEffectFactory.DIRECTION_BOTTOM);
         if (mClipToPadding) {
             mBottomGlow.setSize(getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
                     getMeasuredHeight() - getPaddingTop() - getPaddingBottom());
@@ -2349,6 +2352,32 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     void invalidateGlows() {
         mLeftGlow = mRightGlow = mTopGlow = mBottomGlow = null;
+    }
+
+    /**
+     * Set a {@link EdgeEffectFactory} for this {@link RecyclerView}.
+     * <p>
+     * When a new {@link EdgeEffectFactory} is set, any existing over-scroll effects are cleared
+     * and new effects are created as needed using
+     * {@link EdgeEffectFactory#createEdgeEffect(RecyclerView, int)}
+     *
+     * @param edgeEffectFactory The {@link EdgeEffectFactory} instance.
+     */
+    public void setEdgeEffectFactory(@NonNull EdgeEffectFactory edgeEffectFactory) {
+        Preconditions.checkNotNull(edgeEffectFactory);
+        mEdgeEffectFactory = edgeEffectFactory;
+        invalidateGlows();
+    }
+
+    /**
+     * Retrieves the previously set {@link EdgeEffectFactory} or the default factory if nothing
+     * was set.
+     *
+     * @return The previously set {@link EdgeEffectFactory}
+     * @see #setEdgeEffectFactory(EdgeEffectFactory)
+     */
+    public EdgeEffectFactory getEdgeEffectFactory() {
+        return mEdgeEffectFactory;
     }
 
     /**
@@ -5118,6 +5147,46 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
                 mAdapterUpdateDuringMeasure = true;
                 requestLayout();
             }
+        }
+    }
+
+    /**
+     * EdgeEffectFactory lets you customize the over-scroll edge effect for RecyclerViews.
+     *
+     * @see RecyclerView#setEdgeEffectFactory(EdgeEffectFactory)
+     */
+    public static class EdgeEffectFactory {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef({DIRECTION_LEFT, DIRECTION_TOP, DIRECTION_RIGHT, DIRECTION_BOTTOM})
+        public @interface EdgeDirection {}
+
+        /**
+         * Direction constant for the left edge
+         */
+        public static final int DIRECTION_LEFT = 0;
+
+        /**
+         * Direction constant for the top edge
+         */
+        public static final int DIRECTION_TOP = 1;
+
+        /**
+         * Direction constant for the right edge
+         */
+        public static final int DIRECTION_RIGHT = 2;
+
+        /**
+         * Direction constant for the bottom edge
+         */
+        public static final int DIRECTION_BOTTOM = 3;
+
+        /**
+         * Create a new EdgeEffect for the provided direction.
+         */
+        protected @NonNull EdgeEffect createEdgeEffect(RecyclerView view,
+                @EdgeDirection int direction) {
+            return new EdgeEffect(view.getContext());
         }
     }
 
