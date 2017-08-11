@@ -1651,7 +1651,7 @@ package android.support.v4.view {
     method public static void setBackground(android.view.View, android.graphics.drawable.Drawable);
     method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList);
     method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode);
-    method public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup, boolean);
+    method public static deprecated void setChildrenDrawingOrderEnabled(android.view.ViewGroup, boolean);
     method public static void setClipBounds(android.view.View, android.graphics.Rect);
     method public static void setElevation(android.view.View, float);
     method public static deprecated void setFitsSystemWindows(android.view.View, boolean);
