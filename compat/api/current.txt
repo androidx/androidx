@@ -678,6 +678,7 @@ package android.support.v4.content.pm {
     ctor public ShortcutInfoCompat.Builder(android.content.Context, java.lang.String);
     method public android.support.v4.content.pm.ShortcutInfoCompat build();
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
+    method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(java.lang.CharSequence);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIcon(android.support.v4.graphics.drawable.IconCompat);
     method public android.support.v4.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
