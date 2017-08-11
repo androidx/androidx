@@ -37,7 +37,8 @@
 
         <activity android:name="android.support.v4.view.ViewCompatActivity"/>
 
-        <activity android:name="android.support.v4.app.TestSupportActivity"/>
+        <activity android:name="android.support.v4.app.TestSupportActivity"
+                  android:icon="@drawable/test_drawable_blue"/>
 
         <provider android:name="android.support.v4.provider.MockFontProvider"
                   android:authorities="android.support.provider.fonts.font"

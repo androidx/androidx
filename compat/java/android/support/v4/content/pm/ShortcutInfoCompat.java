@@ -18,17 +18,20 @@ package android.support.v4.content.pm;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.graphics.drawable.IconCompat;
 import android.text.TextUtils;
 
 import java.util.Arrays;
 
 /**
- * Helper for accessing features in {@link android.content.pm.ShortcutInfo}.
+ * Helper for accessing features in {@link ShortcutInfo}.
  */
 public class ShortcutInfoCompat {
 
@@ -43,6 +46,7 @@ public class ShortcutInfoCompat {
     private CharSequence mDisabledMessage;
 
     private IconCompat mIcon;
+    private boolean mIsAlwaysBadged;
 
     private ShortcutInfoCompat() { }
 
@@ -69,11 +73,26 @@ public class ShortcutInfoCompat {
         return builder.build();
     }
 
+    @VisibleForTesting
     Intent addToIntent(Intent outIntent) {
         outIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, mIntents[mIntents.length - 1])
                 .putExtra(Intent.EXTRA_SHORTCUT_NAME, mLabel.toString());
         if (mIcon != null) {
-            mIcon.addToShortcutIntent(outIntent);
+            Drawable badge = null;
+            if (mIsAlwaysBadged) {
+                PackageManager pm = mContext.getPackageManager();
+                if (mActivity != null) {
+                    try {
+                        badge = pm.getActivityIcon(mActivity);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        // Ignore
+                    }
+                }
+                if (badge == null) {
+                    badge = mContext.getApplicationInfo().loadIcon(pm);
+                }
+            }
+            mIcon.addToShortcutIntent(outIntent, badge);
         }
         return outIntent;
     }
@@ -250,11 +269,28 @@ public class ShortcutInfoCompat {
          * on the launcher.
          *
          * @see ShortcutInfo#getActivity()
-         * @see android.content.pm.ShortcutInfo.Builder#setActivity(ComponentName)
+         * @see ShortcutInfo.Builder#setActivity(ComponentName)
          */
         @NonNull
         public Builder setActivity(@NonNull ComponentName activity) {
             mInfo.mActivity = activity;
+            return this;
+        }
+
+        /**
+         * Badges the icon before passing it over to the Launcher.
+         * <p>
+         * Launcher automatically badges {@link ShortcutInfo}, so only the legacy shortcut icon,
+         * {@link Intent.ShortcutIconResource} is badged. This field is ignored when using
+         * {@link ShortcutInfo} on API 25 and above.
+         * <p>
+         * If the shortcut is associated with an activity, the activity icon is used as the badge,
+         * otherwise application icon is used.
+         *
+         * @see #setActivity(ComponentName)
+         */
+        public Builder setAlwaysBadged() {
+            mInfo.mIsAlwaysBadged = true;
             return this;
         }
 
