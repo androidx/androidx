@@ -31,5 +31,4 @@ import android.support.annotation.RestrictTo;
 @RestrictTo(LIBRARY_GROUP)
 public interface NotificationBuilderWithBuilderAccessor {
     Notification.Builder getBuilder();
-    Notification build();
 }
