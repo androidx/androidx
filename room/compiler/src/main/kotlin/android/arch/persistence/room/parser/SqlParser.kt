@@ -34,6 +34,7 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
     val bindingExpressions = arrayListOf<TerminalNode>()
     // table name alias mappings
     val tableNames = mutableSetOf<Table>()
+    val withClauseNames = mutableSetOf<String>()
     val queryType: QueryType
 
     init {
@@ -85,12 +86,22 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
                 syntaxErrors)
     }
 
+    override fun visitCommon_table_expression(ctx: SQLiteParser.Common_table_expressionContext): Void? {
+        val tableName = ctx.table_name()?.text
+        if (tableName != null) {
+            withClauseNames.add(unescapeIdentifier(tableName))
+        }
+        return super.visitCommon_table_expression(ctx)
+    }
+
     override fun visitTable_or_subquery(ctx: SQLiteParser.Table_or_subqueryContext): Void? {
         val tableName = ctx.table_name()?.text
         if (tableName != null) {
             val tableAlias = ctx.table_alias()?.text
-            tableNames.add(Table(unescapeIdentifier(tableName),
-                    unescapeIdentifier(tableAlias ?: tableName)))
+            if (tableName !in withClauseNames) {
+                tableNames.add(Table(unescapeIdentifier(tableName),
+                                     unescapeIdentifier(tableAlias ?: tableName)))
+            }
         }
         return super.visitTable_or_subquery(ctx)
     }
