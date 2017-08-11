@@ -52,6 +52,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_CHILD_LAYOUT_ID = "childLayoutId";
     public static final String EXTRA_SECONDARY_SIZE_ZERO = "secondarySizeZero";
     public static final String EXTRA_UPDATE_SIZE = "updateSize";
+    public static final String EXTRA_UPDATE_SIZE_SECONDARY = "updateSizeSecondary";
     public static final String EXTRA_LAYOUT_MARGINS = "layoutMargins";
     public static final String EXTRA_NINEPATCH_SHADOW = "NINEPATCH_SHADOW";
     public static final String EXTRA_HAS_STABLE_IDS = "hasStableIds";
@@ -94,6 +95,7 @@ public class GridActivity extends Activity {
     GridWidgetTest.ItemAlignmentFacetProvider mAlignmentViewTypeProvider;
     AdapterListener mAdapterListener;
     boolean mUpdateSize = true;
+    boolean mUpdateSizeSecondary = false;
     boolean mHasStableIds;
 
     int[] mGridViewLayoutSize;
@@ -138,6 +140,7 @@ public class GridActivity extends Activity {
         mRequestFocusOnLayout = intent.getBooleanExtra(EXTRA_REQUEST_FOCUS_ONLAYOUT,
                 DEFAULT_REQUEST_FOCUS_ONLAYOUT);
         mUpdateSize = intent.getBooleanExtra(EXTRA_UPDATE_SIZE, true);
+        mUpdateSizeSecondary = intent.getBooleanExtra(EXTRA_UPDATE_SIZE_SECONDARY, false);
         mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
         mHasStableIds = intent.getBooleanExtra(EXTRA_HAS_STABLE_IDS, false);
@@ -482,7 +485,7 @@ public class GridActivity extends Activity {
     }
 
     void updateSize(View view, int position) {
-        if (!mUpdateSize) {
+        if (!mUpdateSize && !mUpdateSizeSecondary) {
             return;
         }
         ViewGroup.LayoutParams p = view.getLayoutParams();
@@ -490,10 +493,14 @@ public class GridActivity extends Activity {
             p = new ViewGroup.LayoutParams(0, 0);
         }
         if (mOrientation == BaseGridView.HORIZONTAL) {
-            p.width = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
-            p.height = mSecondarySizeZero ? 0 : 80;
+            p.width = mItemLengths[position]
+                    + (mUpdateSize && mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
+            p.height = mSecondarySizeZero ? 0
+                    : (mUpdateSizeSecondary && mRequestLayoutOnFocus && view.hasFocus() ? 96 : 80);
         } else {
-            p.width = mSecondarySizeZero ? 0 : 240;
+            p.width = mSecondarySizeZero ? 0
+                    : (mUpdateSizeSecondary && mRequestLayoutOnFocus && view.hasFocus()
+                            ? 260 : 240);
             p.height = mItemLengths[position] + (mRequestLayoutOnFocus && view.hasFocus() ? 1 : 0);
         }
         view.setLayoutParams(p);
