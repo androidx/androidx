@@ -139,45 +139,6 @@ class NotificationCompatJellybean {
         }
     }
 
-    public static void addBigTextStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence bigContentTitle, boolean useSummary,
-            CharSequence summaryText, CharSequence bigText) {
-        Notification.BigTextStyle style = new Notification.BigTextStyle(b.getBuilder())
-            .setBigContentTitle(bigContentTitle)
-            .bigText(bigText);
-        if (useSummary) {
-            style.setSummaryText(summaryText);
-        }
-    }
-
-    public static void addBigPictureStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence bigContentTitle, boolean useSummary,
-            CharSequence summaryText, Bitmap bigPicture, Bitmap bigLargeIcon,
-            boolean bigLargeIconSet) {
-        Notification.BigPictureStyle style = new Notification.BigPictureStyle(b.getBuilder())
-            .setBigContentTitle(bigContentTitle)
-            .bigPicture(bigPicture);
-        if (bigLargeIconSet) {
-            style.bigLargeIcon(bigLargeIcon);
-        }
-        if (useSummary) {
-            style.setSummaryText(summaryText);
-        }
-    }
-
-    public static void addInboxStyle(NotificationBuilderWithBuilderAccessor b,
-            CharSequence bigContentTitle, boolean useSummary,
-            CharSequence summaryText, ArrayList<CharSequence> texts) {
-        Notification.InboxStyle style = new Notification.InboxStyle(b.getBuilder())
-            .setBigContentTitle(bigContentTitle);
-        if (useSummary) {
-            style.setSummaryText(summaryText);
-        }
-        for (CharSequence text: texts) {
-            style.addLine(text);
-        }
-    }
-
     /** Return an SparseArray for action extras or null if none was needed. */
     public static SparseArray<Bundle> buildActionExtrasMap(List<Bundle> actionExtrasList) {
         SparseArray<Bundle> actionExtrasMap = null;
