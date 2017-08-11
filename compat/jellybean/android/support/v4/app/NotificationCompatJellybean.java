@@ -20,6 +20,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -60,11 +61,10 @@ class NotificationCompatJellybean {
 
     public static class Builder extends NotificationCompat.NotificationCompatBaseImpl.BuilderBase
             implements NotificationBuilderWithActions {
-        protected RemoteViews mContentView;
-        protected RemoteViews mBigContentView;
-        protected List<Bundle> mActionExtrasList = new ArrayList<>();
-
-        private final Bundle mExtras;
+        protected final RemoteViews mContentView;
+        protected final RemoteViews mBigContentView;
+        protected final List<Bundle> mActionExtrasList = new ArrayList<>();
+        protected final Bundle mExtras = new Bundle();
 
         public Builder(Context context, Notification n,
                 CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
@@ -80,24 +80,27 @@ class NotificationCompatJellybean {
             mBuilder.setSubText(subText)
                 .setUsesChronometer(useChronometer)
                 .setPriority(priority);
-            mExtras = new Bundle();
+
             if (extras != null) {
                 mExtras.putAll(extras);
             }
-            if (localOnly) {
-                mExtras.putBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY, true);
-            }
-            if (groupKey != null) {
-                mExtras.putString(NotificationCompatExtras.EXTRA_GROUP_KEY, groupKey);
-                if (groupSummary) {
-                    mExtras.putBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY, true);
-                } else {
-                    mExtras.putBoolean(NotificationManagerCompat.EXTRA_USE_SIDE_CHANNEL, true);
+            if (Build.VERSION.SDK_INT < 20) {
+                if (localOnly) {
+                    mExtras.putBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY, true);
+                }
+                if (groupKey != null) {
+                    mExtras.putString(NotificationCompatExtras.EXTRA_GROUP_KEY, groupKey);
+                    if (groupSummary) {
+                        mExtras.putBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY, true);
+                    } else {
+                        mExtras.putBoolean(NotificationManagerCompat.EXTRA_USE_SIDE_CHANNEL, true);
+                    }
+                }
+                if (sortKey != null) {
+                    mExtras.putString(NotificationCompatExtras.EXTRA_SORT_KEY, sortKey);
                 }
             }
-            if (sortKey != null) {
-                mExtras.putString(NotificationCompatExtras.EXTRA_SORT_KEY, sortKey);
-            }
+
             mContentView = contentView;
             mBigContentView = bigContentView;
         }
