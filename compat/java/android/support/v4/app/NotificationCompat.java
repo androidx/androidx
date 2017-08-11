@@ -447,7 +447,7 @@ public class NotificationCompat {
      *
      * {@see android.app.Notification#visibility}
      */
-    public static final int VISIBILITY_PUBLIC = 1;
+    public static final int VISIBILITY_PUBLIC = Notification.VISIBILITY_PUBLIC;
 
     /**
      * Notification visibility: Show this notification on all lockscreens, but conceal sensitive or
@@ -455,14 +455,14 @@ public class NotificationCompat {
      *
      * {@see android.app.Notification#visibility}
      */
-    public static final int VISIBILITY_PRIVATE = 0;
+    public static final int VISIBILITY_PRIVATE = Notification.VISIBILITY_PRIVATE;
 
     /**
      * Notification visibility: Do not reveal any part of this notification on a secure lockscreen.
      *
      * {@see android.app.Notification#visibility}
      */
-    public static final int VISIBILITY_SECRET = -1;
+    public static final int VISIBILITY_SECRET = Notification.VISIBILITY_SECRET;
 
     /**
      * Notification category: incoming call (voice or video) or similar synchronous communication request.
@@ -564,12 +564,18 @@ public class NotificationCompat {
      */
     public static final int BADGE_ICON_LARGE = Notification.BADGE_ICON_LARGE;
 
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({GROUP_ALERT_ALL, GROUP_ALERT_SUMMARY, GROUP_ALERT_CHILDREN})
+    public @interface GroupAlertBehavior {}
+
     /**
      * Constant for {@link Builder#setGroupAlertBehavior(int)}, meaning that all notifications in a
      * group with sound or vibration ought to make sound or vibrate (respectively), so this
      * notification will not be muted when it is in a group.
      */
-    public static final int GROUP_ALERT_ALL = 0;
+    public static final int GROUP_ALERT_ALL = Notification.GROUP_ALERT_ALL;
 
     /**
      * Constant for {@link Builder#setGroupAlertBehavior(int)}, meaning that all children
@@ -581,7 +587,7 @@ public class NotificationCompat {
      * notifications at once (say, after a periodic sync), and only need to notify the user
      * audibly once.
      */
-    public static final int GROUP_ALERT_SUMMARY = 1;
+    public static final int GROUP_ALERT_SUMMARY = Notification.GROUP_ALERT_SUMMARY;
 
     /**
      * Constant for {@link Builder#setGroupAlertBehavior(int)}, meaning that the summary
@@ -592,7 +598,7 @@ public class NotificationCompat {
      * <p>For example, you might want to use this constant if only the children notifications
      * in your group have content and the summary is only used to visually group notifications.
      */
-    public static final int GROUP_ALERT_CHILDREN = 2;
+    public static final int GROUP_ALERT_CHILDREN = Notification.GROUP_ALERT_CHILDREN;
 
     static final NotificationCompatImpl IMPL;
 
@@ -945,7 +951,7 @@ public class NotificationCompat {
         String mCategory;
         Bundle mExtras;
         int mColor = COLOR_DEFAULT;
-        int mVisibility = VISIBILITY_PRIVATE;
+        @NotificationVisibility int mVisibility = VISIBILITY_PRIVATE;
         Notification mPublicVersion;
         RemoteViews mContentView;
         RemoteViews mBigContentView;
@@ -954,7 +960,7 @@ public class NotificationCompat {
         int mBadgeIcon = BADGE_ICON_NONE;
         String mShortcutId;
         long mTimeout;
-        private int mGroupAlertBehavior = GROUP_ALERT_ALL;
+        @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
@@ -987,7 +993,7 @@ public class NotificationCompat {
 
         /**
          * @deprecated use
-         * {@link NotificationCompat.Builder#NotificationCompat.Builder(Context, String)} instead.
+         * {@link NotificationCompat.Builder#Builder(Context, String)} instead.
          * All posted Notifications must specify a NotificationChannel Id.
          */
         @Deprecated
@@ -1726,7 +1732,7 @@ public class NotificationCompat {
          *
          * <p> The default value is {@link #GROUP_ALERT_ALL}.</p>
          */
-        public Builder setGroupAlertBehavior(int groupAlertBehavior) {
+        public Builder setGroupAlertBehavior(@GroupAlertBehavior int groupAlertBehavior) {
             mGroupAlertBehavior = groupAlertBehavior;
             return this;
         }
@@ -5057,6 +5063,7 @@ public class NotificationCompat {
      * user. See {@link #GROUP_ALERT_ALL}, {@link #GROUP_ALERT_CHILDREN},
      * {@link #GROUP_ALERT_SUMMARY}.
      */
+    @GroupAlertBehavior
     public static int getGroupAlertBehavior(Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
             return notification.getGroupAlertBehavior();
