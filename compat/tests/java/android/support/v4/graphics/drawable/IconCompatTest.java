@@ -60,7 +60,7 @@ public class IconCompatTest {
     public void testClipAdaptiveIcon() throws Throwable {
         Bitmap source = Bitmap.createBitmap(200, 150, Bitmap.Config.ARGB_8888);
         source.eraseColor(Color.RED);
-        Bitmap result = IconCompat.createLegacyIconFromAdaptiveIcon(source);
+        Bitmap result = IconCompat.createLegacyIconFromAdaptiveIcon(source, false);
         verifyClippedCircle(result, Color.RED, 100);
     }
 
