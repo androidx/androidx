@@ -16,83 +16,13 @@
 
 package android.support.v4.app;
 
-import static android.support.v4.app.NotificationCompat.FLAG_GROUP_SUMMARY;
-import static android.support.v4.app.NotificationCompat.GROUP_ALERT_ALL;
-import static android.support.v4.app.NotificationCompat.GROUP_ALERT_CHILDREN;
-import static android.support.v4.app.NotificationCompat.GROUP_ALERT_SUMMARY;
-
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.RemoteInput;
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.widget.RemoteViews;
-
-import java.util.ArrayList;
 
 @RequiresApi(24)
 class NotificationCompatApi24 {
-
-    public static class Builder extends NotificationCompatApi21.Builder {
-        public Builder(Context context, Notification n,
-                CharSequence contentTitle, CharSequence contentText, CharSequence contentInfo,
-                RemoteViews tickerView, int number,
-                PendingIntent contentIntent, PendingIntent fullScreenIntent, Bitmap largeIcon,
-                int progressMax, int progress, boolean progressIndeterminate, boolean showWhen,
-                boolean useChronometer, int priority, CharSequence subText, boolean localOnly,
-                String category, ArrayList<String> people, Bundle extras, int color,
-                int visibility, Notification publicVersion, String groupKey, boolean groupSummary,
-                String sortKey, CharSequence[] remoteInputHistory, RemoteViews contentView,
-                RemoteViews bigContentView, RemoteViews headsUpContentView,
-                int groupAlertBehavior, String channelId) {
-            super(context, n, contentTitle, contentText, contentInfo, tickerView, number,
-                    contentIntent, fullScreenIntent, largeIcon, progressMax, progress,
-                    progressIndeterminate, showWhen, useChronometer, priority, subText, localOnly,
-                    category, people, extras, color, visibility, publicVersion, groupKey,
-                    groupSummary, sortKey, contentView, bigContentView,
-                    headsUpContentView, groupAlertBehavior, channelId);
-            mBuilder.setExtras(extras)
-                    .setRemoteInputHistory(remoteInputHistory);
-            if (contentView != null) {
-                mBuilder.setCustomContentView(contentView);
-            }
-            if (bigContentView != null) {
-                mBuilder.setCustomBigContentView(bigContentView);
-            }
-            if (headsUpContentView != null) {
-                mBuilder.setCustomHeadsUpContentView(headsUpContentView);
-            }
-        }
-
-        @Override
-        public void addAction(NotificationCompatBase.Action action) {
-            NotificationCompatApi24.addAction(mBuilder, action);
-        }
-
-        @Override
-        public Notification build() {
-            Notification notification =  mBuilder.build();
-
-            if (mGroupAlertBehavior != GROUP_ALERT_ALL) {
-                // if is summary and only children should alert
-                if (notification.getGroup() != null
-                        && (notification.flags & FLAG_GROUP_SUMMARY) != 0
-                        && mGroupAlertBehavior == GROUP_ALERT_CHILDREN) {
-                    removeSoundAndVibration(notification);
-                }
-                // if is group child and only summary should alert
-                if (notification.getGroup() != null
-                        && (notification.flags & FLAG_GROUP_SUMMARY) == 0
-                        && mGroupAlertBehavior == GROUP_ALERT_SUMMARY) {
-                    removeSoundAndVibration(notification);
-                }
-            }
-
-            return notification;
-        }
-    }
 
     public static void addAction(Notification.Builder b, NotificationCompatBase.Action action) {
         Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
