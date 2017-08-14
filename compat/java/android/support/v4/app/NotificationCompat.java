@@ -640,45 +640,28 @@ public class NotificationCompat {
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mContentTitle;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mContentText;
+        public ArrayList<Action> mActions = new ArrayList<>();
+
+        CharSequence mContentTitle;
+        CharSequence mContentText;
         PendingIntent mContentIntent;
         PendingIntent mFullScreenIntent;
         RemoteViews mTickerView;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public Bitmap mLargeIcon;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mContentInfo;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public int mNumber;
+        Bitmap mLargeIcon;
+        CharSequence mContentInfo;
+        int mNumber;
         int mPriority;
         boolean mShowWhen = true;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public boolean mUseChronometer;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public Style mStyle;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mSubText;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence[] mRemoteInputHistory;
+        boolean mUseChronometer;
+        Style mStyle;
+        CharSequence mSubText;
+        CharSequence[] mRemoteInputHistory;
         int mProgressMax;
         int mProgress;
         boolean mProgressIndeterminate;
         String mGroupKey;
         boolean mGroupSummary;
         String mSortKey;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public ArrayList<Action> mActions = new ArrayList<>();
         boolean mLocalOnly = false;
         boolean mColorized;
         boolean mColorizedSet;
@@ -695,10 +678,12 @@ public class NotificationCompat {
         String mShortcutId;
         long mTimeout;
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
+        Notification mNotification = new Notification();
 
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public Notification mNotification = new Notification();
+        /**
+         * @deprecated This field was not meant to be public.
+         */
+        @Deprecated
         public ArrayList<String> mPeople;
 
         /**
