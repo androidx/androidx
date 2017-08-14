@@ -724,8 +724,7 @@ public class NotificationCompat {
         }
 
         /**
-         * @deprecated use
-         * {@link NotificationCompat.Builder#Builder(Context, String)} instead.
+         * @deprecated use {@link #NotificationCompat.Builder(Context,String)} instead.
          * All posted Notifications must specify a NotificationChannel Id.
          */
         @Deprecated
