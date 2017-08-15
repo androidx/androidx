@@ -38,8 +38,15 @@ public class TestNavigator extends Navigator<TestNavigator.Destination> {
     @Override
     public void navigate(Destination destination, Bundle args,
             NavOptions navOptions) {
-        mBackStack.add(new Pair<>(destination, args));
-        dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
+        if (navOptions != null && navOptions.shouldLaunchSingleTop() && !mBackStack.isEmpty()
+                && mBackStack.peekLast().first.getId() == destination.getId()) {
+            mBackStack.pop();
+            mBackStack.add(new Pair<>(destination, args));
+            dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_UNCHANGED);
+        } else {
+            mBackStack.add(new Pair<>(destination, args));
+            dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
+        }
     }
 
     @Override

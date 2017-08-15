@@ -204,6 +204,51 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testNavigateOptionSingleTop() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_simple);
+        navController.navigate(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        navController.navigate(R.id.self);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+    }
+
+    @Test
+    public void testNavigateOptionPopUpTo() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_simple);
+        navController.navigate(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        navController.navigate(R.id.finish);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
+    public void testNavigateOptionPopSelf() throws Throwable {
+        NavigationActivity activity = launchActivity();
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_simple);
+        navController.navigate(R.id.second_test);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(2));
+
+        navController.navigate(R.id.finish_self);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
+        assertThat(navigator.mBackStack.size(), is(1));
+    }
+
+    @Test
     public void testNavigateViaActionWithArgs() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
