@@ -55,7 +55,7 @@ class RoomProcessor : BasicAnnotationProcessor() {
                     }
             val allDaoMethods = databases?.flatMap { it.daoMethods }
             allDaoMethods?.let {
-                prepareDaosForWriting(databases!!, it)
+                prepareDaosForWriting(databases, it)
                 it.forEach {
                     DaoWriter(it.dao, context.processingEnv).write(context.processingEnv)
                 }
@@ -81,9 +81,7 @@ class RoomProcessor : BasicAnnotationProcessor() {
                     }
                 }
             }
-            context.databaseVerifier?.let {
-                it.closeConnection()
-            }
+            context.databaseVerifier?.closeConnection()
             return mutableSetOf()
         }
         override fun annotations(): MutableSet<out Class<out Annotation>> {
@@ -104,9 +102,7 @@ class RoomProcessor : BasicAnnotationProcessor() {
                             // first suffix guess: Database's simple name
                             val db = databases.first { db -> db.daoMethods.contains(daoMethod) }
                             db.typeName.simpleName()
-                        }.forEach { entry ->
-                            val dbName = entry.key
-                            val methods = entry.value
+                        }.forEach { (dbName, methods) ->
                             if (methods.size == 1) {
                                 //good, db names do not clash, use db name as suffix
                                 methods.first().dao.setSuffix(dbName)

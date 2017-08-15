@@ -87,7 +87,7 @@ public abstract class LiveData<T> {
 
     // how many observers are in active state
     private int mActiveCount = 0;
-    private Object mData = NOT_SET;
+    private volatile Object mData = NOT_SET;
     // when setData is called, we set the pending data and actual data swap happens on the main
     // thread
     private volatile Object mPendingData = NOT_SET;
@@ -302,12 +302,10 @@ public abstract class LiveData<T> {
      */
     @Nullable
     public T getValue() {
-        // we do not return pending data here to be able to serve a consistent view to the main
-        // thread.
         Object data = mData;
-        if (mData != NOT_SET) {
+        if (data != NOT_SET) {
             //noinspection unchecked
-            return (T) mData;
+            return (T) data;
         }
         return null;
     }

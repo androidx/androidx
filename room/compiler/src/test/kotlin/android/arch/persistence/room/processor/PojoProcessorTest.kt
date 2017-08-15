@@ -58,7 +58,7 @@ import javax.tools.JavaFileObject
 class PojoProcessorTest {
 
     companion object {
-        val MY_POJO = ClassName.get("foo.bar", "MyPojo")
+        val MY_POJO: ClassName = ClassName.get("foo.bar", "MyPojo")
         val HEADER = """
             package foo.bar;
             import android.arch.persistence.room.*;
@@ -186,7 +186,7 @@ class PojoProcessorTest {
                 @ColumnInfo(name = "id")
                 int another;
                 """
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.pojoDuplicateFieldNames("id", listOf("id", "another"))
         ).and().withErrorContaining(
@@ -206,7 +206,7 @@ class PojoProcessorTest {
                     int x;
                 }
                 """
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.pojoDuplicateFieldNames("id", listOf("id", "foo > x"))
         ).and().withErrorContaining(
@@ -228,7 +228,7 @@ class PojoProcessorTest {
                     int y;
                 }
                 """
-        ) { pojo ->
+        ) { _ ->
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -240,7 +240,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public User user;
                 """, COMMON.USER
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(RELATION_NOT_COLLECTION)
     }
 
@@ -253,7 +253,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """, COMMON.USER
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION)
     }
@@ -266,7 +266,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<NotAnEntity> user;
                 """, COMMON.NOT_AN_ENTITY
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
     }
 
@@ -278,7 +278,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "idk", entityColumn = "uid")
                 public List<User> user;
                 """, COMMON.USER
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(
                 relationCannotFindParentEntityField("foo.bar.MyPojo", "idk", listOf("id"))
         )
@@ -292,7 +292,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "idk")
                 public List<User> user;
                 """, COMMON.USER
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(
                 relationCannotFindEntityField("foo.bar.User", "idk",
                         listOf("uid", "name", "lastName", "age"))
@@ -307,7 +307,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid")
                 public List<User> user;
                 """
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(CANNOT_FIND_TYPE)
     }
 
@@ -343,7 +343,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid", entity = User.class)
                 public List<UserWithNested> user;
                 """, COMMON.USER
-        ) { pojo, invocation ->
+        ) { pojo, _ ->
             assertThat(pojo.relations.first().parentField.name, `is`("id"))
         }.compilesWithoutError().withWarningCount(0)
     }
@@ -394,7 +394,7 @@ class PojoProcessorTest {
                 @Relation(parentColumn = "id", entityColumn = "uid", projection={"i_dont_exist"})
                 public List<User> user;
                 """, COMMON.USER
-        ) { pojo ->
+        ) { _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.relationBadProject("foo.bar.User", listOf("i_dont_exist"),
                         listOf("uid", "name", "lastName", "ageColumn"))
@@ -461,10 +461,10 @@ class PojoProcessorTest {
 
     @Test
     fun constructor_empty() {
-        val pojo = """
+        val pojoCode = """
             public String mName;
             """
-        singleRun(pojo) { pojo ->
+        singleRun(pojoCode) { pojo ->
             assertThat(pojo.constructor, notNullValue())
             assertThat(pojo.constructor?.params, `is`(emptyList<Constructor.Param>()))
         }.compilesWithoutError()
@@ -472,13 +472,13 @@ class PojoProcessorTest {
 
     @Test
     fun constructor_ambiguous_twoFieldsExcatMatch() {
-        val pojo = """
+        val pojoCode = """
             public String mName;
             public String _name;
             public MyPojo(String mName) {
             }
             """
-        singleRun(pojo) { pojo ->
+        singleRun(pojoCode) { pojo ->
             val param = pojo.constructor?.params?.first()
             assertThat(param, instanceOf(Constructor.FieldParam::class.java))
             assertThat((param as Constructor.FieldParam).field.name,  `is`("mName"))
@@ -489,13 +489,13 @@ class PojoProcessorTest {
 
     @Test
     fun constructor_ambiguous_oneTypeMatches() {
-        val pojo = """
+        val pojoCode = """
             public String mName;
             public int _name;
             public MyPojo(String name) {
             }
             """
-        singleRun(pojo) { pojo ->
+        singleRun(pojoCode) { pojo ->
             val param = pojo.constructor?.params?.first()
             assertThat(param, instanceOf(Constructor.FieldParam::class.java))
             assertThat((param as Constructor.FieldParam).field.name,  `is`("mName"))
@@ -512,7 +512,7 @@ class PojoProcessorTest {
             public MyPojo(String name) {
             }
             """
-        singleRun(pojo) { pojo ->
+        singleRun(pojo) { _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.ambigiousConstructor(MY_POJO.toString(),
                         "name", listOf("mName", "_name"))
@@ -525,7 +525,7 @@ class PojoProcessorTest {
             int foo;
             public MyPojo(String foo) {
             }
-        """) { pojo ->
+        """) { _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
     }
 
@@ -536,7 +536,7 @@ class PojoProcessorTest {
             String _name;
             public MyPojo(String foo) {
             }
-        """) { pojo ->
+        """) { _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
     }
 
@@ -547,7 +547,7 @@ class PojoProcessorTest {
             int bar;
             public MyPojo(String foo, String name) {
             }
-        """) { pojo ->
+        """) { _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
     }
 
@@ -560,7 +560,7 @@ class PojoProcessorTest {
             }
             public MyPojo(String name, String lastName) {
             }
-        """) { pojo ->
+        """) { _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS)
     }
 
@@ -589,7 +589,7 @@ class PojoProcessorTest {
         singleRun("""
             String mName;
             String mLastName;
-        """) { pojo, invocation ->
+        """) { _, invocation ->
             val process2 = PojoProcessor(baseContext = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
@@ -603,7 +603,7 @@ class PojoProcessorTest {
         singleRun("""
             String mName;
             String mLastName;
-        """) { pojo, invocation ->
+        """) { _, invocation ->
             val process2 = PojoProcessor(baseContext = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.TWO_WAY,
@@ -614,7 +614,7 @@ class PojoProcessorTest {
 
     fun singleRun(code: String, vararg jfos:JavaFileObject, handler: (Pojo) -> Unit)
             : CompileTester {
-        return singleRun(code, *jfos) { pojo, invocation ->
+        return singleRun(code, *jfos) { pojo, _ ->
             handler(pojo)
         }
     }

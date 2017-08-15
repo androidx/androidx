@@ -2771,8 +2771,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             int pos = mFocusPosition + mFocusPositionOffset;
             if (positionStart <= pos) {
                 if (positionStart + itemCount > pos) {
-                    // the focus item was removed
+                    // stop updating offset after the focus item was removed
                     mFocusPositionOffset += positionStart - pos;
+                    mFocusPosition += mFocusPositionOffset;
+                    mFocusPositionOffset = Integer.MIN_VALUE;
                 } else {
                     mFocusPositionOffset -= itemCount;
                 }

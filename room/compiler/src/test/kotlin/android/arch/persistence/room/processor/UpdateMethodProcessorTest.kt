@@ -47,7 +47,7 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
                 """
                 @Update(onConflict = OnConflictStrategy.REPLACE)
                 abstract public void foo(User user);
-                """) { shortcut, invocation ->
+                """) { shortcut, _ ->
             assertThat(shortcut.onConflictStrategy, `is`(OnConflictStrategy.REPLACE))
         }.compilesWithoutError()
     }
@@ -58,7 +58,7 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
                 """
                 @Update(onConflict = -1)
                 abstract public void foo(User user);
-                """) { shortcut, invocation ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
     }
 }

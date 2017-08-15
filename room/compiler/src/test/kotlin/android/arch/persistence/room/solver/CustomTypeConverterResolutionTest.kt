@@ -30,7 +30,6 @@ import android.arch.persistence.room.ext.RoomTypeNames
 import android.arch.persistence.room.ext.S
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
-import android.arch.persistence.room.testing.TestInvocation
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -91,9 +90,7 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true)
         val database = createDatabase(hasConverters = true, hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true, hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
@@ -101,9 +98,7 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity()
         val database = createDatabase(hasConverters = true, hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
@@ -111,9 +106,7 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true)
         val database = createDatabase(hasConverters = true, hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
@@ -122,9 +115,7 @@ class CustomTypeConverterResolutionTest {
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasConverters = true, hasQueryReturningEntity = true,
                 hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
@@ -132,9 +123,7 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverters = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
@@ -142,9 +131,7 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverterOnField = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryReturningEntity = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
@@ -152,9 +139,8 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverters = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        run(entity.toJFO(), dao.toJFO(), database.toJFO())
+                .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
     }
 
     @Test
@@ -162,9 +148,8 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity(hasCustomField = true, hasConverterOnField = true)
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        run(entity.toJFO(), dao.toJFO(), database.toJFO())
+                .failsToCompile().withErrorContaining(CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
     }
 
     @Test
@@ -172,9 +157,7 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity()
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true, hasMethodConverters = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
     @Test
@@ -182,12 +165,10 @@ class CustomTypeConverterResolutionTest {
         val entity = createEntity()
         val database = createDatabase(hasDao = true)
         val dao = createDao(hasQueryWithCustomParam = true, hasParameterConverters = true)
-        run(entity.toJFO(), dao.toJFO(), database.toJFO()){
-
-        }.compilesWithoutError()
+        run(entity.toJFO(), dao.toJFO(), database.toJFO()).compilesWithoutError()
     }
 
-    fun run(vararg jfos : JavaFileObject, f: (TestInvocation) -> Unit): CompileTester {
+    fun run(vararg jfos : JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(jfos.toList() + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO)
                 .processedWith(RoomProcessor())

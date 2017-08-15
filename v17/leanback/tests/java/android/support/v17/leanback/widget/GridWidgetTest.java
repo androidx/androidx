@@ -4532,6 +4532,68 @@ public class GridWidgetTest {
         assertEquals(-1, mGridView.getSelectedPosition());
     }
 
+    @Test
+    public void testFocusedPositonAfterRemoved1() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        final int[] items = new int[2];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        setSelectedPosition(1);
+        assertEquals(1, mGridView.getSelectedPosition());
+
+        final int[] newItems = new int[3];
+        for (int i = 0; i < newItems.length; i++) {
+            newItems[i] = 300;
+        }
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(0, 2, true);
+                mActivity.addItems(0, newItems, true);
+            }
+        });
+        assertEquals(0, mGridView.getSelectedPosition());
+    }
+
+    @Test
+    public void testFocusedPositonAfterRemoved2() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        final int[] items = new int[2];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+        setSelectedPosition(1);
+        assertEquals(1, mGridView.getSelectedPosition());
+
+        final int[] newItems = new int[3];
+        for (int i = 0; i < newItems.length; i++) {
+            newItems[i] = 300;
+        }
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.removeItems(1, 1, true);
+                mActivity.addItems(1, newItems, true);
+            }
+        });
+        assertEquals(1, mGridView.getSelectedPosition());
+    }
+
     static void assertNoCollectionItemInfo(AccessibilityNodeInfoCompat info) {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat nodeInfoCompat =
                 info.getCollectionItemInfo();

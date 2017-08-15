@@ -300,18 +300,19 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
     private class IteratorWithAdditions implements Iterator<Map.Entry<K, V>>, SupportRemove<K, V> {
         private Entry<K, V> mCurrent;
-        private boolean mFirstStep = true;
+        private boolean mBeforeStart = true;
 
         @Override
         public void supportRemove(@NonNull Entry<K, V> entry) {
             if (entry == mCurrent) {
                 mCurrent = mCurrent.mPrevious;
+                mBeforeStart = mCurrent == null;
             }
         }
 
         @Override
         public boolean hasNext() {
-            if (mFirstStep) {
+            if (mBeforeStart) {
                 return mStart != null;
             }
             return mCurrent != null && mCurrent.mNext != null;
@@ -319,8 +320,8 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
         @Override
         public Map.Entry<K, V> next() {
-            if (mFirstStep) {
-                mFirstStep = false;
+            if (mBeforeStart) {
+                mBeforeStart = false;
                 mCurrent = mStart;
             } else {
                 mCurrent = mCurrent != null ? mCurrent.mNext : null;

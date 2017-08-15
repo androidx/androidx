@@ -170,7 +170,7 @@ class FieldProcessorTest {
         singleEntity("""
             @ColumnInfo(name = "")
             int x;
-            """) { field, invocation ->
+            """) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
     }
 
@@ -246,7 +246,7 @@ class FieldProcessorTest {
                 static class BaseClass<T> {
                     T item;
                 }
-                """) { field, invocation -> }.failsToCompile()
+                """) { _, _ -> }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
     }
 

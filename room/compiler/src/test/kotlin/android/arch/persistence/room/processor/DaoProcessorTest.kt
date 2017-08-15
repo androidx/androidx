@@ -49,7 +49,7 @@ class DaoProcessorTest(val enableVerification : Boolean) {
 
     @Test
     fun testNonAbstract() {
-        singleDao("@Dao public class MyDao {}") { dao, invocation -> }
+        singleDao("@Dao public class MyDao {}") { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
     }
@@ -60,7 +60,7 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                 @Dao public interface MyDao {
                     int getFoo();
                 }
-        """) { dao, invocation ->
+        """) { _, _ ->
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
     }
@@ -73,7 +73,7 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                     @Insert
                     int getFoo(int x);
                 }
-        """) { dao, invocation ->
+        """) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.CANNOT_USE_MORE_THAN_ONE_DAO_METHOD_ANNOTATION)
     }
@@ -85,7 +85,7 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                     @Query("SELECT uid FROM User")
                     abstract int[] getIds();
                 }
-                """) { dao, invocation ->
+                """) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
             assertThat(method.name, `is`("getIds"))
@@ -99,7 +99,7 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                     @Query("SELECT uid FROM User")
                     abstract int[] getIds();
                 }
-                """) { dao, invocation ->
+                """) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
             assertThat(method.name, `is`("getIds"))
@@ -115,7 +115,7 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                     @Insert
                     abstract void insert(User user);
                 }
-                """) { dao, invocation ->
+                """) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
             assertThat(method.name, `is`("getIds"))
@@ -132,7 +132,7 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                     @Query("SELECT nonExistingField FROM User")
                     abstract int[] getIds();
                 }
-                """) { dao, invocation ->
+                """) { dao, _ ->
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
             assertThat(method.name, `is`("getIds"))

@@ -270,7 +270,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
      * Creates EntityUpdateAdapter for each deletion method.
      */
     private fun createDeletionMethods(): List<PreparedStmtQuery> {
-        return createShortcutMethods(dao.deletionMethods, "deletion", { deletionMethod, entity ->
+        return createShortcutMethods(dao.deletionMethods, "deletion", { _, entity ->
             EntityDeletionAdapterWriter(entity)
                     .createAnonymous(this@DaoWriter, dbField.name)
         })
