@@ -204,7 +204,7 @@ public class ForeignKeyTest {
 
     @Before
     public void openDb() {
-        mDb = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(),
+        mDb = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getTargetContext(),
                 ForeignKeyDb.class).build();
         mDao = mDb.dao();
     }

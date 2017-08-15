@@ -172,7 +172,7 @@ public class ConstructorTest {
 
     @Before
     public void init() {
-        mDb = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(), MyDb.class)
+        mDb = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getTargetContext(), MyDb.class)
                 .build();
         mDao = mDb.dao();
     }
