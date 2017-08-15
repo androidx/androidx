@@ -218,7 +218,7 @@ public class ActionMenuItemView extends AppCompatTextView
             if (width > mMaxIconSize) {
                 final float scale = (float) mMaxIconSize / width;
                 width = mMaxIconSize;
-                height = (int) (width * scale);
+                height = (int) (height * scale);
             }
             if (height > mMaxIconSize) {
                 final float scale = (float) mMaxIconSize / height;
