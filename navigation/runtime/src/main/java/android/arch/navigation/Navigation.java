@@ -59,6 +59,11 @@ public class Navigation {
             if (findFragment instanceof NavHostFragment) {
                 return ((NavHostFragment) findFragment).getNavController();
             }
+            Fragment primaryNavFragment = findFragment.getFragmentManager()
+                    .getPrimaryNavigationFragment();
+            if (primaryNavFragment instanceof NavHostFragment) {
+                return ((NavHostFragment) primaryNavFragment).getNavController();
+            }
             findFragment = findFragment.getParentFragment();
         }
 
