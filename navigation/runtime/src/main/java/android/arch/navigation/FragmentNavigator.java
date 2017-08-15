@@ -88,6 +88,9 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     }
 
     Class<? extends Fragment> getFragmentClassByName(String name) {
+        if (name != null && name.charAt(0) == '.') {
+            name = mContext.getPackageName() + name;
+        }
         Class<? extends Fragment> clazz = mFragmentClasses.get(name);
         if (clazz == null) {
             try {

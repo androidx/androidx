@@ -18,7 +18,7 @@
     tools:ignore="DuplicateIds">
     <fragment android:id="@+id/launcher_home"
               android:label="@string/home"
-              android:name="android.arch.navigation.testapp.MainFragment">
+              android:name=".MainFragment">
         <argument app:name="myarg" app:defaultValue="Home" />
         <action android:id="@+id/next" app:destination="@+id/first_screen"/>
     </fragment>
@@ -42,7 +42,7 @@
               app:action="android.settings.APPLICATION_DETAILS_SETTINGS"
               app:data="package:android.arch.navigation.testapp"/>
     <activity android:id="@+id/help_activity"
-              android:name="android.arch.navigation.testapp.HelpActivity"
+              android:name=".HelpActivity"
               app:dataPattern="http://www.example.com/{topic}">
         <argument app:name="topic" app:defaultValue="help_topic"/>
     </activity>
