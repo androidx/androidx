@@ -171,6 +171,10 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                     R.styleable.ActivityNavigator);
             String cls = a.getString(R.styleable.ActivityNavigator_android_name);
             if (!TextUtils.isEmpty(cls)) {
+                // TODO Replace with ComponentName.createRelative() when minSdkVersion is 23
+                if (cls.charAt(0) == '.') {
+                    cls = context.getPackageName() + cls;
+                }
                 setComponentName(new ComponentName(context, cls));
             }
             setAction(a.getString(R.styleable.ActivityNavigator_action));
