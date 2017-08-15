@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.XmlRes;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 
 import java.util.ArrayDeque;
@@ -423,26 +424,41 @@ public class NavController implements NavigatorProvider {
     }
 
     /**
-     * Checks the given Intent for a Navigation deep link created by
-     * {@link #createDeepLink(int, Bundle)} or {@link #createDeepLinkIntent(int, Bundle)} and
-     * navigates to the deep link if present. This is called automatically for you the first time
-     * you set the graph, but should be manually called if your Activity receives new Intents in
-     * {@link Activity#onNewIntent(Intent)}.
-     *
+     * Checks the given Intent for a Navigation deep link and navigates to the deep link if present.
+     * This is called automatically for you the first time you set the graph, but should be manually
+     * called if your Activity receives new Intents in {@link Activity#onNewIntent(Intent)}.
+     * <p>
+     * The types of Intents that are supported include:
+     * <ul>
+     *     <ol>Intents created by {@link #createDeepLink(int, Bundle)} or
+     *     {@link #createDeepLinkIntent(int, Bundle)}. This assumes that the current graph shares
+     *     the same hierarchy to get to the deep linked destination as when the deep link was
+     *     constructed.</ol>
+     *     <ol>Intents that include a {@link Intent#getData() data Uri}. This Uri will be checked
+     *     against the Uri patterns added via {@link NavDestination#addDeepLink(String)}.</ol>
+     * </ul>
      * <p>The {@link #getGraph() navigation graph} should be set before calling this method.</p>
-     * @param intent The Intent that may contain
+     * @param intent The Intent that may contain a valid deep link
      * @return True if the navigation controller found a valid deep link and navigated to it.
+     * @see NavDestination#addDeepLink(String)
      */
     public boolean onHandleDeepLink(Intent intent) {
-        if (intent == null || intent.getExtras() == null) {
+        if (intent == null) {
             return false;
         }
         Bundle extras = intent.getExtras();
-        final int[] deepLink = extras.getIntArray(KEY_DEEP_LINK_IDS);
+        int[] deepLink = extras != null ? extras.getIntArray(KEY_DEEP_LINK_IDS) : null;
+        Bundle bundle = extras != null ? extras.getBundle(KEY_DEEP_LINK_EXTRAS) : null;
+        if ((deepLink == null || deepLink.length == 0) && intent.getData() != null) {
+            Pair<NavDestination, Bundle> matchingDeepLink = mGraph.matchDeepLink(intent.getData());
+            if (matchingDeepLink != null) {
+                deepLink = buildDeepLinkIdsFromDestination(matchingDeepLink.first);
+                bundle = matchingDeepLink.second;
+            }
+        }
         if (deepLink == null || deepLink.length == 0) {
             return false;
         }
-        Bundle bundle = extras.getBundle(KEY_DEEP_LINK_EXTRAS);
         if (bundle == null) {
             bundle = new Bundle();
         }
@@ -672,6 +688,14 @@ public class NavController implements NavigatorProvider {
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is unknown to this NavController");
         }
+        intent.putExtra(KEY_DEEP_LINK_IDS, buildDeepLinkIdsFromDestination(node));
+        if (args != null) {
+            intent.putExtra(KEY_DEEP_LINK_EXTRAS, args);
+        }
+        return intent;
+    }
+
+    private int[] buildDeepLinkIdsFromDestination(NavDestination node) {
         ArrayDeque<NavDestination> hierarchy = new ArrayDeque<>();
         hierarchy.add(node);
         while (hierarchy.peekFirst().getParent() != null) {
@@ -682,11 +706,7 @@ public class NavController implements NavigatorProvider {
         for (NavDestination destination : hierarchy) {
             deepLinkIds[index++] = destination.getId();
         }
-        intent.putExtra(KEY_DEEP_LINK_IDS, deepLinkIds);
-        if (args != null) {
-            intent.putExtra(KEY_DEEP_LINK_EXTRAS, args);
-        }
-        return intent;
+        return deepLinkIds;
     }
 
     /**

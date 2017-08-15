@@ -22,6 +22,7 @@ import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.support.annotation.XmlRes;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.util.Xml;
@@ -53,6 +54,7 @@ public class NavInflater {
     public static final String METADATA_KEY_GRAPH = "android.nav.graph";
 
     private static final String TAG_ARGUMENT = "argument";
+    private static final String TAG_DEEP_LINK = "deepLink";
     private static final String TAG_ACTION = "action";
     private static final String TAG_INCLUDE = "include";
 
@@ -164,6 +166,8 @@ public class NavInflater {
             final String name = parser.getName();
             if (TAG_ARGUMENT.equals(name)) {
                 inflateArgument(res, dest, attrs);
+            } else if (TAG_DEEP_LINK.equals(name)) {
+                inflateDeepLink(res, dest, attrs);
             } else if (TAG_ACTION.equals(name)) {
                 inflateAction(res, dest, attrs);
             } else if (TAG_INCLUDE.equals(name) && dest instanceof NavGraph) {
@@ -213,6 +217,17 @@ public class NavInflater {
                     }
             }
         }
+        a.recycle();
+    }
+
+    private void inflateDeepLink(Resources res, NavDestination dest, AttributeSet attrs) {
+        final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavDeepLink);
+        String uri = a.getString(R.styleable.NavDeepLink_uri);
+        if (TextUtils.isEmpty(uri)) {
+            throw new IllegalArgumentException("Every <" + TAG_DEEP_LINK
+                    + "> must include an app:uri");
+        }
+        dest.addDeepLink(uri);
         a.recycle();
     }
 

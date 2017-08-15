@@ -24,8 +24,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.app.Instrumentation;
 import android.arch.navigation.activity.NavigationActivity;
 import android.arch.navigation.test.R;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.XmlRes;
@@ -311,6 +313,29 @@ public class NavControllerTest {
         assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
         //noinspection ConstantConditions
         assertThat(deepLinkIntent.getAction(), is(TEST_DEEP_LINK_ACTION));
+    }
+
+    @Test
+    public void testUriDeepLink() throws Throwable {
+        Uri deepLinkUri = Uri.parse("http://www.example.com/" + TEST_ARG_VALUE);
+        Intent intent = new Intent(Intent.ACTION_VIEW, deepLinkUri)
+                .setComponent(new ComponentName(mInstrumentation.getContext(),
+                        NavigationActivity.class));
+        NavigationActivity activity = launchActivity(intent);
+        NavController navController = activity.getNavController();
+        navController.setGraph(R.xml.nav_deep_link);
+
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
+        TestNavigator navigator = (TestNavigator) navController.getNavigator(TestNavigator.class);
+        assertThat(navigator.mBackStack.size(), is(2));
+        assertThat(navigator.mBackStack.peekLast().second.getString(TEST_ARG), is(TEST_ARG_VALUE));
+
+        // Test that the deep link Intent was passed in alongside our args
+        Intent deepLinkIntent = navigator.mBackStack.peekLast().second
+                .getParcelable(NavController.KEY_DEEP_LINK_INTENT);
+        assertThat(deepLinkIntent, is(notNullValue(Intent.class)));
+        //noinspection ConstantConditions
+        assertThat(deepLinkIntent.getData(), is(deepLinkUri));
     }
 
     private NavigationActivity launchActivity() throws Throwable {
