@@ -2193,9 +2193,13 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         boolean hadFocus = mBaseGridView.hasFocus();
         final int firstVisibleIndex = mGrid != null ? mGrid.getFirstVisibleIndex() : NO_POSITION;
         final int lastVisibleIndex = mGrid != null ? mGrid.getLastVisibleIndex() : NO_POSITION;
+        final int remainingScrollX = state.getRemainingScrollHorizontal();
+        final int remainingScrollY = state.getRemainingScrollVertical();
+        final boolean isScrollingSecondary = mOrientation == HORIZONTAL
+                ? remainingScrollY != 0 : remainingScrollX != 0;
         int savedViewCenter = savedFocusView == null ? 0 : getAdjustedViewCenter(savedFocusView);
         int savedViewCenterSecondary = savedFocusView == null ? 0 :
-                getViewCenterSecondary(savedFocusView);
+                (isScrollingSecondary ? getViewCenterSecondary(savedFocusView) : 0);
 
         if (mInFastRelayout = layoutInit()) {
             // If grid view is empty, we will start from mFocusPosition
@@ -2233,9 +2237,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 // Make previous focused view stay at the original place:
                 focusToViewInLayout(hadFocus, false);
                 int newViewCenter = getAdjustedViewCenter(savedFocusView);
-                int newViewCenterSecondary = getViewCenterSecondary(savedFocusView);
                 scrollDirectionPrimary(newViewCenter - savedViewCenter);
-                scrollDirectionSecondary(newViewCenterSecondary - savedViewCenterSecondary);
+                if (isScrollingSecondary) {
+                    int newViewCenterSecondary = getViewCenterSecondary(savedFocusView);
+                    scrollDirectionSecondary(newViewCenterSecondary - savedViewCenterSecondary);
+                }
             } else {
                 // focus and scroll to the view
                 focusToViewInLayout(hadFocus, scrollToFocus);
@@ -2269,7 +2275,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 } while (mGrid.getFirstVisibleIndex() != oldFirstVisible
                         || mGrid.getLastVisibleIndex() != oldLastVisible);
                 int primary = newFocusViewCenter - getAdjustedViewCenter(newFocusView);
-                int secondary = newFocusViewCenterSecondary - getViewCenterSecondary(newFocusView);
+                int secondary = isScrollingSecondary
+                        ? newFocusViewCenterSecondary - getViewCenterSecondary(newFocusView) : 0;
                 final int scrollX, scrollY;
                 if (mOrientation == HORIZONTAL) {
                     scrollX = primary;
@@ -2278,8 +2285,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     scrollY = primary;
                     scrollX = secondary;
                 }
-                final int remainingScrollX = state.getRemainingScrollHorizontal();
-                final int remainingScrollY = state.getRemainingScrollVertical();
                 // check if the remaining scroll will stop at the new focus view
                 if (remainingScrollX != scrollX || remainingScrollY != scrollY) {
                     if (remainingScrollX == 0 && remainingScrollY == 0) {
