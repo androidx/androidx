@@ -38,6 +38,7 @@ import android.support.v17.leanback.widget.GuidedActionAdapter.EditListener;
 import android.support.v17.leanback.widget.picker.DatePicker;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -703,7 +704,11 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
         if (action.hasMultilineDescription()) {
             if (vh.mTitleView != null) {
                 setMaxLines(vh.mTitleView, mTitleMaxLines);
+                vh.mTitleView.setInputType(
+                        vh.mTitleView.getInputType() | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                 if (vh.mDescriptionView != null) {
+                    vh.mDescriptionView.setInputType(vh.mDescriptionView.getInputType()
+                            | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                     vh.mDescriptionView.setMaxHeight(getDescriptionMaxHeight(
                             vh.itemView.getContext(), vh.mTitleView));
                 }
