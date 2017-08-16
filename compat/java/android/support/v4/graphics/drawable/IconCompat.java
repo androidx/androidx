@@ -187,7 +187,8 @@ public class IconCompat {
                 if (Build.VERSION.SDK_INT >= 26) {
                     return Icon.createWithAdaptiveBitmap((Bitmap) mObj1);
                 } else {
-                    return Icon.createWithBitmap(createLegacyIconFromAdaptiveIcon((Bitmap) mObj1));
+                    return Icon.createWithBitmap(
+                            createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, false));
                 }
             case TYPE_RESOURCE:
                 return Icon.createWithResource((Context) mObj1, mInt1);
@@ -211,7 +212,7 @@ public class IconCompat {
                 break;
             case TYPE_ADAPTIVE_BITMAP:
                 outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON,
-                        createLegacyIconFromAdaptiveIcon((Bitmap) mObj1));
+                        createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, true));
                 break;
             case TYPE_RESOURCE:
                 outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
@@ -226,9 +227,11 @@ public class IconCompat {
      * Converts a bitmap following the adaptive icon guide lines, into a bitmap following the
      * shortcut icon guide lines.
      * The returned bitmap will always have same width and height and clipped to a circle.
+     *
+     * @param addShadow set to {@code true} only for legacy shortcuts and {@code false} otherwise
      */
     @VisibleForTesting
-    static Bitmap createLegacyIconFromAdaptiveIcon(Bitmap adaptiveIconBitmap) {
+    static Bitmap createLegacyIconFromAdaptiveIcon(Bitmap adaptiveIconBitmap, boolean addShadow) {
         int size = (int) (DEFAULT_VIEW_PORT_SCALE * Math.min(adaptiveIconBitmap.getWidth(),
                 adaptiveIconBitmap.getHeight()));
 
@@ -239,16 +242,18 @@ public class IconCompat {
         float center = size * 0.5f;
         float radius = center * ICON_DIAMETER_FACTOR;
 
-        // Draw key shadow
-        float blur = BLUR_FACTOR * size;
-        paint.setColor(Color.TRANSPARENT);
-        paint.setShadowLayer(blur, 0, KEY_SHADOW_OFFSET_FACTOR * size, KEY_SHADOW_ALPHA << 24);
-        canvas.drawCircle(center, center, radius, paint);
+        if (addShadow) {
+            // Draw key shadow
+            float blur = BLUR_FACTOR * size;
+            paint.setColor(Color.TRANSPARENT);
+            paint.setShadowLayer(blur, 0, KEY_SHADOW_OFFSET_FACTOR * size, KEY_SHADOW_ALPHA << 24);
+            canvas.drawCircle(center, center, radius, paint);
 
-        // Draw ambient shadow
-        paint.setShadowLayer(blur, 0, 0, AMBIENT_SHADOW_ALPHA << 24);
-        canvas.drawCircle(center, center, radius, paint);
-        paint.clearShadowLayer();
+            // Draw ambient shadow
+            paint.setShadowLayer(blur, 0, 0, AMBIENT_SHADOW_ALPHA << 24);
+            canvas.drawCircle(center, center, radius, paint);
+            paint.clearShadowLayer();
+        }
 
         // Draw the clipped icon
         paint.setColor(Color.BLACK);
