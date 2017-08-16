@@ -221,7 +221,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
                     action.getIcon(), action.getTitle(), action.getActionIntent());
             if (action.getRemoteInputs() != null) {
-                for (android.app.RemoteInput remoteInput : RemoteInputCompatApi20.fromCompat(
+                for (android.app.RemoteInput remoteInput : RemoteInput.fromCompat(
                         action.getRemoteInputs())) {
                     actionBuilder.addRemoteInput(remoteInput);
                 }
