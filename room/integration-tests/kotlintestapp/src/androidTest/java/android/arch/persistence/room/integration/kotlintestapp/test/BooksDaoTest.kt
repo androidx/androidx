@@ -19,8 +19,11 @@ package android.arch.persistence.room.integration.kotlintestapp.test
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
+import android.database.sqlite.SQLiteConstraintException
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class BooksDaoTest : TestDatabaseTest() {
@@ -47,6 +50,22 @@ class BooksDaoTest : TestDatabaseTest() {
 
         assertThat(database.booksDao().getBooksWithPublisher(),
                 `is`<List<BookWithPublisher>>(expectedList))
+    }
+
+    @Test
+    fun updateBookWithNullTitle() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        var throwable: Throwable? = null
+        try {
+            booksDao.updateBookTitle(TestUtil.BOOK_1.bookId, null)
+        } catch (t: Throwable) {
+            throwable = t
+        }
+        assertNotNull(throwable)
+        assertThat<Throwable>(throwable, instanceOf<Throwable>(SQLiteConstraintException::class
+                .java))
     }
 
     @Test
