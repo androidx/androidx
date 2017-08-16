@@ -48,5 +48,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Test app is iOS compatible. -->
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
     </application>
 </manifest>
