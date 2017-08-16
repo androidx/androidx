@@ -217,10 +217,28 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     }
 
     private void addAction(NotificationCompatBase.Action action) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            NotificationCompatApi24.addAction(mBuilder, action);
-        } else if (Build.VERSION.SDK_INT >= 20) {
-            NotificationCompatApi20.addAction(mBuilder, action);
+        if (Build.VERSION.SDK_INT >= 20) {
+            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                    action.getIcon(), action.getTitle(), action.getActionIntent());
+            if (action.getRemoteInputs() != null) {
+                for (android.app.RemoteInput remoteInput : RemoteInputCompatApi20.fromCompat(
+                        action.getRemoteInputs())) {
+                    actionBuilder.addRemoteInput(remoteInput);
+                }
+            }
+            Bundle actionExtras;
+            if (action.getExtras() != null) {
+                actionExtras = new Bundle(action.getExtras());
+            } else {
+                actionExtras = new Bundle();
+            }
+            actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
+                    action.getAllowGeneratedReplies());
+            if (Build.VERSION.SDK_INT >= 24) {
+                actionBuilder.setAllowGeneratedReplies(action.getAllowGeneratedReplies());
+            }
+            actionBuilder.addExtras(actionExtras);
+            mBuilder.addAction(actionBuilder.build());
         } else if (Build.VERSION.SDK_INT >= 16) {
             mActionExtrasList.add(
                     NotificationCompatJellybean.writeActionAndGetExtras(mBuilder, action));
