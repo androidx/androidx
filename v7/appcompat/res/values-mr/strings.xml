@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_action_mode_done" msgid="4076576682505996667">"पूर्ण झाले"</string>
-    <string name="abc_action_bar_home_description" msgid="4600421777120114993">"मुख्‍यपृष्‍ठ नेव्‍हिगेट करा"</string>
+    <string name="abc_action_bar_home_description" msgid="4600421777120114993">"होमवर नेव्‍हिगेट करा"</string>
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"वर नेव्‍हिगेट करा"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"अधिक पर्याय"</string>
     <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"संक्षिप्त करा"</string>
