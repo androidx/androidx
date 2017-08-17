@@ -41,8 +41,8 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"একটিরও পুনরাবৃত্তি করবেন না"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"সবগুলির পুনরাবৃত্তি করুন"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"একটির পুনরাবৃত্তি করুন"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"শাফল করা সক্ষম করুন"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"শাফল করা অক্ষম করুন"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"শাফেল চালু করুন"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"শাফেল বন্ধ করুন"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"উচ্চ গুণমান সক্ষম করুন"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"উচ্চ গুণমান অক্ষম করুন"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"সাবটাইটেল সক্ষম করুন"</string>
