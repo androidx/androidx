@@ -16,8 +16,6 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Intent;
@@ -25,7 +23,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -345,7 +342,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
                 Map<String, Uri> existingDataResults =
                         android.support.v4.app.RemoteInput.getDataResultsFromIntent(
                                 intent, input.getResultKey());
-                RemoteInputCompatBase.RemoteInput[] arr = new RemoteInputCompatBase.RemoteInput[1];
+                RemoteInput[] arr = new RemoteInput[1];
                 arr[0] = input;
                 android.app.RemoteInput.addResultsToIntent(
                         fromCompat(arr), intent, existingTextResults);
@@ -362,7 +359,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
             if (resultsBundle == null) {
                 resultsBundle = new Bundle();
             }
-            for (RemoteInputCompatBase.RemoteInput remoteInput : remoteInputs) {
+            for (RemoteInput remoteInput : remoteInputs) {
                 Object result = results.get(remoteInput.getResultKey());
                 if (result instanceof CharSequence) {
                     resultsBundle.putCharSequence(
@@ -417,25 +414,8 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
         return EXTRA_DATA_TYPE_RESULTS_DATA + mimeType;
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final Factory FACTORY = new Factory() {
-        @Override
-        public RemoteInput build(String resultKey,
-                CharSequence label, CharSequence[] choices, boolean allowFreeFormInput,
-                Bundle extras, Set<String> allowedDataTypes) {
-            return new RemoteInput(
-                    resultKey, label, choices, allowFreeFormInput, extras, allowedDataTypes);
-        }
-
-        @Override
-        public RemoteInput[] newArray(int size) {
-            return new RemoteInput[size];
-        }
-    };
-
     @RequiresApi(20)
-    static android.app.RemoteInput[] fromCompat(RemoteInputCompatBase.RemoteInput[] srcArray) {
+    static android.app.RemoteInput[] fromCompat(RemoteInput[] srcArray) {
         if (srcArray == null) {
             return null;
         }
@@ -447,7 +427,7 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
     }
 
     @RequiresApi(20)
-    static android.app.RemoteInput fromCompat(RemoteInputCompatBase.RemoteInput src) {
+    static android.app.RemoteInput fromCompat(RemoteInput src) {
         return new android.app.RemoteInput.Builder(src.getResultKey())
                 .setLabel(src.getLabel())
                 .setChoices(src.getChoices())
