@@ -28,7 +28,7 @@ import java.net.SocketException;
 import java.net.SocketImpl;
 
 class DatagramSocketWrapper extends Socket {
-    public DatagramSocketWrapper(DatagramSocket socket, FileDescriptor fd) throws SocketException {
+    DatagramSocketWrapper(DatagramSocket socket, FileDescriptor fd) throws SocketException {
         super(new DatagramSocketImplWrapper(socket, fd));
     }
 
@@ -36,7 +36,7 @@ class DatagramSocketWrapper extends Socket {
      * Empty implementation which wires in the given {@link FileDescriptor}.
      */
     private static class DatagramSocketImplWrapper extends SocketImpl {
-        public DatagramSocketImplWrapper(DatagramSocket socket, FileDescriptor fd) {
+        DatagramSocketImplWrapper(DatagramSocket socket, FileDescriptor fd) {
             super();
             this.localport = socket.getLocalPort();
             this.fd = fd;
