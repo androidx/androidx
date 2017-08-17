@@ -19,12 +19,17 @@ package android.support.v4.app;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.util.SparseArray;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiresApi(16)
 class NotificationCompatJellybean {
@@ -41,6 +46,11 @@ class NotificationCompatJellybean {
     private static final String KEY_EXTRAS = "extras";
     private static final String KEY_REMOTE_INPUTS = "remoteInputs";
     private static final String KEY_DATA_ONLY_REMOTE_INPUTS = "dataOnlyRemoteInputs";
+    private static final String KEY_RESULT_KEY = "resultKey";
+    private static final String KEY_LABEL = "label";
+    private static final String KEY_CHOICES = "choices";
+    private static final String KEY_ALLOW_FREE_FORM_INPUT = "allowFreeFormInput";
+    private static final String KEY_ALLOWED_DATA_TYPES = "allowedDataTypes";
 
     private static final Object sExtrasLock = new Object();
     private static Field sExtrasField;
@@ -113,12 +123,12 @@ class NotificationCompatJellybean {
         RemoteInputCompatBase.RemoteInput[] dataOnlyRemoteInputs = null;
         boolean allowGeneratedReplies = false;
         if (extras != null) {
-            remoteInputs = RemoteInputCompatJellybean.fromBundleArray(
-                    BundleUtil.getBundleArrayFromBundle(extras,
+            remoteInputs = fromBundleArray(
+                    getBundleArrayFromBundle(extras,
                             NotificationCompatExtras.EXTRA_REMOTE_INPUTS),
                     remoteInputFactory);
-            dataOnlyRemoteInputs = RemoteInputCompatJellybean.fromBundleArray(
-                    BundleUtil.getBundleArrayFromBundle(extras, EXTRA_DATA_ONLY_REMOTE_INPUTS),
+            dataOnlyRemoteInputs = fromBundleArray(
+                    getBundleArrayFromBundle(extras, EXTRA_DATA_ONLY_REMOTE_INPUTS),
                     remoteInputFactory);
             allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES);
         }
@@ -132,11 +142,11 @@ class NotificationCompatJellybean {
         Bundle actionExtras = new Bundle(action.getExtras());
         if (action.getRemoteInputs() != null) {
             actionExtras.putParcelableArray(NotificationCompatExtras.EXTRA_REMOTE_INPUTS,
-                    RemoteInputCompatJellybean.toBundleArray(action.getRemoteInputs()));
+                    toBundleArray(action.getRemoteInputs()));
         }
         if (action.getDataOnlyRemoteInputs() != null) {
             actionExtras.putParcelableArray(EXTRA_DATA_ONLY_REMOTE_INPUTS,
-                    RemoteInputCompatJellybean.toBundleArray(action.getDataOnlyRemoteInputs()));
+                    toBundleArray(action.getDataOnlyRemoteInputs()));
         }
         actionExtras.putBoolean(EXTRA_ALLOW_GENERATED_REPLIES,
                 action.getAllowGeneratedReplies());
@@ -233,11 +243,9 @@ class NotificationCompatJellybean {
                 bundle.getCharSequence(KEY_TITLE),
                 bundle.<PendingIntent>getParcelable(KEY_ACTION_INTENT),
                 bundle.getBundle(KEY_EXTRAS),
-                RemoteInputCompatJellybean.fromBundleArray(
-                        BundleUtil.getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
+                fromBundleArray(getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
                         remoteInputFactory),
-                RemoteInputCompatJellybean.fromBundleArray(
-                        BundleUtil.getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS),
+                fromBundleArray(getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS),
                         remoteInputFactory),
                 allowGeneratedReplies);
     }
@@ -256,8 +264,83 @@ class NotificationCompatJellybean {
         actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
                 action.getAllowGeneratedReplies());
         bundle.putBundle(KEY_EXTRAS, actionExtras);
-        bundle.putParcelableArray(KEY_REMOTE_INPUTS, RemoteInputCompatJellybean.toBundleArray(
-                action.getRemoteInputs()));
+        bundle.putParcelableArray(KEY_REMOTE_INPUTS, toBundleArray(action.getRemoteInputs()));
         return bundle;
+    }
+
+
+    private static RemoteInputCompatBase.RemoteInput fromBundle(Bundle data,
+            RemoteInputCompatBase.RemoteInput.Factory factory) {
+        ArrayList<String> allowedDataTypesAsList = data.getStringArrayList(KEY_ALLOWED_DATA_TYPES);
+        Set<String> allowedDataTypes = new HashSet<>();
+        if (allowedDataTypesAsList != null) {
+            for (String type : allowedDataTypesAsList) {
+                allowedDataTypes.add(type);
+            }
+        }
+        return factory.build(data.getString(KEY_RESULT_KEY),
+                data.getCharSequence(KEY_LABEL),
+                data.getCharSequenceArray(KEY_CHOICES),
+                data.getBoolean(KEY_ALLOW_FREE_FORM_INPUT),
+                data.getBundle(KEY_EXTRAS),
+                allowedDataTypes);
+    }
+
+    private static Bundle toBundle(RemoteInputCompatBase.RemoteInput remoteInput) {
+        Bundle data = new Bundle();
+        data.putString(KEY_RESULT_KEY, remoteInput.getResultKey());
+        data.putCharSequence(KEY_LABEL, remoteInput.getLabel());
+        data.putCharSequenceArray(KEY_CHOICES, remoteInput.getChoices());
+        data.putBoolean(KEY_ALLOW_FREE_FORM_INPUT, remoteInput.getAllowFreeFormInput());
+        data.putBundle(KEY_EXTRAS, remoteInput.getExtras());
+
+        Set<String> allowedDataTypes = remoteInput.getAllowedDataTypes();
+        if (allowedDataTypes != null && !allowedDataTypes.isEmpty()) {
+            ArrayList<String> allowedDataTypesAsList = new ArrayList<>(allowedDataTypes.size());
+            for (String type : allowedDataTypes) {
+                allowedDataTypesAsList.add(type);
+            }
+            data.putStringArrayList(KEY_ALLOWED_DATA_TYPES, allowedDataTypesAsList);
+        }
+        return data;
+    }
+
+    private static RemoteInputCompatBase.RemoteInput[] fromBundleArray(Bundle[] bundles,
+            RemoteInputCompatBase.RemoteInput.Factory factory) {
+        if (bundles == null) {
+            return null;
+        }
+        RemoteInputCompatBase.RemoteInput[] remoteInputs = factory.newArray(bundles.length);
+        for (int i = 0; i < bundles.length; i++) {
+            remoteInputs[i] = fromBundle(bundles[i], factory);
+        }
+        return remoteInputs;
+    }
+
+    private static Bundle[] toBundleArray(RemoteInputCompatBase.RemoteInput[] remoteInputs) {
+        if (remoteInputs == null) {
+            return null;
+        }
+        Bundle[] bundles = new Bundle[remoteInputs.length];
+        for (int i = 0; i < remoteInputs.length; i++) {
+            bundles[i] = toBundle(remoteInputs[i]);
+        }
+        return bundles;
+    }
+
+    /**
+     * Get an array of Bundle objects from a parcelable array field in a bundle.
+     * Update the bundle to have a typed array so fetches in the future don't need
+     * to do an array copy.
+     */
+    private static Bundle[] getBundleArrayFromBundle(Bundle bundle, String key) {
+        Parcelable[] array = bundle.getParcelableArray(key);
+        if (array instanceof Bundle[] || array == null) {
+            return (Bundle[]) array;
+        }
+        Bundle[] typedArray = Arrays.copyOf(array, array.length,
+                Bundle[].class);
+        bundle.putParcelableArray(key, typedArray);
+        return typedArray;
     }
 }

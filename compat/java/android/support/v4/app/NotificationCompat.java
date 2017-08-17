@@ -3567,8 +3567,7 @@ public class NotificationCompat {
             actionBuilder.addExtras(actionExtras);
             RemoteInputCompatBase.RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
             if (remoteInputCompats != null) {
-                android.app.RemoteInput[] remoteInputs =
-                        RemoteInputCompatApi20.fromCompat(remoteInputCompats);
+                android.app.RemoteInput[] remoteInputs = RemoteInput.fromCompat(remoteInputCompats);
                 for (android.app.RemoteInput remoteInput : remoteInputs) {
                     actionBuilder.addRemoteInput(remoteInput);
                 }
@@ -4658,8 +4657,19 @@ public class NotificationCompat {
     static Action getActionCompatFromAction(Notification.Action action,
             NotificationCompatBase.Action.Factory actionFactory,
             RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-        RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
-                action.getRemoteInputs(), remoteInputFactory);
+        final RemoteInputCompatBase.RemoteInput[] remoteInputs;
+        final android.app.RemoteInput[] srcArray = action.getRemoteInputs();
+        if (srcArray == null) {
+            remoteInputs = null;
+        } else {
+            remoteInputs = remoteInputFactory.newArray(srcArray.length);
+            for (int i = 0; i < srcArray.length; i++) {
+                android.app.RemoteInput src = srcArray[i];
+                remoteInputs[i] = remoteInputFactory.build(src.getResultKey(), src.getLabel(),
+                        src.getChoices(), src.getAllowFreeFormInput(), src.getExtras(), null);
+            }
+        }
+
         final boolean allowGeneratedReplies;
         if (Build.VERSION.SDK_INT >= 24) {
             allowGeneratedReplies = action.getExtras().getBoolean(
