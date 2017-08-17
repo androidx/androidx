@@ -115,29 +115,25 @@ class NotificationCompatJellybean {
         }
     }
 
-    public static NotificationCompatBase.Action readAction(
-            NotificationCompatBase.Action.Factory factory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory, int icon,
-            CharSequence title, PendingIntent actionIntent, Bundle extras) {
-        RemoteInputCompatBase.RemoteInput[] remoteInputs = null;
-        RemoteInputCompatBase.RemoteInput[] dataOnlyRemoteInputs = null;
+    public static NotificationCompat.Action readAction(int icon, CharSequence title,
+            PendingIntent actionIntent, Bundle extras) {
+        RemoteInput[] remoteInputs = null;
+        RemoteInput[] dataOnlyRemoteInputs = null;
         boolean allowGeneratedReplies = false;
         if (extras != null) {
             remoteInputs = fromBundleArray(
                     getBundleArrayFromBundle(extras,
-                            NotificationCompatExtras.EXTRA_REMOTE_INPUTS),
-                    remoteInputFactory);
+                            NotificationCompatExtras.EXTRA_REMOTE_INPUTS));
             dataOnlyRemoteInputs = fromBundleArray(
-                    getBundleArrayFromBundle(extras, EXTRA_DATA_ONLY_REMOTE_INPUTS),
-                    remoteInputFactory);
+                    getBundleArrayFromBundle(extras, EXTRA_DATA_ONLY_REMOTE_INPUTS));
             allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES);
         }
-        return factory.build(icon, title, actionIntent, extras, remoteInputs,
+        return new NotificationCompat.Action(icon, title, actionIntent, extras, remoteInputs,
                 dataOnlyRemoteInputs, allowGeneratedReplies);
     }
 
     public static Bundle writeActionAndGetExtras(
-            Notification.Builder builder, NotificationCompatBase.Action action) {
+            Notification.Builder builder, NotificationCompat.Action action) {
         builder.addAction(action.getIcon(), action.getTitle(), action.getActionIntent());
         Bundle actionExtras = new Bundle(action.getExtras());
         if (action.getRemoteInputs() != null) {
@@ -160,9 +156,7 @@ class NotificationCompatJellybean {
         }
     }
 
-    public static NotificationCompatBase.Action getAction(Notification notif, int actionIndex,
-            NotificationCompatBase.Action.Factory factory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+    public static NotificationCompat.Action getAction(Notification notif, int actionIndex) {
         synchronized (sActionsLock) {
             try {
                 Object[] actionObjects = getActionObjectsLocked(notif);
@@ -177,8 +171,7 @@ class NotificationCompatJellybean {
                             actionExtras = actionExtrasMap.get(actionIndex);
                         }
                     }
-                    return readAction(factory, remoteInputFactory,
-                            sActionIconField.getInt(actionObject),
+                    return readAction(sActionIconField.getInt(actionObject),
                             (CharSequence) sActionTitleField.get(actionObject),
                             (PendingIntent) sActionIntentField.get(actionObject),
                             actionExtras);
@@ -230,27 +223,23 @@ class NotificationCompatJellybean {
         return !sActionsAccessFailed;
     }
 
-    static NotificationCompatBase.Action getActionFromBundle(Bundle bundle,
-            NotificationCompatBase.Action.Factory actionFactory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
+    static NotificationCompat.Action getActionFromBundle(Bundle bundle) {
         Bundle extras = bundle.getBundle(KEY_EXTRAS);
         boolean allowGeneratedReplies = false;
         if (extras != null) {
             allowGeneratedReplies = extras.getBoolean(EXTRA_ALLOW_GENERATED_REPLIES, false);
         }
-        return actionFactory.build(
+        return new NotificationCompat.Action(
                 bundle.getInt(KEY_ICON),
                 bundle.getCharSequence(KEY_TITLE),
                 bundle.<PendingIntent>getParcelable(KEY_ACTION_INTENT),
                 bundle.getBundle(KEY_EXTRAS),
-                fromBundleArray(getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS),
-                        remoteInputFactory),
-                fromBundleArray(getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS),
-                        remoteInputFactory),
+                fromBundleArray(getBundleArrayFromBundle(bundle, KEY_REMOTE_INPUTS)),
+                fromBundleArray(getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS)),
                 allowGeneratedReplies);
     }
 
-    static Bundle getBundleForAction(NotificationCompatBase.Action action) {
+    static Bundle getBundleForAction(NotificationCompat.Action action) {
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_ICON, action.getIcon());
         bundle.putCharSequence(KEY_TITLE, action.getTitle());
@@ -269,8 +258,7 @@ class NotificationCompatJellybean {
     }
 
 
-    private static RemoteInputCompatBase.RemoteInput fromBundle(Bundle data,
-            RemoteInputCompatBase.RemoteInput.Factory factory) {
+    private static RemoteInput fromBundle(Bundle data) {
         ArrayList<String> allowedDataTypesAsList = data.getStringArrayList(KEY_ALLOWED_DATA_TYPES);
         Set<String> allowedDataTypes = new HashSet<>();
         if (allowedDataTypesAsList != null) {
@@ -278,7 +266,7 @@ class NotificationCompatJellybean {
                 allowedDataTypes.add(type);
             }
         }
-        return factory.build(data.getString(KEY_RESULT_KEY),
+        return new RemoteInput(data.getString(KEY_RESULT_KEY),
                 data.getCharSequence(KEY_LABEL),
                 data.getCharSequenceArray(KEY_CHOICES),
                 data.getBoolean(KEY_ALLOW_FREE_FORM_INPUT),
@@ -286,7 +274,7 @@ class NotificationCompatJellybean {
                 allowedDataTypes);
     }
 
-    private static Bundle toBundle(RemoteInputCompatBase.RemoteInput remoteInput) {
+    private static Bundle toBundle(RemoteInput remoteInput) {
         Bundle data = new Bundle();
         data.putString(KEY_RESULT_KEY, remoteInput.getResultKey());
         data.putCharSequence(KEY_LABEL, remoteInput.getLabel());
@@ -305,19 +293,18 @@ class NotificationCompatJellybean {
         return data;
     }
 
-    private static RemoteInputCompatBase.RemoteInput[] fromBundleArray(Bundle[] bundles,
-            RemoteInputCompatBase.RemoteInput.Factory factory) {
+    private static RemoteInput[] fromBundleArray(Bundle[] bundles) {
         if (bundles == null) {
             return null;
         }
-        RemoteInputCompatBase.RemoteInput[] remoteInputs = factory.newArray(bundles.length);
+        RemoteInput[] remoteInputs = new RemoteInput[bundles.length];
         for (int i = 0; i < bundles.length; i++) {
-            remoteInputs[i] = fromBundle(bundles[i], factory);
+            remoteInputs[i] = fromBundle(bundles[i]);
         }
         return remoteInputs;
     }
 
-    private static Bundle[] toBundleArray(RemoteInputCompatBase.RemoteInput[] remoteInputs) {
+    private static Bundle[] toBundleArray(RemoteInput[] remoteInputs) {
         if (remoteInputs == null) {
             return null;
         }
