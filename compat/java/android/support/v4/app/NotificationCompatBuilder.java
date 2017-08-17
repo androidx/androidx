@@ -216,7 +216,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         return n;
     }
 
-    private void addAction(NotificationCompatBase.Action action) {
+    private void addAction(NotificationCompat.Action action) {
         if (Build.VERSION.SDK_INT >= 20) {
             Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
                     action.getIcon(), action.getTitle(), action.getActionIntent());
