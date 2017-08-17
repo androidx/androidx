@@ -28,8 +28,6 @@ LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/java
 LOCAL_SRC_FILES := \
     $(call all-java-files-under,ics) \
-    $(call all-java-files-under,jellybean) \
-    $(call all-java-files-under,api20) \
     $(call all-java-files-under,api23) \
     $(call all-java-files-under,java) \
     $(call all-Iaidl-files-under,java)
