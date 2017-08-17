@@ -16,6 +16,7 @@
 
 package android.arch.persistence.room.integration.kotlintestapp.test
 
+import android.arch.persistence.room.EmptyResultSetException
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
 import org.junit.Test
 
@@ -23,27 +24,67 @@ class RxJava2QueryTest : TestDatabaseTest() {
 
     @Test
     fun observeBooksById() {
-        database.booksDao().addAuthors(TestUtil.AUTHOR_1)
-        database.booksDao().addPublishers(TestUtil.PUBLISHER)
-        database.booksDao().addBooks(TestUtil.BOOK_1)
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
 
-        database.booksDao().getBookFlowable(TestUtil.BOOK_1.bookId)
+        booksDao.getBookFlowable(TestUtil.BOOK_1.bookId)
                 .test()
                 .assertValue { book -> book == TestUtil.BOOK_1 }
     }
 
     @Test
+    fun observeBooksByIdSingle() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        booksDao.getBookSingle(TestUtil.BOOK_1.bookId)
+                .test()
+                .assertComplete()
+                .assertValue { book -> book == TestUtil.BOOK_1 }
+    }
+
+    @Test
+    fun observeBooksByIdSingle_noBook() {
+        booksDao.getBookSingle("x")
+                .test()
+                .assertError(EmptyResultSetException::class.java)
+    }
+
+    @Test
+    fun observeBooksByIdMaybe() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        booksDao.getBookMaybe(TestUtil.BOOK_1.bookId)
+                .test()
+                .assertComplete()
+                .assertValue { book -> book == TestUtil.BOOK_1 }
+    }
+
+    @Test
+    fun observeBooksByIdMaybe_noBook() {
+        booksDao.getBookMaybe("x")
+                .test()
+                .assertComplete()
+                .assertNoErrors()
+                .assertNoValues()
+    }
+
+    @Test
     fun observeBooksWithPublisher() {
-        database.booksDao().addAuthors(TestUtil.AUTHOR_1)
-        database.booksDao().addPublishers(TestUtil.PUBLISHER)
-        database.booksDao().addBooks(TestUtil.BOOK_1)
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
 
         var expected = BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title,
                 TestUtil.PUBLISHER)
         var expectedList = ArrayList<BookWithPublisher>()
         expectedList.add(expected)
 
-        database.booksDao().getBooksWithPublisherFlowable()
+        booksDao.getBooksWithPublisherFlowable()
                 .test()
                 .assertValue(expectedList)
     }
