@@ -22,6 +22,8 @@ import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.integration.kotlintestapp.vo.*
 import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 interface BooksDao {
@@ -47,6 +49,12 @@ interface BooksDao {
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookFlowable(bookId: String): Flowable<Book>
 
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookSingle(bookId: String): Single<Book>
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookMaybe(bookId: String): Maybe<Book>
+
     @Query("SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId ")
     fun getBooksWithPublisher(): List<BookWithPublisher>
@@ -67,4 +75,7 @@ interface BooksDao {
 
     @Query("SELECT * FROM publisher WHERE publisherId = :publisherId")
     fun getPublisherWithBooksFlowable(publisherId: String): Flowable<PublisherWithBooks>
+
+    @Query("UPDATE book SET title = :title WHERE bookId = :bookId")
+    fun updateBookTitle(bookId: String, title: String?)
 }
