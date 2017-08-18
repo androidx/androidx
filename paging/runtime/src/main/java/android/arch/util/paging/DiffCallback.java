@@ -19,7 +19,7 @@ package android.arch.util.paging;
 import android.support.annotation.NonNull;
 
 /**
- * Interface that informs {@link LazyListAdapterHelper} how to compute list updates when using
+ * Callback that informs {@link PagedListAdapterHelper} how to compute list updates when using
  * {@link android.support.v7.util.DiffUtil} on a background thread.
  * <p>
  * The AdapterHelper will pass items from different lists to this callback in order to implement
@@ -36,6 +36,7 @@ public abstract class DiffCallback<Value> {
      * @param oldItem The item in the old list.
      * @param newItem The item in the new list.
      * @return True if the two items represent the same object or false if they are different.
+     * @see android.support.v7.util.DiffUtil.Callback#areItemsTheSame(int, int)
      */
     public abstract boolean areItemsTheSame(@NonNull Value oldItem, @NonNull Value newItem);
 
@@ -46,6 +47,16 @@ public abstract class DiffCallback<Value> {
      * @param oldItem The item in the old list.
      * @param newItem The item in the new list.
      * @return True if the contents of the items are the same or false if they are different.
+     * @see android.support.v7.util.DiffUtil.Callback#areContentsTheSame(int, int)
      */
     public abstract boolean areContentsTheSame(@NonNull Value oldItem, @NonNull Value newItem);
+
+    /**
+     * Called to get a change payload between an old and new version of an item.
+     *
+     * @see android.support.v7.util.DiffUtil.Callback#getChangePayload(int, int)
+     */
+    public Object getChangePayload(@NonNull Value oldItem, @NonNull Value newItem) {
+        return null;
+    }
 }
