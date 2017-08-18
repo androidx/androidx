@@ -17,9 +17,7 @@
 package android.arch.persistence.room.integration.testapp;
 
 import android.arch.persistence.room.integration.testapp.database.Customer;
-import android.arch.util.paging.PagedListAdapter;
-import android.arch.util.paging.PagedListAdapterHelper;
-import android.support.annotation.Nullable;
+import android.arch.util.paging.LazyListAdapterHelper;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -27,11 +25,13 @@ import android.widget.TextView;
 import io.reactivex.annotations.NonNull;
 
 /**
- * Sample adapter which uses a PagedListAdapterHelper.
+ * Sample adapter which uses a LazyListAdapterHelper.
  */
-public class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.ViewHolder> {
-    public PagedListCustomerAdapter(@NonNull PagedListAdapterHelper.Builder<Customer> builder) {
-        super(builder);
+public class LazyListCustomerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private final LazyListAdapterHelper<Customer> mHelper;
+
+    public LazyListCustomerAdapter(@NonNull LazyListAdapterHelper.Builder<Customer> builder) {
+        this.mHelper = builder.adapter(this).create();
     }
 
     @Override
@@ -41,10 +41,14 @@ public class PagedListCustomerAdapter extends PagedListAdapter<Customer, Recycle
     }
 
     @Override
-    public void onBindViewHolder(@Nullable Customer customer, RecyclerView.ViewHolder holder,
-            int position) {
-        ((TextView) (holder.itemView)).setText(
-                customer == null ? "loading" : customer.getLastName());
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        Customer customer = mHelper.get(position);
+        ((TextView) (holder.itemView)).setText(customer == null ? "loading" : customer.getLastName());
         holder.itemView.setMinimumHeight(400);
+    }
+
+    @Override
+    public int getItemCount() {
+        return mHelper.getItemCount();
     }
 }

@@ -22,13 +22,12 @@ import android.support.annotation.NonNull;
 /**
  * Sample item.
  */
-class Item {
+public class Item {
     public final int id;
     public final String text;
-    @SuppressWarnings("WeakerAccess")
     public final int bgColor;
 
-    Item(int id, String text, int bgColor) {
+    public Item(int id, String text, int bgColor) {
         this.id = id;
         this.text = text;
         this.bgColor = bgColor;
@@ -45,7 +44,7 @@ class Item {
                 && this.text.equals(item.text);
     }
 
-    static final DiffCallback<Item> DIFF_CALLBACK = new DiffCallback<Item>() {
+    public static final DiffCallback<Item> DIFF_CALLBACK = new DiffCallback<Item>() {
         @Override
         public boolean areContentsTheSame(@NonNull Item oldItem, @NonNull Item newItem) {
             return oldItem.equals(newItem);

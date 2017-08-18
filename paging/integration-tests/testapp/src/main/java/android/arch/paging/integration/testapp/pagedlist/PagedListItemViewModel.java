@@ -14,20 +14,33 @@
  * limitations under the License.
  */
 
-package android.arch.paging.integration.testapp;
+package android.arch.paging.integration.testapp.pagedlist;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
+import android.arch.paging.integration.testapp.Item;
+import android.arch.paging.integration.testapp.ItemDataSource;
 import android.arch.util.paging.DataSource;
+import android.arch.util.paging.ListConfig;
 import android.arch.util.paging.LivePagedListProvider;
 import android.arch.util.paging.PagedList;
 
 /**
  * Sample ViewModel backed by an artificial data source
  */
-class PagedListItemViewModel extends ViewModel {
-    private LiveData<PagedList<Item>> mLivePagedList;
+public class PagedListItemViewModel extends ViewModel {
+    private final LiveData<PagedList<Item>> mLivePagedList;
     private ItemDataSource mDataSource;
+
+    public PagedListItemViewModel() {
+        mLivePagedList = new LivePagedListProvider<Integer, Item>() {
+            @Override
+            protected DataSource<Integer, Item> createDataSource() {
+                mDataSource = new ItemDataSource();
+                return mDataSource;
+            }
+        }.create(ListConfig.builder().pageSize(20).prefetchDistance(40).create());
+    }
 
     void invalidateList() {
         if (mDataSource != null) {
@@ -35,20 +48,7 @@ class PagedListItemViewModel extends ViewModel {
         }
     }
 
-    LiveData<PagedList<Item>> getLivePagedList() {
-        if (mLivePagedList == null) {
-            mLivePagedList = new LivePagedListProvider<Item>() {
-                @Override
-                protected DataSource<Item> createDataSource() {
-                    mDataSource = new ItemDataSource();
-                    return mDataSource;
-                }
-            }.create(new PagedList.Config.Builder()
-                    .setPageSize(20)
-                    .setPrefetchDistance(40)
-                    .build());
-        }
-
+    LiveData<PagedList<Item>> getPagedList() {
         return mLivePagedList;
     }
 }

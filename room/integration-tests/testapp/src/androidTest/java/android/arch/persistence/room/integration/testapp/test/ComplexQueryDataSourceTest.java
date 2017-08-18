@@ -17,8 +17,7 @@
 package android.arch.persistence.room.integration.testapp.test;
 
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.BoundedDataSource;
-import android.arch.util.paging.KeyedDataSource;
+import android.arch.util.paging.CountedDataSource;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;
@@ -30,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -41,7 +41,7 @@ public class ComplexQueryDataSourceTest extends TestDatabaseTest {
     /**
      * Proper, keyed implementation.
      */
-    public class KeyedUserQueryDataSource extends KeyedDataSource<User> {
+    public class KeyedUserQueryDataSource extends CountedDataSource<User> {
         @Override
         public int loadCount() {
             return mUserDao.getUserCount();
@@ -50,12 +50,13 @@ public class ComplexQueryDataSourceTest extends TestDatabaseTest {
         @Nullable
         @Override
         public List<User> loadAfterInitial(int position, int pageSize) {
-            return mUserDao.userComplexLimitOffset(pageSize, position);
+            return mUserDao.userComplexLimitOffset(pageSize, position + 1);
         }
 
         @Nullable
         @Override
-        public List<User> loadAfter(@NonNull User currentEndItem, int pageSize) {
+        public List<User> loadAfter(int currentEndIndex, @NonNull User currentEndItem,
+                int pageSize) {
             return mUserDao.userComplexLoadAfter(
                     currentEndItem.getLastName(),
                     currentEndItem.getName(),
@@ -65,7 +66,8 @@ public class ComplexQueryDataSourceTest extends TestDatabaseTest {
 
         @Nullable
         @Override
-        public List<User> loadBefore(@NonNull User currentBeginItem, int pageSize) {
+        public List<User> loadBefore(int currentBeginIndex, @NonNull User currentBeginItem,
+                int pageSize) {
             return mUserDao.userComplexLoadBefore(
                     currentBeginItem.getLastName(),
                     currentBeginItem.getName(),
@@ -77,7 +79,7 @@ public class ComplexQueryDataSourceTest extends TestDatabaseTest {
     /**
      * Lazy, LIMIT/OFFSET implementation.
      */
-    public class OffsetUserQueryDataSource extends BoundedDataSource<User> {
+    public class OffsetUserQueryDataSource extends CountedDataSource<User> {
 
         @Override
         public int loadCount() {
@@ -86,8 +88,28 @@ public class ComplexQueryDataSourceTest extends TestDatabaseTest {
 
         @Nullable
         @Override
-        public List<User> loadRange(int startPosition, int loadCount) {
-            return mUserDao.userComplexLimitOffset(loadCount, startPosition);
+        public List<User> loadAfterInitial(int position, int pageSize) {
+            return mUserDao.userComplexLimitOffset(pageSize, position + 1);
+        }
+
+        @Nullable
+        @Override
+        public List<User> loadAfter(int currentEndIndex, @NonNull User currentEndItem,
+                int pageSize) {
+            return mUserDao.userComplexLimitOffset(pageSize, currentEndIndex + 1);
+        }
+
+        @Nullable
+        @Override
+        public List<User> loadBefore(int currentBeginIndex, @NonNull User currentBeginItem,
+                int pageSize) {
+            int targetOffset = currentBeginIndex - pageSize;
+            int offset = Math.max(0, targetOffset);
+            int limit = Math.min(pageSize, pageSize + targetOffset);
+
+            List<User> users = mUserDao.userComplexLimitOffset(limit, offset);
+            Collections.reverse(users); // :P
+            return users;
         }
     }
 
