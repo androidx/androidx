@@ -16,68 +16,120 @@
 
 package android.arch.util.paging;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
+import android.support.annotation.AnyThread;
 
-import java.util.List;
-
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Incremental data loader for list paging.
+ * Base class for incremental data loading, used in list paging. To implement, extend either the
+ * {@link KeyedDataSource}, or {@link TiledDataSource} subclass.
+ * <p>
+ * Choose based on whether each load operation is based on the position of the data in the list.
+ * <p>
+ * Use KeyedDataSource if you need to use data from item <code>N-1</code> to load item
+ * <code>N</code>. For example, if requesting the backend for the next comments in the list
+ * requires the ID or timestamp of the most recent loaded comment, or if querying the next users
+ * from a name-sorted database query requires the name and unique ID of the previous.
+ * <p>
+ * Use TiledDataSource if you can load arbitrary pages based solely on position information, and
+ * can provide a fixed item count. TiledDataSource supports querying pages at arbitrary positions,
+ * so can provide data to PagedLists in arbitrary order.
  *
- * @param <Key> Type of the key used to load initial data.
- * @param <Type> Type of the items this CountedDataSource will produce.
- *
- * @hide
+ * @param <Type> type loaded by the DataSource.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class DataSource<Key, Type> extends DataSourceBase {
+@SuppressWarnings("unused") // suppress warning to remove "Type", needed for subclass type safety.
+public abstract class DataSource<Type> {
+
+    // Since we currently rely on implementation details of two implementations,
+    // prevent external subclassing, except through exposed subclasses
+    DataSource() {
+    }
 
     /**
-     * Get key from item.
-     *
-     * @param item The item.
-     * @return The Key.
+     * If returned by loadCount(), indicates an undefined number of items are provided by the data
+     * source. Continued querying in either direction may continue to produce more data.
      */
-    public abstract Key getKey(@NonNull Type item);
+    @SuppressWarnings("WeakerAccess")
+    public static int COUNT_UNDEFINED = -1;
 
     /**
-     * Load initial data, starting after the passed key.
+     * Number of items that this DataSource can provide in total, or COUNT_UNDEFINED.
      *
-     * @param key Key just before the data to be loaded.
-     * @param pageSize Suggested number of items to load.
-     * @return List of initial items, representing data starting at key + 1. Null if the
-     *         DataSource is no longer valid, and should not be queried again.
+     * @return number of items that this DataSource can provide in total, or COUNT_UNDEFINED
+     * if difficult or undesired to compute.
      */
-    @WorkerThread
-    @Nullable
-    public abstract List<Type> loadAfterInitial(@Nullable Key key, int pageSize);
+    public abstract int loadCount();
 
     /**
-     * Load data, starting after the passed item.
-     *
-     * @param currentEndItem Load items after this item, can be used for precise querying based on
-     *                       item contents.
-     * @param pageSize Suggested number of items to load.
-     * @return List of initial items, representing data starting at key + 1. Null if the
-     *         DataSource is no longer valid, and should not be queried again.
+     * Invalidation callback
      */
-    @WorkerThread
-    @Nullable
-    public abstract List<Type> loadAfter(@NonNull Type currentEndItem, int pageSize);
+    public interface InvalidatedCallback {
+        /**
+         * Called when the data backing the list has become invalid. This callback is typically used
+         * to signal that a new data source is needed.
+         * <p>
+         * This callback will be invoked on the thread that calls {@link #invalidate()}. It is valid
+         * for the data source to invalidate itself during its load methods, or for an outside
+         * source to invalidate it.
+         */
+        @AnyThread
+        void onInvalidated();
+    }
+
+    private AtomicBoolean mInvalid = new AtomicBoolean(false);
+
+    private CopyOnWriteArrayList<InvalidatedCallback> mOnInvalidatedCallbacks =
+            new CopyOnWriteArrayList<>();
 
     /**
-     * Load data, before the passed item.
+     * Add a callback to invoke when the DataSource is first invalidated.
+     * <p>
+     * Once invalidated, a data source will not become valid again.
+     * <p>
+     * A data source will only invoke its callbacks once - the first time {@link #invalidate()}
+     * is called, on that thread.
      *
-     * @param currentBeginItem Load items after this item, can be used for precise querying based on
-     *                         item contents.
-     * @param pageSize Suggested number of items to load.
-     * @return List of initial items, representing data starting at key + 1. Null if the
-     *         DataSource is no longer valid, and should not be queried again.
+     * @param onInvalidatedCallback The callback, will be invoked on thread that
+     *                              {@link #invalidate()} is called on.
      */
-    @WorkerThread
-    @Nullable
-    public abstract List<Type> loadBefore(@NonNull Type currentBeginItem, int pageSize);
+    @AnyThread
+    @SuppressWarnings("WeakerAccess")
+    public void addInvalidatedCallback(InvalidatedCallback onInvalidatedCallback) {
+        mOnInvalidatedCallbacks.add(onInvalidatedCallback);
+    }
+
+    /**
+     * Remove a previously added invalidate callback.
+     *
+     * @param onInvalidatedCallback The previously added callback.
+     */
+    @AnyThread
+    @SuppressWarnings("WeakerAccess")
+    public void removeInvalidatedCallback(InvalidatedCallback onInvalidatedCallback) {
+        mOnInvalidatedCallbacks.remove(onInvalidatedCallback);
+    }
+
+    /**
+     * Signal the data source to stop loading, and notify its callback.
+     * <p>
+     * If invalidate has already been called, this method does nothing.
+     */
+    @AnyThread
+    public void invalidate() {
+        if (mInvalid.compareAndSet(false, true)) {
+            for (InvalidatedCallback callback : mOnInvalidatedCallbacks) {
+                callback.onInvalidated();
+            }
+        }
+    }
+
+    /**
+     * Returns true if the data source is invalid, and can no longer be queried for data.
+     *
+     * @return True if the data source is invalid, and can no longer return data.
+     */
+    public boolean isInvalid() {
+        return mInvalid.get();
+    }
 }

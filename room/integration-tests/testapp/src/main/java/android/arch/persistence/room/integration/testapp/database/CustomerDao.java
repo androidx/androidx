@@ -19,8 +19,7 @@ package android.arch.persistence.room.integration.testapp.database;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
-import android.arch.util.paging.ListConfig;
-import android.arch.util.paging.LiveLazyListProvider;
+import android.arch.util.paging.LivePagedListProvider;
 
 /**
  * Simple Customer DAO for Room Customer list sample.
@@ -43,9 +42,10 @@ public interface CustomerDao {
     void insertAll(Customer[] customers);
 
     /**
-     * @return LiveLazyListProvider of customers, ordered by last name. Call
-     * {@link LiveLazyListProvider#create(ListConfig)} to get a LiveData of LazyLists.
+     * @return LivePagedListProvider of customers, ordered by last name. Call
+     * {@link LivePagedListProvider#create(android.arch.util.paging.PagedList.Config)} to get a
+     * LiveData of PagedLists.
      */
     @Query("SELECT * FROM customer ORDER BY mLastName ASC")
-    LiveLazyListProvider<Customer> loadPagedAgeOrder();
+    LivePagedListProvider<Customer> loadPagedAgeOrder();
 }

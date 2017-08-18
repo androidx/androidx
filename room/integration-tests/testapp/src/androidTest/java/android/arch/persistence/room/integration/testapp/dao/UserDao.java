@@ -26,8 +26,8 @@ import android.arch.persistence.room.Update;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.CountedDataSource;
-import android.arch.util.paging.LiveLazyListProvider;
+import android.arch.util.paging.DataSource;
+import android.arch.util.paging.LivePagedListProvider;
 import android.database.Cursor;
 
 import org.reactivestreams.Publisher;
@@ -181,10 +181,10 @@ public abstract class UserDao {
     }
 
     @Query("SELECT * FROM user where mAge > :age")
-    public abstract LiveLazyListProvider<User> loadPagedByAge(int age);
+    public abstract LivePagedListProvider<User> loadPagedByAge(int age);
 
     @Query("SELECT * FROM user ORDER BY mAge DESC")
-    public abstract CountedDataSource<User> loadUsersByAgeDesc();
+    public abstract DataSource<User> loadUsersByAgeDesc();
 
     @Query("DELETE FROM User WHERE mId IN (:ids) AND mAge == :age")
     public abstract int deleteByAgeAndIds(int age, List<Integer> ids);

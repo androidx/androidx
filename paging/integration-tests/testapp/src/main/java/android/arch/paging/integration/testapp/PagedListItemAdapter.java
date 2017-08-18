@@ -14,50 +14,36 @@
  * limitations under the License.
  */
 
-package android.arch.paging.integration.testapp.lazylist;
+package android.arch.paging.integration.testapp;
 
-import android.arch.paging.integration.testapp.Item;
-import android.arch.util.paging.LazyList;
-import android.arch.util.paging.LazyListAdapterHelper;
+import android.arch.util.paging.PagedListAdapter;
+import android.arch.util.paging.PagedListAdapterHelper;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- * Sample LazyList adapter, which uses a LazyListAdapterHelper.
+ * Sample NullPaddedList adapter, which uses a PagedListAdapterHelper.
  */
-public class LazyListItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private final LazyListAdapterHelper<Item> mHelper;
-
-    LazyListItemAdapter() {
-        mHelper = LazyListAdapterHelper.<Item>builder()
-                .adapter(this)
-                .diffCallback(Item.DIFF_CALLBACK)
-                .create();
-    }
-
-    void setLazyList(LazyList<Item> list) {
-        mHelper.setLazyList(list);
+class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolder> {
+    PagedListItemAdapter(PagedListAdapterHelper.Builder<Item> builder) {
+        super(builder);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new RecyclerView.ViewHolder(new TextView(parent.getContext())) {
-        };
+        RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(
+                new TextView(parent.getContext())) {};
+        holder.itemView.setMinimumHeight(400);
+        return holder;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Item item = mHelper.get(position);
+    public void onBindViewHolder(@Nullable Item item, RecyclerView.ViewHolder holder,
+            int position) {
         ((TextView) (holder.itemView)).setText(item == null ? "loading" : item.text);
         holder.itemView.setBackgroundColor(item == null ? Color.TRANSPARENT : item.bgColor);
-        holder.itemView.setMinimumHeight(400);
-    }
-
-    @Override
-    public int getItemCount() {
-        return mHelper.getItemCount();
     }
 }
