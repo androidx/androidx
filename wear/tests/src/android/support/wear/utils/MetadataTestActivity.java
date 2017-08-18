@@ -26,5 +26,6 @@ public class MetadataTestActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         assertTrue(MetadataConstants.isStandalone(this));
+        assertTrue(MetadataConstants.isNotificationBridgingEnabled(this));
     }
 }
