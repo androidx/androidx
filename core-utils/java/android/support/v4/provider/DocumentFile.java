@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.DocumentsContract;
 
 import java.io.File;
 
@@ -126,7 +127,8 @@ public abstract class DocumentFile {
     public static DocumentFile fromTreeUri(Context context, Uri treeUri) {
         if (Build.VERSION.SDK_INT >= 21) {
             return new TreeDocumentFile(null, context,
-                    DocumentsContractApi21.prepareTreeUri(treeUri));
+                    DocumentsContract.buildDocumentUriUsingTree(treeUri,
+                            DocumentsContract.getTreeDocumentId(treeUri)));
         } else {
             return null;
         }
