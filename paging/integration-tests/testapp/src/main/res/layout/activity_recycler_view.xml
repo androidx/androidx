@@ -21,12 +21,11 @@
     android:id="@+id/activity_recycler_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PagedListSampleActivity">
+    tools:context=".lazylist.LazyListRecyclerViewActivity">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
         android:clipToPadding="false"
         android:paddingBottom="@dimen/activity_vertical_margin"

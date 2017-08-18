@@ -30,7 +30,7 @@ public class TestExecutor implements Executor {
         mTasks.add(command);
     }
 
-    public boolean executeAll() {
+    boolean executeAll() {
         boolean consumed = !mTasks.isEmpty();
         Runnable task;
         while ((task = mTasks.poll()) != null) {

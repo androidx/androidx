@@ -18,11 +18,20 @@
           package="android.arch.paging.integration.testapp">
     <application
         android:allowBackup="true"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat">
+        android:supportsRtl="true">
         <activity
-            android:name=".PagedListSampleActivity"
-            android:label="PagedList Sample">
+            android:name=".lazylist.LazyListRecyclerViewActivity"
+            android:label="LazyList"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".pagedlist.PagedListRecyclerViewActivity"
+            android:label="PagedList"
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
