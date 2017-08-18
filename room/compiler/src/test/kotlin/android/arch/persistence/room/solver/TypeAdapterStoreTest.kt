@@ -28,15 +28,15 @@ import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
-import android.arch.persistence.room.solver.binderprovider.CountedDataSourceQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
-import android.arch.persistence.room.solver.binderprovider.LiveLazyListQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.LivePagedListQueryResultBinderProvider
 import android.arch.persistence.room.solver.types.CompositeAdapter
 import android.arch.persistence.room.solver.types.TypeConverter
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
-import android.arch.util.paging.CountedDataSource
+import android.arch.util.paging.DataSource
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
@@ -254,23 +254,23 @@ class TypeAdapterStoreTest {
     fun findCountedDataSource() {
         simpleRun {
             invocation ->
-            val countedDataSource = invocation.processingEnv.elementUtils
-                    .getTypeElement(CountedDataSource::class.java.canonicalName)
-            assertThat(countedDataSource, notNullValue())
-            assertThat(CountedDataSourceQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(countedDataSource.asType())), `is`(true))
+            val dataSource = invocation.processingEnv.elementUtils
+                    .getTypeElement(DataSource::class.java.canonicalName)
+            assertThat(dataSource, notNullValue())
+            assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(dataSource.asType())), `is`(true))
         }.compilesWithoutError()
     }
 
     @Test
-    fun findLazyListProvider() {
-        simpleRun(jfos = COMMON.LIVE_LAZY_LIST_PROVIDER) {
+    fun findPagedListProvider() {
+        simpleRun(jfos = COMMON.LIVE_PAGED_LIST_PROVIDER) {
             invocation ->
-            val lazyListProvider = invocation.processingEnv.elementUtils
-                    .getTypeElement(PagingTypeNames.LIVE_LAZY_LIST_PROVIDER.toString())
-            assertThat(lazyListProvider, notNullValue())
-            assertThat(LiveLazyListQueryResultBinderProvider(invocation.context).matches(
-                    MoreTypes.asDeclared(lazyListProvider.asType())), `is`(true))
+            val pagedListProvider = invocation.processingEnv.elementUtils
+                    .getTypeElement(PagingTypeNames.LIVE_PAGED_LIST_PROVIDER.toString())
+            assertThat(pagedListProvider, notNullValue())
+            assertThat(LivePagedListQueryResultBinderProvider(invocation.context).matches(
+                    MoreTypes.asDeclared(pagedListProvider.asType())), `is`(true))
         }.compilesWithoutError()
     }
 

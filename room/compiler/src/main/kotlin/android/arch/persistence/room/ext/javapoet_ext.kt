@@ -89,9 +89,9 @@ object ArchTypeNames {
 
 object PagingTypeNames {
     val COUNTED_DATA_SOURCE : ClassName =
-            ClassName.get("android.arch.util.paging", "CountedDataSource")
-    val LIVE_LAZY_LIST_PROVIDER: ClassName =
-            ClassName.get("android.arch.util.paging", "LiveLazyListProvider")
+            ClassName.get("android.arch.util.paging", "DataSource")
+    val LIVE_PAGED_LIST_PROVIDER: ClassName =
+            ClassName.get("android.arch.util.paging", "LivePagedListProvider")
 
 }
 

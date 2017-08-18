@@ -16,5 +16,5 @@
 
 package android.arch.util.paging;
 
-abstract public class LiveLazyListProvider<T> {
+abstract public class LivePagedListProvider<T> {
 }

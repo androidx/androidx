@@ -47,7 +47,7 @@ public class Room {
             @NonNull Context context, @NonNull Class<T> klass, @NonNull String name) {
         //noinspection ConstantConditions
         if (name == null || name.trim().length() == 0) {
-            throw new IllegalArgumentException("Cannot create a database with null or empty name."
+            throw new IllegalArgumentException("Cannot build a database with null or empty name."
                     + " If you are trying to create an in memory database, use Room"
                     + ".inMemoryDatabaseBuilder");
         }

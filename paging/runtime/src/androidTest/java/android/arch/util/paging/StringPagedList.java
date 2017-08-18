@@ -18,24 +18,23 @@ package android.arch.util.paging;
 
 import android.support.annotation.NonNull;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.Executor;
+import java.util.Arrays;
 
-public class TestExecutor implements Executor {
-    private Queue<Runnable> mTasks = new LinkedList<>();
-
-    @Override
-    public void execute(@NonNull Runnable command) {
-        mTasks.add(command);
+public class StringPagedList extends NullPaddedList<String> {
+    public StringPagedList(int leadingNulls, int trailingNulls, String... items) {
+        super(leadingNulls, Arrays.asList(items), trailingNulls);
     }
 
-    public boolean executeAll() {
-        boolean consumed = !mTasks.isEmpty();
-        Runnable task;
-        while ((task = mTasks.poll()) != null) {
-            task.run();
+    public static final DiffCallback<String> DIFF_CALLBACK = new DiffCallback<String>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+            // first char means same item
+            return oldItem.charAt(0) == newItem.charAt(0);
         }
-        return consumed;
-    }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
 }
