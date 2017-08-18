@@ -136,14 +136,6 @@ class DocumentsContractApi19 {
         return false;
     }
 
-    public static boolean delete(Context context, Uri self) {
-        try {
-            return DocumentsContract.deleteDocument(context.getContentResolver(), self);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     public static boolean exists(Context context, Uri self) {
         final ContentResolver resolver = context.getContentResolver();
 
