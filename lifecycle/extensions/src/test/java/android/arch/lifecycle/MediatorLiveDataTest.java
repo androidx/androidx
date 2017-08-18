@@ -210,6 +210,14 @@ public class MediatorLiveDataTest {
     }
 
     @Test
+    public void addSameSourceWithSameObserver() {
+        Observer observer = mock(Observer.class);
+        mMediator.addSource(mSource, observer);
+        mMediator.addSource(mSource, observer);
+        // no exception was thrown
+    }
+
+    @Test
     public void addSourceDuringOnActive() {
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         mSource.setValue("a");

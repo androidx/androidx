@@ -94,30 +94,30 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
         }
     }
 
-    private static class Source<V> {
+    private static class Source<V> implements Observer<V> {
         final LiveData<V> mLiveData;
         final Observer<V> mObserver;
         int mVersion = START_VERSION;
 
         Source(LiveData<V> liveData, final Observer<V> observer) {
             mLiveData = liveData;
-            mObserver = new Observer<V>() {
-                @Override
-                public void onChanged(@Nullable V v) {
-                    if (mVersion != mLiveData.getVersion()) {
-                        mVersion = mLiveData.getVersion();
-                        observer.onChanged(v);
-                    }
-                }
-            };
+            mObserver = observer;
         }
 
         void plug() {
-            mLiveData.observeForever(mObserver);
+            mLiveData.observeForever(this);
         }
 
         void unplug() {
-            mLiveData.removeObserver(mObserver);
+            mLiveData.removeObserver(this);
+        }
+
+        @Override
+        public void onChanged(@Nullable V v) {
+            if (mVersion != mLiveData.getVersion()) {
+                mVersion = mLiveData.getVersion();
+                mObserver.onChanged(v);
+            }
         }
     }
 }
