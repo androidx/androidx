@@ -24,12 +24,12 @@ import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.EntityProcessor
 import android.arch.persistence.room.processor.FieldProcessor
 import android.arch.persistence.room.processor.PojoProcessor
-import android.arch.persistence.room.solver.binderprovider.CountedDataSourceQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.CursorQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.FlowableQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.InstantQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.LiveDataQueryResultBinderProvider
-import android.arch.persistence.room.solver.binderprovider.LiveLazyListQueryResultBinderProvider
+import android.arch.persistence.room.solver.binderprovider.LivePagedListQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.RxMaybeQueryResultBinderProvider
 import android.arch.persistence.room.solver.binderprovider.RxSingleQueryResultBinderProvider
 import android.arch.persistence.room.solver.query.parameter.ArrayQueryParameterAdapter
@@ -134,8 +134,8 @@ class TypeAdapterStore private constructor(val context: Context,
             FlowableQueryResultBinderProvider(context),
             RxMaybeQueryResultBinderProvider(context),
             RxSingleQueryResultBinderProvider(context),
-            CountedDataSourceQueryResultBinderProvider(context),
-            LiveLazyListQueryResultBinderProvider(context),
+            DataSourceQueryResultBinderProvider(context),
+            LivePagedListQueryResultBinderProvider(context),
             InstantQueryResultBinderProvider(context)
     )
 

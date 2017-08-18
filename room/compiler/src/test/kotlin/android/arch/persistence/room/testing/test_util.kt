@@ -86,9 +86,9 @@ object COMMON {
         loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.toString())
     }
 
-    val LIVE_LAZY_LIST_PROVIDER by lazy {
-        loadJavaCode("common/input/LiveLazyListProvider.java",
-                PagingTypeNames.LIVE_LAZY_LIST_PROVIDER.toString())
+    val LIVE_PAGED_LIST_PROVIDER by lazy {
+        loadJavaCode("common/input/LivePagedListProvider.java",
+                PagingTypeNames.LIVE_PAGED_LIST_PROVIDER.toString())
     }
 }
 fun testCodeGenScope(): CodeGenScope {

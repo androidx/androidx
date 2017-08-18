@@ -20,8 +20,8 @@
         android:allowBackup="true"
         android:supportsRtl="true">
         <activity
-            android:name=".LazyListActivity"
-            android:label="Room LazyList"
+            android:name=".RoomPagedListActivity"
+            android:label="Room Live PagedList"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
