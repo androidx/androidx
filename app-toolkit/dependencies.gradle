@@ -38,6 +38,7 @@ ffVersions.antlr = "4.5.3"
 ffVersions.commons_codec = "1.10"
 ffVersions.gson = "2.8.0"
 ffVersions.guava = "21.0"
+ffVersions.jsr250 = "1.2"
 
 ffLibs.kotlin = [
         stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
@@ -79,6 +80,7 @@ ffLibs.reactive_streams = "org.reactivestreams:reactive-streams:$ffVersions.reac
 ffLibs.rx_java = "io.reactivex.rxjava2:rxjava:$ffVersions.rxjava2"
 ffLibs.gson = "com.google.code.gson:gson:$ffVersions.gson"
 ffLibs.guava= "com.google.guava:guava:$ffVersions.guava"
+ffLibs.jsr250 = "javax.annotation:javax.annotation-api:$ffVersions.jsr250"
 
 ext.tools = [:]
 ext.tools.current_sdk = gradle.ext.currentSdk

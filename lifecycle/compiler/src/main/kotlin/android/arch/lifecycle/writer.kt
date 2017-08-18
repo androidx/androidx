@@ -18,6 +18,7 @@ package android.arch.lifecycle
 
 import android.arch.lifecycle.model.AdapterClass
 import android.arch.lifecycle.model.EventMethodCall
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -25,23 +26,27 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.annotation.processing.Filer
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
-fun writeModels(infos: List<AdapterClass>, filer: Filer) {
-    infos.forEach({ adapter -> writeAdapter(adapter, filer) })
+fun writeModels(infos: List<AdapterClass>, processingEnv: ProcessingEnvironment) {
+    infos.forEach({ writeAdapter(it, processingEnv) })
 }
 
+
+private val GENERATED_PACKAGE = "javax.annotation"
+private val GENERATED_NAME = "Generated"
 private val LIFECYCLE_OWNER = ClassName.get(LifecycleOwner::class.java)
 private val LIFECYCLE_EVENT = Lifecycle.Event::class.java
 
 private val T = "\$T"
 private val N = "\$N"
 private val L = "\$L"
+private val S = "\$S"
 
-private fun writeAdapter(adapter: AdapterClass, filer: Filer) {
+private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnvironment) {
     val ownerParam = ParameterSpec.builder(LIFECYCLE_OWNER, "owner").build()
     val eventParam = ParameterSpec.builder(ClassName.get(LIFECYCLE_EVENT), "event").build()
     val receiverName = "mReceiver"
@@ -106,7 +111,7 @@ private fun writeAdapter(adapter: AdapterClass, filer: Filer) {
             .build()
 
     val adapterName = getAdapterName(adapter.type)
-    val adapterTypeSpec = TypeSpec.classBuilder(adapterName)
+    val adapterTypeSpecBuilder = TypeSpec.classBuilder(adapterName)
             .addModifiers(Modifier.PUBLIC)
             .addSuperinterface(ClassName.get(GenericLifecycleObserver::class.java))
             .addField(receiverField)
@@ -114,9 +119,26 @@ private fun writeAdapter(adapter: AdapterClass, filer: Filer) {
             .addMethod(dispatchMethod)
             .addMethod(getWrappedMethod)
             .addMethods(syntheticMethods)
-            .build()
-    JavaFile.builder(adapter.type.getPackageQName(), adapterTypeSpec)
-            .build().writeTo(filer)
+
+    addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder, processingEnv)
+
+    JavaFile.builder(adapter.type.getPackageQName(), adapterTypeSpecBuilder.build())
+            .build().writeTo(processingEnv.filer)
+}
+
+private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
+                                   processingEnv: ProcessingEnvironment) {
+    val generatedAnnotationAvailable = processingEnv
+            .elementUtils
+            .getTypeElement(GENERATED_PACKAGE + "." + GENERATED_NAME) != null
+    if (generatedAnnotationAvailable) {
+        val generatedAnnotationSpec =
+                AnnotationSpec.builder(ClassName.get(GENERATED_PACKAGE, GENERATED_NAME)).addMember(
+                "value",
+                S,
+                LifecycleProcessor::class.java.canonicalName).build()
+        adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)
+    }
 }
 
 private fun MethodSpec.Builder.writeMethodCalls(eventParam: ParameterSpec,

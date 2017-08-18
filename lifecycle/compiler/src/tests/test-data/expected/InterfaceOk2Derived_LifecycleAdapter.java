@@ -21,7 +21,9 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import java.lang.Object;
 import java.lang.Override;
+import javax.annotation.Generated;
 
+@Generated("android.arch.lifecycle.LifecycleProcessor")
 public class InterfaceOk2Derived_LifecycleAdapter implements GenericLifecycleObserver {
   final InterfaceOk2Derived mReceiver;
 
