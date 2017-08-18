@@ -36,10 +36,10 @@ public class PagedListAdapterHelperTest {
     @Test
     public void simpleStatic() {
         ListUpdateCallback callback = mock(ListUpdateCallback.class);
-        PagedListAdapterHelper<String> helper = new PagedListAdapterHelper.Builder<String>()
-                .setDiffCallback(StringPagedList.DIFF_CALLBACK)
-                .setUpdateCallback(callback)
-                .build();
+        PagedListAdapterHelper<String> helper = new PagedListAdapterHelper<>(callback,
+                new ListAdapterConfig.Builder<String>()
+                        .setDiffCallback(StringPagedList.DIFF_CALLBACK)
+                        .build());
 
         assertEquals(0, helper.getItemCount());
 
@@ -49,11 +49,11 @@ public class PagedListAdapterHelperTest {
         verifyNoMoreInteractions(callback);
         assertEquals(6, helper.getItemCount());
 
-        assertNull(helper.get(0));
-        assertNull(helper.get(1));
-        assertEquals("a", helper.get(2));
-        assertEquals("b", helper.get(3));
-        assertNull(helper.get(4));
-        assertNull(helper.get(5));
+        assertNull(helper.getItem(0));
+        assertNull(helper.getItem(1));
+        assertEquals("a", helper.getItem(2));
+        assertEquals("b", helper.getItem(3));
+        assertNull(helper.getItem(4));
+        assertNull(helper.getItem(5));
     }
 }

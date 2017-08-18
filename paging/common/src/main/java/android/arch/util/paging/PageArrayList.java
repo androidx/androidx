@@ -16,6 +16,7 @@
 
 package android.arch.util.paging;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
@@ -102,7 +103,7 @@ class PageArrayList<T> extends PagedList<T> {
     }
 
     @Override
-    public void addCallback(@Nullable PagedList<T> previousSnapshot, Callback callback) {
+    public void addCallback(@Nullable PagedList<T> previousSnapshot, @NonNull Callback callback) {
         // no op, immutable
     }
 
