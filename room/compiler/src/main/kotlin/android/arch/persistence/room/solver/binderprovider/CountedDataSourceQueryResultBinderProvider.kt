@@ -22,15 +22,15 @@ import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.solver.QueryResultBinderProvider
 import android.arch.persistence.room.solver.query.result.CountedDataSourceQueryResultBinder
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
-import android.arch.persistence.room.solver.query.result.LivePagedListQueryResultBinder
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
+import com.google.common.annotations.VisibleForTesting
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-class LivePagedListQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val livePagedListTypeMirror: TypeMirror? by lazy {
+class CountedDataSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
+    private val countedDataSourceTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
-                .getTypeElement(PagingTypeNames.LIVE_PAGED_LIST_PROVIDER.toString())?.asType()
+                .getTypeElement(PagingTypeNames.COUNTED_DATA_SOURCE.toString())?.asType()
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
@@ -38,20 +38,20 @@ class LivePagedListQueryResultBinderProvider(val context: Context) : QueryResult
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        val countedBinder = CountedDataSourceQueryResultBinder(listAdapter,
-                query.tables.map { it.name })
-        return LivePagedListQueryResultBinder(countedBinder)
+        return CountedDataSourceQueryResultBinder(listAdapter, query.tables.map { it.name })
     }
 
     override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 1 && isLivePagedList(declared)
+            declared.typeArguments.size == 1 && isCountedDataSource(declared)
 
-    private fun isLivePagedList(declared: DeclaredType): Boolean {
-        if (livePagedListTypeMirror == null) {
+    private fun isCountedDataSource(declared: DeclaredType): Boolean {
+        if (countedDataSourceTypeMirror == null) {
             return false
         }
         val erasure = context.processingEnv.typeUtils.erasure(declared)
-        // we don't want to return paged list unless explicitly requested
-        return context.processingEnv.typeUtils.isAssignable(livePagedListTypeMirror, erasure)
+        return context.processingEnv.typeUtils.isAssignable(countedDataSourceTypeMirror
+                , erasure)
     }
+
+
 }
