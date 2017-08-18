@@ -19,6 +19,7 @@ dependencies {
     compile libs.auto_common
     compile libs.javapoet
     testCompile libs.google_compile_testing
+    testCompile libs.jsr250
     testCompile files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
 }
 
