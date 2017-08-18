@@ -31,8 +31,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.persistence.room.integration.testapp.test.TestDatabaseTest;
 import android.arch.persistence.room.integration.testapp.test.TestUtil;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.LazyList;
-import android.arch.util.paging.ListConfig;
+import android.arch.util.paging.PagedList;
 import android.support.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -48,12 +47,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
-public class LiveLazyListProviderTest extends TestDatabaseTest {
+public class LivePagedListProviderTest extends TestDatabaseTest {
     @Rule
     public CountingTaskExecutorRule mExecutorRule = new CountingTaskExecutorRule();
     @Test
     @LargeTest
-    public void getUsersAsLazyList()
+    public void getUsersAsPagedList()
             throws InterruptedException, ExecutionException, TimeoutException {
         mDatabase.beginTransaction();
         try {
@@ -67,13 +66,13 @@ public class LiveLazyListProviderTest extends TestDatabaseTest {
             mDatabase.endTransaction();
         }
         assertThat(mUserDao.count(), is(100));
-        final LiveData<LazyList<User>> livePagedUsers = mUserDao.loadPagedByAge(3).create(
-                ListConfig.builder().pageSize(10).prefetchDistance(1).create());
+        final LiveData<PagedList<User>> livePagedUsers = mUserDao.loadPagedByAge(3).create(
+                new PagedList.Config.Builder().setPageSize(10).setPrefetchDistance(1).build());
 
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();
         testOwner.handleEvent(Lifecycle.Event.ON_CREATE);
         drain();
-        LazyListObserver<User> observer = new LazyListObserver<>();
+        PagedListObserver<User> observer = new PagedListObserver<>();
 
         observe(livePagedUsers, testOwner, observer);
         assertThat(observer.get(), nullValue());
@@ -82,29 +81,29 @@ public class LiveLazyListProviderTest extends TestDatabaseTest {
         testOwner.handleEvent(Lifecycle.Event.ON_START);
         drain();
 
-        LazyList<User> lazyList1 = observer.get();
-        assertThat(lazyList1, is(notNullValue()));
+        PagedList<User> pagedList1 = observer.get();
+        assertThat(pagedList1, is(notNullValue()));
 
-        assertThat(lazyList1.size(), is(96));
-        assertThat(lazyList1.get(20), is(nullValue()));
+        assertThat(pagedList1.size(), is(96));
+        assertThat(pagedList1.get(20), is(nullValue()));
         drain();
-        assertThat(lazyList1.get(31), nullValue());
-        assertThat(lazyList1.get(20), notNullValue());
-        assertThat(lazyList1.get(16), notNullValue());
+        assertThat(pagedList1.get(31), nullValue());
+        assertThat(pagedList1.get(20), notNullValue());
+        assertThat(pagedList1.get(16), notNullValue());
 
         drain();
-        assertThat(lazyList1.get(31), notNullValue());
-        assertThat(lazyList1.get(50), nullValue());
+        assertThat(pagedList1.get(31), notNullValue());
+        assertThat(pagedList1.get(50), nullValue());
         drain();
-        assertThat(lazyList1.get(50), notNullValue());
+        assertThat(pagedList1.get(50), notNullValue());
         observer.reset();
         // now invalidate the database but don't get the new paged list
         mUserDao.updateById(50, "foo");
-        assertThat(lazyList1.get(70), nullValue());
+        assertThat(pagedList1.get(70), nullValue());
         drain();
-        assertThat(lazyList1.get(70), nullValue());
-        LazyList<User> lazyList = observer.get();
-        assertThat(lazyList.get(70), notNullValue());
+        assertThat(pagedList1.get(70), nullValue());
+        PagedList<User> pagedList = observer.get();
+        assertThat(pagedList.get(70), notNullValue());
     }
 
     private void drain() throws InterruptedException, TimeoutException {
@@ -143,19 +142,19 @@ public class LiveLazyListProviderTest extends TestDatabaseTest {
         }
     }
 
-    private static class LazyListObserver<T> implements Observer<LazyList<T>> {
-        private LazyList<T> mList;
+    private static class PagedListObserver<T> implements Observer<PagedList<T>> {
+        private PagedList<T> mList;
         public void reset() {
             mList = null;
         }
 
-        public LazyList<T> get() {
+        public PagedList<T> get() {
             return mList;
         }
 
         @Override
-        public void onChanged(@Nullable LazyList<T> lazyList) {
-            mList = lazyList;
+        public void onChanged(@Nullable PagedList<T> pagedList) {
+            mList = pagedList;
         }
     }
 }

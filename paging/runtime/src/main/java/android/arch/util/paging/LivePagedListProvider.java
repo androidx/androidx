@@ -24,44 +24,49 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 /**
- * @param <K> Key type of the DataSource, used to initialize PagedLists.
+ * Provides a {@code LiveData<PagedList>}, given a means to construct a DataSource.
+ * <p>
+ * Return type for data-loading system of an application or library to produce a
+ * {@code LiveData<PagedList>}, while leaving the details of the paging mechanism up to the
+ * consumer.
+ *
  * @param <T> Data type produced by the DataSource, and held by the PagedLists.
  *
- * @hide
+ * @see DataSource
+ * @see PagedList
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class LivePagedListProvider<K, T> {
+public abstract class LivePagedListProvider<T> {
 
     /**
-     * Construct a new data source to be wrapped in a new PagedList, which will be returned through
-     * the LiveData.
+     * Construct a new data source to be wrapped in a new NullPaddedList, which will be returned
+     * through the LiveData.
      *
      * @return The data source.
      */
-    @SuppressWarnings("WeakerAccess")
     @WorkerThread
-    protected abstract DataSource<K, T> createDataSource();
+    protected abstract DataSource<T> createDataSource();
 
     /**
-     * Creates a LiveData of PagedLists, given the ListConfig.
+     * Creates a LiveData of PagedLists, given the NullPaddedList.Config.
      * <p>
      * This LiveData can be passed to a {@link PagedListAdapterHelper} to be displayed with a
      * {@link android.support.v7.widget.RecyclerView}.
      *
-     * @param configuration ListConfig to use with created PagedLists. This specifies how the lists
-     *                      will load data.
+     * @param config NullPaddedList.Config to use with created PagedLists. This specifies how the
+     *               lists will load data.
      *
-     * @return The LiveData of LazyLists.
+     * @return The LiveData of PagedLists.
      */
-    public LiveData<PagedList<T>> create(final ListConfig configuration) {
+    public LiveData<PagedList<T>> create(final PagedList.Config config) {
         return new ComputableLiveData<PagedList<T>>() {
             @Nullable
             private PagedList<T> mList;
             @Nullable
-            private DataSource<K, T> mDataSource;
+            private DataSource mDataSource;
 
-            private final DataSourceBase.InvalidatedCallback mCallback =
-                    new DataSourceBase.InvalidatedCallback() {
+            private final DataSource.InvalidatedCallback mCallback =
+                    new DataSource.InvalidatedCallback() {
                 @Override
                 public void onInvalidated() {
                     invalidate();
@@ -70,9 +75,9 @@ public abstract class LivePagedListProvider<K, T> {
 
             @Override
             protected PagedList<T> compute() {
-                PagedList<T> old = mList;
-
-                boolean done = true;
+                final int position = mList != null
+                        ? Math.max(0, mList.getLastLoad() - config.mInitialLoadSize / 2)
+                        : 0; // TODO: callback method for initialization param?
                 do {
                     if (mDataSource != null) {
                         mDataSource.removeInvalidatedCallback(mCallback);
@@ -80,14 +85,14 @@ public abstract class LivePagedListProvider<K, T> {
 
                     mDataSource = createDataSource();
                     mDataSource.addInvalidatedCallback(mCallback);
-                    mList = new PagedList<>(mDataSource,
+
+
+                    mList = PagedList.create(mDataSource,
                             AppToolkitTaskExecutor.getMainThreadExecutor(),
                             AppToolkitTaskExecutor.getIOThreadExecutor(),
-                            configuration);
-                    if (old != null) {
-                        done = mList.initializeFrom(old);
-                    }
-                } while (!done);
+                            config,
+                            position);
+                } while (mList.isDetached());
                 return mList;
             }
         }.getLiveData();
