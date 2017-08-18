@@ -19,12 +19,13 @@ package android.arch.persistence.room.paging;
 import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RoomSQLiteQuery;
-import android.arch.util.paging.BoundedDataSource;
+import android.arch.util.paging.CountedDataSource;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -41,8 +42,9 @@ import java.util.Set;
  *
  * @hide
  */
+@SuppressWarnings("unused")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class LimitOffsetDataSource<T> extends BoundedDataSource<T> {
+public abstract class LimitOffsetDataSource<T> extends CountedDataSource<T> {
     private final RoomSQLiteQuery mSourceQuery;
     private final String mCountQuery;
     private final String mLimitOffsetQuery;
@@ -50,7 +52,10 @@ public abstract class LimitOffsetDataSource<T> extends BoundedDataSource<T> {
     @SuppressWarnings("FieldCanBeLocal")
     private final InvalidationTracker.Observer mObserver;
 
-    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query, String... tables) {
+    public Runnable invalidCallback;
+
+    protected LimitOffsetDataSource(RoomDatabase db, RoomSQLiteQuery query,
+            String... tables) {
         mDb = db;
         mSourceQuery = query;
         mCountQuery = "SELECT COUNT(*) FROM ( " + mSourceQuery.getSql() + " )";
@@ -94,7 +99,6 @@ public abstract class LimitOffsetDataSource<T> extends BoundedDataSource<T> {
         sqLiteQuery.bindLong(sqLiteQuery.getArgCount() - 1, limit);
         sqLiteQuery.bindLong(sqLiteQuery.getArgCount(), offset);
         Cursor cursor = mDb.query(sqLiteQuery);
-
         try {
             return convertRows(cursor);
         } finally {
@@ -108,14 +112,44 @@ public abstract class LimitOffsetDataSource<T> extends BoundedDataSource<T> {
 
     @Nullable
     @Override
-    public List<T> loadRange(int startPosition, int loadCount) {
+    public List<T> loadAfterInitial(int position, int pageSize) {
         if (isInvalid()) {
             return null;
         }
-        List<T> result = queryRange(startPosition, loadCount);
+        List<T> result = queryRange(position + 1, pageSize);
         if (isInvalid()) {
             return null;
         }
         return result;
+    }
+
+    @Nullable
+    @Override
+    public List<T> loadAfter(int currentEndIndex, @NonNull T currentEndItem, int pageSize) {
+        if (isInvalid()) {
+            return null;
+        }
+        List<T> result = queryRange(currentEndIndex + 1, pageSize);
+        if (isInvalid()) {
+            return null;
+        }
+        return result;
+    }
+
+    @Nullable
+    @Override
+    public List<T> loadBefore(int currentBeginIndex, @NonNull T currentBeginItem, int pageSize) {
+        if (isInvalid()) {
+            return null;
+        }
+        int offset = Math.max(0, currentBeginIndex - pageSize);
+        final List<T> list = queryRange(offset, pageSize);
+        // reverse it
+        Collections.reverse(list);
+
+        if (isInvalid()) {
+            return null;
+        }
+        return list;
     }
 }

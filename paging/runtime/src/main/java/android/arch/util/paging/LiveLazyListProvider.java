@@ -20,45 +20,46 @@ import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.ComputableLiveData;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 /**
- * @param <K> Key type of the DataSource, used to initialize PagedLists.
- * @param <T> Data type produced by the DataSource, and held by the PagedLists.
+ * This class wraps to {@link android.arch.util.paging.CountedDataSource CountedDataSource} and can
+ * provide a {@link android.arch.lifecycle.LiveData LiveData} of
+ * {@link android.arch.util.paging.LazyList LazyList}.
  *
- * @hide
+ * @param <T> Data type produced by the CountedDataSource, and held by the LazyLists.
+ *
+ * @see LazyListAdapterHelper
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class LivePagedListProvider<K, T> {
+public abstract class LiveLazyListProvider<T> {
 
     /**
-     * Construct a new data source to be wrapped in a new PagedList, which will be returned through
+     * Construct a new data source to be wrapped in a new LazyList, which will be returned through
      * the LiveData.
      *
      * @return The data source.
      */
     @SuppressWarnings("WeakerAccess")
     @WorkerThread
-    protected abstract DataSource<K, T> createDataSource();
+    protected abstract CountedDataSource<T> createDataSource();
 
     /**
-     * Creates a LiveData of PagedLists, given the ListConfig.
+     * Creates a LiveData of LazyLists, given the ListConfig.
      * <p>
-     * This LiveData can be passed to a {@link PagedListAdapterHelper} to be displayed with a
+     * This LiveData can be passed to a {@link LazyListAdapterHelper} to be displayed with a
      * {@link android.support.v7.widget.RecyclerView}.
      *
-     * @param configuration ListConfig to use with created PagedLists. This specifies how the lists
+     * @param configuration ListConfig to use with created LazyLists. This specifies how the lists
      *                      will load data.
      *
      * @return The LiveData of LazyLists.
      */
-    public LiveData<PagedList<T>> create(final ListConfig configuration) {
-        return new ComputableLiveData<PagedList<T>>() {
+    public LiveData<LazyList<T>> create(final ListConfig configuration) {
+        return new ComputableLiveData<LazyList<T>>() {
             @Nullable
-            private PagedList<T> mList;
+            private LazyList<T> mList;
             @Nullable
-            private DataSource<K, T> mDataSource;
+            private CountedDataSource<T> mDataSource;
 
             private final DataSourceBase.InvalidatedCallback mCallback =
                     new DataSourceBase.InvalidatedCallback() {
@@ -69,8 +70,8 @@ public abstract class LivePagedListProvider<K, T> {
             };
 
             @Override
-            protected PagedList<T> compute() {
-                PagedList<T> old = mList;
+            protected LazyList<T> compute() {
+                int loadAfterPos = mList == null ? -2 : mList.getInitialLoadPosition();
 
                 boolean done = true;
                 do {
@@ -80,12 +81,12 @@ public abstract class LivePagedListProvider<K, T> {
 
                     mDataSource = createDataSource();
                     mDataSource.addInvalidatedCallback(mCallback);
-                    mList = new PagedList<>(mDataSource,
+                    mList = new LazyList<>(mDataSource,
                             AppToolkitTaskExecutor.getMainThreadExecutor(),
                             AppToolkitTaskExecutor.getIOThreadExecutor(),
                             configuration);
-                    if (old != null) {
-                        done = mList.initializeFrom(old);
+                    if (loadAfterPos >= -1) {
+                        done = mList.internalInit(loadAfterPos);
                     }
                 } while (!done);
                 return mList;

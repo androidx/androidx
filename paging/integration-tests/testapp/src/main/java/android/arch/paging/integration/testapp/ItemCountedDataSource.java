@@ -16,7 +16,7 @@
 
 package android.arch.paging.integration.testapp;
 
-import android.arch.util.paging.DataSource;
+import android.arch.util.paging.CountedDataSource;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
@@ -28,9 +28,7 @@ import java.util.List;
 /**
  * Sample data source with artificial data.
  */
-public class ItemDataSource extends DataSource<Integer, Item> {
-    private static final int COUNT = 10000;
-
+public class ItemCountedDataSource extends CountedDataSource<Item> {
     @ColorInt
     private static final int[] COLORS = new int[] {
             Color.RED,
@@ -38,36 +36,34 @@ public class ItemDataSource extends DataSource<Integer, Item> {
             Color.BLACK,
     };
 
-
     private static int sGenerationId;
     private final int mGenerationId = sGenerationId++;
 
     @Override
-    public Integer getKey(@NonNull Item item) {
-        return item.id;
+    public int loadCount() {
+        return 10000;
     }
 
     @Nullable
     @Override
-    public List<Item> loadAfterInitial(@Nullable Integer position, int pageSize) {
-        if (position == null) {
-            position = -1;
-        }
+    public List<Item> loadAfterInitial(int position, int pageSize) {
         return createItems(position + 1, pageSize, 1);
     }
 
     @Nullable
     @Override
-    public List<Item> loadAfter(@NonNull Item currentEndItem, int pageSize) {
-        return createItems(currentEndItem.id + 1, pageSize, 1);
+    public List<Item> loadAfter(int currentEndIndex, @NonNull Item currentEndItem, int pageSize) {
+        return createItems(currentEndIndex + 1, pageSize, 1);
     }
 
     @Nullable
     @Override
-    public List<Item> loadBefore(@NonNull Item currentBeginItem, int pageSize) {
-        return createItems(currentBeginItem.id - 1, pageSize, -1);
+    public List<Item> loadBefore(int currentBeginIndex, @NonNull Item currentBeginItem,
+            int pageSize) {
+        return createItems(currentBeginIndex - 1, pageSize, -1);
     }
 
+    @Nullable
     private List<Item> createItems(int start, int count, int direction) {
         if (isInvalid()) {
             // abort!
@@ -75,7 +71,7 @@ public class ItemDataSource extends DataSource<Integer, Item> {
         }
 
         List<Item> items = new ArrayList<>();
-        int end = Math.max(-1, Math.min(COUNT, start + direction * count));
+        int end = Math.max(-1, Math.min(loadCount(), start + direction * count));
         int bgColor = COLORS[mGenerationId % COLORS.length];
 
         try {

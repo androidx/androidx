@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package android.arch.paging.integration.testapp;
+package android.arch.paging.integration.testapp.pagedlist;
 
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.util.paging.PagedListAdapterHelper;
+import android.arch.paging.integration.testapp.Item;
+import android.arch.paging.integration.testapp.R;
+import android.arch.util.paging.PagedList;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 
 /**
- * Sample NullPaddedList activity with artificial data source.
+ * Sample PagedList activity.
  */
-public class PagedListSampleActivity extends AppCompatActivity implements LifecycleRegistryOwner {
+public class PagedListRecyclerViewActivity extends AppCompatActivity
+        implements LifecycleRegistryOwner {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -38,15 +43,21 @@ public class PagedListSampleActivity extends AppCompatActivity implements Lifecy
                 .get(PagedListItemViewModel.class);
         setContentView(R.layout.activity_recycler_view);
 
-        final PagedListItemAdapter adapter = new PagedListItemAdapter(
-                new PagedListAdapterHelper.Builder<Item>()
-                        .setSource(viewModel.getLivePagedList())
-                        .setLifecycleOwner(this)
-                        .setDiffCallback(Item.DIFF_CALLBACK));
-        final RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        recyclerView.setAdapter(adapter);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        final PagedListItemAdapter adapter = new PagedListItemAdapter();
 
-        final Button button = findViewById(R.id.button);
+        // TODO: Create and use PagedListAdapterHelper.builder
+        viewModel.getPagedList().observe(this, new Observer<PagedList<Item>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<Item> itemPagedList) {
+                adapter.setPagedList(itemPagedList);
+                if (recyclerView.getAdapter() == null && itemPagedList != null) {
+                    itemPagedList.triggerInitialLoad(null); // TODO: Persist
+                    recyclerView.setAdapter(adapter);
+                }
+            }
+        });
+        final Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

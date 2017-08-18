@@ -14,48 +14,59 @@
  * limitations under the License.
  */
 
-package android.arch.persistence.room.integration.testapp;
+package android.arch.paging.integration.testapp.lazylist;
 
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.persistence.room.integration.testapp.database.Customer;
-import android.arch.util.paging.PagedListAdapterHelper;
+import android.arch.paging.integration.testapp.Item;
+import android.arch.paging.integration.testapp.R;
+import android.arch.util.paging.LazyList;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 
 /**
- * Sample PagedList activity which uses Room.
+ * Sample LazyList activity.
  */
-public class RoomPagedListActivity extends AppCompatActivity implements LifecycleRegistryOwner {
+public class LazyListRecyclerViewActivity extends AppCompatActivity
+        implements LifecycleRegistryOwner {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final CustomerViewModel viewModel = ViewModelProviders.of(this)
-                .get(CustomerViewModel.class);
+        final LazyListItemViewModel viewModel = ViewModelProviders.of(this)
+                .get(LazyListItemViewModel.class);
         setContentView(R.layout.activity_recycler_view);
-        final RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        final PagedListCustomerAdapter adapter = new PagedListCustomerAdapter(
-                new PagedListAdapterHelper.Builder<Customer>()
-                        .setSource(viewModel.getLivePagedList())
-                        .setLifecycleOwner(this)
-                        .setDiffCallback(Customer.DIFF_CALLBACK));
-        recyclerView.setAdapter(adapter);
-        final Button button = findViewById(R.id.button);
+
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
+        final LazyListItemAdapter adapter = new LazyListItemAdapter();
+
+
+        // TODO: helper initialization, with owner, recyclerview, LiveData<LazyList<Item>>
+        viewModel.getLazyList().observe(this, new Observer<LazyList<Item>>() {
+            @Override
+            public void onChanged(@Nullable LazyList<Item> itemLazyList) {
+                adapter.setLazyList(itemLazyList);
+                if (recyclerView.getAdapter() == null) {
+                    recyclerView.setAdapter(adapter);
+                }
+            }
+        });
+        final Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewModel.insertCustomer();
+                viewModel.invalidateList();
             }
         });
     }
 
-    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-
+    private LifecycleRegistry  mLifecycleRegistry = new LifecycleRegistry(this);
     @Override
     public LifecycleRegistry getLifecycle() {
         return mLifecycleRegistry;
