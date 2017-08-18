@@ -16,7 +16,10 @@
 
 package android.arch.persistence.room.writer
 
+import android.arch.persistence.room.RoomProcessor
+import android.arch.persistence.room.ext.S
 import android.arch.persistence.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -29,6 +32,9 @@ import javax.annotation.processing.ProcessingEnvironment
  * Base class for all writers that can produce a class.
  */
 abstract class ClassWriter(val className: ClassName) {
+    private val GENERATED_PACKAGE = "javax.annotation"
+    private val GENERATED_NAME = "Generated"
+
     private val sharedFieldSpecs = mutableMapOf<String, FieldSpec>()
     private val sharedMethodSpecs = mutableMapOf<String, MethodSpec>()
     private val sharedFieldNames = mutableSetOf<String>()
@@ -40,9 +46,26 @@ abstract class ClassWriter(val className: ClassName) {
         val builder = createTypeSpecBuilder()
         sharedFieldSpecs.values.forEach { builder.addField(it) }
         sharedMethodSpecs.values.forEach { builder.addMethod(it) }
+        addGeneratedAnnotationIfAvailable(builder, processingEnv)
         JavaFile.builder(className.packageName(), builder.build())
                 .build()
                 .writeTo(processingEnv.filer)
+    }
+
+    private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
+                                                  processingEnv: ProcessingEnvironment) {
+        val generatedAnnotationAvailable = processingEnv
+                .elementUtils
+                .getTypeElement(GENERATED_PACKAGE + "." + GENERATED_NAME) != null
+        if (generatedAnnotationAvailable) {
+            val className = ClassName.get(GENERATED_PACKAGE, GENERATED_NAME)
+            val generatedAnnotationSpec =
+                    AnnotationSpec.builder(className).addMember(
+                            "value",
+                            S,
+                            RoomProcessor::class.java.canonicalName).build()
+            adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)
+        }
     }
 
     private fun makeUnique(set: MutableSet<String>, value: String): String {

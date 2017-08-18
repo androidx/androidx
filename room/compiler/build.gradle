@@ -48,6 +48,7 @@ dependencies {
     testCompile project(":paging:common")
     testCompile libs.junit
     testCompile libs.ij_annotations
+    testCompile libs.jsr250
     testCompile libs.mockito_core
     testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$tools.current_sdk/",
             include : "android.jar")
