@@ -4169,7 +4169,10 @@ public class NotificationCompat {
         }
 
         @RequiresApi(21)
-        private static UnreadConversation getUnreadConversationFromBundle(Bundle b) {
+        private static UnreadConversation getUnreadConversationFromBundle(@Nullable Bundle b) {
+            if (b == null) {
+                return null;
+            }
             Parcelable[] parcelableMessages = b.getParcelableArray(KEY_MESSAGES);
             String[] messages = null;
             if (parcelableMessages != null) {
