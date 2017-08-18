@@ -16,11 +16,9 @@
 
 package android.arch.paging.integration.testapp;
 
-import android.arch.util.paging.DataSource;
+import android.arch.util.paging.BoundedDataSource;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +26,8 @@ import java.util.List;
 /**
  * Sample data source with artificial data.
  */
-public class ItemDataSource extends DataSource<Integer, Item> {
-    private static final int COUNT = 10000;
+class ItemDataSource extends BoundedDataSource<Item> {
+    private static final int COUNT = 500;
 
     @ColorInt
     private static final int[] COLORS = new int[] {
@@ -38,52 +36,31 @@ public class ItemDataSource extends DataSource<Integer, Item> {
             Color.BLACK,
     };
 
-
     private static int sGenerationId;
     private final int mGenerationId = sGenerationId++;
 
     @Override
-    public Integer getKey(@NonNull Item item) {
-        return item.id;
+    public int loadCount() {
+        return COUNT;
     }
 
-    @Nullable
     @Override
-    public List<Item> loadAfterInitial(@Nullable Integer position, int pageSize) {
-        if (position == null) {
-            position = -1;
-        }
-        return createItems(position + 1, pageSize, 1);
-    }
-
-    @Nullable
-    @Override
-    public List<Item> loadAfter(@NonNull Item currentEndItem, int pageSize) {
-        return createItems(currentEndItem.id + 1, pageSize, 1);
-    }
-
-    @Nullable
-    @Override
-    public List<Item> loadBefore(@NonNull Item currentBeginItem, int pageSize) {
-        return createItems(currentBeginItem.id - 1, pageSize, -1);
-    }
-
-    private List<Item> createItems(int start, int count, int direction) {
+    public List<Item> loadRange(int startPosition, int loadCount) {
         if (isInvalid()) {
             // abort!
             return null;
         }
 
         List<Item> items = new ArrayList<>();
-        int end = Math.max(-1, Math.min(COUNT, start + direction * count));
+        int end = Math.max(-1, Math.min(COUNT, startPosition + loadCount));
         int bgColor = COLORS[mGenerationId % COLORS.length];
 
         try {
-            Thread.sleep(300);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for (int i = start; i != end; i += direction) {
+        for (int i = startPosition; i != end; i++) {
             items.add(new Item(i, "item " + i, bgColor));
         }
 

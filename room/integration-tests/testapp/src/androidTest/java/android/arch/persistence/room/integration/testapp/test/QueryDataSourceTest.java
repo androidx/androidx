@@ -20,7 +20,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.CountedDataSource;
+import android.arch.util.paging.BoundedDataSource;
+import android.arch.util.paging.ContiguousDataSource;
+import android.arch.util.paging.KeyedDataSource;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;
@@ -33,7 +35,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class QueryDataSourceTest extends TestDatabaseTest {
     /**
      * Proper, keyed implementation.
      */
-    public class KeyedUserQueryDataSource extends CountedDataSource<User> {
+    public class KeyedUserQueryDataSource extends KeyedDataSource<User> {
         @Override
         public int loadCount() {
             return mUserDao.getUserCount();
@@ -52,20 +53,18 @@ public class QueryDataSourceTest extends TestDatabaseTest {
         @Nullable
         @Override
         public List<User> loadAfterInitial(int position, int pageSize) {
-            return mUserDao.userNameLimitOffset(pageSize, position + 1);
+            return mUserDao.userNameLimitOffset(pageSize, position);
         }
 
         @Nullable
         @Override
-        public List<User> loadAfter(int currentEndIndex, @NonNull User currentEndItem,
-                int pageSize) {
+        public List<User> loadAfter(@NonNull User currentEndItem, int pageSize) {
             return mUserDao.userNameLoadAfter(currentEndItem.getName(), pageSize);
         }
 
         @Nullable
         @Override
-        public List<User> loadBefore(int currentBeginIndex, @NonNull User currentBeginItem,
-                int pageSize) {
+        public List<User> loadBefore(@NonNull User currentBeginItem, int pageSize) {
             return mUserDao.userNameLoadBefore(currentBeginItem.getName(), pageSize);
         }
     }
@@ -73,8 +72,7 @@ public class QueryDataSourceTest extends TestDatabaseTest {
     /**
      * Lazy, LIMIT/OFFSET implementation.
      */
-    public class OffsetUserQueryDataSource extends CountedDataSource<User> {
-
+    public class OffsetUserQueryDataSource extends BoundedDataSource<User> {
         @Override
         public int loadCount() {
             return mUserDao.getUserCount();
@@ -82,28 +80,8 @@ public class QueryDataSourceTest extends TestDatabaseTest {
 
         @Nullable
         @Override
-        public List<User> loadAfterInitial(int position, int pageSize) {
-            return mUserDao.userNameLimitOffset(pageSize, position + 1);
-        }
-
-        @Nullable
-        @Override
-        public List<User> loadAfter(int currentEndIndex, @NonNull User currentEndItem,
-                int pageSize) {
-            return mUserDao.userNameLimitOffset(pageSize, currentEndIndex + 1);
-        }
-
-        @Nullable
-        @Override
-        public List<User> loadBefore(int currentBeginIndex, @NonNull User currentBeginItem,
-                int pageSize) {
-            int targetOffset = currentBeginIndex - pageSize;
-            int offset = Math.max(0, targetOffset);
-            int limit = Math.min(pageSize, pageSize + targetOffset);
-
-            List<User> users = mUserDao.userNameLimitOffset(limit, offset);
-            Collections.reverse(users); // :P
-            return users;
+        public List<User> loadRange(int startPosition, int loadCount) {
+            return mUserDao.userNameLimitOffset(loadCount, startPosition);
         }
     }
 
@@ -139,9 +117,10 @@ public class QueryDataSourceTest extends TestDatabaseTest {
     }
 
 
-    public static void verifyUserDataSource(User[] expected, CountedDataSource<User> dataSource) {
+    public static void verifyUserDataSource(
+            User[] expected, ContiguousDataSource<User> dataSource) {
         List<User> list = new ArrayList<>();
-        List<User> p = dataSource.loadAfterInitial(14, 10);
+        List<User> p = dataSource.loadAfterInitial(15, 10);
         assertNotNull(p);
         list.addAll(p);
 
