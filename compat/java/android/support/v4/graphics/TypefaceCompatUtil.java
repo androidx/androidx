@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
@@ -55,6 +56,7 @@ public class TypefaceCompatUtil {
      *
      * Returns null if failed to create temp file.
      */
+    @Nullable
     public static File getTempFile(Context context) {
         final String prefix = CACHE_FILE_PREFIX + Process.myPid() + "-" + Process.myTid() + "-";
         for (int i = 0; i < 100; ++i) {
@@ -73,6 +75,7 @@ public class TypefaceCompatUtil {
     /**
      * Copy the file contents to the direct byte buffer.
      */
+    @Nullable
     @RequiresApi(19)
     private static ByteBuffer mmap(File file) {
         try (FileInputStream fis = new FileInputStream(file)) {
@@ -87,6 +90,7 @@ public class TypefaceCompatUtil {
     /**
      * Copy the file contents to the direct byte buffer.
      */
+    @Nullable
     @RequiresApi(19)
     public static ByteBuffer mmap(Context context, CancellationSignal cancellationSignal, Uri uri) {
         final ContentResolver resolver = context.getContentResolver();
@@ -103,6 +107,7 @@ public class TypefaceCompatUtil {
     /**
      * Copy the resource contents to the direct byte buffer.
      */
+    @Nullable
     @RequiresApi(19)
     public static ByteBuffer copyToDirectBuffer(Context context, Resources res, int id) {
         File tmpFile = getTempFile(context);
