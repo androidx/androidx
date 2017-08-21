@@ -1,7 +1,11 @@
 package android.support.wear.utils {
 
   public class MetadataConstants {
+    method public static boolean isNotificationBridgingEnabled(android.content.Context);
     method public static boolean isStandalone(android.content.Context);
+    field public static final java.lang.String NOTIFICATION_BRIDGE_MODE_BRIDGING = "BRIDGING";
+    field public static final java.lang.String NOTIFICATION_BRIDGE_MODE_METADATA_NAME = "com.google.android.wearable.notificationBridgeMode";
+    field public static final java.lang.String NOTIFICATION_BRIDGE_MODE_NO_BRIDGING = "NO_BRIDGING";
     field public static final java.lang.String STANDALONE_METADATA_NAME = "com.google.android.wearable.standalone";
   }
 
