@@ -562,8 +562,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link PreviewPrograms#TYPE_TRACK},
          * {@link PreviewPrograms#TYPE_ALBUM},
          * {@link PreviewPrograms#TYPE_ARTIST},
-         * {@link PreviewPrograms#TYPE_PLAYLIST}, and
-         * {@link PreviewPrograms#TYPE_STATION}.
+         * {@link PreviewPrograms#TYPE_PLAYLIST},
+         * {@link PreviewPrograms#TYPE_STATION}, and
+         * {@link PreviewPrograms#TYPE_GAME}.
          *
          * @param type The type of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -581,8 +582,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link PreviewPrograms#ASPECT_RATIO_16_9},
          * {@link PreviewPrograms#ASPECT_RATIO_3_2},
          * {@link PreviewPrograms#ASPECT_RATIO_4_3},
-         * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
-         * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
+         * {@link PreviewPrograms#ASPECT_RATIO_1_1},
+         * {@link PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
          *
          * @param ratio The poster art aspect ratio for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -601,8 +603,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link PreviewPrograms#ASPECT_RATIO_16_9},
          * {@link PreviewPrograms#ASPECT_RATIO_3_2},
          * {@link PreviewPrograms#ASPECT_RATIO_4_3},
-         * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
-         * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
+         * {@link PreviewPrograms#ASPECT_RATIO_1_1},
+         * {@link PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
          *
          * @param ratio The thumbnail aspect ratio of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -631,8 +634,10 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * <p>The value should match one of the followings:
          * {@link PreviewPrograms#AVAILABILITY_AVAILABLE},
-         * {@link PreviewPrograms#AVAILABILITY_FREE_WITH_SUBSCRIPTION}, and
-         * {@link PreviewPrograms#AVAILABILITY_PAID_CONTENT}.
+         * {@link PreviewPrograms#AVAILABILITY_FREE_WITH_SUBSCRIPTION},
+         * {@link PreviewPrograms#AVAILABILITY_PAID_CONTENT},
+         * {@link PreviewPrograms#AVAILABILITY_PURCHASED}, and
+         * {@link PreviewPrograms#AVAILABILITY_FREE}.
          *
          * @param availability The availability of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
