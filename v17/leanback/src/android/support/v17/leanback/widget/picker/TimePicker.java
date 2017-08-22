@@ -150,13 +150,15 @@ public class TimePicker extends Picker {
             hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale, mIs24hFormat ? "Hma"
                     : "hma");
         } else {
+            // Using short style to avoid picking extra fields e.g. time zone in the returned time
+            // format.
             final java.text.DateFormat dateFormat =
-                    SimpleDateFormat.getTimeInstance(SimpleDateFormat.FULL, mConstant.locale);
+                    SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT, mConstant.locale);
             if (dateFormat instanceof SimpleDateFormat) {
                 String defaultPattern = ((SimpleDateFormat) dateFormat).toPattern();
                 defaultPattern = defaultPattern.replace("s", "");
                 if (mIs24hFormat) {
-                    defaultPattern = defaultPattern.replace('h', 'H');
+                    defaultPattern = defaultPattern.replace('h', 'H').replace("a", "");
                 }
                 hourPattern = defaultPattern;
             } else {
