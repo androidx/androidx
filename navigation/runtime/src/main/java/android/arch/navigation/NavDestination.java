@@ -282,18 +282,13 @@ public class NavDestination {
      * @param navOptions options for navigation
      */
     public void navigate(Bundle args, NavOptions navOptions) {
-        Bundle finalArgs = null;
         Bundle defaultArgs = getDefaultArguments();
-        if (defaultArgs != null) {
-            finalArgs = new Bundle();
-            finalArgs.putAll(defaultArgs);
-        }
+        Bundle finalArgs = new Bundle();
+        finalArgs.putAll(defaultArgs);
         if (args != null) {
-            if (finalArgs == null) {
-                finalArgs = new Bundle();
-            }
             finalArgs.putAll(args);
         }
+        //noinspection unchecked
         mNavigator.navigate(this, finalArgs, navOptions);
     }
 }
