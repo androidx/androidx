@@ -26,6 +26,9 @@ import android.os.Build;
  */
 @TargetApi(Build.VERSION_CODES.N)
 public class MetadataConstants {
+
+    //  Constants for standalone apps. //
+
     /**
      * The name of the meta-data element in the Wear app manifest for specifying whether this app
      * does not require a companion phone app. The value should be set to "true" or "false".
@@ -44,7 +47,7 @@ public class MetadataConstants {
      */
     public static final String STANDALONE_METADATA_NAME = "com.google.android.wearable.standalone";
 
-    //  Constants for customizing bridging of notifications from the phone to the wearable.
+    //  Constants for customizing bridging of notifications from the phone to the wearable. //
 
     /**
      * We support specifying whether notifications should be bridged from the phone to the wearable
@@ -91,6 +94,38 @@ public class MetadataConstants {
      */
     public static final String NOTIFICATION_BRIDGE_MODE_NO_BRIDGING = "NO_BRIDGING";
 
+    //  Constants for watch face preview. //
+
+    /**
+     * The name of the meta-data element in the watch face service manifest declaration used
+     * to assign a non-circular preview image to the watch face. The value should be set to
+     * a drawable reference.
+     *
+     * <pre class="prettyprint">
+     * &lt;meta-data
+     *     android:name="com.google.android.wearable.watchface.preview"
+     *     android:resource="@drawable/preview_face" /&gt;
+     * </pre>
+     */
+    public static final String WATCH_FACE_PREVIEW_METADATA_NAME =
+            "com.google.android.wearable.watchface.preview";
+
+    /**
+     * The name of the meta-data element in the watch face service manifest declaration used
+     * to assign a circular preview image to the watch face. The value should be set to
+     * a drawable reference.
+     *
+     * <pre class="prettyprint">
+     * &lt;meta-data
+     *     android:name="com.google.android.wearable.watchface.preview_circular"
+     *     android:resource="@drawable/preview_face_circular" /&gt;
+     * </pre>
+     */
+    public static final String WATCH_FACE_PREVIEW_CIRCULAR_METADATA_NAME =
+            "com.google.android.wearable.watchface.preview_circular";
+
+    // HELPER METHODS //
+
     /**
      * Determines whether a given context comes from a standalone app. This can be used as a proxy
      * to check if any given app is compatible with iOS Companion devices.
@@ -131,6 +166,30 @@ public class MetadataConstants {
         }
 
         return true;
+    }
+
+    /**
+     *
+     * @param context to be evaluated.
+     * @param circular Whether to return the circular or regular preview.
+     *
+     * @return an integer id representing the resource id of the requested drawable, or 0 if
+     * no drawable was found.
+     */
+    public static int getPreviewDrawableResourceId(Context context, boolean circular) {
+        try {
+            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(
+                    context.getPackageName(), PackageManager.GET_META_DATA);
+            if (appInfo.metaData != null) {
+                return circular
+                        ?  appInfo.metaData.getInt(WATCH_FACE_PREVIEW_CIRCULAR_METADATA_NAME, 0)
+                        :  appInfo.metaData.getInt(WATCH_FACE_PREVIEW_METADATA_NAME, 0);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            // Do nothing
+        }
+
+        return 0;
     }
 
     private MetadataConstants() {}

@@ -1,12 +1,15 @@
 package android.support.wear.utils {
 
   public class MetadataConstants {
+    method public static int getPreviewDrawableResourceId(android.content.Context, boolean);
     method public static boolean isNotificationBridgingEnabled(android.content.Context);
     method public static boolean isStandalone(android.content.Context);
     field public static final java.lang.String NOTIFICATION_BRIDGE_MODE_BRIDGING = "BRIDGING";
     field public static final java.lang.String NOTIFICATION_BRIDGE_MODE_METADATA_NAME = "com.google.android.wearable.notificationBridgeMode";
     field public static final java.lang.String NOTIFICATION_BRIDGE_MODE_NO_BRIDGING = "NO_BRIDGING";
     field public static final java.lang.String STANDALONE_METADATA_NAME = "com.google.android.wearable.standalone";
+    field public static final java.lang.String WATCH_FACE_PREVIEW_CIRCULAR_METADATA_NAME = "com.google.android.wearable.watchface.preview_circular";
+    field public static final java.lang.String WATCH_FACE_PREVIEW_METADATA_NAME = "com.google.android.wearable.watchface.preview";
   }
 
 }

@@ -18,7 +18,9 @@ package android.support.wear.utils;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.wear.test.R;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 public class MetadataTestActivity extends Activity {
@@ -27,5 +29,9 @@ public class MetadataTestActivity extends Activity {
         super.onCreate(savedInstanceState);
         assertTrue(MetadataConstants.isStandalone(this));
         assertTrue(MetadataConstants.isNotificationBridgingEnabled(this));
+        assertEquals(R.drawable.preview_face,
+                MetadataConstants.getPreviewDrawableResourceId(this, false));
+        assertEquals(R.drawable.preview_face_circular,
+                MetadataConstants.getPreviewDrawableResourceId(this, true));
     }
 }
