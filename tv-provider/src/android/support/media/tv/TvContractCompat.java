@@ -1462,6 +1462,67 @@ public final class TvContractCompat {
          */
         String COLUMN_CONTENT_ID = "content_id";
 
+        /**
+         * The content description of the logo of this TV program.
+         *
+         * <p>A description of the logo shown on the program used in accessibility mode.
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         * @see #COLUMN_LOGO_URI
+         */
+        String COLUMN_LOGO_CONTENT_DESCRIPTION = "logo_content_description";
+
+        /**
+         * A genre(s) that are related to this TV program.
+         *
+         * <p>A short freeform description of the genre(s) of the program. Usually a comma seperated
+         * list of a few genres. For example: Drama, Sci-Fi.
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        String COLUMN_GENRE = "genre";
+
+        /**
+         * The start time of this TV program, in milliseconds since the epoch.
+         *
+         * <p>Should be empty if this program is not live.
+         *
+         * <p>Type: INTEGER (long)
+         * @see #COLUMN_LIVE
+         */
+        String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
+
+        /**
+         * The end time of this TV program, in milliseconds since the epoch.
+         *
+         * <p>Should be empty if this program is not live.
+         *
+         * <p>Type: INTEGER (long)
+         * @see #COLUMN_LIVE
+         */
+        String COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis";
+
+        /**
+         * The URI for the preview audio.
+         *
+         * <p>The data in the column must be a URL, or a URI in one of the following formats:
+         *
+         * <ul>
+         * <li>content ({@link android.content.ContentResolver#SCHEME_CONTENT})</li>
+         * <li>android.resource ({@link android.content.ContentResolver#SCHEME_ANDROID_RESOURCE})
+         * </li>
+         * <li>file ({@link android.content.ContentResolver#SCHEME_FILE})</li>
+         * </ul>
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        String COLUMN_PREVIEW_AUDIO_URI = "preview_audio_uri";
     }
 
     /** Column definitions for the TV channels table. */
