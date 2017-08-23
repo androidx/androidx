@@ -25,22 +25,26 @@ import java.util.List;
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PageArrayList<T> extends PagedList<T> {
-    int mListOffset;
-    final ArrayList<List<T>> mList;
+    // partial list of pages, doesn't include pages below the lowest accessed, or above the highest
+    final ArrayList<List<T>> mPages;
+
+    // to access page at index N, do mPages.get(N - mPageIndexOffset), but do bounds checking first!
+    int mPageIndexOffset;
+
     final int mPageSize;
     final int mCount;
     final int mMaxPageCount;
 
     PageArrayList(int pageSize, int count) {
-        mList = new ArrayList<>();
+        mPages = new ArrayList<>();
         mPageSize = pageSize;
         mCount = count;
         mMaxPageCount = (mCount + mPageSize - 1) / mPageSize;
     }
 
-    PageArrayList(PageArrayList<T> other) {
-        mListOffset = other.mListOffset;
-        mList = other.isImmutable() ? other.mList : new ArrayList<>(other.mList);
+    private PageArrayList(PageArrayList<T> other) {
+        mPages = other.isImmutable() ? other.mPages : new ArrayList<>(other.mPages);
+        mPageIndexOffset = other.mPageIndexOffset;
         mPageSize = other.mPageSize;
         mCount = other.size();
         mMaxPageCount = other.mMaxPageCount;
@@ -52,14 +56,9 @@ class PageArrayList<T> extends PagedList<T> {
             throw new IllegalArgumentException();
         }
 
-        int pageIndex = index / mPageSize - mListOffset;
+        int localPageIndex = getLocalPageIndex(index);
 
-        if (pageIndex < 0 || pageIndex > mList.size()) {
-            // page not present
-            return null;
-        }
-
-        List<T> page = mList.get(pageIndex);
+        List<T> page = getPage(localPageIndex);
 
         if (page == null) {
             // page empty
@@ -69,8 +68,18 @@ class PageArrayList<T> extends PagedList<T> {
         return page.get(index % mPageSize);
     }
 
-    int getPageIndex(int index) {
-        return index / mPageSize - mListOffset;
+    @Nullable
+    private List<T> getPage(int localPageIndex) {
+        if (localPageIndex < 0 || localPageIndex >= mPages.size()) {
+            // page not present
+            return null;
+        }
+
+        return mPages.get(localPageIndex);
+    }
+
+    private int getLocalPageIndex(int index) {
+        return index / mPageSize - mPageIndexOffset;
     }
 
     @Override
@@ -86,6 +95,12 @@ class PageArrayList<T> extends PagedList<T> {
     @Override
     public boolean isImmutable() {
         return true;
+    }
+
+    boolean hasPage(int pageIndex) {
+        final int localPageIndex = pageIndex - mPageIndexOffset;
+        List<T> page = getPage(localPageIndex);
+        return page != null && page.size() != 0;
     }
 
     @Override
