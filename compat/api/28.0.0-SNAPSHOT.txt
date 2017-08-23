@@ -311,7 +311,7 @@ package android.support.v4.app {
     method public android.support.v4.app.NotificationCompat.Builder setVibrate(long[]);
     method public android.support.v4.app.NotificationCompat.Builder setVisibility(int);
     method public android.support.v4.app.NotificationCompat.Builder setWhen(long);
-    field public java.util.ArrayList<java.lang.String> mPeople;
+    field public deprecated java.util.ArrayList<java.lang.String> mPeople;
   }
 
   public static final class NotificationCompat.CarExtender implements android.support.v4.app.NotificationCompat.Extender {
