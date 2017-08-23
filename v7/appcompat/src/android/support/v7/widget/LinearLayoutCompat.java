@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.GravityCompat;
@@ -1751,18 +1750,14 @@ public class LinearLayoutCompat extends ViewGroup {
 
     @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 14) {
-            super.onInitializeAccessibilityEvent(event);
-            event.setClassName(LinearLayoutCompat.class.getName());
-        }
+        super.onInitializeAccessibilityEvent(event);
+        event.setClassName(LinearLayoutCompat.class.getName());
     }
 
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        if (Build.VERSION.SDK_INT >= 14) {
-            super.onInitializeAccessibilityNodeInfo(info);
-            info.setClassName(LinearLayoutCompat.class.getName());
-        }
+        super.onInitializeAccessibilityNodeInfo(info);
+        info.setClassName(LinearLayoutCompat.class.getName());
     }
 
     /**

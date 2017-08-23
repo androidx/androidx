@@ -94,10 +94,7 @@ public final class AppCompatDrawableManager {
         // VectorDrawableCompat before Nougat to utilize the bug fixes in VectorDrawableCompat.
         if (Build.VERSION.SDK_INT < 24) {
             manager.addDelegate("vector", new VdcInflateDelegate());
-            if (Build.VERSION.SDK_INT >= 11) {
-                // AnimatedVectorDrawableCompat only works on API v11+
-                manager.addDelegate("animated-vector", new AvdcInflateDelegate());
-            }
+            manager.addDelegate("animated-vector", new AvdcInflateDelegate());
         }
     }
 

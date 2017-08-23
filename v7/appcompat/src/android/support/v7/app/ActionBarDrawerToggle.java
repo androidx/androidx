@@ -209,12 +209,8 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
             mActivityImpl = ((DelegateProvider) activity).getDrawerToggleDelegate();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mActivityImpl = new JellybeanMr2Delegate(activity);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mActivityImpl = new IcsDelegate(activity);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mActivityImpl = new HoneycombDelegate(activity);
         } else {
-            mActivityImpl = new DummyDelegate(activity);
+            mActivityImpl = new IcsDelegate(activity);
         }
 
         mDrawerLayout = drawerLayout;
@@ -245,7 +241,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
             setPosition(0);
         }
         if (mDrawerIndicatorEnabled) {
-            setActionBarUpIndicator((Drawable) mSlider,
+            setActionBarUpIndicator(mSlider,
                     mDrawerLayout.isDrawerOpen(GravityCompat.START) ?
                             mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
         }
@@ -359,7 +355,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public void setDrawerIndicatorEnabled(boolean enable) {
         if (enable != mDrawerIndicatorEnabled) {
             if (enable) {
-                setActionBarUpIndicator((Drawable) mSlider,
+                setActionBarUpIndicator(mSlider,
                         mDrawerLayout.isDrawerOpen(GravityCompat.START) ?
                                 mCloseDrawerContentDescRes : mOpenDrawerContentDescRes);
             } else {
@@ -519,15 +515,14 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     }
 
     /**
-     * Delegate if SDK version is between Honeycomb and ICS
+     * Delegate if SDK version is between ICS and JBMR2
      */
-    @RequiresApi(11)
-    private static class HoneycombDelegate implements Delegate {
+    private static class IcsDelegate implements Delegate {
 
         final Activity mActivity;
         ActionBarDrawerToggleHoneycomb.SetIndicatorInfo mSetIndicatorInfo;
 
-        HoneycombDelegate(Activity activity) {
+        IcsDelegate(Activity activity) {
             mActivity = activity;
         }
 
@@ -538,7 +533,14 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
         @Override
         public Context getActionBarThemedContext() {
-            return mActivity;
+            final ActionBar actionBar = mActivity.getActionBar();
+            final Context context;
+            if (actionBar != null) {
+                context = actionBar.getThemedContext();
+            } else {
+                context = mActivity;
+            }
+            return context;
         }
 
         @Override
@@ -563,29 +565,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         public void setActionBarDescription(int contentDescRes) {
             mSetIndicatorInfo = ActionBarDrawerToggleHoneycomb.setActionBarDescription(
                     mSetIndicatorInfo, mActivity, contentDescRes);
-        }
-    }
-
-    /**
-     * Delegate if SDK version is between ICS and JBMR2
-     */
-    @RequiresApi(14)
-    private static class IcsDelegate extends HoneycombDelegate {
-
-        IcsDelegate(Activity activity) {
-            super(activity);
-        }
-
-        @Override
-        public Context getActionBarThemedContext() {
-            final ActionBar actionBar = mActivity.getActionBar();
-            final Context context;
-            if (actionBar != null) {
-                context = actionBar.getThemedContext();
-            } else {
-                context = mActivity;
-            }
-            return context;
         }
     }
 
@@ -685,42 +664,6 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         @Override
         public Context getActionBarThemedContext() {
             return mToolbar.getContext();
-        }
-
-        @Override
-        public boolean isNavigationVisible() {
-            return true;
-        }
-    }
-
-    /**
-     * Fallback delegate
-     */
-    static class DummyDelegate implements Delegate {
-        final Activity mActivity;
-
-        DummyDelegate(Activity activity) {
-            mActivity = activity;
-        }
-
-        @Override
-        public void setActionBarUpIndicator(Drawable upDrawable, @StringRes int contentDescRes) {
-
-        }
-
-        @Override
-        public void setActionBarDescription(@StringRes int contentDescRes) {
-
-        }
-
-        @Override
-        public Drawable getThemeUpIndicator() {
-            return null;
-        }
-
-        @Override
-        public Context getActionBarThemedContext() {
-            return mActivity;
         }
 
         @Override
