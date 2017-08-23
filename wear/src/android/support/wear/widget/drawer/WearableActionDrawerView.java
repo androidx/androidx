@@ -306,7 +306,8 @@ public class WearableActionDrawerView extends WearableDrawerView {
                         @Override
                         public void menuItemChanged(int position) {
                             if (mActionListAdapter != null) {
-                                mActionListAdapter.notifyItemChanged(position);
+                                int listPosition = hasTitle() ? position + 1 : position;
+                                mActionListAdapter.notifyItemChanged(listPosition);
                             }
                             if (position == 0) {
                                 updatePeekIcons();
@@ -316,7 +317,8 @@ public class WearableActionDrawerView extends WearableDrawerView {
                         @Override
                         public void menuItemAdded(int position) {
                             if (mActionListAdapter != null) {
-                                mActionListAdapter.notifyItemChanged(position);
+                                int listPosition = hasTitle() ? position + 1 : position;
+                                mActionListAdapter.notifyItemInserted(listPosition);
                             }
                             // Handle transitioning from 0->1 items (set peek icon) and
                             // 1->2 (switch to ellipsis.)
@@ -328,7 +330,8 @@ public class WearableActionDrawerView extends WearableDrawerView {
                         @Override
                         public void menuItemRemoved(int position) {
                             if (mActionListAdapter != null) {
-                                mActionListAdapter.notifyItemChanged(position);
+                                int listPosition = hasTitle() ? position + 1 : position;
+                                mActionListAdapter.notifyItemRemoved(listPosition);
                             }
                             // Handle transitioning from 2->1 items (remove ellipsis), and
                             // also the removal of item 1, which could cause the peek icon
