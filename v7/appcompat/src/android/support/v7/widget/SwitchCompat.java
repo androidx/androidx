@@ -29,7 +29,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -79,7 +78,6 @@ import android.widget.CompoundButton;
  * @attr ref android.support.v7.appcompat.R.styleable#SwitchCompat_thumbTextPadding
  * @attr ref android.support.v7.appcompat.R.styleable#SwitchCompat_track
  */
-@RequiresApi(14)
 public class SwitchCompat extends CompoundButton {
     private static final int THUMB_ANIMATION_DURATION = 250;
 
@@ -1368,21 +1366,19 @@ public class SwitchCompat extends CompoundButton {
 
     @Override
     public void jumpDrawablesToCurrentState() {
-        if (Build.VERSION.SDK_INT >= 14) {
-            super.jumpDrawablesToCurrentState();
+        super.jumpDrawablesToCurrentState();
 
-            if (mThumbDrawable != null) {
-                mThumbDrawable.jumpToCurrentState();
-            }
+        if (mThumbDrawable != null) {
+            mThumbDrawable.jumpToCurrentState();
+        }
 
-            if (mTrackDrawable != null) {
-                mTrackDrawable.jumpToCurrentState();
-            }
+        if (mTrackDrawable != null) {
+            mTrackDrawable.jumpToCurrentState();
+        }
 
-            if (mPositionAnimator != null && mPositionAnimator.isStarted()) {
-                mPositionAnimator.end();
-                mPositionAnimator = null;
-            }
+        if (mPositionAnimator != null && mPositionAnimator.isStarted()) {
+            mPositionAnimator.end();
+            mPositionAnimator = null;
         }
     }
 
@@ -1394,19 +1390,17 @@ public class SwitchCompat extends CompoundButton {
 
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        if (Build.VERSION.SDK_INT >= 14) {
-            super.onInitializeAccessibilityNodeInfo(info);
-            info.setClassName(ACCESSIBILITY_EVENT_CLASS_NAME);
-            CharSequence switchText = isChecked() ? mTextOn : mTextOff;
-            if (!TextUtils.isEmpty(switchText)) {
-                CharSequence oldText = info.getText();
-                if (TextUtils.isEmpty(oldText)) {
-                    info.setText(switchText);
-                } else {
-                    StringBuilder newText = new StringBuilder();
-                    newText.append(oldText).append(' ').append(switchText);
-                    info.setText(newText);
-                }
+        super.onInitializeAccessibilityNodeInfo(info);
+        info.setClassName(ACCESSIBILITY_EVENT_CLASS_NAME);
+        CharSequence switchText = isChecked() ? mTextOn : mTextOff;
+        if (!TextUtils.isEmpty(switchText)) {
+            CharSequence oldText = info.getText();
+            if (TextUtils.isEmpty(oldText)) {
+                info.setText(switchText);
+            } else {
+                StringBuilder newText = new StringBuilder();
+                newText.append(oldText).append(' ').append(switchText);
+                info.setText(newText);
             }
         }
     }
