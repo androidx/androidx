@@ -214,25 +214,19 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
 
         if (mPopupContext != null) {
             if (mode == MODE_THEME) {
-                if (Build.VERSION.SDK_INT >= 11) {
-                    // If we're running on API v11+ we will try and read android:spinnerMode
-                    TypedArray aa = null;
-                    try {
-                        aa = context.obtainStyledAttributes(attrs, ATTRS_ANDROID_SPINNERMODE,
-                                defStyleAttr, 0);
-                        if (aa.hasValue(0)) {
-                            mode = aa.getInt(0, MODE_DIALOG);
-                        }
-                    } catch (Exception e) {
-                        Log.i(TAG, "Could not read android:spinnerMode", e);
-                    } finally {
-                        if (aa != null) {
-                            aa.recycle();
-                        }
+                TypedArray aa = null;
+                try {
+                    aa = context.obtainStyledAttributes(attrs, ATTRS_ANDROID_SPINNERMODE,
+                            defStyleAttr, 0);
+                    if (aa.hasValue(0)) {
+                        mode = aa.getInt(0, MODE_DIALOG);
                     }
-                } else {
-                    // Else, we use a default mode of dropdown
-                    mode = MODE_DROPDOWN;
+                } catch (Exception e) {
+                    Log.i(TAG, "Could not read android:spinnerMode", e);
+                } finally {
+                    if (aa != null) {
+                        aa.recycle();
+                    }
                 }
             }
 
