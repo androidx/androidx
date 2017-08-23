@@ -20,13 +20,16 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.swipeDown;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.wear.widget.util.AsyncViewActions.waitForMatchingView;
 
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -35,18 +38,26 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
+import android.support.test.espresso.PerformException;
+import android.support.test.espresso.UiController;
+import android.support.test.espresso.ViewAction;
+import android.support.test.espresso.util.HumanReadables;
+import android.support.test.espresso.util.TreeIterables;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
 import android.support.wear.test.R;
 import android.support.wear.widget.drawer.DrawerTestActivity.DrawerStyle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,6 +65,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.Nullable;
 
 /**
  * Espresso tests for {@link WearableDrawerLayout}.
@@ -372,6 +387,91 @@ public class WearableDrawerLayoutEspressoTest {
         verify(mockClickListener).onMenuItemClick(any(MenuItem.class));
     }
 
+    @Test
+    public void changingActionDrawerItemShouldUpdateView() {
+        // GIVEN a drawer layout with an open action drawer
+        activityRule.launchActivity(
+                new DrawerTestActivity.Builder()
+                        .setStyle(DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE)
+                        .openBottomDrawerInOnCreate()
+                        .build());
+        WearableActionDrawerView actionDrawer =
+                activityRule.getActivity().findViewById(R.id.action_drawer);
+        final MenuItem secondItem = actionDrawer.getMenu().getItem(1);
+
+        // WHEN its second item is changed
+        actionDrawer.post(new Runnable() {
+            @Override
+            public void run() {
+                secondItem.setTitle("Modified item");
+            }
+        });
+
+        // THEN the new item should be displayed
+        onView(withText("Modified item")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void removingActionDrawerItemShouldUpdateView() {
+        // GIVEN a drawer layout with an open action drawer
+        activityRule.launchActivity(
+                new DrawerTestActivity.Builder()
+                        .setStyle(DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE)
+                        .openBottomDrawerInOnCreate()
+                        .build());
+        final WearableActionDrawerView actionDrawer =
+                activityRule.getActivity().findViewById(R.id.action_drawer);
+        MenuItem secondItem = actionDrawer.getMenu().getItem(1);
+        final int itemId = secondItem.getItemId();
+        final String title = secondItem.getTitle().toString();
+        final int initialSize = getChildByType(actionDrawer, RecyclerView.class)
+                .getAdapter()
+                .getItemCount();
+
+        // WHEN its second item is removed
+        actionDrawer.post(new Runnable() {
+            @Override
+            public void run() {
+                actionDrawer.getMenu().removeItem(itemId);
+            }
+        });
+
+        // THEN it should decrease by 1 in size and it should no longer contain the item's text
+        onView(allOf(withParent(withId(R.id.action_drawer)), isAssignableFrom(RecyclerView.class)))
+                .perform(waitForRecyclerToBeSize(initialSize - 1, MAX_WAIT_MS))
+                .perform(waitForMatchingView(recyclerWithoutText(is(title)), MAX_WAIT_MS));
+    }
+
+    @Test
+    public void addingActionDrawerItemShouldUpdateView() {
+        // GIVEN a drawer layout with an open action drawer
+        activityRule.launchActivity(
+                new DrawerTestActivity.Builder()
+                        .setStyle(DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE)
+                        .openBottomDrawerInOnCreate()
+                        .build());
+        final WearableActionDrawerView actionDrawer =
+                activityRule.getActivity().findViewById(R.id.action_drawer);
+
+        RecyclerView recycler = getChildByType(actionDrawer, RecyclerView.class);
+        final RecyclerView.LayoutManager layoutManager = recycler.getLayoutManager();
+        final int initialSize = recycler.getAdapter().getItemCount();
+
+        // WHEN an item is added and the view is scrolled down (to make sure the view is created)
+        actionDrawer.post(new Runnable() {
+            @Override
+            public void run() {
+                actionDrawer.getMenu().add(0, 42, Menu.NONE, "New Item");
+                layoutManager.scrollToPosition(initialSize);
+            }
+        });
+
+        // THEN it should decrease by 1 in size and the there should be a view with the item's text
+        onView(allOf(withParent(withId(R.id.action_drawer)), isAssignableFrom(RecyclerView.class)))
+                .perform(waitForRecyclerToBeSize(initialSize + 1, MAX_WAIT_MS))
+                .perform(waitForMatchingView(withText("New Item"), MAX_WAIT_MS));
+    }
+
     private void scrollToPosition(final RecyclerView recyclerView, final int position) {
         recyclerView.post(new Runnable() {
             @Override
@@ -464,5 +564,105 @@ public class WearableDrawerLayoutEspressoTest {
                 description.appendText("can be swiped closed");
             }
         };
+    }
+
+    /**
+     * Returns a {@link TypeSafeMatcher} that returns {@code true} when the {@link RecyclerView}
+     * does not contain a {@link TextView} with text matched by {@code textMatcher}.
+     */
+    private TypeSafeMatcher<View> recyclerWithoutText(final Matcher<String> textMatcher) {
+        return new TypeSafeMatcher<View>() {
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Without recycler text ");
+                textMatcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                if (!(view instanceof RecyclerView)) {
+                    return false;
+                }
+
+                RecyclerView recycler = ((RecyclerView) view);
+                if (recycler.isAnimating()) {
+                    // While the RecyclerView is animating, it will return null ViewHolders and we
+                    // won't be able to tell whether the item has been removed or not.
+                    return false;
+                }
+
+                for (int i = 0; i < recycler.getAdapter().getItemCount(); i++) {
+                    RecyclerView.ViewHolder holder = recycler.findViewHolderForAdapterPosition(i);
+                    if (holder != null) {
+                        TextView text = getChildByType(holder.itemView, TextView.class);
+                        if (text != null && textMatcher.matches(text.getText())) {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        };
+    }
+
+    /**
+     * Waits for the {@link RecyclerView} to contain {@code targetCount} items, up to {@code millis}
+     * milliseconds. Throws exception if the time limit is reached before reaching the desired
+     * number of items.
+     */
+    public ViewAction waitForRecyclerToBeSize(final int targetCount, final long millis) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isAssignableFrom(RecyclerView.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Waiting for recycler to be size=" + targetCount;
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                if (!(view instanceof RecyclerView)) {
+                    return;
+                }
+
+                RecyclerView recycler = (RecyclerView) view;
+                uiController.loopMainThreadUntilIdle();
+                final long startTime = System.currentTimeMillis();
+                final long endTime = startTime + millis;
+                do {
+                    if (recycler.getAdapter().getItemCount() == targetCount) {
+                        return;
+                    }
+                    uiController.loopMainThreadForAtLeast(100); // at least 3 frames
+                } while (System.currentTimeMillis() < endTime);
+
+                // timeout happens
+                throw new PerformException.Builder()
+                        .withActionDescription(this.getDescription())
+                        .withViewDescription(HumanReadables.describe(view))
+                        .withCause(new TimeoutException())
+                        .build();
+            }
+        };
+    }
+
+    /**
+     * Returns the first child of {@code root} to be an instance of class {@code T}, or {@code null}
+     * if none were found.
+     */
+    @Nullable
+    private <T> T getChildByType(View root, Class<T> classOfChildToFind) {
+        for (View child : TreeIterables.breadthFirstViewTraversal(root)) {
+            if (classOfChildToFind.isInstance(child)) {
+                return (T) child;
+            }
+        }
+
+        return null;
     }
 }
