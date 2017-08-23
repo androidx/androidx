@@ -17,11 +17,18 @@
 package com.example.android.leanback;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v17.leanback.media.PlaybackBaseControlGlue;
 import android.support.v17.leanback.media.PlayerAdapter;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -29,11 +36,20 @@ import android.widget.Toast;
 class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
         android.support.v17.leanback.media.PlaybackTransportControlGlue<T> {
 
+
+    // In this glue, we don't support fast forward/ rewind/ repeat/ shuffle action
+    private static final float NORMAL_SPEED = 1.0f;
+
+    // for debugging purpose
+    private static final Boolean DEBUG = false;
+    private static final String TAG = "PlaybackTransportControlGlue";
+
     private PlaybackControlsRow.RepeatAction mRepeatAction;
     private PlaybackControlsRow.ThumbsUpAction mThumbsUpAction;
     private PlaybackControlsRow.ThumbsDownAction mThumbsDownAction;
     private PlaybackControlsRow.PictureInPictureAction mPipAction;
     private PlaybackControlsRow.ClosedCaptioningAction mClosedCaptioningAction;
+    private MediaSessionCompat mMediaSessionCompat;
 
     PlaybackTransportControlGlueSample(Context context, T impl) {
         super(context, impl);
@@ -72,6 +88,44 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
     }
 
     @Override
+    protected void onUpdateBufferedProgress() {
+        super.onUpdateBufferedProgress();
+
+        // if the media session is not connected, don't update playback state information
+        if (mMediaSessionCompat == null) {
+            return;
+        }
+
+        mMediaSessionCompat.setPlaybackState(createPlaybackStateBasedOnAdapterState());
+    }
+
+    @Override
+    protected void onUpdateProgress() {
+        super.onUpdateProgress();
+
+        // if the media session is not connected, don't update playback state information
+        if (mMediaSessionCompat == null) {
+            return;
+        }
+
+        mMediaSessionCompat.setPlaybackState(createPlaybackStateBasedOnAdapterState());
+    }
+
+
+    @Override
+    protected void onUpdateDuration() {
+        super.onUpdateDuration();
+        onMediaSessionMetaDataChanged();
+    }
+
+    // when meta data is changed, the metadata for media session will also be updated
+    @Override
+    protected void onMetadataChanged() {
+        super.onMetadataChanged();
+        onMediaSessionMetaDataChanged();
+    }
+
+    @Override
     public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
         if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
             Action action = getControlsRow().getActionForKeyCode(keyEvent.getKeyCode());
@@ -81,6 +135,29 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
             }
         }
         return super.onKey(view, keyCode, keyEvent);
+    }
+
+    /**
+     * Public api to connect media session to this glue
+     */
+    public void connectToMediaSession(MediaSessionCompat mediaSessionCompat) {
+        mMediaSessionCompat = mediaSessionCompat;
+        mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
+                | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mMediaSessionCompat.setActive(true);
+        mMediaSessionCompat.setCallback(new MediaSessionCallback());
+        onMediaSessionMetaDataChanged();
+    }
+
+    /**
+     * Public api to disconnect media session from this glue
+     */
+    public void disconnectToMediaSession() {
+        if (DEBUG) {
+            Log.e(TAG, "disconnectToMediaSession: Media session disconnected");
+        }
+        mMediaSessionCompat.setActive(false);
+        mMediaSessionCompat.release();
     }
 
     private boolean shouldDispatchAction(Action action) {
@@ -146,5 +223,155 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
             return;
         }
         notifyActionChanged(mRepeatAction);
+    }
+
+    /**
+     * Callback function when media session's meta data is changed.
+     * When this function is returned, the callback function onMetaDataChanged will be
+     * executed to address the new playback state.
+     */
+    private void onMediaSessionMetaDataChanged() {
+
+        /**
+         * Only update the media session's meta data when the media session is connected
+         */
+        if (mMediaSessionCompat == null) {
+            return;
+        }
+
+        MediaMetadataCompat.Builder metaDataBuilder = new MediaMetadataCompat.Builder();
+
+        // update media title
+        if (getTitle() != null) {
+            metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE,
+                    getTitle().toString());
+        }
+
+        if (getSubtitle() != null) {
+            // update media subtitle
+            metaDataBuilder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE,
+                    getSubtitle().toString());
+        }
+
+        if (getArt() != null) {
+            // update media art bitmap
+            Drawable artDrawable = getArt();
+            metaDataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
+                    Bitmap.createBitmap(
+                            artDrawable.getIntrinsicWidth(), artDrawable.getIntrinsicHeight(),
+                            Bitmap.Config.ARGB_8888));
+        }
+
+        metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, getDuration());
+
+        mMediaSessionCompat.setMetadata(metaDataBuilder.build());
+    }
+
+    @Override
+    public void play() {
+        super.play();
+    }
+
+    @Override
+    public void pause() {
+        super.pause();
+    }
+
+    @Override
+    protected void onPlayStateChanged() {
+        super.onPlayStateChanged();
+        mMediaSessionCompat.setPlaybackState(createPlaybackStateBasedOnAdapterState());
+    }
+
+    @Override
+    protected void onPreparedStateChanged() {
+        super.onPreparedStateChanged();
+        mMediaSessionCompat.setPlaybackState(createPlaybackStateBasedOnAdapterState());
+    }
+
+    // associate media session event with player action
+    private class MediaSessionCallback extends MediaSessionCompat.Callback {
+
+        @Override
+        public void onPlay() {
+            play();
+        }
+
+        @Override
+        public void onPause() {
+            pause();
+        }
+
+        @Override
+        public void onSeekTo(long pos) {
+            seekTo(pos);
+        }
+    }
+
+    /**
+     * Get supported actions from player adapter then translate it into playback state compat
+     * related actions
+     */
+    private long getPlaybackStateActions() {
+        long supportedActions = 0L;
+        long actionsFromPlayerAdapter = getPlayerAdapter().getSupportedActions();
+        if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_SKIP_TO_PREVIOUS) != 0) {
+            supportedActions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+        } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_SKIP_TO_NEXT) != 0) {
+            supportedActions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+        } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_REWIND) != 0) {
+            supportedActions |= PlaybackStateCompat.ACTION_REWIND;
+        } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_FAST_FORWARD) != 0) {
+            supportedActions |= PlaybackStateCompat.ACTION_FAST_FORWARD;
+        } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_PLAY_PAUSE) != 0) {
+            supportedActions |= PlaybackStateCompat.ACTION_PLAY_PAUSE;
+        } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_REPEAT) != 0) {
+            supportedActions |= PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
+        } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_SHUFFLE) != 0) {
+            supportedActions |= PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+        }
+        return supportedActions;
+    }
+
+    /**
+     * Helper function to create a playback state based on current adapter's state.
+     *
+     * @return playback state compat builder
+     */
+    private PlaybackStateCompat createPlaybackStateBasedOnAdapterState() {
+
+        PlaybackStateCompat.Builder playbackStateCompatBuilder = new PlaybackStateCompat.Builder();
+        long currentPosition = getCurrentPosition();
+        long bufferedPosition = getBufferedPosition();
+
+        // In this glue we only support normal speed
+        float playbackSpeed = NORMAL_SPEED;
+
+        // Translate player adapter's state to play back state compat
+        // If player adapter is not prepared
+        // ==> STATE_STOPPED
+        //     (Launcher can only visualize the media session under playing state,
+        //     it makes more sense to map this state to PlaybackStateCompat.STATE_STOPPED)
+        // If player adapter is prepared
+        //     If player is playing
+        //     ==> STATE_PLAYING
+        //     If player is not playing
+        //     ==> STATE_PAUSED
+        if (!getPlayerAdapter().isPrepared()) {
+            playbackStateCompatBuilder
+                    .setState(PlaybackStateCompat.STATE_STOPPED, currentPosition, playbackSpeed)
+                    .setActions(getPlaybackStateActions());
+        } else if (getPlayerAdapter().isPlaying()) {
+            playbackStateCompatBuilder
+                    .setState(PlaybackStateCompat.STATE_PLAYING, currentPosition, playbackSpeed)
+                    .setActions(getPlaybackStateActions());
+        } else {
+            playbackStateCompatBuilder
+                    .setState(PlaybackStateCompat.STATE_PAUSED, currentPosition, playbackSpeed)
+                    .setActions(getPlaybackStateActions());
+        }
+
+        // always fill buffered position
+        return playbackStateCompatBuilder.setBufferedPosition(bufferedPosition).build();
     }
 }

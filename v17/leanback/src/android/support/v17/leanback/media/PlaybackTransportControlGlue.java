@@ -190,10 +190,9 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
     }
 
     @Override
-    void onUpdateProgress() {
-        if (mControlsRow != null && !mPlaybackSeekUiClient.mIsSeek) {
-            mControlsRow.setCurrentPosition(mPlayerAdapter.isPrepared()
-                    ? mPlayerAdapter.getCurrentPosition() : -1);
+    protected void onUpdateProgress() {
+        if (!mPlaybackSeekUiClient.mIsSeek) {
+            super.onUpdateProgress();
         }
     }
 
