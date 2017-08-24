@@ -19,7 +19,7 @@ package android.arch.paging.integration.testapp;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.util.paging.PagedListAdapterHelper;
+import android.arch.util.paging.LiveListAdapterUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -34,17 +34,14 @@ public class PagedListSampleActivity extends AppCompatActivity implements Lifecy
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_recycler_view);
         final PagedListItemViewModel viewModel = ViewModelProviders.of(this)
                 .get(PagedListItemViewModel.class);
-        setContentView(R.layout.activity_recycler_view);
 
-        final PagedListItemAdapter adapter = new PagedListItemAdapter(
-                new PagedListAdapterHelper.Builder<Item>()
-                        .setSource(viewModel.getLivePagedList())
-                        .setLifecycleOwner(this)
-                        .setDiffCallback(Item.DIFF_CALLBACK));
+        final PagedListItemAdapter adapter = new PagedListItemAdapter();
         final RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setAdapter(adapter);
+        LiveListAdapterUtil.observe(viewModel.getLivePagedList(), this, adapter);
 
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {

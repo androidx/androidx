@@ -19,8 +19,7 @@ package android.arch.persistence.room.integration.testapp;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.persistence.room.integration.testapp.database.Customer;
-import android.arch.util.paging.PagedListAdapterHelper;
+import android.arch.util.paging.LiveListAdapterUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -35,16 +34,15 @@ public class RoomPagedListActivity extends AppCompatActivity implements Lifecycl
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_recycler_view);
         final CustomerViewModel viewModel = ViewModelProviders.of(this)
                 .get(CustomerViewModel.class);
-        setContentView(R.layout.activity_recycler_view);
+
         final RecyclerView recyclerView = findViewById(R.id.recyclerview);
-        final PagedListCustomerAdapter adapter = new PagedListCustomerAdapter(
-                new PagedListAdapterHelper.Builder<Customer>()
-                        .setSource(viewModel.getLivePagedList())
-                        .setLifecycleOwner(this)
-                        .setDiffCallback(Customer.DIFF_CALLBACK));
+        final PagedListCustomerAdapter adapter = new PagedListCustomerAdapter();
         recyclerView.setAdapter(adapter);
+        LiveListAdapterUtil.observe(viewModel.getLivePagedList(), this, adapter);
+
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override

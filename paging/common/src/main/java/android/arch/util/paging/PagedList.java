@@ -81,10 +81,12 @@ public abstract class PagedList<T> {
      * Get the item in the list of loaded items at the provided index.
      *
      * @param index Index in the loaded item list. Must be >= 0, and &lt; {@link #size()}
-     * @return The item at the passed index.
+     * @return The item at the passed index, or null if a null placeholder is at the specified
+     *         position.
      *
      * @see #size()
      */
+    @Nullable
     public abstract T get(int index);
 
 
@@ -145,7 +147,8 @@ public abstract class PagedList<T> {
      * @param callback         Callback to dispatch to.
      * @see #removeCallback(Callback)
      */
-    public abstract void addCallback(@Nullable PagedList<T> previousSnapshot, Callback callback);
+    public abstract void addCallback(@Nullable PagedList<T> previousSnapshot,
+            @NonNull Callback callback);
 
     /**
      * Removes a previously added callback.
