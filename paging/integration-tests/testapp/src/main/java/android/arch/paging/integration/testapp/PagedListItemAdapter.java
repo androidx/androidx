@@ -17,9 +17,7 @@
 package android.arch.paging.integration.testapp;
 
 import android.arch.util.paging.PagedListAdapter;
-import android.arch.util.paging.PagedListAdapterHelper;
 import android.graphics.Color;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -28,8 +26,9 @@ import android.widget.TextView;
  * Sample NullPaddedList adapter, which uses a PagedListAdapterHelper.
  */
 class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolder> {
-    PagedListItemAdapter(PagedListAdapterHelper.Builder<Item> builder) {
-        super(builder);
+
+    PagedListItemAdapter() {
+        super(Item.DIFF_CALLBACK);
     }
 
     @Override
@@ -41,9 +40,14 @@ class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolde
     }
 
     @Override
-    public void onBindViewHolder(@Nullable Item item, RecyclerView.ViewHolder holder,
-            int position) {
-        ((TextView) (holder.itemView)).setText(item == null ? "loading" : item.text);
-        holder.itemView.setBackgroundColor(item == null ? Color.TRANSPARENT : item.bgColor);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        Item item = getItem(position);
+        if (item != null) {
+            ((TextView) (holder.itemView)).setText(item.text);
+            holder.itemView.setBackgroundColor(item.bgColor);
+        } else {
+            ((TextView) (holder.itemView)).setText(R.string.loading);
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 }
