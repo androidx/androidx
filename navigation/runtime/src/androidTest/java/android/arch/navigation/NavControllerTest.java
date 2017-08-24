@@ -295,6 +295,17 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testDeepLinkFromAppContext() throws Throwable {
+        NavController navController = new NavController(mInstrumentation.getTargetContext());
+        TestNavigator navigator = new TestNavigator();
+        navController.addNavigator(navigator);
+        navController.setGraph(R.xml.nav_deep_link);
+
+        Intent intent = navController.createDeepLinkIntent(R.id.deep_link_test, null);
+        assertThat(intent, is(notNullValue(Intent.class)));
+    }
+
+    @Test
     public void testDeeplinkWithArgs() throws Throwable {
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);

@@ -253,9 +253,9 @@ public class NavController implements NavigatorProvider {
      * <p>The intended behavior of Up differs from {@link #popBackStack() Back} when the user
      * did not reach the current destination from the application's own task. e.g. if the user
      * is viewing a document or link in the current app in an activity hosted on another app's
-     * task where the user clicked the link. In this case the current activity will be
-     * {@link Activity#finish() finished} and the user will be taken to an appropriate
-     * destination in this app on its own task.</p>
+     * task where the user clicked the link. In this case the current activity (determined by the
+     * context used to create this NavController) will be {@link Activity#finish() finished} and
+     * the user will be taken to an appropriate destination in this app on its own task.</p>
      *
      * @return true if navigation was successful, false otherwise
      */
@@ -425,7 +425,8 @@ public class NavController implements NavigatorProvider {
 
     /**
      * Checks the given Intent for a Navigation deep link and navigates to the deep link if present.
-     * This is called automatically for you the first time you set the graph, but should be manually
+     * This is called automatically for you the first time you set the graph if you've passed in an
+     * {@link Activity} as the context when constructing this NavController, but should be manually
      * called if your Activity receives new Intents in {@link Activity#onNewIntent(Intent)}.
      * <p>
      * The types of Intents that are supported include:
@@ -667,6 +668,11 @@ public class NavController implements NavigatorProvider {
      * the start destination of its containing navigation graph, the start destination of its
      * grandparent is used.
      *
+     * <p><strong>Note:</strong> if the context passed in to create this NavController was not
+     * an {@link Activity}, this method will use
+     * {@link android.content.pm.PackageManager#getLaunchIntentForPackage(String)} as the
+     * default activity to launch, if available.</p>
+     *
      * @param destId destination id to deep link to
      * @param args arguments to pass to the destination
      * @return an Intent which can be used with {@link Context#startActivity(Intent)} or
@@ -678,8 +684,11 @@ public class NavController implements NavigatorProvider {
         if (mActivity != null) {
             intent.setClassName(mContext, mActivity.getClass().getName());
         } else {
-            intent = mContext.getPackageManager().getLaunchIntentForPackage(
+            Intent launchIntent = mContext.getPackageManager().getLaunchIntentForPackage(
                     mContext.getPackageName());
+            if (launchIntent != null) {
+                intent = launchIntent;
+            }
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NavDestination node = findDestination(destId);
