@@ -20,6 +20,7 @@ android {
 
 supportLibrary {
     name 'Android Support TV Provider'
+    publish true
     inceptionYear '2017'
     description 'Android Support Library for TV Provider'
 }

@@ -22,6 +22,7 @@ android {
 
 supportLibrary {
     name 'Android Percent Support Library'
+    publish true
     inceptionYear '2015'
     description 'Android Percent Support Library'
 }

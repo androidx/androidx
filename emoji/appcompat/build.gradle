@@ -34,6 +34,7 @@ android {
 
 supportLibrary {
     name 'Android Emoji AppCompat'
+    publish true
     inceptionYear '2017'
     description 'EmojiCompat Widgets for AppCompat integration'
 }
