@@ -15,4 +15,5 @@
 -->
 
 <resources>
+    <string name="loading">loading</string>
 </resources>

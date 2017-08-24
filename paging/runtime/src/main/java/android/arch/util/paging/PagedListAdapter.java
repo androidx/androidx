@@ -16,6 +16,7 @@
 
 package android.arch.util.paging;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 
@@ -25,6 +26,13 @@ import android.support.v7.widget.RecyclerView;
  * <p>
  * This class is a convenience wrapper around PagedListAdapterHelper that implements common default
  * behavior for item counting, and listening to PagedList update callbacks.
+ * <p>
+ * While using a LiveData&lt;PagedList> is an easy way to provide data to the adapter, it isn't
+ * required - you can use {@link #setPagedList(PagedList)} when new lists are available. If you do
+ * use <code>setPagedList()</code>though, be sure to pass a {@code null} PagedList when the UI
+ * element is destroyed. This ensures that the PagedList doesn't hold a reference to the containing
+ * Activity/Fragment. Note that this is not a concern when using LiveData, as registering a
+ * lifecycle owner guarantees this cleanup.
  * <p>
  * Handles both the internal paging of the list as more data is loaded, and updates in the form of
  * new PagedLists.
@@ -40,7 +48,7 @@ import android.support.v7.widget.RecyclerView;
  * class MyViewModel extends ViewModel {
  *     public final LiveData&lt;PagedList&lt;User>> usersList;
  *     public MyViewModel(UserDao userDao) {
- *         usersList = userDao.usersByLastName().build(
+ *         usersList = userDao.usersByLastName().create(
  *                 new PagedList.Config.Builder()
  *                         .setPageSize(50)
  *                         .setPrefetchDistance(50)
@@ -54,33 +62,28 @@ import android.support.v7.widget.RecyclerView;
  *         super.onCreate(savedState);
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
- *         UserAdapter&lt;User> adapter = new UserAdapter(
- *                 new PagedListAdapterHelper.&lt;User>Builder()
- *                         .setSource(viewModel.usersList)
- *                         .setLifecycleOwner(this)
- *                         .setDiffCallback(User.DIFF_CALLBACK));
+ *         UserAdapter&lt;User> adapter = new UserAdapter();
+ *         LiveListAdapterUtil.observe(viewModel.usersList, this, adapter);
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
  *
- * class UserAdapter extends PagedListAdapterHelper&lt;User, UserViewHolder> {
- *     public UserAdapter(PagedListAdapterHelper.Builder&lt;User> builder) {
- *         super(builder);
+ * class UserAdapter extends PagedListAdapter&lt;User, UserViewHolder> {
+ *     public UserAdapter() {
+ *         super(User.DIFF_CALLBACK);
  *     }
  *     {@literal @}Override
- *     public void onBindViewHolder({@literal @}Nullable User user,
- *             UserViewHolder holder, int position) {
- *         if (user == null) {
- *             // AdapterHelper will automatically invalidate this row when the actual
- *             // object is loaded from the database
- *             holder.clear();
- *         } else {
+ *     public void onBindViewHolder(UserViewHolder holder, int position) {
+ *         User user = getItem(position);
+ *         if (user != null) {
  *             holder.bindTo(user);
+ *         } else {
+ *             // Null defines a placeholder item - PagedListAdapter will automatically invalidate
+ *             // this row when the actual object is loaded from the database
+ *             holder.clear();
  *         }
  *     }
- * }
- *
- * </pre>
+ * }</pre>
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
  * class should refer to {@link PagedListAdapterHelper}, which provides the mapping from paging
@@ -93,19 +96,41 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> {
     private final PagedListAdapterHelper<T> mHelper;
 
-    protected PagedListAdapter(PagedListAdapterHelper.Builder<T> builder) {
-        mHelper = builder.setUpdateAdapter(this).build();
+    /**
+     * Creates a PagedListAdapter with default threading and
+     * {@link android.support.v7.util.ListUpdateCallback}.
+     *
+     * Convenience for {@link #PagedListAdapter(ListAdapterConfig)}, which uses default threading
+     * behavior.
+     *
+     * @param diffCallback The {@link DiffCallback} instance to compare items in the list.
+     */
+    protected PagedListAdapter(@NonNull DiffCallback<T> diffCallback) {
+        mHelper = new PagedListAdapterHelper<>(this, diffCallback);
     }
 
-    @Override
-    public void onBindViewHolder(VH holder, int position) {
-        onBindViewHolder(mHelper.get(position), holder, position);
+    @SuppressWarnings("unused, WeakerAccess")
+    protected PagedListAdapter(@NonNull ListAdapterConfig<T> config) {
+        mHelper = new PagedListAdapterHelper<>(new ListAdapterHelper.AdapterCallback(this), config);
     }
 
     /**
-     * Bind the specified view holder with the item, or null if a placeholder should be bound.
+     * Set the new list to be displayed.
+     * <p>
+     * If a list is already being displayed, a diff will be computed on a background thread, which
+     * will dispatch Adapter.notifyItem events on the main thread.
+     *
+     * @param pagedList The new list to be displayed.
      */
-    public abstract void onBindViewHolder(@Nullable T item, VH holder, int position);
+    @SuppressWarnings("WeakerAccess")
+    public void setPagedList(PagedList<T> pagedList) {
+        mHelper.setPagedList(pagedList);
+    }
+
+    @Nullable
+    protected T getItem(int position) {
+        return mHelper.getItem(position);
+    }
 
     @Override
     public int getItemCount() {

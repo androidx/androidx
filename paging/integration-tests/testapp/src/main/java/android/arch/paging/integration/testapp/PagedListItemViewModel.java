@@ -25,13 +25,17 @@ import android.arch.util.paging.PagedList;
 /**
  * Sample ViewModel backed by an artificial data source
  */
-class PagedListItemViewModel extends ViewModel {
+@SuppressWarnings("WeakerAccess")
+public class PagedListItemViewModel extends ViewModel {
     private LiveData<PagedList<Item>> mLivePagedList;
     private ItemDataSource mDataSource;
+    private final Object mDataSourceLock = new Object();
 
     void invalidateList() {
-        if (mDataSource != null) {
-            mDataSource.invalidate();
+        synchronized (mDataSourceLock) {
+            if (mDataSource != null) {
+                mDataSource.invalidate();
+            }
         }
     }
 
@@ -40,8 +44,11 @@ class PagedListItemViewModel extends ViewModel {
             mLivePagedList = new LivePagedListProvider<Item>() {
                 @Override
                 protected DataSource<Item> createDataSource() {
-                    mDataSource = new ItemDataSource();
-                    return mDataSource;
+                    ItemDataSource newDataSource = new ItemDataSource();
+                    synchronized (mDataSourceLock) {
+                        mDataSource = newDataSource;
+                        return mDataSource;
+                    }
                 }
             }.create(new PagedList.Config.Builder()
                     .setPageSize(20)

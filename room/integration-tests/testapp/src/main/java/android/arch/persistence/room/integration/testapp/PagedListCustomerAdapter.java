@@ -18,33 +18,34 @@ package android.arch.persistence.room.integration.testapp;
 
 import android.arch.persistence.room.integration.testapp.database.Customer;
 import android.arch.util.paging.PagedListAdapter;
-import android.arch.util.paging.PagedListAdapterHelper;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import io.reactivex.annotations.NonNull;
-
 /**
  * Sample adapter which uses a PagedListAdapterHelper.
  */
-public class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.ViewHolder> {
-    public PagedListCustomerAdapter(@NonNull PagedListAdapterHelper.Builder<Customer> builder) {
-        super(builder);
+class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.ViewHolder> {
+    PagedListCustomerAdapter() {
+        super(Customer.DIFF_CALLBACK);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new RecyclerView.ViewHolder(new TextView(parent.getContext())) {
-        };
+        RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(
+                new TextView(parent.getContext())) {};
+        holder.itemView.setMinimumHeight(400);
+        return holder;
     }
 
     @Override
-    public void onBindViewHolder(@Nullable Customer customer, RecyclerView.ViewHolder holder,
-            int position) {
-        ((TextView) (holder.itemView)).setText(
-                customer == null ? "loading" : customer.getLastName());
-        holder.itemView.setMinimumHeight(400);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        Customer customer = getItem(position);
+
+        if (customer != null) {
+            ((TextView) (holder.itemView)).setText(customer.getName());
+        } else {
+            ((TextView) (holder.itemView)).setText(R.string.loading);
+        }
     }
 }
