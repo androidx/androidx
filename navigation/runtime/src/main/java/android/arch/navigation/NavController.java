@@ -68,6 +68,7 @@ public class NavController implements NavigatorProvider {
     private NavInflater mInflater;
     private NavGraph mGraph;
     private int mGraphId;
+    private int[] mBackStackToRestore;
 
     private final HashMap<String, Navigator> mNavigators = new HashMap<>();
     private final Deque<NavDestination> mBackStack = new ArrayDeque<>();
@@ -413,6 +414,17 @@ public class NavController implements NavigatorProvider {
     }
 
     private void onGraphCreated() {
+        if (mBackStackToRestore != null) {
+            for (int destinationId : mBackStackToRestore) {
+                NavDestination node = findDestination(destinationId);
+                if (node == null) {
+                    throw new IllegalStateException("unknown destination during restore: "
+                            + mContext.getResources().getResourceName(destinationId));
+                }
+                mBackStack.add(node);
+            }
+            mBackStackToRestore = null;
+        }
         if (mGraph != null && mBackStack.isEmpty()) {
             boolean deepLinked = mActivity != null && onHandleDeepLink(mActivity.getIntent());
             if (!deepLinked) {
@@ -762,23 +774,11 @@ public class NavController implements NavigatorProvider {
         }
 
         mGraphId = navState.getInt(KEY_GRAPH_ID);
+        mBackStackToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);
         if (mGraphId != 0) {
-            mGraph = getNavInflater().inflate(mGraphId);
+            // Set the graph right away, onGraphCreated will re-add the back stack
+            // from mBackStackToRestore
+            setGraph(mGraphId);
         }
-
-        // Restore the current location first, or onGraphCreated will perform navigation
-        // if there are no nodes on the back stack.
-        final int[] backStack = navState.getIntArray(KEY_BACK_STACK_IDS);
-        if (backStack != null) {
-            for (int destinationId : backStack) {
-                NavDestination node = findDestination(destinationId);
-                if (node == null) {
-                    throw new IllegalStateException("unknown destination during restore: "
-                            + Navigation.getDisplayName(mContext, destinationId));
-                }
-                mBackStack.add(node);
-            }
-        }
-        onGraphCreated();
     }
 }
