@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
 import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @SuppressWarnings("unchecked")
-@SmallTest
 @RunWith(JUnit4.class)
 public class MediatorLiveDataTest {
 

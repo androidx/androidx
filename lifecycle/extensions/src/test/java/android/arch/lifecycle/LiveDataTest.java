@@ -39,7 +39,6 @@ import static org.mockito.Mockito.when;
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
 import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +46,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 @SuppressWarnings({"unchecked"})
-@SmallTest
 public class LiveDataTest {
     private PublicLiveData<String> mLiveData;
     private LifecycleOwner mOwner;
