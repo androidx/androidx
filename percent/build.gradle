@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-compat')
@@ -22,6 +22,7 @@ android {
 
 supportLibrary {
     name 'Android Percent Support Library'
+    publish true
     inceptionYear '2015'
     description 'Android Percent Support Library'
 }
