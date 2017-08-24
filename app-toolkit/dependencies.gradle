@@ -84,5 +84,13 @@ ext.tools = [:]
 ext.tools.current_sdk = gradle.ext.currentSdk
 ext.tools.build_tools_version = rootProject.ext.buildToolsVersion
 ext.flatfoot = [:]
-ext.flatfoot.release_version = "1.0.0-alpha9"
+def fatfoot_dev_version = "1.0.0-alpha10"
+ext.flatfoot.versions = [
+        "dev" : fatfoot_dev_version,
+        "room" : fatfoot_dev_version,
+        "lifecycle-ext" : fatfoot_dev_version,
+        "support-lib-dep" : "1.0.0",
+        "paging" : "1.0.0-alpha1",
+        "core" : fatfoot_dev_version
+]
 ext.flatfoot.min_sdk = 14
