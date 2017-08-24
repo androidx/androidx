@@ -2624,7 +2624,9 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (TRACE) TraceCompat.beginSection("scrollToSelection");
         mPrimaryScrollExtra = primaryScrollExtra;
         View view = findViewByPosition(position);
-        if (view != null) {
+        // scrollToView() is based on Adapter position. Only call scrollToView() when item
+        // is still valid.
+        if (view != null && getAdapterPositionByView(view) == position) {
             mInSelection = true;
             scrollToView(view, smooth);
             mInSelection = false;
