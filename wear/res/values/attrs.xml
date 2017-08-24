@@ -183,4 +183,15 @@
         <!-- Sets if the progress should be shown as an indeterminate spinner. -->
         <attr name="indeterminate" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="RoundedDrawable">
+        <attr name="android:src" />
+        <!-- Sets the radius of the drawable. -->
+        <attr name="radius" format="dimension" />
+        <!-- Sets the background color of the drawable. -->
+        <attr name="backgroundColor" />
+        <!-- Sets if the drawable should be clipped. If this is true, drawable will be clipped to
+        rounded bounds. Otherwise, it will be scaled. -->
+        <attr name="clipEnabled" format="boolean" />
+    </declare-styleable>
 </resources>
