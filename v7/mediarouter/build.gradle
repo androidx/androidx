@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(":appcompat-v7")
@@ -28,6 +28,7 @@ android {
 
 supportLibrary {
     name 'Android MediaRouter Support Library'
+    publish true
     inceptionYear '2013'
     description 'Android MediaRouter Support Library'
 }

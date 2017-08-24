@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-v4')
@@ -60,6 +60,7 @@ android {
 
 supportLibrary {
     name 'Android Design Support Library'
+    publish true
     inceptionYear '2015'
     description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
 }

@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 ext {
     fontDir = project(':noto-emoji-compat').projectDir
@@ -49,6 +49,7 @@ android {
 
 supportLibrary {
     name 'Android Emoji Compat'
+    publish true
     inceptionYear '2017'
     description 'Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters.'
 

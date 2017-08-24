@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
@@ -45,6 +45,7 @@ android {
 
 supportLibrary {
     name 'Android Transition Support Library'
+    publish true
     inceptionYear '2016'
     description 'Android Transition Support Library'
 }
