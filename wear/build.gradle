@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
@@ -29,6 +29,7 @@ android {
 
 supportLibrary {
     name 'Android Wear Support UI'
+    publish true
     inceptionYear '2016'
     description 'Android Wear Support UI'
 }
