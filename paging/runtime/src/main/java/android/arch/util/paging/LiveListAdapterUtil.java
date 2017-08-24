@@ -39,7 +39,7 @@ public class LiveListAdapterUtil {
      * @param <T> Type of item in the paged list, to be provided to the adapter.
      * @param <VH> ViewHolder type of the Adapter.
      */
-    public static <T, VH extends RecyclerView.ViewHolder> void observe(
+    public static <T, VH extends RecyclerView.ViewHolder> void bind(
             LiveData<PagedList<T>> liveData,
             LifecycleOwner lifecycleOwner,
             final PagedListAdapter<T, VH> adapter) {
@@ -58,7 +58,7 @@ public class LiveListAdapterUtil {
     }
 
     @SuppressWarnings("unused")
-    public static <T> void observe(
+    public static <T> void bind(
             LiveData<PagedList<T>> liveData,
             LifecycleOwner lifecycleOwner,
             final PagedListAdapterHelper<T> helper) {
@@ -77,7 +77,7 @@ public class LiveListAdapterUtil {
     }
 
     @SuppressWarnings("unused")
-    public static <T, VH extends RecyclerView.ViewHolder> void observe(
+    public static <T, VH extends RecyclerView.ViewHolder> void bind(
             LiveData<List<T>> liveData,
             LifecycleOwner lifecycleOwner,
             final ListAdapter<T, VH> adapter) {
@@ -96,7 +96,7 @@ public class LiveListAdapterUtil {
     }
 
     @SuppressWarnings("unused")
-    public static <T> void observe(
+    public static <T> void bind(
             LiveData<List<T>> liveData,
             LifecycleOwner lifecycleOwner,
             final ListAdapterHelper<T> helper) {

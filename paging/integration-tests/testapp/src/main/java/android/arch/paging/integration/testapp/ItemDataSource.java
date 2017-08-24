@@ -52,7 +52,7 @@ class ItemDataSource extends BoundedDataSource<Item> {
         }
 
         List<Item> items = new ArrayList<>();
-        int end = Math.max(-1, Math.min(COUNT, startPosition + loadCount));
+        int end = Math.min(COUNT, startPosition + loadCount);
         int bgColor = COLORS[mGenerationId % COLORS.length];
 
         try {

@@ -39,6 +39,52 @@ import java.util.List;
  * <p>
  * It provides a simple list-like API with {@link #getItem(int)} and {@link #getItemCount()} for an
  * adapter to acquire and present data objects.
+ * <p>
+ * A complete usage pattern with Room would look like this:
+ * <pre>
+ * {@literal @}Dao
+ * interface UserDao {
+ *     {@literal @}Query("SELECT * FROM user ORDER BY lastName ASC")
+ *     public abstract LiveData&lt;List&lt;User>> usersByLastName();
+ * }
+ *
+ * class MyViewModel extends ViewModel {
+ *     public final LiveData&lt;List&lt;User>> usersList;
+ *     public MyViewModel(UserDao userDao) {
+ *         usersList = userDao.usersByLastName();
+ *     }
+ * }
+ *
+ * class MyActivity extends Activity implements LifecycleRegistryOwner {
+ *     {@literal @}Override
+ *     public void onCreate(Bundle savedState) {
+ *         super.onCreate(savedState);
+ *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
+ *         RecyclerView recyclerView = findViewById(R.id.user_list);
+ *         UserAdapter&lt;User> adapter = new UserAdapter();
+ *         LiveListAdapterUtil.bind(viewModel.usersList, this, adapter.getHelper());
+ *         recyclerView.setAdapter(adapter);
+ *     }
+ * }
+ *
+ * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
+ *     private final ListAdapterHelper&lt;User> helper;
+ *     public UserAdapter(ListAdapterHelper.Builder&lt;User> builder) {
+ *         helper = new ListAdapterHelper(this, User.DIFF_CALLBACK);
+ *     }
+ *     {@literal @}Override
+ *     public int getItemCount() {
+ *         return mHelper.getItemCount();
+ *     }
+ *     public ListAdapterHelper getHelper() {
+ *         return mHelper;
+ *     }
+ *     {@literal @}Override
+ *     public void onBindViewHolder(UserViewHolder holder, int position) {
+ *         User user = mHelper.getItem(position);
+ *         holder.bindTo(user);
+ *     }
+ * }</pre>
  *
  * @param <T> Type of the lists this helper will receive.
  */
@@ -91,9 +137,6 @@ public class ListAdapterHelper<T> {
 
     private List<T> mList;
 
-    // True if background thread executor has at least one task scheduled
-    private boolean mUpdateScheduled;
-
     // Max generation of currently scheduled runnable
     private int mMaxScheduledGeneration;
 
@@ -104,9 +147,10 @@ public class ListAdapterHelper<T> {
      * @param index Index of item to get, must be >= 0, and &lt; {@link #getItemCount()}.
      * @return The item at the specified List position.
      */
+    @SuppressWarnings("WeakerAccess")
     public T getItem(int index) {
         if (mList == null) {
-            throw new IllegalArgumentException("No current list");
+            throw new IndexOutOfBoundsException("Item count is zero, getItem() call is invalid");
         }
 
         return mList.get(index);
@@ -124,17 +168,14 @@ public class ListAdapterHelper<T> {
     }
 
     /**
-     * Pass a new PagedList to the AdapterHelper. Adapter updates will be computed on a background
+     * Pass a new List to the AdapterHelper. Adapter updates will be computed on a background
      * thread.
      * <p>
-     * If a PagedList is already present, a diff will be computed asynchronously on a background
-     * thread. When the diff is computed, it will be applied (dispatched to the
-     * {@link ListUpdateCallback}), and the new PagedList will be swapped in.
-     * <p>
-     * If this AdapterHelper is already consuming data from a LiveData&lt;PagedList>, calling this
-     * method manually will throw.
+     * If a List is already present, a diff will be computed asynchronously on a background thread.
+     * When the diff is computed, it will be applied (dispatched to the {@link ListUpdateCallback}),
+     * and the new List will be swapped in.
      *
-     * @param newList The new PagedList.
+     * @param newList The new List.
      */
     @SuppressWarnings("WeakerAccess")
     public void setList(final List<T> newList) {
@@ -143,12 +184,10 @@ public class ListAdapterHelper<T> {
             return;
         }
 
-        if (newList == null) {
-            if (mUpdateScheduled) {
-                // incrementing the generation effectively ignores any current running diffs
-                mMaxScheduledGeneration++;
-            }
+        // incrementing generation means any currently-running diffs are discarded when they finish
+        final int runGeneration = ++mMaxScheduledGeneration;
 
+        if (newList == null) {
             mUpdateCallback.onRemoved(0, mList.size());
             mList = null;
             return;
@@ -161,9 +200,7 @@ public class ListAdapterHelper<T> {
             return;
         }
 
-        final int runGeneration = ++mMaxScheduledGeneration;
         final List<T> oldList = mList;
-        mUpdateScheduled = true;
         mConfig.mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -195,7 +232,6 @@ public class ListAdapterHelper<T> {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {
-                            mUpdateScheduled = false;
                             latchList(newList, result);
                         }
                     }

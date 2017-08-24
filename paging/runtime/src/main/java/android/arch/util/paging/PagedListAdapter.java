@@ -31,8 +31,11 @@ import android.support.v7.widget.RecyclerView;
  * required - you can use {@link #setPagedList(PagedList)} when new lists are available. If you do
  * use <code>setPagedList()</code>though, be sure to pass a {@code null} PagedList when the UI
  * element is destroyed. This ensures that the PagedList doesn't hold a reference to the containing
- * Activity/Fragment. Note that this is not a concern when using LiveData, as registering a
- * lifecycle owner guarantees this cleanup.
+ * Activity/Fragment. Note that this is not a concern when using bind in LiveListAdapterUtil, as
+ * it uses the passed lifecycle owner to guarantee this cleanup.
+ * <p>
+ * PagedListAdapter listens to PagedList loading callbacks as pages are loaded, and uses DiffUtil on
+ * a background thread to compute fine grained updates as new PagedLists are received.
  * <p>
  * Handles both the internal paging of the list as more data is loaded, and updates in the form of
  * new PagedLists.
@@ -63,7 +66,7 @@ import android.support.v7.widget.RecyclerView;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         LiveListAdapterUtil.observe(viewModel.usersList, this, adapter);
+ *         LiveListAdapterUtil.bind(viewModel.usersList, this, adapter);
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
