@@ -3,6 +3,9 @@ archivesBaseName = 'support-compat'
 
 dependencies {
     api project(':support-annotations')
+    api (libs.arch_lifecycle_runtime)  {
+        exclude module: 'support-annotations'
+    }
 
     androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'

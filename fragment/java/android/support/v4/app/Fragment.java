@@ -20,6 +20,9 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.Animator;
 import android.app.Activity;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
 import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.Intent;
@@ -185,7 +188,7 @@ final class FragmentState implements Parcelable {
  * </ul>
  *
  */
-public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener {
+public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner {
     private static final SimpleArrayMap<String, Class<?>> sClassMap =
             new SimpleArrayMap<String, Class<?>>();
 
@@ -344,6 +347,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // fragments can have mRetaining set to true without going through creation, so we must
     // track it separately.
     boolean mIsCreated;
+
+    LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
+    }
 
     /**
      * State information that has been retrieved from a fragment instance
@@ -2332,6 +2342,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new SuperNotCalledException("Fragment " + this
                     + " did not call through to super.onCreate()");
         }
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
     }
 
     View performCreateView(LayoutInflater inflater, ViewGroup container,
@@ -2377,6 +2388,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mLoaderManager != null) {
             mLoaderManager.doReportStart();
         }
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
 
     void performResume() {
@@ -2395,6 +2407,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mChildFragmentManager.dispatchResume();
             mChildFragmentManager.execPendingActions();
         }
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
     }
 
     void noteStateNotSaved() {
@@ -2520,6 +2533,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performPause() {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchPause();
         }
@@ -2533,6 +2547,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performStop() {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchStop();
         }
@@ -2584,6 +2599,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performDestroy() {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         if (mChildFragmentManager != null) {
             mChildFragmentManager.dispatchDestroy();
         }
