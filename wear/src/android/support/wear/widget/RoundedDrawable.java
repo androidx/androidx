@@ -16,6 +16,8 @@
 package android.support.wear.widget;
 
 import android.annotation.TargetApi;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
@@ -32,7 +34,14 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.support.wear.R;
+import android.util.AttributeSet;
+import android.util.Xml;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -50,6 +59,22 @@ import java.util.Objects;
  * the corners of inner drawable, regardless of whether or not the clipping is enabled, border
  * radius will be applied to prevent overflowing of the drawable from specified rounded rectangular
  * area.
+ *
+ * <p>RoundedDrawable can be inflated from XML (supported above API level 24) or constructed
+ * programmatically. To inflate from XML, use {@link android.content.Context#getDrawable(int)}
+ * method.
+ *
+ * <h4>Syntax:</h4>
+ *
+ * <pre>
+ * &lt;?xml version="1.0" encoding="utf-8"?&gt;
+ * &lt;android.support.wear.widget.RoundedDrawable
+ *   xmlns:android="http://schemas.android.com/apk/res/android"
+ *   xmlns:app="http://schemas.android.com/apk/res-auto"
+ *   android:src="drawable"
+ *   app:backgroundColor="color"
+ *   app:radius="dimension"
+ *   app:clipEnabled="boolean" /&gt;</pre>
  */
 @TargetApi(Build.VERSION_CODES.N)
 public class RoundedDrawable extends Drawable {
@@ -75,10 +100,27 @@ public class RoundedDrawable extends Drawable {
         mBackgroundPaint.setColor(Color.TRANSPARENT);
     }
 
+    @Override
+    public void inflate(@NonNull Resources r, @NonNull XmlPullParser parser,
+            @NonNull AttributeSet attrs, @Nullable Resources.Theme theme)
+            throws XmlPullParserException, IOException {
+        super.inflate(r, parser, attrs, theme);
+        TypedArray a = r.obtainAttributes(Xml.asAttributeSet(parser), R.styleable.RoundedDrawable);
+        if (a.hasValue(R.styleable.RoundedDrawable_android_src)) {
+            setDrawable(a.getDrawable(R.styleable.RoundedDrawable_android_src));
+        }
+        setRadius(a.getDimensionPixelSize(R.styleable.RoundedDrawable_radius, 0));
+        setClipEnabled(a.getBoolean(R.styleable.RoundedDrawable_clipEnabled, false));
+        setBackgroundColor(
+                a.getColor(R.styleable.RoundedDrawable_backgroundColor, Color.TRANSPARENT));
+        a.recycle();
+    }
+
     /**
      * Sets the drawable to be rendered.
      *
      * @param drawable {@link Drawable} to be rendered
+     * @attr ref android.support.wear.R.styleable#RoundedDrawable_android_src
      */
     public void setDrawable(@Nullable Drawable drawable) {
         if (Objects.equals(mDrawable, drawable)) {
@@ -103,6 +145,7 @@ public class RoundedDrawable extends Drawable {
      * Sets the background color of the rounded drawable.
      *
      * @param color an ARGB color
+     * @attr ref android.support.wear.R.styleable#RoundedDrawable_backgroundColor
      */
     public void setBackgroundColor(@ColorInt int color) {
         mBackgroundPaint.setColor(color);
@@ -126,6 +169,7 @@ public class RoundedDrawable extends Drawable {
      *
      * @param clipEnabled {@code true} if the drawable should be clipped, {@code false} if it
      *                    should be resized.
+     * @attr ref android.support.wear.R.styleable#RoundedDrawable_clipEnabled
      */
     public void setClipEnabled(boolean clipEnabled) {
         mIsClipEnabled = clipEnabled;
@@ -210,6 +254,7 @@ public class RoundedDrawable extends Drawable {
      * Sets the border radius to be applied when rendering the drawable in pixels.
      *
      * @param radius radius in pixels
+     * @attr ref android.support.wear.R.styleable#RoundedDrawable_radius
      */
     public void setRadius(int radius) {
         mRadius = radius;

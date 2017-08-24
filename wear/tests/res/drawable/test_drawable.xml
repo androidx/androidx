@@ -15,15 +15,6 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <!-- Colors for the CircularProgressLayout Demo -->
-    <color name="cpl_light_yellow">#fff176</color>
-    <color name="cpl_light_red">#ef5350</color>
-    <color name="cpl_light_green">#66bb6a</color>
-    <color name="cpl_light_blue">#4fc3f7</color>
-    <color name="cpl_black">#000000</color>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Colors for the RoundedDrawable Demo -->
-    <color name="rd_background_color">#ef6c00</color>
-    <color name="rd_foreground_color">#ffffff</color>
-</resources>
+</selector>
