@@ -60,6 +60,8 @@ public class MainDemoActivity extends Activity {
                 this, CircularProgressLayoutDemo.class));
         contentMap.put("Wearable Drawers", new Intent(
                 this, WearableDrawersDemo.class));
+        contentMap.put("Rounded Drawable", new Intent(
+                this, RoundedDrawableDemo.class));
 
         return contentMap;
     }
