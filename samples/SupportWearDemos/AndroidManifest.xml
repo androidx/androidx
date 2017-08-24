@@ -23,6 +23,7 @@
         <activity android:name=".app.SimpleWearableRecyclerViewDemo" />
         <activity android:name=".app.WearableSwitchDemo" />
         <activity android:name=".app.CircularProgressLayoutDemo" />
+        <activity android:name=".app.RoundedDrawableDemo" />
         <activity android:name=".app.drawers.WearableDrawersDemo" android:exported="true" />
         <activity android:name=".app.MainDemoActivity">
             <intent-filter>
