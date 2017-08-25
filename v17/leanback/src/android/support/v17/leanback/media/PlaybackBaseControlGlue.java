@@ -427,20 +427,23 @@ public abstract class PlaybackBaseControlGlue<T extends PlayerAdapter> extends P
     protected void onCreateSecondaryActions(ArrayObjectAdapter secondaryActionsAdapter) {
     }
 
-    void onUpdateProgress() {
+    @CallSuper
+    protected void onUpdateProgress() {
         if (mControlsRow != null) {
             mControlsRow.setCurrentPosition(mPlayerAdapter.isPrepared()
                     ? getCurrentPosition() : -1);
         }
     }
 
-    void onUpdateBufferedProgress() {
+    @CallSuper
+    protected void onUpdateBufferedProgress() {
         if (mControlsRow != null) {
             mControlsRow.setBufferedPosition(mPlayerAdapter.getBufferedPosition());
         }
     }
 
-    void onUpdateDuration() {
+    @CallSuper
+    protected void onUpdateDuration() {
         if (mControlsRow != null) {
             mControlsRow.setDuration(
                     mPlayerAdapter.isPrepared() ? mPlayerAdapter.getDuration() : -1);
