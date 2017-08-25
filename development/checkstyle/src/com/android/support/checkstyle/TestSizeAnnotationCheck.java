@@ -42,6 +42,16 @@ public class TestSizeAnnotationCheck extends AbstractCheck {
     }
 
     @Override
+    public int[] getAcceptableTokens() {
+        return getDefaultTokens();
+    }
+
+    @Override
+    public int[] getRequiredTokens() {
+        return getDefaultTokens();
+    }
+
+    @Override
     public void visitToken(DetailAST ast) {
         final boolean classHasTestSizeAnnotation =
                 AnnotationUtility.containsAnnotation(ast, SMALL_TEST)
