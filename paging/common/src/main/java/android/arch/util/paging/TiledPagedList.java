@@ -73,24 +73,24 @@ class TiledPagedList<T> extends PageArrayList<T> {
         int firstPage = position / mPageSize;
         List<T> firstPageData = dataSource.loadRange(firstPage * mPageSize, mPageSize);
         if (firstPageData != null) {
-            mListOffset = firstPage;
-            mList.add(firstPageData);
+            mPageIndexOffset = firstPage;
+            mPages.add(firstPageData);
         } else {
             detach();
             return;
         }
 
         int secondPage = (position % mPageSize < mPageSize / 2) ? firstPage - 1 : firstPage + 1;
-        if (secondPage < 0 || secondPage > (mCount + mPageSize - 1) / mPageSize) {
+        if (secondPage < 0 || secondPage > mMaxPageCount) {
             // no second page to load
             return;
         }
         List<T> secondPageData = dataSource.loadRange(secondPage * mPageSize, mPageSize);
         if (secondPageData != null) {
             boolean before = secondPage < firstPage;
-            mList.add(before ? 0 : 1, secondPageData);
+            mPages.add(before ? 0 : 1, secondPageData);
             if (before) {
-                mListOffset--;
+                mPageIndexOffset--;
             }
             return;
         }
@@ -101,17 +101,20 @@ class TiledPagedList<T> extends PageArrayList<T> {
     public void loadAround(int index) {
         mLastLoad = index;
 
-        int minimumPage = (index - mConfig.mPrefetchDistance) / mPageSize;
-        int maximumPage = (index + mConfig.mPrefetchDistance) / mPageSize;
+        int minimumPage = Math.max((index - mConfig.mPrefetchDistance) / mPageSize, 0);
+        int maximumPage = Math.min((index + mConfig.mPrefetchDistance) / mPageSize,
+                mMaxPageCount - 1);
 
-        if (minimumPage < mListOffset) {
-            mListOffset = minimumPage;
-            for (int i = 0; i < mListOffset - minimumPage; i++) {
-                mList.add(0, null);
+        if (minimumPage < mPageIndexOffset) {
+            for (int i = 0; i < mPageIndexOffset - minimumPage; i++) {
+                mPages.add(0, null);
             }
+            mPageIndexOffset = minimumPage;
         }
-        if (maximumPage > mListOffset + mList.size()) {
-            mList.add(mList.size() - 1, null);
+        if (maximumPage >= mPageIndexOffset + mPages.size()) {
+            for (int i = mPages.size(); i <= maximumPage - mPageIndexOffset; i++) {
+                mPages.add(mPages.size(), null);
+            }
         }
         for (int i = minimumPage; i <= maximumPage; i++) {
             scheduleLoadPage(i);
@@ -119,11 +122,13 @@ class TiledPagedList<T> extends PageArrayList<T> {
     }
 
     private void scheduleLoadPage(final int pageIndex) {
-        int localPageIndex = pageIndex - mListOffset;
-        if (mList.get(localPageIndex) != null) {
+        final int localPageIndex = pageIndex - mPageIndexOffset;
+
+        if (mPages.get(localPageIndex) != null) {
+            // page is present in list, and non-null - don't need to load
             return;
         }
-        mList.set(localPageIndex, mLoadingPlaceholder);
+        mPages.set(localPageIndex, mLoadingPlaceholder);
 
         mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
@@ -151,12 +156,12 @@ class TiledPagedList<T> extends PageArrayList<T> {
     }
 
     private void loadPageImpl(int pageIndex, List<T> data) {
-        int localPageIndex = pageIndex - mListOffset;
+        int localPageIndex = pageIndex - mPageIndexOffset;
 
-        if (mList.get(localPageIndex) != mLoadingPlaceholder) {
+        if (mPages.get(localPageIndex) != mLoadingPlaceholder) {
             throw new IllegalStateException("Data inserted before requested.");
         }
-        mList.set(pageIndex, data);
+        mPages.set(localPageIndex, data);
         for (Callback callback : mCallbacks) {
             callback.onChanged(pageIndex * mPageSize, data.size());
         }
@@ -164,8 +169,8 @@ class TiledPagedList<T> extends PageArrayList<T> {
 
     @Override
     public boolean isImmutable() {
-        // TODO: consider counting loaded pages, return true if mLoadedPages = mMaxPageCount()
-        // Could at some point want to support growing past max count
+        // TODO: consider counting loaded pages, return true if mLoadedPages == mMaxPageCount
+        // Note: could at some point want to support growing past max count, or grow dynamically
         return isDetached();
     }
 
@@ -173,7 +178,23 @@ class TiledPagedList<T> extends PageArrayList<T> {
     public void addCallback(@Nullable PagedList<T> previousSnapshot, @NonNull Callback callback) {
         PageArrayList<T> snapshot = (PageArrayList<T>) previousSnapshot;
         if (snapshot != this && snapshot != null) {
-            // TODO: trigger onChanged based on newly loaded pages
+            // loop through each page and signal the callback for any pages that are present now,
+            // but not in the snapshot.
+            for (int i = 0; i < mPages.size(); i++) {
+                int pageIndex = i + mPageIndexOffset;
+                int pageCount = 0;
+                // count number of consecutive pages that were added since the snapshot...
+                while (pageCount < mPages.size()
+                        && hasPage(pageIndex + pageCount)
+                        && !snapshot.hasPage(pageIndex + pageCount)) {
+                    pageCount++;
+                }
+                // and signal them all at once to the callback
+                if (pageCount > 0) {
+                    callback.onChanged(pageIndex * mPageSize, mPageSize * pageCount);
+                    i += pageCount - 1;
+                }
+            }
         }
         mCallbacks.add(callback);
     }
