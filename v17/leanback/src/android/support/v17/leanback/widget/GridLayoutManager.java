@@ -1332,8 +1332,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                                 mMeasuredDimension);
-                        scrapeChildSize = mOrientation == HORIZONTAL ? mMeasuredDimension[0] :
-                                mMeasuredDimension[1];
+                        scrapeChildSize = mOrientation == HORIZONTAL ? mMeasuredDimension[1] :
+                                mMeasuredDimension[0];
                         if (DEBUG) {
                             Log.v(TAG, "measured scrap child: " + mMeasuredDimension[0] + " "
                                     + mMeasuredDimension[1]);
