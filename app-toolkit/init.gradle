@@ -111,7 +111,31 @@ rootProject.ext.flatfootProjectGroups = [
         "arch" : "android.arch.core",
         "paging" : "android.arch.paging",
         "navigation" : "android.arch.navigation"]
-
+// these are parent project which themselves have no artifacts.
+rootProject.ext.flatfootParentProjects = [
+        ":room", ":arch", ":lifecycle", ":paging", ":navigation"
+]
+// explicit versioning to avoid mistakes
+rootProject.ext.flatfootVersion = [
+        ":arch:common" : ext.flatfoot.versions["support-lib-dep"],
+        ":arch:core-testing" : ext.flatfoot.versions["core"],
+        ":arch:runtime" : ext.flatfoot.versions["core"],
+        ":lifecycle:common" : ext.flatfoot.versions["support-lib-dep"],
+        ":lifecycle:compiler" : ext.flatfoot.versions["support-lib-dep"],
+        ":lifecycle:extensions" : ext.flatfoot.versions["lifecycle-ext"],
+        ":lifecycle:reactivestreams" : ext.flatfoot.versions["lifecycle-ext"],
+        ":lifecycle:runtime" : ext.flatfoot.versions["support-lib-dep"],
+        ":paging:common" : ext.flatfoot.versions["paging"],
+        ":paging:runtime" : ext.flatfoot.versions["paging"],
+        ":room:common" : ext.flatfoot.versions["room"],
+        ":room:compiler" : ext.flatfoot.versions["room"],
+        ":room:runtime" : ext.flatfoot.versions["room"],
+        ":room:db" : ext.flatfoot.versions["room"],
+        ":room:db-impl" : ext.flatfoot.versions["room"],
+        ":room:migration" : ext.flatfoot.versions["room"],
+        ":room:rxjava2" : ext.flatfoot.versions["room"],
+        ":room:testing" : ext.flatfoot.versions["room"],
+]
 subprojects {
     repos.addMavenRepositories(project.repositories)
     if (project.name == 'doclava' || project.name == 'jdiff') {
@@ -123,6 +147,10 @@ subprojects {
         return
     }
 
+    if (rootProject.flatfootParentProjects.contains(project.getPath())) {
+        return
+    }
+
     def mavenGroup = project.getPath().split(":")[1]
     def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
 
@@ -130,7 +158,7 @@ subprojects {
         return
     }
     project.group = finalGroup
-    project.version = flatfoot.release_version
+    def projectVersion = rootProject.ext.flatfootVersion[project.path]
 
     if (project.getPath().contains("integration-tests")) {
         // disable upload tasks
@@ -140,6 +168,12 @@ subprojects {
             }
         }
     } else {
+        if (projectVersion == null) {
+            throw new GradleException("project ${project.path} (${project.archivesBaseName}) must specify artifactVersion property")
+        } else {
+            println "VERSION for $project is ${projectVersion}"
+        }
+        project.version = rootProject.ext.flatfootVersion[project.path]
         // add license to pom
         project.tasks.whenTaskAdded { task ->
             if (task instanceof Upload) {
