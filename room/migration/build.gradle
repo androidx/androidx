@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'maven'
-apply plugin: 'java'
+import android.support.SupportLibraryExtension;
 
-sourceCompatibility = 1.7
+apply plugin: android.support.SupportJavaLibraryPlugin
 
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
@@ -30,4 +29,12 @@ dependencies {
     testCompile libs.junit
     testCompile libs.ij_annotations
     testCompile libs.mockito_core
+}
+
+supportLibrary {
+    name 'Android Room Migration'
+    publish true
+    inceptionYear '2017'
+    description "Android Room Migration"
+    url SupportLibraryExtension.ARCHITECTURE_URL
 }

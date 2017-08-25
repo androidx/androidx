@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
+
+import android.support.SupportLibraryExtension
+
+apply plugin: android.support.FlatfootAndroidLibraryPlugin
 
 android {
     compileSdkVersion tools.current_sdk
@@ -23,8 +25,6 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
         targetSdkVersion tools.current_sdk
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -32,12 +32,6 @@ android {
 
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
     }
 
     testOptions {
@@ -55,24 +49,18 @@ dependencies {
     api project(":room:db-impl")
     api project(":arch:runtime")
     provided project(":paging:common")
-
     provided project(":lifecycle:runtime")
     provided project(":lifecycle:extensions")
     compile libs.support.core_utils
-
 
     testCompile project(":arch:core-testing")
     testCompile libs.junit
     testCompile libs.mockito_core
     testCompile libs.support.annotations
 
-    androidTestCompile libs.junit
-    androidTestCompile(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile(libs.espresso_core, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
 }
 
 createAndroidCheckstyle(project)
@@ -85,4 +73,12 @@ android.libraryVariants.all { variant ->
         from variant.javaCompile.destinationDir
         destinationDir new File(project.buildDir, "libJar")
     }
+}
+
+supportLibrary {
+    name 'Android Room-Runtime'
+    publish true
+    inceptionYear '2017'
+    description "Android Room-Runtime"
+    url SupportLibraryExtension.ARCHITECTURE_URL
 }

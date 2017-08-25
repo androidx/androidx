@@ -34,8 +34,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.support.test.filters.SmallTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +41,6 @@ import org.junit.runners.JUnit4;
 import org.mockito.InOrder;
 
 @RunWith(JUnit4.class)
-@SmallTest
 public class LifecycleRegistryTest {
     private LifecycleOwner mLifecycleOwner;
     private Lifecycle mLifecycle;

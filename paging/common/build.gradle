@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-apply plugin: 'java'
-apply plugin: 'maven'
+import android.support.SupportLibraryExtension;
 
-sourceCompatibility = 1.7
+apply plugin: android.support.SupportJavaLibraryPlugin
+
 // disable paging for now.
 project.ext.noDocs = true
-uploadArchives.enabled = false
+
 dependencies {
     compile libs.support.annotations
     compile project(":arch:common")
@@ -33,3 +33,11 @@ dependencies {
 }
 
 createAndroidCheckstyle(project)
+
+supportLibrary {
+    name 'Android Paging-Common'
+    publish false
+    inceptionYear '2017'
+    description "Android Paging-Common"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}

@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import android.arch.core.executor.JunitTaskExecutorRule;
 import android.arch.core.executor.TaskExecutor;
 import android.support.annotation.Nullable;
-import android.support.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +34,6 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@SmallTest
 public class ThreadedLiveDataTest {
 
     private static final int TIMEOUT_SECS = 3;
