@@ -23,6 +23,7 @@ import android.support.v17.leanback.media.MediaPlayerAdapter;
 import android.support.v17.leanback.media.PlaybackGlue;
 import android.support.v17.leanback.media.PlaybackTransportControlGlue;
 import android.support.v17.leanback.widget.PlaybackControlsRow;
+import android.support.v4.media.session.MediaSessionCompat;
 
 /**
  * Fragment demonstrating the use of {@link android.support.v17.leanback.app.VideoSupportFragment} to
@@ -47,7 +48,13 @@ import android.support.v17.leanback.widget.PlaybackControlsRow;
  * <li>switch PlaybackGlue</li>
  */
 public class SampleVideoSupportFragment extends android.support.v17.leanback.app.VideoSupportFragment {
+
+    // Media Session Token
+    private static final String MEDIA_SESSION_COMPAT_TOKEN = "media session video";
+
     private PlaybackTransportControlGlueSample<MediaPlayerAdapter> mMediaPlayerGlue;
+
+    private MediaSessionCompat mMediaSessionCompat;
 
     final VideoSupportFragmentGlueHost mHost = new VideoSupportFragmentGlueHost(SampleVideoSupportFragment.this);
 
@@ -96,6 +103,13 @@ public class SampleVideoSupportFragment extends android.support.v17.leanback.app
         super.onCreate(savedInstanceState);
         mMediaPlayerGlue = new PlaybackTransportControlGlueSample(getActivity(),
                 new MediaPlayerAdapter(getActivity()));
+
+        // create a media session inside of a fragment, and app developer can determine if connect
+        // this media session to glue or not
+        // as requested in b/64935838
+        mMediaSessionCompat = new MediaSessionCompat(getActivity(), MEDIA_SESSION_COMPAT_TOKEN);
+        mMediaPlayerGlue.connectToMediaSession(mMediaSessionCompat);
+
         mMediaPlayerGlue.setHost(mHost);
         mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.INDEX_NONE);
         mMediaPlayerGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
@@ -134,9 +148,19 @@ public class SampleVideoSupportFragment extends android.support.v17.leanback.app
         super.onPause();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMediaPlayerGlue.disconnectToMediaSession();
+    }
+
     void switchAnotherGlue() {
         mMediaPlayerGlue = new PlaybackTransportControlGlueSample(getActivity(),
                 new MediaPlayerAdapter(getActivity()));
+
+        // If the glue is switched, re-register the mediasession
+        mMediaPlayerGlue.connectToMediaSession(mMediaSessionCompat);
+
         mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.INDEX_ONE);
         mMediaPlayerGlue.setSubtitle("A Googler");
         mMediaPlayerGlue.setTitle("Swimming with the fishes");
