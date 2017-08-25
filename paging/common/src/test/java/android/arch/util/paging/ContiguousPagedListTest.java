@@ -137,7 +137,7 @@ public class ContiguousPagedListTest {
         }
     }
 
-    private void verifyCallback(NullPaddedList.Callback callback, int countedPosition,
+    private void verifyCallback(PagedList.Callback callback, int countedPosition,
             int uncountedPosition) {
         if (mCounted) {
             verify(callback).onChanged(countedPosition, 20);
@@ -162,7 +162,7 @@ public class ContiguousPagedListTest {
         TestSource source = new TestSource();
         return new ContiguousPagedList<>(
                 source, mMainThread, mBackgroundThread,
-                new ContiguousPagedList.Config.Builder()
+                new PagedList.Config.Builder()
                         .setInitialLoadSize(40)
                         .setPageSize(20)
                         .setPrefetchDistance(20)
@@ -173,8 +173,7 @@ public class ContiguousPagedListTest {
     @Test
     public void append() {
         ContiguousPagedList<Item> pagedList = createCountedPagedList(0);
-        NullPaddedList.Callback callback = mock(
-                NullPaddedList.Callback.class);
+        PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(null, callback);
         verifyRange(0, 40, pagedList);
         verifyZeroInteractions(callback);
@@ -191,8 +190,7 @@ public class ContiguousPagedListTest {
     @Test
     public void prepend() {
         ContiguousPagedList<Item> pagedList = createCountedPagedList(60);
-        NullPaddedList.Callback callback = mock(
-                NullPaddedList.Callback.class);
+        PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(null, callback);
         verifyRange(60, 40, pagedList);
         verifyZeroInteractions(callback);
@@ -208,8 +206,7 @@ public class ContiguousPagedListTest {
     @Test
     public void outwards() {
         ContiguousPagedList<Item> pagedList = createCountedPagedList(30);
-        NullPaddedList.Callback callback = mock(
-                NullPaddedList.Callback.class);
+        PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(null, callback);
         verifyRange(30, 40, pagedList);
         verifyZeroInteractions(callback);
@@ -232,8 +229,7 @@ public class ContiguousPagedListTest {
     @Test
     public void multiAppend() {
         ContiguousPagedList<Item> pagedList = createCountedPagedList(0);
-        NullPaddedList.Callback callback = mock(
-                NullPaddedList.Callback.class);
+        PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(null, callback);
         verifyRange(0, 40, pagedList);
         verifyZeroInteractions(callback);
@@ -266,8 +262,7 @@ public class ContiguousPagedListTest {
         verifyRange(0, 80, pagedList);
         verifyRange(0, 60, snapshot);
 
-        NullPaddedList.Callback callback = mock(
-                NullPaddedList.Callback.class);
+        PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(snapshot, callback);
         verifyCallback(callback, 60, 60);
         verifyNoMoreInteractions(callback);
@@ -293,7 +288,7 @@ public class ContiguousPagedListTest {
         verifyRange(20, 80, pagedList);
         verifyRange(40, 60, snapshot);
 
-        NullPaddedList.Callback callback = mock(NullPaddedList.Callback.class);
+        PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(snapshot, callback);
         verifyCallback(callback, 40, 0);
         verifyNoMoreInteractions(callback);

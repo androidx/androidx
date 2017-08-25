@@ -229,7 +229,7 @@ public class PagedListAdapterHelper<T> {
         }
 
         if (!mUpdateScheduled) {
-            // first update scheduled on this list, so capture mList as a snapshot, removing
+            // first update scheduled on this list, so capture mPages as a snapshot, removing
             // callbacks so we don't have resolve updates against a moving target
             mList.removeCallback(mPagedListCallback);
             mList = mList.snapshot();
