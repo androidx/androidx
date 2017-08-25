@@ -5029,6 +5029,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
             setScrollState(SCROLL_STATE_SETTLING);
             mLastFlingX = mLastFlingY = 0;
             mScroller.startScroll(0, 0, dx, dy, duration);
+            if (Build.VERSION.SDK_INT < 23) {
+                // b/64931938 before API 23, startScroll() does not reset getCurX()/getCurY()
+                // to start values, which causes fillRemainingScrollValues() put in obsolete values
+                // for LayoutManager.onLayoutChildren().
+                mScroller.computeScrollOffset();
+            }
             postOnAnimation();
         }
 
