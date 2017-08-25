@@ -15,6 +15,7 @@
  */
 
 import android.support.SupportLibraryExtension
+import android.support.LibraryVersions
 
 apply plugin: android.support.FlatfootAndroidLibraryPlugin
 
@@ -55,6 +56,7 @@ android.libraryVariants.all { variant ->
     }
 }
 
+version = LibraryVersions.ARCH_RUNTIME.toString()
 supportLibrary {
     name 'Android Arch-Runtime'
     publish true
