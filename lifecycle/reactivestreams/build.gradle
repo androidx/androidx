@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
+import android.support.SupportLibraryExtension
 
-sourceCompatibility = '1.7'
+apply plugin: android.support.FlatfootAndroidLibraryPlugin
 
 android {
     compileSdkVersion tools.current_sdk
@@ -26,16 +25,8 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
         targetSdkVersion tools.current_sdk
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
     }
 
     testOptions {
@@ -63,3 +54,11 @@ allprojects {
 }
 
 createAndroidCheckstyle(project)
+
+supportLibrary {
+    name 'Android Lifecycle Reactivestreams'
+    publish true
+    inceptionYear '2017'
+    description "Android Lifecycle Reactivestreams"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}
