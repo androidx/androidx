@@ -53,27 +53,31 @@ public abstract class PagedList<T> {
      * @param backgroundThreadExecutor Data loading will be done via this executor - should be a
      *                                 background thread.
      * @param config PagedList Config, which defines how the PagedList will load data.
-     * @param position Initial position to be loaded by the PagedList
+     * @param <K> Key type that indicates to the DataSource what data to load.
      * @param <T> Type of items to be held and loaded by the PagedList.
      *
      * @return Newly created PagedList, which will page in data from the DataSource as needed.
      */
-    public static <T> PagedList<T> create(@NonNull DataSource dataSource,
+    @NonNull
+    static <K, T> PagedList<T> create(@NonNull DataSource<K, T> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
-            Config config,
-            int position) {
+            @NonNull Config config,
+            @Nullable K key) {
 
-        if (dataSource instanceof TiledDataSource) {
+        if (dataSource.isContiguous()) {
+            ContiguousDataSource<K, T> contigDataSource = (ContiguousDataSource<K, T>) dataSource;
+            return new ContiguousPagedList<>(contigDataSource,
+                    mainThreadExecutor,
+                    backgroundThreadExecutor,
+                    config,
+                    key);
+        } else {
             return new TiledPagedList<>((TiledDataSource<T>) dataSource,
                     mainThreadExecutor,
                     backgroundThreadExecutor,
-                    config, position);
-        } else {
-            return new ContiguousPagedList<>((ContiguousDataSource<T>) dataSource,
-                    mainThreadExecutor,
-                    backgroundThreadExecutor,
-                    config, position);
+                    config,
+                    (key != null) ? (Integer) key : 0);
         }
     }
 
@@ -125,6 +129,10 @@ public abstract class PagedList<T> {
 
     int getLastLoad() {
         return 0;
+    }
+
+    T getLastItem() {
+        return null;
     }
 
     boolean isDetached() {

@@ -23,13 +23,9 @@ import android.support.annotation.WorkerThread;
 
 import java.util.List;
 
-/**
- * @param <Type> type loaded by the ContiguousDataSource.
- *
- * @hide
- * */
+/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class ContiguousDataSource<Type> extends DataSource<Type> {
+public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
     int mCount = Integer.MIN_VALUE;
 
     /**
@@ -42,15 +38,14 @@ public abstract class ContiguousDataSource<Type> extends DataSource<Type> {
         return COUNT_UNDEFINED;
     }
 
-    /**
-     * Load initial data, starting after the passed position.
-     *
-     * @param position Index just before the data to be loaded.
-     * @param initialLoadSize Suggested number of items to load.
-     * @return List of initial items, representing data starting at position. Null if the
-     *         DataSource is no longer valid, and should not be queried again.
-     */
-    public abstract List<Type> loadAfterInitial(int position, int initialLoadSize);
+    @Override
+    boolean isContiguous() {
+        return true;
+    }
+
+    @WorkerThread
+    @Nullable
+    public abstract NullPaddedList<Value> loadInitial(Key key, int initialLoadSize);
 
     /**
      * Load data after the given position / item.
@@ -67,8 +62,8 @@ public abstract class ContiguousDataSource<Type> extends DataSource<Type> {
      */
     @WorkerThread
     @Nullable
-    public abstract List<Type> loadAfter(int currentEndIndex,
-            @NonNull Type currentEndItem, int pageSize);
+    public abstract List<Value> loadAfter(int currentEndIndex,
+            @NonNull Value currentEndItem, int pageSize);
 
     /**
      * Load data before the given position / item.
@@ -84,20 +79,6 @@ public abstract class ContiguousDataSource<Type> extends DataSource<Type> {
      */
     @WorkerThread
     @Nullable
-    public abstract List<Type> loadBefore(int currentBeginIndex,
-            @NonNull Type currentBeginItem, int pageSize);
-
-    @WorkerThread
-    @Nullable
-    NullPaddedList<Type> loadAfterInitialInternal(int position, int initialLoadSize) {
-        mCount = loadCount();
-        if (mCount == COUNT_UNDEFINED) {
-            return new NullPaddedList<>(position,
-                    loadAfterInitial(position, initialLoadSize));
-        } else {
-            return new NullPaddedList<>(position,
-                    mCount,
-                    loadAfterInitial(position, initialLoadSize));
-        }
-    }
+    public abstract List<Value> loadBefore(int currentBeginIndex,
+            @NonNull Value currentBeginItem, int pageSize);
 }

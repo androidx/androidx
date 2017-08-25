@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @param <Type> Type of items being loaded by the TiledDataSource.
  */
-public abstract class TiledDataSource<Type> extends DataSource<Type> {
+public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
 
     /**
      * Number of items that this DataSource can provide in total.
@@ -32,6 +32,11 @@ public abstract class TiledDataSource<Type> extends DataSource<Type> {
      */
     @Override
     public abstract int loadCount();
+
+    @Override
+    boolean isContiguous() {
+        return false;
+    }
 
     /**
      * Called to load items at from the specified position range.

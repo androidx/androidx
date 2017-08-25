@@ -30,40 +30,62 @@ import android.support.annotation.WorkerThread;
  * {@code LiveData<PagedList>}, while leaving the details of the paging mechanism up to the
  * consumer.
  *
- * @param <T> Data type produced by the DataSource, and held by the PagedLists.
+ * @param <Key> Tyep of input valued used to load data from the DataSource. Must be integer if
+ *             you're using TiledDataSource.
+ * @param <Value> Data type produced by the DataSource, and held by the PagedLists.
  *
  * @see DataSource
  * @see PagedList
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class LivePagedListProvider<T> {
+public abstract class LivePagedListProvider<Key, Value> {
 
     /**
-     * Construct a new data source to be wrapped in a new NullPaddedList, which will be returned
+     * Construct a new data source to be wrapped in a new PagedList, which will be returned
      * through the LiveData.
      *
      * @return The data source.
      */
     @WorkerThread
-    protected abstract DataSource<T> createDataSource();
+    protected abstract DataSource<Key, Value> createDataSource();
 
     /**
-     * Creates a LiveData of PagedLists, given the NullPaddedList.Config.
+     * Creates a LiveData of PagedLists, given the page size.
      * <p>
-     * This LiveData can be passed to a {@link PagedListAdapterHelper} to be displayed with a
+     * This LiveData can be passed to a {@link PagedListAdapter} to be displayed with a
      * {@link android.support.v7.widget.RecyclerView}.
      *
-     * @param config NullPaddedList.Config to use with created PagedLists. This specifies how the
+     * @param initialLoadKey Initial key used to load initial data from the data source.
+     * @param pageSize Page size defining how many items are loaded from a data source at a time.
+     *                 Recommended to be multiple times the size of item displayed at once.
+     *
+     * @return The LiveData of PagedLists.
+     */
+    public LiveData<PagedList<Value>> create(@Nullable Key initialLoadKey, int pageSize) {
+        return create(initialLoadKey,
+                new PagedList.Config.Builder()
+                        .setPageSize(pageSize)
+                        .build());
+    }
+
+    /**
+     * Creates a LiveData of PagedLists, given the PagedList.Config.
+     * <p>
+     * This LiveData can be passed to a {@link PagedListAdapter} to be displayed with a
+     * {@link android.support.v7.widget.RecyclerView}.
+     *
+     * @param initialLoadKey Initial key to pass to the data source to initialize data with.
+     * @param config PagedList.Config to use with created PagedLists. This specifies how the
      *               lists will load data.
      *
      * @return The LiveData of PagedLists.
      */
-    public LiveData<PagedList<T>> create(final PagedList.Config config) {
-        return new ComputableLiveData<PagedList<T>>() {
+    public LiveData<PagedList<Value>> create(@Nullable final Key initialLoadKey,
+            final PagedList.Config config) {
+        return new ComputableLiveData<PagedList<Value>>() {
             @Nullable
-            private PagedList<T> mList;
+            private PagedList<Value> mList;
             @Nullable
-            private DataSource mDataSource;
+            private DataSource<Key, Value> mDataSource;
 
             private final DataSource.InvalidatedCallback mCallback =
                     new DataSource.InvalidatedCallback() {
@@ -74,16 +96,20 @@ public abstract class LivePagedListProvider<T> {
             };
 
             @Override
-            protected PagedList<T> compute() {
-                final int position;
-                if (mList != null && mDataSource != null) {
-                    if (mDataSource instanceof ContiguousDataSource) {
-                        position = Math.max(0, mList.getLastLoad() - config.mInitialLoadSize / 2);
-                    } else {
-                        position = mList.getLastLoad();
-                    }
+            protected PagedList<Value> compute() {
+                @Nullable Key initializeKey;
+                if (mList == null || mDataSource == null) {
+                    initializeKey = initialLoadKey;
+                } else if (mList.size() == 0) {
+                    initializeKey = null;
                 } else {
-                    position = 0;
+                    if (mDataSource.isContiguous() && mDataSource instanceof KeyedDataSource) {
+                        KeyedDataSource<Key, Value> keyedDataSource =
+                                (KeyedDataSource<Key, Value>) mDataSource;
+                        initializeKey = keyedDataSource.getKey(mList.getLastItem());
+                    } else {
+                        initializeKey = (Key) ((Integer) mList.getLastLoad());
+                    }
                 }
 
                 do {
@@ -98,7 +124,7 @@ public abstract class LivePagedListProvider<T> {
                             AppToolkitTaskExecutor.getMainThreadExecutor(),
                             AppToolkitTaskExecutor.getIOThreadExecutor(),
                             config,
-                            position);
+                            initializeKey);
                 } while (mList.isDetached());
                 return mList;
             }

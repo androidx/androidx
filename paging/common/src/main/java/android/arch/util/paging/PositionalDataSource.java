@@ -37,22 +37,51 @@ import java.util.List;
  * Note that {@link BoundedDataSource} provides a simpler API for positional loading, if your
  * backend or data store doesn't require
  * <p>
- * @param <Type> Type of items being loaded by the DataSource.
+ * @param <Value> Value type of items being loaded by the DataSource.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class PositionalDataSource<Type> extends ContiguousDataSource<Type> {
+public abstract class PositionalDataSource<Value> extends ContiguousDataSource<Integer, Value> {
     @Nullable
     @Override
-    public List<Type> loadAfter(int currentEndIndex, @NonNull Type currentEndItem, int pageSize) {
+    public List<Value> loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
         return loadAfter(currentEndIndex + 1, pageSize);
     }
 
     @Nullable
     @Override
-    public List<Type> loadBefore(int currentBeginIndex, @NonNull Type currentBeginItem,
+    public List<Value> loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
             int pageSize) {
         return loadBefore(currentBeginIndex - 1, pageSize);
+    }
+
+
+    /**
+     * Load initial data, starting after the passed position.
+     *
+     * @param position Index just before the data to be loaded.
+     * @param initialLoadSize Suggested number of items to load.
+     * @return List of initial items, representing data starting at position. Null if the
+     *         DataSource is no longer valid, and should not be queried again.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WorkerThread
+    @Nullable
+    @Override
+    public NullPaddedList<Value> loadInitial(Integer position, int initialLoadSize) {
+        if (position == null) {
+            position = 0;
+        }
+        mCount = loadCount();
+        if (mCount == COUNT_UNDEFINED) {
+            return new NullPaddedList<>(position,
+                    loadAfter(position, initialLoadSize));
+        } else {
+            return new NullPaddedList<>(position,
+                    mCount,
+                    loadAfter(position, initialLoadSize));
+        }
     }
 
     /**
@@ -68,7 +97,7 @@ public abstract class PositionalDataSource<Type> extends ContiguousDataSource<Ty
      */
     @WorkerThread
     @Nullable
-    public abstract List<Type> loadAfter(int startIndex, int pageSize);
+    public abstract List<Value> loadAfter(int startIndex, int pageSize);
 
     /**
      * Load data before the currently loaded content, starting at the provided index.
@@ -83,6 +112,5 @@ public abstract class PositionalDataSource<Type> extends ContiguousDataSource<Ty
      */
     @WorkerThread
     @Nullable
-    public abstract List<Type> loadBefore(int startIndex, int pageSize);
-
+    public abstract List<Value> loadBefore(int startIndex, int pageSize);
 }

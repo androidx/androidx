@@ -36,10 +36,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * can provide a fixed item count. TiledDataSource supports querying pages at arbitrary positions,
  * so can provide data to PagedLists in arbitrary order.
  *
- * @param <Type> type loaded by the DataSource.
+ * @param <Key> Input used to trigger initial load from the DataSource. Often an Integer position.
+ * @param <Value> Value type loaded by the DataSource.
  */
-@SuppressWarnings("unused") // suppress warning to remove "Type", needed for subclass type safety.
-public abstract class DataSource<Type> {
+@SuppressWarnings("unused") // suppress warning to remove "Value", needed for subclass type safety.
+public abstract class DataSource<Key, Value> {
 
     // Since we currently rely on implementation details of two implementations,
     // prevent external subclassing, except through exposed subclasses
@@ -60,6 +61,12 @@ public abstract class DataSource<Type> {
      * if difficult or undesired to compute.
      */
     public abstract int loadCount();
+
+    /**
+     * Returns true if the data source guaranteed to produce a contiguous set of items,
+     * never producing gaps.
+     */
+    abstract boolean isContiguous();
 
     /**
      * Invalidation callback

@@ -34,7 +34,7 @@ class LivePagedListQueryResultBinderProvider(val context: Context) : QueryResult
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
-        val typeArg = declared.typeArguments.first()
+        val typeArg = declared.typeArguments[1]
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
@@ -44,7 +44,7 @@ class LivePagedListQueryResultBinderProvider(val context: Context) : QueryResult
     }
 
     override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 1 && isLivePagedList(declared)
+            declared.typeArguments.size == 2 && isLivePagedList(declared)
 
     private fun isLivePagedList(declared: DeclaredType): Boolean {
         if (livePagedListTypeMirror == null) {

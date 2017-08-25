@@ -34,7 +34,7 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
-        val typeArg = declared.typeArguments.first()
+        val typeArg = declared.typeArguments[1]
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
@@ -42,7 +42,7 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
     }
 
     override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 1 && isCountedDataSource(declared)
+            declared.typeArguments.size == 2 && isCountedDataSource(declared)
 
     private fun isCountedDataSource(declared: DeclaredType): Boolean {
         if (countedDataSourceTypeMirror == null) {
