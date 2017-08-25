@@ -31,6 +31,8 @@ import android.arch.lifecycle.Observer;
 import android.arch.persistence.room.InvalidationTrackerTrojan;
 import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
+import android.arch.persistence.room.integration.testapp.vo.PetsToys;
+import android.arch.persistence.room.integration.testapp.vo.Toy;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.support.annotation.Nullable;
@@ -44,6 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -204,6 +207,72 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final UserAndAllPets withPets = observer.get();
         assertThat(withPets.user, is(user));
         assertThat(withPets.pets, is(Arrays.asList(pets)));
+    }
+
+    @Test
+    public void withRelationOnly() throws ExecutionException, InterruptedException,
+            TimeoutException {
+        LiveData<PetsToys> liveData = mSpecificDogDao.getSpecificDogsToys();
+
+        PetsToys expected = new PetsToys();
+        expected.petId = 123;
+
+        Toy toy = new Toy();
+        toy.setId(1);
+        toy.setPetId(123);
+        toy.setName("ball");
+
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        final TestObserver<PetsToys> observer = new TestObserver<>();
+        observe(liveData, lifecycleOwner, observer);
+        assertThat(observer.get(), is(expected));
+
+        observer.reset();
+        expected.toys.add(toy);
+        mToyDao.insert(toy);
+        assertThat(observer.get(), is(expected));
+    }
+
+    @Test
+    public void withWithClause() throws ExecutionException, InterruptedException,
+            TimeoutException {
+        LiveData<List<String>> actual =
+                mWithClauseDao.getUsersWithFactorialIdsLiveData(0);
+        List<String> expected = new ArrayList<>();
+
+        final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
+        lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
+        final TestObserver<List<String>> observer = new TestObserver<>();
+        observe(actual, lifecycleOwner, observer);
+        assertThat(observer.get(), is(expected));
+
+        observer.reset();
+        User user = new User();
+        user.setId(0);
+        user.setName("Zero");
+        mUserDao.insert(user);
+        assertThat(observer.get(), is(expected));
+
+        observer.reset();
+        user = new User();
+        user.setId(1);
+        user.setName("One");
+        mUserDao.insert(user);
+        expected.add("One");
+        assertThat(observer.get(), is(expected));
+
+        observer.reset();
+        user = new User();
+        user.setId(6);
+        user.setName("Six");
+        mUserDao.insert(user);
+        assertThat(observer.get(), is(expected));
+
+        actual = mWithClauseDao.getUsersWithFactorialIdsLiveData(3);
+        observe(actual, lifecycleOwner, observer);
+        expected.add("Six");
+        assertThat(observer.get(), is(expected));
     }
 
     @MediumTest
