@@ -22,9 +22,11 @@ import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 import android.arch.persistence.room.Query
+import android.arch.persistence.room.ext.CommonTypeNames
 import android.arch.persistence.room.ext.LifecyclesTypeNames
 import android.arch.persistence.room.ext.hasAnnotation
 import android.arch.persistence.room.ext.typeName
+import android.arch.persistence.room.parser.Table
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
 import android.arch.persistence.room.solver.query.result.LiveDataQueryResultBinder
 import android.arch.persistence.room.solver.query.result.PojoRowAdapter
@@ -48,7 +50,9 @@ import com.squareup.javapoet.TypeVariableName
 import createVerifierFromEntities
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -264,7 +268,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         singleQueryMethod(
                 """
                 @Query("select * from User")
-                abstract public <T> java.util.List<T> foo(int x);
+                abstract public <T> ${CommonTypeNames.LIST}<T> foo(int x);
                 """) { parsedQuery, _ ->
             val expected: TypeName = ParameterizedTypeName.get(ClassName.get(List::class.java),
                     TypeVariableName.get("T"))
@@ -283,6 +287,44 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             // do nothing
         }.failsToCompile()
                 .withErrorContaining("UNEXPECTED_CHAR=:")
+    }
+
+    @Test
+    fun testLiveDataWithWithClause() {
+        singleQueryMethod(
+                """
+                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1, (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>> getFactorialLiveData();
+                """) { parsedQuery, _ ->
+            assertThat(parsedQuery.query.tables, hasItem(Table("User", "User")))
+            assertThat(parsedQuery.query.tables,
+                    not(hasItem(Table("tempTable", "tempTable"))))
+            assertThat(parsedQuery.query.tables.size, `is`(1))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testLiveDataWithNothingToObserve() {
+        singleQueryMethod(
+                """
+                @Query("SELECT 1")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<Integer> getOne();
+                """) { _, _ ->
+            // do nothing
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.LIVE_DATA_QUERY_NOTHING_TO_OBSERVE)
+    }
+
+    @Test
+    fun testLiveDataWithWithClauseAndNothingToObserve() {
+        singleQueryMethod(
+                """
+                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1, (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
+                abstract public ${LifecyclesTypeNames.LIVE_DATA}<${CommonTypeNames.LIST}<Integer>> getFactorialLiveData();
+                """) { _, _ ->
+            // do nothing
+        }.failsToCompile()
+                .withErrorContaining(ProcessorErrors.LIVE_DATA_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test

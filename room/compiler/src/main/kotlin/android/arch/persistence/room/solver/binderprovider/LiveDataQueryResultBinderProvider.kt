@@ -19,10 +19,10 @@ package android.arch.persistence.room.solver.binderprovider
 import android.arch.persistence.room.ext.LifecyclesTypeNames
 import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
+import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.QueryResultBinderProvider
 import android.arch.persistence.room.solver.query.result.LiveDataQueryResultBinder
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
-import com.google.common.annotations.VisibleForTesting
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -34,8 +34,17 @@ class LiveDataQueryResultBinderProvider(val context : Context) : QueryResultBind
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
         val liveDataTypeArg = declared.typeArguments.first()
-        return LiveDataQueryResultBinder(liveDataTypeArg, query.tables.map { it.name },
-                context.typeAdapterStore.findQueryResultAdapter(liveDataTypeArg, query))
+        val queryResultAdapter =
+                context.typeAdapterStore.findQueryResultAdapter(liveDataTypeArg, query)
+        val tableNames = ((queryResultAdapter?.accessedTableNames() ?: emptyList()) +
+                        query.tables.map { it.name }).toSet()
+        context.checker.check(!tableNames.isEmpty(),
+                              declared.asElement(),
+                              ProcessorErrors.LIVE_DATA_QUERY_NOTHING_TO_OBSERVE);
+        return LiveDataQueryResultBinder(
+                liveDataTypeArg,
+                tableNames,
+                queryResultAdapter)
     }
 
     override fun matches(declared: DeclaredType): Boolean =
