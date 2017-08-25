@@ -75,9 +75,17 @@ public abstract class LivePagedListProvider<T> {
 
             @Override
             protected PagedList<T> compute() {
-                final int position = mList != null
-                        ? Math.max(0, mList.getLastLoad() - config.mInitialLoadSize / 2)
-                        : 0; // TODO: callback method for initialization param?
+                final int position;
+                if (mList != null && mDataSource != null) {
+                    if (mDataSource instanceof ContiguousDataSource) {
+                        position = Math.max(0, mList.getLastLoad() - config.mInitialLoadSize / 2);
+                    } else {
+                        position = mList.getLastLoad();
+                    }
+                } else {
+                    position = 0;
+                }
+
                 do {
                     if (mDataSource != null) {
                         mDataSource.removeInvalidatedCallback(mCallback);
@@ -85,7 +93,6 @@ public abstract class LivePagedListProvider<T> {
 
                     mDataSource = createDataSource();
                     mDataSource.addInvalidatedCallback(mCallback);
-
 
                     mList = PagedList.create(mDataSource,
                             AppToolkitTaskExecutor.getMainThreadExecutor(),
