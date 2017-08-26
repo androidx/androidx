@@ -67,16 +67,13 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android O MR1 or newer.
      * <p>
-     * <strong>Note:</strong> This method will return {@code false} on devices running release
-     * versions of Android. When Android O MR1 is finalized for release, this method will be
-     * deprecated and all calls should be replaced with
-     * {@code Build.SDK_INT >= Build.VERSION_CODES#O_MR1}.
-     *
      * @return {@code true} if O MR1 APIs are available for use, {@code false} otherwise
+     * @deprecated Android O MR1 is a finalized release and this method is no longer necessary.
+     *             It wil be removed in a future release of the Support Library. Instead use
+     *             {@code Build.SDK_INT >= Build.VERSION_CODES#O_MR1}.
      */
     public static boolean isAtLeastOMR1() {
-        return VERSION.CODENAME.startsWith("OMR")
-                || isAtLeastP();
+        return VERSION.SDK_INT >= 27;
     }
 
     /**
