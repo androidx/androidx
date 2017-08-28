@@ -26,7 +26,6 @@ ffVersions.kotlin = "1.1.3"
 ffVersions.auto_common = "0.6"
 ffVersions.javapoet = "1.8.0"
 ffVersions.compile_testing = "0.11"
-ffVersions.localize_maven = "1.2"
 ffVersions.support_lib = "26.0.0"
 ffVersions.intellij_annotations = "12.0"
 ffVersions.rxjava2 = "2.0.6"
@@ -70,7 +69,6 @@ ffLibs.support = [
         recyclerview : getSupportLib(':recyclerview-v7', ffVersions.support_lib)
 ]
 
-ffLibs.localize_maven = "com.android.databinding:localizemaven:$ffVersions.localize_maven"
 ffLibs.javapoet = "com.squareup:javapoet:$ffVersions.javapoet"
 ffLibs.antlr = "org.antlr:antlr4:$ffVersions.antlr"
 ffLibs.xerial = "org.xerial:sqlite-jdbc:$ffVersions.xerial"
