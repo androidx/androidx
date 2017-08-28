@@ -22,8 +22,8 @@ import android.support.v7.widget.RecyclerView;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter RecyclerView.Adapter} base class for presenting list data from a
- * LiveData of Lists in a {@link RecyclerView}.
+ * {@link RecyclerView.Adapter RecyclerView.Adapter} base class for presenting List data in a
+ * {@link RecyclerView}, including computing diffs between Lists on a background thread.
  * <p>
  * This class is a convenience wrapper around ListAdapterHelper that implements common default
  * behavior for item access and counting.
@@ -53,7 +53,7 @@ import java.util.List;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         LiveListAdapterUtil.observe(viewModel.usersList, this, adapter);
+ *         LiveListAdapterUtil.bind(viewModel.usersList, this, adapter);
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
@@ -66,9 +66,7 @@ import java.util.List;
  *     public void onBindViewHolder(UserViewHolder holder, int position) {
  *         holder.bindTo(getItem(position));
  *     }
- * }
- *
- * </pre>
+ * }</pre>
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
  * class should refer to {@link ListAdapterHelper}, which provides custom mapping from diff events
@@ -104,6 +102,7 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
         mHelper.setList(list);
     }
 
+    @SuppressWarnings("unused")
     protected T getItem(int position) {
         return mHelper.getItem(position);
     }

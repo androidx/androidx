@@ -72,8 +72,7 @@ import java.util.List;
  *     public List&lt;User> loadBefore({@literal @}NonNull User currentBeginItem, int pageSize) {
  *         return mUserDao.userNameLoadBefore(currentBeginItem.getName(), pageSize);
  *     }
- * }
- * </pre>
+ * }</pre>
  *
  * @param <Type> Type of items being loaded by the DataSource.
  */

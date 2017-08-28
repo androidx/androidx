@@ -57,8 +57,7 @@ import java.util.List;
  *     public List&lt;User> loadRange(int startPosition, int loadCount) {
  *         return mUserDao.userNameLimitOffset(loadCount, startPosition);
  *     }
- * }
- * </pre>
+ * }</pre>
  *
  * Room can generate this DataSource for you:
  *
@@ -67,8 +66,7 @@ import java.util.List;
  * interface UserDao {
  *     {@literal @}Query("SELECT * FROM user ORDER BY mAge DESC")
  *     public abstract DataSource&lt;User> loadUsersByAgeDesc();
- * }
- * </pre>
+ * }</pre>
  *
  * @param <Type> Data type returned by the data source.
  *
