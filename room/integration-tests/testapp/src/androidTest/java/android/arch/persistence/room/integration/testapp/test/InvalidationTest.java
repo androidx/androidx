@@ -159,6 +159,17 @@ public class InvalidationTest {
         assertThat(observer.await(), is(false));
     }
 
+    @Test
+    public void testMultipleTables() throws InterruptedException {
+        LatchObserver observer = new LatchObserver(1, "User", "Pet");
+        mDb.getInvalidationTracker().addObserver(observer);
+        mUserDao.insert(TestUtil.createUser(3));
+        waitUntilIOThreadIsIdle();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables(), hasSize(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("User"));
+    }
+
     private static class LatchObserver extends InvalidationTracker.Observer {
         CountDownLatch mLatch;
 
