@@ -57,17 +57,9 @@ ext.localMavenRepo = localMavenRepo
 file(localMavenRepo).delete()
 file(localMavenRepo).mkdirs()
 
-ext.repoNames = ["$prebuiltsRootUri/maven_repo",
-                 "$prebuiltsRootUri/gradle-plugin",
-                 "$prebuiltsRootUri/tools/common/m2/repository",
-                 "$prebuiltsRootUri/tools/common/m2/internal",
-                 "$prebuiltsRootUri/tools/common/offline-m2",
-                 "$prebuiltsRootUri/maven_repo/android",
-                 "file://$fullSdkPath/extras/android/m2repository",
-                 "file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
+ext.repoNames += ["file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
 
 apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
-ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 
 // repository creation task
 def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
@@ -173,28 +165,6 @@ subprojects {
         }
         if (task.name.startsWith("assembleDebug")) {
             buildServerAnchorTask.dependsOn task
-        }
-    }
-
-    if (enablePublicRepos) {
-        project.afterEvaluate {
-            apply plugin: 'com.android.databinding.localizemaven'
-            project.localizeMaven {
-                localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
-                otherRepoDirs = repoNames
-                licenseInformation = [
-                        [
-                                libraries: ["org.jetbrains:annotations",
-                                            "org.jetbrains.kotlin:kotlin-compiler-runner"],
-                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
-                        ],
-                        [
-                                libraries: ["com.google.code.gson:gson"],
-                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
-                        ]
-
-                ]
-            }
         }
     }
 }
