@@ -99,12 +99,13 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         int prependItems = mConfig.mPrefetchDistance - (index - mLeadingNullCount);
         int appendItems = index + mConfig.mPrefetchDistance - (mLeadingNullCount + mList.size());
 
-        if (prependItems > mPrependItemsRequested) {
-            mPrependItemsRequested = prependItems;
+        mPrependItemsRequested = Math.max(prependItems, mPrependItemsRequested);
+        if (mPrependItemsRequested > 0) {
             schedulePrepend();
         }
-        if (appendItems > mAppendItemsRequested) {
-            mAppendItemsRequested = appendItems;
+
+        mAppendItemsRequested = Math.max(appendItems, mAppendItemsRequested);
+        if (mAppendItemsRequested > 0) {
             scheduleAppend();
         }
     }
@@ -131,7 +132,7 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
         mPrependWorkerRunning = true;
 
-        final int position = mLeadingNullCount + 1 + mPositionOffset;
+        final int position = mLeadingNullCount + mPositionOffset;
         final T item = mList.get(0);
         mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
