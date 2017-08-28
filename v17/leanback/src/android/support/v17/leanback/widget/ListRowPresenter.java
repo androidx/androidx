@@ -419,7 +419,8 @@ public class ListRowPresenter extends RowPresenter {
             mShadowOverlayHelper = new ShadowOverlayHelper.Builder()
                     .needsOverlay(needsDefaultListSelectEffect())
                     .needsShadow(needsDefaultShadow())
-                    .needsRoundedCorner(areChildRoundedCornersEnabled())
+                    .needsRoundedCorner(isUsingOutlineClipping(context)
+                            && areChildRoundedCornersEnabled())
                     .preferZOrder(isUsingZOrder(context))
                     .keepForegroundDrawable(mKeepChildForeground)
                     .options(createShadowOverlayOptions())
@@ -702,6 +703,18 @@ public class ListRowPresenter extends RowPresenter {
      */
     public boolean isUsingZOrder(Context context) {
         return !Settings.getInstance(context).preferStaticShadows();
+    }
+
+    /**
+     * Returns true if leanback view outline is enabled on the system or false otherwise. When
+     * false, rounded corner will not be enabled even {@link #enableChildRoundedCorners(boolean)}
+     * is called with true.
+     *
+     * @param context Context to retrieve system settings.
+     * @return True if leanback view outline is enabled on the system or false otherwise.
+     */
+    public boolean isUsingOutlineClipping(Context context) {
+        return !Settings.getInstance(context).isOutlineClippingDisabled();
     }
 
     /**

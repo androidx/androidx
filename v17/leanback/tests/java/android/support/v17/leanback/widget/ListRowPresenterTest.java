@@ -349,6 +349,12 @@ public class ListRowPresenterTest {
             public boolean isUsingDefaultShadow() {
                 return isUsingDefaultShadow;
             }
+
+            @Override
+            public boolean isUsingViewOutline(Context context) {
+                // force to use ViewOutline for rounded corner test
+                return true;
+            }
         };
         listRowPresenter.setShadowEnabled(shadowEnabled);
         listRowPresenter.enableChildRoundedCorners(enableRoundedCorner);

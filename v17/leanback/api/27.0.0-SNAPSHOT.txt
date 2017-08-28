@@ -1434,6 +1434,7 @@ package android.support.v17.leanback.system {
     method public boolean getBoolean(java.lang.String);
     method public static android.support.v17.leanback.system.Settings getInstance(android.content.Context);
     method public void setBoolean(java.lang.String, boolean);
+    field public static final java.lang.String OUTLINE_CLIPPING_DISABLED = "OUTLINE_CLIPPING_DISABLED";
     field public static final java.lang.String PREFER_STATIC_SHADOWS = "PREFER_STATIC_SHADOWS";
   }
 
@@ -2325,6 +2326,7 @@ package android.support.v17.leanback.widget {
     method public boolean isUsingDefaultListSelectEffect();
     method public final boolean isUsingDefaultSelectEffect();
     method public boolean isUsingDefaultShadow();
+    method public boolean isUsingOutlineClipping(android.content.Context);
     method public boolean isUsingZOrder(android.content.Context);
     method public void setExpandedRowHeight(int);
     method public final void setHoverCardPresenterSelector(android.support.v17.leanback.widget.PresenterSelector);
