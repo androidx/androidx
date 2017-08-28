@@ -351,7 +351,7 @@ public class ListRowPresenterTest {
             }
 
             @Override
-            public boolean isUsingViewOutline(Context context) {
+            public boolean isUsingOutlineClipping(Context context) {
                 // force to use ViewOutline for rounded corner test
                 return true;
             }

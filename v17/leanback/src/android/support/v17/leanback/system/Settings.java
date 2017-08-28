@@ -126,7 +126,7 @@ public class Settings {
             mOutlineClippingDisabled = false;
             if (customizations != null) {
                 mOutlineClippingDisabled = customizations.getBoolean(
-                        "leanback_outline__clipping_disabled", mOutlineClippingDisabled);
+                        "leanback_outline_clipping_disabled", mOutlineClippingDisabled);
             }
         } else {
             mOutlineClippingDisabled = true;
