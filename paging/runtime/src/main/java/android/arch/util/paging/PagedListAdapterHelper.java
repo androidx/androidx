@@ -33,9 +33,9 @@ import android.support.v7.widget.RecyclerView;
  * Both the internal paging of the list as more data is loaded, and updates in the form of new
  * PagedLists.
  * <p>
- * The PagedListAdapterHelper can take a {@link LiveData} of PagedList and present the data simply
- * for an adapter. It listens to PagedList loading callbacks, and uses DiffUtil on a background
- * thread to compute updates as new PagedLists are received.
+ * The PagedListAdapterHelper can be bound to a {@link LiveData} of PagedList and present the data
+ * simply for an adapter. It listens to PagedList loading callbacks, and uses DiffUtil on a
+ * background thread to compute updates as new PagedLists are received.
  * <p>
  * It provides a simple list-like API with {@link #getItem(int)} and {@link #getItemCount()} for an
  * adapter to acquire and present data objects.
@@ -66,7 +66,7 @@ import android.support.v7.widget.RecyclerView;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         LiveListAdapterUtil.observe(viewModel.usersList, this, adapter);
+ *         LiveListAdapterUtil.bind(viewModel.usersList, this, adapter.getHelper());
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
@@ -80,6 +80,9 @@ import android.support.v7.widget.RecyclerView;
  *     public int getItemCount() {
  *         return mHelper.getItemCount();
  *     }
+ *     public PagedListAdapterHelper getHelper() {
+ *         return mHelper;
+ *     }
  *     {@literal @}Override
  *     public void onBindViewHolder(UserViewHolder holder, int position) {
  *         User user = mHelper.getItem(position);
@@ -91,8 +94,7 @@ import android.support.v7.widget.RecyclerView;
  *             holder.clear();
  *         }
  *     }
- * }
- * </pre>
+ * }</pre>
  *
  * @param <T> Type of the PagedLists this helper will receive.
  */
@@ -142,9 +144,6 @@ public class PagedListAdapterHelper<T> {
 
     private PagedList<T> mList;
 
-    // True if background thread executor has at least one task scheduled
-    private boolean mUpdateScheduled;
-
     // Max generation of currently scheduled runnable
     private int mMaxScheduledGeneration;
 
@@ -157,10 +156,11 @@ public class PagedListAdapterHelper<T> {
      * @param index Index of item to get, must be >= 0, and &lt; {@link #getItemCount()}.
      * @return The item, or null, if a null placeholder is at the specified position.
      */
+    @SuppressWarnings("WeakerAccess")
     @Nullable
     public T getItem(int index) {
         if (mList == null) {
-            throw new IllegalArgumentException("No current list");
+            throw new IndexOutOfBoundsException("Item count is zero, getItem() call is invalid");
         }
 
         mList.loadAround(index);
@@ -184,9 +184,6 @@ public class PagedListAdapterHelper<T> {
      * If a PagedList is already present, a diff will be computed asynchronously on a background
      * thread. When the diff is computed, it will be applied (dispatched to the
      * {@link ListUpdateCallback}), and the new PagedList will be swapped in.
-     * <p>
-     * If this AdapterHelper is already consuming data from a LiveData&lt;PagedList>, calling this
-     * method manually will throw.
      *
      * @param list The new PagedList.
      */
@@ -208,12 +205,10 @@ public class PagedListAdapterHelper<T> {
             return;
         }
 
-        if (list == null) {
-            if (mUpdateScheduled) {
-                // incrementing the generation effectively ignores any current running diffs
-                mMaxScheduledGeneration++;
-            }
+        // incrementing generation means any currently-running diffs are discarded when they finish
+        final int runGeneration = ++mMaxScheduledGeneration;
 
+        if (list == null) {
             mUpdateCallback.onRemoved(0, mList.size());
             mList.removeCallback(mPagedListCallback);
             mList = null;
@@ -228,17 +223,15 @@ public class PagedListAdapterHelper<T> {
             return;
         }
 
-        if (!mUpdateScheduled) {
+        if (!mList.isImmutable()) {
             // first update scheduled on this list, so capture mPages as a snapshot, removing
             // callbacks so we don't have resolve updates against a moving target
             mList.removeCallback(mPagedListCallback);
             mList = mList.snapshot();
         }
 
-        final int runGeneration = ++mMaxScheduledGeneration;
         final PagedList<T> oldSnapshot = mList;
         final PagedList<T> newSnapshot = list.snapshot();
-        mUpdateScheduled = true;
         mConfig.mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -257,7 +250,6 @@ public class PagedListAdapterHelper<T> {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {
-                            mUpdateScheduled = false;
                             latchPagedList(list, newSnapshot, result);
                         }
                     }

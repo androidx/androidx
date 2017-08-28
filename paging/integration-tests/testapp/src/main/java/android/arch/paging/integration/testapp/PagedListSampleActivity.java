@@ -41,7 +41,7 @@ public class PagedListSampleActivity extends AppCompatActivity implements Lifecy
         final PagedListItemAdapter adapter = new PagedListItemAdapter();
         final RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setAdapter(adapter);
-        LiveListAdapterUtil.observe(viewModel.getLivePagedList(), this, adapter);
+        LiveListAdapterUtil.bind(viewModel.getLivePagedList(), this, adapter);
 
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
