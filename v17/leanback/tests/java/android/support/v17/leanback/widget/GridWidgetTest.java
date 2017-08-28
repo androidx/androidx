@@ -4629,6 +4629,80 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testUpdateAndSelect1() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_HAS_STABLE_IDS, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyDataSetChanged();
+                mGridView.setSelectedPosition(1);
+            }
+        });
+        waitOneUiCycle();
+        assertEquals(1, mGridView.getSelectedPosition());
+    }
+
+    @Test
+    public void testUpdateAndSelect2() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_HAS_STABLE_IDS, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyDataSetChanged();
+                mGridView.setSelectedPosition(50);
+            }
+        });
+        waitOneUiCycle();
+        assertEquals(50, mGridView.getSelectedPosition());
+    }
+
+    @Test
+    public void testUpdateAndSelect3() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_HAS_STABLE_IDS, false);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 10);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        initActivity(intent);
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int[] newItems = new int[100];
+                for (int i = 0; i < newItems.length; i++) {
+                    newItems[i] = mActivity.mItemLengths[0];
+                }
+                mActivity.addItems(0, newItems, false);
+                mGridView.getAdapter().notifyDataSetChanged();
+                mGridView.setSelectedPosition(50);
+            }
+        });
+        waitOneUiCycle();
+        assertEquals(50, mGridView.getSelectedPosition());
+    }
+
+    @Test
     public void testFocusedPositonAfterRemoved1() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
