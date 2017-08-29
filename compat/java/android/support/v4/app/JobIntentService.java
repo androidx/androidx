@@ -97,6 +97,7 @@ public abstract class JobIntentService extends Service {
     CommandProcessor mCurProcessor;
     boolean mInterruptIfStopped = false;
     boolean mStopped = false;
+    boolean mDestroyed = false;
 
     final ArrayList<CompatWorkItem> mCompatQueue;
 
@@ -129,13 +130,13 @@ public abstract class JobIntentService extends Service {
 
         abstract void enqueueWork(Intent work);
 
-        public void serviceCreated() {
-        }
-
         public void serviceStartReceived() {
         }
 
-        public void serviceDestroyed() {
+        public void serviceProcessingStarted() {
+        }
+
+        public void serviceProcessingFinished() {
         }
     }
 
@@ -155,7 +156,7 @@ public abstract class JobIntentService extends Service {
         private final PowerManager.WakeLock mLaunchWakeLock;
         private final PowerManager.WakeLock mRunWakeLock;
         boolean mLaunchingService;
-        boolean mServiceRunning;
+        boolean mServiceProcessing;
 
         CompatWorkEnqueuer(Context context, ComponentName cn) {
             super(context, cn);
@@ -181,27 +182,15 @@ public abstract class JobIntentService extends Service {
                 synchronized (this) {
                     if (!mLaunchingService) {
                         mLaunchingService = true;
-                        if (!mServiceRunning) {
+                        if (!mServiceProcessing) {
                             // If the service is not already holding the wake lock for
                             // itself, acquire it now to keep the system running until
                             // we get this work dispatched.  We use a timeout here to
-                            // protect against whatever problem may cause is to not get
+                            // protect against whatever problem may cause it to not get
                             // the work.
                             mLaunchWakeLock.acquire(60 * 1000);
                         }
                     }
-                }
-            }
-        }
-
-        @Override
-        public void serviceCreated() {
-            synchronized (this) {
-                // We hold the wake lock as long as the service is running.
-                if (!mServiceRunning) {
-                    mServiceRunning = true;
-                    mRunWakeLock.acquire();
-                    mLaunchWakeLock.release();
                 }
             }
         }
@@ -216,15 +205,31 @@ public abstract class JobIntentService extends Service {
         }
 
         @Override
-        public void serviceDestroyed() {
+        public void serviceProcessingStarted() {
             synchronized (this) {
-                // If we are transitioning back to a wakelock with a timeout, do the same
-                // as if we had enqueued work without the service running.
-                if (mLaunchingService) {
-                    mLaunchWakeLock.acquire(60 * 1000);
+                // We hold the wake lock as long as the service is processing commands.
+                if (!mServiceProcessing) {
+                    mServiceProcessing = true;
+                    // Keep the device awake, but only for at most 10 minutes at a time
+                    // (Similar to JobScheduler.)
+                    mRunWakeLock.acquire(10 * 60 * 1000L);
+                    mLaunchWakeLock.release();
                 }
-                mServiceRunning = false;
-                mRunWakeLock.release();
+            }
+        }
+
+        @Override
+        public void serviceProcessingFinished() {
+            synchronized (this) {
+                if (mServiceProcessing) {
+                    // If we are transitioning back to a wakelock with a timeout, do the same
+                    // as if we had enqueued work without the service running.
+                    if (mLaunchingService) {
+                        mLaunchWakeLock.acquire(60 * 1000);
+                    }
+                    mServiceProcessing = false;
+                    mRunWakeLock.release();
+                }
             }
         }
     }
@@ -280,7 +285,7 @@ public abstract class JobIntentService extends Service {
             if (DEBUG) Log.d(TAG, "onStartJob: " + params);
             mParams = params;
             // We can now start dequeuing work!
-            mService.ensureProcessorRunningLocked();
+            mService.ensureProcessorRunningLocked(false);
             return true;
         }
 
@@ -426,7 +431,6 @@ public abstract class JobIntentService extends Service {
             mJobImpl = null;
             ComponentName cn = new ComponentName(this, this.getClass());
             mCompatWorkEnqueuer = getWorkEnqueuer(this, cn, false, 0);
-            mCompatWorkEnqueuer.serviceCreated();
         }
     }
 
@@ -442,7 +446,7 @@ public abstract class JobIntentService extends Service {
             synchronized (mCompatQueue) {
                 mCompatQueue.add(new CompatWorkItem(intent != null ? intent : new Intent(),
                         startId));
-                ensureProcessorRunningLocked();
+                ensureProcessorRunningLocked(true);
             }
             return START_REDELIVER_INTENT;
         } else {
@@ -469,8 +473,11 @@ public abstract class JobIntentService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mCompatWorkEnqueuer != null) {
-            mCompatWorkEnqueuer.serviceDestroyed();
+        if (mCompatQueue != null) {
+            synchronized (mCompatQueue) {
+                mDestroyed = true;
+                mCompatWorkEnqueuer.serviceProcessingFinished();
+            }
         }
     }
 
@@ -595,9 +602,12 @@ public abstract class JobIntentService extends Service {
         return onStopCurrentWork();
     }
 
-    void ensureProcessorRunningLocked() {
+    void ensureProcessorRunningLocked(boolean reportStarted) {
         if (mCurProcessor == null) {
             mCurProcessor = new CommandProcessor();
+            if (mCompatWorkEnqueuer != null && reportStarted) {
+                mCompatWorkEnqueuer.serviceProcessingStarted();
+            }
             if (DEBUG) Log.d(TAG, "Starting processor: " + mCurProcessor);
             mCurProcessor.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -616,7 +626,9 @@ public abstract class JobIntentService extends Service {
                 // waiting -- either to get destroyed, or get a new onStartCommand() callback
                 // which will then kick off a new processor.
                 if (mCompatQueue != null && mCompatQueue.size() > 0) {
-                    ensureProcessorRunningLocked();
+                    ensureProcessorRunningLocked(false);
+                } else if (!mDestroyed) {
+                    mCompatWorkEnqueuer.serviceProcessingFinished();
                 }
             }
         }
