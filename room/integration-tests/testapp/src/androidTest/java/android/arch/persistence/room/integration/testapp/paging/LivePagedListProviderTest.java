@@ -50,6 +50,7 @@ import java.util.concurrent.TimeoutException;
 public class LivePagedListProviderTest extends TestDatabaseTest {
     @Rule
     public CountingTaskExecutorRule mExecutorRule = new CountingTaskExecutorRule();
+
     @Test
     @LargeTest
     public void getUsersAsPagedList()
@@ -67,7 +68,8 @@ public class LivePagedListProviderTest extends TestDatabaseTest {
         }
         assertThat(mUserDao.count(), is(100));
         final LiveData<PagedList<User>> livePagedUsers = mUserDao.loadPagedByAge(3).create(
-                new PagedList.Config.Builder().setPageSize(10).setPrefetchDistance(1).build());
+                new PagedList.Config.Builder().setPageSize(10).setPrefetchDistance(1)
+                        .setInitialLoadSize(10).build());
 
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();
         testOwner.handleEvent(Lifecycle.Event.ON_CREATE);
@@ -85,25 +87,31 @@ public class LivePagedListProviderTest extends TestDatabaseTest {
         assertThat(pagedList1, is(notNullValue()));
 
         assertThat(pagedList1.size(), is(96));
-        assertThat(pagedList1.get(20), is(nullValue()));
+        assertThat(getAndLoad(pagedList1, 20), is(nullValue()));
         drain();
-        assertThat(pagedList1.get(31), nullValue());
-        assertThat(pagedList1.get(20), notNullValue());
-        assertThat(pagedList1.get(16), notNullValue());
+        assertThat(getAndLoad(pagedList1, 31), nullValue());
+        assertThat(getAndLoad(pagedList1, 20), notNullValue());
+        assertThat(getAndLoad(pagedList1, 16), notNullValue());
 
         drain();
-        assertThat(pagedList1.get(31), notNullValue());
-        assertThat(pagedList1.get(50), nullValue());
+        assertThat(getAndLoad(pagedList1, 31), notNullValue());
+        assertThat(getAndLoad(pagedList1, 50), nullValue());
         drain();
-        assertThat(pagedList1.get(50), notNullValue());
+        assertThat(getAndLoad(pagedList1, 50), notNullValue());
         observer.reset();
         // now invalidate the database but don't get the new paged list
         mUserDao.updateById(50, "foo");
-        assertThat(pagedList1.get(70), nullValue());
+        assertThat(getAndLoad(pagedList1, 70), nullValue());
         drain();
-        assertThat(pagedList1.get(70), nullValue());
+        assertThat(getAndLoad(pagedList1, 70), nullValue());
         PagedList<User> pagedList = observer.get();
-        assertThat(pagedList.get(70), notNullValue());
+        assertThat(getAndLoad(pagedList, 70), notNullValue());
+    }
+
+    private <T> T getAndLoad(PagedList<T> list, int pos) {
+        T result = list.get(pos);
+        list.loadAround(pos);
+        return result;
     }
 
     private void drain() throws InterruptedException, TimeoutException {
