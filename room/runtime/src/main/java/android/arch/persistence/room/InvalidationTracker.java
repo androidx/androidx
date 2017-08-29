@@ -100,7 +100,7 @@ public class InvalidationTracker {
     private Object[] mQueryArgs = new Object[1];
 
     // max id in the last syc
-    private long mMaxVersion = -1;
+    private long mMaxVersion = 0;
 
     private final RoomDatabase mDatabase;
 
