@@ -327,9 +327,16 @@ public final class PlaybackStateCompat implements Parcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef({REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL, REPEAT_MODE_GROUP})
+    @IntDef({REPEAT_MODE_INVALID, REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL,
+            REPEAT_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RepeatMode {}
+
+    /**
+     * {@link MediaControllerCompat.TransportControls#getRepeatMode} returns this value
+     * when the session is not ready for providing its repeat mode.
+     */
+    public static final int REPEAT_MODE_INVALID = -1;
 
     /**
      * Use this value with {@link MediaControllerCompat.TransportControls#setRepeatMode}
@@ -361,9 +368,15 @@ public final class PlaybackStateCompat implements Parcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef({SHUFFLE_MODE_NONE, SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP})
+    @IntDef({SHUFFLE_MODE_INVALID, SHUFFLE_MODE_NONE, SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ShuffleMode {}
+
+    /**
+     * {@link MediaControllerCompat.TransportControls#getShuffleMode} returns this value
+     * when the session is not ready for providing its shuffle mode.
+     */
+    public static final int SHUFFLE_MODE_INVALID = -1;
 
     /**
      * Use this value with {@link MediaControllerCompat.TransportControls#setShuffleMode}

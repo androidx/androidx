@@ -27,12 +27,15 @@ import static junit.framework.Assert.fail;
 
 import android.content.ComponentName;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.PollingCheck;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -129,6 +132,46 @@ public class MediaBrowserCompatTest {
                 return !mMediaBrowser.isConnected();
             }
         }.run();
+    }
+
+    @Test
+    @SmallTest
+    public void testSessionReadyWithRemoteService() throws Exception {
+        if (android.os.Build.VERSION.SDK_INT < 21) {
+            // This test is for API 21+
+            return;
+        }
+
+        createMediaBrowser(TEST_REMOTE_BROWSER_SERVICE);
+        assertFalse(mMediaBrowser.isConnected());
+
+        connectMediaBrowserService();
+        assertTrue(mMediaBrowser.isConnected());
+
+        // Create a session token by removing the extra binder of the token from MediaBrowserCompat.
+        final MediaSessionCompat.Token tokenWithoutExtraBinder = MediaSessionCompat.Token.fromToken(
+                mMediaBrowser.getSessionToken().getToken());
+
+        final MediaControllerCallback callback = new MediaControllerCallback();
+        synchronized (callback.mWaitLock) {
+            getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        MediaControllerCompat controller = new MediaControllerCompat(
+                                getInstrumentation().getTargetContext(), tokenWithoutExtraBinder);
+                        controller.registerCallback(callback, new Handler());
+                        assertFalse(controller.isSessionReady());
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+            callback.mWaitLock.wait(TIME_OUT_MS);
+            assertTrue(callback.mOnSessionReadyCalled);
+        }
+
+        mMediaBrowser.disconnect();
     }
 
     @Test
@@ -678,6 +721,19 @@ public class MediaBrowserCompatTest {
         public void onError(String id) {
             synchronized (mWaitLock) {
                 mLastErrorId = id;
+                mWaitLock.notify();
+            }
+        }
+    }
+
+    private class MediaControllerCallback extends MediaControllerCompat.Callback {
+        Object mWaitLock = new Object();
+        private volatile boolean mOnSessionReadyCalled;
+
+        @Override
+        public void onSessionReady() {
+            synchronized (mWaitLock) {
+                mOnSessionReadyCalled = true;
                 mWaitLock.notify();
             }
         }
