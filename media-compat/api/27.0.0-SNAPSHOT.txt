@@ -356,6 +356,7 @@ package android.support.v4.media.session {
     method public int getShuffleMode();
     method public android.support.v4.media.session.MediaControllerCompat.TransportControls getTransportControls();
     method public boolean isCaptioningEnabled();
+    method public boolean isSessionReady();
     method public deprecated boolean isShuffleModeEnabled();
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
@@ -380,6 +381,7 @@ package android.support.v4.media.session {
     method public void onRepeatModeChanged(int);
     method public void onSessionDestroyed();
     method public void onSessionEvent(java.lang.String, android.os.Bundle);
+    method public void onSessionReady();
     method public deprecated void onShuffleModeChanged(boolean);
     method public void onShuffleModeChanged(int);
   }
@@ -592,10 +594,12 @@ package android.support.v4.media.session {
     field public static final long PLAYBACK_POSITION_UNKNOWN = -1L; // 0xffffffffffffffffL
     field public static final int REPEAT_MODE_ALL = 2; // 0x2
     field public static final int REPEAT_MODE_GROUP = 3; // 0x3
+    field public static final int REPEAT_MODE_INVALID = -1; // 0xffffffff
     field public static final int REPEAT_MODE_NONE = 0; // 0x0
     field public static final int REPEAT_MODE_ONE = 1; // 0x1
     field public static final int SHUFFLE_MODE_ALL = 1; // 0x1
     field public static final int SHUFFLE_MODE_GROUP = 2; // 0x2
+    field public static final int SHUFFLE_MODE_INVALID = -1; // 0xffffffff
     field public static final int SHUFFLE_MODE_NONE = 0; // 0x0
     field public static final int STATE_BUFFERING = 6; // 0x6
     field public static final int STATE_CONNECTING = 8; // 0x8

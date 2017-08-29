@@ -199,21 +199,21 @@ public class MediaSessionCompat {
     /**
      * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the artist.
      *
-     * @see ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ARTIST = 0;
 
     /**
      * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the album.
      *
-     * @see ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ALBUM = 1;
 
     /**
      * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the playlist.
      *
-     * @see ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_PLAYLIST = 2;
 
