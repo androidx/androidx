@@ -241,9 +241,12 @@ package android.support.media.tv {
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
     field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
+    field public static final int ASPECT_RATIO_MOVIE_POSTER = 5; // 0x5
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
+    field public static final int AVAILABILITY_FREE = 4; // 0x4
     field public static final int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1; // 0x1
     field public static final int AVAILABILITY_PAID_CONTENT = 2; // 0x2
+    field public static final int AVAILABILITY_PURCHASED = 3; // 0x3
     field public static final java.lang.String COLUMN_AUDIO_LANGUAGE = "audio_language";
     field public static final java.lang.String COLUMN_AUTHOR = "author";
     field public static final java.lang.String COLUMN_AVAILABILITY = "availability";
@@ -308,6 +311,7 @@ package android.support.media.tv {
     field public static final int TYPE_CHANNEL = 6; // 0x6
     field public static final int TYPE_CLIP = 4; // 0x4
     field public static final int TYPE_EVENT = 5; // 0x5
+    field public static final int TYPE_GAME = 12; // 0xc
     field public static final int TYPE_MOVIE = 0; // 0x0
     field public static final int TYPE_PLAYLIST = 10; // 0xa
     field public static final int TYPE_STATION = 11; // 0xb
@@ -426,9 +430,12 @@ package android.support.media.tv {
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
     field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
+    field public static final int ASPECT_RATIO_MOVIE_POSTER = 5; // 0x5
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
+    field public static final int AVAILABILITY_FREE = 4; // 0x4
     field public static final int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1; // 0x1
     field public static final int AVAILABILITY_PAID_CONTENT = 2; // 0x2
+    field public static final int AVAILABILITY_PURCHASED = 3; // 0x3
     field public static final java.lang.String COLUMN_AUDIO_LANGUAGE = "audio_language";
     field public static final java.lang.String COLUMN_AUTHOR = "author";
     field public static final java.lang.String COLUMN_AVAILABILITY = "availability";
@@ -493,6 +500,7 @@ package android.support.media.tv {
     field public static final int TYPE_CHANNEL = 6; // 0x6
     field public static final int TYPE_CLIP = 4; // 0x4
     field public static final int TYPE_EVENT = 5; // 0x5
+    field public static final int TYPE_GAME = 12; // 0xc
     field public static final int TYPE_MOVIE = 0; // 0x0
     field public static final int TYPE_PLAYLIST = 10; // 0xa
     field public static final int TYPE_STATION = 11; // 0xb
