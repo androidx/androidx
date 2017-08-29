@@ -113,6 +113,14 @@ public class MediaControllerCompatTest {
 
     @Test
     @SmallTest
+    public void testIsSessionReady() throws Exception {
+        // mController already has the extra binder since it was created with the session token
+        // which holds the extra binder.
+        assertTrue(mController.isSessionReady());
+    }
+
+    @Test
+    @SmallTest
     public void testSendCommand() throws Exception {
         synchronized (mWaitLock) {
             mCallback.reset();

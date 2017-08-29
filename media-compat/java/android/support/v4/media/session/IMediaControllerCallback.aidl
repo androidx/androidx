@@ -41,4 +41,5 @@ oneway interface IMediaControllerCallback {
     void onShuffleModeChangedDeprecated(boolean enabled);
     void onCaptioningEnabledChanged(boolean enabled);
     void onShuffleModeChanged(int shuffleMode);
+    void onSessionReady();
 }
