@@ -17,6 +17,8 @@
 package android.arch.persistence.room.integration.testapp.dao;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.DataSource;
+import android.arch.paging.LivePagedListProvider;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -26,8 +28,6 @@ import android.arch.persistence.room.Update;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.DataSource;
-import android.arch.util.paging.LivePagedListProvider;
 import android.database.Cursor;
 
 import org.reactivestreams.Publisher;
@@ -153,7 +153,6 @@ public abstract class UserDao {
     public abstract Publisher<Integer> publisherCountUsers();
 
     @Query("SELECT mBirthday from User where mId = :id")
-
     public abstract Date getBirthday(int id);
 
     @Query("SELECT COUNT(*) from user")

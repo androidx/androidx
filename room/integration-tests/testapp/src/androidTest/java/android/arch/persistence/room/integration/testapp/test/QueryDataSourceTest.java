@@ -20,12 +20,12 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.arch.paging.BoundedDataSource;
+import android.arch.paging.ContiguousDataSource;
+import android.arch.paging.KeyedDataSource;
+import android.arch.paging.NullPaddedList;
+import android.arch.paging.PositionalDataSource;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.BoundedDataSource;
-import android.arch.util.paging.ContiguousDataSource;
-import android.arch.util.paging.KeyedDataSource;
-import android.arch.util.paging.NullPaddedList;
-import android.arch.util.paging.PositionalDataSource;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;
@@ -81,7 +81,6 @@ public class QueryDataSourceTest extends TestDatabaseTest {
         public List<User> loadAfter(@Nullable String userName, int pageSize) {
             return mUserDao.userNameLoadAfter(userName, pageSize);
         }
-
     }
 
     /**
