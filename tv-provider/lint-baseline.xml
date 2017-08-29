@@ -3,7 +3,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: PreviewProgramColumns.TYPE_MOVIE, PreviewProgramColumns.TYPE_TV_SERIES, PreviewProgramColumns.TYPE_TV_SEASON, PreviewProgramColumns.TYPE_TV_EPISODE, PreviewProgramColumns.TYPE_CLIP, PreviewProgramColumns.TYPE_EVENT, PreviewProgramColumns.TYPE_CHANNEL, PreviewProgramColumns.TYPE_TRACK, PreviewProgramColumns.TYPE_ALBUM, PreviewProgramColumns.TYPE_ARTIST, PreviewProgramColumns.TYPE_PLAYLIST, PreviewProgramColumns.TYPE_STATION"
+        message="Must be one of: PreviewProgramColumns.TYPE_MOVIE, PreviewProgramColumns.TYPE_TV_SERIES, PreviewProgramColumns.TYPE_TV_SEASON, PreviewProgramColumns.TYPE_TV_EPISODE, PreviewProgramColumns.TYPE_CLIP, PreviewProgramColumns.TYPE_EVENT, PreviewProgramColumns.TYPE_CHANNEL, PreviewProgramColumns.TYPE_TRACK, PreviewProgramColumns.TYPE_ALBUM, PreviewProgramColumns.TYPE_ARTIST, PreviewProgramColumns.TYPE_PLAYLIST, PreviewProgramColumns.TYPE_STATION, PreviewProgramColumns.TYPE_GAME"
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
@@ -14,7 +14,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: PreviewProgramColumns.ASPECT_RATIO_16_9, PreviewProgramColumns.ASPECT_RATIO_3_2, PreviewProgramColumns.ASPECT_RATIO_4_3, PreviewProgramColumns.ASPECT_RATIO_1_1, PreviewProgramColumns.ASPECT_RATIO_2_3"
+        message="Must be one of: PreviewProgramColumns.ASPECT_RATIO_16_9, PreviewProgramColumns.ASPECT_RATIO_3_2, PreviewProgramColumns.ASPECT_RATIO_4_3, PreviewProgramColumns.ASPECT_RATIO_1_1, PreviewProgramColumns.ASPECT_RATIO_2_3, PreviewProgramColumns.ASPECT_RATIO_MOVIE_POSTER"
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
@@ -25,7 +25,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: PreviewProgramColumns.ASPECT_RATIO_16_9, PreviewProgramColumns.ASPECT_RATIO_3_2, PreviewProgramColumns.ASPECT_RATIO_4_3, PreviewProgramColumns.ASPECT_RATIO_1_1, PreviewProgramColumns.ASPECT_RATIO_2_3"
+        message="Must be one of: PreviewProgramColumns.ASPECT_RATIO_16_9, PreviewProgramColumns.ASPECT_RATIO_3_2, PreviewProgramColumns.ASPECT_RATIO_4_3, PreviewProgramColumns.ASPECT_RATIO_1_1, PreviewProgramColumns.ASPECT_RATIO_2_3, PreviewProgramColumns.ASPECT_RATIO_MOVIE_POSTER"
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
@@ -36,7 +36,7 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one of: PreviewProgramColumns.AVAILABILITY_AVAILABLE, PreviewProgramColumns.AVAILABILITY_FREE_WITH_SUBSCRIPTION, PreviewProgramColumns.AVAILABILITY_PAID_CONTENT"
+        message="Must be one of: PreviewProgramColumns.AVAILABILITY_AVAILABLE, PreviewProgramColumns.AVAILABILITY_FREE_WITH_SUBSCRIPTION, PreviewProgramColumns.AVAILABILITY_PAID_CONTENT, PreviewProgramColumns.AVAILABILITY_PURCHASED, PreviewProgramColumns.AVAILABILITY_FREE"
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
