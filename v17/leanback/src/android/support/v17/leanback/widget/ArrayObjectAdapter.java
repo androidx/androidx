@@ -132,6 +132,22 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     }
 
     /**
+     * Moved the item at fromPosition to toPosition.
+     *
+     * @param fromPosition Previous position of the item.
+     * @param toPosition New position of the item.
+     */
+    public void move(int fromPosition, int toPosition) {
+        if (fromPosition == toPosition) {
+            // no-op
+            return;
+        }
+        Object item = mItems.remove(fromPosition);
+        mItems.add(toPosition, item);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    /**
      * Replaces item at position with a new item and calls notifyItemRangeChanged()
      * at the given position.  Note that this method does not compare new item to
      * existing item.
