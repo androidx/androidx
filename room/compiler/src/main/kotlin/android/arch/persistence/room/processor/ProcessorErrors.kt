@@ -29,7 +29,7 @@ import javax.lang.model.type.TypeMirror
 
 object ProcessorErrors {
     private fun String.trim(): String {
-        return this.trimIndent().replace(System.lineSeparator(), " ")
+        return this.trimIndent().replace("\n", " ")
     }
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
