@@ -41,11 +41,11 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"ਕੋਈ ਵੀ ਨਾ ਦੁਹਰਾਓ"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ਇੱਕ ਦੁਹਰਾਓ"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"ਸ਼ਫਲ ਨੂੰ ਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"ਬੇਤਰਤੀਬ ਨੂੰ ਚਾਲੂ ਕਰੋ"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"ਸ਼ਫਲ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"ਉੱਚ ਗੁਣਵੱਤਾ ਨੂੰ ਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"ਉੱਚ ਗੁਣਵੱਤਾ ਨੂੰ ਚਾਲੂ ਕਰੋ"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ਉੱਚ ਗੁਣਵੱਤਾ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ਬੰਦ ਕੈਪਸ਼ਨਿੰਗ ਸਮਰੱਥ ਬਣਾਓ"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ਬੰਦ ਸੁਰਖੀਆਂ ਚਾਲੂ ਕਰੋ"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"ਬੰਦ ਕੈਪਸ਼ਨਿੰਗ ਅਸਮਰੱਥ ਬਣਾਓ"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"ਤਸਵੀਰ ਮੋਡ ਵਿੱਚ ਤਸਵੀਰ ਦਾਖਲ ਕਰੋ"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
