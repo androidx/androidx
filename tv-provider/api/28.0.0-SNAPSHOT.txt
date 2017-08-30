@@ -241,9 +241,12 @@ package android.support.media.tv {
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
     field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
+    field public static final int ASPECT_RATIO_MOVIE_POSTER = 5; // 0x5
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
+    field public static final int AVAILABILITY_FREE = 4; // 0x4
     field public static final int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1; // 0x1
     field public static final int AVAILABILITY_PAID_CONTENT = 2; // 0x2
+    field public static final int AVAILABILITY_PURCHASED = 3; // 0x3
     field public static final java.lang.String COLUMN_AUDIO_LANGUAGE = "audio_language";
     field public static final java.lang.String COLUMN_AUTHOR = "author";
     field public static final java.lang.String COLUMN_AVAILABILITY = "availability";
@@ -253,8 +256,10 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_CONTENT_ID = "content_id";
     field public static final java.lang.String COLUMN_CONTENT_RATING = "content_rating";
     field public static final java.lang.String COLUMN_DURATION_MILLIS = "duration_millis";
+    field public static final java.lang.String COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis";
     field public static final java.lang.String COLUMN_EPISODE_DISPLAY_NUMBER = "episode_display_number";
     field public static final java.lang.String COLUMN_EPISODE_TITLE = "episode_title";
+    field public static final java.lang.String COLUMN_GENRE = "genre";
     field public static final java.lang.String COLUMN_INTENT_URI = "intent_uri";
     field public static final java.lang.String COLUMN_INTERACTION_COUNT = "interaction_count";
     field public static final java.lang.String COLUMN_INTERACTION_TYPE = "interaction_type";
@@ -267,11 +272,13 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_ITEM_COUNT = "item_count";
     field public static final java.lang.String COLUMN_LAST_PLAYBACK_POSITION_MILLIS = "last_playback_position_millis";
     field public static final java.lang.String COLUMN_LIVE = "live";
+    field public static final java.lang.String COLUMN_LOGO_CONTENT_DESCRIPTION = "logo_content_description";
     field public static final java.lang.String COLUMN_LOGO_URI = "logo_uri";
     field public static final java.lang.String COLUMN_LONG_DESCRIPTION = "long_description";
     field public static final java.lang.String COLUMN_OFFER_PRICE = "offer_price";
     field public static final java.lang.String COLUMN_POSTER_ART_ASPECT_RATIO = "poster_art_aspect_ratio";
     field public static final java.lang.String COLUMN_POSTER_ART_URI = "poster_art_uri";
+    field public static final java.lang.String COLUMN_PREVIEW_AUDIO_URI = "preview_audio_uri";
     field public static final java.lang.String COLUMN_PREVIEW_VIDEO_URI = "preview_video_uri";
     field public static final java.lang.String COLUMN_RELEASE_DATE = "release_date";
     field public static final java.lang.String COLUMN_REVIEW_RATING = "review_rating";
@@ -281,6 +288,7 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_SEASON_TITLE = "season_title";
     field public static final java.lang.String COLUMN_SHORT_DESCRIPTION = "short_description";
     field public static final java.lang.String COLUMN_STARTING_PRICE = "starting_price";
+    field public static final java.lang.String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
     field public static final java.lang.String COLUMN_THUMBNAIL_ASPECT_RATIO = "poster_thumbnail_aspect_ratio";
     field public static final java.lang.String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
     field public static final java.lang.String COLUMN_TITLE = "title";
@@ -308,6 +316,7 @@ package android.support.media.tv {
     field public static final int TYPE_CHANNEL = 6; // 0x6
     field public static final int TYPE_CLIP = 4; // 0x4
     field public static final int TYPE_EVENT = 5; // 0x5
+    field public static final int TYPE_GAME = 12; // 0xc
     field public static final int TYPE_MOVIE = 0; // 0x0
     field public static final int TYPE_PLAYLIST = 10; // 0xa
     field public static final int TYPE_STATION = 11; // 0xb
@@ -426,9 +435,12 @@ package android.support.media.tv {
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
     field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
+    field public static final int ASPECT_RATIO_MOVIE_POSTER = 5; // 0x5
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
+    field public static final int AVAILABILITY_FREE = 4; // 0x4
     field public static final int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1; // 0x1
     field public static final int AVAILABILITY_PAID_CONTENT = 2; // 0x2
+    field public static final int AVAILABILITY_PURCHASED = 3; // 0x3
     field public static final java.lang.String COLUMN_AUDIO_LANGUAGE = "audio_language";
     field public static final java.lang.String COLUMN_AUTHOR = "author";
     field public static final java.lang.String COLUMN_AVAILABILITY = "availability";
@@ -437,8 +449,10 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_CONTENT_ID = "content_id";
     field public static final java.lang.String COLUMN_CONTENT_RATING = "content_rating";
     field public static final java.lang.String COLUMN_DURATION_MILLIS = "duration_millis";
+    field public static final java.lang.String COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis";
     field public static final java.lang.String COLUMN_EPISODE_DISPLAY_NUMBER = "episode_display_number";
     field public static final java.lang.String COLUMN_EPISODE_TITLE = "episode_title";
+    field public static final java.lang.String COLUMN_GENRE = "genre";
     field public static final java.lang.String COLUMN_INTENT_URI = "intent_uri";
     field public static final java.lang.String COLUMN_INTERACTION_COUNT = "interaction_count";
     field public static final java.lang.String COLUMN_INTERACTION_TYPE = "interaction_type";
@@ -452,11 +466,13 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS = "last_engagement_time_utc_millis";
     field public static final java.lang.String COLUMN_LAST_PLAYBACK_POSITION_MILLIS = "last_playback_position_millis";
     field public static final java.lang.String COLUMN_LIVE = "live";
+    field public static final java.lang.String COLUMN_LOGO_CONTENT_DESCRIPTION = "logo_content_description";
     field public static final java.lang.String COLUMN_LOGO_URI = "logo_uri";
     field public static final java.lang.String COLUMN_LONG_DESCRIPTION = "long_description";
     field public static final java.lang.String COLUMN_OFFER_PRICE = "offer_price";
     field public static final java.lang.String COLUMN_POSTER_ART_ASPECT_RATIO = "poster_art_aspect_ratio";
     field public static final java.lang.String COLUMN_POSTER_ART_URI = "poster_art_uri";
+    field public static final java.lang.String COLUMN_PREVIEW_AUDIO_URI = "preview_audio_uri";
     field public static final java.lang.String COLUMN_PREVIEW_VIDEO_URI = "preview_video_uri";
     field public static final java.lang.String COLUMN_RELEASE_DATE = "release_date";
     field public static final java.lang.String COLUMN_REVIEW_RATING = "review_rating";
@@ -466,6 +482,7 @@ package android.support.media.tv {
     field public static final java.lang.String COLUMN_SEASON_TITLE = "season_title";
     field public static final java.lang.String COLUMN_SHORT_DESCRIPTION = "short_description";
     field public static final java.lang.String COLUMN_STARTING_PRICE = "starting_price";
+    field public static final java.lang.String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
     field public static final java.lang.String COLUMN_THUMBNAIL_ASPECT_RATIO = "poster_thumbnail_aspect_ratio";
     field public static final java.lang.String COLUMN_THUMBNAIL_URI = "thumbnail_uri";
     field public static final java.lang.String COLUMN_TITLE = "title";
@@ -493,6 +510,7 @@ package android.support.media.tv {
     field public static final int TYPE_CHANNEL = 6; // 0x6
     field public static final int TYPE_CLIP = 4; // 0x4
     field public static final int TYPE_EVENT = 5; // 0x5
+    field public static final int TYPE_GAME = 12; // 0xc
     field public static final int TYPE_MOVIE = 0; // 0x0
     field public static final int TYPE_PLAYLIST = 10; // 0xa
     field public static final int TYPE_STATION = 11; // 0xb
