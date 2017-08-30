@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
 apply plugin: android.support.FlatfootAndroidLibraryPlugin
@@ -61,6 +62,7 @@ android.libraryVariants.all { variant ->
     }
 }
 
+version = LibraryVersions.ROOM.toString()
 supportLibrary {
     name 'Android Room Testimg'
     publish true

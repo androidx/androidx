@@ -1,3 +1,5 @@
+import android.support.LibraryVersions
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -24,6 +26,7 @@ sourceSets {
     main.java.srcDirs += antlrOut
 }
 project.ext.noDocs = true
+version = LibraryVersions.ROOM.toString()
 
 // Temporary hack to stop AS to adding two guavas into test's classpath
 configurations.all {
