@@ -68,7 +68,10 @@ public class LivePagedListProviderTest extends TestDatabaseTest {
         }
         assertThat(mUserDao.count(), is(100));
         final LiveData<PagedList<User>> livePagedUsers = mUserDao.loadPagedByAge(3).create(
-                new PagedList.Config.Builder().setPageSize(10).setPrefetchDistance(1)
+                0,
+                new PagedList.Config.Builder()
+                        .setPageSize(10)
+                        .setPrefetchDistance(1)
                         .setInitialLoadSize(10).build());
 
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();

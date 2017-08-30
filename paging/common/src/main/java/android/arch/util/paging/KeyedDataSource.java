@@ -21,6 +21,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,20 +38,20 @@ import java.util.List;
  * <pre>
  * {@literal @}Dao
  * interface UserDao {
- *     {@literal @}Query("SELECT COUNT(*) from user")
- *     public abstract Integer getUserCount();
+ *     {@literal @}Query("SELECT * from user WHERE mName < :key ORDER BY mName DESC LIMIT :limit")
+ *     public abstract List<User> userNameLoadAfter(String key, int limit);
  *
- *     {@literal @}Query("SELECT * from user ORDER BY name DESC LIMIT :limit OFFSET :offset")
- *     public abstract List&lt;User> userNameLimitOffset(int limit, int offset);
+ *     {@literal @}Query("SELECT COUNT(*) from user WHERE mName < :key ORDER BY mName DESC")
+ *     public abstract List<User> userNameCountAfter(String key);
  *
- *     {@literal @}Query("SELECT * from user WHERE name &lt; :key ORDER BY name DESC LIMIT :limit")
- *     public abstract List&lt;User> userNameLoadAfter(String key, int limit);
+ *     {@literal @}Query("SELECT * from user WHERE mName > :key ORDER BY mName ASC LIMIT :limit")
+ *     public abstract List<User> userNameLoadBefore(String key, int limit);
  *
- *     {@literal @}Query("SELECT * from user WHERE name > :key ORDER BY name ASC LIMIT :limit")
- *     public abstract List&lt;User> userNameLoadBefore(String key, int limit);
+ *     {@literal @}Query("SELECT COUNT(*) from user WHERE mName > :key ORDER BY mName ASC")
+ *     public abstract List<User> userNameCountBefore(String key);
  * }
  *
- * public class KeyedUserQueryDataSource extends KeyedDataSource&lt;User> {
+ * public class KeyedUserQueryDataSource extends KeyedDataSource&lt;User> { // TODO: update
  *     {@literal @}Override
  *     public int loadCount() {
  *         return mUserDao.getUserCount();
@@ -74,26 +76,89 @@ import java.util.List;
  *     }
  * }</pre>
  *
- * @param <Type> Type of items being loaded by the DataSource.
+ * @param <Key> Type of data used to query Value types out of the DataSource.
+ * @param <Value> Type of items being loaded by the DataSource.
  */
-public abstract class KeyedDataSource<Type> extends ContiguousDataSource<Type> {
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Nullable
-    @Override
-    public List<Type> loadAfter(int currentEndIndex, @NonNull Type currentEndItem, int pageSize) {
-        return loadAfter(currentEndItem, pageSize);
+public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
+    public final int loadCount() {
+        return 0; // method not called, can't be overridden
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     @Override
-    public List<Type> loadBefore(int currentBeginIndex, @NonNull Type currentBeginItem,
+    public List<Value> loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
+        return loadAfter(getKey(currentEndItem), pageSize);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public List<Value> loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
             int pageSize) {
-        return loadBefore(currentBeginItem, pageSize);
+        return loadBefore(getKey(currentBeginItem), pageSize);
     }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    @WorkerThread
+    public NullPaddedList<Value> loadInitial(@Nullable Key key, int initialLoadSize) {
+        List<Value> after;
+        if (key == null) {
+            // no key, so load initial.
+            after = loadInitial(initialLoadSize);
+            if (after == null) {
+                return null;
+            }
+        } else {
+            after = loadAfter(key, initialLoadSize);
+            if (after == null) {
+                return null;
+            }
+
+            if (after.isEmpty()) {
+                // if no content exists after current key, loadBefore instead
+                after = loadBefore(key, initialLoadSize);
+                if (after == null) {
+                    return null;
+                }
+                Collections.reverse(after);
+            }
+        }
+
+        if (after.isEmpty()) {
+            // wasn't able to load any items, so publish an empty list that can't grow.
+            return new NullPaddedList<>(0, Collections.<Value>emptyList());
+        }
+
+        // TODO: consider also loading another page before here
+
+        int itemsBefore = countItemsBefore(getKey(after.get(0)));
+        int itemsAfter = countItemsAfter(getKey(after.get(after.size() - 1)));
+        if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
+            return new NullPaddedList<>(0, after, 0);
+        } else {
+            return new NullPaddedList<>(itemsBefore, after, itemsAfter);
+        }
+    }
+
+    @NonNull
+    public abstract Key getKey(@NonNull Value item);
+
+    public int countItemsBefore(@NonNull Key key) {
+        return COUNT_UNDEFINED;
+    }
+
+    public int countItemsAfter(@NonNull Key key) {
+        return COUNT_UNDEFINED;
+    }
+
+    @WorkerThread
+    @Nullable
+    public abstract List<Value> loadInitial(int pageSize);
 
     /**
      * Load list data after the specified item.
@@ -101,14 +166,16 @@ public abstract class KeyedDataSource<Type> extends ContiguousDataSource<Type> {
      * It's valid to return a different list size than the page size, if it's easier for this data
      * source. It is generally safer to increase the number loaded than reduce.
      *
-     * @param currentEndItem Load items after this item.
-     * @param pageSize       Suggested number of items to load.
+     * @param currentEndKey Load items after this key. May be null on initial load, to indicate load
+     *                      from beginning.
+     * @param pageSize      Suggested number of items to load.
      * @return List of items, starting after the specified item. Null if the data source is
      * no longer valid, and should not be queried again.
      */
+    @SuppressWarnings("WeakerAccess")
     @WorkerThread
     @Nullable
-    public abstract List<Type> loadAfter(@NonNull Type currentEndItem, int pageSize);
+    public abstract List<Value> loadAfter(@NonNull Key currentEndKey, int pageSize);
 
     /**
      * Load data before the currently loaded content, starting at the provided index.
@@ -116,12 +183,13 @@ public abstract class KeyedDataSource<Type> extends ContiguousDataSource<Type> {
      * It's valid to return a different list size than the page size, if it's easier for this data
      * source. It is generally safer to increase the number loaded than reduce.
      *
-     * @param currentBeginItem Load items before this item.
+     * @param currentBeginKey Load items before this key.
      * @param pageSize         Suggested number of items to load.
      * @return List of items, in descending order, starting after the specified item. Null if the
      * data source is no longer valid, and should not be queried again.
      */
+    @SuppressWarnings("WeakerAccess")
     @WorkerThread
     @Nullable
-    public abstract List<Type> loadBefore(@NonNull Type currentBeginItem, int pageSize);
+    public abstract List<Value> loadBefore(@NonNull Key currentBeginKey, int pageSize);
 }

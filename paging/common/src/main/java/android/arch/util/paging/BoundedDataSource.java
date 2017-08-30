@@ -68,12 +68,12 @@ import java.util.List;
  *     public abstract DataSource&lt;User> loadUsersByAgeDesc();
  * }</pre>
  *
- * @param <Type> Data type returned by the data source.
+ * @param <Value> Value type returned by the data source.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class BoundedDataSource<Type> extends PositionalDataSource<Type> {
+public abstract class BoundedDataSource<Value> extends PositionalDataSource<Value> {
     /**
      * Called to load items at from the specified position range.
      *
@@ -84,16 +84,11 @@ public abstract class BoundedDataSource<Type> extends PositionalDataSource<Type>
      *         not be queried again.
      */
     @Nullable
-    public abstract List<Type> loadRange(int startPosition, int loadCount);
-
-    @Override
-    public List<Type> loadAfterInitial(int startPosition, int initialLoadSize) {
-        return loadAfter(startPosition, initialLoadSize);
-    }
+    public abstract List<Value> loadRange(int startPosition, int loadCount);
 
     @Nullable
     @Override
-    public List<Type> loadAfter(int startIndex, int pageSize) {
+    public List<Value> loadAfter(int startIndex, int pageSize) {
         if (mCount < 0) {
             // TODO: cleanup this testing-only hack by fixing tests
             mCount = loadCount();
@@ -107,7 +102,7 @@ public abstract class BoundedDataSource<Type> extends PositionalDataSource<Type>
             return new ArrayList<>();
         }
         int loadSize = Math.min(pageSize, mCount - startIndex);
-        List<Type> result = loadRange(startIndex, loadSize);
+        List<Value> result = loadRange(startIndex, loadSize);
         if (result != null && result.size() != loadSize) {
             throw new IllegalStateException("invalid number of items returned.");
         }
@@ -116,13 +111,13 @@ public abstract class BoundedDataSource<Type> extends PositionalDataSource<Type>
 
     @Nullable
     @Override
-    public List<Type> loadBefore(int startIndex, int pageSize) {
+    public List<Value> loadBefore(int startIndex, int pageSize) {
         if (startIndex < 0) {
             return new ArrayList<>();
         }
         int loadSize = Math.min(pageSize, startIndex + 1);
         startIndex = startIndex - loadSize + 1;
-        List<Type> result = loadRange(startIndex, loadSize);
+        List<Value> result = loadRange(startIndex, loadSize);
         if (result != null) {
             if (result.size() != loadSize) {
                 throw new IllegalStateException("invalid number of items returned.");
