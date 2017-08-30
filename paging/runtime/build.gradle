@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.LibraryVersions
 import android.support.SupportLibraryExtension
 
 apply plugin: android.support.FlatfootAndroidLibraryPlugin
@@ -66,6 +67,7 @@ android.libraryVariants.all { variant ->
     }
 }
 
+version = LibraryVersions.PAGING.toString()
 supportLibrary {
     name 'Android Lifecycle Extensions'
     publish false

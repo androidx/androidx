@@ -26,8 +26,8 @@ dependencies {
 }
 
 createAndroidCheckstyle(project)
-version = LibraryVersions.LIFECYCLES.toString()
 
+version = LibraryVersions.LIFECYCLES_CORE.toString()
 supportLibrary {
     name 'Android Lifecycle-Common'
     publish true

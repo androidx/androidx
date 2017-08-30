@@ -84,7 +84,7 @@ if (ext.inAppToolkitProject) {
 def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
     from rootProject.docsDir
     destinationDir distDir
-    baseName = String.format("flatfoot-docs-%s", LibraryVersions.FLATFOOT.toString())
+    baseName = "flatfoot-docs"
 }
 
 buildServerAnchorTask.dependsOn zipFlatfootDocsTask
@@ -110,22 +110,38 @@ subprojects {
         return
     }
 
-    def mavenGroup = project.getPath().split(":")[1]
+    def projectPath = project.getPath().split(":")
+    def mavenGroup = projectPath[1]
     def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
 
     if (finalGroup == null) {
         return
     }
-    project.group = finalGroup
-    if (!project.version) {
-        project.version = LibraryVersions.FLATFOOT.toString()
+    if (projectPath.size() == 2) {// root project.
+        return
     }
+    project.group = finalGroup
 
     if (project.getPath().contains("integration-tests")) {
         // disable upload tasks
         project.tasks.whenTaskAdded { task ->
             if (task instanceof Upload || task.name == "generateSourceProps") {
                 task.enabled = false
+            }
+        }
+    } else {
+        def checkApi = project.tasks.create("checkVersion") {
+            doFirst {
+                if (project.version == null
+                        || project.version == LibraryVersions.SUPPORT_LIBRARY.toString()) {
+                    throw new GradleException("bad version for $project with $project.version")
+                }
+            }
+        }
+
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof Upload) {
+                task.dependsOn checkApi
             }
         }
     }

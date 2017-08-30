@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import android.support.LibraryVersions
 import android.support.SupportLibraryExtension;
 
 apply plugin: android.support.SupportJavaLibraryPlugin
@@ -26,6 +27,7 @@ dependencies {
 
 createAndroidCheckstyle(project)
 
+version = LibraryVersions.ROOM.toString()
 supportLibrary {
     name 'Android Room-Common'
     publish true
