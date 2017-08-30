@@ -573,7 +573,8 @@ package android.support.v4.media.session {
     field public static final long ACTION_SET_CAPTIONING_ENABLED = 1048576L; // 0x100000L
     field public static final long ACTION_SET_RATING = 128L; // 0x80L
     field public static final long ACTION_SET_REPEAT_MODE = 262144L; // 0x40000L
-    field public static final long ACTION_SET_SHUFFLE_MODE_ENABLED = 524288L; // 0x80000L
+    field public static final long ACTION_SET_SHUFFLE_MODE = 2097152L; // 0x200000L
+    field public static final deprecated long ACTION_SET_SHUFFLE_MODE_ENABLED = 524288L; // 0x80000L
     field public static final long ACTION_SKIP_TO_NEXT = 32L; // 0x20L
     field public static final long ACTION_SKIP_TO_PREVIOUS = 16L; // 0x10L
     field public static final long ACTION_SKIP_TO_QUEUE_ITEM = 4096L; // 0x1000L

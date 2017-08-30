@@ -626,7 +626,7 @@ public class MediaSessionService extends Service {
                 | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
                 | PlaybackStateCompat.ACTION_FAST_FORWARD
                 | PlaybackStateCompat.ACTION_REWIND
-                | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
+                | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
                 | PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
         return res;
     }
