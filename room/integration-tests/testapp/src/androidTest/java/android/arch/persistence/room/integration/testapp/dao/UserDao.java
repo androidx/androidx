@@ -181,10 +181,10 @@ public abstract class UserDao {
     }
 
     @Query("SELECT * FROM user where mAge > :age")
-    public abstract LivePagedListProvider<User> loadPagedByAge(int age);
+    public abstract LivePagedListProvider<Integer, User> loadPagedByAge(int age);
 
     @Query("SELECT * FROM user ORDER BY mAge DESC")
-    public abstract DataSource<User> loadUsersByAgeDesc();
+    public abstract DataSource<Integer, User> loadUsersByAgeDesc();
 
     @Query("DELETE FROM User WHERE mId IN (:ids) AND mAge == :age")
     public abstract int deleteByAgeAndIds(int age, List<Integer> ids);
@@ -197,21 +197,44 @@ public abstract class UserDao {
     @Query("SELECT COUNT(*) from user")
     public abstract Integer getUserCount();
 
-    //   name desc
+
+    // QueryDataSourceTest - name desc
+
+    //   limit-offset
     @Query("SELECT * from user ORDER BY mName DESC LIMIT :limit OFFSET :offset")
     public abstract List<User> userNameLimitOffset(int limit, int offset);
+
+    //   keyed
+    @Query("SELECT * from user ORDER BY mName DESC LIMIT :limit")
+    public abstract List<User> userNameInitial(int limit);
 
     @Query("SELECT * from user WHERE mName < :key ORDER BY mName DESC LIMIT :limit")
     public abstract List<User> userNameLoadAfter(String key, int limit);
 
+    @Query("SELECT COUNT(*) from user WHERE mName < :key ORDER BY mName DESC")
+    public abstract int userNameCountAfter(String key);
+
     @Query("SELECT * from user WHERE mName > :key ORDER BY mName ASC LIMIT :limit")
     public abstract List<User> userNameLoadBefore(String key, int limit);
 
-    //    last asc, first desc, id asc
+    @Query("SELECT COUNT(*) from user WHERE mName > :key ORDER BY mName ASC")
+    public abstract int userNameCountBefore(String key);
+
+
+
+    // ComplexQueryDataSourceTest - last desc, first asc, id desc
+
+    //   limit-offset
     @Query("SELECT * from user"
             + " ORDER BY mLastName DESC, mName ASC, mId DESC"
             + " LIMIT :limit OFFSET :offset")
     public abstract List<User> userComplexLimitOffset(int limit, int offset);
+
+    //   keyed
+    @Query("SELECT * from user"
+            + " ORDER BY mLastName DESC, mName ASC, mId DESC"
+            + " LIMIT :limit")
+    public abstract List<User> userComplexInitial(int limit);
 
     @Query("SELECT * from user"
             + " WHERE mLastName < :lastName or (mLastName = :lastName and (mName > :name or (mName = :name and mId < :id)))"
@@ -219,11 +242,19 @@ public abstract class UserDao {
             + " LIMIT :limit")
     public abstract List<User> userComplexLoadAfter(String lastName, String name, int id, int limit);
 
+    @Query("SELECT COUNT(*) from user"
+            + " WHERE mLastName < :lastName or (mLastName = :lastName and (mName > :name or (mName = :name and mId < :id)))"
+            + " ORDER BY mLastName DESC, mName ASC, mId DESC")
+    public abstract int userComplexCountAfter(String lastName, String name, int id);
+
     @Query("SELECT * from user"
             + " WHERE mLastName > :lastName or (mLastName = :lastName and (mName < :name or (mName = :name and mId > :id)))"
             + " ORDER BY mLastName ASC, mName DESC, mId ASC"
             + " LIMIT :limit")
     public abstract List<User> userComplexLoadBefore(String lastName, String name, int id, int limit);
 
-
+    @Query("SELECT COUNT(*) from user"
+            + " WHERE mLastName > :lastName or (mLastName = :lastName and (mName < :name or (mName = :name and mId > :id)))"
+            + " ORDER BY mLastName ASC, mName DESC, mId ASC")
+    public abstract int userComplexCountBefore(String lastName, String name, int id);
 }

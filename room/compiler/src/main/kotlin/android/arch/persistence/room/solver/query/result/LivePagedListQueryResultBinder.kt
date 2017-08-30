@@ -18,6 +18,7 @@ package android.arch.persistence.room.solver.query.result
 
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.PagingTypeNames
+import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
@@ -36,7 +37,7 @@ class LivePagedListQueryResultBinder(
             val pagedListProvider = TypeSpec
                     .anonymousClassBuilder("").apply {
                 superclass(ParameterizedTypeName.get(PagingTypeNames.LIVE_PAGED_LIST_PROVIDER,
-                        typeName))
+                        Integer::class.typeName(), typeName))
                 addMethod(createCreateDataSourceMethod(roomSQLiteQueryVar, dbField, scope))
             }.build()
             addStatement("return $L", pagedListProvider)

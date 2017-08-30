@@ -16,5 +16,5 @@
 
 package android.arch.util.paging;
 
-abstract public class LivePagedListProvider<T> {
+abstract public class LivePagedListProvider<K, T> {
 }

@@ -41,19 +41,16 @@ public class PagedListItemViewModel extends ViewModel {
 
     LiveData<PagedList<Item>> getLivePagedList() {
         if (mLivePagedList == null) {
-            mLivePagedList = new LivePagedListProvider<Item>() {
+            mLivePagedList = new LivePagedListProvider<Integer, Item>() {
                 @Override
-                protected DataSource<Item> createDataSource() {
+                protected DataSource<Integer, Item> createDataSource() {
                     ItemDataSource newDataSource = new ItemDataSource();
                     synchronized (mDataSourceLock) {
                         mDataSource = newDataSource;
                         return mDataSource;
                     }
                 }
-            }.create(new PagedList.Config.Builder()
-                    .setPageSize(20)
-                    .setPrefetchDistance(40)
-                    .build());
+            }.create(0, 20);
         }
 
         return mLivePagedList;

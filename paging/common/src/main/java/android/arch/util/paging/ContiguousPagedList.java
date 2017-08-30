@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ContiguousPagedList<T> extends NullPaddedList<T> {
 
-    private final ContiguousDataSource<T> mDataSource;
+    private final ContiguousDataSource<?, T> mDataSource;
     private final Executor mMainThreadExecutor;
     private final Executor mBackgroundThreadExecutor;
     private final Config mConfig;
@@ -44,28 +44,27 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
     private int mAppendItemsRequested = 0;
 
     private int mLastLoad = -1;
+    private T mLastItem;
 
     private AtomicBoolean mDetached = new AtomicBoolean(false);
 
     private ArrayList<Callback> mCallbacks = new ArrayList<>();
 
     @WorkerThread
-    ContiguousPagedList(@NonNull ContiguousDataSource<T> dataSource,
+    <K> ContiguousPagedList(@NonNull ContiguousDataSource<K, T> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
             Config config,
-            int position) {
+            @Nullable K key) {
         super();
 
         mDataSource = dataSource;
         mMainThreadExecutor = mainThreadExecutor;
         mBackgroundThreadExecutor = backgroundThreadExecutor;
         mConfig = config;
+        NullPaddedList<T> initialState = dataSource.loadInitial(key, config.mInitialLoadSize);
 
-        NullPaddedList<T> initialState =
-                mDataSource.loadAfterInitialInternal(position, config.mInitialLoadSize);
-
-        if (initialState != null) {
+        if (initialState != null && !initialState.mList.isEmpty()) {
             mPositionOffset = initialState.getPositionOffset();
 
             mLeadingNullCount = initialState.getLeadingNullCount();
@@ -81,15 +80,30 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
             }
 
             mLastLoad = mLeadingNullCount + mList.size() / 2;
+            mLastItem = mList.get(mList.size() / 2);
         } else {
             mList = new ArrayList<>();
             detach();
+        }
+        if (mList.size() == 0) {
+            // Empty initial state, so don't try and fetch data.
+            mPrependWorkerRunning = true;
+            mAppendWorkerRunning = true;
         }
     }
 
     @Override
     public int getPositionOffset() {
         return mPositionOffset;
+    }
+
+    @Override
+    public T get(int index) {
+        T item = super.get(index);
+        if (item != null) {
+            mLastItem = item;
+        }
+        return item;
     }
 
     @Override
@@ -341,6 +355,11 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
     @SuppressWarnings("WeakerAccess")
     public int getLastLoad() {
         return mLastLoad;
+    }
+
+    @Override
+    public T getLastItem() {
+        return mLastItem;
     }
 
     /**

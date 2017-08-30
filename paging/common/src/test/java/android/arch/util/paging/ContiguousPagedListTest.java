@@ -94,11 +94,6 @@ public class ContiguousPagedListTest {
             return list;
         }
 
-        @Override
-        public List<Item> loadAfterInitial(int position, int initialLoadSize) {
-            return loadAfter(position, initialLoadSize);
-        }
-
         @Nullable
         @Override
         public List<Item> loadAfter(int startIndex, int pageSize) {
@@ -149,13 +144,13 @@ public class ContiguousPagedListTest {
     @Test
     public void initialLoad() {
         verifyRange(30, 40,
-                new TestSource().loadAfterInitialInternal(30, 40));
+                new TestSource().loadInitial(30, 40));
 
         verifyRange(0, 10,
-                new TestSource().loadAfterInitialInternal(0, 10));
+                new TestSource().loadInitial(0, 10));
 
         verifyRange(90, 10,
-                new TestSource().loadAfterInitialInternal(90, 10));
+                new TestSource().loadInitial(90, 10));
     }
 
 

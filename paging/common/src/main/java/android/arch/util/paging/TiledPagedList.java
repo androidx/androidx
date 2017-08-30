@@ -50,6 +50,7 @@ class TiledPagedList<T> extends PageArrayList<T> {
     };
 
     private int mLastLoad = -1;
+    private T mLastItem;
 
     private AtomicBoolean mDetached = new AtomicBoolean(false);
 
@@ -75,6 +76,8 @@ class TiledPagedList<T> extends PageArrayList<T> {
         if (firstPageData != null) {
             mPageIndexOffset = firstPage;
             mPages.add(firstPageData);
+            mLastLoad = position;
+            mLastItem = firstPageData.get(position % mPageSize);
         } else {
             detach();
             return;
@@ -95,6 +98,15 @@ class TiledPagedList<T> extends PageArrayList<T> {
             return;
         }
         detach();
+    }
+
+    @Override
+    public T get(int index) {
+        T item = super.get(index);
+        if (item != null) {
+            mLastItem = item;
+        }
+        return item;
     }
 
     @Override
@@ -213,6 +225,10 @@ class TiledPagedList<T> extends PageArrayList<T> {
     @SuppressWarnings("WeakerAccess")
     public int getLastLoad() {
         return mLastLoad;
+    }
+
+    public T getLastItem() {
+        return mLastItem;
     }
 
     /**
