@@ -25,7 +25,6 @@ import android.arch.persistence.room.integration.testapp.test.TestDatabaseTest;
 import android.arch.persistence.room.integration.testapp.test.TestUtil;
 import android.arch.persistence.room.integration.testapp.vo.User;
 import android.arch.persistence.room.paging.LimitOffsetDataSource;
-import android.arch.util.paging.DataSource;
 import android.support.annotation.NonNull;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -53,14 +52,14 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
 
     @Test
     public void emptyPage() {
-        DataSource<User> dataSource = loadUsersByAgeDesc();
+        LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
         assertThat(dataSource.loadCount(), is(0));
     }
 
     @Test
     public void loadCount() {
         createUsers(6);
-        DataSource<User> dataSource = loadUsersByAgeDesc();
+        LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
         assertThat(dataSource.loadCount(), is(6));
     }
 
@@ -69,7 +68,7 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         List<User> users = createUsers(1);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
         assertThat(dataSource.loadCount(), is(1));
-        List<User> initial = dataSource.loadAfterInitial(0, 10);
+        List<User> initial = dataSource.loadAfter(0, 10);
         assertThat(initial.get(0), is(users.get(0)));
 
         assertEmpty(dataSource.loadBefore(0, initial.get(0), 10));
@@ -81,9 +80,9 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         List<User> users = createUsers(10);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
         assertThat(dataSource.loadCount(), is(10));
-        List<User> initial = dataSource.loadAfterInitial(0, 1);
+        List<User> initial = dataSource.loadAfter(0, 1);
         assertThat(initial.get(0), is(users.get(0)));
-        List<User> second = dataSource.loadAfterInitial(1, 1);
+        List<User> second = dataSource.loadAfter(1, 1);
         assertThat(second.get(0), is(users.get(1)));
     }
 
@@ -92,7 +91,7 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         List<User> users = createUsers(10);
 
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        List<User> all = dataSource.loadAfterInitial(0, 10);
+        List<User> all = dataSource.loadAfter(0, 10);
         assertThat(users, is(all));
     }
 

@@ -31,7 +31,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class NullPaddedList<Type> extends PagedList<Type> {
+public class NullPaddedList<Type> extends PagedList<Type> {
     List<Type> mList;
     int mTrailingNullCount;
     int mLeadingNullCount;
@@ -55,12 +55,19 @@ class NullPaddedList<Type> extends PagedList<Type> {
         if (leadingNullCount < 0 || trailingNullCount < 0) {
             throw new IllegalArgumentException("leading/trailing null count must be non-negative");
         }
+        if (list == null) {
+            throw new IllegalArgumentException("list must be non-null");
+        }
         mList = list;
         mLeadingNullCount = leadingNullCount;
         mTrailingNullCount = trailingNullCount;
     }
 
     NullPaddedList(int leadingNullCount, int totalCount, List<Type> list) {
+        if (list == null) {
+            throw new IllegalArgumentException("list must be non-null");
+        }
+
         int trailingNullCount = totalCount - (leadingNullCount) - list.size();
 
         mList = list;
@@ -69,6 +76,10 @@ class NullPaddedList<Type> extends PagedList<Type> {
     }
 
     NullPaddedList(int positionOffset, List<Type> list) {
+        if (list == null) {
+            throw new IllegalArgumentException("list must be non-null");
+        }
+
         mList = list;
         mPositionOffset = positionOffset;
     }
