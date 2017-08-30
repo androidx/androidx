@@ -1541,6 +1541,7 @@ package android.support.v17.leanback.widget {
     method public void clear();
     method public java.lang.Object get(int);
     method public int indexOf(java.lang.Object);
+    method public void move(int, int);
     method public void notifyArrayItemRangeChanged(int, int);
     method public boolean remove(java.lang.Object);
     method public int removeItems(int, int);
@@ -2389,6 +2390,7 @@ package android.support.v17.leanback.widget {
     method public final boolean hasStableIds();
     method public boolean isImmediateNotifySupported();
     method protected final void notifyChanged();
+    method protected final void notifyItemMoved(int, int);
     method public final void notifyItemRangeChanged(int, int);
     method protected final void notifyItemRangeInserted(int, int);
     method protected final void notifyItemRangeRemoved(int, int);
@@ -2406,6 +2408,7 @@ package android.support.v17.leanback.widget {
   public static abstract class ObjectAdapter.DataObserver {
     ctor public ObjectAdapter.DataObserver();
     method public void onChanged();
+    method public void onItemMoved(int, int);
     method public void onItemRangeChanged(int, int);
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeRemoved(int, int);

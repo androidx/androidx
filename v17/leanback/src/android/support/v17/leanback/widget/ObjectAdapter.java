@@ -60,6 +60,15 @@ public abstract class ObjectAdapter {
         }
 
         /**
+         * Called when an item is moved from one position to another position
+         * @param fromPosition Previous position of the item.
+         * @param toPosition New position of the item.
+         */
+        public void onItemMoved(int fromPosition, int toPosition) {
+            onChanged();
+        }
+
+        /**
          * Called when a range of items is removed from the ObjectAdapter.
          *
          * @param positionStart The position of the first removed item.
@@ -96,6 +105,12 @@ public abstract class ObjectAdapter {
         public void notifyItemRangeRemoved(int positionStart, int itemCount) {
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onItemRangeRemoved(positionStart, itemCount);
+            }
+        }
+
+        public void notifyItemMoved(int positionStart, int toPosition) {
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onItemMoved(positionStart, toPosition);
             }
         }
     }
@@ -207,6 +222,16 @@ public abstract class ObjectAdapter {
      */
     final protected void notifyItemRangeRemoved(int positionStart, int itemCount) {
         mObservable.notifyItemRangeRemoved(positionStart, itemCount);
+    }
+
+    /**
+     * Notifies UI that item at fromPosition has been moved to toPosition.
+     *
+     * @param fromPosition Previous position of the item.
+     * @param toPosition New position of the item.
+     */
+    protected final void notifyItemMoved(int fromPosition, int toPosition) {
+        mObservable.notifyItemMoved(fromPosition, toPosition);
     }
 
     /**
