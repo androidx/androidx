@@ -1,8 +1,0 @@
-package android.support.text.emoji.bundled {
-
-  public class BundledEmojiCompatConfig extends android.support.text.emoji.EmojiCompat.Config {
-    ctor public BundledEmojiCompatConfig(android.content.Context);
-  }
-
-}
-
