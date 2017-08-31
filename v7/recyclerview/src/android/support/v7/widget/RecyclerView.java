@@ -73,6 +73,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
 import android.widget.EdgeEffect;
+import android.widget.LinearLayout;
 import android.widget.OverScroller;
 
 import java.lang.annotation.Retention;
@@ -205,8 +206,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private static final boolean IGNORE_DETACHED_FOCUSED_CHILD = Build.VERSION.SDK_INT <= 15;
 
     static final boolean DISPATCH_TEMP_DETACH = false;
-    public static final int HORIZONTAL = 0;
-    public static final int VERTICAL = 1;
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({HORIZONTAL, VERTICAL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Orientation {}
+
+    public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
+    public static final int VERTICAL = LinearLayout.VERTICAL;
 
     public static final int NO_POSITION = -1;
     public static final long NO_ID = -1;
