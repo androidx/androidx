@@ -16,8 +16,8 @@
 
 package android.arch.persistence.room.integration.testapp;
 
+import android.arch.paging.PagedListAdapter;
 import android.arch.persistence.room.integration.testapp.database.Customer;
-import android.arch.util.paging.PagedListAdapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.TextView;

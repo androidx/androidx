@@ -16,5 +16,26 @@
 
 package android.arch.paging;
 
-abstract public class LivePagedListProvider<K, T> {
+import android.support.annotation.NonNull;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.Executor;
+
+public class TestExecutor implements Executor {
+    private Queue<Runnable> mTasks = new LinkedList<>();
+
+    @Override
+    public void execute(@NonNull Runnable command) {
+        mTasks.add(command);
+    }
+
+    public boolean executeAll() {
+        boolean consumed = !mTasks.isEmpty();
+        Runnable task;
+        while ((task = mTasks.poll()) != null) {
+            task.run();
+        }
+        return consumed;
+    }
 }

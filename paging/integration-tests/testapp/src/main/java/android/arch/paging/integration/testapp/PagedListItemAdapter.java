@@ -16,7 +16,7 @@
 
 package android.arch.paging.integration.testapp;
 
-import android.arch.util.paging.PagedListAdapter;
+import android.arch.paging.PagedListAdapter;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
