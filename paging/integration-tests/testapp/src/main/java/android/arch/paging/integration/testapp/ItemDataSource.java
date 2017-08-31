@@ -16,7 +16,7 @@
 
 package android.arch.paging.integration.testapp;
 
-import android.arch.util.paging.BoundedDataSource;
+import android.arch.paging.BoundedDataSource;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
 

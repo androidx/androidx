@@ -18,9 +18,9 @@ package android.arch.paging.integration.testapp;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
-import android.arch.util.paging.DataSource;
-import android.arch.util.paging.LivePagedListProvider;
-import android.arch.util.paging.PagedList;
+import android.arch.paging.DataSource;
+import android.arch.paging.LivePagedListProvider;
+import android.arch.paging.PagedList;
 
 /**
  * Sample ViewModel backed by an artificial data source

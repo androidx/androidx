@@ -16,8 +16,8 @@
 
 package android.arch.paging.integration.testapp;
 
-import android.arch.util.paging.DiffCallback;
 import android.support.annotation.NonNull;
+import android.support.v7.recyclerview.extensions.DiffCallback;
 
 /**
  * Sample item.
