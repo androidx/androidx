@@ -20,10 +20,10 @@ import android.app.Application;
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.PagedList;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.database.Customer;
 import android.arch.persistence.room.integration.testapp.database.SampleDatabase;
-import android.arch.util.paging.PagedList;
 
 import java.util.UUID;
 

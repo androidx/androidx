@@ -16,5 +16,17 @@
 
 package android.arch.paging;
 
-abstract public class LivePagedListProvider<K, T> {
+public class User {
+    public final String name;
+    public final String info;
+
+    public User(String name, String info) {
+        this.name = name;
+        this.info = info;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

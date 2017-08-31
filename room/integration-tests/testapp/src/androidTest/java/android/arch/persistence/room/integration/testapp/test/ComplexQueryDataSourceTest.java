@@ -16,9 +16,9 @@
 
 package android.arch.persistence.room.integration.testapp.test;
 
+import android.arch.paging.BoundedDataSource;
+import android.arch.paging.KeyedDataSource;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.BoundedDataSource;
-import android.arch.util.paging.KeyedDataSource;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.filters.MediumTest;

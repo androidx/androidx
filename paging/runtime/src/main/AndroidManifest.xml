@@ -15,9 +15,9 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.arch.util.paging.runtime">
+          package="android.arch.paging.runtime">
     <application>
-        <meta-data android:name="android.arch.util.paging.runtime.VERSION"
+        <meta-data android:name="android.arch.paging.runtime.VERSION"
                    android:value="${version}" />
     </application>
 </manifest>

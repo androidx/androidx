@@ -36,7 +36,7 @@ import android.arch.persistence.room.solver.types.CompositeAdapter
 import android.arch.persistence.room.solver.types.TypeConverter
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
-import android.arch.util.paging.DataSource
+import android.arch.paging.DataSource
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester

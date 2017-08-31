@@ -31,7 +31,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.persistence.room.integration.testapp.test.TestDatabaseTest;
 import android.arch.persistence.room.integration.testapp.test.TestUtil;
 import android.arch.persistence.room.integration.testapp.vo.User;
-import android.arch.util.paging.PagedList;
+import android.arch.paging.PagedList;
 import android.support.annotation.Nullable;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -72,7 +72,7 @@ public class LivePagedListProviderTest extends TestDatabaseTest {
                 new PagedList.Config.Builder()
                         .setPageSize(10)
                         .setPrefetchDistance(1)
-                        .setInitialLoadSize(10).build());
+                        .setInitialLoadSizeHint(10).build());
 
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();
         testOwner.handleEvent(Lifecycle.Event.ON_CREATE);
