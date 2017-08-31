@@ -24,6 +24,7 @@ android {
                 'api22',
                 'api23',
                 'api24',
+                'api26',
                 'java'
         ]
         main.aidl.srcDirs = ['java']
