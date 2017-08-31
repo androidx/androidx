@@ -2,6 +2,9 @@ apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
+    api (libs.arch_lifecycle_runtime)  {
+        exclude module: 'support-annotations'
+    }
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
