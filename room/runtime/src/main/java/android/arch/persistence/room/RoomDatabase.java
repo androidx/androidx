@@ -380,6 +380,9 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Allows Room to destructively recreate database tables if {@link Migration}s that would
+         * migrate old database schemas to the latest schema version are not found.
+         * <p>
          * When the database version on the device does not match the latest schema version, Room
          * runs necessary {@link Migration}s on the database.
          * <p>
