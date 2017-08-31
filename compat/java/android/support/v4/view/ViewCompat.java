@@ -19,6 +19,7 @@ package android.support.v4.view;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -114,6 +115,17 @@ public class ViewCompat {
      */
     @Deprecated
     public static final int OVER_SCROLL_NEVER = 2;
+
+    @TargetApi(Build.VERSION_CODES.O)
+    @IntDef({
+            View.IMPORTANT_FOR_AUTOFILL_AUTO,
+            View.IMPORTANT_FOR_AUTOFILL_YES,
+            View.IMPORTANT_FOR_AUTOFILL_NO,
+            View.IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS,
+            View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface AutofillImportance {}
 
     @IntDef({
             IMPORTANT_FOR_ACCESSIBILITY_AUTO,
@@ -438,6 +450,10 @@ public class ViewCompat {
         private static Method sChildrenDrawingOrderMethod;
         static Field sAccessibilityDelegateField;
         static boolean sAccessibilityDelegateCheckFailed = false;
+
+        public void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
+            // no-op
+        }
 
         public void setAccessibilityDelegate(View v,
                 @Nullable AccessibilityDelegateCompat delegate) {
@@ -991,6 +1007,19 @@ public class ViewCompat {
         public boolean hasExplicitFocusable(@NonNull View view) {
             return view.hasFocusable();
         }
+
+        @TargetApi(Build.VERSION_CODES.O)
+        public @AutofillImportance int getImportantForAutofill(@NonNull View v) {
+            return View.IMPORTANT_FOR_AUTOFILL_AUTO;
+        }
+
+        public void setImportantForAutofill(@NonNull View v, @AutofillImportance int mode) {
+            // no-op
+        }
+
+        public boolean isImportantForAutofill(@NonNull View v) {
+            return true;
+        }
     }
 
     @RequiresApi(15)
@@ -1523,6 +1552,27 @@ public class ViewCompat {
 
     @RequiresApi(26)
     static class ViewCompatApi26Impl extends ViewCompatApi24Impl {
+
+        @Override
+        public void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
+            v.setAutofillHints(autofillHints);
+        }
+
+        @Override
+        public @AutofillImportance int getImportantForAutofill(@NonNull View v) {
+            return v.getImportantForAutofill();
+        }
+
+        @Override
+        public void setImportantForAutofill(@NonNull View v, @AutofillImportance int mode) {
+            v.setImportantForAutofill(mode);
+        }
+
+        @Override
+        public boolean isImportantForAutofill(@NonNull View v) {
+            return v.isImportantForAutofill();
+        }
+
         @Override
         public void setTooltipText(View view, CharSequence tooltipText) {
             view.setTooltipText(tooltipText);
@@ -1796,6 +1846,165 @@ public class ViewCompat {
      */
     public static void setAccessibilityDelegate(View v, AccessibilityDelegateCompat delegate) {
         IMPL.setAccessibilityDelegate(v, delegate);
+    }
+
+    /**
+     * Sets the hints that help an {@link android.service.autofill.AutofillService} determine how
+     * to autofill the view with the user's data.
+     *
+     * <p>Typically, there is only one way to autofill a view, but there could be more than one.
+     * For example, if the application accepts either an username or email address to identify
+     * an user.
+     *
+     * <p>These hints are not validated by the Android System, but passed "as is" to the service.
+     * Hence, they can have any value, but it's recommended to use the {@code AUTOFILL_HINT_}
+     * constants such as:
+     * {@link View#AUTOFILL_HINT_USERNAME}, {@link View#AUTOFILL_HINT_PASSWORD},
+     * {@link View#AUTOFILL_HINT_EMAIL_ADDRESS},
+     * {@link View#AUTOFILL_HINT_NAME},
+     * {@link View#AUTOFILL_HINT_PHONE},
+     * {@link View#AUTOFILL_HINT_POSTAL_ADDRESS}, {@link View#AUTOFILL_HINT_POSTAL_CODE},
+     * {@link View#AUTOFILL_HINT_CREDIT_CARD_NUMBER},
+     * {@link View#AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE},
+     * {@link View#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE},
+     * {@link View#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY},
+     * {@link View#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH} or
+     * {@link View#AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR}.
+     *
+     * <p>This method is only supported on API >= 26.
+     * On API 25 and below, it is a no-op</p>
+     *
+     * @param autofillHints The autofill hints to set. If the array is emtpy, {@code null} is set.
+     * @attr ref android.R.styleable#View_autofillHints
+     */
+    public static void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
+        IMPL.setAutofillHints(v, autofillHints);
+    }
+
+    /**
+     * Gets the mode for determining whether this view is important for autofill.
+     *
+     * <p>See {@link #setImportantForAutofill(View, int)} and {@link #isImportantForAutofill(View)}
+     * for more info about this mode.
+     *
+     * <p>This method is only supported on API >= 26.
+     * On API 25 and below, it will always return {@link View#IMPORTANT_FOR_AUTOFILL_AUTO}.</p>
+     *
+     * @return {@link View#IMPORTANT_FOR_AUTOFILL_AUTO} by default, or value passed to
+     * {@link #setImportantForAutofill(View, int)}.
+     *
+     * @attr ref android.R.styleable#View_importantForAutofill
+     */
+    public static @AutofillImportance int getImportantForAutofill(@NonNull View v) {
+        return IMPL.getImportantForAutofill(v);
+    }
+
+    /**
+     * Sets the mode for determining whether this view is considered important for autofill.
+     *
+     * <p>The platform determines the importance for autofill automatically but you
+     * can use this method to customize the behavior. For example:
+     *
+     * <ol>
+     *   <li>When the view contents is irrelevant for autofill (for example, a text field used in a
+     *       "Captcha" challenge), it should be {@link View#IMPORTANT_FOR_AUTOFILL_NO}.
+     *   <li>When both the view and its children are irrelevant for autofill (for example, the root
+     *       view of an activity containing a spreadhseet editor), it should be
+     *       {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS}.
+     *   <li>When the view content is relevant for autofill but its children aren't (for example,
+     *       a credit card expiration date represented by a custom view that overrides the proper
+     *       autofill methods and has 2 children representing the month and year), it should
+     *       be {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS}.
+     * </ol>
+     *
+     * <p><b>NOTE:</strong> setting the mode as does {@link View#IMPORTANT_FOR_AUTOFILL_NO} or
+     * {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS} does not guarantee the view (and
+     * its children) will be always be considered not important; for example, when the user
+     * explicitly makes an autofill request, all views are considered important. See
+     * {@link #isImportantForAutofill(View)} for more details about how the View's importance for
+     * autofill is used.
+     *
+     * <p>This method is only supported on API >= 26.
+     * On API 25 and below, it is a no-op</p>
+     *
+     *
+     * @param mode {@link View#IMPORTANT_FOR_AUTOFILL_AUTO},
+     * {@link View#IMPORTANT_FOR_AUTOFILL_YES},
+     * {@link View#IMPORTANT_FOR_AUTOFILL_NO},
+     * {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS},
+     * or {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS}.
+     *
+     * @attr ref android.R.styleable#View_importantForAutofill
+     */
+    public static void setImportantForAutofill(@NonNull View v, @AutofillImportance int mode) {
+        IMPL.setImportantForAutofill(v, mode);
+    }
+
+    /**
+     * Hints the Android System whether the {@link android.app.assist.AssistStructure.ViewNode}
+     * associated with this view is considered important for autofill purposes.
+     *
+     * <p>Generally speaking, a view is important for autofill if:
+     * <ol>
+     * <li>The view can be autofilled by an {@link android.service.autofill.AutofillService}.
+     * <li>The view contents can help an {@link android.service.autofill.AutofillService}
+     *     determine how other views can be autofilled.
+     * <ol>
+     *
+     * <p>For example, view containers should typically return {@code false} for performance reasons
+     * (since the important info is provided by their children), but if its properties have relevant
+     * information (for example, a resource id called {@code credentials}, it should return
+     * {@code true}. On the other hand, views representing labels or editable fields should
+     * typically return {@code true}, but in some cases they could return {@code false}
+     * (for example, if they're part of a "Captcha" mechanism).
+     *
+     * <p>The value returned by this method depends on the value returned by
+     * {@link #getImportantForAutofill(View)}:
+     *
+     * <ol>
+     *   <li>if it returns {@link View#IMPORTANT_FOR_AUTOFILL_YES} or
+     *       {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS},
+     *       then it returns {@code true}
+     *   <li>if it returns {@link View#IMPORTANT_FOR_AUTOFILL_NO} or
+     *       {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS},
+     *       then it returns {@code false}
+     *   <li>if it returns {@link View#IMPORTANT_FOR_AUTOFILL_AUTO},
+     *   then it uses some simple heuristics that can return {@code true}
+     *   in some cases (like a container with a resource id), but {@code false} in most.
+     *   <li>otherwise, it returns {@code false}.
+     * </ol>
+     *
+     * <p>When a view is considered important for autofill:
+     * <ul>
+     *   <li>The view might automatically trigger an autofill request when focused on.
+     *   <li>The contents of the view are included in the {@link android.view.ViewStructure}
+     *   used in an autofill request.
+     * </ul>
+     *
+     * <p>On the other hand, when a view is considered not important for autofill:
+     * <ul>
+     *   <li>The view never automatically triggers autofill requests, but it can trigger a manual
+     *       request through {@link android.view.autofill.AutofillManager#requestAutofill(View)}.
+     *   <li>The contents of the view are not included in the {@link android.view.ViewStructure}
+     *   used in an autofill request, unless the request has the
+     *       {@link View#AUTOFILL_FLAG_INCLUDE_NOT_IMPORTANT_VIEWS} flag.
+     * </ul>
+     *
+     * <p>This method is only supported on API >= 26.
+     * On API 25 and below, it will always return {@code true}.</p>
+     *
+     * @return whether the view is considered important for autofill.
+     *
+     * @see #setImportantForAutofill(View, int)
+     * @see View#IMPORTANT_FOR_AUTOFILL_AUTO
+     * @see View#IMPORTANT_FOR_AUTOFILL_YES
+     * @see View#IMPORTANT_FOR_AUTOFILL_NO
+     * @see View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS
+     * @see View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+     * @see android.view.autofill.AutofillManager#requestAutofill(View)
+     */
+    public static boolean isImportantForAutofill(@NonNull View v) {
+        return IMPL.isImportantForAutofill(v);
     }
 
     /**
