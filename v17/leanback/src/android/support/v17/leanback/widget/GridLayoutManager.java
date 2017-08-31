@@ -423,6 +423,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * The orientation of a "row".
      */
+    @RecyclerView.Orientation
     int mOrientation = HORIZONTAL;
     private OrientationHelper mOrientationHelper = OrientationHelper.createHorizontalHelper(this);
 
@@ -674,7 +675,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         setItemPrefetchEnabled(false);
     }
 
-    public void setOrientation(int orientation) {
+    public void setOrientation(@RecyclerView.Orientation int orientation) {
         if (orientation != HORIZONTAL && orientation != VERTICAL) {
             if (DEBUG) Log.v(getTag(), "invalid orientation: " + orientation);
             return;
