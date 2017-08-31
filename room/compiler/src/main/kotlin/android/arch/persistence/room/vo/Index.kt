@@ -33,7 +33,7 @@ data class Index(val name : String, val unique : Boolean, val fields : List<Fiel
         return """
             CREATE $uniqueSQL INDEX `$name`
             ON `$tableName` (${fields.map { it.columnName }.joinToString(", ") { "`$it`"}})
-            """.trimIndent().replace(System.lineSeparator(), " ")
+            """.trimIndent().replace("\n", " ")
     }
 
     val columnNames by lazy { fields.map {it.columnName} }
