@@ -546,8 +546,10 @@ public class GuidedStepSupportActivity extends FragmentActivity {
 
         @Override
         public void onCreateActions(List<GuidedAction> actions, Bundle savedInstanceState) {
-            String desc = "The description can be quite long as well.  " +
-                    "Just be sure to set multilineDescription to true in the GuidedAction.";
+            String desc = "The description can be quite long as well.  "
+                    + "Just be sure to set multilineDescription to true in the GuidedAction."
+                    + "For testing purpose we make this line even longer since "
+                    + "multilineDescriptionMinLines will be set to 2.";
             actions.add(new GuidedAction.Builder(getActivity())
                     .title("Note that Guided Actions can have titles that are quite long.")
                     .description(desc)
