@@ -13,6 +13,10 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.v7.util.DiffUtil;
+import android.support.v7.util.ListUpdateCallback;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,7 +27,13 @@ import java.util.List;
  */
 public class ArrayObjectAdapter extends ObjectAdapter {
 
-    private ArrayList<Object> mItems = new ArrayList<Object>();
+    private static final Boolean DEBUG = false;
+    private static final String TAG = "ArrayObjectAdapter";
+
+    private final List mItems = new ArrayList<Object>();
+
+    // Un modifiable version of mItems;
+    private List mUnmodifiableItems;
 
     /**
      * Constructs an adapter with the given {@link PresenterSelector}.
@@ -60,9 +70,9 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * Returns the index for the first occurrence of item in the adapter, or -1 if
      * not found.
      *
-     * @param item  The item to find in the list.
+     * @param item The item to find in the list.
      * @return Index of the first occurrence of the item in the adapter, or -1
-     *         if not found.
+     * if not found.
      */
     public int indexOf(Object item) {
         return mItems.indexOf(item);
@@ -73,7 +83,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * not same as items being added or removed.
      *
      * @param positionStart The position of first item that has changed.
-     * @param itemCount The count of how many items have changed.
+     * @param itemCount     The count of how many items have changed.
      */
     public void notifyArrayItemRangeChanged(int positionStart, int itemCount) {
         notifyItemRangeChanged(positionStart, itemCount);
@@ -93,7 +103,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * If the index is > {@link #size} an exception will be thrown.
      *
      * @param index The index at which the item should be inserted.
-     * @param item The item to insert into the adapter.
+     * @param item  The item to insert into the adapter.
      */
     public void add(int index, Object item) {
         mItems.add(index, item);
@@ -135,7 +145,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * Moved the item at fromPosition to toPosition.
      *
      * @param fromPosition Previous position of the item.
-     * @param toPosition New position of the item.
+     * @param toPosition   New position of the item.
      */
     public void move(int fromPosition, int toPosition) {
         if (fromPosition == toPosition) {
@@ -151,8 +161,9 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * Replaces item at position with a new item and calls notifyItemRangeChanged()
      * at the given position.  Note that this method does not compare new item to
      * existing item.
-     * @param position  The index of item to replace.
-     * @param item      The new item to be placed at given position.
+     *
+     * @param position The index of item to replace.
+     * @param item     The new item to be placed at given position.
      */
     public void replace(int position, Object item) {
         mItems.set(position, item);
@@ -164,7 +175,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * the starting position and the number of elements to remove.
      *
      * @param position The index of the first item to remove.
-     * @param count The number of items to remove.
+     * @param count    The number of items to remove.
      * @return The number of items removed.
      */
     public int removeItems(int position, int count) {
@@ -196,11 +207,92 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * Gets a read-only view of the list of object of this ArrayObjectAdapter.
      */
     public <E> List<E> unmodifiableList() {
-        return Collections.unmodifiableList((List<E>) mItems);
+
+        // The mUnmodifiableItems will only be created once as long as the content of mItems has not
+        // been changed.
+        if (mUnmodifiableItems == null) {
+            mUnmodifiableItems = Collections.unmodifiableList(mItems);
+        }
+        return mUnmodifiableItems;
     }
 
     @Override
     public boolean isImmediateNotifySupported() {
         return true;
+    }
+
+    /**
+     * Set a new item list to adapter. The DiffUtil will compute the difference and dispatch it to
+     * specified position.
+     *
+     * @param itemList List of new Items
+     * @param callback DiffCallback Object to compute the difference between the old data set and
+     *                 new data set.
+     */
+    public void setItems(final List itemList, final DiffCallback callback) {
+
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return mItems.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return itemList.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return callback.areItemsTheSame(mItems.get(oldItemPosition),
+                        itemList.get(newItemPosition));
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                return callback.areContentsTheSame(mItems.get(oldItemPosition),
+                        itemList.get(newItemPosition));
+            }
+        });
+
+        // update items.
+        mItems.clear();
+        mItems.addAll(itemList);
+
+        // dispatch diff result
+        diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
+
+            @Override
+            public void onInserted(int position, int count) {
+                if (DEBUG) {
+                    Log.d(TAG, "onInserted");
+                }
+                notifyItemRangeInserted(position, count);
+            }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                if (DEBUG) {
+                    Log.d(TAG, "onRemoved");
+                }
+                notifyItemRangeRemoved(position, count);
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                if (DEBUG) {
+                    Log.d(TAG, "onMoved");
+                }
+                notifyItemMoved(fromPosition, toPosition);
+            }
+
+            @Override
+            public void onChanged(int position, int count, Object payload) {
+                if (DEBUG) {
+                    Log.d(TAG, "onChanged");
+                }
+                notifyItemRangeChanged(position, count);
+            }
+        });
     }
 }
