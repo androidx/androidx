@@ -52,6 +52,17 @@ public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
     @SuppressWarnings("WeakerAccess")
     public abstract List<Type> loadRange(int startPosition, int count);
 
+    final List<Type> loadRangeWrapper(int startPosition, int count) {
+        if (isInvalid()) {
+            return null;
+        }
+        List<Type> list = loadRange(startPosition, count);
+        if (isInvalid()) {
+            return null;
+        }
+        return list;
+    }
+
     ContiguousDataSource<Integer, Type> getAsContiguous() {
         return new TiledAsBoundedDataSource<>(this);
     }

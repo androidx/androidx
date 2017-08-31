@@ -26,14 +26,29 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
+/**
+ * Utility class for binding a {@link LiveData} of List or PagedList to an AdapterHelper or Adapter.
+ * <pre>
+ * class MyActivity extends Activity implements LifecycleRegistryOwner {
+ *     {@literal @}Override
+ *     public void onCreate(Bundle savedState) {
+ *         ...
+ *         RecyclerView recyclerView = findViewById(R.id.user_list);
+ *         UserAdapter&lt;User> adapter = new UserAdapter();
+ *         LiveData&lt;PagedList&lt;<User>> liveUserList = myViewModel.getLiveUsersPaged();
+ *         LiveListAdapterUtil.bind(liveUserList, this, adapter);
+ *         ...
+ *     }
+ * }</pre>
+ */
 public class LiveListAdapterUtil {
     private LiveListAdapterUtil() {
         // utility class, no instance
     }
 
     /**
-     * Connect the {@code LiveData<List<T>>} as a data source for the adapter, under the lifecycle
-     * of the provided LifecycleOwner. Supports both
+     * Connect the {@code LiveData<List<T>>} as a data source for the adapter or adapter helper,
+     * under the lifecycle of the provided LifecycleOwner.
      *
      * @param liveData Source of data, will be observed by the adapter while the lifecycleOwner
      *                 remains active.

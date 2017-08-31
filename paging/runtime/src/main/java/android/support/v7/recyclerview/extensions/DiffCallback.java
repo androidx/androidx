@@ -29,9 +29,9 @@ import android.support.annotation.NonNull;
  * <p>
  * Note that this class is likely to move prior to the final release of the Paging library.
  *
- * @param <Value> Type of items to compare.
+ * @param <T> Type of items to compare.
  */
-public abstract class DiffCallback<Value> {
+public abstract class DiffCallback<T> {
     /**
      * Called to decide whether two objects represent the same item.
      *
@@ -40,7 +40,7 @@ public abstract class DiffCallback<Value> {
      * @return True if the two items represent the same object or false if they are different.
      * @see android.support.v7.util.DiffUtil.Callback#areItemsTheSame(int, int)
      */
-    public abstract boolean areItemsTheSame(@NonNull Value oldItem, @NonNull Value newItem);
+    public abstract boolean areItemsTheSame(@NonNull T oldItem, @NonNull T newItem);
 
     /**
      * Called to decide whether two items have the same data. This information is used to detect if
@@ -51,7 +51,7 @@ public abstract class DiffCallback<Value> {
      * @return True if the contents of the items are the same or false if they are different.
      * @see android.support.v7.util.DiffUtil.Callback#areContentsTheSame(int, int)
      */
-    public abstract boolean areContentsTheSame(@NonNull Value oldItem, @NonNull Value newItem);
+    public abstract boolean areContentsTheSame(@NonNull T oldItem, @NonNull T newItem);
 
     /**
      * Called to get a change payload between an old and new version of an item.
@@ -59,7 +59,7 @@ public abstract class DiffCallback<Value> {
      * @see android.support.v7.util.DiffUtil.Callback#getChangePayload(int, int)
      */
     @SuppressWarnings("WeakerAccess")
-    public Object getChangePayload(@NonNull Value oldItem, @NonNull Value newItem) {
+    public Object getChangePayload(@NonNull T oldItem, @NonNull T newItem) {
         return null;
     }
 }

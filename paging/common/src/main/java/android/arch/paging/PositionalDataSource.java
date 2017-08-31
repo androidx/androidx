@@ -44,13 +44,13 @@ import java.util.List;
 public abstract class PositionalDataSource<Value> extends ContiguousDataSource<Integer, Value> {
     @Nullable
     @Override
-    public List<Value> loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
+    List<Value> loadAfterImpl(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
         return loadAfter(currentEndIndex + 1, pageSize);
     }
 
     @Nullable
     @Override
-    public List<Value> loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
+    List<Value> loadBeforeImpl(int currentBeginIndex, @NonNull Value currentBeginItem,
             int pageSize) {
         return loadBefore(currentBeginIndex - 1, pageSize);
     }
@@ -69,18 +69,20 @@ public abstract class PositionalDataSource<Value> extends ContiguousDataSource<I
     @WorkerThread
     @Nullable
     @Override
-    public NullPaddedList<Value> loadInitial(Integer position, int initialLoadSize) {
-        if (position == null) {
-            position = 0;
+    public NullPaddedList<Value> loadInitial(
+            Integer position, int initialLoadSize, boolean enablePlaceholders) {
+        final int convertPosition = position == null ? 0 : position;
+        final int loadPosition = Math.max(0, (convertPosition - initialLoadSize / 2));
+
+        int count = COUNT_UNDEFINED;
+        if (enablePlaceholders) {
+            count = loadCount();
         }
-        mCount = loadCount();
-        if (mCount == COUNT_UNDEFINED) {
-            return new NullPaddedList<>(position,
-                    loadAfter(position, initialLoadSize));
+        List<Value> data = loadAfter(loadPosition, initialLoadSize);
+        if (count == COUNT_UNDEFINED) {
+            return new NullPaddedList<>(loadPosition, data);
         } else {
-            return new NullPaddedList<>(position,
-                    mCount,
-                    loadAfter(position, initialLoadSize));
+            return new NullPaddedList<>(loadPosition, count, data);
         }
     }
 
@@ -113,4 +115,9 @@ public abstract class PositionalDataSource<Value> extends ContiguousDataSource<I
     @WorkerThread
     @Nullable
     public abstract List<Value> loadBefore(int startIndex, int pageSize);
+
+    @Override
+    Integer getKey(int position, Value item) {
+        return position;
+    }
 }

@@ -44,6 +44,13 @@ public class NullPaddedList<Type> extends PagedList<Type> {
     NullPaddedList() {
     }
 
+    @Override
+    public String toString() {
+        return "NullPaddedList " + mLeadingNullCount
+                + ", " + mList.size()
+                + ", " + mTrailingNullCount;
+    }
+
     /**
      * Create a static, immutable NullPaddedList with the specified list,
      *
@@ -156,15 +163,8 @@ public class NullPaddedList<Type> extends PagedList<Type> {
 
     // --------------- Contiguous API ---------------
 
-    /**
-     * Position offset of the data in the list.
-     * <p>
-     * The item returned from <code>get(i)</code> has a position of
-     * <code>i + getPositionOffset() + getLeadingNullCount()</code>.
-     * <p>
-     * This position corresponds to positions that are passed to a PositionalDataSource.
-     */
-    int getPositionOffset() {
+    @Override
+    public int getPositionOffset() {
         return mPositionOffset;
     }
 
