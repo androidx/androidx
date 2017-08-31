@@ -17,6 +17,7 @@
 package android.arch.persistence.room.processor
 
 import android.arch.persistence.room.Delete
+import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Update
@@ -137,6 +138,9 @@ object ProcessorErrors {
     val LIVE_DATA_QUERY_NOTHING_TO_OBSERVE = "LiveData return type can only be used with SELECT" +
             " queries that directly or indirectly (via @Relation, for example) access at least" +
             " one table.";
+
+    val RECURSIVE_REFERENCE_DETECTED = "Recursive referencing through @Embedded and/or @Relation " +
+            "detected: %s"
 
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."

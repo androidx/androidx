@@ -1550,4 +1550,62 @@ class EntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.indices, `is`(emptyList()))
         }.compilesWithoutWarnings()
     }
+
+    @Test
+    fun recursion_1Level() {
+        singleEntity(
+                """
+                @Embedded
+                MyEntity myEntity;
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity"))
+    }
+
+    @Test
+    fun recursion_2Levels_embedToRelation() {
+        singleEntity(
+                """
+                int pojoId;
+                @Embedded
+                A a;
+
+                static class A {
+                    int entityId;
+                    @Relation(parentColumn = "pojoId", entityColumn = "entityId")
+                    MyEntity myEntity;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+    }
+
+    @Test
+    fun recursion_2Levels_onlyEmbeds_entityToPojo() {
+        singleEntity(
+                """
+                @Embedded
+                A a;
+
+                static class A {
+                    @Embedded
+                    MyEntity myEntity;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+    }
+
+    @Test
+    fun recursion_2Levels_onlyEmbeds_onlyEntities() {
+        singleEntity(
+                """
+                @Embedded
+                A a;
+
+                @Entity
+                static class A {
+                    @Embedded
+                    MyEntity myEntity;
+                }
+                """){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+    }
 }
