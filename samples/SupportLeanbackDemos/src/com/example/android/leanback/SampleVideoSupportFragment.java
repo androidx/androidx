@@ -50,7 +50,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 public class SampleVideoSupportFragment extends android.support.v17.leanback.app.VideoSupportFragment {
 
     // Media Session Token
-    private static final String MEDIA_SESSION_COMPAT_TOKEN = "media session video";
+    private static final String MEDIA_SESSION_COMPAT_TOKEN = "media session support video";
 
     private PlaybackTransportControlGlueSample<MediaPlayerAdapter> mMediaPlayerGlue;
 
@@ -158,7 +158,7 @@ public class SampleVideoSupportFragment extends android.support.v17.leanback.app
         mMediaPlayerGlue = new PlaybackTransportControlGlueSample(getActivity(),
                 new MediaPlayerAdapter(getActivity()));
 
-        // If the glue is switched, re-register the mediasession
+        // If the glue is switched, re-register the media session
         mMediaPlayerGlue.connectToMediaSession(mMediaSessionCompat);
 
         mMediaPlayerGlue.setMode(PlaybackControlsRow.RepeatAction.INDEX_ONE);

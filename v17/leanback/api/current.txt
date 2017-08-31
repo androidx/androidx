@@ -1546,6 +1546,7 @@ package android.support.v17.leanback.widget {
     method public boolean remove(java.lang.Object);
     method public int removeItems(int, int);
     method public void replace(int, java.lang.Object);
+    method public void setItems(java.util.List, android.support.v17.leanback.widget.DiffCallback);
     method public int size();
     method public <E> java.util.List<E> unmodifiableList();
   }
@@ -1812,6 +1813,12 @@ package android.support.v17.leanback.widget {
     ctor public DetailsParallax();
     method public android.support.v17.leanback.widget.Parallax.IntProperty getOverviewRowBottom();
     method public android.support.v17.leanback.widget.Parallax.IntProperty getOverviewRowTop();
+  }
+
+  public abstract class DiffCallback<T> {
+    ctor public DiffCallback();
+    method public abstract boolean areContentsTheSame(T, T);
+    method public abstract boolean areItemsTheSame(T, T);
   }
 
   public class DividerPresenter extends android.support.v17.leanback.widget.Presenter {
