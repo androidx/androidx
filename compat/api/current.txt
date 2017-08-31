@@ -1578,6 +1578,7 @@ package android.support.v4.view {
     method public static float getElevation(android.view.View);
     method public static boolean getFitsSystemWindows(android.view.View);
     method public static int getImportantForAccessibility(android.view.View);
+    method public static int getImportantForAutofill(android.view.View);
     method public static int getLabelFor(android.view.View);
     method public static deprecated int getLayerType(android.view.View);
     method public static int getLayoutDirection(android.view.View);
@@ -1618,6 +1619,7 @@ package android.support.v4.view {
     method public static boolean isAttachedToWindow(android.view.View);
     method public static boolean isFocusedByDefault(android.view.View);
     method public static boolean isImportantForAccessibility(android.view.View);
+    method public static boolean isImportantForAutofill(android.view.View);
     method public static boolean isInLayout(android.view.View);
     method public static boolean isKeyboardNavigationCluster(android.view.View);
     method public static boolean isLaidOut(android.view.View);
@@ -1645,6 +1647,7 @@ package android.support.v4.view {
     method public static void setAccessibilityLiveRegion(android.view.View, int);
     method public static deprecated void setActivated(android.view.View, boolean);
     method public static deprecated void setAlpha(android.view.View, float);
+    method public static void setAutofillHints(android.view.View, java.lang.String...);
     method public static void setBackground(android.view.View, android.graphics.drawable.Drawable);
     method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList);
     method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode);
@@ -1655,6 +1658,7 @@ package android.support.v4.view {
     method public static void setFocusedByDefault(android.view.View, boolean);
     method public static void setHasTransientState(android.view.View, boolean);
     method public static void setImportantForAccessibility(android.view.View, int);
+    method public static void setImportantForAutofill(android.view.View, int);
     method public static void setKeyboardNavigationCluster(android.view.View, boolean);
     method public static void setLabelFor(android.view.View, int);
     method public static void setLayerPaint(android.view.View, android.graphics.Paint);
