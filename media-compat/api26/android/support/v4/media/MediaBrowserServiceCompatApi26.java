@@ -28,9 +28,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiresApi(24)
-class MediaBrowserServiceCompatApi24 {
-    private static final String TAG = "MBSCompatApi24";
+@RequiresApi(26)
+class MediaBrowserServiceCompatApi26 {
+    private static final String TAG = "MBSCompatApi26";
 
     private static Field sResultFlags;
     static {

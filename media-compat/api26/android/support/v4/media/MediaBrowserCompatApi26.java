@@ -23,9 +23,9 @@ import android.support.annotation.RequiresApi;
 
 import java.util.List;
 
-@RequiresApi(24)
-class MediaBrowserCompatApi24 {
-    public static Object createSubscriptionCallback(SubscriptionCallback callback) {
+@RequiresApi(26)
+class MediaBrowserCompatApi26 {
+    static Object createSubscriptionCallback(SubscriptionCallback callback) {
         return new SubscriptionCallbackProxy<>(callback);
     }
 
@@ -48,7 +48,7 @@ class MediaBrowserCompatApi24 {
 
     static class SubscriptionCallbackProxy<T extends SubscriptionCallback>
             extends MediaBrowserCompatApi21.SubscriptionCallbackProxy<T> {
-        public SubscriptionCallbackProxy(T callback) {
+        SubscriptionCallbackProxy(T callback) {
             super(callback);
         }
 
