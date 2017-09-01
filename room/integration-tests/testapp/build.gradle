@@ -65,14 +65,6 @@ dependencies {
     annotationProcessor project(":room:compiler")
     androidTestAnnotationProcessor project(":room:compiler")
 
-    androidTestCompile(libs.test_runner) {
-        exclude module: 'support-annotations'
-        exclude module: 'hamcrest-core'
-    }
-    androidTestCompile(libs.espresso_core, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude module: "hamcrest-core"
-    })
     // IJ's gradle integration just cannot figure this out ...
     androidTestCompile project(':lifecycle:extensions')
     androidTestCompile project(':lifecycle:common')
@@ -81,6 +73,16 @@ dependencies {
     androidTestCompile project(':room:rxjava2')
     androidTestCompile project(':arch:core-testing')
     androidTestCompile libs.rx_java
+    androidTestImplementation(libs.test_runner) {
+        exclude module: 'support-annotations'
+        exclude module: 'hamcrest-core'
+        exclude group: 'net.bytebuddy'
+    }
+    androidTestImplementation(libs.espresso_core, {
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude module: "hamcrest-core"
+        exclude group: 'net.bytebuddy'
+    })
     androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
 }
