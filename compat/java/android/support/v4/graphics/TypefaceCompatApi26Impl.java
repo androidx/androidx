@@ -273,7 +273,8 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         if (!freeze(fontFamily)) {
             return null;
         }
-        return createFromFamiliesWithDefault(fontFamily);
+        final Typeface typeface = createFromFamiliesWithDefault(fontFamily);
+        return Typeface.create(typeface, style);
     }
 
     /**
