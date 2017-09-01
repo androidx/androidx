@@ -39,6 +39,7 @@
 
     <declare-styleable name="NavDeepLink">
         <attr name="uri" format="string" />
+        <attr name="android:autoVerify" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="NavAction">
