@@ -182,7 +182,7 @@ public final class MediaBrowserCompat {
         // To workaround an issue of {@link #unsubscribe(String, SubscriptionCallback)} on API 24
         // and 25 devices, use the support library version of implementation on those devices.
         if (Build.VERSION.SDK_INT >= 26) {
-            mImpl = new MediaBrowserImplApi24(context, serviceComponent, callback, rootHints);
+            mImpl = new MediaBrowserImplApi26(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserImplApi23(context, serviceComponent, callback, rootHints);
         } else if (Build.VERSION.SDK_INT >= 21) {
@@ -678,7 +678,7 @@ public final class MediaBrowserCompat {
         public SubscriptionCallback() {
             if (Build.VERSION.SDK_INT >= 26) {
                 mSubscriptionCallbackObj =
-                        MediaBrowserCompatApi24.createSubscriptionCallback(new StubApi24());
+                        MediaBrowserCompatApi26.createSubscriptionCallback(new StubApi26());
                 mToken = null;
             } else if (Build.VERSION.SDK_INT >= 21) {
                 mSubscriptionCallbackObj =
@@ -798,9 +798,9 @@ public final class MediaBrowserCompat {
 
         }
 
-        private class StubApi24 extends StubApi21
-                implements MediaBrowserCompatApi24.SubscriptionCallback {
-            StubApi24() {
+        private class StubApi26 extends StubApi21
+                implements MediaBrowserCompatApi26.SubscriptionCallback {
+            StubApi26() {
             }
 
             @Override
@@ -942,7 +942,7 @@ public final class MediaBrowserCompat {
         @NonNull String getRoot();
         @Nullable Bundle getExtras();
         @NonNull MediaSessionCompat.Token getSessionToken();
-        void subscribe(@NonNull String parentId, Bundle options,
+        void subscribe(@NonNull String parentId, @Nullable Bundle options,
                 @NonNull SubscriptionCallback callback);
         void unsubscribe(@NonNull String parentId, SubscriptionCallback callback);
         void getItem(@NonNull String mediaId, @NonNull ItemCallback cb);
@@ -1587,7 +1587,7 @@ public final class MediaBrowserCompat {
         protected Messenger mCallbacksMessenger;
         private MediaSessionCompat.Token mMediaSessionToken;
 
-        public MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
+        MediaBrowserImplApi21(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
             mContext = context;
             if (rootHints == null) {
@@ -1933,7 +1933,7 @@ public final class MediaBrowserCompat {
 
     @RequiresApi(23)
     static class MediaBrowserImplApi23 extends MediaBrowserImplApi21 {
-        public MediaBrowserImplApi23(Context context, ComponentName serviceComponent,
+        MediaBrowserImplApi23(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
             super(context, serviceComponent, callback, rootHints);
         }
@@ -1948,22 +1948,21 @@ public final class MediaBrowserCompat {
         }
     }
 
-    // TODO: Rename to MediaBrowserImplApi26 once O is released
     @RequiresApi(26)
-    static class MediaBrowserImplApi24 extends MediaBrowserImplApi23 {
-        public MediaBrowserImplApi24(Context context, ComponentName serviceComponent,
+    static class MediaBrowserImplApi26 extends MediaBrowserImplApi23 {
+        MediaBrowserImplApi26(Context context, ComponentName serviceComponent,
                 ConnectionCallback callback, Bundle rootHints) {
             super(context, serviceComponent, callback, rootHints);
         }
 
         @Override
-        public void subscribe(@NonNull String parentId, @NonNull Bundle options,
+        public void subscribe(@NonNull String parentId, @Nullable Bundle options,
                 @NonNull SubscriptionCallback callback) {
             if (options == null) {
                 MediaBrowserCompatApi21.subscribe(
                         mBrowserObj, parentId, callback.mSubscriptionCallbackObj);
             } else {
-                MediaBrowserCompatApi24.subscribe(
+                MediaBrowserCompatApi26.subscribe(
                         mBrowserObj, parentId, options, callback.mSubscriptionCallbackObj);
             }
         }
@@ -1973,7 +1972,7 @@ public final class MediaBrowserCompat {
             if (callback == null) {
                 MediaBrowserCompatApi21.unsubscribe(mBrowserObj, parentId);
             } else {
-                MediaBrowserCompatApi24.unsubscribe(mBrowserObj, parentId,
+                MediaBrowserCompatApi26.unsubscribe(mBrowserObj, parentId,
                         callback.mSubscriptionCallbackObj);
             }
         }
