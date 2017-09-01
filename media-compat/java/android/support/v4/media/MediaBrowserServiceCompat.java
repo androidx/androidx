@@ -410,13 +410,12 @@ public abstract class MediaBrowserServiceCompat extends Service {
         }
     }
 
-    // TODO: Rename to MediaBrowserServiceImplApi26 once O is released
     @RequiresApi(26)
-    class MediaBrowserServiceImplApi24 extends MediaBrowserServiceImplApi23 implements
-            MediaBrowserServiceCompatApi24.ServiceCompatProxy {
+    class MediaBrowserServiceImplApi26 extends MediaBrowserServiceImplApi23 implements
+            MediaBrowserServiceCompatApi26.ServiceCompatProxy {
         @Override
         public void onCreate() {
-            mServiceObj = MediaBrowserServiceCompatApi24.createService(
+            mServiceObj = MediaBrowserServiceCompatApi26.createService(
                     MediaBrowserServiceCompat.this, this);
             MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
         }
@@ -426,14 +425,14 @@ public abstract class MediaBrowserServiceCompat extends Service {
             if (options == null) {
                 MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
             } else {
-                MediaBrowserServiceCompatApi24.notifyChildrenChanged(mServiceObj, parentId,
+                MediaBrowserServiceCompatApi26.notifyChildrenChanged(mServiceObj, parentId,
                         options);
             }
         }
 
         @Override
         public void onLoadChildren(String parentId,
-                final MediaBrowserServiceCompatApi24.ResultWrapper resultWrapper, Bundle options) {
+                final MediaBrowserServiceCompatApi26.ResultWrapper resultWrapper, Bundle options) {
             final Result<List<MediaBrowserCompat.MediaItem>> result
                     = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
                 @Override
@@ -465,7 +464,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 return mCurConnection.rootHints == null ? null
                         : new Bundle(mCurConnection.rootHints);
             }
-            return MediaBrowserServiceCompatApi24.getBrowserRootHints(mServiceObj);
+            return MediaBrowserServiceCompatApi26.getBrowserRootHints(mServiceObj);
         }
     }
 
@@ -978,7 +977,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     public void onCreate() {
         super.onCreate();
         if (Build.VERSION.SDK_INT >= 26) {
-            mImpl = new MediaBrowserServiceImplApi24();
+            mImpl = new MediaBrowserServiceImplApi26();
         } else if (Build.VERSION.SDK_INT >= 23) {
             mImpl = new MediaBrowserServiceImplApi23();
         } else if (Build.VERSION.SDK_INT >= 21) {
