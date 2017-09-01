@@ -50,7 +50,7 @@ public final class PlaybackStateCompat implements Parcelable {
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
             ACTION_SKIP_TO_QUEUE_ITEM, ACTION_PLAY_FROM_URI, ACTION_PREPARE,
             ACTION_PREPARE_FROM_MEDIA_ID, ACTION_PREPARE_FROM_SEARCH, ACTION_PREPARE_FROM_URI,
-            ACTION_SET_REPEAT_MODE, ACTION_SET_SHUFFLE_MODE_ENABLED, ACTION_SET_CAPTIONING_ENABLED})
+            ACTION_SET_REPEAT_MODE, ACTION_SET_SHUFFLE_MODE, ACTION_SET_CAPTIONING_ENABLED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Actions {}
 
@@ -200,6 +200,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * Indicates this session supports the set shuffle mode enabled command.
      *
      * @see Builder#setActions(long)
+     * @deprecated Use {@link #ACTION_SET_SHUFFLE_MODE} instead.
      */
     public static final long ACTION_SET_SHUFFLE_MODE_ENABLED = 1 << 19;
 
@@ -209,6 +210,13 @@ public final class PlaybackStateCompat implements Parcelable {
      * @see Builder#setActions(long)
      */
     public static final long ACTION_SET_CAPTIONING_ENABLED = 1 << 20;
+
+    /**
+     * Indicates this session supports the set shuffle mode command.
+     *
+     * @see Builder#setActions(long)
+     */
+    public static final long ACTION_SET_SHUFFLE_MODE = 1 << 21;
 
     /**
      * @hide
@@ -681,7 +689,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_SEARCH}</li>
      * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_URI}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE}</li>
-     * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}</li>
+     * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE}</li>
      * <li> {@link PlaybackStateCompat#ACTION_SET_CAPTIONING_ENABLED}</li>
      * </ul>
      */
@@ -1225,7 +1233,7 @@ public final class PlaybackStateCompat implements Parcelable {
          * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_SEARCH}</li>
          * <li> {@link PlaybackStateCompat#ACTION_PREPARE_FROM_URI}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SET_REPEAT_MODE}</li>
-         * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE_ENABLED}</li>
+         * <li> {@link PlaybackStateCompat#ACTION_SET_SHUFFLE_MODE}</li>
          * <li> {@link PlaybackStateCompat#ACTION_SET_CAPTIONING_ENABLED}</li>
          * </ul>
          *

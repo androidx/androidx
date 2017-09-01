@@ -328,7 +328,7 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
         } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_REPEAT) != 0) {
             supportedActions |= PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
         } else if ((actionsFromPlayerAdapter & PlaybackBaseControlGlue.ACTION_SHUFFLE) != 0) {
-            supportedActions |= PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+            supportedActions |= PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE;
         }
         return supportedActions;
     }

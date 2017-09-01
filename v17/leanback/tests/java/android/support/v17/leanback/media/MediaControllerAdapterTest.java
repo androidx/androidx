@@ -744,7 +744,7 @@ public class MediaControllerAdapterTest {
                 | PlaybackStateCompat.ACTION_FAST_FORWARD
                 | PlaybackStateCompat.ACTION_REWIND
                 | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-                | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED;
+                | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE;
         return res;
     }
 
