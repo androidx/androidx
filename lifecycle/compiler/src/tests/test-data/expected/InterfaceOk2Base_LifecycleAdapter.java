@@ -19,7 +19,6 @@ package foo;
 import android.arch.lifecycle.GenericLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import java.lang.Object;
 import java.lang.Override;
 import javax.annotation.Generated;
 
@@ -36,9 +35,5 @@ public class InterfaceOk2Base_LifecycleAdapter implements GenericLifecycleObserv
     if (event == Lifecycle.Event.ON_STOP) {
       mReceiver.onStop1(owner);
     }
-  }
-
-  public Object getReceiver() {
-    return mReceiver;
   }
 }
