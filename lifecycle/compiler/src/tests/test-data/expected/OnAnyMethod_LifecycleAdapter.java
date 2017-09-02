@@ -19,7 +19,6 @@ package foo;
 import android.arch.lifecycle.GenericLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import java.lang.Object;
 import java.lang.Override;
 import javax.annotation.Generated;
 
@@ -38,9 +37,5 @@ public class OnAnyMethod_LifecycleAdapter implements GenericLifecycleObserver {
     }
     mReceiver.any(owner);
     mReceiver.any(owner,event);
-  }
-
-  public Object getReceiver() {
-    return mReceiver;
   }
 }
