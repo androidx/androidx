@@ -75,13 +75,6 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
                 }
     }.build()
 
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    val getWrappedMethod = MethodSpec.methodBuilder("getReceiver")
-            .returns(ClassName.get(Object::class.java))
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return $N", receiverField)
-            .build()
-
     val receiverParam = ParameterSpec.builder(
             ClassName.get(adapter.type), "receiver").build()
 
@@ -117,7 +110,6 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
             .addField(receiverField)
             .addMethod(constructor)
             .addMethod(dispatchMethod)
-            .addMethod(getWrappedMethod)
             .addMethods(syntheticMethods)
 
     addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder, processingEnv)

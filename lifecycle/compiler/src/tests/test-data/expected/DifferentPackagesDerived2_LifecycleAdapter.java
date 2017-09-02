@@ -19,7 +19,6 @@ package bar;
 import android.arch.lifecycle.GenericLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import java.lang.Object;
 import java.lang.Override;
 import javax.annotation.Generated;
 
@@ -37,9 +36,5 @@ public class DifferentPackagesDerived2_LifecycleAdapter implements GenericLifecy
       mReceiver.onStop(owner);
       mReceiver.onStop2(owner);
     }
-  }
-
-  public Object getReceiver() {
-    return mReceiver;
   }
 }

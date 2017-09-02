@@ -82,11 +82,6 @@ class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
         }
     }
 
-    @Override
-    public Object getReceiver() {
-        return mWrapped;
-    }
-
     private static CallbackInfo getInfo(Class klass) {
         CallbackInfo existing = sInfoCache.get(klass);
         if (existing != null) {
