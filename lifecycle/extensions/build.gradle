@@ -45,6 +45,8 @@ dependencies {
     compile project(":arch:runtime")
     compile libs.support.fragments
 
+    annotationProcessor project(":lifecycle:compiler")
+
     testCompile project(":arch:core-testing")
     testCompile libs.junit
     testCompile libs.mockito_core
