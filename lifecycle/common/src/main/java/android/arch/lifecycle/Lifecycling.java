@@ -80,7 +80,8 @@ class Lifecycling {
     @Nullable
     private static Constructor<? extends GenericLifecycleObserver> getGeneratedAdapterConstructor(
             Class<?> klass) {
-        final String fullPackage = klass.getPackage().getName();
+        Package aPackage = klass.getPackage();
+        final String fullPackage = aPackage != null ? aPackage.getName() : "";
 
         String name = klass.getCanonicalName();
         // anonymous class bug:35073837
