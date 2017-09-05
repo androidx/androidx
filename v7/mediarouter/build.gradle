@@ -1,6 +1,7 @@
 apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
+    api project(":support-media-compat")
     api project(":appcompat-v7")
     api project(":palette-v7")
 
