@@ -2,7 +2,8 @@ apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
-    api project(':support-v4')
+    api project(':support-core-utils')
+    api project(':support-fragment')
     api project(':support-vector-drawable')
     api project(':animated-vector-drawable')
 
