@@ -186,14 +186,14 @@ public class NavInflater {
     private void inflateArgument(Resources res, NavDestination dest, AttributeSet attrs)
             throws XmlPullParserException {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavArgument);
-        String name = a.getString(R.styleable.NavArgument_name);
+        String name = a.getString(R.styleable.NavArgument_android_name);
 
         TypedValue value = sTmpValue.get();
         if (value == null) {
             value = new TypedValue();
             sTmpValue.set(value);
         }
-        if (a.getValue(R.styleable.NavArgument_defaultValue, value)) {
+        if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
             switch (value.type) {
                 case TypedValue.TYPE_STRING:
                     dest.getDefaultArguments().putString(name, value.string.toString());

@@ -33,8 +33,8 @@
     </declare-styleable>
 
     <declare-styleable name="NavArgument">
-        <attr name="name" format="string" />
-        <attr name="defaultValue" format="string|dimension|integer|float|reference" />
+        <attr name="android:name" format="string" />
+        <attr name="android:defaultValue" />
     </declare-styleable>
 
     <declare-styleable name="NavDeepLink">

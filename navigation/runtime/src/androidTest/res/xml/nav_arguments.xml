@@ -23,8 +23,8 @@
     </test>
 
     <test android:id="@+id/second_test">
-        <argument app:name="test_no_default_value" />
-        <argument app:name="test_default_value" app:defaultValue="default" />
-        <argument app:name="test_overridden_value" app:defaultValue="default" />
+        <argument android:name="test_no_default_value" />
+        <argument android:name="test_default_value" android:defaultValue="default" />
+        <argument android:name="test_overridden_value" android:defaultValue="default" />
     </test>
 </navigation>
