@@ -19,9 +19,9 @@
             app:startDestination="@+id/start_test">
 
     <test android:id="@+id/start_test">
-        <argument app:name="test_int" app:defaultValue="12" />
-        <argument app:name="test_dimen" app:defaultValue="@dimen/test_dimen_arg" />
-        <argument app:name="test_float" app:defaultValue="3.14" />
-        <argument app:name="test_reference" app:defaultValue="@color/test_reference_arg" />
+        <argument android:name="test_int" android:defaultValue="12" />
+        <argument android:name="test_dimen" android:defaultValue="@dimen/test_dimen_arg" />
+        <argument android:name="test_float" android:defaultValue="3.14" />
+        <argument android:name="test_reference" android:defaultValue="@color/test_reference_arg" />
     </test>
 </navigation>
