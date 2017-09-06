@@ -20,7 +20,7 @@
     <string name="abc_action_bar_home_description" msgid="4600421777120114993">"होम पेज पर जाएं"</string>
     <string name="abc_action_bar_up_description" msgid="1594238315039666878">"ऊपर जाएं"</string>
     <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"ज़्यादा विकल्प"</string>
-    <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"संक्षिप्त करें"</string>
+    <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"छोटा करें"</string>
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"सर्च करें"</string>
     <string name="abc_search_hint" msgid="7723749260725869598">"खोजा जा रहा है…"</string>
     <string name="abc_searchview_description_query" msgid="2550479030709304392">"सर्च क्वेरी"</string>
