@@ -43,7 +43,7 @@ dependencies {
     compile(libs.junit) {
         exclude module: 'hamcrest-core'
     }
-    compile libs.mockito_core
+    compile libs.mockito_core, { exclude group: 'net.bytebuddy' }
 
     testCompile libs.junit
     testCompile libs.support.annotations

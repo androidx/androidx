@@ -73,18 +73,13 @@ dependencies {
     androidTestCompile project(':room:rxjava2')
     androidTestCompile project(':arch:core-testing')
     androidTestCompile libs.rx_java
-    androidTestImplementation(libs.test_runner) {
+    androidTestCompile(libs.test_runner) {
         exclude module: 'support-annotations'
-        exclude module: 'hamcrest-core'
-        exclude group: 'net.bytebuddy'
     }
-    androidTestImplementation(libs.espresso_core, {
+    androidTestCompile(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
-        exclude module: "hamcrest-core"
-        exclude group: 'net.bytebuddy'
     })
-    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    testCompile libs.junit
 }
 
 createAndroidCheckstyle(project)
