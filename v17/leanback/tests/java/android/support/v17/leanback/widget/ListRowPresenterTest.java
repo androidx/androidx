@@ -514,8 +514,8 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
             result.expect(false, 0, 0, false, false,
@@ -539,12 +539,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         }
     }
 
@@ -564,8 +564,8 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
             result.expect(false, 0, 0, false, false,
@@ -589,12 +589,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         }
     }
 
@@ -714,8 +714,8 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
             result.expect(false, 0, 0, false, false,
@@ -739,12 +739,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         }
     }
 
@@ -764,12 +764,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, true, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, true, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, true, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, true, true,
+                    0, 0, false, false);
         }
     }
 
@@ -789,12 +789,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, true, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, true, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, true, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, true, true,
+                    0, 0, false, false);
         }
     }
 
@@ -914,8 +914,8 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
             result.expect(false, 0, 0, false, false,
@@ -939,12 +939,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         }
     }
 
@@ -964,8 +964,8 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
             result.expect(false, 0, 0, false, false,
@@ -989,12 +989,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         }
     }
 
@@ -1114,8 +1114,8 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
             result.expect(false, 0, 0, false, false,
@@ -1139,12 +1139,12 @@ public class ListRowPresenterTest {
                     0, 0, false, false);
         } else if (version < 23) {
             // supports static/dynamic shadow, supports rounded corner
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         } else {
             // supports foreground
-            result.expect(true, HALF_OVERLAY_COLOR, 0, false, false,
-                    0, 0, false, true);
+            result.expect(true, HALF_OVERLAY_COLOR, 0, false, true,
+                    0, 0, false, false);
         }
     }
 
