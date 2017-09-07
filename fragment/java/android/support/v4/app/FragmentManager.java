@@ -1621,18 +1621,33 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator anim) {
-                    if (container != null) {
-                        container.endViewTransition(viewToAnimate);
-                    }
-                    if (fragment.getAnimator() != null) {
-                        fragment.setAnimator(null);
-                        moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0, false);
+                    // AnimatorSet in API 26 (only) can end() during start(), so delay by posting
+                    if (container == null || container.indexOfChild(viewToAnimate) < 0) {
+                        finishAnimatedFragmentRemoval(fragment, container, viewToAnimate);
+                    } else {
+                        viewToAnimate.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                finishAnimatedFragmentRemoval(fragment, container, viewToAnimate);
+                            }
+                        });
                     }
                 }
             });
             animator.setTarget(fragment.mView);
             setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
             animator.start();
+        }
+    }
+
+    void finishAnimatedFragmentRemoval(Fragment fragment, ViewGroup container, View view) {
+        if (container != null) {
+            container.endViewTransition(view);
+        }
+        if (fragment.getAnimator() != null) {
+            fragment.setAnimator(null);
+            moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0,
+                    false);
         }
     }
 
