@@ -1594,6 +1594,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     private void animateRemoveFragment(@NonNull final Fragment fragment,
             @NonNull AnimationOrAnimator anim, final int newState) {
         final View viewToAnimate = fragment.mView;
+        final ViewGroup container = fragment.mContainer;
+        container.startViewTransition(viewToAnimate);
         fragment.setStateAfterAnimating(newState);
         if (anim.animation != null) {
             Animation animation = anim.animation;
@@ -1603,6 +1605,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     super.onAnimationEnd(animation);
+                    container.endViewTransition(viewToAnimate);
+
                     if (fragment.getAnimatingAway() != null) {
                         fragment.setAnimatingAway(null);
                         moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0, false);
@@ -1614,8 +1618,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         } else {
             Animator animator = anim.animator;
             fragment.setAnimator(anim.animator);
-            final ViewGroup container = fragment.mContainer;
-            container.startViewTransition(viewToAnimate);
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator anim) {
@@ -2630,7 +2632,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     // Give up waiting for the animation and just end it.
                     final int stateAfterAnimating = fragment.getStateAfterAnimating();
                     final View animatingAway = fragment.getAnimatingAway();
-                    fragment.setAnimatingAway(null);
                     Animation animation = animatingAway.getAnimation();
                     if (animation != null) {
                         animation.cancel();
@@ -2638,6 +2639,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         // and will instead cause the animation to infinitely loop
                         animatingAway.clearAnimation();
                     }
+                    fragment.setAnimatingAway(null);
                     moveToState(fragment, stateAfterAnimating, 0, 0, false);
                 } else if (fragment.getAnimator() != null) {
                     fragment.getAnimator().end();
