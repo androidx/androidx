@@ -305,24 +305,10 @@ package android.support.v7.app {
 
   public deprecated class NotificationCompat extends android.support.v4.app.NotificationCompat {
     ctor public deprecated NotificationCompat();
-    method public static deprecated android.support.v4.media.session.MediaSessionCompat.Token getMediaSession(android.app.Notification);
   }
 
   public static deprecated class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
     ctor public deprecated NotificationCompat.Builder(android.content.Context);
-  }
-
-  public static deprecated class NotificationCompat.DecoratedMediaCustomViewStyle extends android.support.v4.media.app.NotificationCompat.DecoratedMediaCustomViewStyle {
-    ctor public deprecated NotificationCompat.DecoratedMediaCustomViewStyle();
-  }
-
-  public static deprecated class NotificationCompat.MediaStyle extends android.support.v4.media.app.NotificationCompat.MediaStyle {
-    ctor public deprecated NotificationCompat.MediaStyle();
-    ctor public deprecated NotificationCompat.MediaStyle(android.support.v4.app.NotificationCompat.Builder);
-    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setCancelButtonIntent(android.app.PendingIntent);
-    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setMediaSession(android.support.v4.media.session.MediaSessionCompat.Token);
-    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setShowActionsInCompactView(int...);
-    method public deprecated android.support.v7.app.NotificationCompat.MediaStyle setShowCancelButton(boolean);
   }
 
 }
