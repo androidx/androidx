@@ -103,6 +103,9 @@ project(':support-emoji-appcompat').projectDir = new File(rootDir, 'emoji/appcom
 include ':support-content'
 project(':support-content').projectDir = new File(rootDir, 'content')
 
+include ':car'
+project(':car').projectDir = new File(rootDir, 'car')
+
 /////////////////////////////
 //
 // Samples
