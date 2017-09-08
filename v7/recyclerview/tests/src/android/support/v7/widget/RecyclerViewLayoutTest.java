@@ -24,6 +24,7 @@ import static android.support.v7.widget.RecyclerView.getChildViewHolderInt;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -295,6 +296,201 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             }
         });
         lm.waitForLayout(2);
+    }
+
+    @Test
+    public void onDataSetChanged_doesntHaveStableIds_cachedViewHasNoPosition() throws Throwable {
+        onDataSetChanged_handleCachedViews(false);
+    }
+
+    @Test
+    public void onDataSetChanged_hasStableIds_noCachedViewsAreRecycled() throws Throwable {
+        onDataSetChanged_handleCachedViews(true);
+    }
+
+    /**
+     * If Adapter#setHasStableIds(boolean) is false, cached ViewHolders should be recycled in
+     * response to RecyclerView.Adapter#notifyDataSetChanged() and should report a position of
+     * RecyclerView#NO_POSITION inside of
+     * RecyclerView.Adapter#onViewRecycled(RecyclerView.ViewHolder).
+     *
+     * If Adapter#setHasStableIds(boolean) is true, cached Views/ViewHolders should not be recycled.
+     */
+    public void onDataSetChanged_handleCachedViews(boolean hasStableIds) throws Throwable {
+        final AtomicInteger cachedRecycleCount = new AtomicInteger(0);
+
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setItemViewCacheSize(1);
+
+        final TestAdapter adapter = new TestAdapter(2) {
+            @Override
+            public void onViewRecycled(TestViewHolder holder) {
+                // If the recycled holder is currently in the cache, then it's position in the
+                // adapter should be RecyclerView.NO_POSITION.
+                if (mRecyclerView.mRecycler.mCachedViews.contains(holder)) {
+                    assertThat("ViewHolder's getAdapterPosition should be "
+                                    + "RecyclerView.NO_POSITION",
+                            holder.getAdapterPosition(),
+                            is(RecyclerView.NO_POSITION));
+                    cachedRecycleCount.incrementAndGet();
+                }
+                super.onViewRecycled(holder);
+            }
+        };
+        adapter.setHasStableIds(hasStableIds);
+        recyclerView.setAdapter(adapter);
+
+        final AtomicInteger numItemsToLayout = new AtomicInteger(2);
+
+        TestLayoutManager layoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    detachAndScrapAttachedViews(recycler);
+                    layoutRange(recycler, 0, numItemsToLayout.get());
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    this.layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
+        recyclerView.setLayoutManager(layoutManager);
+
+        // Layout 2 items and sanity check that no items are in the recycler's cache.
+        numItemsToLayout.set(2);
+        layoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView, true, false);
+        layoutManager.waitForLayout(2);
+        checkForMainThreadException();
+        assertThat("Sanity check, no views should be cached at this time",
+                mRecyclerView.mRecycler.mCachedViews.size(),
+                is(0));
+
+        // Now only layout 1 item and assert that 1 item is cached.
+        numItemsToLayout.set(1);
+        layoutManager.expectLayouts(1);
+        requestLayoutOnUIThread(mRecyclerView);
+        layoutManager.waitForLayout(1);
+        checkForMainThreadException();
+        assertThat("One view should be cached.",
+                mRecyclerView.mRecycler.mCachedViews.size(),
+                is(1));
+
+        // Notify data set has changed then final assert.
+        layoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+            }
+        });
+        layoutManager.waitForLayout(1);
+        checkForMainThreadException();
+        // If hasStableIds, then no cached views should be recycled, otherwise just 1 should have
+        // been recycled.
+        assertThat(cachedRecycleCount.get(), is(hasStableIds ? 0 : 1));
+    }
+
+    @Test
+    public void notifyDataSetChanged_hasStableIds_cachedViewsAreReusedForSamePositions()
+            throws Throwable {
+        final Map<Integer, TestViewHolder> positionToViewHolderMap = new HashMap<>();
+        final AtomicInteger layoutItemCount = new AtomicInteger();
+        final AtomicBoolean inFirstBindViewHolderPass = new AtomicBoolean();
+
+        final RecyclerView recyclerView = new RecyclerView(getActivity());
+        recyclerView.setItemViewCacheSize(5);
+
+        final TestAdapter adapter = new TestAdapter(10) {
+            @Override
+            public void onBindViewHolder(TestViewHolder holder, int position) {
+                // Only track the top 5 positions that are going to be cached and then reused.
+                if (position >= 5) {
+                    // If we are in the first phase, put the items in the map, if we are in the
+                    // second phase, remove each one at the position and verify that it matches the
+                    // provided ViewHolder.
+                    if (inFirstBindViewHolderPass.get()) {
+                        positionToViewHolderMap.put(position, holder);
+                    } else {
+                        TestViewHolder testViewHolder = positionToViewHolderMap.get(position);
+                        assertThat(holder, is(testViewHolder));
+                        positionToViewHolderMap.remove(position);
+                    }
+                }
+                super.onBindViewHolder(holder, position);
+            }
+        };
+        adapter.setHasStableIds(true);
+        recyclerView.setAdapter(adapter);
+
+        TestLayoutManager testLayoutManager = new TestLayoutManager() {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                try {
+                    detachAndScrapAttachedViews(recycler);
+                    layoutRange(recycler, 0, layoutItemCount.get());
+                } catch (Throwable t) {
+                    postExceptionToInstrumentation(t);
+                } finally {
+                    layoutLatch.countDown();
+                }
+            }
+
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return false;
+            }
+        };
+        recyclerView.setLayoutManager(testLayoutManager);
+
+        // First layout 10 items, then verify that the map has all 5 ViewHolders in it that will
+        // be cached, and sanity check that the cache is empty.
+        inFirstBindViewHolderPass.set(true);
+        layoutItemCount.set(10);
+        testLayoutManager.expectLayouts(1);
+        setRecyclerView(recyclerView, true, false);
+        testLayoutManager.waitForLayout(2);
+        checkForMainThreadException();
+        for (int i = 5; i < 10; i++) {
+            assertThat(positionToViewHolderMap.get(i), notNullValue());
+        }
+        assertThat(mRecyclerView.mRecycler.mCachedViews.size(), is(0));
+
+        // Now only layout the first 5 items and verify that the cache has 5 items in it.
+        layoutItemCount.set(5);
+        testLayoutManager.expectLayouts(1);
+        requestLayoutOnUIThread(mRecyclerView);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+        assertThat(mRecyclerView.mRecycler.mCachedViews.size(), is(5));
+
+        // Trigger notifyDataSetChanged and wait for layout.
+        testLayoutManager.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+            }
+        });
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+
+        // Layout 10 items again, via the onBindViewholder method, check that each one of the views
+        // returned from the recycler for positions >= 5 was in our cache of views, and verify that
+        // all 5 cached views were returned.
+        inFirstBindViewHolderPass.set(false);
+        layoutItemCount.set(10);
+        testLayoutManager.expectLayouts(1);
+        requestLayoutOnUIThread(mRecyclerView);
+        testLayoutManager.waitForLayout(1);
+        checkForMainThreadException();
+        assertThat(positionToViewHolderMap.size(), is(0));
     }
 
     @Test
