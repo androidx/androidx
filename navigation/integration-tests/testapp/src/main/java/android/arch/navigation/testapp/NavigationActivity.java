@@ -20,6 +20,7 @@ import android.arch.navigation.NavController;
 import android.arch.navigation.NavDestination;
 import android.arch.navigation.NavHostFragment;
 import android.arch.navigation.Navigation;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -60,7 +61,12 @@ public class NavigationActivity extends AppCompatActivity {
             navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
                 @Override
                 public void onNavigated(NavController controller, NavDestination destination) {
-                    String dest = getResources().getResourceName(destination.getId());
+                    String dest;
+                    try {
+                        dest = getResources().getResourceName(destination.getId());
+                    } catch (Resources.NotFoundException e) {
+                        dest = Integer.toString(destination.getId());
+                    }
                     Toast.makeText(NavigationActivity.this, "Navigated to "
                             + dest,
                             Toast.LENGTH_SHORT).show();

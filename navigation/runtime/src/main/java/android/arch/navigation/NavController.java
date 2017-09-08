@@ -82,7 +82,7 @@ public class NavController implements NavigatorProvider {
                         if (newDest == null) {
                             throw new IllegalArgumentException("Navigator " + navigator
                                     + " reported navigation to unknown destination id "
-                                    + mContext.getResources().getResourceName(destId));
+                                    + Navigation.getDisplayName(mContext, destId));
                         }
                         switch (backStackEffect) {
                             case Navigator.BACK_STACK_DESTINATION_POPPED:
@@ -473,7 +473,7 @@ public class NavController implements NavigatorProvider {
                 NavDestination node = findDestination(destinationId);
                 if (node == null) {
                     throw new IllegalStateException("unknown destination during deep link: "
-                            + mContext.getResources().getResourceName(destinationId));
+                            + Navigation.getDisplayName(mContext, destinationId));
                 }
                 node.navigate(bundle,
                         new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build());
@@ -487,7 +487,7 @@ public class NavController implements NavigatorProvider {
             NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
             if (node == null) {
                 throw new IllegalStateException("unknown destination during deep link: "
-                        + mContext.getResources().getResourceName(destinationId));
+                        + Navigation.getDisplayName(mContext, destinationId));
             }
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
@@ -585,10 +585,10 @@ public class NavController implements NavigatorProvider {
         }
         NavDestination node = findDestination(destId);
         if (node == null) {
-            final String dest = mContext.getResources().getResourceName(destId);
+            final String dest = Navigation.getDisplayName(mContext, destId);
             throw new IllegalArgumentException("navigation destination " + dest
                     + (navAction != null
-                    ? " referenced from action " + mContext.getResources().getResourceName(resId)
+                    ? " referenced from action " + Navigation.getDisplayName(mContext, resId)
                     : "")
                     + " is unknown to this NavController");
         }
@@ -693,7 +693,7 @@ public class NavController implements NavigatorProvider {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NavDestination node = findDestination(destId);
         if (node == null) {
-            final String dest = mContext.getResources().getResourceName(destId);
+            final String dest = Navigation.getDisplayName(mContext, destId);
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is unknown to this NavController");
         }
@@ -774,7 +774,7 @@ public class NavController implements NavigatorProvider {
                 NavDestination node = findDestination(destinationId);
                 if (node == null) {
                     throw new IllegalStateException("unknown destination during restore: "
-                            + mContext.getResources().getResourceName(destinationId));
+                            + Navigation.getDisplayName(mContext, destinationId));
                 }
                 mBackStack.add(node);
             }
