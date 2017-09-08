@@ -6339,16 +6339,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
         }
 
         void markKnownViewsInvalid() {
-            if (mAdapter != null && mAdapter.hasStableIds()) {
-                final int cachedCount = mCachedViews.size();
-                for (int i = 0; i < cachedCount; i++) {
-                    final ViewHolder holder = mCachedViews.get(i);
-                    if (holder != null) {
-                        holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
-                        holder.addChangePayload(null);
-                    }
+            final int cachedCount = mCachedViews.size();
+            for (int i = 0; i < cachedCount; i++) {
+                final ViewHolder holder = mCachedViews.get(i);
+                if (holder != null) {
+                    holder.addFlags(ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID);
+                    holder.addChangePayload(null);
                 }
-            } else {
+            }
+
+            if (mAdapter == null || !mAdapter.hasStableIds()) {
                 // we cannot re-use cached views in this case. Recycle them all
                 recycleAndClearCachedViews();
             }
