@@ -76,7 +76,7 @@ public abstract class PositionalDataSource<Value> extends ContiguousDataSource<I
 
         int count = COUNT_UNDEFINED;
         if (enablePlaceholders) {
-            count = loadCount();
+            count = countItems();
         }
         List<Value> data = loadAfter(loadPosition, initialLoadSize);
         if (count == COUNT_UNDEFINED) {

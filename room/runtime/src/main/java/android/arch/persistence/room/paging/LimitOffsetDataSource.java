@@ -65,7 +65,7 @@ public abstract class LimitOffsetDataSource<T> extends TiledDataSource<T> {
     }
 
     @Override
-    public int loadCount() {
+    public int countItems() {
         final RoomSQLiteQuery sqLiteQuery = RoomSQLiteQuery.acquire(mCountQuery,
                 mSourceQuery.getArgCount());
         sqLiteQuery.copyArgumentsFrom(mSourceQuery);

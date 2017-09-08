@@ -20,9 +20,6 @@ import android.support.SupportLibraryExtension;
 apply plugin: android.support.SupportJavaLibraryPlugin
 apply plugin: 'kotlin'
 
-// disable paging for now.
-project.ext.noDocs = true
-
 dependencies {
     compile libs.support.annotations
     compile project(":arch:common")

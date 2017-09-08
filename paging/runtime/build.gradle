@@ -19,9 +19,6 @@ import android.support.SupportLibraryExtension
 
 apply plugin: android.support.FlatfootAndroidLibraryPlugin
 
-// disable paging for now.
-project.ext.noDocs = true
-
 android {
     compileSdkVersion tools.current_sdk
     buildToolsVersion tools.build_tools_version
