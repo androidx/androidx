@@ -109,8 +109,8 @@ public class NullPaddedList<Type> extends PagedList<Type> {
 
     @Override
     public Type get(int index) {
-        if (index >= size()) {
-            throw new IllegalArgumentException();
+        if (index < 0 || index >= size()) {
+            throw new IndexOutOfBoundsException();
         }
 
         index -= mLeadingNullCount;
