@@ -245,7 +245,7 @@ public class ListRowPresenter extends RowPresenter {
 
         @Override
         public void onBind(final ItemBridgeAdapter.ViewHolder viewHolder) {
-            // Only when having an OnItemClickListner, we will attach the OnClickListener.
+            // Only when having an OnItemClickListener, we will attach the OnClickListener.
             if (mRowViewHolder.getOnItemViewClickedListener() != null) {
                 viewHolder.mHolder.view.setOnClickListener(new View.OnClickListener() {
                     @Override
