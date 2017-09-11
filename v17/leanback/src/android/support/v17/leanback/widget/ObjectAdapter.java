@@ -43,9 +43,21 @@ public abstract class ObjectAdapter {
          * basic ordering and structure of the ObjectAdapter has not changed.
          *
          * @param positionStart The position of the first item that changed.
-         * @param itemCount The number of items changed.
+         * @param itemCount     The number of items changed.
          */
         public void onItemRangeChanged(int positionStart, int itemCount) {
+            onChanged();
+        }
+
+        /**
+         * Called when a range of items in the ObjectAdapter has changed. The
+         * basic ordering and structure of the ObjectAdapter has not changed.
+         *
+         * @param positionStart The position of the first item that changed.
+         * @param itemCount     The number of items changed.
+         * @param payload       Optional parameter, use null to identify a "full" update.
+         */
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
             onChanged();
         }
 
@@ -53,7 +65,7 @@ public abstract class ObjectAdapter {
          * Called when a range of items is inserted into the ObjectAdapter.
          *
          * @param positionStart The position of the first inserted item.
-         * @param itemCount The number of items inserted.
+         * @param itemCount     The number of items inserted.
          */
         public void onItemRangeInserted(int positionStart, int itemCount) {
             onChanged();
@@ -61,8 +73,9 @@ public abstract class ObjectAdapter {
 
         /**
          * Called when an item is moved from one position to another position
+         *
          * @param fromPosition Previous position of the item.
-         * @param toPosition New position of the item.
+         * @param toPosition   New position of the item.
          */
         public void onItemMoved(int fromPosition, int toPosition) {
             onChanged();
@@ -72,7 +85,7 @@ public abstract class ObjectAdapter {
          * Called when a range of items is removed from the ObjectAdapter.
          *
          * @param positionStart The position of the first removed item.
-         * @param itemCount The number of items removed.
+         * @param itemCount     The number of items removed.
          */
         public void onItemRangeRemoved(int positionStart, int itemCount) {
             onChanged();
@@ -93,6 +106,12 @@ public abstract class ObjectAdapter {
         public void notifyItemRangeChanged(int positionStart, int itemCount) {
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onItemRangeChanged(positionStart, itemCount);
+            }
+        }
+
+        public void notifyItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onItemRangeChanged(positionStart, itemCount, payload);
             }
         }
 
@@ -198,17 +217,28 @@ public abstract class ObjectAdapter {
      * Notifies UI that some items has changed.
      *
      * @param positionStart Starting position of the changed items.
-     * @param itemCount Total number of items that changed.
+     * @param itemCount     Total number of items that changed.
      */
     public final void notifyItemRangeChanged(int positionStart, int itemCount) {
         mObservable.notifyItemRangeChanged(positionStart, itemCount);
     }
 
     /**
+     * Notifies UI that some items has changed.
+     *
+     * @param positionStart Starting position of the changed items.
+     * @param itemCount     Total number of items that changed.
+     * @param payload       Optional parameter, use null to identify a "full" update.
+     */
+    public final void notifyItemRangeChanged(int positionStart, int itemCount, Object payload) {
+        mObservable.notifyItemRangeChanged(positionStart, itemCount, payload);
+    }
+
+    /**
      * Notifies UI that new items has been inserted.
      *
      * @param positionStart Position where new items has been inserted.
-     * @param itemCount Count of the new items has been inserted.
+     * @param itemCount     Count of the new items has been inserted.
      */
     final protected void notifyItemRangeInserted(int positionStart, int itemCount) {
         mObservable.notifyItemRangeInserted(positionStart, itemCount);
@@ -218,7 +248,7 @@ public abstract class ObjectAdapter {
      * Notifies UI that some items that has been removed.
      *
      * @param positionStart Starting position of the removed items.
-     * @param itemCount Total number of items that has been removed.
+     * @param itemCount     Total number of items that has been removed.
      */
     final protected void notifyItemRangeRemoved(int positionStart, int itemCount) {
         mObservable.notifyItemRangeRemoved(positionStart, itemCount);
@@ -228,7 +258,7 @@ public abstract class ObjectAdapter {
      * Notifies UI that item at fromPosition has been moved to toPosition.
      *
      * @param fromPosition Previous position of the item.
-     * @param toPosition New position of the item.
+     * @param toPosition   New position of the item.
      */
     protected final void notifyItemMoved(int fromPosition, int toPosition) {
         mObservable.notifyItemMoved(fromPosition, toPosition);
