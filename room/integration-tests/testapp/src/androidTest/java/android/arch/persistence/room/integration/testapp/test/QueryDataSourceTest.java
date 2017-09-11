@@ -137,16 +137,16 @@ public class QueryDataSourceTest extends TestDatabaseTest {
 
         Object key;
         if (dataSource instanceof PositionalDataSource) {
-            // start at 15
-            key = 15;
+            // start at 15 by loading 10 items around key 20
+            key = 20;
         } else {
-            // start at 15 by loading after 14
+            // start at 15 by loading 10 items around key 19 (note, keyed is exclusive, pos isn't)
             KeyedDataSource<String, User> keyedDataSource =
                     (KeyedDataSource<String, User>) dataSource;
-            key = keyedDataSource.getKey(expected[14]);
+            key = keyedDataSource.getKey(expected[19]);
         }
         @SuppressWarnings("unchecked")
-        NullPaddedList<User> initial = dataSource.loadInitial((Key) key, 10);
+        NullPaddedList<User> initial = dataSource.loadInitial((Key) key, 10, true);
 
         assertNotNull(initial);
         assertEquals(15, initial.getLeadingNullCount());

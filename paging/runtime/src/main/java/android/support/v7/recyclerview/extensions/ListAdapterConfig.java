@@ -20,13 +20,22 @@ import android.arch.core.executor.AppToolkitTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-public final class ListAdapterConfig<Value> {
+/**
+ * Configuration object for {@link ListAdapter}, {@link ListAdapterHelper}, and similar
+ * background-thread list diffing adapter logic.
+ * <p>
+ * At minimum, defines item diffing behavior with a {@link DiffCallback}, used to compute item
+ * differences to pass to a RecyclerView adapter.
+ *
+ * @param <T> Type of items in the lists, and being compared.
+ */
+public final class ListAdapterConfig<T> {
     private final Executor mMainThreadExecutor;
     private final Executor mBackgroundThreadExecutor;
-    private final DiffCallback<Value> mDiffCallback;
+    private final DiffCallback<T> mDiffCallback;
 
     private ListAdapterConfig(Executor mainThreadExecutor, Executor backgroundThreadExecutor,
-            DiffCallback<Value> diffCallback) {
+            DiffCallback<T> diffCallback) {
         mMainThreadExecutor = mainThreadExecutor;
         mBackgroundThreadExecutor = backgroundThreadExecutor;
         mDiffCallback = diffCallback;
@@ -40,14 +49,21 @@ public final class ListAdapterConfig<Value> {
         return mBackgroundThreadExecutor;
     }
 
-    public DiffCallback<Value> getDiffCallback() {
+    public DiffCallback<T> getDiffCallback() {
         return mDiffCallback;
     }
 
-    public static class Builder<Value> {
+    /**
+     * Builder class for {@link ListAdapterConfig}.
+     * <p>
+     * You must at minimum specify a DiffCallback with {@link #setDiffCallback(DiffCallback)}
+     *
+     * @param <T>
+     */
+    public static class Builder<T> {
         private Executor mMainThreadExecutor;
         private Executor mBackgroundThreadExecutor;
-        private DiffCallback<Value> mDiffCallback;
+        private DiffCallback<T> mDiffCallback;
 
         /**
          * The {@link DiffCallback} to be used while diffing an old list with the updated one.
@@ -57,14 +73,14 @@ public final class ListAdapterConfig<Value> {
          * @return this
          */
         @SuppressWarnings("WeakerAccess")
-        public ListAdapterConfig.Builder<Value> setDiffCallback(DiffCallback<Value> diffCallback) {
+        public ListAdapterConfig.Builder<T> setDiffCallback(DiffCallback<T> diffCallback) {
             mDiffCallback = diffCallback;
             return this;
         }
 
         /**
-         * If provided, {@link ListAdapterHelper} will use the given executor to execute
-         * adapter update notifications on the main thread.
+         * If provided, defines the main thread executor used to dispatch adapter update
+         * notifications on the main thread.
          * <p>
          * If not provided, it will default to the UI thread.
          *
@@ -72,14 +88,14 @@ public final class ListAdapterConfig<Value> {
          * @return this
          */
         @SuppressWarnings("unused")
-        public ListAdapterConfig.Builder<Value> setMainThreadExecutor(Executor executor) {
+        public ListAdapterConfig.Builder<T> setMainThreadExecutor(Executor executor) {
             mMainThreadExecutor = executor;
             return this;
         }
 
         /**
-         * If provided, {@link ListAdapterHelper} will use the given executor to calculate the
-         * diff between an old and a new list.
+         * If provided, defines the background executor used to calculate the diff between an old
+         * and a new list.
          * <p>
          * If not provided, defaults to the IO thread pool from Architecture Components.
          *
@@ -87,7 +103,7 @@ public final class ListAdapterConfig<Value> {
          * @return this
          */
         @SuppressWarnings("unused")
-        public ListAdapterConfig.Builder<Value> setBackgroundThreadExecutor(Executor executor) {
+        public ListAdapterConfig.Builder<T> setBackgroundThreadExecutor(Executor executor) {
             mBackgroundThreadExecutor = executor;
             return this;
         }
@@ -95,9 +111,9 @@ public final class ListAdapterConfig<Value> {
         /**
          * Creates a {@link ListAdapterHelper} with the given parameters.
          *
-         * @return A new ListAdapterHelper.
+         * @return A new ListAdapterConfig.
          */
-        public ListAdapterConfig<Value> build() {
+        public ListAdapterConfig<T> build() {
             if (mDiffCallback == null) {
                 throw new IllegalArgumentException("Must provide a diffCallback");
             }
