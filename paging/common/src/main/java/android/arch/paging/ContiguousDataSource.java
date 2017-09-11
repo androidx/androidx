@@ -26,8 +26,6 @@ import java.util.List;
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, Value> {
-    int mCount = Integer.MIN_VALUE;
-
     /**
      * Number of items that this DataSource can provide in total, or COUNT_UNDEFINED.
      *
@@ -45,7 +43,8 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
 
     @WorkerThread
     @Nullable
-    public abstract NullPaddedList<Value> loadInitial(Key key, int initialLoadSize);
+    public abstract NullPaddedList<Value> loadInitial(
+            Key key, int initialLoadSize, boolean enablePlaceholders);
 
     /**
      * Load data after the given position / item.
@@ -62,7 +61,20 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
      */
     @WorkerThread
     @Nullable
-    public abstract List<Value> loadAfter(int currentEndIndex,
+    public final List<Value> loadAfter(int currentEndIndex,
+            @NonNull Value currentEndItem, int pageSize) {
+        if (isInvalid()) {
+            return null;
+        }
+        List<Value> list = loadAfterImpl(currentEndIndex, currentEndItem, pageSize);
+        if (isInvalid()) {
+            return null;
+        }
+        return list;
+    }
+
+    @Nullable
+    abstract List<Value> loadAfterImpl(int currentEndIndex,
             @NonNull Value currentEndItem, int pageSize);
 
     /**
@@ -79,6 +91,27 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
      */
     @WorkerThread
     @Nullable
-    public abstract List<Value> loadBefore(int currentBeginIndex,
+    public final List<Value> loadBefore(int currentBeginIndex,
+            @NonNull Value currentBeginItem, int pageSize) {
+        if (isInvalid()) {
+            return null;
+        }
+        List<Value> list = loadBeforeImpl(currentBeginIndex, currentBeginItem, pageSize);
+        if (isInvalid()) {
+            return null;
+        }
+        return list;
+
+    }
+
+    @Nullable
+    abstract List<Value> loadBeforeImpl(int currentBeginIndex,
             @NonNull Value currentBeginItem, int pageSize);
+
+    /**
+     * Get the key from either the position, or item. Position may not match passed item's position,
+     * if trying to query the key from a position that isn't yet loaded, so a fallback item must be
+     * used.
+     */
+    abstract Key getKey(int position, Value item);
 }

@@ -143,4 +143,18 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
     public int getItemCount() {
         return mHelper.getItemCount();
     }
+
+    /**
+     * Returns the list currently being displayed by the Adapter.
+     * <p>
+     * This is not necessarily the most recent list passed to {@link #setList(PagedList)}, because a
+     * diff is computed asynchronously between the new list and the current list before updating the
+     * currentList value.
+     *
+     * @return The list currently being displayed.
+     */
+    @Nullable
+    public PagedList<T> getCurrentList() {
+        return mHelper.getCurrentList();
+    }
 }

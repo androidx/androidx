@@ -144,13 +144,13 @@ public class ContiguousPagedListTest {
     @Test
     public void initialLoad() {
         verifyRange(30, 40,
-                new TestSource().loadInitial(30, 40));
+                new TestSource().loadInitial(50, 40, true));
 
         verifyRange(0, 10,
-                new TestSource().loadInitial(0, 10));
+                new TestSource().loadInitial(5, 10, true));
 
         verifyRange(90, 10,
-                new TestSource().loadInitial(90, 10));
+                new TestSource().loadInitial(95, 10, true));
     }
 
 
@@ -192,7 +192,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void prepend() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(60);
+        ContiguousPagedList<Item> pagedList = createCountedPagedList(80);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(null, callback);
         verifyRange(60, 40, pagedList);
@@ -208,7 +208,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void outwards() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(30);
+        ContiguousPagedList<Item> pagedList = createCountedPagedList(50);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addCallback(null, callback);
         verifyRange(30, 40, pagedList);
@@ -300,7 +300,7 @@ public class ContiguousPagedListTest {
 
     @Test
     public void prependCallbackAddedLate() {
-        ContiguousPagedList<Item> pagedList = createCountedPagedList(60);
+        ContiguousPagedList<Item> pagedList = createCountedPagedList(80);
         verifyRange(60, 40, pagedList);
 
         pagedList.loadAround(mCounted ? 65 : 5);
