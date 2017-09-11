@@ -20,10 +20,14 @@ import android.app.Application;
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.DataSource;
+import android.arch.paging.LivePagedListProvider;
 import android.arch.paging.PagedList;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.database.Customer;
+import android.arch.persistence.room.integration.testapp.database.LastNameAscCustomerDataSource;
 import android.arch.persistence.room.integration.testapp.database.SampleDatabase;
+import android.support.annotation.WorkerThread;
 
 import java.util.UUID;
 
@@ -33,37 +37,75 @@ import java.util.UUID;
 public class CustomerViewModel extends AndroidViewModel {
     private SampleDatabase mDatabase;
     private LiveData<PagedList<Customer>> mLiveCustomerList;
-    private static int sCustomerId = 0;
 
     public CustomerViewModel(Application application) {
         super(application);
         createDb();
-        mLiveCustomerList = mDatabase.getCustomerDao().loadPagedAgeOrder().create(0, 10);
     }
 
     private void createDb() {
-        mDatabase = Room.inMemoryDatabaseBuilder(this.getApplication(),
-                SampleDatabase.class).build();
+        mDatabase = Room.databaseBuilder(this.getApplication(),
+                SampleDatabase.class, "customerDatabase").build();
+
+        AppToolkitTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
+            @Override
+            public void run() {
+                // fill with some simple data
+                int customerCount = mDatabase.getCustomerDao().countCustomers();
+                if (customerCount == 0) {
+                    Customer[] initialCustomers = new Customer[10];
+                    for (int i = 0; i < 10; i++) {
+                        initialCustomers[i] = createCustomer();
+                    }
+                    mDatabase.getCustomerDao().insertAll(initialCustomers);
+                }
+
+            }
+        });
     }
 
-    public void setDatabase(SampleDatabase database) {
-        mDatabase = database;
+    @WorkerThread
+    private Customer createCustomer() {
+        Customer customer = new Customer();
+        customer.setName(UUID.randomUUID().toString());
+        customer.setLastName(UUID.randomUUID().toString());
+        return customer;
     }
 
     void insertCustomer() {
         AppToolkitTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
             @Override
             public void run() {
-                Customer customer = new Customer();
-                customer.setId(sCustomerId++);
-                customer.setName(UUID.randomUUID().toString());
-                customer.setLastName(UUID.randomUUID().toString());
-                mDatabase.getCustomerDao().insert(customer);
+                mDatabase.getCustomerDao().insert(createCustomer());
             }
         });
     }
 
-    LiveData<PagedList<Customer>> getLivePagedList() {
+    LiveData<PagedList<Customer>> getLivePagedList(int position) {
+        if (mLiveCustomerList == null) {
+            mLiveCustomerList = mDatabase.getCustomerDao()
+                    .loadPagedAgeOrder().create(position,
+                            new PagedList.Config.Builder()
+                                    .setPageSize(10)
+                                    .setEnablePlaceholders(false)
+                                    .build());
+        }
+        return mLiveCustomerList;
+    }
+
+    LiveData<PagedList<Customer>> getLivePagedList(String key) {
+        if (mLiveCustomerList == null) {
+            mLiveCustomerList = new LivePagedListProvider<String, Customer>() {
+                @Override
+                protected DataSource<String, Customer> createDataSource() {
+                    return new LastNameAscCustomerDataSource(mDatabase);
+                }
+            }.create(key,
+                    new PagedList.Config.Builder()
+                            .setPageSize(10)
+                            .setEnablePlaceholders(false)
+                            .build());
+        }
         return mLiveCustomerList;
     }
 }

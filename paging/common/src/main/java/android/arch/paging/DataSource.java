@@ -35,6 +35,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Use TiledDataSource if you can load arbitrary pages based solely on position information, and
  * can provide a fixed item count. TiledDataSource supports querying pages at arbitrary positions,
  * so can provide data to PagedLists in arbitrary order.
+ * <p>
+ * Because a <code>null</code> item indicates a placeholder in {@link PagedList}, DataSource may not
+ * return <code>null</code> items in lists that it loads. This is so that users of the PagedList
+ * can differentiate unloaded placeholder items from content that has been paged in.
  *
  * @param <Key> Input used to trigger initial load from the DataSource. Often an Integer position.
  * @param <Value> Value type loaded by the DataSource.
@@ -55,10 +59,10 @@ public abstract class DataSource<Key, Value> {
     public static int COUNT_UNDEFINED = -1;
 
     /**
-     * Number of items that this DataSource can provide in total, or COUNT_UNDEFINED.
+     * Number of items that this DataSource can provide in total, or {@link #COUNT_UNDEFINED}.
      *
-     * @return number of items that this DataSource can provide in total, or COUNT_UNDEFINED
-     * if difficult or undesired to compute.
+     * @return number of items that this DataSource can provide in total, or
+     * {@link #COUNT_UNDEFINED} if expensive or undesired to compute.
      */
     public abstract int loadCount();
 

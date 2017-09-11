@@ -96,19 +96,10 @@ public abstract class LivePagedListProvider<Key, Value> {
 
             @Override
             protected PagedList<Value> compute() {
-                @Nullable Key initializeKey;
-                if (mList == null || mDataSource == null) {
-                    initializeKey = initialLoadKey;
-                } else if (mList.size() == 0) {
-                    initializeKey = null;
-                } else {
-                    if (mDataSource.isContiguous() && mDataSource instanceof KeyedDataSource) {
-                        KeyedDataSource<Key, Value> keyedDataSource =
-                                (KeyedDataSource<Key, Value>) mDataSource;
-                        initializeKey = keyedDataSource.getKey(mList.getLastItem());
-                    } else {
-                        initializeKey = (Key) ((Integer) mList.getLastLoad());
-                    }
+                @Nullable Key initializeKey = initialLoadKey;
+                if (mList != null) {
+                    //noinspection unchecked
+                    initializeKey = (Key) mList.getLastKey();
                 }
 
                 do {

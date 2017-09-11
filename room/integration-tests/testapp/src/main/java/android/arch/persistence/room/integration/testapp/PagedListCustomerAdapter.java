@@ -16,8 +16,12 @@
 
 package android.arch.persistence.room.integration.testapp;
 
+import android.arch.paging.PagedList;
 import android.arch.paging.PagedListAdapter;
 import android.arch.persistence.room.integration.testapp.database.Customer;
+import android.arch.persistence.room.integration.testapp.database.LastNameAscCustomerDataSource;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,8 +30,21 @@ import android.widget.TextView;
  * Sample adapter which uses a PagedListAdapterHelper.
  */
 class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.ViewHolder> {
+    private RecyclerView mRecyclerView;
+    private boolean mSetObserved;
+    private int mScrollToPosition = -1;
+    private String mScrollToKey = null;
+
     PagedListCustomerAdapter() {
         super(Customer.DIFF_CALLBACK);
+    }
+
+    void setScrollToPosition(int position) {
+        mScrollToPosition = position;
+    }
+
+    void setScrollToKey(String key) {
+        mScrollToKey = key;
     }
 
     @Override
@@ -43,9 +60,55 @@ class PagedListCustomerAdapter extends PagedListAdapter<Customer, RecyclerView.V
         Customer customer = getItem(position);
 
         if (customer != null) {
-            ((TextView) (holder.itemView)).setText(customer.getName());
+            ((TextView) (holder.itemView)).setText(customer.getId() + " " + customer.getLastName());
         } else {
             ((TextView) (holder.itemView)).setText(R.string.loading);
         }
+    }
+
+    private static int findKeyInPagedList(@NonNull String key, @NonNull PagedList<Customer> list) {
+        for (int i = 0; i < list.size(); i++) {
+            @Nullable Customer customer = list.get(i);
+            if (customer != null
+                    && LastNameAscCustomerDataSource.getKeyStatic(customer).equals(key)) {
+                return i;
+            }
+        }
+        return 0; // couldn't find, fall back to 0 - could alternately search with comparator
+    }
+
+    @Override
+    public void setList(PagedList<Customer> pagedList) {
+        super.setList(pagedList);
+
+        if (pagedList != null) {
+            final boolean firstSet = !mSetObserved;
+            mSetObserved = true;
+
+            if (firstSet
+                    && mRecyclerView != null
+                    && (mScrollToPosition >= 0 || mScrollToKey != null)) {
+                int localScrollToPosition;
+                if (mScrollToKey != null) {
+                    localScrollToPosition = findKeyInPagedList(mScrollToKey, pagedList);
+                    mScrollToKey = null;
+                } else {
+                    // if there's 20 items unloaded items (without placeholders holding the spots)
+                    // at the beginning of list, we subtract 20 from saved position
+                    localScrollToPosition = mScrollToPosition - pagedList.getPositionOffset();
+                }
+                mRecyclerView.scrollToPosition(localScrollToPosition);
+            }
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        mRecyclerView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        mRecyclerView = null;
     }
 }

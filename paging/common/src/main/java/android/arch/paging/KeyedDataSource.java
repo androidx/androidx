@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import java.util.List;
  * attributes of the item such just before the next query define how to execute it.
  * <p>
  * A compute usage pattern with Room SQL queries would look like this (though note, Room plans to
- * provide generation of some of this code in the future):
+ * provide generation of much of this code in the future):
  * <pre>
  * {@literal @}Dao
  * interface UserDao {
@@ -77,65 +78,99 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
         return 0; // method not called, can't be overridden
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     @Override
-    public List<Value> loadAfter(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
+    List<Value> loadAfterImpl(int currentEndIndex, @NonNull Value currentEndItem, int pageSize) {
         return loadAfter(getKey(currentEndItem), pageSize);
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     @Override
-    public List<Value> loadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
-            int pageSize) {
+    List<Value> loadBeforeImpl(
+            int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize) {
         return loadBefore(getKey(currentBeginItem), pageSize);
+    }
+
+    @Nullable
+    private NullPaddedList<Value> loadInitialInternal(
+            @Nullable Key key, int initialLoadSize, boolean enablePlaceholders) {
+        List<Value> list;
+        if (key == null) {
+            // no key, so load initial.
+            list = loadInitial(initialLoadSize);
+            if (list == null) {
+                return null;
+            }
+        } else {
+            List<Value> after = loadAfter(key, initialLoadSize / 2);
+            if (after == null) {
+                return null;
+            }
+
+            Key loadBeforeKey = after.isEmpty() ? key : getKey(after.get(0));
+            List<Value> before = loadBefore(loadBeforeKey, initialLoadSize / 2);
+            if (before == null) {
+                return null;
+            }
+            if (!after.isEmpty() || !before.isEmpty()) {
+                // one of the lists has data
+                if (after.isEmpty()) {
+                    // retry loading after, since it may be that the key passed points to the end of
+                    // the list, so we need to load after the last item in the before list
+                    after = loadAfter(getKey(before.get(0)), initialLoadSize / 2);
+                    if (after == null) {
+                        return null;
+                    }
+                }
+                // assemble full list
+                list = new ArrayList<>();
+                list.addAll(before);
+                // Note - we reverse the list instead of before, in case before is immutable
+                Collections.reverse(list);
+                list.addAll(after);
+            } else {
+                // load before(key) and load after(key) failed - try load initial to be *sure* we
+                // catch the case where there's only one item, which is loaded by the key case
+                list = loadInitial(initialLoadSize);
+                if (list == null) {
+                    return null;
+                }
+            }
+        }
+
+        if (list.isEmpty()) {
+            // wasn't able to load any items, so publish an unpadded empty list.
+            return new NullPaddedList<>(0, Collections.<Value>emptyList());
+        }
+
+        int itemsBefore = COUNT_UNDEFINED;
+        int itemsAfter = COUNT_UNDEFINED;
+        if (enablePlaceholders) {
+            itemsBefore = countItemsBefore(getKey(list.get(0)));
+            itemsAfter = countItemsAfter(getKey(list.get(list.size() - 1)));
+            if (isInvalid()) {
+                return null;
+            }
+        }
+        if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
+            return new NullPaddedList<>(0, list, 0);
+        } else {
+            return new NullPaddedList<>(itemsBefore, list, itemsAfter);
+        }
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Nullable
-    @WorkerThread
-    public NullPaddedList<Value> loadInitial(@Nullable Key key, int initialLoadSize) {
-        List<Value> after;
-        if (key == null) {
-            // no key, so load initial.
-            after = loadInitial(initialLoadSize);
-            if (after == null) {
-                return null;
-            }
-        } else {
-            after = loadAfter(key, initialLoadSize);
-            if (after == null) {
-                return null;
-            }
-
-            if (after.isEmpty()) {
-                // if no content exists after current key, loadBefore instead
-                after = loadBefore(key, initialLoadSize);
-                if (after == null) {
-                    return null;
-                }
-                Collections.reverse(after);
-            }
+    public NullPaddedList<Value> loadInitial(
+            @Nullable Key key, int initialLoadSize, boolean enablePlaceholders) {
+        if (isInvalid()) {
+            return null;
         }
-
-        if (after.isEmpty()) {
-            // wasn't able to load any items, so publish an empty list that can't grow.
-            return new NullPaddedList<>(0, Collections.<Value>emptyList());
+        NullPaddedList<Value> list = loadInitialInternal(key, initialLoadSize, enablePlaceholders);
+        if (list == null || isInvalid()) {
+            return null;
         }
-
-        // TODO: consider also loading another page before here
-
-        int itemsBefore = countItemsBefore(getKey(after.get(0)));
-        int itemsAfter = countItemsAfter(getKey(after.get(after.size() - 1)));
-        if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
-            return new NullPaddedList<>(0, after, 0);
-        } else {
-            return new NullPaddedList<>(itemsBefore, after, itemsAfter);
-        }
+        return list;
     }
 
     @NonNull
@@ -185,4 +220,13 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
     @WorkerThread
     @Nullable
     public abstract List<Value> loadBefore(@NonNull Key currentBeginKey, int pageSize);
+
+    @Nullable
+    @Override
+    Key getKey(int position, Value item) {
+        if (item == null) {
+            return null;
+        }
+        return getKey(item);
+    }
 }
