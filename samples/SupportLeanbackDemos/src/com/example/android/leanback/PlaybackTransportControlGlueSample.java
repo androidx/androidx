@@ -280,12 +280,24 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
     @Override
     protected void onPlayStateChanged() {
         super.onPlayStateChanged();
+
+        // return when the media session compat is null
+        if (mMediaSessionCompat == null) {
+            return;
+        }
+
         mMediaSessionCompat.setPlaybackState(createPlaybackStateBasedOnAdapterState());
     }
 
     @Override
     protected void onPreparedStateChanged() {
         super.onPreparedStateChanged();
+
+        // return when the media session compat is null
+        if (mMediaSessionCompat == null) {
+            return;
+        }
+
         mMediaSessionCompat.setPlaybackState(createPlaybackStateBasedOnAdapterState());
     }
 
