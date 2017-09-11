@@ -13,6 +13,7 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 import android.util.Log;
@@ -31,6 +32,9 @@ public class ArrayObjectAdapter extends ObjectAdapter {
     private static final String TAG = "ArrayObjectAdapter";
 
     private final List mItems = new ArrayList<Object>();
+
+    // To compute the payload correctly, we should use a temporary list to hold all the old items.
+    private final List mOldItems = new ArrayList<Object>();
 
     // Un modifiable version of mItems;
     private List mUnmodifiableItems;
@@ -230,11 +234,13 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      *                 new data set.
      */
     public void setItems(final List itemList, final DiffCallback callback) {
+        mOldItems.clear();
+        mOldItems.addAll(mItems);
 
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Override
             public int getOldListSize() {
-                return mItems.size();
+                return mOldItems.size();
             }
 
             @Override
@@ -244,13 +250,20 @@ public class ArrayObjectAdapter extends ObjectAdapter {
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return callback.areItemsTheSame(mItems.get(oldItemPosition),
+                return callback.areItemsTheSame(mOldItems.get(oldItemPosition),
                         itemList.get(newItemPosition));
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                return callback.areContentsTheSame(mItems.get(oldItemPosition),
+                return callback.areContentsTheSame(mOldItems.get(oldItemPosition),
+                        itemList.get(newItemPosition));
+            }
+
+            @Nullable
+            @Override
+            public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                return callback.getChangePayload(mOldItems.get(oldItemPosition),
                         itemList.get(newItemPosition));
             }
         });
@@ -291,7 +304,7 @@ public class ArrayObjectAdapter extends ObjectAdapter {
                 if (DEBUG) {
                     Log.d(TAG, "onChanged");
                 }
-                notifyItemRangeChanged(position, count);
+                notifyItemRangeChanged(position, count, payload);
             }
         });
     }

@@ -398,7 +398,7 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         }
 
         /**
-         * Set the visibility of titles/hovercard of browse rows.
+         * Set the visibility of titles/hover card of browse rows.
          */
         public void setExpand(boolean expand) {
         }

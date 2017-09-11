@@ -16,31 +16,52 @@
 
 package android.support.v17.leanback.widget;
 
+import android.support.annotation.NonNull;
+
+import java.util.List;
+
 /**
- * This callback class which will be passed as the parameter for setItems method to compute the
- * difference between the old items and new items.
+ * Callback that informs {@link ArrayObjectAdapter} how to compute list updates when using
+ * {@link android.support.v7.util.DiffUtil} in {@link ArrayObjectAdapter#setItems(List,
+ * DiffCallback)} method.
+ * <p>
+ * The {@link ArrayObjectAdapter#setItems(List,
+ * DiffCallback)} method will pass items from different
+ * lists to this callback in order to implement
+ * the {@link android.support.v7.util.DiffUtil.Callback} it uses to compute differences between
+ * lists.
  *
- * @param <T> The type of the item in list.
+ * @param <Value> Type of items to compare.
  */
-public abstract class DiffCallback<T> {
+public abstract class DiffCallback<Value> {
+    /**
+     * Called to decide whether two objects represent the same item.
+     *
+     * @param oldItem The item in the old list.
+     * @param newItem The item in the new list.
+     * @return True if the two items represent the same object or false if they are different.
+     * @see android.support.v7.util.DiffUtil.Callback#areItemsTheSame(int, int)
+     */
+    public abstract boolean areItemsTheSame(@NonNull Value oldItem, @NonNull Value newItem);
 
     /**
-     * This method is used to provide a standard to judge if two items are the same or not.
-     * Will be used by DiffUtil.calculateDiff method.
+     * Called to decide whether two items have the same data. This information is used to detect if
+     * the contents of an item have changed.
      *
-     * @param oldItem Previous item.
-     * @param newItem New item.
-     * @return If two items are the same or not.
+     * @param oldItem The item in the old list.
+     * @param newItem The item in the new list.
+     * @return True if the contents of the items are the same or false if they are different.
+     * @see android.support.v7.util.DiffUtil.Callback#areContentsTheSame(int, int)
      */
-    public abstract boolean areItemsTheSame(T oldItem, T newItem);
+    public abstract boolean areContentsTheSame(@NonNull Value oldItem, @NonNull Value newItem);
 
     /**
-     * This method is used to provide a standard to judge if two items have the same content or
-     * not. Will be used by DiffUtil.calculateDiff method.
+     * Called to get a change payload between an old and new version of an item.
      *
-     * @param oldItem Previous item.
-     * @param newItem New item.
-     * @return If two items have the same content.
+     * @see android.support.v7.util.DiffUtil.Callback#getChangePayload(int, int)
      */
-    public abstract boolean areContentsTheSame(T oldItem, T newItem);
+    @SuppressWarnings("WeakerAccess")
+    public Object getChangePayload(@NonNull Value oldItem, @NonNull Value newItem) {
+        return null;
+    }
 }
