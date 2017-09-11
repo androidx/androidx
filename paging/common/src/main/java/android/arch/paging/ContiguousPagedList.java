@@ -43,8 +43,8 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
     private int mPrependItemsRequested = 0;
     private int mAppendItemsRequested = 0;
 
-    private int mLastLoad = -1;
-    private T mLastItem;
+    private int mLastLoad = 0;
+    private T mLastItem = null;
 
     private AtomicBoolean mDetached = new AtomicBoolean(false);
 
@@ -62,9 +62,10 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         mMainThreadExecutor = mainThreadExecutor;
         mBackgroundThreadExecutor = backgroundThreadExecutor;
         mConfig = config;
-        NullPaddedList<T> initialState = dataSource.loadInitial(key, config.mInitialLoadSizeHint);
+        NullPaddedList<T> initialState = dataSource.loadInitial(
+                key, config.mInitialLoadSizeHint, config.mEnablePlaceholders);
 
-        if (initialState != null && !initialState.mList.isEmpty()) {
+        if (initialState != null) {
             mPositionOffset = initialState.getPositionOffset();
 
             mLeadingNullCount = initialState.getLeadingNullCount();
@@ -79,8 +80,10 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
                         + " beyond initial load.");
             }
 
-            mLastLoad = mLeadingNullCount + mList.size() / 2;
-            mLastItem = mList.get(mList.size() / 2);
+            if (initialState.size() != 0) {
+                mLastLoad = mLeadingNullCount + mList.size() / 2;
+                mLastItem = mList.get(mList.size() / 2);
+            }
         } else {
             mList = new ArrayList<>();
             detach();
@@ -90,11 +93,6 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
             mPrependWorkerRunning = true;
             mAppendWorkerRunning = true;
         }
-    }
-
-    @Override
-    public int getPositionOffset() {
-        return mPositionOffset;
     }
 
     @Override
@@ -346,43 +344,19 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         mCallbacks.remove(callback);
     }
 
-    /**
-     * Returns the last position accessed by the PagedList. Can be used to initialize loads in
-     * subsequent PagedList versions.
-     *
-     * @return Last position accessed by the PagedList.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public int getLastLoad() {
-        return mLastLoad;
-    }
-
     @Override
-    public T getLastItem() {
-        return mLastItem;
-    }
-
-    /**
-     * True if the PagedList has detached the DataSource it was loading from, and will no longer
-     * load new data.
-     *
-     * @return True if the data source is detached.
-     */
-    @SuppressWarnings("WeakerAccess")
     public boolean isDetached() {
         return mDetached.get();
     }
 
-    /**
-     * Detach the PagedList from its DataSource, and attempt to load no more data.
-     * <p>
-     * This is called automatically when a DataSource load returns <code>null</code>, which is a
-     * signal to stop loading. The PagedList will continue to present existing data, but will not
-     * load new items.
-     */
     @SuppressWarnings("WeakerAccess")
     public void detach() {
         mDetached.set(true);
     }
 
+    @Nullable
+    @Override
+    public Object getLastKey() {
+        return mDataSource.getKey(mLastLoad, mLastItem);
+    }
 }

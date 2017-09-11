@@ -280,4 +280,19 @@ public class PagedListAdapterHelper<T> implements ListReceiver<PagedList<T>> {
         mList = newList;
         newList.addCallback((PagedList<T>) diffSnapshot, mPagedListCallback);
     }
+
+    /**
+     * Returns the list currently being displayed by the AdapterHelper.
+     * <p>
+     * This is not necessarily the most recent list passed to {@link #setList(PagedList)}, because a
+     * diff is computed asynchronously between the new list and the current list before updating the
+     * currentList value.
+     *
+     * @return The list currently being displayed.
+     */
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    public PagedList<T> getCurrentList() {
+        return mList;
+    }
 }

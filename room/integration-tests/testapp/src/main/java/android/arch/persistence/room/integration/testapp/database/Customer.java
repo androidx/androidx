@@ -27,7 +27,7 @@ import android.support.v7.recyclerview.extensions.DiffCallback;
 @Entity
 public class Customer {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private int mId;
 
     private String mName;

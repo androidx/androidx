@@ -50,7 +50,6 @@ class TiledPagedList<T> extends PageArrayList<T> {
     };
 
     private int mLastLoad = -1;
-    private T mLastItem;
 
     private AtomicBoolean mDetached = new AtomicBoolean(false);
 
@@ -72,12 +71,11 @@ class TiledPagedList<T> extends PageArrayList<T> {
         position = Math.min(Math.max(0, position), mCount);
 
         int firstPage = position / mPageSize;
-        List<T> firstPageData = dataSource.loadRange(firstPage * mPageSize, mPageSize);
+        List<T> firstPageData = dataSource.loadRangeWrapper(firstPage * mPageSize, mPageSize);
         if (firstPageData != null) {
             mPageIndexOffset = firstPage;
             mPages.add(firstPageData);
             mLastLoad = position;
-            mLastItem = firstPageData.get(position % mPageSize);
         } else {
             detach();
             return;
@@ -88,7 +86,7 @@ class TiledPagedList<T> extends PageArrayList<T> {
             // no second page to load
             return;
         }
-        List<T> secondPageData = dataSource.loadRange(secondPage * mPageSize, mPageSize);
+        List<T> secondPageData = dataSource.loadRangeWrapper(secondPage * mPageSize, mPageSize);
         if (secondPageData != null) {
             boolean before = secondPage < firstPage;
             mPages.add(before ? 0 : 1, secondPageData);
@@ -98,15 +96,6 @@ class TiledPagedList<T> extends PageArrayList<T> {
             return;
         }
         detach();
-    }
-
-    @Override
-    public T get(int index) {
-        T item = super.get(index);
-        if (item != null) {
-            mLastItem = item;
-        }
-        return item;
     }
 
     @Override
@@ -148,7 +137,8 @@ class TiledPagedList<T> extends PageArrayList<T> {
                 if (mDetached.get()) {
                     return;
                 }
-                final List<T> data = mDataSource.loadRange(pageIndex * mPageSize, mPageSize);
+                final List<T> data = mDataSource.loadRangeWrapper(
+                        pageIndex * mPageSize, mPageSize);
                 if (data != null) {
                     mMainThreadExecutor.execute(new Runnable() {
                         @Override
@@ -216,41 +206,19 @@ class TiledPagedList<T> extends PageArrayList<T> {
         mCallbacks.remove(callback);
     }
 
-    /**
-     * Returns the last position accessed by the PagedList. Can be used to initialize loads in
-     * subsequent PagedList versions.
-     *
-     * @return Last position accessed by the PagedList.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public int getLastLoad() {
-        return mLastLoad;
-    }
-
-    public T getLastItem() {
-        return mLastItem;
-    }
-
-    /**
-     * True if the PagedList has detached the DataSource it was loading from, and will no longer
-     * load new data.
-     *
-     * @return True if the data source is detached.
-     */
-    @SuppressWarnings("WeakerAccess")
+    @Override
     public boolean isDetached() {
         return mDetached.get();
     }
 
-    /**
-     * Detach the PagedList from its DataSource, and attempt to load no more data.
-     * <p>
-     * This is called automatically when a DataSource load returns <code>null</code>, which is a
-     * signal to stop loading. The PagedList will continue to present existing data, but will not
-     * load new items.
-     */
-    @SuppressWarnings("WeakerAccess")
+    @Override
     public void detach() {
         mDetached.set(true);
+    }
+
+    @Nullable
+    @Override
+    public Object getLastKey() {
+        return mLastLoad;
     }
 }

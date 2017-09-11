@@ -12,7 +12,7 @@ class KeyedDataSourceTest {
     // ----- STANDARD -----
 
     @Test
-    fun loadInitial() {
+    fun loadInitial_validateTestDataSource() {
         val dataSource = ItemDataSource()
 
         // all
@@ -26,11 +26,49 @@ class KeyedDataSourceTest {
     }
 
     @Test
-    fun initializeList_null() {
+    fun loadInitial() {
+        val dataSource = ItemDataSource()
+
+        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
+        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
+        val initialLoad = dataSource.loadInitial(key, 10, true)!!
+
+        assertEquals(45, initialLoad.leadingNullCount)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), initialLoad.mList)
+        assertEquals(45, initialLoad.trailingNullCount)
+    }
+
+    @Test
+    fun loadInitial_keyMatchesSingleItem() {
+        val dataSource = ItemDataSource(items = ITEMS_BY_NAME_ID.subList(0, 1))
+
+        // this is tricky, since load after and load before with the passed key will fail
+        val initialLoad = dataSource.loadInitial(dataSource.getKey(ITEMS_BY_NAME_ID[0]), 20, true)!!
+
+        assertEquals(0, initialLoad.leadingNullCount)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), initialLoad.mList)
+        assertEquals(0, initialLoad.trailingNullCount)
+    }
+
+    @Test
+    fun loadInitial_keyMatchesLastItem() {
+        val dataSource = ItemDataSource()
+
+        // tricky, because load after key is empty, so another load before and load after required
+        val key = dataSource.getKey(ITEMS_BY_NAME_ID.last())
+        val initialLoad = dataSource.loadInitial(key, 20, true)!!
+
+        assertEquals(89, initialLoad.leadingNullCount)
+        assertEquals(ITEMS_BY_NAME_ID.subList(89, 100), initialLoad.mList)
+        assertEquals(0, initialLoad.trailingNullCount)
+    }
+
+    @Test
+    fun loadInitial_nullKey() {
         val dataSource = ItemDataSource()
 
         // loadInitial(null, count) == loadInitial(count)
-        val initialLoad = dataSource.loadInitial(null, 10)!!
+        val initialLoad = dataSource.loadInitial(null, 10, true)!!
 
         assertEquals(0, initialLoad.leadingNullCount)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), initialLoad.mList)
@@ -38,64 +76,70 @@ class KeyedDataSourceTest {
     }
 
     @Test
-    fun initializeList_keyed_simple() {
-        val dataSource = ItemDataSource()
-
-        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
-        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
-        val initialLoad = dataSource.loadInitial(key, 10)!!
-
-        assertEquals(50, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(50, 60), initialLoad.mList)
-        assertEquals(40, initialLoad.trailingNullCount)
-    }
-
-    @Test
-    fun initializeList_keyed_outOfBounds() {
+    fun loadInitial_keyPastEndOfList() {
         val dataSource = ItemDataSource()
 
         // if key is past entire data set, should return last items in data set
         val key = Key("fz", 0)
-        val initialLoad = dataSource.loadInitial(key, 10)!!
+        val initialLoad = dataSource.loadInitial(key, 10, true)!!
 
-        assertEquals(90, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(90, 100), initialLoad.mList)
+        // NOTE: ideally we'd load 10 items here, but it adds complexity and unpredictability to
+        // do: load after was empty, so pass full size to load before, since this can incur larger
+        // loads than requested (see keyMatchesLastItem test)
+        assertEquals(95, initialLoad.leadingNullCount)
+        assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), initialLoad.mList)
         assertEquals(0, initialLoad.trailingNullCount)
     }
 
     // ----- UNCOUNTED -----
 
     @Test
-    fun initializeList_null_uncounted() {
+    fun loadInitial_disablePlaceholders() {
+        val dataSource = ItemDataSource()
+
+        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
+        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
+        val initialLoad = dataSource.loadInitial(key, 10, false)!!
+
+        assertEquals(0, initialLoad.leadingNullCount)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), initialLoad.mList)
+        assertEquals(0, initialLoad.trailingNullCount)
+    }
+
+    @Test
+    fun loadInitial_uncounted() {
+        val dataSource = ItemDataSource(counted = false)
+
+        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
+        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
+        val initialLoad = dataSource.loadInitial(key, 10, true)!!
+
+        assertEquals(0, initialLoad.leadingNullCount)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), initialLoad.mList)
+        assertEquals(0, initialLoad.trailingNullCount)
+    }
+
+    @Test
+    fun loadInitial_nullKey_uncounted() {
         val dataSource = ItemDataSource(counted = false)
 
         // loadInitial(null, count) == loadInitial(count)
-        val initialLoad = dataSource.loadInitial(null, 10)!!
+        val initialLoad = dataSource.loadInitial(null, 10, true)!!
 
         assertEquals(0, initialLoad.leadingNullCount)
         assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), initialLoad.mList)
         assertEquals(0, initialLoad.trailingNullCount)
     }
 
-    @Test
-    fun initializeList_keyed_uncounted() {
-        val dataSource = ItemDataSource(counted = false)
-
-        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
-        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
-        val initialLoad = dataSource.loadInitial(key, 10)!!
-
-        assertEquals(0, initialLoad.leadingNullCount)
-        assertEquals(ITEMS_BY_NAME_ID.subList(50, 60), initialLoad.mList)
-        assertEquals(0, initialLoad.trailingNullCount)
-    }
-
     // ----- EMPTY -----
 
     @Test
-    fun initializeList_null_empty() {
-        val dataSource = ItemDataSource(empty = true)
-        val initialLoad = dataSource.loadInitial(null, 10)!!
+    fun loadInitial_empty() {
+        val dataSource = ItemDataSource(items = ArrayList())
+
+        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
+        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
+        val initialLoad = dataSource.loadInitial(key, 10, true)!!
 
         assertEquals(0, initialLoad.leadingNullCount)
         assertTrue(initialLoad.mList.isEmpty())
@@ -103,12 +147,9 @@ class KeyedDataSourceTest {
     }
 
     @Test
-    fun initializeList_keyed_empty() {
-        val dataSource = ItemDataSource(empty = true)
-
-        // loadInitial(key, count) == null padding, loadAfter(key, count), null padding
-        val key = dataSource.getKey(ITEMS_BY_NAME_ID[49])
-        val initialLoad = dataSource.loadInitial(key, 10)!!
+    fun loadInitial_nullKey_empty() {
+        val dataSource = ItemDataSource(items = ArrayList())
+        val initialLoad = dataSource.loadInitial(null, 10, true)!!
 
         assertEquals(0, initialLoad.leadingNullCount)
         assertTrue(initialLoad.mList.isEmpty())
@@ -120,8 +161,10 @@ class KeyedDataSourceTest {
     internal data class Item(
             val name: String, val id: Int, val balance: Double, val address: String)
 
-    internal class ItemDataSource(val counted: Boolean = true, val empty: Boolean = false)
+    internal class ItemDataSource(val counted: Boolean = true,
+                                  val items: List<Item> = ITEMS_BY_NAME_ID)
             : KeyedDataSource<Key, Item>() {
+
         override fun getKey(item: Item): Key {
             return Key(item.name, item.id)
         }
@@ -132,14 +175,14 @@ class KeyedDataSourceTest {
         }
 
         fun findFirstIndexAfter(key: Key): Int {
-            return ITEMS_BY_NAME_ID.indices.firstOrNull {
-                KEY_COMPARATOR.compare(key, getKey(ITEMS_BY_NAME_ID[it])) < 0
-            } ?: ITEMS_BY_NAME_ID.size
+            return items.indices.firstOrNull {
+                KEY_COMPARATOR.compare(key, getKey(items[it])) < 0
+            } ?: items.size
         }
 
         fun findFirstIndexBefore(key: Key): Int {
-            return ITEMS_BY_NAME_ID.indices.reversed().firstOrNull {
-                KEY_COMPARATOR.compare(key, getKey(ITEMS_BY_NAME_ID[it])) > 0
+            return items.indices.reversed().firstOrNull {
+                KEY_COMPARATOR.compare(key, getKey(items[it])) > 0
             } ?: -1
         }
 
@@ -156,30 +199,22 @@ class KeyedDataSourceTest {
                 return DataSource.COUNT_UNDEFINED
             }
 
-            return ITEMS_BY_NAME_ID.size - findFirstIndexAfter(key)
+            return items.size - findFirstIndexAfter(key)
         }
 
         override fun loadAfter(key: Key, pageSize: Int): List<Item>? {
-            if (empty) {
-                return ArrayList()
-            }
-
             val start = findFirstIndexAfter(key)
-            val endExclusive = Math.min(start + pageSize, ITEMS_BY_NAME_ID.size)
+            val endExclusive = Math.min(start + pageSize, items.size)
 
-            return ITEMS_BY_NAME_ID.subList(start, endExclusive)
+            return items.subList(start, endExclusive)
         }
 
         override fun loadBefore(key: Key, pageSize: Int): List<Item>? {
-            if (empty) {
-                return ArrayList()
-            }
-
             val firstIndexBefore = findFirstIndexBefore(key)
             val endExclusive = Math.max(0, firstIndexBefore + 1)
-            val start = firstIndexBefore - pageSize + 1
+            val start = Math.max(0, firstIndexBefore - pageSize + 1)
 
-            val list = ITEMS_BY_NAME_ID.subList(start, endExclusive)
+            val list = items.subList(start, endExclusive)
             return list.reversed()
         }
     }

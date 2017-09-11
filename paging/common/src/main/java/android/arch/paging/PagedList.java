@@ -18,6 +18,7 @@ package android.arch.paging;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 
 import java.util.AbstractList;
 import java.util.List;
@@ -66,9 +67,9 @@ public abstract class PagedList<T> extends AbstractList<T> {
             @NonNull Executor backgroundThreadExecutor,
             @NonNull Config config,
             @Nullable K key) {
-
         if (dataSource.isContiguous() || !config.mEnablePlaceholders) {
             if (!dataSource.isContiguous()) {
+                //noinspection unchecked
                 dataSource = (DataSource<K, T>) ((TiledDataSource<T>) dataSource).getAsContiguous();
             }
             ContiguousDataSource<K, T> contigDataSource = (ContiguousDataSource<K, T>) dataSource;
@@ -86,6 +87,14 @@ public abstract class PagedList<T> extends AbstractList<T> {
         }
     }
 
+    /**
+     * Builder class for PagedList.
+     * <p>
+     * DataSource, main thread and background executor, and Config must all be provided.
+     *
+     * @param <Key> Type of key used to load data from the DataSource.
+     * @param <Value> Type of items held and loaded by the PagedList.
+     */
     @SuppressWarnings("WeakerAccess")
     public static class Builder<Key, Value> {
         private DataSource<Key, Value> mDataSource;
@@ -94,18 +103,39 @@ public abstract class PagedList<T> extends AbstractList<T> {
         private Config mConfig;
         private Key mInitialKey;
 
+        /**
+         * The source of data that the PagedList should load from.
+         * @param dataSource Source of data for the PagedList.
+         *
+         * @return this
+         */
         @NonNull
         public Builder<Key, Value> setDataSource(@NonNull DataSource<Key, Value> dataSource) {
             mDataSource = dataSource;
             return this;
         }
 
+        /**
+         * The executor defining where main/UI thread for page loading updates.
+         *
+         * @param mainThreadExecutor Executor for main/UI thread to receive {@link Callback} calls.
+         * @return this
+         */
         @NonNull
         public Builder<Key, Value> setMainThreadExecutor(@NonNull Executor mainThreadExecutor) {
             mMainThreadExecutor = mainThreadExecutor;
             return this;
         }
 
+        /**
+         * The executor on which background loading will be run.
+         * <p>
+         * Does not affect initial load, which will be done on whichever thread the PagedList is
+         * created on.
+         *
+         * @param backgroundThreadExecutor Executor for background DataSource loading.
+         * @return this
+         */
         @NonNull
         public Builder<Key, Value> setBackgroundThreadExecutor(
                 @NonNull Executor backgroundThreadExecutor) {
@@ -113,19 +143,41 @@ public abstract class PagedList<T> extends AbstractList<T> {
             return this;
         }
 
+        /**
+         * The Config defining how the PagedList should load from the DataSource.
+         *
+         * @param config The config that will define how the PagedList loads from the DataSource.
+         *
+         * @return this
+         */
         @NonNull
         public Builder<Key, Value> setConfig(@NonNull Config config) {
             mConfig = config;
             return this;
         }
 
+        /**
+         * Sets the initial key the DataSource should load around as part of initialization.
+         *
+         * @param initialKey Key the DataSource should load around as part of initialization.
+         * @return this
+         */
         @NonNull
         public Builder<Key, Value> setInitialKey(@Nullable Key initialKey) {
             mInitialKey = initialKey;
             return this;
         }
 
+        /**
+         * Creates a {@link PagedList} with the given parameters.
+         * <p>
+         * This call will initial data and perform any counting needed to initialize the PagedList,
+         * therefore it should only be called on a worker thread.
+         *
+         * @return The newly constructed PagedList
+         */
         @NonNull
+        @WorkerThread
         public PagedList<Value> build() {
             if (mDataSource == null) {
                 throw new IllegalArgumentException("DataSource required");
@@ -183,7 +235,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * Returns whether the list is immutable. Immutable lists may not become mutable again, and may
      * safely be accessed from any thread.
      *
-     * @return True if the PagedList is immutable, and will not become mutable again.
+     * @return True if the PagedList is immutable.
      */
     public abstract boolean isImmutable();
 
@@ -197,16 +249,51 @@ public abstract class PagedList<T> extends AbstractList<T> {
 
     abstract boolean isContiguous();
 
-    int getLastLoad() {
-        return 0;
-    }
-
-    T getLastItem() {
+    /**
+     * Return the key for the position passed most recently to {@link #loadAround(int)}.
+     * <p>
+     * When a PagedList is invalidated, you can pass the key returned by this function to initialize
+     * the next PagedList. This ensures (depending on load times) that the next PagedList that
+     * arrives will have data that overlaps. If you use {@link LivePagedListProvider}, it will do
+     * this for you.
+     *
+     * @return Key of position most recently passed to {@link #loadAround(int)}.
+     */
+    @Nullable
+    public Object getLastKey() {
         return null;
     }
 
-    boolean isDetached() {
+    /**
+     * True if the PagedList has detached the DataSource it was loading from, and will no longer
+     * load new data.
+     *
+     * @return True if the data source is detached.
+     */
+    public boolean isDetached() {
         return true;
+    }
+
+    /**
+     * Detach the PagedList from its DataSource, and attempt to load no more data.
+     * <p>
+     * This is called automatically when a DataSource load returns <code>null</code>, which is a
+     * signal to stop loading. The PagedList will continue to present existing data, but will not
+     * initiate new loads.
+     */
+    public void detach() {
+    }
+
+    /**
+     * Position offset of the data in the list.
+     * <p>
+     * If data is supplied by a {@link TiledDataSource}, the item returned from <code>get(i)</code>
+     * has a position of <code>i + getPositionOffset()</code>.
+     * <p>
+     * If the DataSource is a {@link KeyedDataSource}, and thus doesn't use positions, returns 0.
+     */
+    public int getPositionOffset() {
+        return 0;
     }
 
     /**
@@ -237,7 +324,11 @@ public abstract class PagedList<T> extends AbstractList<T> {
     public abstract void removeCallback(Callback callback);
 
     /**
-     * Callback signalling when content is loaded into the list.
+     * Callback signaling when content is loaded into the list.
+     * <p>
+     * Can be used to listen to items being paged in and out. These calls will be dispatched on
+     * the executor defined by {@link Builder#setMainThreadExecutor(Executor)}, which defaults to
+     * the main/UI thread.
      */
     public abstract static class Callback {
         /**
@@ -294,7 +385,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
         /**
          * Builder class for {@link Config}.
          * <p>
-         * You must at minimum specify page size with {@link Builder#setPageSize(int)}.
+         * You must at minimum specify page size with {@link #setPageSize(int)}.
          */
         public static class Builder {
             private int mPageSize = -1;
@@ -306,6 +397,9 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * Defines the number of items loaded at once from the DataSource.
              * <p>
              * Should be several times the number of visible items onscreen.
+             *
+             * @param pageSize Number of items loaded at once from the DataSource.
+             * @return this
              */
             public Builder setPageSize(int pageSize) {
                 this.mPageSize = pageSize;
@@ -320,6 +414,9 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * requested.
              * <p>
              * Should be several times the number of visible items onscreen.
+             *
+             * @param prefetchDistance Distance the PagedList should prefetch.
+             * @return this
              */
             public Builder setPrefetchDistance(int prefetchDistance) {
                 this.mPrefetchDistance = prefetchDistance;
@@ -338,7 +435,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * 2) placeholders are not disabled on the Config.
              * <p>
              * Call {@code setEnablePlaceholders(false)} to ensure the receiver of the PagedList
-             * (often a {@link PagedListAdapter)} doesn't need to account for null items.
+             * (often a {@link PagedListAdapter}) doesn't need to account for null items.
+             *
+             * @param enablePlaceholders False if null placeholders should be disabled.
+             * @return this
              */
             @SuppressWarnings("SameParameterValue")
             public Builder setEnablePlaceholders(boolean enablePlaceholders) {
@@ -352,10 +452,13 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * <p>
              * If you are using an {@link TiledDataSource}, this value is currently ignored.
              * Otherwise, this value will be passed to
-             * {@link KeyedDataSource#loadInitial(Object, int)} to load a (typically) larger amount
+             * {@link KeyedDataSource#loadInitial(int)} to load a (typically) larger amount
              * of data on first load.
              * <p>
              * If not set, defaults to three times page size.
+             *
+             * @param initialLoadSizeHint Number of items to load while initializing the PagedList.
+             * @return this
              */
             @SuppressWarnings("WeakerAccess")
             public Builder setInitialLoadSizeHint(int initialLoadSizeHint) {
@@ -384,7 +487,6 @@ public abstract class PagedList<T> extends AbstractList<T> {
                             + " to trigger loading of more data in the PagedList, so either"
                             + " placeholders must be enabled, or prefetch distance must be > 0.");
                 }
-
 
                 return new Config(mPageSize, mPrefetchDistance,
                         mEnablePlaceholders, mInitialLoadSizeHint);
