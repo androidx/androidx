@@ -3,10 +3,15 @@
 
 package com.example.android.leanback;
 
+import static com.example.android.leanback.CardPresenter.CONTENT;
+import static com.example.android.leanback.CardPresenter.IMAGE;
+import static com.example.android.leanback.CardPresenter.TITLE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.DiffCallback;
 import android.support.v17.leanback.widget.HeaderItem;
@@ -57,6 +62,25 @@ public class SearchSupportFragment extends android.support.v17.leanback.app.Sear
         @Override
         public boolean areContentsTheSame(PhotoItem oldItem, PhotoItem newItem) {
             return oldItem.equals(newItem);
+        }
+
+        @Nullable
+        @Override
+        public Object getChangePayload(PhotoItem oldItem, PhotoItem newItem) {
+            Bundle diff = new Bundle();
+            if (oldItem.getImageResourceId()
+                    != newItem.getImageResourceId()) {
+                diff.putLong(IMAGE, newItem.getImageResourceId());
+            }
+
+            if (!oldItem.getTitle().equals(newItem.getTitle())) {
+                diff.putString(TITLE, newItem.getTitle());
+            }
+
+            if (!oldItem.getContent().equals(newItem.getContent())) {
+                diff.putString(CONTENT, newItem.getContent());
+            }
+            return diff;
         }
     };
 

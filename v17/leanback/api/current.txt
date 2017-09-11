@@ -1815,10 +1815,11 @@ package android.support.v17.leanback.widget {
     method public android.support.v17.leanback.widget.Parallax.IntProperty getOverviewRowTop();
   }
 
-  public abstract class DiffCallback<T> {
+  public abstract class DiffCallback<Value> {
     ctor public DiffCallback();
-    method public abstract boolean areContentsTheSame(T, T);
-    method public abstract boolean areItemsTheSame(T, T);
+    method public abstract boolean areContentsTheSame(Value, Value);
+    method public abstract boolean areItemsTheSame(Value, Value);
+    method public java.lang.Object getChangePayload(Value, Value);
   }
 
   public class DividerPresenter extends android.support.v17.leanback.widget.Presenter {
@@ -2249,6 +2250,7 @@ package android.support.v17.leanback.widget {
     method protected void onAttachedToWindow(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method protected void onBind(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method public final void onBindViewHolder(android.support.v7.widget.RecyclerView.ViewHolder, int);
+    method public final void onBindViewHolder(android.support.v7.widget.RecyclerView.ViewHolder, int, java.util.List);
     method protected void onCreate(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method public final android.support.v7.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method protected void onDetachedFromWindow(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
@@ -2268,6 +2270,7 @@ package android.support.v17.leanback.widget {
     method public void onAddPresenter(android.support.v17.leanback.widget.Presenter, int);
     method public void onAttachedToWindow(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method public void onBind(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
+    method public void onBind(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder, java.util.List);
     method public void onCreate(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method public void onDetachedFromWindow(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
     method public void onUnbind(android.support.v17.leanback.widget.ItemBridgeAdapter.ViewHolder);
@@ -2399,6 +2402,7 @@ package android.support.v17.leanback.widget {
     method protected final void notifyChanged();
     method protected final void notifyItemMoved(int, int);
     method public final void notifyItemRangeChanged(int, int);
+    method public final void notifyItemRangeChanged(int, int, java.lang.Object);
     method protected final void notifyItemRangeInserted(int, int);
     method protected final void notifyItemRangeRemoved(int, int);
     method protected void onHasStableIdsChanged();
@@ -2417,6 +2421,7 @@ package android.support.v17.leanback.widget {
     method public void onChanged();
     method public void onItemMoved(int, int);
     method public void onItemRangeChanged(int, int);
+    method public void onItemRangeChanged(int, int, java.lang.Object);
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeRemoved(int, int);
   }
@@ -2753,6 +2758,7 @@ package android.support.v17.leanback.widget {
     method protected static void cancelAnimationsRecursive(android.view.View);
     method public final java.lang.Object getFacet(java.lang.Class<?>);
     method public abstract void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object);
+    method public void onBindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder, java.lang.Object, java.util.List<java.lang.Object>);
     method public abstract android.support.v17.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public abstract void onUnbindViewHolder(android.support.v17.leanback.widget.Presenter.ViewHolder);
     method public void onViewAttachedToWindow(android.support.v17.leanback.widget.Presenter.ViewHolder);
