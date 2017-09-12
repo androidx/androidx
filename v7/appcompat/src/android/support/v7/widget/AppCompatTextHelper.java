@@ -39,6 +39,12 @@ import android.widget.TextView;
 @RequiresApi(9)
 class AppCompatTextHelper {
 
+    // Enum for the "typeface" XML parameter.
+    private static final int SANS = 1;
+    private static final int SERIF = 2;
+    private static final int MONOSPACE = 3;
+
+
     static AppCompatTextHelper create(TextView textView) {
         if (Build.VERSION.SDK_INT >= 17) {
             return new AppCompatTextHelperV17(textView);
@@ -217,6 +223,24 @@ class AppCompatTextHelper {
                 // Try with String. This is done by TextView JB+, but fails in ICS
                 String fontFamilyName = a.getString(fontFamilyId);
                 mFontTypeface = Typeface.create(fontFamilyName, mStyle);
+            }
+            return;
+        }
+
+        if (a.hasValue(R.styleable.TextAppearance_android_typeface)) {
+            int typefaceIndex = a.getInt(R.styleable.TextAppearance_android_typeface, SANS);
+            switch (typefaceIndex) {
+                case SANS:
+                    mFontTypeface = Typeface.SANS_SERIF;
+                    break;
+
+                case SERIF:
+                    mFontTypeface = Typeface.SERIF;
+                    break;
+
+                case MONOSPACE:
+                    mFontTypeface = Typeface.MONOSPACE;
+                    break;
             }
         }
     }
