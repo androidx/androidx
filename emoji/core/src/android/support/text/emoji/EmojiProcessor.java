@@ -199,8 +199,8 @@ final class EmojiProcessor {
 
                 switch (action) {
                     case ACTION_ADVANCE_BOTH:
-                        currentOffset += Character.charCount(codePoint);
-                        start = currentOffset;
+                        start += Character.charCount(Character.codePointAt(charSequence, start));
+                        currentOffset = start;
                         if (currentOffset < end) {
                             codePoint = Character.codePointAt(charSequence, currentOffset);
                         }
