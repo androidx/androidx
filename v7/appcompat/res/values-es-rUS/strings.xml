@@ -25,7 +25,7 @@
     <string name="abc_action_bar_home_subtitle_description_format" msgid="6623331958280229229">"%1$s, %2$s, %3$s"</string>
     <string name="abc_searchview_description_search" msgid="8264924765203268293">"Búsqueda"</string>
     <string name="abc_search_hint" msgid="7723749260725869598">"Buscar…"</string>
-    <string name="abc_searchview_description_query" msgid="2550479030709304392">"Consulta de búsqueda"</string>
+    <string name="abc_searchview_description_query" msgid="2550479030709304392">"Búsqueda"</string>
     <string name="abc_searchview_description_clear" msgid="3691816814315814921">"Eliminar la consulta"</string>
     <string name="abc_searchview_description_submit" msgid="8928215447528550784">"Enviar consulta"</string>
     <string name="abc_searchview_description_voice" msgid="893419373245838918">"Búsqueda por voz"</string>
