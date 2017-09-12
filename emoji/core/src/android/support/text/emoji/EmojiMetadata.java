@@ -114,6 +114,13 @@ public class EmojiMetadata {
     }
 
     /**
+     * @return return typeface to be used to render this metadata
+     */
+    public Typeface getTypeface() {
+        return mMetadataRepo.getTypeface();
+    }
+
+    /**
      * @return a ThreadLocal instance of MetadataItem for this EmojiMetadata
      */
     private MetadataItem getMetadataItem() {
@@ -210,4 +217,18 @@ public class EmojiMetadata {
         return getMetadataItem().codepointsLength();
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(super.toString());
+        builder.append(", id:");
+        builder.append(Integer.toHexString(getId()));
+        builder.append(", codepoints:");
+        final int codepointsLength = getCodepointsLength();
+        for (int i = 0; i < codepointsLength; i++) {
+            builder.append(Integer.toHexString(getCodepointAt(i)));
+            builder.append(" ");
+        }
+        return builder.toString();
+    }
 }
