@@ -58,6 +58,13 @@ public class TestString {
         return this;
     }
 
+    public TestString prepend(int... codePoints) {
+        for (int i = codePoints.length - 1; i >= 0; i--) {
+            mCodePoints.add(0, codePoints[i]);
+        }
+        return this;
+    }
+
     public TestString append(Emoji.EmojiMapping emojiMapping) {
         return append(emojiMapping.codepoints());
     }
