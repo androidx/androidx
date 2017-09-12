@@ -41,8 +41,8 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"ಯಾವುದನ್ನೂ ಪುನರಾವರ್ತಿಸಬೇಡಿ"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"ಎಲ್ಲವನ್ನು ಪುನರಾವರ್ತಿಸಿ"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"ಒಂದನ್ನು ಪುನರಾವರ್ತಿಸಿ"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"ಜೋಡಿಸುವುದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"ಜೋಡಿಸುವುದನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"ಶಫಲ್ ಮಾಡುವುದನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"ಶಫಲ್ ಮಾಡುವುದನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"ಹೆಚ್ಚು ಗುಣಮಟ್ಟವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"ಹೆಚ್ಚು ಗುಣಮಟ್ಟವನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"ಮುಚ್ಚಿದ ಶೀರ್ಷಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>

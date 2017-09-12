@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Yuqori sifatni o‘chirib qo‘yish"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Taglavhalarni yoqish"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Taglavhalarni o‘chirib qo‘yish"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Tasvir ichida tasvir rejimiga kirish"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Tasvir ustida tasvir rejimiga kirish"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"Tugatish"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"Davom etish"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
