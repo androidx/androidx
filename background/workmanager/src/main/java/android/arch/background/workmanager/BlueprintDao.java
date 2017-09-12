@@ -22,32 +22,36 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
+import java.util.List;
+
 /**
- * The Data Access Object for {@link WorkItem}s.
+ * The Data Access Object for {@link Blueprint}s.
  */
 @Dao
-public interface WorkItemDao {
+public interface BlueprintDao {
 
     /**
      * @param id The identifier
-     * @return The {@link WorkItem} associated with that identifier
+     * @return The {@link Blueprint} associated with that identifier
      */
-    @Query("SELECT * FROM workitem WHERE id=:id")
-    WorkItem getWorkItem(int id);
+    @Query("SELECT * FROM blueprint WHERE id=:id")
+    Blueprint getBlueprint(int id);
 
     /**
-     * Attempts to insert a WorkItem into the database.
-     * @param workItem The {@link WorkItem} to insert
+     * Attempts to insert a Blueprint into the database.
+     *
+     * @param blueprints The {@link Blueprint}s to insert
      */
     @Insert(onConflict = FAIL)
-    void insertWorkItem(WorkItem workItem);
+    void insertBlueprints(List<Blueprint> blueprints);
 
     /**
-     * Updates the status of a {@link WorkItem}.
-     * @param id The identifier for the {@link WorkItem}
+     * Updates the status of a {@link Blueprint}.
+     *
+     * @param id     The identifier for the {@link Blueprint}
      * @param status The new status
      * @return The number of rows that were updated (should be 0 or 1)
      */
-    @Query("UPDATE workitem SET status=:status WHERE id=:id")
-    int setWorkItemStatus(int id, int status);
+    @Query("UPDATE blueprint SET status=:status WHERE id=:id")
+    int setBlueprintStatus(int id, int status);
 }

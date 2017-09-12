@@ -24,13 +24,14 @@ import android.content.Context;
 /**
  * A Room database for keeping track of work statuses.
  */
-@Database(entities = {WorkItem.class}, version = 1)
+@Database(entities = {Blueprint.class}, version = 1)
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static WorkDatabase sInstance;
 
     /**
      * Returns a static instance of the WorkDatabase.
+     *
      * @param context A context (this method will use the application context from it)
      * @return The singleton WorkDatabase for this process
      */
@@ -43,7 +44,7 @@ public abstract class WorkDatabase extends RoomDatabase {
     }
 
     /**
-     * @return The Data Access Object for {@link WorkItem}s.
+     * @return The Data Access Object for {@link Blueprint}s.
      */
-    public abstract WorkItemDao workItemDao();
+    public abstract BlueprintDao blueprintDao();
 }

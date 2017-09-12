@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.WorkItem.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.WorkItem.STATUS_FAILED;
-import static android.arch.background.workmanager.WorkItem.STATUS_RUNNING;
-import static android.arch.background.workmanager.WorkItem.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.Blueprint.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Blueprint.STATUS_FAILED;
+import static android.arch.background.workmanager.Blueprint.STATUS_RUNNING;
+import static android.arch.background.workmanager.Blueprint.STATUS_SUCCEEDED;
 
 import android.content.Context;
 import android.util.Log;
@@ -37,27 +37,28 @@ public abstract class Worker<T> implements Callable<T> {
 
     protected Context mAppContext;
     private WorkDatabase mWorkDatabase;
-    private WorkItem mWorkItem;
+    private Blueprint mBlueprint;
 
-    public Worker(Context appContext, WorkDatabase workDatabase, WorkItem workItem) {
+    public Worker(Context appContext, WorkDatabase workDatabase, Blueprint blueprint) {
         this.mAppContext = appContext;
         this.mWorkDatabase = workDatabase;
-        this.mWorkItem = workItem;
+        this.mBlueprint = blueprint;
     }
 
     /**
      * Override this method to do your actual background processing.
+     *
      * @return The result payload
      */
     public abstract T doWork();
 
     @Override
     public final T call() throws Exception {
-        int id = mWorkItem.getId();
+        int id = mBlueprint.mId;
         Log.v(TAG, "Worker.call for " + id);
-        WorkItemDao workItemDao = mWorkDatabase.workItemDao();
-        mWorkItem.setStatus(STATUS_RUNNING);
-        workItemDao.setWorkItemStatus(id, STATUS_RUNNING);
+        BlueprintDao blueprintDao = mWorkDatabase.blueprintDao();
+        mBlueprint.mStatus = STATUS_RUNNING;
+        blueprintDao.setBlueprintStatus(id, STATUS_RUNNING);
 
         T result = null;
 
@@ -67,18 +68,18 @@ public abstract class Worker<T> implements Callable<T> {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + id);
-            mWorkItem.setStatus(STATUS_SUCCEEDED);
-            workItemDao.setWorkItemStatus(id, STATUS_SUCCEEDED);
+            mBlueprint.mStatus = STATUS_SUCCEEDED;
+            blueprintDao.setBlueprintStatus(id, STATUS_SUCCEEDED);
         } catch (Exception e) {
             // TODO: Retry policies.
             if (e instanceof InterruptedException) {
                 Log.d(TAG, "Work interrupted for " + id);
-                mWorkItem.setStatus(STATUS_ENQUEUED);
-                workItemDao.setWorkItemStatus(id, STATUS_ENQUEUED);
+                mBlueprint.mStatus = STATUS_ENQUEUED;
+                blueprintDao.setBlueprintStatus(id, STATUS_ENQUEUED);
             } else {
                 Log.d(TAG, "Work failed for " + id, e);
-                mWorkItem.setStatus(STATUS_FAILED);
-                workItemDao.setWorkItemStatus(id, STATUS_FAILED);
+                mBlueprint.mStatus = STATUS_FAILED;
+                blueprintDao.setBlueprintStatus(id, STATUS_FAILED);
             }
         }
 

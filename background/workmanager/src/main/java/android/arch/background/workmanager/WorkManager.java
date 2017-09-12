@@ -40,6 +40,7 @@ public final class WorkManager implements LifecycleObserver {
 
     /**
      * Returns the singleton instance of WorkManager, creating it if necessary.
+     *
      * @param context A Context for initialization (this method will use the application Context)
      * @return The singleton instance of WorkManager
      */
@@ -76,16 +77,23 @@ public final class WorkManager implements LifecycleObserver {
 
     /**
      * Enqueues an item for background processing.
-     * @param workClass The {@link Worker} class to enqueue
-     * @param <T> A {@link Worker} subclass
-     * @return The id of the work; use this to track its status
+     *
+     * @param workItem {@link WorkItem} containing all {@link Blueprint}s
+     * @return array of {@link Blueprint} ids enqueued
      */
-    public <T extends Worker> int enqueue(Class<T> workClass) {
-        WorkItem workItem = new WorkItem(); // TODO
-        workItem.setId(sCurrentIdTODO);
-        workItem.setWorkerClassName(workClass.getName());
-
+    public int[] enqueue(WorkItem workItem) {
+        int[] ids = new int[workItem.getBlueprints().size()];
+        for (int i = 0; i < ids.length; i++) {
+            int id = generateId();
+            workItem.getBlueprints().get(i).mId = id;
+            ids[i] = id;
+        }
         mEnqueueExecutor.execute(new EnqueueRunnable(workItem));
+        return ids;
+    }
+
+    private int generateId() {
+        // TODO: Fix! Temporary solution for id assignment.
         return sCurrentIdTODO++;
     }
 
@@ -93,18 +101,17 @@ public final class WorkManager implements LifecycleObserver {
      * A Runnable to enqueue WorkItems in the database.
      */
     private class EnqueueRunnable implements Runnable {
-
         private WorkItem mWorkItem;
 
         EnqueueRunnable(WorkItem workItem) {
-            this.mWorkItem = workItem;
+            mWorkItem = workItem;
         }
 
         @Override
         public void run() {
             // TODO: check for prerequisites.
-            WorkItemDao workItemDao = mWorkDatabase.workItemDao();
-            workItemDao.insertWorkItem(mWorkItem);
+            BlueprintDao blueprintDao = mWorkDatabase.blueprintDao();
+            blueprintDao.insertBlueprints(mWorkItem.getBlueprints());
 
             // TODO: Schedule on in-process executor.
             Log.d(TAG, "Schedule in-process executor here");
