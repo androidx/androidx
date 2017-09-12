@@ -27,10 +27,10 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 class LivePagedListQueryResultBinder(
-        val countedDataSourceQueryResultBinder: CountedDataSourceQueryResultBinder)
-    : QueryResultBinder(countedDataSourceQueryResultBinder.listAdapter) {
+        val tiledDataSourceQueryResultBinder: TiledDataSourceQueryResultBinder)
+    : QueryResultBinder(tiledDataSourceQueryResultBinder.listAdapter) {
     @Suppress("HasPlatformType")
-    val typeName = countedDataSourceQueryResultBinder.itemTypeName
+    val typeName = tiledDataSourceQueryResultBinder.itemTypeName
     override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
                                   scope: CodeGenScope) {
         scope.builder().apply {
@@ -50,9 +50,9 @@ class LivePagedListQueryResultBinder(
             = MethodSpec.methodBuilder("createDataSource").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PROTECTED)
-        returns(countedDataSourceQueryResultBinder.typeName)
+        returns(tiledDataSourceQueryResultBinder.typeName)
         val countedBinderScope = scope.fork()
-        countedDataSourceQueryResultBinder.convertAndReturn(roomSQLiteQueryVar, dbField,
+        tiledDataSourceQueryResultBinder.convertAndReturn(roomSQLiteQueryVar, dbField,
                 countedBinderScope)
         addCode(countedBinderScope.builder().build())
     }.build()

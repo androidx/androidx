@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @SmallTest
@@ -68,11 +67,9 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         List<User> users = createUsers(1);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
         assertThat(dataSource.loadCount(), is(1));
-        List<User> initial = dataSource.loadAfter(0, 10);
+        List<User> initial = dataSource.loadRange(0, 10);
         assertThat(initial.get(0), is(users.get(0)));
-
-        assertEmpty(dataSource.loadBefore(0, initial.get(0), 10));
-        assertEmpty(dataSource.loadAfter(0, initial.get(0), 10));
+        assertEmpty(dataSource.loadRange(1, 10));
     }
 
     @Test
@@ -80,9 +77,9 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         List<User> users = createUsers(10);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
         assertThat(dataSource.loadCount(), is(10));
-        List<User> initial = dataSource.loadAfter(0, 1);
+        List<User> initial = dataSource.loadRange(0, 1);
         assertThat(initial.get(0), is(users.get(0)));
-        List<User> second = dataSource.loadAfter(1, 1);
+        List<User> second = dataSource.loadRange(1, 1);
         assertThat(second.get(0), is(users.get(1)));
     }
 
@@ -91,7 +88,7 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
         List<User> users = createUsers(10);
 
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        List<User> all = dataSource.loadAfter(0, 10);
+        List<User> all = dataSource.loadRange(0, 10);
         assertThat(users, is(all));
     }
 
@@ -99,28 +96,8 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
     public void loadAfter() {
         List<User> users = createUsers(10);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        List<User> result = dataSource.loadAfter(3, users.get(3), 2);
+        List<User> result = dataSource.loadRange(4, 2);
         assertThat(result, is(users.subList(4, 6)));
-    }
-
-    @Test
-    public void loadBefore() {
-        List<User> users = createUsers(10);
-        LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        List<User> result = dataSource.loadBefore(5, users.get(5), 3);
-        List<User> expected = new ArrayList<>(users.subList(2, 5));
-        Collections.reverse(expected);
-        assertThat(result, is(expected));
-    }
-
-    @Test
-    public void loadBefore_limitTest() {
-        List<User> users = createUsers(10);
-        LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        List<User> result = dataSource.loadBefore(5, users.get(5), 10);
-        List<User> expected = new ArrayList<>(users.subList(0, 5));
-        Collections.reverse(expected);
-        assertThat(result, is(expected));
     }
 
     @NonNull
