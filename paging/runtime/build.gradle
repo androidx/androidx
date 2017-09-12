@@ -70,7 +70,7 @@ android.libraryVariants.all { variant ->
 version = LibraryVersions.PAGING.toString()
 supportLibrary {
     name 'Android Lifecycle Extensions'
-    publish false
+    publish true
     inceptionYear '2017'
     description "Android Lifecycle Extensions"
     url SupportLibraryExtension.ARCHITECTURE_URL
