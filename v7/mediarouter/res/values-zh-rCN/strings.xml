@@ -30,7 +30,7 @@
     <string name="mr_controller_play" msgid="683634565969987458">"播放"</string>
     <string name="mr_controller_pause" msgid="5451884435510905406">"暂停"</string>
     <string name="mr_controller_expand_group" msgid="8062427022744266907">"展开"</string>
-    <string name="mr_controller_collapse_group" msgid="7924809056904240926">"折叠"</string>
+    <string name="mr_controller_collapse_group" msgid="7924809056904240926">"收起"</string>
     <string name="mr_controller_album_art" msgid="6422801843540543585">"专辑封面"</string>
     <string name="mr_controller_volume_slider" msgid="2361785992211841709">"音量滑块"</string>
     <string name="mr_controller_no_media_selected" msgid="6547130360349182381">"未选择任何媒体"</string>

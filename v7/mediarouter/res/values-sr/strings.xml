@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Дугме Пребаци. Веза је прекинута"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Дугме Пребаци. Повезује се"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"Дугме Пребаци. Повезан је"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Пребацујте на"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Пребацуј на"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Проналажење уређаја"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Прекини везу"</string>
     <string name="mr_controller_stop" msgid="4570331844078181931">"Заустави пребацивање"</string>
