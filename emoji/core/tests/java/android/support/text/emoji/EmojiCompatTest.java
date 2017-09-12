@@ -345,6 +345,22 @@ public class EmojiCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
+    public void testProcess_addsEmojiThatFollowsDigit() {
+        TestString string = new TestString(EMOJI_SINGLE_CODEPOINT).prepend('N', '5');
+        CharSequence charSequence = EmojiCompat.get().process(string.toString());
+        assertThat(charSequence, hasEmojiAt(EMOJI_SINGLE_CODEPOINT, string.emojiStartIndex() + 2,
+                string.emojiEndIndex()));
+        assertThat(charSequence, hasEmojiCount(1));
+
+        string = new TestString(EMOJI_WITH_ZWJ).prepend('N', '5');
+        charSequence = EmojiCompat.get().process(string.toString());
+        assertThat(charSequence, hasEmojiAt(EMOJI_WITH_ZWJ, string.emojiStartIndex() + 2,
+                string.emojiEndIndex()));
+        assertThat(charSequence, hasEmojiCount(1));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testProcess_withAppend() {
         final Editable editable = new SpannableStringBuilder(new TestString('a').withPrefix()
                 .withSuffix().toString());
