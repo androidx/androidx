@@ -502,6 +502,29 @@ public class MediaSessionCompatTest {
     }
 
     /**
+     * Tests {@link MediaSessionCompat#setCallback} with {@code null}. No callback will be called
+     * once {@code setCallback(null)} is done.
+     */
+    @Test
+    @SmallTest
+    public void testSetCallbackWithNull() throws Exception {
+        MediaSessionCallback sessionCallback = new MediaSessionCallback();
+        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mSession.setActive(true);
+        mSession.setCallback(sessionCallback, mHandler);
+
+        MediaControllerCompat controller = mSession.getController();
+        setPlaybackState(PlaybackStateCompat.STATE_PLAYING);
+
+        sessionCallback.reset(1);
+        mSession.setCallback(null, mHandler);
+
+        controller.getTransportControls().pause();
+        assertFalse(sessionCallback.await(WAIT_TIME_MS));
+        assertFalse("Callback shouldn't be called.", sessionCallback.mOnPauseCalled);
+    }
+
+    /**
      * Tests {@link MediaSessionCompat#setPlaybackToLocal} and
      * {@link MediaSessionCompat#setPlaybackToRemote}.
      */
@@ -714,22 +737,6 @@ public class MediaSessionCompatTest {
         synchronized (mWaitLock) {
             mSession.setPlaybackState(playbackState);
         }
-    }
-
-    @Test
-    @SmallTest
-    public void testSetNullCallback() throws Throwable {
-        getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MediaSessionCompat session = new MediaSessionCompat(getContext(), "TEST");
-                    session.setCallback(null);
-                } catch (Exception e) {
-                    fail("Fail with an exception: " + e);
-                }
-            }
-        });
     }
 
     /**
