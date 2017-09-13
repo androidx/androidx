@@ -88,7 +88,7 @@ public class QueryDataSourceTest extends TestDatabaseTest {
      */
     public class OffsetUserQueryDataSource extends BoundedDataSource<User> {
         @Override
-        public int loadCount() {
+        public int countItems() {
             return mUserDao.getUserCount();
         }
 

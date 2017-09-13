@@ -62,33 +62,54 @@ import java.util.List;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         LiveListAdapterUtil.bind(viewModel.usersList, this, adapter.getHelper());
+ *         viewModel.usersList.observe(this, list -> adapter.setList(list));
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
  *
  * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
- *     private final ListAdapterHelper&lt;User> helper;
+ *     private final ListAdapterHelper&lt;User> mHelper;
  *     public UserAdapter(ListAdapterHelper.Builder&lt;User> builder) {
- *         helper = new ListAdapterHelper(this, User.DIFF_CALLBACK);
+ *         mHelper = new ListAdapterHelper(this, User.DIFF_CALLBACK);
  *     }
  *     {@literal @}Override
  *     public int getItemCount() {
  *         return mHelper.getItemCount();
  *     }
- *     public ListAdapterHelper getHelper() {
- *         return mHelper;
+ *     public void setList(List&lt;User> list) {
+ *         mHelper.setList(list);
  *     }
  *     {@literal @}Override
  *     public void onBindViewHolder(UserViewHolder holder, int position) {
  *         User user = mHelper.getItem(position);
  *         holder.bindTo(user);
  *     }
+ * }
+ *
+ * {@literal @}Entity
+ * class User {
+ *      // ... simple POJO code omitted ...
+ *
+ *      public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;Customer>() {
+ *          {@literal @}Override
+ *          public boolean areItemsTheSame(
+ *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *              // User properties may have changed if reloaded from the DB, but ID is fixed
+ *              return oldUser.getId() == newUser.getId();
+ *          }
+ *          {@literal @}Override
+ *          public boolean areContentsTheSame(
+ *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *              // NOTE: if you use equals, your object must properly override Object#equals()
+ *              // Incorrectly returning false here will result in too many animations.
+ *              return oldUser.equals(newUser);
+ *          }
+ *      }
  * }</pre>
  *
  * @param <T> Type of the lists this helper will receive.
  */
-public class ListAdapterHelper<T> implements ListReceiver<List<T>> {
+public class ListAdapterHelper<T> {
     private final ListUpdateCallback mUpdateCallback;
     private final ListAdapterConfig<T> mConfig;
 

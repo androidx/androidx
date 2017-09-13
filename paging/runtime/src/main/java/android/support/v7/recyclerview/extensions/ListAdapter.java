@@ -53,7 +53,7 @@ import java.util.List;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         LiveListAdapterUtil.bind(viewModel.usersList, this, adapter);
+ *         viewModel.usersList.observe(this, list -> adapter.setList(list));
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
@@ -66,6 +66,27 @@ import java.util.List;
  *     public void onBindViewHolder(UserViewHolder holder, int position) {
  *         holder.bindTo(getItem(position));
  *     }
+ * }
+ *
+ * {@literal @}Entity
+ * class User {
+ *      // ... simple POJO code omitted ...
+ *
+ *      public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;Customer>() {
+ *          {@literal @}Override
+ *          public boolean areItemsTheSame(
+ *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *              // User properties may have changed if reloaded from the DB, but ID is fixed
+ *              return oldUser.getId() == newUser.getId();
+ *          }
+ *          {@literal @}Override
+ *          public boolean areContentsTheSame(
+ *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *              // NOTE: if you use equals, your object must properly override Object#equals()
+ *              // Incorrectly returning false here will result in too many animations.
+ *              return oldUser.equals(newUser);
+ *          }
+ *      }
  * }</pre>
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
@@ -76,7 +97,7 @@ import java.util.List;
  * @param <VH> A class that extends ViewHolder that will be used by the adapter.
  */
 public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
-        extends RecyclerView.Adapter<VH> implements ListReceiver<List<T>> {
+        extends RecyclerView.Adapter<VH> {
     private final ListAdapterHelper<T> mHelper;
 
     @SuppressWarnings("unused")
@@ -98,7 +119,6 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @param list The new list to be displayed.
      */
-    @Override
     public void setList(List<T> list) {
         mHelper.setList(list);
     }
