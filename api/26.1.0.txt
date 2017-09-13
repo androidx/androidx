@@ -5990,6 +5990,7 @@ package android.support.v4.app {
   public class FragmentActivity extends android.app.Activity implements android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public FragmentActivity();
     method public java.lang.Object getLastCustomNonConfigurationInstance();
+    method public android.arch.lifecycle.Lifecycle getLifecycle();
     method public android.support.v4.app.FragmentManager getSupportFragmentManager();
     method public android.support.v4.app.LoaderManager getSupportLoaderManager();
     method public void onAttachFragment(android.support.v4.app.Fragment);

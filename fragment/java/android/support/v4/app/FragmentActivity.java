@@ -269,6 +269,11 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         mFragments.dispatchConfigurationChanged(newConfig);
     }
 
+    @Override
+    public Lifecycle getLifecycle() {
+        return super.getLifecycle();
+    }
+
     /**
      * Perform initialization of all fragments and loaders.
      */
