@@ -151,13 +151,13 @@ public class NullPaddedList<Type> extends PagedList<Type> {
     }
 
     @Override
-    public void addCallback(@Nullable PagedList<Type> previousSnapshot,
+    public void addWeakCallback(@Nullable PagedList<Type> previousSnapshot,
             @NonNull Callback callback) {
         // no op, immutable
     }
 
     @Override
-    public void removeCallback(Callback callback) {
+    public void removeWeakCallback(Callback callback) {
         // no op, immutable
     }
 

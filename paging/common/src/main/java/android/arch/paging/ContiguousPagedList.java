@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +49,7 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
 
     private AtomicBoolean mDetached = new AtomicBoolean(false);
 
-    private ArrayList<Callback> mCallbacks = new ArrayList<>();
+    private ArrayList<WeakReference<Callback>> mCallbacks = new ArrayList<>();
 
     @WorkerThread
     <K> ContiguousPagedList(@NonNull ContiguousDataSource<K, T> dataSource,
@@ -235,12 +236,15 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
 
         // finally dispatch callbacks, after prepend may have already been scheduled
-        for (Callback callback : mCallbacks) {
-            if (changedCount != 0) {
-                callback.onChanged(mLeadingNullCount, changedCount);
-            }
-            if (addedCount != 0) {
-                callback.onInserted(0, addedCount);
+        for (WeakReference<Callback> weakRef : mCallbacks) {
+            Callback callback = weakRef.get();
+            if (callback != null) {
+                if (changedCount != 0) {
+                    callback.onChanged(mLeadingNullCount, changedCount);
+                }
+                if (addedCount != 0) {
+                    callback.onInserted(0, addedCount);
+                }
             }
         }
     }
@@ -272,13 +276,16 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
 
         // finally dispatch callbacks, after append may have already been scheduled
-        for (Callback callback : mCallbacks) {
-            final int endPosition = mLeadingNullCount + mList.size() - count;
-            if (changedCount != 0) {
-                callback.onChanged(endPosition, changedCount);
-            }
-            if (addedCount != 0) {
-                callback.onInserted(endPosition + changedCount, addedCount);
+        for (WeakReference<Callback> weakRef : mCallbacks) {
+            Callback callback = weakRef.get();
+            if (callback != null) {
+                final int endPosition = mLeadingNullCount + mList.size() - count;
+                if (changedCount != 0) {
+                    callback.onChanged(endPosition, changedCount);
+                }
+                if (addedCount != 0) {
+                    callback.onInserted(endPosition + changedCount, addedCount);
+                }
             }
         }
     }
@@ -291,7 +298,8 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
     }
 
     @Override
-    public void addCallback(@Nullable PagedList<T> previousSnapshot, @NonNull Callback callback) {
+    public void addWeakCallback(@Nullable PagedList<T> previousSnapshot,
+            @NonNull Callback callback) {
         NullPaddedList<T> snapshot = (NullPaddedList<T>) previousSnapshot;
         if (snapshot != this && snapshot != null) {
             final int newlyAppended = mNumberAppended - snapshot.getNumberAppended();
@@ -336,12 +344,17 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
                 }
             }
         }
-        mCallbacks.add(callback);
+        mCallbacks.add(new WeakReference<>(callback));
     }
 
     @Override
-    public void removeCallback(@NonNull Callback callback) {
-        mCallbacks.remove(callback);
+    public void removeWeakCallback(@NonNull Callback callback) {
+        for (int i = mCallbacks.size() - 1; i >= 0; i--) {
+            Callback currentCallback = mCallbacks.get(i).get();
+            if (currentCallback == null || currentCallback == callback) {
+                mCallbacks.remove(i);
+            }
+        }
     }
 
     @Override

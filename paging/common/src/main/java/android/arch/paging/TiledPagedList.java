@@ -21,6 +21,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
+import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ class TiledPagedList<T> extends PageArrayList<T> {
 
     private AtomicBoolean mDetached = new AtomicBoolean(false);
 
-    private ArrayList<Callback> mCallbacks = new ArrayList<>();
+    private ArrayList<WeakReference<Callback>> mCallbacks = new ArrayList<>();
 
     @WorkerThread
     TiledPagedList(@NonNull TiledDataSource<T> dataSource,
@@ -61,7 +62,7 @@ class TiledPagedList<T> extends PageArrayList<T> {
             @NonNull Executor backgroundThreadExecutor,
             Config config,
             int position) {
-        super(config.mPageSize, dataSource.loadCount());
+        super(config.mPageSize, dataSource.countItems());
 
         mDataSource = dataSource;
         mMainThreadExecutor = mainThreadExecutor;
@@ -164,8 +165,11 @@ class TiledPagedList<T> extends PageArrayList<T> {
             throw new IllegalStateException("Data inserted before requested.");
         }
         mPages.set(localPageIndex, data);
-        for (Callback callback : mCallbacks) {
-            callback.onChanged(pageIndex * mPageSize, data.size());
+        for (WeakReference<Callback> weakRef : mCallbacks) {
+            Callback callback = weakRef.get();
+            if (callback != null) {
+                callback.onChanged(pageIndex * mPageSize, data.size());
+            }
         }
     }
 
@@ -177,7 +181,8 @@ class TiledPagedList<T> extends PageArrayList<T> {
     }
 
     @Override
-    public void addCallback(@Nullable PagedList<T> previousSnapshot, @NonNull Callback callback) {
+    public void addWeakCallback(@Nullable PagedList<T> previousSnapshot,
+            @NonNull Callback callback) {
         PageArrayList<T> snapshot = (PageArrayList<T>) previousSnapshot;
         if (snapshot != this && snapshot != null) {
             // loop through each page and signal the callback for any pages that are present now,
@@ -198,12 +203,17 @@ class TiledPagedList<T> extends PageArrayList<T> {
                 }
             }
         }
-        mCallbacks.add(callback);
+        mCallbacks.add(new WeakReference<>(callback));
     }
 
     @Override
-    public void removeCallback(@NonNull Callback callback) {
-        mCallbacks.remove(callback);
+    public void removeWeakCallback(@NonNull Callback callback) {
+        for (int i = mCallbacks.size() - 1; i >= 0; i--) {
+            Callback currentCallback = mCallbacks.get(i).get();
+            if (currentCallback == null || currentCallback == callback) {
+                mCallbacks.remove(i);
+            }
+        }
     }
 
     @Override

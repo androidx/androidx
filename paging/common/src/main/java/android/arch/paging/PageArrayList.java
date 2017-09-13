@@ -118,12 +118,13 @@ class PageArrayList<T> extends PagedList<T> {
     }
 
     @Override
-    public void addCallback(@Nullable PagedList<T> previousSnapshot, @NonNull Callback callback) {
+    public void addWeakCallback(@Nullable PagedList<T> previousSnapshot,
+            @NonNull Callback callback) {
         // no op, immutable
     }
 
     @Override
-    public void removeCallback(Callback callback) {
+    public void removeWeakCallback(Callback callback) {
         // no op, immutable
     }
 }

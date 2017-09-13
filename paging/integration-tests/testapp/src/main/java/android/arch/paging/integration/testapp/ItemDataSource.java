@@ -40,7 +40,7 @@ class ItemDataSource extends BoundedDataSource<Item> {
     private final int mGenerationId = sGenerationId++;
 
     @Override
-    public int loadCount() {
+    public int countItems() {
         return COUNT;
     }
 
