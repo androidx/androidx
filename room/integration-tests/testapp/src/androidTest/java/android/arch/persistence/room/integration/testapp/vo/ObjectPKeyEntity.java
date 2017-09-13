@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package foo.bar;
+package android.arch.persistence.room.integration.testapp.vo;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
-import android.arch.persistence.room.*;
-@Entity(primaryKeys = {"name", "lastName"})
-public class MultiPKeyEntity {
+
+@Entity
+public class ObjectPKeyEntity {
+    @PrimaryKey
     @NonNull
-    String name;
-    @NonNull
-    String lastName;
+    public String pKey;
+    public String data;
+
+    public ObjectPKeyEntity(String pKey, String data) {
+        this.pKey = pKey;
+        this.data = data;
+    }
 }

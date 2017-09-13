@@ -20,6 +20,7 @@ import android.arch.persistence.room.processor.DatabaseProcessor
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
 import android.arch.persistence.room.vo.Database
+import android.support.annotation.NonNull
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
@@ -36,6 +37,7 @@ class SQLiteOpenHelperWriterTest {
     companion object {
         const val ENTITY_PREFIX = """
             package foo.bar;
+            import android.support.annotation.NonNull;
             import android.arch.persistence.room.*;
             @Entity%s
             public class MyEntity {
@@ -55,6 +57,7 @@ class SQLiteOpenHelperWriterTest {
         singleEntity(
                 """
                 @PrimaryKey
+                @NonNull
                 String uuid;
                 String name;
                 int age;
@@ -63,7 +66,7 @@ class SQLiteOpenHelperWriterTest {
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` TEXT, `name` TEXT, `age` INTEGER NOT NULL," +
+                    " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT, `age` INTEGER NOT NULL," +
                     " PRIMARY KEY(`uuid`))"))
         }.compilesWithoutError()
     }
@@ -72,7 +75,9 @@ class SQLiteOpenHelperWriterTest {
     fun multiplePrimaryKeys() {
         singleEntity(
                 """
+                @NonNull
                 String uuid;
+                @NonNull
                 String name;
                 int age;
                 """.trimIndent(), attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
@@ -80,27 +85,49 @@ class SQLiteOpenHelperWriterTest {
             val query = SQLiteOpenHelperWriter(database)
                     .createQuery(database.entities.first())
             assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` TEXT, `name` TEXT, `age` INTEGER NOT NULL," +
-                    " PRIMARY KEY(`uuid`, `name`))"))
+                    " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT NOT NULL, " +
+                    "`age` INTEGER NOT NULL, PRIMARY KEY(`uuid`, `name`))"))
         }.compilesWithoutError()
     }
 
     @Test
-    fun autoIncrement() {
-        singleEntity(
-                """
+    fun autoIncrementObject() {
+        listOf("Long", "Integer").forEach { type ->
+            singleEntity(
+                    """
                 @PrimaryKey(autoGenerate = true)
-                int uuid;
+                $type uuid;
                 String name;
                 int age;
                 """.trimIndent()
-        ) { database, _ ->
-            val query = SQLiteOpenHelperWriter(database)
-                    .createQuery(database.entities.first())
-            assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
-                    " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                    " `name` TEXT, `age` INTEGER NOT NULL)"))
-        }.compilesWithoutError()
+            ) { database, _ ->
+                val query = SQLiteOpenHelperWriter(database)
+                        .createQuery(database.entities.first())
+                assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
+                        " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        " `name` TEXT, `age` INTEGER NOT NULL)"))
+            }.compilesWithoutError()
+        }
+    }
+
+    @Test
+    fun autoIncrementPrimitives() {
+        listOf("long", "int").forEach { type ->
+            singleEntity(
+                    """
+                @PrimaryKey(autoGenerate = true)
+                $type uuid;
+                String name;
+                int age;
+                """.trimIndent()
+            ) { database, _ ->
+                val query = SQLiteOpenHelperWriter(database)
+                        .createQuery(database.entities.first())
+                assertThat(query, `is`("CREATE TABLE IF NOT EXISTS" +
+                        " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                        " `name` TEXT, `age` INTEGER NOT NULL)"))
+            }.compilesWithoutError()
+        }
     }
 
     fun singleEntity(input: String, attributes: Map<String, String> = mapOf(),
@@ -119,7 +146,8 @@ class SQLiteOpenHelperWriterTest {
                 ), JavaFileObjects.forSourceString("foo.bar.MyDatabase",
                         DATABASE_CODE)))
                 .processedWith(TestProcessor.builder()
-                        .forAnnotations(android.arch.persistence.room.Database::class)
+                        .forAnnotations(android.arch.persistence.room.Database::class,
+                                NonNull::class)
                         .nextRunHandler { invocation ->
                             val db = MoreElements.asType(invocation.roundEnv
                                     .getElementsAnnotatedWith(

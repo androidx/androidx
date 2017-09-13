@@ -16,18 +16,21 @@
 
 package android.arch.persistence.room.integration.testapp.test;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import static org.junit.Assert.assertNotNull;
 
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.PKeyTestDatabase;
 import android.arch.persistence.room.integration.testapp.vo.IntAutoIncPKeyEntity;
 import android.arch.persistence.room.integration.testapp.vo.IntegerAutoIncPKeyEntity;
+import android.arch.persistence.room.integration.testapp.vo.ObjectPKeyEntity;
+import android.database.sqlite.SQLiteConstraintException;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +42,7 @@ import java.util.Arrays;
 @SmallTest
 public class PrimaryKeyTest {
     private PKeyTestDatabase mDatabase;
+
     @Before
     public void setup() {
         mDatabase = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getTargetContext(),
@@ -110,5 +114,19 @@ public class PrimaryKeyTest {
         entity2.data = "foo2";
         final long[] ids = mDatabase.integerPKeyDao().insertAndGetIds(entity, entity2);
         assertThat(mDatabase.integerPKeyDao().loadDataById(ids), is(Arrays.asList("foo", "foo2")));
+    }
+
+    @Test
+    public void insertNullPrimaryKey() throws Exception {
+        ObjectPKeyEntity o1 = new ObjectPKeyEntity(null, "1");
+
+        Throwable throwable = null;
+        try {
+            mDatabase.objectPKeyDao().insertMe(o1);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertNotNull("Was expecting an exception", throwable);
+        assertThat(throwable, instanceOf(SQLiteConstraintException.class));
     }
 }
