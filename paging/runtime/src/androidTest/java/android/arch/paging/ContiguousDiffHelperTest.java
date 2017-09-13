@@ -20,7 +20,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import android.support.annotation.NonNull;
 import android.support.test.filters.SmallTest;
+import android.support.v7.recyclerview.extensions.DiffCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 
@@ -36,10 +38,23 @@ public class ContiguousDiffHelperTest {
         void validate(ListUpdateCallback callback);
     }
 
+    private static final DiffCallback<String> DIFF_CALLBACK = new DiffCallback<String>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+            // first char means same item
+            return oldItem.charAt(0) == newItem.charAt(0);
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
+
     private void validateTwoListDiff(StringPagedList oldList, StringPagedList newList,
             CallbackValidator callbackValidator) {
         DiffUtil.DiffResult diffResult = ContiguousDiffHelper.computeDiff(oldList, newList,
-                StringPagedList.DIFF_CALLBACK, false);
+                DIFF_CALLBACK, false);
 
         ListUpdateCallback listUpdateCallback = Mockito.mock(ListUpdateCallback.class);
         ContiguousDiffHelper.dispatchDiff(listUpdateCallback, oldList, newList, diffResult);

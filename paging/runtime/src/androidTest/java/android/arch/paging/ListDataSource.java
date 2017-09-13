@@ -16,26 +16,23 @@
 
 package android.arch.paging;
 
-import android.support.annotation.NonNull;
+import java.util.List;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.Executor;
+public class ListDataSource<T> extends TiledDataSource<T> {
+    private List<T> mList;
 
-public class TestExecutor implements Executor {
-    private Queue<Runnable> mTasks = new LinkedList<>();
-
-    @Override
-    public void execute(@NonNull Runnable command) {
-        mTasks.add(command);
+    ListDataSource(List<T> data) {
+        mList = data;
     }
 
-    boolean executeAll() {
-        boolean consumed = !mTasks.isEmpty();
-        Runnable task;
-        while ((task = mTasks.poll()) != null) {
-            task.run();
-        }
-        return consumed;
+    @Override
+    public int loadCount() {
+        return mList.size();
+    }
+
+    @Override
+    public List<T> loadRange(int startPosition, int count) {
+        int endExclusive = Math.min(mList.size(), startPosition + count);
+        return mList.subList(startPosition, endExclusive);
     }
 }
