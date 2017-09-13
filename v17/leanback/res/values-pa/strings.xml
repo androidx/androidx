@@ -18,7 +18,7 @@ limitations under the License.
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="lb_navigation_menu_contentDescription" msgid="6215811486591629025">"ਦਿਸ਼ਾ-ਨਿਰਦੇਸ਼ ਮੀਨੂ"</string>
-    <string name="orb_search_action" msgid="5651268540267663887">"ਖੋਜ ਕਿਰਿਆ"</string>
+    <string name="orb_search_action" msgid="5651268540267663887">"ਖੋਜ ਕਾਰਵਾਈ"</string>
     <string name="lb_search_bar_hint" msgid="8325490927970116252">"ਖੋਜੋ"</string>
     <string name="lb_search_bar_hint_speech" msgid="5511270823320183816">"ਖੋਜਣ ਲਈ ਬੋਲੋ"</string>
     <string name="lb_search_bar_hint_with_title" msgid="1627103380996590035">"<xliff:g id="SEARCH_CONTEXT">%1$s</xliff:g> ਖੋਜੋ"</string>
@@ -31,8 +31,8 @@ limitations under the License.
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="1058753672110224526">"%1$dX ਨੂੰ ਅੱਗੇ ਭੇਜੋ"</string>
     <string name="lb_playback_controls_rewind" msgid="2227196334132350684">"ਰੀਵਾਈਂਡ"</string>
     <string name="lb_playback_controls_rewind_multiplier" msgid="1640629531440849942">"%1$dX ਨੂੰ ਰੀਵਾਈਂਡ ਕਰੋ"</string>
-    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"ਅਗਲਾ ਨੂੰ ਛੱਡੋ"</string>
-    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"ਪਿਛਲਾ ਨੂੰ ਛੱਡੋ"</string>
+    <string name="lb_playback_controls_skip_next" msgid="2946499493161095772">"ਅਗਲੇ ਨੂੰ ਛੱਡੋ"</string>
+    <string name="lb_playback_controls_skip_previous" msgid="2326801832933178348">"ਪਿਛਲੇ ਨੂੰ ਛੱਡੋ"</string>
     <string name="lb_playback_controls_more_actions" msgid="2330770008796987655">"ਹੋਰ ਕਿਰਿਆਵਾਂ"</string>
     <string name="lb_playback_controls_thumb_up" msgid="6530420347129222601">"ਥੰਬ ਅਪ ਨੂੰ ਅਚੋਣਵਾਂ ਕਰੋ"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1577637924003500946">"ਥੰਬ ਅਪ ਨੂੰ ਚੁਣੋ"</string>
