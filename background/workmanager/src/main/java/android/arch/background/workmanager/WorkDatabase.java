@@ -27,18 +27,24 @@ import android.content.Context;
 @Database(entities = {Blueprint.class}, version = 1)
 public abstract class WorkDatabase extends RoomDatabase {
 
+    private static final String DB_NAME_PREFIX = "android.arch.background.workmanager.work.";
+
     private static WorkDatabase sInstance;
 
     /**
      * Returns a static instance of the WorkDatabase.
      *
      * @param context A context (this method will use the application context from it)
+     * @param name The database name (will be prefixed by {@code DB_NAME_PREFIX})
      * @return The singleton WorkDatabase for this process
      */
-    public static WorkDatabase getInstance(Context context) {
+    public static WorkDatabase getInstance(Context context, String name) {
         if (sInstance == null) {
             sInstance = Room.databaseBuilder(
-                    context.getApplicationContext(), WorkDatabase.class, "work").build();
+                    context.getApplicationContext(),
+                    WorkDatabase.class,
+                    DB_NAME_PREFIX + name)
+                    .build();
         }
         return sInstance;
     }
