@@ -52,7 +52,7 @@ dependencies {
     provided project(":paging:common")
     provided project(":lifecycle:runtime")
     provided project(":lifecycle:extensions")
-    compile libs.support.core_utils
+    compile libs.support.core_utils, libs.support_exclude_config
 
     testCompile project(":arch:core-testing")
     testCompile libs.junit

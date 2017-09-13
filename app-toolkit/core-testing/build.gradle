@@ -39,7 +39,6 @@ android {
 dependencies {
     compile project(":arch:runtime")
     compile libs.support.annotations
-    compile libs.support.core_utils
     compile(libs.junit) {
         exclude module: 'hamcrest-core'
     }
