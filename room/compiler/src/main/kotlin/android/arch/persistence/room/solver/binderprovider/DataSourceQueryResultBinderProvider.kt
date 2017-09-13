@@ -19,39 +19,51 @@ package android.arch.persistence.room.solver.binderprovider
 import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
+import android.arch.persistence.room.processor.ProcessorErrors
 import android.arch.persistence.room.solver.QueryResultBinderProvider
-import android.arch.persistence.room.solver.query.result.CountedDataSourceQueryResultBinder
+import android.arch.persistence.room.solver.query.result.TiledDataSourceQueryResultBinder
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
-import com.google.common.annotations.VisibleForTesting
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
 class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val countedDataSourceTypeMirror: TypeMirror? by lazy {
+    private val dataSourceTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
-                .getTypeElement(PagingTypeNames.COUNTED_DATA_SOURCE.toString())?.asType()
+                .getTypeElement(PagingTypeNames.DATA_SOURCE.toString())?.asType()
+    }
+
+    private val tiledDataSourceTypeMirror: TypeMirror? by lazy {
+        context.processingEnv.elementUtils
+                .getTypeElement(PagingTypeNames.TILED_DATA_SOURCE.toString())?.asType()
     }
 
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
-        val typeArg = declared.typeArguments[1]
+        val typeArg = declared.typeArguments.last()
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        return CountedDataSourceQueryResultBinder(listAdapter, query.tables.map { it.name })
+        return TiledDataSourceQueryResultBinder(listAdapter, query.tables.map { it.name })
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
-            declared.typeArguments.size == 2 && isCountedDataSource(declared)
-
-    private fun isCountedDataSource(declared: DeclaredType): Boolean {
-        if (countedDataSourceTypeMirror == null) {
+    override fun matches(declared: DeclaredType): Boolean {
+        if (dataSourceTypeMirror == null || tiledDataSourceTypeMirror == null) {
+            return false
+        }
+        if (declared.typeArguments.isEmpty()) {
             return false
         }
         val erasure = context.processingEnv.typeUtils.erasure(declared)
-        return context.processingEnv.typeUtils.isAssignable(countedDataSourceTypeMirror
-                , erasure)
+        val isDataSource = context.processingEnv.typeUtils
+                .isAssignable(erasure, dataSourceTypeMirror)
+        if (!isDataSource) {
+            return false
+        }
+        val isTiled = context.processingEnv.typeUtils
+                .isAssignable(erasure, tiledDataSourceTypeMirror)
+        if (!isTiled) {
+            context.logger.e(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
+        }
+        return true
     }
-
-
 }
