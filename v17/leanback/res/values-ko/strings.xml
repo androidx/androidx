@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"고화질 사용 중지"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"자막 사용 설정"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"자막 사용 중지"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"사진 모드에서 사진 입력"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"PIP 모드 시작"</string>
     <string name="lb_guidedaction_finish_title" msgid="4015190340667946245">"완료"</string>
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"계속"</string>
     <string name="lb_date_separator" msgid="2440386660906697298">"/"</string>
