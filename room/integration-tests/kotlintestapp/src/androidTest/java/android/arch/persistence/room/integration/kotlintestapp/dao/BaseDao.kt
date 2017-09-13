@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package android.arch.persistence.room.integration.kotlintestapp.vo
+package android.arch.persistence.room.integration.kotlintestapp.dao
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.TypeConverters
-import java.util.Date
+import android.arch.persistence.room.Delete
+import android.arch.persistence.room.Insert
+import android.arch.persistence.room.OnConflictStrategy
+import android.arch.persistence.room.Update
 
-@Entity
-@TypeConverters(DateConverter::class, StringToIntListConverters::class)
-data class Author(
-        @PrimaryKey val authorId: String,
-        val name: String,
-        val dateOfBirth: Date? = null,
-        val aList: List<Integer>? = null)
+interface BaseDao<T> {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(t: T)
+
+    @Update
+    fun update(t: T)
+
+    @Delete
+    fun delete(t: T)
+}

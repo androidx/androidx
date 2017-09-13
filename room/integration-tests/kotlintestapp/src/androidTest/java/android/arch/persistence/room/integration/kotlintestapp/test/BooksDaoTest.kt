@@ -16,15 +16,19 @@
 
 package android.arch.persistence.room.integration.kotlintestapp.test
 
+import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 import android.database.sqlite.SQLiteConstraintException
+import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Test
+import java.util.Date
+import kotlin.collections.ArrayList
 
 class BooksDaoTest : TestDatabaseTest() {
 
@@ -81,5 +85,24 @@ class BooksDaoTest : TestDatabaseTest() {
         assertThat(actualPublisherWithBooks.books?.size, `is`(2))
         assertThat(actualPublisherWithBooks.books?.get(0), `is`<Book>(TestUtil.BOOK_1))
         assertThat(actualPublisherWithBooks.books?.get(1), `is`<Book>(TestUtil.BOOK_2))
+    }
+
+    @Test
+    fun insertAuthorWithAllFields() {
+        val author = Author("id", "name", Date(), ArrayList())
+        database.booksDao().addAuthors(author)
+
+        val authorDb = database.booksDao().getAuthor(author.authorId)
+
+        assertThat(authorDb, CoreMatchers.`is`<Author>(author))
+    }
+
+    @Test
+    fun insertInInheritedDao() {
+        database.derivedDao().insert(TestUtil.AUTHOR_1)
+
+        val author = database.derivedDao().getAuthor(TestUtil.AUTHOR_1.authorId)
+
+        assertThat(author, CoreMatchers.`is`<Author>(TestUtil.AUTHOR_1))
     }
 }
