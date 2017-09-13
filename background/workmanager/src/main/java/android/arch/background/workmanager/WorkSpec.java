@@ -33,6 +33,17 @@ public class WorkSpec {
         return mWorkItems;
     }
 
+    List<Dependency> generateDependencies() {
+        List<Dependency> dependencies = new ArrayList<>();
+        for (int i = 1; i < mWorkItems.size(); i++) {
+            Dependency dependency = new Dependency();
+            dependency.mWorkItemId = mWorkItems.get(i).mId;
+            dependency.mPrerequisiteId = mWorkItems.get(i - 1).mId;
+            dependencies.add(dependency);
+        }
+        return dependencies;
+    }
+
     /**
      * Builder for {@link WorkSpec} class.
      */

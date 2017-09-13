@@ -24,6 +24,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,7 +35,6 @@ import java.util.concurrent.Executors;
 public final class WorkManager implements LifecycleObserver {
 
     private static final String TAG = "WorkManager";
-
     private static int sCurrentIdTODO = 0;  // TODO: Change this! This is temporary to get started.
 
     private Context mContext;
@@ -84,10 +84,11 @@ public final class WorkManager implements LifecycleObserver {
      * @return array of {@link WorkItem} ids enqueued
      */
     public int[] enqueue(WorkSpec workSpec) {
-        int[] ids = new int[workSpec.getWorkItems().size()];
+        List<WorkItem> workItems = workSpec.getWorkItems();
+        int[] ids = new int[workItems.size()];
         for (int i = 0; i < ids.length; i++) {
             int id = generateId();
-            workSpec.getWorkItems().get(i).mId = id;
+            workItems.get(i).mId = id;
             ids[i] = id;
         }
         mEnqueueExecutor.execute(new EnqueueRunnable(workSpec));
@@ -112,8 +113,8 @@ public final class WorkManager implements LifecycleObserver {
         @Override
         public void run() {
             // TODO: check for prerequisites.
-            WorkItemDao workItemDao = mWorkDatabase.workItemDao();
-            workItemDao.insertWorkItems(mWorkSpec.getWorkItems());
+            mWorkDatabase.workItemDao().insertWorkItems(mWorkSpec.getWorkItems());
+            mWorkDatabase.dependencyDao().insertDependencies(mWorkSpec.generateDependencies());
 
             // TODO: Schedule on in-process executor.
             Log.d(TAG, "Schedule in-process executor here");

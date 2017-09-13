@@ -18,6 +18,7 @@ package android.arch.background.workmanager;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.IntDef;
@@ -40,11 +41,14 @@ class WorkItem {
     static final int STATUS_SUCCEEDED = 2;
     static final int STATUS_FAILED = 3;
 
+    @ColumnInfo(name = "id")
     @PrimaryKey
     int mId; // TODO: must be enforced as a valid id!
 
+    @ColumnInfo(name = "status")
     @WorkStatus
     int mStatus = STATUS_ENQUEUED;
 
+    @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
 }

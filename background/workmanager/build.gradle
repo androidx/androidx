@@ -42,6 +42,7 @@ android {
 dependencies {
     api project(':lifecycle:extensions')
     api project(':room:runtime')
+    annotationProcessor project(":room:compiler")
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
