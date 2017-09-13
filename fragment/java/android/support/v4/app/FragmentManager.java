@@ -1612,42 +1612,26 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             setHWLayerAnimListenerIfAlpha(viewToAnimate, anim);
             fragment.mView.startAnimation(animation);
         } else {
-            final Animator animator = anim.animator;
+            Animator animator = anim.animator;
             fragment.setAnimator(anim.animator);
             final ViewGroup container = fragment.mContainer;
-            if (container != null) {
-                container.startViewTransition(viewToAnimate);
-            }
+            container.startViewTransition(viewToAnimate);
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator anim) {
-                    // AnimatorSet in API 26 (only) can end() during start(), so delay by posting
-                    if (container == null || container.indexOfChild(viewToAnimate) < 0) {
-                        finishAnimatedFragmentRemoval(fragment, container, viewToAnimate);
-                    } else {
-                        viewToAnimate.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                finishAnimatedFragmentRemoval(fragment, container, viewToAnimate);
-                            }
-                        });
+                    container.endViewTransition(viewToAnimate);
+                    // If an animator ends immediately, we can just pretend there is no animation.
+                    // When that happens the the fragment's view won't have been removed yet.
+                    Animator animator = fragment.getAnimator();
+                    fragment.setAnimator(null);
+                    if (animator != null && container.indexOfChild(viewToAnimate) < 0) {
+                        moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0, false);
                     }
                 }
             });
             animator.setTarget(fragment.mView);
             setHWLayerAnimListenerIfAlpha(fragment.mView, anim);
             animator.start();
-        }
-    }
-
-    void finishAnimatedFragmentRemoval(Fragment fragment, ViewGroup container, View view) {
-        if (container != null) {
-            container.endViewTransition(view);
-        }
-        if (fragment.getAnimator() != null) {
-            fragment.setAnimator(null);
-            moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0,
-                    false);
         }
     }
 
