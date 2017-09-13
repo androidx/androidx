@@ -60,8 +60,8 @@ dependencies {
     compile project(':room:rxjava2')
     compile project(':paging:runtime')
 
-    compile libs.support.recyclerview
-    compile libs.support.app_compat
+    compile libs.support.recyclerview, libs.support_exclude_config
+    compile libs.support.app_compat, libs.support_exclude_config
     annotationProcessor project(":room:compiler")
     androidTestAnnotationProcessor project(":room:compiler")
 

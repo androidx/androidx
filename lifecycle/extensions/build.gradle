@@ -43,7 +43,7 @@ dependencies {
     compile project(":lifecycle:runtime")
     compile project(":arch:common")
     compile project(":arch:runtime")
-    compile libs.support.fragments
+    compile libs.support.fragments, libs.support_exclude_config
 
     annotationProcessor project(":lifecycle:compiler")
 
@@ -53,7 +53,7 @@ dependencies {
 
     androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
     androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
-    androidTestImplementation libs.support.app_compat
+    androidTestImplementation libs.support.app_compat, libs.support_exclude_config
 }
 
 createAndroidCheckstyle(project)

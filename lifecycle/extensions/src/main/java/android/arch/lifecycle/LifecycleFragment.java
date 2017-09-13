@@ -19,17 +19,8 @@ package android.arch.lifecycle;
 import android.support.v4.app.Fragment;
 
 /**
- * A fragment that is also a {@link LifecycleOwner}.
- * <p>
- * This class is a temporary implementation detail until Lifecycles are integrated with support
- * library.
+ * @deprecated Use {@link Fragment} instead of it.
  */
-// This class will be removed once we integrate with Fragment library.
-public class LifecycleFragment extends Fragment implements LifecycleRegistryOwner {
-    LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return mLifecycleRegistry;
-    }
+@Deprecated
+public class LifecycleFragment extends Fragment {
 }

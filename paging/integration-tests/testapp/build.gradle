@@ -46,8 +46,8 @@ dependencies {
     compile project(':paging:runtime')
     compile 'com.android.support:multidex:1.0.1'
 
-    compile libs.support.recyclerview
-    compile libs.support.app_compat
+    compile libs.support.recyclerview, libs.support_exclude_config
+    compile libs.support.app_compat, libs.support_exclude_config
 }
 
 createAndroidCheckstyle(project)
