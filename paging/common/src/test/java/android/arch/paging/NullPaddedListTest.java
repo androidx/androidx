@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,5 +46,23 @@ public class NullPaddedListTest {
         assertEquals(6, list.size());
         assertEquals(2, list.getLeadingNullCount());
         assertEquals(2, list.getTrailingNullCount());
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getEmpty() {
+        NullPaddedList<String> list = new NullPaddedList<>(0, new ArrayList<String>(), 0);
+        list.get(0);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getNegative() {
+        NullPaddedList<String> list = new NullPaddedList<>(0, Arrays.asList("a", "b"), 0);
+        list.get(-1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void getPastEnd() {
+        NullPaddedList<String> list = new NullPaddedList<>(0, Arrays.asList("a", "b"), 0);
+        list.get(2);
     }
 }
