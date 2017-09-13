@@ -26,7 +26,7 @@ public class ListDataSource<T> extends TiledDataSource<T> {
     }
 
     @Override
-    public int loadCount() {
+    public int countItems() {
         return mList.size();
     }
 
