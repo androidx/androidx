@@ -152,7 +152,17 @@ public class Navigation {
         };
     }
 
-    static void setViewNavController(View view, NavController controller) {
+    /**
+     * Associates a NavController with the given View, allowing developers to use
+     * {@link #findController(View)} and {@link #findController(Activity, int)} with that View or
+     * any of its children to retrieve the NavController.
+     * <p>
+     * This is generally called for you by the hosting component, such as a {@link NavHostFragment}.
+     * @param view View that should be associated with the given NavController
+     * @param controller The controller you wish to later retrieve via
+     *                   {@link #findController(View)}
+     */
+    public static void setViewNavController(View view, NavController controller) {
         view.setTag(R.id.nav_controller_view_tag, controller);
     }
 
