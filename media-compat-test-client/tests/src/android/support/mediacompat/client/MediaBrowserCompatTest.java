@@ -16,7 +16,6 @@
 
 package android.support.mediacompat.client;
 
-import static android.support.mediacompat.client.util.IntentUtil.callMediaBrowserServiceMethod;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.EXTRAS_KEY;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.EXTRAS_VALUE;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_CHILDREN;
@@ -37,6 +36,7 @@ import static junit.framework.Assert.fail;
 
 import android.content.ComponentName;
 import android.os.Bundle;
+import android.support.mediacompat.client.util.IntentUtil;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
@@ -262,7 +262,7 @@ public class MediaBrowserCompatTest {
 
             // Test MediaBrowserServiceCompat.notifyChildrenChanged()
             mSubscriptionCallback.reset();
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
             mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mSubscriptionCallback.mChildrenLoadedCount > 0);
         }
@@ -273,7 +273,7 @@ public class MediaBrowserCompatTest {
 
         // After unsubscribing, make StubMediaBrowserServiceCompat notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -316,7 +316,7 @@ public class MediaBrowserCompatTest {
 
             // Test MediaBrowserServiceCompat.notifyChildrenChanged()
             mSubscriptionCallback.reset();
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
             mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mSubscriptionCallback.mChildrenLoadedWithOptionCount > 0);
         }
@@ -327,7 +327,7 @@ public class MediaBrowserCompatTest {
 
         // After unsubscribing, make StubMediaBrowserServiceCompat notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -406,7 +406,7 @@ public class MediaBrowserCompatTest {
 
         // After unsubscribing, make StubMediaBrowserServiceCompat notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -457,7 +457,7 @@ public class MediaBrowserCompatTest {
                     subscriptionCallbacks.get(orderOfRemovingCallbacks[i]));
 
             // Make StubMediaBrowserServiceCompat notify that the children are changed.
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
             try {
                 Thread.sleep(SLEEP_MS);
             } catch (InterruptedException e) {
@@ -537,6 +537,10 @@ public class MediaBrowserCompatTest {
                 fail("Browser failed to connect!");
             }
         }
+    }
+
+    private void callMediaBrowserServiceMethod(int methodId, Object arg) {
+        IntentUtil.callMediaBrowserServiceMethod(methodId, arg, getContext());
     }
 
     private void resetCallbacks() {
