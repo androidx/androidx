@@ -25,33 +25,33 @@ import android.arch.persistence.room.Query;
 import java.util.List;
 
 /**
- * The Data Access Object for {@link Blueprint}s.
+ * The Data Access Object for {@link WorkItem}s.
  */
 @Dao
-public interface BlueprintDao {
+public interface WorkItemDao {
 
     /**
      * @param id The identifier
-     * @return The {@link Blueprint} associated with that identifier
+     * @return The {@link WorkItem} associated with that identifier
      */
-    @Query("SELECT * FROM blueprint WHERE id=:id")
-    Blueprint getBlueprint(int id);
+    @Query("SELECT * FROM workitem WHERE id=:id")
+    WorkItem getWorkItem(int id);
 
     /**
-     * Attempts to insert a Blueprint into the database.
+     * Attempts to insert a WorkItem into the database.
      *
-     * @param blueprints The {@link Blueprint}s to insert
+     * @param workItems The {@link WorkItem}s to insert
      */
     @Insert(onConflict = FAIL)
-    void insertBlueprints(List<Blueprint> blueprints);
+    void insertWorkItems(List<WorkItem> workItems);
 
     /**
-     * Updates the status of a {@link Blueprint}.
+     * Updates the status of a {@link WorkItem}.
      *
-     * @param id     The identifier for the {@link Blueprint}
+     * @param id     The identifier for the {@link WorkItem}
      * @param status The new status
      * @return The number of rows that were updated (should be 0 or 1)
      */
-    @Query("UPDATE blueprint SET status=:status WHERE id=:id")
-    int setBlueprintStatus(int id, int status);
+    @Query("UPDATE workitem SET status=:status WHERE id=:id")
+    int setWorkItemStatus(int id, int status);
 }

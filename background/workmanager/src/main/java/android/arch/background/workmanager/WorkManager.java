@@ -80,17 +80,17 @@ public final class WorkManager implements LifecycleObserver {
     /**
      * Enqueues an item for background processing.
      *
-     * @param workItem {@link WorkItem} containing all {@link Blueprint}s
-     * @return array of {@link Blueprint} ids enqueued
+     * @param workSpec {@link WorkSpec} containing all {@link WorkItem}s
+     * @return array of {@link WorkItem} ids enqueued
      */
-    public int[] enqueue(WorkItem workItem) {
-        int[] ids = new int[workItem.getBlueprints().size()];
+    public int[] enqueue(WorkSpec workSpec) {
+        int[] ids = new int[workSpec.getWorkItems().size()];
         for (int i = 0; i < ids.length; i++) {
             int id = generateId();
-            workItem.getBlueprints().get(i).mId = id;
+            workSpec.getWorkItems().get(i).mId = id;
             ids[i] = id;
         }
-        mEnqueueExecutor.execute(new EnqueueRunnable(workItem));
+        mEnqueueExecutor.execute(new EnqueueRunnable(workSpec));
         return ids;
     }
 
@@ -103,17 +103,17 @@ public final class WorkManager implements LifecycleObserver {
      * A Runnable to enqueue WorkItems in the database.
      */
     private class EnqueueRunnable implements Runnable {
-        private WorkItem mWorkItem;
+        private WorkSpec mWorkSpec;
 
-        EnqueueRunnable(WorkItem workItem) {
-            mWorkItem = workItem;
+        EnqueueRunnable(WorkSpec workSpec) {
+            mWorkSpec = workSpec;
         }
 
         @Override
         public void run() {
             // TODO: check for prerequisites.
-            BlueprintDao blueprintDao = mWorkDatabase.blueprintDao();
-            blueprintDao.insertBlueprints(mWorkItem.getBlueprints());
+            WorkItemDao workItemDao = mWorkDatabase.workItemDao();
+            workItemDao.insertWorkItems(mWorkSpec.getWorkItems());
 
             // TODO: Schedule on in-process executor.
             Log.d(TAG, "Schedule in-process executor here");

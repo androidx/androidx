@@ -16,57 +16,35 @@
 
 package android.arch.background.workmanager;
 
-import java.util.ArrayList;
-import java.util.List;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
 
 /**
- * Stores all {@link Blueprint}s that constitute one item of work.
+ * The database entity that stores information about one Worker.
  */
-public class WorkItem {
-    private List<Blueprint> mBlueprints;
 
-    private WorkItem(List<Blueprint> blueprints) {
-        this.mBlueprints = blueprints;
+@Entity
+class WorkItem {
+    @Retention(SOURCE)
+    @IntDef({STATUS_FAILED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_ENQUEUED})
+    @interface WorkStatus {
     }
 
-    List<Blueprint> getBlueprints() {
-        return mBlueprints;
-    }
+    static final int STATUS_ENQUEUED = 0;
+    static final int STATUS_RUNNING = 1;
+    static final int STATUS_SUCCEEDED = 2;
+    static final int STATUS_FAILED = 3;
 
-    /**
-     * Builder for {@link WorkItem} class.
-     */
-    public static class Builder {
-        private List<Blueprint> mBlueprints = new ArrayList<>(1);
+    @PrimaryKey
+    int mId; // TODO: must be enforced as a valid id!
 
-        public Builder(Class<? extends Worker> workerClass) {
-            addNewBlueprint(workerClass);
-        }
+    @WorkStatus
+    int mStatus = STATUS_ENQUEUED;
 
-        /**
-         * Chain this {@link WorkItem} to another {@link Worker} Class.
-         *
-         * @param workerClass the next {@link Worker} class to chain this WorkItem to
-         * @return current builder
-         */
-        public Builder then(Class<? extends Worker> workerClass) {
-            addNewBlueprint(workerClass);
-            return this;
-        }
-
-        /**
-         * Generates the {@link WorkItem} from this builder
-         *
-         * @return new {@link WorkItem} containing all {@link Blueprint}s
-         */
-        public WorkItem build() {
-            return new WorkItem(mBlueprints);
-        }
-
-        private void addNewBlueprint(Class<? extends Worker> workerClass) {
-            Blueprint blueprint = new Blueprint();
-            blueprint.mWorkerClassName = workerClass.getName();
-            mBlueprints.add(blueprint);
-        }
-    }
+    String mWorkerClassName;
 }

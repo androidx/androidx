@@ -24,7 +24,7 @@ import android.content.Context;
 /**
  * A Room database for keeping track of work statuses.
  */
-@Database(entities = {Blueprint.class}, version = 1)
+@Database(entities = {WorkItem.class}, version = 1)
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME_PREFIX = "android.arch.background.workmanager.work.";
@@ -50,7 +50,7 @@ public abstract class WorkDatabase extends RoomDatabase {
     }
 
     /**
-     * @return The Data Access Object for {@link Blueprint}s.
+     * @return The Data Access Object for {@link WorkItem}s.
      */
-    public abstract BlueprintDao blueprintDao();
+    public abstract WorkItemDao workItemDao();
 }
