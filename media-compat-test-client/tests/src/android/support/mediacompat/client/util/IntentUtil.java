@@ -24,6 +24,7 @@ import static android.support.mediacompat.testlib.IntentConstants.KEY_METHOD_ID;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -38,6 +39,9 @@ public class IntentUtil {
     public static void callMediaBrowserServiceMethod(int methodId, Object arg, Context context) {
         Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
         context.sendBroadcast(intent);
     }
 
