@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.Blueprint.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Blueprint.STATUS_FAILED;
-import static android.arch.background.workmanager.Blueprint.STATUS_RUNNING;
-import static android.arch.background.workmanager.Blueprint.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.WorkItem.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.WorkItem.STATUS_FAILED;
+import static android.arch.background.workmanager.WorkItem.STATUS_RUNNING;
+import static android.arch.background.workmanager.WorkItem.STATUS_SUCCEEDED;
 
 import android.content.Context;
 import android.util.Log;
@@ -37,12 +37,12 @@ public abstract class Worker<T> implements Callable<T> {
 
     protected Context mAppContext;
     private WorkDatabase mWorkDatabase;
-    private Blueprint mBlueprint;
+    private WorkItem mWorkItem;
 
-    public Worker(Context appContext, WorkDatabase workDatabase, Blueprint blueprint) {
+    public Worker(Context appContext, WorkDatabase workDatabase, WorkItem workItem) {
         this.mAppContext = appContext;
         this.mWorkDatabase = workDatabase;
-        this.mBlueprint = blueprint;
+        this.mWorkItem = workItem;
     }
 
     /**
@@ -54,11 +54,11 @@ public abstract class Worker<T> implements Callable<T> {
 
     @Override
     public final T call() {
-        int id = mBlueprint.mId;
+        int id = mWorkItem.mId;
         Log.v(TAG, "Worker.call for " + id);
-        BlueprintDao blueprintDao = mWorkDatabase.blueprintDao();
-        mBlueprint.mStatus = STATUS_RUNNING;
-        blueprintDao.setBlueprintStatus(id, STATUS_RUNNING);
+        WorkItemDao workItemDao = mWorkDatabase.workItemDao();
+        mWorkItem.mStatus = STATUS_RUNNING;
+        workItemDao.setWorkItemStatus(id, STATUS_RUNNING);
 
         T result = null;
 
@@ -68,18 +68,18 @@ public abstract class Worker<T> implements Callable<T> {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + id);
-            mBlueprint.mStatus = STATUS_SUCCEEDED;
-            blueprintDao.setBlueprintStatus(id, STATUS_SUCCEEDED);
+            mWorkItem.mStatus = STATUS_SUCCEEDED;
+            workItemDao.setWorkItemStatus(id, STATUS_SUCCEEDED);
         } catch (Exception e) {
             // TODO: Retry policies.
             if (e instanceof InterruptedException) {
                 Log.d(TAG, "Work interrupted for " + id);
-                mBlueprint.mStatus = STATUS_ENQUEUED;
-                blueprintDao.setBlueprintStatus(id, STATUS_ENQUEUED);
+                mWorkItem.mStatus = STATUS_ENQUEUED;
+                workItemDao.setWorkItemStatus(id, STATUS_ENQUEUED);
             } else {
                 Log.d(TAG, "Work failed for " + id, e);
-                mBlueprint.mStatus = STATUS_FAILED;
-                blueprintDao.setBlueprintStatus(id, STATUS_FAILED);
+                mWorkItem.mStatus = STATUS_FAILED;
+                workItemDao.setWorkItemStatus(id, STATUS_FAILED);
             }
         }
 
