@@ -30,6 +30,7 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.tools.StandardLocation
 
 fun writeModels(infos: List<AdapterClass>, processingEnv: ProcessingEnvironment) {
     infos.forEach({ writeAdapter(it, processingEnv) })
@@ -116,6 +117,8 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
 
     JavaFile.builder(adapter.type.getPackageQName(), adapterTypeSpecBuilder.build())
             .build().writeTo(processingEnv.filer)
+
+    generateKeepRule(adapter.type, processingEnv)
 }
 
 private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
@@ -131,6 +134,25 @@ private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.B
                 LifecycleProcessor::class.java.canonicalName).build()
         adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)
     }
+}
+
+private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnvironment) {
+    val adapterClass = type.getPackageQName() + "." + getAdapterName(type)
+    val observerClass = type.toString()
+    val keepRule = """# Generated keep rule for Lifecycle observer adapter.
+        |-keep class $adapterClass {
+        |   ifused class $observerClass {
+        |       <init>(...);
+        |   };
+        |}
+        |""".trimMargin()
+
+    // Write the keep rule to the META-INF/proguard directory of the Jar file. The file name
+    // contains the fully qualified observer name so that file names are unique. This will allow any
+    // jar file merging to not overwrite keep rule files.
+    val path = "META-INF/proguard/$observerClass.pro"
+    val out = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", path)
+    out.openWriter().use { it.write(keepRule) }
 }
 
 private fun MethodSpec.Builder.writeMethodCalls(eventParam: ParameterSpec,
