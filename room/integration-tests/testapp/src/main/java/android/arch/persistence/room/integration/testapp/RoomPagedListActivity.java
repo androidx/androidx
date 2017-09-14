@@ -19,13 +19,14 @@ package android.arch.persistence.room.integration.testapp;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.paging.PagedList;
 import android.arch.persistence.room.integration.testapp.database.Customer;
 import android.arch.persistence.room.integration.testapp.database.LastNameAscCustomerDataSource;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.recyclerview.extensions.LiveListAdapterUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -69,8 +70,12 @@ public class RoomPagedListActivity extends AppCompatActivity implements Lifecycl
             }
             livePagedList = viewModel.getLivePagedList(position);
         }
-        LiveListAdapterUtil.bind(livePagedList, this, mAdapter);
-
+        livePagedList.observe(this, new Observer<PagedList<Customer>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<Customer> items) {
+                mAdapter.setList(items);
+            }
+        });
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
