@@ -50,7 +50,7 @@ import java.util.List;
  * {@literal @}Dao
  * interface UserDao {
  *     {@literal @}Query("SELECT * FROM user ORDER BY lastName ASC")
- *     public abstract LivePagedListProvider&lt;User> usersByLastName();
+ *     public abstract LivePagedListProvider&lt;Integer, User> usersByLastName();
  * }
  *
  * class MyViewModel extends ViewModel {

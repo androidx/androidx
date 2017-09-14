@@ -28,8 +28,16 @@ import android.support.annotation.WorkerThread;
  * Return type for data-loading system of an application or library to produce a
  * {@code LiveData<PagedList>}, while leaving the details of the paging mechanism up to the
  * consumer.
+ * <p>
+ * If you're using Room, it can generate a LivePagedListProvider from a query:
+ * <pre>
+ * {@literal @}Dao
+ * interface UserDao {
+ *     {@literal @}Query("SELECT * FROM user ORDER BY lastName ASC")
+ *     public abstract LivePagedListProvider&lt;Integer, User> usersByLastName();
+ * }</pre>
  *
- * @param <Key> Tyep of input valued used to load data from the DataSource. Must be integer if
+ * @param <Key> Type of input valued used to load data from the DataSource. Must be integer if
  *             you're using TiledDataSource.
  * @param <Value> Data type produced by the DataSource, and held by the PagedLists.
  *
