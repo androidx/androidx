@@ -1,0 +1,31 @@
+apply plugin: android.support.SupportAndroidLibraryPlugin
+
+dependencies {
+    api project(':appcompat-v7')
+    api project(':cardview-v7')
+    api project(':support-annotations')
+    api project(':recyclerview-v7')
+
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 24
+    }
+
+    sourceSets {
+        main.java.srcDir 'src'
+        main.res.srcDirs 'res', 'res-public'
+    }
+}
+
+supportLibrary {
+    name 'Android Car Support UI'
+    publish false
+    inceptionYear '2017'
+    description 'Android Car Support UI'
+}
