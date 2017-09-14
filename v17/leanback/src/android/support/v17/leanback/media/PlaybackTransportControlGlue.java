@@ -254,9 +254,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
             // playing    paused                  paused
             // paused     playing       playing
             // ff/rw      playing       playing   paused
-            if (canPause
-                    && (canPlay ? mIsPlaying :
-                    !mIsPlaying)) {
+            if (canPause && mIsPlaying) {
                 mIsPlaying = false;
                 pause();
             } else if (canPlay && !mIsPlaying) {
