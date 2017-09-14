@@ -47,7 +47,8 @@ public class WorkDatabaseTests {
     }
 
     @After
-    public void tearDown() {}
+    public void tearDown() {
+    }
 
     @Test
     public void insert() throws InterruptedException, ExecutionException, TimeoutException {
@@ -64,5 +65,32 @@ public class WorkDatabaseTests {
         assertFalse(mDatabase.dependencyDao().hasDependencies(ids[0]));
         assertTrue(mDatabase.dependencyDao().hasDependencies(ids[1]));
         assertTrue(mDatabase.dependencyDao().hasDependencies(ids[2]));
+    }
+
+    @Test
+    public void constraints() throws InterruptedException, ExecutionException, TimeoutException {
+        WorkSpec item = new WorkSpec.Builder(TestWorker.class)
+                .withConstraints(
+                        new Constraints.Builder()
+                                .setRequiresCharging(true)
+                                .setRequiresDeviceIdle(true)
+                                .setRequiresNetworkType(Constraints.NETWORK_TYPE_METERED)
+                                .build())
+                .then(TestWorker.class)
+                .build();
+        int[] ids = mWorkManager.enqueue(item);
+        Thread.sleep(5000);
+        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(ids[0]);
+        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(ids[1]);
+
+        assertNotNull(workItem0.mConstraints);
+        assertTrue(workItem0.mConstraints.mRequiresCharging);
+        assertTrue(workItem0.mConstraints.mRequiresDeviceIdle);
+        assertEquals(workItem0.mConstraints.mRequiresNetworkType, Constraints.NETWORK_TYPE_METERED);
+
+        assertNotNull(workItem1.mConstraints);
+        assertFalse(workItem1.mConstraints.mRequiresCharging);
+        assertFalse(workItem1.mConstraints.mRequiresDeviceIdle);
+        assertEquals(workItem1.mConstraints.mRequiresNetworkType, Constraints.NETWORK_TYPE_ANY);
     }
 }

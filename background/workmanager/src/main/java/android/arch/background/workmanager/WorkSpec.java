@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +54,21 @@ public class WorkSpec {
 
         public Builder(Class<? extends Worker> workerClass) {
             addNewWorkItem(workerClass);
+        }
+
+        private WorkItem getLastWorkItem() {
+            return mWorkItems.get(mWorkItems.size() - 1);
+        }
+
+        /**
+         * Add constraints to the current {@link WorkItem}
+         *
+         * @param constraints the constraints to attach to the work item
+         * @return current builder
+         */
+        public Builder withConstraints(@NonNull Constraints constraints) {
+            getLastWorkItem().mConstraints = constraints;
+            return this;
         }
 
         /**

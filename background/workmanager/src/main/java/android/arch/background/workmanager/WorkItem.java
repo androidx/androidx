@@ -19,6 +19,7 @@ package android.arch.background.workmanager;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.IntDef;
@@ -51,4 +52,7 @@ class WorkItem {
 
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
+
+    @Embedded
+    Constraints mConstraints = new Constraints.Builder().build();
 }
