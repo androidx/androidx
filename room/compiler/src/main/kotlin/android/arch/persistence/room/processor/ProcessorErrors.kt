@@ -444,4 +444,6 @@ object ProcessorErrors {
             Room cannot pick a constructor since multiple constructors are suitable. Try to annotate
             unwanted constructors with @Ignore.
             """.trim()
+
+    val PAGING_SPECIFY_DATA_SOURCE_TYPE = "For now, Room only supports TiledDataSource class."
 }
