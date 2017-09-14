@@ -20,6 +20,7 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import android.support.annotation.VisibleForTesting;
 
 /**
  * A Room database for keeping track of work statuses.
@@ -44,6 +45,23 @@ public abstract class WorkDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     WorkDatabase.class,
                     DB_NAME_PREFIX + name)
+                    .build();
+        }
+        return sInstance;
+    }
+
+    /**
+     * Returns an in memory static instance of the WorkDatabase used for testing.
+     *
+     * @param context A context (this method will use the application context from it)
+     * @return The singleton WorkDatabase for this process
+     */
+    @VisibleForTesting
+    static WorkDatabase getInMemoryInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = Room.inMemoryDatabaseBuilder(
+                    context.getApplicationContext(),
+                    WorkDatabase.class)
                     .build();
         }
         return sInstance;
