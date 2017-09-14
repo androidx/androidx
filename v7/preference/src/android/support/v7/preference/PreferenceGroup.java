@@ -22,7 +22,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
@@ -45,6 +47,7 @@ import java.util.List;
  * </div>
  *
  * @attr name android:orderingFromXml
+ * @attr name initialExpandedChildrenCount
  */
 public abstract class PreferenceGroup extends Preference {
     /**
@@ -59,6 +62,9 @@ public abstract class PreferenceGroup extends Preference {
     private int mCurrentPreferenceOrder = 0;
 
     private boolean mAttachedToHierarchy = false;
+
+    private int mInitialExpandedChildrenCount = Integer.MAX_VALUE;
+    private PreferenceInstanceStateCallback mPreferenceInstanceStateCallback;
 
     private final SimpleArrayMap<String, Long> mIdRecycleCache = new SimpleArrayMap<>();
     private final Handler mHandler = new Handler();
@@ -83,6 +89,11 @@ public abstract class PreferenceGroup extends Preference {
                 TypedArrayUtils.getBoolean(a, R.styleable.PreferenceGroup_orderingFromXml,
                         R.styleable.PreferenceGroup_orderingFromXml, true);
 
+        if (a.hasValue(R.styleable.PreferenceGroup_initialExpandedChildrenCount)) {
+            mInitialExpandedChildrenCount = TypedArrayUtils.getInt(
+                    a, R.styleable.PreferenceGroup_initialExpandedChildrenCount,
+                            R.styleable.PreferenceGroup_initialExpandedChildrenCount, -1);
+        }
         a.recycle();
     }
 
@@ -117,6 +128,35 @@ public abstract class PreferenceGroup extends Preference {
      */
     public boolean isOrderingAsAdded() {
         return mOrderingAsAdded;
+    }
+
+    /**
+     * Sets the maximal number of children that are shown when the preference group is launched
+     * where the rest of the children will be hidden.
+     * If some children are hidden an expand button will be provided to show all the hidden
+     * children. Any child in any level of the hierarchy that is also a preference group (e.g.
+     * preference category) will not be counted towards the limit. But instead the children of such
+     * group will be counted.
+     * By default, all children will be shown, so the default value of this attribute is equal to
+     * Integer.MAX_VALUE.
+     *
+     * @param expandedCount the number of children that is initially shown.
+     *
+     * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
+     */
+    public void setInitialExpandedChildrenCount(int expandedCount) {
+        mInitialExpandedChildrenCount = expandedCount;
+    }
+
+    /**
+     * Gets the maximal number of children that is initially shown.
+     *
+     * @return the maximal number of children that is initially shown.
+     *
+     * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
+     */
+    public int getInitialExpandedChildrenCount() {
+        return mInitialExpandedChildrenCount;
     }
 
     /**
@@ -400,6 +440,44 @@ public abstract class PreferenceGroup extends Preference {
         }
     }
 
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        final Parcelable superState = super.onSaveInstanceState();
+        if (mPreferenceInstanceStateCallback != null) {
+            return mPreferenceInstanceStateCallback.saveInstanceState(superState);
+        }
+        return superState;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (mPreferenceInstanceStateCallback != null) {
+            state = mPreferenceInstanceStateCallback.restoreInstanceState(state);
+        }
+        super.onRestoreInstanceState(state);
+    }
+
+    /**
+     * Sets the instance state callback.
+     *
+     * @param callback The callback.
+     * @see #onSaveInstanceState()
+     * @see #onRestoreInstanceState()
+     */
+    final void setPreferenceInstanceStateCallback(PreferenceInstanceStateCallback callback) {
+        mPreferenceInstanceStateCallback = callback;
+    }
+
+    /**
+     * Gets the instance state callback.
+     *
+     * @return the instance state callback.
+     */
+    @VisibleForTesting
+    final PreferenceInstanceStateCallback getPreferenceInstanceStateCallback() {
+        return mPreferenceInstanceStateCallback;
+    }
+
     /**
      * Interface for PreferenceGroup Adapters to implement so that
      * {@link android.support.v14.preference.PreferenceFragment#scrollToPreference(String)} and
@@ -426,4 +504,29 @@ public abstract class PreferenceGroup extends Preference {
          */
         int getPreferenceAdapterPosition(Preference preference);
     }
+
+    /**
+     * Interface for callback to implement so that they can save and restore the preference group's
+     * instance state.
+     */
+    interface PreferenceInstanceStateCallback {
+
+        /**
+         * Save the internal state that can later be used to create a new instance with that
+         * same state.
+         *
+         * @param state The Parcelable to save the current dynamic state.
+         */
+        Parcelable saveInstanceState(Parcelable state);
+
+        /**
+         * Restore the previously saved state from the given parcelable.
+         *
+         * @param state The Parcelable that holds the previously saved state.
+         * @return the super state if data has been saved in the state in {@link saveInstanceState}
+         *         or state otherwise
+         */
+        Parcelable restoreInstanceState(Parcelable state);
+    }
+
 }
