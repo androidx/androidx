@@ -42,6 +42,14 @@ public class NavDeepLinkTest {
     }
 
     @Test
+    public void deepLinkExactMatchWithHyphens() {
+        String deepLinkString = "android-app://com.example";
+        NavDeepLink deepLink = new NavDeepLink(deepLinkString);
+
+        assertThat(deepLink.matches(Uri.parse(deepLinkString)), is(true));
+    }
+
+    @Test
     public void deepLinkExactMatchNoScheme() {
         NavDeepLink deepLink = new NavDeepLink(DEEP_LINK_EXACT_NO_SCHEME);
 

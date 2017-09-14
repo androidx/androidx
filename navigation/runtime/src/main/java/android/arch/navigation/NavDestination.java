@@ -187,6 +187,11 @@ public class NavDestination {
      * These Uris can be declared in your navigation XML files by adding one or more
      * <code>&lt;deepLink app:uri="uriPattern" /&gt;</code> elements as
      * a child to your destination.
+     * <p>
+     * Deep links added in navigation XML files will automatically replace instances of
+     * <code>${applicationId}</code> with the applicationId of your app.
+     * Programmatically added deep links should use {@link Context#getPackageName()} directly
+     * when constructing the uriPattern.
      * @param uriPattern The uri pattern to add as a deep link
      * @see NavController#onHandleDeepLink(Intent)
      */
