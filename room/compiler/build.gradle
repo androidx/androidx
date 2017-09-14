@@ -16,8 +16,9 @@ import android.support.LibraryVersions
  * limitations under the License.
  */
 
-apply plugin: 'kotlin'
-apply plugin: 'maven'
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension;
+apply plugin: android.support.SupportKotlinLibraryPlugin
 
 def antlrOut = "$buildDir/generated/antlr/grammar-gen/"
 sourceSets {
@@ -78,3 +79,10 @@ tasks.findByName("compileKotlin").dependsOn(":room:db:jarDebug")
 
 createKotlinCheckstyle(project)
 
+supportLibrary {
+    name 'Android Room Compiler'
+    publish true
+    inceptionYear '2017'
+    description "Android Room annotation processor"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}
