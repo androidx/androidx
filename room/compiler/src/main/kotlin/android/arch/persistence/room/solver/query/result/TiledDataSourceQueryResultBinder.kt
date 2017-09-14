@@ -31,8 +31,8 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
-class CountedDataSourceQueryResultBinder(val listAdapter : ListQueryResultAdapter?,
-                                         val tableNames : List<String>)
+class TiledDataSourceQueryResultBinder(val listAdapter : ListQueryResultAdapter?,
+                                       val tableNames : List<String>)
             : QueryResultBinder(listAdapter) {
     val itemTypeName : TypeName = listAdapter?.rowAdapter?.out?.typeName() ?: TypeName.OBJECT
     val typeName : ParameterizedTypeName = ParameterizedTypeName.get(

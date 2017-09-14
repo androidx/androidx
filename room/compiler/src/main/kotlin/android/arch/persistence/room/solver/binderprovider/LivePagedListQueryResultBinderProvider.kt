@@ -20,7 +20,7 @@ import android.arch.persistence.room.ext.PagingTypeNames
 import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.solver.QueryResultBinderProvider
-import android.arch.persistence.room.solver.query.result.CountedDataSourceQueryResultBinder
+import android.arch.persistence.room.solver.query.result.TiledDataSourceQueryResultBinder
 import android.arch.persistence.room.solver.query.result.ListQueryResultAdapter
 import android.arch.persistence.room.solver.query.result.LivePagedListQueryResultBinder
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
@@ -38,7 +38,7 @@ class LivePagedListQueryResultBinderProvider(val context: Context) : QueryResult
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        val countedBinder = CountedDataSourceQueryResultBinder(listAdapter,
+        val countedBinder = TiledDataSourceQueryResultBinder(listAdapter,
                 query.tables.map { it.name })
         return LivePagedListQueryResultBinder(countedBinder)
     }

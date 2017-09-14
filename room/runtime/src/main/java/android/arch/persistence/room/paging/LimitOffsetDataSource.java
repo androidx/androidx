@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room.paging;
 
-import android.arch.paging.BoundedDataSource;
+import android.arch.paging.TiledDataSource;
 import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.RoomSQLiteQuery;
@@ -42,7 +42,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class LimitOffsetDataSource<T> extends BoundedDataSource<T> {
+public abstract class LimitOffsetDataSource<T> extends TiledDataSource<T> {
     private final RoomSQLiteQuery mSourceQuery;
     private final String mCountQuery;
     private final String mLimitOffsetQuery;
