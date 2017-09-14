@@ -50,7 +50,7 @@ dependencies {
     compile project(":room:common")
     compile project(":room:runtime")
     compile project(":arch:runtime")
-    compile libs.support.core_utils
+    compile libs.support.core_utils, libs.support_exclude_config
     compile libs.rx_java
     testCompile libs.junit
     testCompile libs.mockito_core

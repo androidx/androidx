@@ -42,7 +42,7 @@ dependencies {
     compile project(":lifecycle:runtime")
     compile project(':lifecycle:extensions')
 
-    compile libs.support.recyclerview
+    compile libs.support.recyclerview, libs.support_exclude_config
 
     androidTestImplementation libs.junit
     androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
