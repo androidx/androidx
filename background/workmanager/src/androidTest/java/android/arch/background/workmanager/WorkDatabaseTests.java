@@ -75,6 +75,9 @@ public class WorkDatabaseTests {
                                 .setRequiresCharging(true)
                                 .setRequiresDeviceIdle(true)
                                 .setRequiresNetworkType(Constraints.NETWORK_TYPE_METERED)
+                                .setRequiresBatteryNotLow(true)
+                                .setRequiresStorageNotLow(true)
+                                .setInitialDelay(5000)
                                 .build())
                 .then(TestWorker.class)
                 .build();
@@ -86,11 +89,17 @@ public class WorkDatabaseTests {
         assertNotNull(workItem0.mConstraints);
         assertTrue(workItem0.mConstraints.mRequiresCharging);
         assertTrue(workItem0.mConstraints.mRequiresDeviceIdle);
-        assertEquals(workItem0.mConstraints.mRequiresNetworkType, Constraints.NETWORK_TYPE_METERED);
+        assertTrue(workItem0.mConstraints.mRequiresBatteryNotLow);
+        assertTrue(workItem0.mConstraints.mRequiresStorageNotLow);
+        assertEquals(5000, workItem0.mConstraints.mInitialDelay);
+        assertEquals(Constraints.NETWORK_TYPE_METERED, workItem0.mConstraints.mRequiresNetworkType);
 
         assertNotNull(workItem1.mConstraints);
         assertFalse(workItem1.mConstraints.mRequiresCharging);
         assertFalse(workItem1.mConstraints.mRequiresDeviceIdle);
-        assertEquals(workItem1.mConstraints.mRequiresNetworkType, Constraints.NETWORK_TYPE_ANY);
+        assertFalse(workItem1.mConstraints.mRequiresBatteryNotLow);
+        assertFalse(workItem1.mConstraints.mRequiresStorageNotLow);
+        assertEquals(0, workItem1.mConstraints.mInitialDelay);
+        assertEquals(Constraints.NETWORK_TYPE_ANY, workItem1.mConstraints.mRequiresNetworkType);
     }
 }

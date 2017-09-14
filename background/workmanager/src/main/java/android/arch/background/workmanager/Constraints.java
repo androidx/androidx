@@ -40,6 +40,9 @@ class Constraints {
     int mRequiresNetworkType;
     boolean mRequiresCharging;
     boolean mRequiresDeviceIdle;
+    boolean mRequiresBatteryNotLow;
+    boolean mRequiresStorageNotLow;
+    long mInitialDelay;
 
     Constraints() { // stub required for room
     }
@@ -48,6 +51,9 @@ class Constraints {
         mRequiresCharging = builder.mRequiresCharging;
         mRequiresDeviceIdle = builder.mRequiresDeviceIdle;
         mRequiresNetworkType = builder.mRequiresNetworkType;
+        mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
+        mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
+        mInitialDelay = builder.mInitialDelay;
     }
 
     /**
@@ -57,9 +63,12 @@ class Constraints {
         private boolean mRequiresCharging = false;
         private boolean mRequiresDeviceIdle = false;
         private int mRequiresNetworkType = NETWORK_TYPE_ANY;
+        private boolean mRequiresBatteryNotLow = false;
+        private boolean mRequiresStorageNotLow = false;
+        private long mInitialDelay = 0L;
 
         /**
-         * Specify whether device should be plugged in for the WorkItem to run.
+         * Specify whether device should be plugged in for {@link WorkItem} to run.
          * Default is false.
          *
          * @param requiresCharging true if device must be plugged in, false otherwise
@@ -71,7 +80,7 @@ class Constraints {
         }
 
         /**
-         * Specify whether device should be idle for the WorkItem to run. Default is false.
+         * Specify whether device should be idle for {@link WorkItem} to run. Default is false.
          *
          * @param requiresDeviceIdle true if device must be idle, false otherwise
          * @return current builder
@@ -82,14 +91,52 @@ class Constraints {
         }
 
         /**
-         * Specify whether device should have a particular {@link NetworkType} for WorkItem to run.
-         * Default is {@value #NETWORK_TYPE_ANY}
+         * Specify whether device should have a particular {@link NetworkType} for {@link WorkItem}
+         * to run. Default is {@value #NETWORK_TYPE_ANY}
          *
          * @param networkType type of network required
          * @return current builder
          */
         public Builder setRequiresNetworkType(@NetworkType int networkType) {
             this.mRequiresNetworkType = networkType;
+            return this;
+        }
+
+        /**
+         * Specify whether device battery should not be below critical threshold for
+         * {@link WorkItem} to run. Default is false.
+         *
+         * @param requiresBatteryNotLow true if battery should not be below critical threshold,
+         *                              false otherwise
+         * @return current builder
+         */
+        public Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
+            this.mRequiresBatteryNotLow = requiresBatteryNotLow;
+            return this;
+        }
+
+        /**
+         * Specify whether device available storage should not be below critical threshold for
+         * {@link WorkItem} to run. Default is false.
+         *
+         * @param requiresStorageNotLow true if available storage should not be below critical
+         *                              threshold, false otherwise
+         * @return current builder
+         */
+        public Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
+            this.mRequiresStorageNotLow = requiresStorageNotLow;
+            return this;
+        }
+
+        /**
+         * Specify whether {@link WorkItem} should run with an initial delay. Default is 0ms.
+         *
+         * @param duration initial delay before running WorkItem (in milliseconds)
+         * @return current builder
+         */
+        public Builder setInitialDelay(long duration) {
+            // TODO(xbhatnag) : Does this affect rescheduled jobs?
+            this.mInitialDelay = duration;
             return this;
         }
 
