@@ -329,6 +329,5 @@ public class ContiguousPagedListTest {
             executed = mBackgroundThread.executeAll();
             executed |= mMainThread.executeAll();
         } while (executed);
-
     }
 }
