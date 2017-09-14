@@ -50,7 +50,7 @@ allprojects {
         testCompile(libs.test_runner) {
             exclude module: 'support-annotations'
         }
-        androidTestCompile libs.support.app_compat
+        androidTestCompile libs.support.app_compat, libs.support_exclude_config
     }
 }
 

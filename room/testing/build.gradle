@@ -46,7 +46,7 @@ dependencies {
     compile project(":room:db-impl")
     compile project(":room:migration")
     compile project(":arch:runtime")
-    compile libs.support.core_utils
+    compile libs.support.core_utils, libs.support_exclude_config
     compile libs.junit
 }
 
