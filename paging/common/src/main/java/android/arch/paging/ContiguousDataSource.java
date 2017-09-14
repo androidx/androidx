@@ -32,7 +32,7 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
      * @return number of items that this DataSource can provide in total, or COUNT_UNDEFINED
      * if difficult or undesired to compute.
      */
-    public int loadCount() {
+    public int countItems() {
         return COUNT_UNDEFINED;
     }
 

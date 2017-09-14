@@ -67,7 +67,7 @@ public class TiledPagedListTest {
 
     private static class TestTiledSource extends TiledDataSource<Item> {
         @Override
-        public int loadCount() {
+        public int countItems() {
             return ITEMS.size();
         }
 
@@ -132,7 +132,7 @@ public class TiledPagedListTest {
     public void append() {
         TiledPagedList<Item> pagedList = createTiledPagedList(0);
         PagedList.Callback callback = mock(PagedList.Callback.class);
-        pagedList.addCallback(null, callback);
+        pagedList.addWeakCallback(null, callback);
         verifyRange(pagedList, 0);
         verifyZeroInteractions(callback);
 
@@ -148,7 +148,7 @@ public class TiledPagedListTest {
     public void prepend() {
         TiledPagedList<Item> pagedList = createTiledPagedList(44);
         PagedList.Callback callback = mock(PagedList.Callback.class);
-        pagedList.addCallback(null, callback);
+        pagedList.addWeakCallback(null, callback);
         verifyRange(pagedList, 3, 4);
         verifyZeroInteractions(callback);
 
@@ -164,7 +164,7 @@ public class TiledPagedListTest {
     public void loadWithGap() {
         TiledPagedList<Item> pagedList = createTiledPagedList(0);
         PagedList.Callback callback = mock(PagedList.Callback.class);
-        pagedList.addCallback(null, callback);
+        pagedList.addWeakCallback(null, callback);
         verifyRange(pagedList, 0);
         verifyZeroInteractions(callback);
 
@@ -181,7 +181,7 @@ public class TiledPagedListTest {
     public void tinyPrefetchTest() {
         TiledPagedList<Item> pagedList = createTiledPagedList(0, 1);
         PagedList.Callback callback = mock(PagedList.Callback.class);
-        pagedList.addCallback(null, callback);
+        pagedList.addWeakCallback(null, callback);
         verifyRange(pagedList, 0); // just 4 loaded
         verifyZeroInteractions(callback);
 
@@ -222,7 +222,7 @@ public class TiledPagedListTest {
 
         PagedList.Callback callback = mock(
                 PagedList.Callback.class);
-        pagedList.addCallback(snapshot, callback);
+        pagedList.addWeakCallback(snapshot, callback);
         verify(callback).onChanged(20, 20);
         verifyNoMoreInteractions(callback);
     }
@@ -249,7 +249,7 @@ public class TiledPagedListTest {
         verifyRange(snapshot, 2, 3, 4);
 
         PagedList.Callback callback = mock(PagedList.Callback.class);
-        pagedList.addCallback(snapshot, callback);
+        pagedList.addWeakCallback(snapshot, callback);
         verify(callback).onChanged(0, 20);
         verifyNoMoreInteractions(callback);
     }

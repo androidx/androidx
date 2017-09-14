@@ -52,22 +52,23 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
     @Test
     public void emptyPage() {
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        assertThat(dataSource.loadCount(), is(0));
+        assertThat(dataSource.countItems(), is(0));
     }
 
     @Test
     public void loadCount() {
         createUsers(6);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        assertThat(dataSource.loadCount(), is(6));
+        assertThat(dataSource.countItems(), is(6));
     }
 
     @Test
     public void singleItem() {
         List<User> users = createUsers(1);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        assertThat(dataSource.loadCount(), is(1));
+        assertThat(dataSource.countItems(), is(1));
         List<User> initial = dataSource.loadRange(0, 10);
+
         assertThat(initial.get(0), is(users.get(0)));
         assertEmpty(dataSource.loadRange(1, 10));
     }
@@ -76,7 +77,7 @@ public class LimitOffsetDataSourceTest extends TestDatabaseTest {
     public void initial() {
         List<User> users = createUsers(10);
         LimitOffsetDataSource<User> dataSource = loadUsersByAgeDesc();
-        assertThat(dataSource.loadCount(), is(10));
+        assertThat(dataSource.countItems(), is(10));
         List<User> initial = dataSource.loadRange(0, 1);
         assertThat(initial.get(0), is(users.get(0)));
         List<User> second = dataSource.loadRange(1, 1);

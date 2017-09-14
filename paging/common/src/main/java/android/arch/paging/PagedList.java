@@ -25,17 +25,18 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Lazy loading list that pages in content from a provided {@link DataSource}.
+ * Lazy loading list that pages in content from a {@link DataSource}.
  * <p>
  * A PagedList is a lazy loaded list, which presents data from a {@link DataSource}. If the
- * DataSource is counted (returns a valid number from {@link DataSource#loadCount()}), the PagedList
- * will present null items at the beginning and end of loaded content. As {@link #loadAround} is
- * called, items will be added to the beginning or end of the list as appropriate, and if nulls are
- * present, a corresponding number will be removed.
+ * DataSource is counted (returns a valid number from its count method(s)), the PagedList will
+ * present {@code null} items in place of not-yet-loaded content to serve as placeholders.
  * <p>
- * In this way, PagedList can present data for an infinite scrolling list, or a very large but
- * countable list. See {@link PagedListAdapter}, which enables the binding of a PagedList to a
- * RecyclerView. Use {@link Config} to control how a PagedList loads content.
+ * When {@link #loadAround} is called, items will be loaded in near the passed position. If
+ * placeholder {@code null}s are present in the list, they will be replaced as content is loaded.
+ * <p>
+ * In this way, PagedList can present data for an unbounded, infinite scrolling list, or a very
+ * large but countable list. See {@link PagedListAdapter}, which enables the binding of a PagedList
+ * to a RecyclerView. Use {@link Config} to control how many items a PagedList loads, and when.
  *
  * @param <T> The type of the entries in the list.
  */
@@ -307,21 +308,26 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * <p>
      * This allows an observer that's currently presenting a snapshot to catch up to the most recent
      * version, including any changes that may have been made.
+     * <p>
+     * The callback is internally held as weak reference, so PagedList doesn't hold a strong
+     * reference to its observer, such as a {@link PagedListAdapter}. If an adapter were held with a
+     * strong reference, it would be necessary to clear its PagedList observer before it could be
+     * GC'd.
      *
      * @param previousSnapshot Snapshot previously captured from this List, or null.
      * @param callback         Callback to dispatch to.
-     * @see #removeCallback(Callback)
+     * @see #removeWeakCallback(Callback)
      */
-    public abstract void addCallback(@Nullable PagedList<T> previousSnapshot,
+    public abstract void addWeakCallback(@Nullable PagedList<T> previousSnapshot,
             @NonNull Callback callback);
 
     /**
      * Removes a previously added callback.
      *
      * @param callback Callback, previously added.
-     * @see #addCallback(PagedList, Callback)
+     * @see #addWeakCallback(PagedList, Callback)
      */
-    public abstract void removeCallback(Callback callback);
+    public abstract void removeWeakCallback(Callback callback);
 
     /**
      * Callback signaling when content is loaded into the list.

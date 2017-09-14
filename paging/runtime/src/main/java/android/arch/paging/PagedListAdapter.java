@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.recyclerview.extensions.DiffCallback;
 import android.support.v7.recyclerview.extensions.ListAdapterConfig;
 import android.support.v7.recyclerview.extensions.ListAdapterHelper;
-import android.support.v7.recyclerview.extensions.ListReceiver;
 import android.support.v7.widget.RecyclerView;
 
 /**
@@ -32,11 +31,7 @@ import android.support.v7.widget.RecyclerView;
  * behavior for item counting, and listening to PagedList update callbacks.
  * <p>
  * While using a LiveData&lt;PagedList> is an easy way to provide data to the adapter, it isn't
- * required - you can use {@link #setList(PagedList)} when new lists are available. If you do
- * use <code>setList()</code>though, be sure to pass a {@code null} PagedList when the UI
- * element is destroyed. This ensures that the PagedList doesn't hold a reference to the containing
- * Activity/Fragment. Note that this is not a concern when using bind in LiveListAdapterUtil, as
- * it uses the passed lifecycle owner to guarantee this cleanup.
+ * required - you can use {@link #setList(PagedList)} when new lists are available.
  * <p>
  * PagedListAdapter listens to PagedList loading callbacks as pages are loaded, and uses DiffUtil on
  * a background thread to compute fine grained updates as new PagedLists are received.
@@ -70,7 +65,7 @@ import android.support.v7.widget.RecyclerView;
  *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
- *         LiveListAdapterUtil.bind(viewModel.usersList, this, adapter);
+ *         viewModel.usersList.observe(this, pagedList -> adapter.setList(pagedList));
  *         recyclerView.setAdapter(adapter);
  *     }
  * }
@@ -90,6 +85,27 @@ import android.support.v7.widget.RecyclerView;
  *             holder.clear();
  *         }
  *     }
+ * }
+ *
+ * {@literal @}Entity
+ * class User {
+ *      // ... simple POJO code omitted ...
+ *
+ *      public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;Customer>() {
+ *          {@literal @}Override
+ *          public boolean areItemsTheSame(
+ *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *              // User properties may have changed if reloaded from the DB, but ID is fixed
+ *              return oldUser.getId() == newUser.getId();
+ *          }
+ *          {@literal @}Override
+ *          public boolean areContentsTheSame(
+ *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *              // NOTE: if you use equals, your object must properly override Object#equals()
+ *              // Incorrectly returning false here will result in too many animations.
+ *              return oldUser.equals(newUser);
+ *          }
+ *      }
  * }</pre>
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
@@ -100,7 +116,7 @@ import android.support.v7.widget.RecyclerView;
  * @param <VH> A class that extends ViewHolder that will be used by the adapter.
  */
 public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
-        extends RecyclerView.Adapter<VH> implements ListReceiver<PagedList<T>> {
+        extends RecyclerView.Adapter<VH> {
     private final PagedListAdapterHelper<T> mHelper;
 
     /**
@@ -129,7 +145,6 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @param pagedList The new list to be displayed.
      */
-    @Override
     public void setList(PagedList<T> pagedList) {
         mHelper.setList(pagedList);
     }

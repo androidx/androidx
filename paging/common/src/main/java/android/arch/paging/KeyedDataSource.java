@@ -49,22 +49,46 @@ import java.util.List;
  * }
  *
  * public class KeyedUserQueryDataSource extends KeyedDataSource&lt;String, User> {
- *     {@literal @}NonNull {@literal @}Override
+ *     private MyDatabase mDb;
+ *     private final UserDao mUserDao;
+ *     {@literal @}SuppressWarnings("FieldCanBeLocal")
+ *     private final InvalidationTracker.Observer mObserver;
+ *
+ *     public OffsetUserQueryDataSource(MyDatabase db) {
+ *         mDb = db;
+ *         mUserDao = db.getUserDao();
+ *         mObserver = new InvalidationTracker.Observer("user") {
+ *             {@literal @}Override
+ *             public void onInvalidated({@literal @}NonNull Set&lt;String> tables) {
+ *                 // the user table has been invalidated, invalidate the DataSource
+ *                 invalidate();
+ *             }
+ *         };
+ *         db.getInvalidationTracker().addWeakObserver(mObserver);
+ *     }
+ *
+ *     {@literal @}Override
+ *     public boolean isInvalid() {
+ *         mDb.getInvalidationTracker().refreshVersionsSync();
+ *         return super.isInvalid();
+ *     }
+ *
+ *     {@literal @}Override
  *     public String getKey({@literal @}NonNull User item) {
  *         return item.getName();
  *     }
  *
- *     {@literal @}Nullable {@literal @}Override
+ *     {@literal @}Override
  *     public List&lt;User> loadInitial(int pageSize) {
  *         return mUserDao.userNameInitial(pageSize);
  *     }
  *
- *     {@literal @}Nullable {@literal @}Override
+ *     {@literal @}Override
  *     public List&lt;User> loadBefore({@literal @}NonNull String userName, int pageSize) {
  *         return mUserDao.userNameLoadBefore(userName, pageSize);
  *     }
  *
- *     {@literal @}Nullable {@literal @}Override
+ *     {@literal @}Override
  *     public List&lt;User> loadAfter({@literal @}Nullable String userName, int pageSize) {
  *         return mUserDao.userNameLoadAfter(userName, pageSize);
  *     }
@@ -74,7 +98,8 @@ import java.util.List;
  * @param <Value> Type of items being loaded by the DataSource.
  */
 public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
-    public final int loadCount() {
+    @Override
+    public final int countItems() {
         return 0; // method not called, can't be overridden
     }
 
