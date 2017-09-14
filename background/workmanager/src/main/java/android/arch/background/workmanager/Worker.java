@@ -53,7 +53,7 @@ public abstract class Worker<T> implements Callable<T> {
     public abstract T doWork();
 
     @Override
-    public final T call() throws Exception {
+    public final T call() {
         int id = mBlueprint.mId;
         Log.v(TAG, "Worker.call for " + id);
         BlueprintDao blueprintDao = mWorkDatabase.blueprintDao();

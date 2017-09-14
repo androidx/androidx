@@ -28,36 +28,38 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * WorkManager is a singleton class used to enqueue persisted work that is guaranteed to run after
- * its constraints are met.
+ * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
+ * constraints are met.
  */
 public final class WorkManager implements LifecycleObserver {
 
     private static final String TAG = "WorkManager";
 
-    private static WorkManager sInstance;
     private static int sCurrentIdTODO = 0;  // TODO: Change this! This is temporary to get started.
 
-    /**
-     * Returns the singleton instance of WorkManager, creating it if necessary.
-     *
-     * @param context A Context for initialization (this method will use the application Context)
-     * @return The singleton instance of WorkManager
-     */
-    public static WorkManager getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new WorkManager(context.getApplicationContext());
-        }
-        return sInstance;
-    }
-
     private Context mContext;
+    private String mName;
+    private ExecutorService mForegroundExecutor;
+    private ExecutorService mBackgroundExecutor;
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
 
-    private WorkManager(Context context) {
-        this.mContext = context;
-        mWorkDatabase = WorkDatabase.getInstance(context);
+    private WorkManager(
+            Context context,
+            String name,
+            ExecutorService foregroundExecutor,
+            ExecutorService backgroundExecutor) {
+        mContext = context.getApplicationContext();
+        mName = name;
+        mForegroundExecutor =
+                (foregroundExecutor == null)
+                        ? Executors.newScheduledThreadPool(4)   // TODO: Configure intelligently.
+                        : foregroundExecutor;
+        mBackgroundExecutor =
+                (backgroundExecutor == null)
+                        ? Executors.newSingleThreadExecutor()   // TODO: Configure intelligently.
+                        : backgroundExecutor;
+        mWorkDatabase = WorkDatabase.getInstance(mContext, mName);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
@@ -120,6 +122,49 @@ public final class WorkManager implements LifecycleObserver {
                 // TODO: Schedule on JobScheduler.
                 Log.d(TAG, "Schedule JobScheduler here");
             }
+        }
+    }
+
+    /**
+     * A Builder for {@link WorkManager}.
+     */
+    public static class Builder {
+
+        private String mName;
+        private ExecutorService mForegroundExecutor;
+        private ExecutorService mBackgroundExecutor;
+
+        public Builder(String name) {
+            mName = name;
+        }
+
+        /**
+         * @param foregroundExecutor The ExecutorService to run in-process during active lifecycles
+         * @return The Builder
+         */
+        public Builder withForegroundExecutor(ExecutorService foregroundExecutor) {
+            mForegroundExecutor = foregroundExecutor;
+            return this;
+        }
+
+        /**
+         * @param backgroundExecutor The ExecutorService to run via OS-defined background execution
+         *                           such as {@link android.app.job.JobScheduler}
+         * @return The Builder
+         */
+        public Builder withBackgroundExecutor(ExecutorService backgroundExecutor) {
+            mBackgroundExecutor = backgroundExecutor;
+            return this;
+        }
+
+        /**
+         * Builds the {@link WorkManager}.
+         *
+         * @param context The context used for initialization (we will get the Application context)
+         * @return The {@link WorkManager}
+         */
+        public WorkManager build(Context context) {
+            return new WorkManager(context, mName, mForegroundExecutor, mBackgroundExecutor);
         }
     }
 }
