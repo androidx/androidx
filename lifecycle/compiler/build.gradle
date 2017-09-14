@@ -1,8 +1,6 @@
 import android.support.LibraryVersions
-
-apply plugin: 'kotlin'
-apply plugin: 'maven'
-apply plugin: 'checkstyle'
+import android.support.SupportLibraryExtension
+apply plugin: android.support.SupportKotlinLibraryPlugin
 
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
@@ -27,3 +25,11 @@ dependencies {
 
 version = LibraryVersions.LIFECYCLES_EXT.toString()
 createKotlinCheckstyle(project)
+
+supportLibrary {
+    name 'Android Lifecycles Compiler'
+    publish true
+    inceptionYear '2017'
+    description "Android Lifecycles annotation processor"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}
