@@ -267,6 +267,10 @@ public class BaseFragment extends BrandedFragment {
     void onExecuteEntranceTransition() {
         // wait till views get their initial position before start transition
         final View view = getView();
+        if (view == null) {
+            // fragment view destroyed, transition not needed
+            return;
+        }
         view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
