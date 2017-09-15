@@ -17,7 +17,6 @@
 package android.arch.paging.integration.testapp;
 
 import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.paging.PagedList;
@@ -31,7 +30,7 @@ import android.widget.Button;
 /**
  * Sample NullPaddedList activity with artificial data source.
  */
-public class PagedListSampleActivity extends AppCompatActivity implements LifecycleRegistryOwner {
+public class PagedListSampleActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {

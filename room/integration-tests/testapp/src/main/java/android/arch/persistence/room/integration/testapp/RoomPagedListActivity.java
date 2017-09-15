@@ -17,7 +17,6 @@
 package android.arch.persistence.room.integration.testapp;
 
 import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -35,7 +34,7 @@ import android.widget.Button;
 /**
  * Sample PagedList activity which uses Room.
  */
-public class RoomPagedListActivity extends AppCompatActivity implements LifecycleRegistryOwner {
+public class RoomPagedListActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private PagedListCustomerAdapter mAdapter;
