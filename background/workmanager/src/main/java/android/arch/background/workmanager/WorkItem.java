@@ -53,7 +53,10 @@ public class WorkItem {
 
     @ColumnInfo(name = "id")
     @PrimaryKey
-    int mId; // TODO: must be enforced as a valid id!
+    String mId;
+
+    @ColumnInfo(name = "workspec_id")
+    String mWorkSpecId;
 
     @ColumnInfo(name = "status")
     @WorkStatus
@@ -72,4 +75,9 @@ public class WorkItem {
 
     @ColumnInfo(name = "backoff_delay_duration")
     long mBackoffDelayDuration = DEFAULT_BACKOFF_DELAY_DURATION;
+
+    WorkItem(String id, String workSpecId) {
+        mId = id;
+        mWorkSpecId = workSpecId;
+    }
 }

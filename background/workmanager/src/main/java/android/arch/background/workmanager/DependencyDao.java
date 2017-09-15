@@ -46,6 +46,6 @@ public interface DependencyDao {
      */
     @Query("SELECT COUNT(id) > 0 FROM workitem WHERE status!=2 AND id IN"
             + "(SELECT prerequisite_id FROM dependency WHERE work_item_id=:id)")
-    boolean hasDependencies(int id); // TODO: Replace 2 with STATUS_SUCCEEDED constant
+    boolean hasDependencies(String id); // TODO: Replace 2 with STATUS_SUCCEEDED constant
                                      // TODO: Refactor this method to a separate DAO.
 }

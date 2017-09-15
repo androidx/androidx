@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -52,24 +53,26 @@ public class WorkDatabaseTests {
 
     @Test
     public void insert() throws InterruptedException, ExecutionException, TimeoutException {
-        WorkSpec item = new WorkSpec.Builder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .then(TestWorker.class)
                 .then(TestWorker.class)
                 .build();
-        int[] ids = mWorkManager.enqueue(item);
+        mWorkManager.enqueue(work);
         Thread.sleep(5000);
-        assertEquals(3, ids.length);
-        for (int id : ids) {
+
+        List<String> workItemIds = work.getWorkItemIds();
+        assertEquals(3, workItemIds.size());
+        for (String id : workItemIds) {
             assertNotNull(mDatabase.workItemDao().getWorkItem(id));
         }
-        assertFalse(mDatabase.dependencyDao().hasDependencies(ids[0]));
-        assertTrue(mDatabase.dependencyDao().hasDependencies(ids[1]));
-        assertTrue(mDatabase.dependencyDao().hasDependencies(ids[2]));
+        assertFalse(mDatabase.dependencyDao().hasDependencies(workItemIds.get(0)));
+        assertTrue(mDatabase.dependencyDao().hasDependencies(workItemIds.get(1)));
+        assertTrue(mDatabase.dependencyDao().hasDependencies(workItemIds.get(2)));
     }
 
     @Test
     public void constraints() throws InterruptedException, ExecutionException, TimeoutException {
-        WorkSpec item = new WorkSpec.Builder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withConstraints(
                         new Constraints.Builder()
                                 .setRequiresCharging(true)
@@ -81,10 +84,12 @@ public class WorkDatabaseTests {
                                 .build())
                 .then(TestWorker.class)
                 .build();
-        int[] ids = mWorkManager.enqueue(item);
+        mWorkManager.enqueue(work);
         Thread.sleep(5000);
-        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(ids[0]);
-        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(ids[1]);
+
+        List<String> workItemIds = work.getWorkItemIds();
+        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(workItemIds.get(0));
+        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(workItemIds.get(1));
 
         assertNotNull(workItem0.mConstraints);
         assertTrue(workItem0.mConstraints.mRequiresCharging);
@@ -105,14 +110,16 @@ public class WorkDatabaseTests {
 
     @Test
     public void backoffPolicy() throws InterruptedException, ExecutionException, TimeoutException {
-        WorkSpec item = new WorkSpec.Builder(TestWorker.class)
+        Work work = new Work.Builder(TestWorker.class)
                 .withBackoffCriteria(WorkItem.BACKOFF_POLICY_LINEAR, 50000)
                 .then(TestWorker.class)
                 .build();
-        int[] ids = mWorkManager.enqueue(item);
+        mWorkManager.enqueue(work);
         Thread.sleep(5000);
-        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(ids[0]);
-        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(ids[1]);
+
+        List<String> workItemIds = work.getWorkItemIds();
+        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(workItemIds.get(0));
+        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(workItemIds.get(1));
 
         assertEquals(WorkItem.BACKOFF_POLICY_LINEAR, workItem0.mBackoffPolicy);
         assertEquals(50000, workItem0.mBackoffDelayDuration);

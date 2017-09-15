@@ -54,7 +54,7 @@ public abstract class Worker<T> implements Callable<T> {
 
     @Override
     public final T call() {
-        int id = mWorkItem.mId;
+        String id = mWorkItem.mId;
         Log.v(TAG, "Worker.call for " + id);
         WorkItemDao workItemDao = mWorkDatabase.workItemDao();
         mWorkItem.mStatus = STATUS_RUNNING;

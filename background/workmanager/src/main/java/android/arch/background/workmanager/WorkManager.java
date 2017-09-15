@@ -24,7 +24,6 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,7 +35,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public final class WorkManager implements LifecycleObserver {
 
     private static final String TAG = "WorkManager";
-    private static int sCurrentIdTODO = 0;  // TODO: Change this! This is temporary to get started.
 
     private Context mContext;
     private String mName;
@@ -88,45 +86,34 @@ public final class WorkManager implements LifecycleObserver {
     /**
      * Enqueues an item for background processing.
      *
-     * @param workSpec {@link WorkSpec} containing all {@link WorkItem}s
-     * @return array of {@link WorkItem} ids enqueued
+     * @param work the {@link Work} to enqueue
      */
-    public int[] enqueue(WorkSpec workSpec) {
-        List<WorkItem> workItems = workSpec.getWorkItems();
-        int[] ids = new int[workItems.size()];
-        for (int i = 0; i < ids.length; i++) {
-            int id = generateId();
-            workItems.get(i).mId = id;
-            ids[i] = id;
-        }
-        mEnqueueExecutor.execute(new EnqueueRunnable(workSpec));
-        return ids;
-    }
-
-    private int generateId() {
-        // TODO: Fix! Temporary solution for id assignment.
-        return sCurrentIdTODO++;
+    public void enqueue(Work work) {
+        mEnqueueExecutor.execute(new EnqueueRunnable(work));
     }
 
     /**
      * A Runnable to enqueue WorkItems in the database.
      */
     private class EnqueueRunnable implements Runnable {
-        private WorkSpec mWorkSpec;
+        private Work mWork;
 
-        EnqueueRunnable(WorkSpec workSpec) {
-            mWorkSpec = workSpec;
+        EnqueueRunnable(Work work) {
+            mWork = work;
         }
 
         @Override
         public void run() {
             // TODO: check for prerequisites.
-            List<WorkItem> workItems = mWorkSpec.getWorkItems();
-            mWorkDatabase.workItemDao().insertWorkItems(workItems);
-            mWorkDatabase.dependencyDao().insertDependencies(mWorkSpec.generateDependencies());
+            // TODO: insert in a transaction.
+            mWorkDatabase.workSpecDao().insertWorkSpec(mWork.getWorkSpec());
+            mWorkDatabase.workItemDao().insertWorkItems(mWork.getWorkItems());
+            mWorkDatabase.dependencyDao().insertDependencies(mWork.generateDependencies());
 
             if (mForegroundWorkExecutionMgr != null) {
-                mForegroundWorkExecutionMgr.enqueue(workItems.get(0).mId, 0L /* TODO: delay */);
+                mForegroundWorkExecutionMgr.enqueue(
+                        mWork.getWorkItems().get(0).mId,
+                        0L /* TODO: delay */);
                 // TODO: Schedule dependent work.
             }
 

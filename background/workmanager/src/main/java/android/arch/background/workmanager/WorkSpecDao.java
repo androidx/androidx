@@ -22,36 +22,24 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
-import java.util.List;
-
 /**
- * The Data Access Object for {@link WorkItem}s.
+ * The Data Access Object for {@link WorkSpec}s.
  */
 @Dao
-public interface WorkItemDao {
+public interface WorkSpecDao {
+
+    /**
+     * Attempts to insert a WorkSpec into the database.
+     *
+     * @param workSpec The WorkSpec to insert.
+     */
+    @Insert(onConflict = FAIL)
+    void insertWorkSpec(WorkSpec workSpec);
 
     /**
      * @param id The identifier
-     * @return The {@link WorkItem} associated with that identifier
+     * @return The WorkSpec associated with that id
      */
-    @Query("SELECT * FROM workitem WHERE id=:id")
-    WorkItem getWorkItem(String id);
-
-    /**
-     * Attempts to insert a WorkItem into the database.
-     *
-     * @param workItems The {@link WorkItem}s to insert
-     */
-    @Insert(onConflict = FAIL)
-    void insertWorkItems(List<WorkItem> workItems);
-
-    /**
-     * Updates the status of a {@link WorkItem}.
-     *
-     * @param id The identifier for the {@link WorkItem}
-     * @param status The new status
-     * @return The number of rows that were updated (should be 0 or 1)
-     */
-    @Query("UPDATE workitem SET status=:status WHERE id=:id")
-    int setWorkItemStatus(String id, int status);
+    @Query("SELECT * FROM workspec WHERE id=:id")
+    WorkSpec getWorkSpec(String id);
 }
