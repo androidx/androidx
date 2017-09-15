@@ -210,3 +210,20 @@ enum class SQLTypeAffinity {
         }
     }
 }
+
+enum class Collate {
+    BINARY,
+    NOCASE,
+    RTRIM;
+
+    companion object {
+        fun fromAnnotationValue(value: Int): Collate? {
+            return when (value) {
+                ColumnInfo.BINARY -> BINARY
+                ColumnInfo.NOCASE -> NOCASE
+                ColumnInfo.RTRIM -> RTRIM
+                else -> null
+            }
+        }
+    }
+}
