@@ -21,8 +21,9 @@ import static android.arch.background.workmanager.WorkItem.STATUS_FAILED;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.SparseArray;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +39,7 @@ class WorkExecutionManager {
     private WorkDatabase mWorkDatabase;
     private ScheduledExecutorService mExecutor;
 
-    private SparseArray<Future<?>> mFutures = new SparseArray<>();
+    private Map<String, Future<?>> mFutures = new HashMap<>();
     private final Object mLock = new Object();
 
     WorkExecutionManager(
@@ -50,7 +51,7 @@ class WorkExecutionManager {
         mExecutor = executor;
     }
 
-    void enqueue(int id, long delayMs) {
+    void enqueue(String id, long delayMs) {
         synchronized (mLock) {
             InternalRunnable runnable = new InternalRunnable(id);
             Future<?> future = mExecutor.schedule(runnable, delayMs, TimeUnit.MILLISECONDS);
@@ -58,7 +59,7 @@ class WorkExecutionManager {
         }
     }
 
-    boolean cancel(int id) {
+    boolean cancel(String id) {
         synchronized (mLock) {
             Future<?> future = mFutures.get(id);
             if (future != null) {
@@ -72,8 +73,7 @@ class WorkExecutionManager {
 
     void shutdown() {
         synchronized (mLock) {
-            for (int i = 0, size = mFutures.size(); i < size; ++i) {
-                Future<?> future = mFutures.valueAt(i);
+            for (Future future : mFutures.values()) {
                 if (future != null) {
                     // TODO(sumir): Investigate if we should interrupt running tasks.
                     // Also look at mExecutor.shutdown() vs. mExecutor.shutdownNow()
@@ -87,14 +87,14 @@ class WorkExecutionManager {
     }
 
     /**
-     * A callable that looks up the {@link WorkItem} from the database for a given id, instantiates
+     * A callable that looks up the {@link WorkItem} from the database for a given mId, instantiates
      * its Worker, and then calls it.
      */
     private class InternalRunnable implements Runnable {
 
-        int mId;
+        String mId;
 
-        InternalRunnable(int id) {
+        InternalRunnable(String id) {
             mId = id;
         }
 

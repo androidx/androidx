@@ -16,102 +16,29 @@
 
 package android.arch.background.workmanager;
 
-import android.support.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
 /**
- * Stores all {@link WorkItem}s that constitute one logical chain of work.
+ * Stores information about a logical chain of work.
  */
-public class WorkSpec {
-    private List<WorkItem> mWorkItems;
+@Entity
+class WorkSpec {
 
-    private WorkSpec(List<WorkItem> workItems) {
-        this.mWorkItems = workItems;
-    }
+    @ColumnInfo(name = "id")
+    @PrimaryKey
+    String mId;
 
-    List<WorkItem> getWorkItems() {
-        return mWorkItems;
-    }
+    // TODO(xbhatnag)
+    @ColumnInfo(name = "repeat_duration")
+    long mRepeatDuration;
 
-    List<Dependency> generateDependencies() {
-        List<Dependency> dependencies = new ArrayList<>();
-        for (int i = 1; i < mWorkItems.size(); i++) {
-            Dependency dependency = new Dependency();
-            dependency.mWorkItemId = mWorkItems.get(i).mId;
-            dependency.mPrerequisiteId = mWorkItems.get(i - 1).mId;
-            dependencies.add(dependency);
-        }
-        return dependencies;
-    }
+    // TODO(xbhatnag)
+    @ColumnInfo(name = "flex_duration")
+    long mFlexDuration;
 
-    /**
-     * Builder for {@link WorkSpec} class.
-     */
-    public static class Builder {
-        private List<WorkItem> mWorkItems = new ArrayList<>(1);
-
-        public Builder(Class<? extends Worker> workerClass) {
-            addNewWorkItem(workerClass);
-        }
-
-        private WorkItem getCurrentWorkItem() {
-            return mWorkItems.get(mWorkItems.size() - 1);
-        }
-
-        /**
-         * Add constraints to the current {@link WorkItem}
-         *
-         * @param constraints the constraints to attach to the work item
-         * @return current builder
-         */
-        public Builder withConstraints(@NonNull Constraints constraints) {
-            getCurrentWorkItem().mConstraints = constraints;
-            return this;
-        }
-
-        /**
-         * Change backoff policy and delay for the current {@link WorkItem}.
-         * Default is {@value WorkItem#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
-         *
-         * @param backoffPolicy Backoff Policy to use for current {@link WorkItem}
-         * @param backoffDelayDuration Time to wait before restarting {@link Worker}
-         *                             (in milliseconds)
-         * @return current builder
-         */
-        public Builder withBackoffCriteria(@WorkItem.BackoffPolicy int backoffPolicy,
-                                           long backoffDelayDuration) {
-            // TODO(xbhatnag): Enforce restrictions on backoff delay. 30 seconds?
-            getCurrentWorkItem().mBackoffPolicy = backoffPolicy;
-            getCurrentWorkItem().mBackoffDelayDuration = backoffDelayDuration;
-            return this;
-        }
-
-        /**
-         * Chain this {@link WorkSpec} to another {@link Worker} Class.
-         *
-         * @param workerClass the next {@link Worker} class to chain this WorkSpec to
-         * @return current builder
-         */
-        public Builder then(Class<? extends Worker> workerClass) {
-            addNewWorkItem(workerClass);
-            return this;
-        }
-
-        /**
-         * Generates the {@link WorkSpec} from this builder
-         *
-         * @return new {@link WorkSpec} containing all {@link WorkItem}s
-         */
-        public WorkSpec build() {
-            return new WorkSpec(mWorkItems);
-        }
-
-        private void addNewWorkItem(Class<? extends Worker> workerClass) {
-            WorkItem workItem = new WorkItem();
-            workItem.mWorkerClassName = workerClass.getName();
-            mWorkItems.add(workItem);
-        }
+    WorkSpec(String id) {
+        mId = id;
     }
 }
