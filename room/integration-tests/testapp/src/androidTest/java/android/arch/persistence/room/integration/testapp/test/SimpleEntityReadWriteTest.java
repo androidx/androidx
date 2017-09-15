@@ -265,6 +265,16 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void findByCollateNoCase() {
+        User user = TestUtil.createUser(3);
+        user.setCustomField("abc");
+        mUserDao.insert(user);
+        List<User> users = mUserDao.findByCustomField("ABC");
+        assertThat(users, hasSize(1));
+        assertThat(users.get(0).getId(), is(3));
+    }
+
+    @Test
     public void deleteByAge() {
         User user1 = TestUtil.createUser(3);
         user1.setAge(30);
