@@ -56,7 +56,7 @@ public class WorkSpec {
             addNewWorkItem(workerClass);
         }
 
-        private WorkItem getLastWorkItem() {
+        private WorkItem getCurrentWorkItem() {
             return mWorkItems.get(mWorkItems.size() - 1);
         }
 
@@ -67,7 +67,24 @@ public class WorkSpec {
          * @return current builder
          */
         public Builder withConstraints(@NonNull Constraints constraints) {
-            getLastWorkItem().mConstraints = constraints;
+            getCurrentWorkItem().mConstraints = constraints;
+            return this;
+        }
+
+        /**
+         * Change backoff policy and delay for the current {@link WorkItem}.
+         * Default is {@value WorkItem#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
+         *
+         * @param backoffPolicy Backoff Policy to use for current {@link WorkItem}
+         * @param backoffDelayDuration Time to wait before restarting {@link Worker}
+         *                             (in milliseconds)
+         * @return current builder
+         */
+        public Builder withBackoffCriteria(@WorkItem.BackoffPolicy int backoffPolicy,
+                                           long backoffDelayDuration) {
+            // TODO(xbhatnag): Enforce restrictions on backoff delay. 30 seconds?
+            getCurrentWorkItem().mBackoffPolicy = backoffPolicy;
+            getCurrentWorkItem().mBackoffDelayDuration = backoffDelayDuration;
             return this;
         }
 

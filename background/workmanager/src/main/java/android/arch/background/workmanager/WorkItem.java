@@ -27,20 +27,29 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 
 /**
- * The database entity that stores information about one Worker.
+ * The database entity that stores information about one {@link Worker}.
  */
 
 @Entity
-class WorkItem {
+public class WorkItem {
     @Retention(SOURCE)
     @IntDef({STATUS_FAILED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_ENQUEUED})
     @interface WorkStatus {
+    }
+
+    @Retention(SOURCE)
+    @IntDef({BACKOFF_POLICY_EXPONENTIAL, BACKOFF_POLICY_LINEAR})
+    @interface BackoffPolicy {
     }
 
     static final int STATUS_ENQUEUED = 0;
     static final int STATUS_RUNNING = 1;
     static final int STATUS_SUCCEEDED = 2;
     static final int STATUS_FAILED = 3;
+
+    public static final int BACKOFF_POLICY_EXPONENTIAL = 0;
+    public static final int BACKOFF_POLICY_LINEAR = 1;
+    public static final long DEFAULT_BACKOFF_DELAY_DURATION = 30000;
 
     @ColumnInfo(name = "id")
     @PrimaryKey
@@ -55,4 +64,12 @@ class WorkItem {
 
     @Embedded
     Constraints mConstraints = new Constraints.Builder().build();
+
+    // TODO(sumir): Should Backoff be disabled by default?
+    @ColumnInfo(name = "backoff_policy")
+    @BackoffPolicy
+    int mBackoffPolicy = BACKOFF_POLICY_EXPONENTIAL;
+
+    @ColumnInfo(name = "backoff_delay_duration")
+    long mBackoffDelayDuration = DEFAULT_BACKOFF_DELAY_DURATION;
 }

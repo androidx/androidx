@@ -102,4 +102,22 @@ public class WorkDatabaseTests {
         assertEquals(0, workItem1.mConstraints.mInitialDelay);
         assertEquals(Constraints.NETWORK_TYPE_ANY, workItem1.mConstraints.mRequiresNetworkType);
     }
+
+    @Test
+    public void backoffPolicy() throws InterruptedException, ExecutionException, TimeoutException {
+        WorkSpec item = new WorkSpec.Builder(TestWorker.class)
+                .withBackoffCriteria(WorkItem.BACKOFF_POLICY_LINEAR, 50000)
+                .then(TestWorker.class)
+                .build();
+        int[] ids = mWorkManager.enqueue(item);
+        Thread.sleep(5000);
+        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(ids[0]);
+        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(ids[1]);
+
+        assertEquals(WorkItem.BACKOFF_POLICY_LINEAR, workItem0.mBackoffPolicy);
+        assertEquals(50000, workItem0.mBackoffDelayDuration);
+
+        assertEquals(WorkItem.BACKOFF_POLICY_EXPONENTIAL, workItem1.mBackoffPolicy);
+        assertEquals(WorkItem.DEFAULT_BACKOFF_DELAY_DURATION, workItem1.mBackoffDelayDuration);
+    }
 }

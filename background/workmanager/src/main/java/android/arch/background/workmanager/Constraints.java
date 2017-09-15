@@ -22,7 +22,11 @@ import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 
-class Constraints {
+/**
+ * The constraints that can be applied to one {@link WorkItem}.
+ */
+
+public class Constraints {
     @Retention(SOURCE)
     @IntDef({NETWORK_TYPE_CONNECTED, NETWORK_TYPE_METERED, NETWORK_TYPE_ANY,
             NETWORK_TYPE_NOT_ROAMING, NETWORK_TYPE_UNMETERED})
