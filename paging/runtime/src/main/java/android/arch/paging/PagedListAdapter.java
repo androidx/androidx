@@ -58,7 +58,7 @@ import android.support.v7.widget.RecyclerView;
  *     }
  * }
  *
- * class MyActivity extends Activity implements LifecycleRegistryOwner {
+ * class MyActivity extends AppCompatActivity {
  *     {@literal @}Override
  *     public void onCreate(Bundle savedState) {
  *         super.onCreate(savedState);

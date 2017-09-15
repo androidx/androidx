@@ -64,7 +64,7 @@ import java.util.List;
  *     }
  * }
  *
- * class MyActivity extends Activity implements LifecycleRegistryOwner {
+ * class MyActivity extends AppCompatActivity {
  *     {@literal @}Override
  *     public void onCreate(Bundle savedState) {
  *         super.onCreate(savedState);
