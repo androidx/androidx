@@ -19,6 +19,7 @@ package android.arch.persistence.room.vo
 import android.arch.persistence.room.ext.isNonNull
 import android.arch.persistence.room.ext.typeName
 import android.arch.persistence.room.migration.bundle.FieldBundle
+import android.arch.persistence.room.parser.Collate
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.solver.types.CursorValueReader
 import android.arch.persistence.room.solver.types.StatementValueBinder
@@ -28,6 +29,7 @@ import javax.lang.model.type.TypeMirror
 // used in cache matching, must stay as a data class or implement equals
 data class Field(val element: Element, val name: String, val type: TypeMirror,
                  var affinity: SQLTypeAffinity?,
+                 val collate: Collate? = null,
                  val columnName: String = name,
                  /* means that this field does not belong to parent, instead, it belongs to a
                  * embedded child of the main Pojo*/
@@ -116,6 +118,9 @@ data class Field(val element: Element, val name: String, val type: TypeMirror,
         }
         if (nonNull) {
             columnSpec.append(" NOT NULL")
+        }
+        if (collate != null) {
+            columnSpec.append(" COLLATE ${collate.name}")
         }
         return "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}$columnSpec"
     }
