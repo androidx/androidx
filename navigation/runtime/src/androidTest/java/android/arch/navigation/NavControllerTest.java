@@ -68,6 +68,24 @@ public class NavControllerTest {
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testMissingStartDestination() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        NavController navController = new NavController(context);
+        TestNavigator navigator = new TestNavigator();
+        navController.addNavigator(navigator);
+        navController.setGraph(R.xml.nav_missing_start_destination);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidStartDestination() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        NavController navController = new NavController(context);
+        TestNavigator navigator = new TestNavigator();
+        navController.addNavigator(navigator);
+        navController.setGraph(R.xml.nav_invalid_start_destination);
+    }
+
     @Test
     public void testNestedStartDestination() {
         Context context = InstrumentationRegistry.getTargetContext();

@@ -17,7 +17,6 @@
 package android.arch.navigation;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 
 /**
@@ -50,16 +49,15 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
     public void navigate(NavGraph destination, Bundle args, NavOptions navOptions) {
         int startId = destination.getStartDestination();
         if (startId == 0) {
-            final Resources res = mContext.getResources();
             throw new IllegalStateException("no start destination defined via"
                     + " app:startDestination for "
                     + (destination.getId() != 0
-                            ? res.getResourceName(destination.getId())
+                            ? Navigation.getDisplayName(mContext, destination.getId())
                             : "the root navigation"));
         }
         NavDestination startDestination = destination.findNode(startId, false);
         if (startDestination == null) {
-            final String dest = mContext.getResources().getResourceName(startId);
+            final String dest = Navigation.getDisplayName(mContext, startId);
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is not a direct child of this NavGraph");
         }

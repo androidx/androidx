@@ -26,7 +26,6 @@ import android.support.annotation.RestrictTo;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import java.util.HashMap;
@@ -104,13 +103,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return clazz;
     }
 
+    @NonNull
     private String getBackStackName(@IdRes int destinationId) {
-        String name = mContext.getResources().getResourceName(destinationId);
-        if (TextUtils.isEmpty(name)) {
-            // Fallback to the id if there isn't a resource name
-            return Integer.toString(destinationId);
-        }
-        return name;
+        // This gives us the resource name if it exists,
+        // or just the destinationId if it doesn't exist
+        return Navigation.getDisplayName(mContext, destinationId);
     }
 
     @Override

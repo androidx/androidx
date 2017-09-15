@@ -17,8 +17,11 @@
 package android.arch.navigation;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewParent;
@@ -35,6 +38,22 @@ import java.lang.ref.WeakReference;
 public class Navigation {
     // No instances. Static utilities only.
     private Navigation() {
+    }
+
+    /**
+     * Retrieve a suitable display name for a given id.
+     * @param context Context used to resolve a resource's name
+     * @param id The id to get a display name for
+     * @return The resource's name if it is a valid id or just the id itself if it is not
+     * a valid resource
+     */
+    @NonNull
+    static String getDisplayName(Context context, int id) {
+        try {
+            return context.getResources().getResourceName(id);
+        } catch (Resources.NotFoundException e) {
+            return Integer.toString(id);
+        }
     }
 
     /**
