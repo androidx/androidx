@@ -17,6 +17,7 @@
 package android.arch.persistence.room.integration.testapp.migration;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Entity;
@@ -75,6 +76,7 @@ public abstract class MigrationDb extends RoomDatabase {
         public static final String TABLE_NAME = "Entity4";
         @PrimaryKey
         public int id;
+        @ColumnInfo(collate = ColumnInfo.NOCASE)
         public String name;
     }
 
