@@ -22,5 +22,6 @@
 
     <test android:id="@+id/deep_link_test">
         <deepLink app:uri="www.example.com/{test}" />
+        <deepLink app:uri="android-app://android.arch.navigation.test/test" />
     </test>
 </navigation>

@@ -20,16 +20,26 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.app.Instrumentation;
 import android.arch.navigation.test.R;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
+import android.support.v4.util.Pair;
 
+import org.junit.Before;
 import org.junit.Test;
 
 @SmallTest
 public class NavInflaterTest {
+    private Instrumentation mInstrumentation;
+
+    @Before
+    public void getInstrumentation() {
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    }
 
     @Test
     public void testInflateSimple() {
@@ -39,6 +49,22 @@ public class NavInflaterTest {
 
         assertThat(graph, is(notNullValue(NavGraph.class)));
         assertThat(graph.getStartDestination(), is(R.id.start_test));
+    }
+
+    @Test
+    public void testInflateDeepLinkWithApplicationId() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        NavInflater navInflater = new NavInflater(context, new TestNavigatorProvider(context));
+        NavGraph graph = navInflater.inflate(R.xml.nav_deep_link);
+
+        assertThat(graph, is(notNullValue(NavGraph.class)));
+        Uri expectedUri = Uri.parse("android-app://"
+                + mInstrumentation.getTargetContext().getPackageName() + "/test");
+        Pair<NavDestination, Bundle> result = graph.matchDeepLink(expectedUri);
+        assertThat(result, is(notNullValue()));
+        assert result != null;
+        assertThat(result.first, is(notNullValue(NavDestination.class)));
+        assertThat(result.first.getId(), is(R.id.deep_link_test));
     }
 
     @Test

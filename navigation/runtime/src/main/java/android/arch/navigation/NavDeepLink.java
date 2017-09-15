@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * NavDeepLink encapsulates the parsing and matching of a navigation deep link.
  */
 class NavDeepLink {
-    private static final Pattern SCHEME_PATTERN = Pattern.compile("^\\w+:");
+    private static final Pattern SCHEME_PATTERN = Pattern.compile("^(\\w+-)*\\w+:");
 
     private final ArrayList<String> mArguments = new ArrayList<>();
     private final Pattern mPattern;

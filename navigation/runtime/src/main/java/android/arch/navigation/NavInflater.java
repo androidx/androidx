@@ -57,6 +57,7 @@ public class NavInflater {
     private static final String TAG_DEEP_LINK = "deepLink";
     private static final String TAG_ACTION = "action";
     private static final String TAG_INCLUDE = "include";
+    private static final String APPLICATION_ID_PLACEHOLDER = "${applicationId}";
 
     private static final ThreadLocal<TypedValue> sTmpValue = new ThreadLocal<>();
 
@@ -227,6 +228,7 @@ public class NavInflater {
             throw new IllegalArgumentException("Every <" + TAG_DEEP_LINK
                     + "> must include an app:uri");
         }
+        uri = uri.replace(APPLICATION_ID_PLACEHOLDER, mContext.getPackageName());
         dest.addDeepLink(uri);
         a.recycle();
     }
