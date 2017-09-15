@@ -86,6 +86,27 @@ public abstract class Worker<T> implements Callable<T> {
         return result;
     }
 
+    static Worker fromWorkItem(
+            final Context context,
+            final WorkDatabase workDatabase,
+            final WorkItem workItem) {
+        Context appContext = context.getApplicationContext();
+        String workerClassName = workItem.mWorkerClassName;
+        try {
+            Class<?> clazz = Class.forName(workerClassName);
+            if (Worker.class.isAssignableFrom(clazz)) {
+                return (Worker) clazz
+                        .getConstructor(Context.class, WorkDatabase.class, WorkItem.class)
+                        .newInstance(appContext, workDatabase, workItem);
+            } else {
+                Log.e(TAG, "" + workerClassName + " is not of type Worker");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Trouble instantiating " + workerClassName, e);
+        }
+        return null;
+    }
+
     private void checkForInterruption() throws InterruptedException {
         if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();

@@ -27,6 +27,7 @@ import android.util.Log;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
@@ -39,15 +40,16 @@ public final class WorkManager implements LifecycleObserver {
 
     private Context mContext;
     private String mName;
-    private ExecutorService mForegroundExecutor;
+    private ScheduledExecutorService mForegroundExecutor;
     private ExecutorService mBackgroundExecutor;
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
+    private WorkExecutionManager mForegroundWorkExecutionMgr;
 
     private WorkManager(
             Context context,
             String name,
-            ExecutorService foregroundExecutor,
+            ScheduledExecutorService foregroundExecutor,
             ExecutorService backgroundExecutor) {
         mContext = context.getApplicationContext();
         mName = name;
@@ -68,6 +70,10 @@ public final class WorkManager implements LifecycleObserver {
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onLifecycleStart() {
+        mForegroundWorkExecutionMgr = new WorkExecutionManager(
+                mContext,
+                mWorkDatabase,
+                mForegroundExecutor);
     }
 
     /**
@@ -75,6 +81,8 @@ public final class WorkManager implements LifecycleObserver {
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onLifecycleStop() {
+        mForegroundWorkExecutionMgr.shutdown();
+        mForegroundWorkExecutionMgr = null;
     }
 
     /**
@@ -113,11 +121,14 @@ public final class WorkManager implements LifecycleObserver {
         @Override
         public void run() {
             // TODO: check for prerequisites.
-            mWorkDatabase.workItemDao().insertWorkItems(mWorkSpec.getWorkItems());
+            List<WorkItem> workItems = mWorkSpec.getWorkItems();
+            mWorkDatabase.workItemDao().insertWorkItems(workItems);
             mWorkDatabase.dependencyDao().insertDependencies(mWorkSpec.generateDependencies());
 
-            // TODO: Schedule on in-process executor.
-            Log.d(TAG, "Schedule in-process executor here");
+            if (mForegroundWorkExecutionMgr != null) {
+                mForegroundWorkExecutionMgr.enqueue(workItems.get(0).mId, 0L /* TODO: delay */);
+                // TODO: Schedule dependent work.
+            }
 
             if (Build.VERSION.SDK_INT >= 21) {
                 // TODO: Schedule on JobScheduler.
@@ -132,7 +143,7 @@ public final class WorkManager implements LifecycleObserver {
     public static class Builder {
 
         private String mName;
-        private ExecutorService mForegroundExecutor;
+        private ScheduledExecutorService mForegroundExecutor;
         private ExecutorService mBackgroundExecutor;
 
         public Builder(String name) {
@@ -143,7 +154,7 @@ public final class WorkManager implements LifecycleObserver {
          * @param foregroundExecutor The ExecutorService to run in-process during active lifecycles
          * @return The Builder
          */
-        public Builder withForegroundExecutor(ExecutorService foregroundExecutor) {
+        public Builder withForegroundExecutor(ScheduledExecutorService foregroundExecutor) {
             mForegroundExecutor = foregroundExecutor;
             return this;
         }
