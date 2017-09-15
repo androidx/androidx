@@ -59,6 +59,24 @@ import java.lang.annotation.RetentionPolicy;
  * {@link #onPlayCompleted()}.
  * </p>
  *
+ * Sample Code:
+ * <pre><code>
+ * public class MyVideoFragment extends VideoFragment {
+ *     &#64;Override
+ *     public void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
+ *         PlaybackBannerControlGlue<MediaPlayerAdapter> playerGlue =
+ *                 new PlaybackBannerControlGlue(getActivity(),
+ *                         new MediaPlayerAdapter(getActivity()));
+ *         playerGlue.setHost(new VideoFragmentGlueHost(this));
+ *         playerGlue.setSubtitle("Leanback artist");
+ *         playerGlue.setTitle("Leanback team at work");
+ *         String uriPath = "android.resource://com.example.android.leanback/raw/video";
+ *         playerGlue.getPlayerAdapter().setDataSource(Uri.parse(uriPath));
+ *         playerGlue.playWhenPrepared();
+ *     }
+ * }
+ * </code></pre>
  * @param <T> Type of {@link PlayerAdapter} passed in constructor.
  */
 public class PlaybackBannerControlGlue<T extends PlayerAdapter>

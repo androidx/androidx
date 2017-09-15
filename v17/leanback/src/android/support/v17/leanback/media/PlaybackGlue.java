@@ -174,9 +174,29 @@ public abstract class PlaybackGlue {
     }
 
     /**
-     * Starts the media player.
+     * Starts the media player. Does nothing if {@link #isPrepared()} is false. To wait
+     * {@link #isPrepared()} to be true before playing, use {@link #playWhenPrepared()}.
      */
     public void play() {
+    }
+
+    /**
+     * Starts play when {@link #isPrepared()} becomes true.
+     */
+    public void playWhenPrepared() {
+        if (isPrepared()) {
+            play();
+        } else {
+            addPlayerCallback(new PlayerCallback() {
+                @Override
+                public void onPreparedStateChanged(PlaybackGlue glue) {
+                    if (glue.isPrepared()) {
+                        removePlayerCallback(this);
+                        play();
+                    }
+                }
+            });
+        }
     }
 
     /**
