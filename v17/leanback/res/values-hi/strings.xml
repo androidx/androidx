@@ -41,11 +41,11 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_none" msgid="87476947476529036">"कुछ भी न दोहराएं"</string>
     <string name="lb_playback_controls_repeat_all" msgid="6730354406289599000">"सभी को दोहराएं"</string>
     <string name="lb_playback_controls_repeat_one" msgid="3285202316452203619">"एक दोहराएं"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"फेर-बदल सक्षम करें"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="1099874107835264529">"शफ़ल करना चालू करें"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8388150597335115226">"फेर-बदल अक्षम करें"</string>
-    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"उच्च गुणवत्ता सक्षम करें"</string>
+    <string name="lb_playback_controls_high_quality_enable" msgid="202415780019335254">"अच्छी क्वालिटी में चलाएं"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"उच्च गुणवत्ता अक्षम करें"</string>
-    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"उपशीर्षक सक्षम करें"</string>
+    <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"सबटाइटल चालू करें"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"उपशीर्षक अक्षम करें"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"चित्र मोड में चित्र डालें"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
@@ -55,5 +55,5 @@ limitations under the License.
     <string name="lb_guidedaction_continue_title" msgid="8842094924543063706">"जारी रखें"</string>
     <string name="lb_media_player_error" msgid="3650250994187305396">"मीडिया प्लेयर गड़बड़ी कोड %1$d कुछ और %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="6961440391306351139">"शुरू करें"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"अगला"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="2918313444257732434">"आगे बढ़ें"</string>
 </resources>
