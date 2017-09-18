@@ -25,7 +25,8 @@
   <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:padding="5dip"
+      android:layout_marginStart="24dp"
+      android:layout_marginEnd="24dp"
       android:orientation="vertical">
 
     <TextView android:id="@android:id/message"
@@ -35,10 +36,12 @@
         android:layout_height="wrap_content"
         android:textColor="?android:attr/textColorSecondary" />
 
-      <EditText
-          android:id="@android:id/edit"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content" />
+    <EditText
+        android:id="@android:id/edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="-4dp"
+        android:layout_marginEnd="-4dp" />
 
   </LinearLayout>
 
