@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
+
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension
+
+apply plugin: android.support.FlatfootAndroidLibraryPlugin
 
 android {
     compileSdkVersion tools.current_sdk
@@ -65,7 +68,6 @@ dependencies {
 }
 
 createAndroidCheckstyle(project)
-version = "0.5.0-alpha1"
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
@@ -75,4 +77,13 @@ android.libraryVariants.all { variant ->
         from variant.javaCompile.destinationDir
         destinationDir new File(project.buildDir, "libJar")
     }
+}
+
+version = LibraryVersions.NAVIGATION.toString()
+supportLibrary {
+    name 'Android Navigation Runtime'
+    publish true
+    inceptionYear '2017'
+    description "Android Navigation-Runtime"
+    url SupportLibraryExtension.ARCHITECTURE_URL
 }
