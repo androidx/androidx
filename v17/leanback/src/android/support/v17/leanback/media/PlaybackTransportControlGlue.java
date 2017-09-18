@@ -68,23 +68,15 @@ import java.lang.ref.WeakReference;
  *     &#64;Override
  *     public void onCreate(Bundle savedInstanceState) {
  *         super.onCreate(savedInstanceState);
- *         final PlaybackTransportControlGlue<MediaPlayerAdapter> playerGlue =
+ *         PlaybackTransportControlGlue<MediaPlayerAdapter> playerGlue =
  *                 new PlaybackTransportControlGlue(getActivity(),
  *                         new MediaPlayerAdapter(getActivity()));
  *         playerGlue.setHost(new VideoFragmentGlueHost(this));
- *         playerGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
- *             &#64;Override
- *             public void onPreparedStateChanged(PlaybackGlue glue) {
- *                 if (glue.isPrepared()) {
- *                     playerGlue.setSeekProvider(new MySeekProvider());
- *                     playerGlue.play();
- *                 }
- *             }
- *         });
  *         playerGlue.setSubtitle("Leanback artist");
  *         playerGlue.setTitle("Leanback team at work");
  *         String uriPath = "android.resource://com.example.android.leanback/raw/video";
  *         playerGlue.getPlayerAdapter().setDataSource(Uri.parse(uriPath));
+ *         playerGlue.playWhenPrepared();
  *     }
  * }
  * </code></pre>
