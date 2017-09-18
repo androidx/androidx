@@ -151,8 +151,12 @@ public class CustomEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
 
         @Override
         public void onPull(float deltaDistance, float displacement) {
+            onPull(deltaDistance);
+        }
+
+        @Override
+        public void onPull(float deltaDistance) {
             mPullDistance = deltaDistance;
-            super.onPull(deltaDistance, displacement);
         }
     }
 }
