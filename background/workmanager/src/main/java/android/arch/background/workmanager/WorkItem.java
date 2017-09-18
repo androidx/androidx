@@ -22,6 +22,7 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
@@ -31,6 +32,7 @@ import java.lang.annotation.Retention;
  */
 
 @Entity
+@TypeConverters(Arguments.class)
 public class WorkItem {
     @Retention(SOURCE)
     @IntDef({STATUS_FAILED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_ENQUEUED})
@@ -67,6 +69,8 @@ public class WorkItem {
 
     @Embedded
     Constraints mConstraints = new Constraints.Builder().build();
+
+    Arguments mArguments = new Arguments();
 
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")

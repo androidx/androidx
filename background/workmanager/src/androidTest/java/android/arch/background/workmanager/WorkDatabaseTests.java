@@ -127,4 +127,34 @@ public class WorkDatabaseTests {
         assertEquals(WorkItem.BACKOFF_POLICY_EXPONENTIAL, workItem1.mBackoffPolicy);
         assertEquals(WorkItem.DEFAULT_BACKOFF_DELAY_DURATION, workItem1.mBackoffDelayDuration);
     }
+
+    @Test
+    public void arguments() throws InterruptedException, ExecutionException, TimeoutException {
+        String key = "key";
+        String expectedValue = "value";
+
+        Arguments args = new Arguments();
+        args.putString(key, expectedValue);
+
+        Work work = new Work.Builder(TestWorker.class)
+                .withArguments(args)
+                .then(TestWorker.class)
+                .build();
+        mWorkManager.enqueue(work);
+        Thread.sleep(5000);
+
+        List<String> workItemIds = work.getWorkItemIds();
+        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(workItemIds.get(0));
+        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(workItemIds.get(1));
+
+        assertNotNull(workItem0.mArguments);
+        assertNotNull(workItem1.mArguments);
+
+        assertEquals(1, workItem0.mArguments.size());
+        assertEquals(0, workItem1.mArguments.size());
+
+        String actualValue = workItem0.mArguments.getString(key, null);
+        assertNotNull(actualValue);
+        assertEquals(expectedValue, actualValue);
+    }
 }

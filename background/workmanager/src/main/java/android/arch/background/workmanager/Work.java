@@ -88,7 +88,7 @@ public class Work {
         }
 
         /**
-         * Add constraints to the current {@link Worker}.
+         * Add constraints to the current {@link WorkItem}.
          *
          * @param constraints the constraints to attach to the work item
          * @return current builder
@@ -123,6 +123,16 @@ public class Work {
             // TODO(xbhatnag): Enforce restrictions on backoff delay. 30 seconds?
             getCurrentWorkItem().mBackoffPolicy = backoffPolicy;
             getCurrentWorkItem().mBackoffDelayDuration = backoffDelayDuration;
+            return this;
+        }
+
+        /**
+         * Add arguments to the current {@link WorkItem}.
+         * @param arguments key/value pairs that will be provided to the {@link Worker} class
+         * @return current builder
+         */
+        public Builder withArguments(Arguments arguments) {
+            getCurrentWorkItem().mArguments = arguments;
             return this;
         }
 
