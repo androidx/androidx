@@ -994,14 +994,6 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
                 mLongPressBackDown = (event.getFlags() & KeyEvent.FLAG_LONG_PRESS) != 0;
                 break;
         }
-
-        // On API v7-10 we need to manually call onKeyShortcut() as this is not called
-        // from the Activity
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            // We do not return true here otherwise dispatchKeyEvent will not reach the Activity
-            // (which results in the back button not working)
-            onKeyShortcut(keyCode, event);
-        }
         return false;
     }
 
@@ -1107,17 +1099,13 @@ class AppCompatDelegateImplV9 extends AppCompatDelegateImplBase
             return;
         }
 
-        // Don't open an options panel for honeycomb apps on xlarge devices.
+        // Don't open an options panel on xlarge devices.
         // (The app should be using an action bar for menu items.)
         if (st.featureId == FEATURE_OPTIONS_PANEL) {
-            Context context = mContext;
-            Configuration config = context.getResources().getConfiguration();
-            boolean isXLarge = (config.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) ==
-                    Configuration.SCREENLAYOUT_SIZE_XLARGE;
-            boolean isHoneycombApp = context.getApplicationInfo().targetSdkVersion >=
-                    android.os.Build.VERSION_CODES.HONEYCOMB;
-
-            if (isXLarge && isHoneycombApp) {
+            Configuration config = mContext.getResources().getConfiguration();
+            boolean isXLarge = (config.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)
+                    == Configuration.SCREENLAYOUT_SIZE_XLARGE;
+            if (isXLarge) {
                 return;
             }
         }

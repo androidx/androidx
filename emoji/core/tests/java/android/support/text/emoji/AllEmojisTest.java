@@ -24,10 +24,13 @@ import static org.junit.Assert.assertThat;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.text.emoji.util.TestString;
+import android.support.v4.graphics.PaintCompat;
+import android.text.Spanned;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -60,6 +63,11 @@ public class AllEmojisTest {
      * Codepoints of emoji for better assert error message.
      */
     private String mCodepoints;
+
+    /**
+     * Paint object used to check if Typeface can render the given emoji.
+     */
+    private Paint mPaint;
 
     @BeforeClass
     public static void setup() {
@@ -107,6 +115,7 @@ public class AllEmojisTest {
     public AllEmojisTest(String string, String codepoints) {
         mString = string;
         mCodepoints = codepoints;
+        mPaint = new Paint();
     }
 
     @Test
@@ -114,6 +123,18 @@ public class AllEmojisTest {
         assertTrue("EmojiCompat should have emoji: " + mCodepoints,
                 EmojiCompat.get().hasEmojiGlyph(mString));
         assertEmojiCompatAddsEmoji(mString);
+        assertSpanCanRenderEmoji(mString);
+    }
+
+    private void assertSpanCanRenderEmoji(final String str) {
+        final Spanned spanned = (Spanned) EmojiCompat.get().process(new TestString(str).toString());
+        final EmojiSpan[] spans = spanned.getSpans(0, spanned.length(), EmojiSpan.class);
+        final EmojiMetadata metadata = spans[0].getMetadata();
+        mPaint.setTypeface(metadata.getTypeface());
+
+        final String codepoint = String.valueOf(Character.toChars(metadata.getId()));
+        assertTrue(metadata.toString() + " should be rendered",
+                PaintCompat.hasGlyph(mPaint, codepoint));
     }
 
     private void assertEmojiCompatAddsEmoji(final String str) {

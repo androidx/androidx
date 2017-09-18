@@ -17,6 +17,7 @@
           package="android.support.recommendation">
     <uses-sdk android:minSdkVersion="21"/>
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.recommendation.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

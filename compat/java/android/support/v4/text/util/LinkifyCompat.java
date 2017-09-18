@@ -97,7 +97,7 @@ public final class LinkifyCompat {
      *  @return True if at least one link is found and applied.
      */
     public static final boolean addLinks(@NonNull Spannable text, @LinkifyMask int mask) {
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= 27) {
             return Linkify.addLinks(text, mask);
         }
         if (mask == 0) {

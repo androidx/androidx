@@ -16,10 +16,26 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.mediacompat.service.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
-
     <application>
+        <receiver android:name="android.support.mediacompat.service.ServiceBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
         <service android:name="android.support.mediacompat.service.StubMediaBrowserServiceCompat">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.support.mediacompat.service.StubMediaBrowserServiceCompatWithDelayedMediaSession">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>

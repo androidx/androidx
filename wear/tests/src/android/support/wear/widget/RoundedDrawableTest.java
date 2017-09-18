@@ -32,10 +32,12 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.wear.test.R;
+import android.support.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -129,9 +131,11 @@ public class RoundedDrawableTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     public void inflate() {
-        RoundedDrawable roundedDrawable = (RoundedDrawable) mActivityRule.getActivity().getDrawable(
-                R.drawable.rounded_drawable);
+        RoundedDrawable roundedDrawable =
+                (RoundedDrawable) mActivityRule.getActivity().getDrawable(
+                        R.drawable.rounded_drawable);
         assertEquals(
                 mActivityRule.getActivity().getColor(R.color.rounded_drawable_background_color),
                 roundedDrawable.getBackgroundColor());

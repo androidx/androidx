@@ -16,10 +16,10 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:title="Item 1" android:icon="@android:drawable/star_on"/>
-  <item android:title="Item 2" android:icon="@android:drawable/star_on"/>
-  <item android:title="Item 3" android:icon="@android:drawable/star_on"/>
-  <item android:title="Item 4" android:icon="@android:drawable/star_on"/>
-  <item android:title="Item 5" android:icon="@android:drawable/star_on"/>
-  <item android:title="Item 6" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 1" android:id="@+id/ws_action_drawer_test_menu_item_1" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 2" android:id="@+id/ws_action_drawer_test_menu_item_2" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 3" android:id="@+id/ws_action_drawer_test_menu_item_3" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 4" android:id="@+id/ws_action_drawer_test_menu_item_4" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 5" android:id="@+id/ws_action_drawer_test_menu_item_5" android:icon="@android:drawable/star_on"/>
+  <item android:title="Item 6" android:id="@+id/ws_action_drawer_test_menu_item_6" android:icon="@android:drawable/star_on"/>
 </menu>

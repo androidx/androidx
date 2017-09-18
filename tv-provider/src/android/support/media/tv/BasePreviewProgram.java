@@ -38,6 +38,7 @@ import java.util.TimeZone;
 
 /**
  * Base class for derived classes that want to have common fields for preview programs.
+ *
  * @hide
  */
 @TargetApi(26)
@@ -252,6 +253,50 @@ public abstract class BasePreviewProgram extends BaseProgram {
         return mValues.getAsString(PreviewPrograms.COLUMN_CONTENT_ID);
     }
 
+    /**
+     * @return The logo content description for the program.
+     * @see PreviewPrograms#COLUMN_LOGO_CONTENT_DESCRIPTION
+     * @see PreviewPrograms#COLUMN_LOGO_URI
+     */
+    public String getLogoContentDescription() {
+        return mValues.getAsString(PreviewPrograms.COLUMN_LOGO_CONTENT_DESCRIPTION);
+    }
+
+    /**
+     * @return The genre for the program.
+     * @see PreviewPrograms#COLUMN_GENRE
+     */
+    public String getGenre() {
+        return mValues.getAsString(PreviewPrograms.COLUMN_GENRE);
+    }
+
+    /**
+     * @return The start time for the program.
+     * @see PreviewPrograms#COLUMN_START_TIME_UTC_MILLIS
+     */
+    public long getStartTimeUtcMillis() {
+        Long l = mValues.getAsLong(PreviewPrograms.COLUMN_START_TIME_UTC_MILLIS);
+        return l == null ? INVALID_LONG_VALUE : l;
+    }
+
+    /**
+     * @return The end time for the program.
+     * @see PreviewPrograms#COLUMN_END_TIME_UTC_MILLIS
+     */
+    public long getEndTimeUtcMillis() {
+        Long l = mValues.getAsLong(PreviewPrograms.COLUMN_END_TIME_UTC_MILLIS);
+        return l == null ? INVALID_LONG_VALUE : l;
+    }
+
+    /**
+     * @return The preview audio URI for the program.
+     * @see PreviewPrograms#COLUMN_PREVIEW_AUDIO_URI
+     */
+    public Uri getPreviewAudioUri() {
+        String uri = mValues.getAsString(PreviewPrograms.COLUMN_PREVIEW_AUDIO_URI);
+        return uri == null ? null : Uri.parse(uri);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof BasePreviewProgram)) {
@@ -299,6 +344,11 @@ public abstract class BasePreviewProgram extends BaseProgram {
             values.remove(PreviewProgramColumns.COLUMN_INTERACTION_COUNT);
             values.remove(PreviewProgramColumns.COLUMN_AUTHOR);
             values.remove(PreviewProgramColumns.COLUMN_CONTENT_ID);
+            values.remove(PreviewProgramColumns.COLUMN_LOGO_CONTENT_DESCRIPTION);
+            values.remove(PreviewProgramColumns.COLUMN_GENRE);
+            values.remove(PreviewProgramColumns.COLUMN_START_TIME_UTC_MILLIS);
+            values.remove(PreviewProgramColumns.COLUMN_END_TIME_UTC_MILLIS);
+            values.remove(PreviewProgramColumns.COLUMN_PREVIEW_AUDIO_URI);
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !includeProtectedFields) {
             values.remove(PreviewProgramColumns.COLUMN_BROWSABLE);
@@ -407,6 +457,27 @@ public abstract class BasePreviewProgram extends BaseProgram {
                     && !cursor.isNull(index)) {
                 builder.setContentId(cursor.getString(index));
             }
+            if ((index = cursor.getColumnIndex(
+                    PreviewProgramColumns.COLUMN_LOGO_CONTENT_DESCRIPTION)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setLogoContentDescription(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_GENRE)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setGenre(cursor.getString(index));
+            }
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_START_TIME_UTC_MILLIS))
+                    >= 0 && !cursor.isNull(index)) {
+                builder.setStartTimeUtcMillis(cursor.getLong(index));
+            }
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_END_TIME_UTC_MILLIS))
+                    >= 0 && !cursor.isNull(index)) {
+                builder.setEndTimeUtcMillis(cursor.getLong(index));
+            }
+            if ((index = cursor.getColumnIndex(PreviewProgramColumns.COLUMN_PREVIEW_AUDIO_URI)) >= 0
+                    && !cursor.isNull(index)) {
+                builder.setPreviewAudioUri(Uri.parse(cursor.getString(index)));
+            }
         }
     }
 
@@ -433,6 +504,11 @@ public abstract class BasePreviewProgram extends BaseProgram {
                 PreviewProgramColumns.COLUMN_AUTHOR,
                 PreviewProgramColumns.COLUMN_BROWSABLE,
                 PreviewProgramColumns.COLUMN_CONTENT_ID,
+                PreviewProgramColumns.COLUMN_LOGO_CONTENT_DESCRIPTION,
+                PreviewProgramColumns.COLUMN_GENRE,
+                PreviewProgramColumns.COLUMN_START_TIME_UTC_MILLIS,
+                PreviewProgramColumns.COLUMN_END_TIME_UTC_MILLIS,
+                PreviewProgramColumns.COLUMN_PREVIEW_AUDIO_URI,
         };
         return CollectionUtils.concatAll(BaseProgram.PROJECTION, oColumns);
     }
@@ -458,6 +534,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
 
         /**
          * Creates a new Builder object with values copied from another Program.
+         *
          * @param other The Program you're copying from.
          */
         public Builder(BasePreviewProgram other) {
@@ -562,8 +639,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link PreviewPrograms#TYPE_TRACK},
          * {@link PreviewPrograms#TYPE_ALBUM},
          * {@link PreviewPrograms#TYPE_ARTIST},
-         * {@link PreviewPrograms#TYPE_PLAYLIST}, and
-         * {@link PreviewPrograms#TYPE_STATION}.
+         * {@link PreviewPrograms#TYPE_PLAYLIST},
+         * {@link PreviewPrograms#TYPE_STATION}, and
+         * {@link PreviewPrograms#TYPE_GAME}.
          *
          * @param type The type of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -581,8 +659,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link PreviewPrograms#ASPECT_RATIO_16_9},
          * {@link PreviewPrograms#ASPECT_RATIO_3_2},
          * {@link PreviewPrograms#ASPECT_RATIO_4_3},
-         * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
-         * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
+         * {@link PreviewPrograms#ASPECT_RATIO_1_1},
+         * {@link PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
          *
          * @param ratio The poster art aspect ratio for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -601,8 +680,9 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link PreviewPrograms#ASPECT_RATIO_16_9},
          * {@link PreviewPrograms#ASPECT_RATIO_3_2},
          * {@link PreviewPrograms#ASPECT_RATIO_4_3},
-         * {@link PreviewPrograms#ASPECT_RATIO_1_1}, and
-         * {@link PreviewPrograms#ASPECT_RATIO_2_3}.
+         * {@link PreviewPrograms#ASPECT_RATIO_1_1},
+         * {@link PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
          *
          * @param ratio The thumbnail aspect ratio of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -631,8 +711,10 @@ public abstract class BasePreviewProgram extends BaseProgram {
          *
          * <p>The value should match one of the followings:
          * {@link PreviewPrograms#AVAILABILITY_AVAILABLE},
-         * {@link PreviewPrograms#AVAILABILITY_FREE_WITH_SUBSCRIPTION}, and
-         * {@link PreviewPrograms#AVAILABILITY_PAID_CONTENT}.
+         * {@link PreviewPrograms#AVAILABILITY_FREE_WITH_SUBSCRIPTION},
+         * {@link PreviewPrograms#AVAILABILITY_PAID_CONTENT},
+         * {@link PreviewPrograms#AVAILABILITY_PURCHASED}, and
+         * {@link PreviewPrograms#AVAILABILITY_FREE}.
          *
          * @param availability The availability of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -786,6 +868,69 @@ public abstract class BasePreviewProgram extends BaseProgram {
          */
         public T setContentId(String contentId) {
             mValues.put(PreviewPrograms.COLUMN_CONTENT_ID, contentId);
+            return (T) this;
+        }
+
+        /**
+         * Sets the logo's content description for this program.
+         *
+         * @param logoContentDescription The content description for the logo displayed in the
+         *                               program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_LOGO_CONTENT_DESCRIPTION
+         * @see PreviewPrograms#COLUMN_LOGO_URI
+         */
+        public T setLogoContentDescription(String logoContentDescription) {
+            mValues.put(PreviewPrograms.COLUMN_LOGO_CONTENT_DESCRIPTION, logoContentDescription);
+            return (T) this;
+        }
+
+        /**
+         * Sets the genre for this program.
+         *
+         * @param genre The genre for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_GENRE
+         */
+        public T setGenre(String genre) {
+            mValues.put(PreviewPrograms.COLUMN_GENRE, genre);
+            return (T) this;
+        }
+
+        /**
+         * Sets the start time of the program (for live programs).
+         *
+         * @param startTime The start time for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_START_TIME_UTC_MILLIS
+         */
+        public T setStartTimeUtcMillis(long startTime) {
+            mValues.put(PreviewPrograms.COLUMN_START_TIME_UTC_MILLIS, startTime);
+            return (T) this;
+        }
+
+        /**
+         * Sets the end time of the program (for live programs).
+         *
+         * @param endTime The end time for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_END_TIME_UTC_MILLIS
+         */
+        public T setEndTimeUtcMillis(long endTime) {
+            mValues.put(PreviewPrograms.COLUMN_END_TIME_UTC_MILLIS, endTime);
+            return (T) this;
+        }
+
+        /**
+         * Sets a URI for the preview audio.
+         *
+         * @param previewAudioUri The preview audio URI for the program.
+         * @return This Builder object to allow for chaining of calls to builder methods.
+         * @see PreviewPrograms#COLUMN_PREVIEW_AUDIO_URI
+         */
+        public T setPreviewAudioUri(Uri previewAudioUri) {
+            mValues.put(PreviewPrograms.COLUMN_PREVIEW_AUDIO_URI,
+                    previewAudioUri == null ? null : previewAudioUri.toString());
             return (T) this;
         }
     }

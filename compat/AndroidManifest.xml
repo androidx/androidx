@@ -14,10 +14,10 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
           package="android.support.compat">
-    <uses-sdk android:minSdkVersion="14" tools:overrideLibrary="android.support.compat"/>
+    <uses-sdk android:minSdkVersion="14"/>
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.compat.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

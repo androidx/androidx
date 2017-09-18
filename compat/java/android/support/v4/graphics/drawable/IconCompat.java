@@ -18,7 +18,6 @@ package android.support.v4.graphics.drawable;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,6 +31,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
@@ -174,10 +174,11 @@ public class IconCompat {
     }
 
     /**
-     * @hide
+     * Convert this compat object to {@link Icon} object.
+     *
+     * @return {@link Icon} object
      */
-    @RestrictTo(LIBRARY_GROUP)
-    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(23)
     public Icon toIcon() {
         switch (mType) {
             case TYPE_BITMAP:

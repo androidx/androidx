@@ -18,6 +18,7 @@
           package="android.support.text.emoji.appcompat">
     <uses-sdk android:minSdkVersion="14"/>
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.text.emoji.appcompat.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

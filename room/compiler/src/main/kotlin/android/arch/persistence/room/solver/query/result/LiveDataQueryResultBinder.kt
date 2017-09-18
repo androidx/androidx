@@ -36,11 +36,10 @@ import javax.lang.model.type.TypeMirror
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
  */
-class LiveDataQueryResultBinder(val typeArg: TypeMirror, queryTableNames: List<String>,
+class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<String>,
                                 adapter: QueryResultAdapter?)
     : BaseObservableQueryResultBinder(adapter) {
     @Suppress("JoinDeclarationAndAssignment")
-    val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) + queryTableNames).toSet()
     override fun convertAndReturn(roomSQLiteQueryVar : String, dbField: FieldSpec,
                                   scope: CodeGenScope) {
         val typeName = typeArg.typeName()

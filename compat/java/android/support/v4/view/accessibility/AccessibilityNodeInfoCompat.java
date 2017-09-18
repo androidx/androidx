@@ -775,7 +775,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The current value.
          */
         public float getCurrent() {
-            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getCurrent(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getCurrent();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -784,7 +788,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The max value.
          */
         public float getMax() {
-            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getMax(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getMax();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -793,7 +801,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The min value.
          */
         public float getMin() {
-            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getMin(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getMin();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -806,7 +818,11 @@ public class AccessibilityNodeInfoCompat {
          * @see #RANGE_TYPE_PERCENT
          */
         public int getType() {
-            return AccessibilityNodeInfoCompatKitKat.RangeInfo.getType(mInfo);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getType();
+            } else {
+                return RANGE_TYPE_INT;
+            }
         }
     }
 

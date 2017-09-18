@@ -73,6 +73,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
 import android.widget.EdgeEffect;
+import android.widget.LinearLayout;
 import android.widget.OverScroller;
 
 import java.lang.annotation.Retention;
@@ -205,8 +206,15 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     private static final boolean IGNORE_DETACHED_FOCUSED_CHILD = Build.VERSION.SDK_INT <= 15;
 
     static final boolean DISPATCH_TEMP_DETACH = false;
-    public static final int HORIZONTAL = 0;
-    public static final int VERTICAL = 1;
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @IntDef({HORIZONTAL, VERTICAL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Orientation {}
+
+    public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
+    public static final int VERTICAL = LinearLayout.VERTICAL;
 
     public static final int NO_POSITION = -1;
     public static final long NO_ID = -1;
@@ -1488,11 +1496,35 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * @return the ItemDecoration at index position, or null if invalid index.
      */
     public ItemDecoration getItemDecorationAt(int index) {
-        if (index < 0 || index >= mItemDecorations.size()) {
-            return null;
+        final int size = getItemDecorationCount();
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException(index + " is an invalid index for size " + size);
         }
 
         return mItemDecorations.get(index);
+    }
+
+    /**
+     * Returns the number of {@link ItemDecoration} currently added to this RecyclerView.
+     *
+     * @return number of ItemDecorations currently added added to this RecyclerView.
+     */
+    public int getItemDecorationCount() {
+        return mItemDecorations.size();
+    }
+
+    /**
+     * Removes the {@link ItemDecoration} associated with the supplied index position.
+     *
+     * @param index The index position of the ItemDecoration to be removed.
+     */
+    public void removeItemDecorationAt(int index) {
+        final int size = getItemDecorationCount();
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException(index + " is an invalid index for size " + size);
+        }
+
+        removeItemDecoration(getItemDecorationAt(index));
     }
 
     /**

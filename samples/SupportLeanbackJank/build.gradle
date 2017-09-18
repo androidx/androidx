@@ -14,6 +14,13 @@ android {
         targetSdkVersion project.ext.currentSdk
     }
 
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
+
     sourceSets {
         main.manifest.srcFile 'AndroidManifest.xml'
         main.java.srcDirs = ['src']

@@ -19,9 +19,10 @@ package foo;
 import android.arch.lifecycle.GenericLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import java.lang.Object;
 import java.lang.Override;
+import javax.annotation.Generated;
 
+@Generated("android.arch.lifecycle.LifecycleProcessor")
 public class DifferentPackagesBase1_LifecycleAdapter implements GenericLifecycleObserver {
   final DifferentPackagesBase1 mReceiver;
 
@@ -34,10 +35,6 @@ public class DifferentPackagesBase1_LifecycleAdapter implements GenericLifecycle
     if (event == Lifecycle.Event.ON_STOP) {
       mReceiver.onStop(owner);
     }
-  }
-
-  public Object getReceiver() {
-    return mReceiver;
   }
 
   public static void __synthetic_onStop(DifferentPackagesBase1 receiver, LifecycleOwner owner) {

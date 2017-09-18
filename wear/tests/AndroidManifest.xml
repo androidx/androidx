@@ -48,5 +48,17 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Test app is iOS compatible. -->
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
+
+        <meta-data
+            android:name="com.google.android.wearable.watchface.preview"
+            android:resource="@drawable/preview_face" />
+
+        <meta-data
+            android:name="com.google.android.wearable.watchface.preview_circular"
+            android:resource="@drawable/preview_face_circular" />
     </application>
 </manifest>

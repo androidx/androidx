@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-apply plugin: 'java'
-apply plugin: 'maven'
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension;
 
-sourceCompatibility = 1.7
-// disable paging for now.
-project.ext.noDocs = true
-uploadArchives.enabled = false
+apply plugin: android.support.SupportJavaLibraryPlugin
+apply plugin: 'kotlin'
+
 dependencies {
     compile libs.support.annotations
     compile project(":arch:common")
 
     testCompile libs.junit
     testCompile libs.mockito_core
-    compile 'com.android.support:support-annotations:25.3.1'
+    compile libs.support.annotations
     compile project(path: ':arch:common')
-    compile 'junit:junit:4.12'
+    compile libs.junit
+    testCompile libs.kotlin.stdlib
 }
 
 createAndroidCheckstyle(project)
+createKotlinCheckstyle(project)
+
+version = LibraryVersions.PAGING.toString()
+supportLibrary {
+    name 'Android Paging-Common'
+    publish true
+    inceptionYear '2017'
+    description "Android Paging-Common"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}

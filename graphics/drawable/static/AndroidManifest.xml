@@ -17,6 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="android.support.graphics.drawable">
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.graphics.drawable.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

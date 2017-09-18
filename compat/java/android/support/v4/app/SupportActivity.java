@@ -19,6 +19,13 @@ package android.support.v4.app;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.ReportFragment;
+import android.os.Bundle;
+import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.util.SimpleArrayMap;
 
@@ -28,7 +35,7 @@ import android.support.v4.util.SimpleArrayMap;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public class SupportActivity extends Activity {
+public class SupportActivity extends Activity implements LifecycleOwner {
     /**
      * Storage for {@link ExtraData} instances.
      *
@@ -36,6 +43,8 @@ public class SupportActivity extends Activity {
      */
     private SimpleArrayMap<Class<? extends ExtraData>, ExtraData> mExtraDataMap =
             new SimpleArrayMap<>();
+
+    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
 
     /**
      * Store an instance of {@link ExtraData} for later retrieval by class name
@@ -51,6 +60,20 @@ public class SupportActivity extends Activity {
         mExtraDataMap.put(extraData.getClass(), extraData);
     }
 
+    @Override
+    @SuppressWarnings("RestrictedApi")
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ReportFragment.injectIfNeededIn(this);
+    }
+
+    @CallSuper
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        super.onSaveInstanceState(outState);
+    }
+
     /**
      * Retrieves a previously set {@link ExtraData} by class name.
      *
@@ -60,6 +83,11 @@ public class SupportActivity extends Activity {
     @RestrictTo(LIBRARY_GROUP)
     public <T extends ExtraData> T getExtraData(Class<T> extraDataClass) {
         return (T) mExtraDataMap.get(extraDataClass);
+    }
+
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
     }
 
     /**

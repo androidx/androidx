@@ -51,6 +51,7 @@ import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.app.TestSupportActivity;
+import android.support.v4.graphics.drawable.IconCompat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +76,8 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestS
     public void setup() {
         mContext = spy(mActivityTestRule.getActivity());
         mInfoCompat = new ShortcutInfoCompat.Builder(mContext, "test-id")
-                .setIcon(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
+                .setIcon(IconCompat.createWithBitmap(Bitmap.createBitmap(
+                        10, 10, Bitmap.Config.ARGB_8888)))
                 .setShortLabel("Test shortcut")
                 .setIntent(new Intent("Dummy"))
                 .build();

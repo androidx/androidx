@@ -219,6 +219,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_typeface_serif"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_Typeface_Serif" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_typeface_monospace"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/TextView_Typeface_Monospace" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textview_typeface_and_fontfamily"
+            android:text="@string/sample_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextView_FontResource"
+            android:typeface="serif" />
+
     </LinearLayout>
 
 </ScrollView>

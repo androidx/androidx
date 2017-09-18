@@ -44,6 +44,16 @@ public class TestSizeAnnotationCheck extends AbstractCheck {
     }
 
     @Override
+    public int[] getAcceptableTokens() {
+        return getDefaultTokens();
+    }
+
+    @Override
+    public int[] getRequiredTokens() {
+        return getDefaultTokens();
+    }
+
+    @Override
     public void visitToken(DetailAST ast) {
         if (isJUnit4Runner(ast)) {
             // Tests that run with JUnit4 do not require test size annotations.

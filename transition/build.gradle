@@ -1,18 +1,14 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
     api project(':support-compat')
     compileOnly project(':support-fragment')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation project(':support-v4')
     androidTestImplementation project(':appcompat-v7')
 }
@@ -49,6 +45,7 @@ android {
 
 supportLibrary {
     name 'Android Transition Support Library'
+    publish true
     inceptionYear '2016'
     description 'Android Transition Support Library'
 }

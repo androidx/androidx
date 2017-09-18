@@ -19,9 +19,10 @@ package foo;
 import android.arch.lifecycle.GenericLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import java.lang.Object;
 import java.lang.Override;
+import javax.annotation.Generated;
 
+@Generated("android.arch.lifecycle.LifecycleProcessor")
 public class InheritanceOk3Derived_LifecycleAdapter implements GenericLifecycleObserver {
   final InheritanceOk3Derived mReceiver;
 
@@ -34,9 +35,5 @@ public class InheritanceOk3Derived_LifecycleAdapter implements GenericLifecycleO
     if (event == Lifecycle.Event.ON_STOP) {
       mReceiver.onStop(owner);
     }
-  }
-
-  public Object getReceiver() {
-    return mReceiver;
   }
 }

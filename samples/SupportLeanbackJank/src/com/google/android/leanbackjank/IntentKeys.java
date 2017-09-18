@@ -28,9 +28,10 @@ public final class IntentKeys {
 
     // Define values for WHICH_VIDEO.
     public static final int NO_VIDEO = 0;
-    public static final int VIDEO_480P_60FPS = 1;
-    public static final int VIDEO_1080P_60FPS = 2;
-    public static final int VIDEO_2160P_60FPS = 3;
+    public static final int VIDEO_360P_60FPS = 1;
+    public static final int VIDEO_480P_60FPS = 2;
+    public static final int VIDEO_1080P_60FPS = 3;
+    public static final int VIDEO_2160P_60FPS = 4;
 
     private IntentKeys() {
     }

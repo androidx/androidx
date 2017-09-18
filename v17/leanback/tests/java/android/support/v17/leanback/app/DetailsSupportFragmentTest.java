@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
+import android.support.test.filters.SdkSuppress;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.graphics.FitWidthBitmapDrawable;
 import android.support.v17.leanback.media.MediaPlayerGlue;
@@ -1174,4 +1175,45 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         });
     }
 
+    public static class DetailsSupportFragmentEntranceTransitionTimeout extends DetailsTestSupportFragment {
+
+        public DetailsSupportFragmentEntranceTransitionTimeout() {
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            prepareEntranceTransition();
+        }
+
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    public void startEntranceTransitionAfterDestroyed() {
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
+                DetailsSupportFragmentEntranceTransition.class, new Options().uiVisibility(
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN),
+                1000);
+        final DetailsSupportFragmentEntranceTransition detailsFragment =
+                (DetailsSupportFragmentEntranceTransition)
+                        activity.getTestFragment();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                detailsFragment.setItem(new PhotoItem("Hello world", "Fake content goes here",
+                        android.support.v17.leanback.test.R.drawable.spiderman));
+            }
+        });
+        SystemClock.sleep(100);
+        activity.finish();
+        PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                detailsFragment.startEntranceTransition();
+            }
+        });
+    }
 }

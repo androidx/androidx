@@ -17,6 +17,7 @@
 package android.arch.persistence.room.processor
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.parser.Collate
 import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.solver.types.ColumnTypeAdapter
 import android.arch.persistence.room.testing.TestInvocation
@@ -327,6 +328,25 @@ class FieldProcessorTest {
             assertThat(Field(elm, "_allItems", TypeKind.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations,
                     `is`(arrayListOf("_allItems", "allItems")))
+        }
+    }
+
+    @Test
+    fun collate() {
+        Collate.values().forEach { collate ->
+            singleEntity("""
+            @PrimaryKey
+            @ColumnInfo(collate = ColumnInfo.${collate.name})
+            String code;
+            """) { field, invocation ->
+                assertThat(field, `is`(
+                        Field(name = "code",
+                                type = invocation.context.COMMON_TYPES.STRING,
+                                element = field.element,
+                                columnName = "code",
+                                collate = collate,
+                                affinity = SQLTypeAffinity.TEXT)))
+            }.compilesWithoutError()
         }
     }
 

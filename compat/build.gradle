@@ -1,16 +1,15 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
+    api (libs.arch_lifecycle_runtime)  {
+        exclude module: 'support-annotations'
+    }
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation (libs.espresso_core) {
-        exclude module: 'support-annotations'
-    }
-    androidTestImplementation libs.mockito_core
-    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
     androidTestImplementation project(':support-testutils')
 }
 
@@ -20,17 +19,7 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs = [
-                'ics',
-                'jellybean',
-                'kitkat',
-                'api20',
-                'api21',
-                'api23',
-                'api24',
-                'api26',
-                'java'
-        ]
+        main.java.srcDirs = ['java']
         main.aidl.srcDirs = ['java']
         main.res.srcDirs 'res', 'res-public'
     }
@@ -42,6 +31,7 @@ android {
 
 supportLibrary {
     name 'Android Support Library compat'
+    publish true
     inceptionYear '2015'
     description "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
 }

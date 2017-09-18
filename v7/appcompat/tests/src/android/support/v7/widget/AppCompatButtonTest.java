@@ -21,7 +21,9 @@ import static android.support.v7.testutils.TestUtilsActions.setTextAppearance;
 
 import static org.junit.Assert.assertEquals;
 
+import android.graphics.Typeface;
 import android.support.test.filters.SmallTest;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.appcompat.test.R;
 
 import org.junit.Test;
@@ -90,5 +92,13 @@ public class AppCompatButtonTest
     @Test
     public void testBackgroundTintListOnButton() {
         testUntintedBackgroundTintingViewCompatAcrossStateChange(R.id.button_untinted);
+    }
+
+    @Test
+    public void testFontResources() {
+        AppCompatButton button = mContainer.findViewById(R.id.button_fontresource);
+        Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
+
+        assertEquals(expected, button.getTypeface());
     }
 }

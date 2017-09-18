@@ -75,6 +75,7 @@ public class ExifInterfaceTest {
     // We translate double to rational in a 1/10000 precision.
     private static final double RATIONAL_DELTA = 0.0001;
     private static final int TEST_LAT_LONG_VALUES_ARRAY_LENGTH = 8;
+    private static final int TEST_NUMBER_OF_CORRUPTED_IMAGE_STREAMS = 30;
     private static final double[] TEST_LATITUDE_VALID_VALUES = new double[]
             {0, 45, 90, -60, 0.00000001, -89.999999999, 14.2465923626, -68.3434534737};
     private static final double[] TEST_LONGITUDE_VALID_VALUES = new double[]
@@ -211,7 +212,7 @@ public class ExifInterfaceTest {
             ExifInterface.TAG_GPS_TIMESTAMP,
             ExifInterface.TAG_IMAGE_LENGTH,
             ExifInterface.TAG_IMAGE_WIDTH,
-            ExifInterface.TAG_ISO_SPEED_RATINGS,
+            ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.TAG_WHITE_BALANCE
     };
@@ -353,12 +354,14 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testDoNotFailOnCorruptedImage() throws Throwable {
         // ExifInterface shouldn't raise any exceptions except an IOException when unable to open
-        // a file, even with a corrupted image. Generates 10,000 randomly corrupted image stream
-        // for testing. Uses Epoch date count as random seed so that we can reproduce a broken test.
-        Random random = new Random(System.currentTimeMillis() / 86400);
+        // a file, even with a corrupted image. Generates randomly corrupted image stream for
+        // testing. Uses Epoch date count as random seed so that we can reproduce a broken test.
+        long seed = System.currentTimeMillis() / (86400 * 1000);
+        Log.d(TAG, "testDoNotFailOnCorruptedImage random seed: " + seed);
+        Random random = new Random(seed);
         byte[] bytes = new byte[8096];
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < TEST_NUMBER_OF_CORRUPTED_IMAGE_STREAMS; i++) {
             buffer.clear();
             random.nextBytes(bytes);
             if (!randomlyCorrupted(random)) {
@@ -624,6 +627,26 @@ public class ExifInterfaceTest {
 
     }
 
+    @Test
+    @SmallTest
+    public void testInterchangeabilityBetweenTwoIsoSpeedTags() throws IOException {
+        // Tests that two tags TAG_ISO_SPEED_RATINGS and TAG_PHOTOGRAPHIC_SENSITIVITY can be used
+        // interchangeably.
+        final String oldTag = ExifInterface.TAG_ISO_SPEED_RATINGS;
+        final String newTag = ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY;
+        final String isoValue = "50";
+
+        ExifInterface exif = createTestExifInterface();
+        exif.setAttribute(oldTag, isoValue);
+        assertEquals(isoValue, exif.getAttribute(oldTag));
+        assertEquals(isoValue, exif.getAttribute(newTag));
+
+        exif = createTestExifInterface();
+        exif.setAttribute(newTag, isoValue);
+        assertEquals(isoValue, exif.getAttribute(oldTag));
+        assertEquals(isoValue, exif.getAttribute(newTag));
+    }
+
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {
         // Prints thumbnail information.
         if (exifInterface.hasThumbnail()) {
@@ -739,7 +762,8 @@ public class ExifInterfaceTest {
         assertStringTag(exifInterface, ExifInterface.TAG_GPS_TIMESTAMP, expectedValue.gpsTimestamp);
         assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_LENGTH, expectedValue.imageLength);
         assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_WIDTH, expectedValue.imageWidth);
-        assertStringTag(exifInterface, ExifInterface.TAG_ISO_SPEED_RATINGS, expectedValue.iso);
+        assertStringTag(exifInterface, ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
+                expectedValue.iso);
         assertIntTag(exifInterface, ExifInterface.TAG_ORIENTATION, expectedValue.orientation);
         assertIntTag(exifInterface, ExifInterface.TAG_WHITE_BALANCE, expectedValue.whiteBalance);
     }

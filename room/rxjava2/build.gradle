@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
+
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension
+
+apply plugin: android.support.FlatfootAndroidLibraryPlugin
 
 android {
     compileSdkVersion tools.current_sdk
@@ -23,8 +26,6 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
         targetSdkVersion tools.current_sdk
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -49,7 +50,7 @@ dependencies {
     compile project(":room:common")
     compile project(":room:runtime")
     compile project(":arch:runtime")
-    compile libs.support.core_utils
+    compile libs.support.core_utils, libs.support_exclude_config
     compile libs.rx_java
     testCompile libs.junit
     testCompile libs.mockito_core
@@ -66,4 +67,13 @@ android.libraryVariants.all { variant ->
         from variant.javaCompile.destinationDir
         destinationDir new File(project.buildDir, "libJar")
     }
+}
+
+version = LibraryVersions.ROOM.toString()
+supportLibrary {
+    name 'Android Room RXJava2'
+    publish true
+    inceptionYear '2017'
+    description "Android Room RXJava2"
+    url SupportLibraryExtension.ARCHITECTURE_URL
 }

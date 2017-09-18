@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  *
  * {@literal @}Dao
  * public interface UserPetDao {
- *     {@literal @}Query("SELECT id, name from User WHERE age &gte; ?")
+ *     {@literal @}Query("SELECT id, name from User WHERE age &gt; :minAge")
  *     public List&lt;UserNameAndAllPets&gt; loadUserAndPets(int minAge);
  * }
  * </pre>
@@ -67,7 +67,7 @@ import java.lang.annotation.Target;
  * }
  * {@literal @}Dao
  * public interface UserPetDao {
- *     {@literal @}Query("SELECT * from User WHERE age &gte; ?")
+ *     {@literal @}Query("SELECT * from User WHERE age &gt; :minAge")
  *     public List&lt;UserAllPets&gt; loadUserAndPets(int minAge);
  * }
  * </pre>

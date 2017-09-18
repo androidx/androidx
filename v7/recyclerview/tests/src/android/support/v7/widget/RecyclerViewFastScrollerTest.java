@@ -260,12 +260,29 @@ public class RecyclerViewFastScrollerTest extends BaseRecyclerViewInstrumentatio
         getInstrumentation().waitForIdleSync();
         RecyclerView view = (RecyclerView) getActivity().findViewById(
                 android.support.v7.recyclerview.test.R.id.recycler_view);
+        assertTrue(view.getItemDecorationCount() == 1);
         assertTrue(view.getItemDecorationAt(0) instanceof FastScroller);
         FastScroller scroller = (FastScroller) view.getItemDecorationAt(0);
         assertNotNull(scroller.getHorizontalThumbDrawable());
         assertNotNull(scroller.getHorizontalTrackDrawable());
         assertNotNull(scroller.getVerticalThumbDrawable());
         assertNotNull(scroller.getVerticalTrackDrawable());
+    }
+
+    @Test
+    public void removeFastScrollerSuccessful() throws Throwable {
+        setContentView(android.support.v7.recyclerview.test.R.layout.fast_scrollbar_test_rv);
+        getInstrumentation().waitForIdleSync();
+        final RecyclerView view = (RecyclerView) getActivity().findViewById(
+                android.support.v7.recyclerview.test.R.id.recycler_view);
+        assertTrue(view.getItemDecorationCount() == 1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.removeItemDecorationAt(0);
+                assertTrue(view.getItemDecorationCount() == 0);
+            }
+        });
     }
 
     @UiThreadTest

@@ -48,11 +48,11 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Root;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
-import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.PollingCheck;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
 import android.text.TextUtils;
@@ -305,7 +305,6 @@ public class PopupMenuTest {
         };
     }
 
-    @FlakyTest(bugId = 33669575)
     @Test
     @LargeTest
     public void testAnchoring() {
@@ -322,6 +321,17 @@ public class PopupMenuTest {
         mButton.getLocationOnScreen(anchorOnScreenXY);
 
         // Allow for off-by-one mismatch in anchoring
+
+        // See if Anchoring Y gets animated to the expected value.
+        PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                final int y = anchorOnScreenXY[1] + popupInWindowXY[1] + mButton.getHeight()
+                        - popupPadding.top;
+                return Math.abs(y - popupOnScreenXY[1]) <= 1;
+            }
+        });
+
         assertEquals("Anchoring X", anchorOnScreenXY[0] + popupInWindowXY[0],
                 popupOnScreenXY[0], 1);
         assertEquals("Anchoring Y",

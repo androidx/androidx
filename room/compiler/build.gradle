@@ -1,3 +1,5 @@
+import android.support.LibraryVersions
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -14,8 +16,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'kotlin'
-apply plugin: 'maven'
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension;
+apply plugin: android.support.SupportKotlinLibraryPlugin
 
 def antlrOut = "$buildDir/generated/antlr/grammar-gen/"
 sourceSets {
@@ -24,6 +27,7 @@ sourceSets {
     main.java.srcDirs += antlrOut
 }
 project.ext.noDocs = true
+version = LibraryVersions.ROOM.toString()
 
 // Temporary hack to stop AS to adding two guavas into test's classpath
 configurations.all {
@@ -48,6 +52,7 @@ dependencies {
     testCompile project(":paging:common")
     testCompile libs.junit
     testCompile libs.ij_annotations
+    testCompile libs.jsr250
     testCompile libs.mockito_core
     testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$tools.current_sdk/",
             include : "android.jar")
@@ -74,3 +79,10 @@ tasks.findByName("compileKotlin").dependsOn(":room:db:jarDebug")
 
 createKotlinCheckstyle(project)
 
+supportLibrary {
+    name 'Android Room Compiler'
+    publish true
+    inceptionYear '2017'
+    description "Android Room annotation processor"
+    url SupportLibraryExtension.ARCHITECTURE_URL
+}

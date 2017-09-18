@@ -22,6 +22,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,7 @@ import android.support.v17.leanback.widget.PlaybackRowPresenter;
 import android.support.v17.leanback.widget.PlaybackTransportRowPresenter;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.view.ContextThemeWrapper;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -67,6 +69,41 @@ public class PlaybackTransportControlGlueTest {
     Context mContext;
     PlaybackTransportControlGlueImpl mGlue;
     PlaybackTransportRowPresenter.ViewHolder mViewHolder;
+    PlayerAdapter mAdapter;
+
+    void setupWithMockAdapterAndViewHolder() {
+        mContext = new ContextThemeWrapper(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                android.support.v17.leanback.test.R.style.Theme_Leanback);
+
+        mAdapter = Mockito.mock(PlayerAdapter.class);
+        when(mAdapter.isPrepared()).thenReturn(true);
+        when(mAdapter.getCurrentPosition()).thenReturn(123L);
+        when(mAdapter.getDuration()).thenReturn(20000L);
+        when(mAdapter.getBufferedPosition()).thenReturn(321L);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mGlue = new PlaybackTransportControlGlueImpl(mContext, mAdapter);
+                PlaybackGlueHostImpl host = new PlaybackGlueHostImpl();
+                mGlue.setHost(host);
+
+                PlaybackTransportRowPresenter presenter = (PlaybackTransportRowPresenter)
+                        mGlue.getPlaybackRowPresenter();
+                FrameLayout parent = new FrameLayout(mContext);
+                mViewHolder = (PlaybackTransportRowPresenter.ViewHolder)
+                        presenter.onCreateViewHolder(parent);
+                presenter.onBindViewHolder(mViewHolder, mGlue.getControlsRow());
+            }
+        });
+    }
+
+    void playMockAdapter() {
+        mGlue.play();
+        Mockito.verify(mAdapter, times(1)).play();
+        when(mAdapter.isPlaying()).thenReturn(true);
+        mAdapter.getCallback().onPlayStateChanged(mAdapter);
+    }
 
     @Test
     public void usingDefaultRowAndPresenter() {
@@ -163,54 +200,30 @@ public class PlaybackTransportControlGlueTest {
 
     @Test
     public void playerAdapterTest() {
-        mContext = new ContextThemeWrapper(
-                InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                android.support.v17.leanback.test.R.style.Theme_Leanback);
-
-        final PlayerAdapter impl = Mockito.mock(PlayerAdapter.class);
-        when(impl.isPrepared()).thenReturn(true);
-        when(impl.getCurrentPosition()).thenReturn(123L);
-        when(impl.getDuration()).thenReturn(20000L);
-        when(impl.getBufferedPosition()).thenReturn(321L);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                mGlue = new PlaybackTransportControlGlueImpl(mContext, impl);
-                PlaybackGlueHostImpl host = new PlaybackGlueHostImpl();
-                mGlue.setHost(host);
-
-                PlaybackTransportRowPresenter presenter = (PlaybackTransportRowPresenter)
-                        mGlue.getPlaybackRowPresenter();
-                FrameLayout parent = new FrameLayout(mContext);
-                mViewHolder = (PlaybackTransportRowPresenter.ViewHolder)
-                        presenter.onCreateViewHolder(parent);
-                presenter.onBindViewHolder(mViewHolder, mGlue.getControlsRow());
-            }
-        });
-
+        setupWithMockAdapterAndViewHolder();
 
         mGlue.play();
-        Mockito.verify(impl, times(1)).play();
+        Mockito.verify(mAdapter, times(1)).play();
         mGlue.pause();
-        Mockito.verify(impl, times(1)).pause();
+        Mockito.verify(mAdapter, times(1)).pause();
         mGlue.seekTo(123L);
-        Mockito.verify(impl, times(1)).seekTo(123L);
+        Mockito.verify(mAdapter, times(1)).seekTo(123L);
         assertEquals(123L, mGlue.getCurrentPosition());
         assertEquals(20000L, mGlue.getDuration());
         assertEquals(321L, mGlue.getBufferedPosition());
 
-        assertSame(mGlue.mAdapterCallback, impl.getCallback());
+        assertSame(mGlue.mAdapterCallback, mAdapter.getCallback());
 
-        when(impl.getCurrentPosition()).thenReturn(124L);
-        impl.getCallback().onCurrentPositionChanged(impl);
+        when(mAdapter.getCurrentPosition()).thenReturn(124L);
+        mAdapter.getCallback().onCurrentPositionChanged(mAdapter);
         assertEquals(124L, mGlue.getControlsRow().getCurrentPosition());
 
-        when(impl.getBufferedPosition()).thenReturn(333L);
-        impl.getCallback().onBufferedPositionChanged(impl);
+        when(mAdapter.getBufferedPosition()).thenReturn(333L);
+        mAdapter.getCallback().onBufferedPositionChanged(mAdapter);
         assertEquals(333L, mGlue.getControlsRow().getBufferedPosition());
 
-        when(impl.getDuration()).thenReturn((long) (Integer.MAX_VALUE) * 2);
-        impl.getCallback().onDurationChanged(impl);
+        when(mAdapter.getDuration()).thenReturn((long) (Integer.MAX_VALUE) * 2);
+        mAdapter.getCallback().onDurationChanged(mAdapter);
         assertEquals((long) (Integer.MAX_VALUE) * 2, mGlue.getControlsRow().getDuration());
 
     }
@@ -272,4 +285,60 @@ public class PlaybackTransportControlGlueTest {
         Mockito.verify(hostCallback2, times(0)).onError(anyInt(), anyString());
     }
 
+    @Test
+    public void playStateReceivePlayPause() {
+        setupWithMockAdapterAndViewHolder();
+        playMockAdapter();
+
+        mGlue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+        Mockito.verify(mAdapter, times(1)).pause();
+    }
+
+    @Test
+    public void playStateReceivePause() {
+        setupWithMockAdapterAndViewHolder();
+        playMockAdapter();
+
+        mGlue.onKey(null, KeyEvent.KEYCODE_MEDIA_PAUSE,
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PAUSE));
+        Mockito.verify(mAdapter, times(1)).pause();
+    }
+
+    @Test
+    public void playStateReceivePlay() {
+        setupWithMockAdapterAndViewHolder();
+        playMockAdapter();
+
+        mGlue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY,
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
+        Mockito.verify(mAdapter, never()).pause();
+    }
+
+    @Test
+    public void pauseStateReceivePlayPause() {
+        setupWithMockAdapterAndViewHolder();
+
+        mGlue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+        Mockito.verify(mAdapter, times(1)).play();
+    }
+
+    @Test
+    public void pauseStateReceivePause() {
+        setupWithMockAdapterAndViewHolder();
+
+        mGlue.onKey(null, KeyEvent.KEYCODE_MEDIA_PAUSE,
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PAUSE));
+        Mockito.verify(mAdapter, never()).play();
+    }
+
+    @Test
+    public void pauseStateReceivePlay() {
+        setupWithMockAdapterAndViewHolder();
+
+        mGlue.onKey(null, KeyEvent.KEYCODE_MEDIA_PLAY,
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
+        Mockito.verify(mAdapter, times(1)).play();
+    }
 }

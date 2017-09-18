@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="816305490427819240">"ကာစ်ခလုတ်။ ချိတ်ဆက်မထားပါ"</string>
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"ကာစ်ခလုတ်။ ချိတ်ဆက်နေသည်"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"ကာစ်ခလုတ်။ ချိတ်ဆက်ထားသည်"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"သို့ ကာစ်တ်လုပ်ရန်"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"ကာစ်လုပ်ရန် စက်"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"စက်ပစ္စည်းများ ရှာဖွေခြင်း"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"ဆက်သွယ်မှု ဖြတ်ရန်"</string>
     <string name="mr_controller_stop_casting" msgid="8857886794086583226">"ကာစ်လုပ်ခြင်း ရပ်ရန်"</string>

@@ -16,16 +16,16 @@
 
 package android.support.v4.app;
 
-import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -258,7 +258,34 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
      */
     public static Map<String, Uri> getDataResultsFromIntent(
             Intent intent, String remoteInputResultKey) {
-        return IMPL.getDataResultsFromIntent(intent, remoteInputResultKey);
+        if (Build.VERSION.SDK_INT >= 26) {
+            return android.app.RemoteInput.getDataResultsFromIntent(intent, remoteInputResultKey);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
+            if (clipDataIntent == null) {
+                return null;
+            }
+            Map<String, Uri> results = new HashMap<>();
+            Bundle extras = clipDataIntent.getExtras();
+            for (String key : extras.keySet()) {
+                if (key.startsWith(EXTRA_DATA_TYPE_RESULTS_DATA)) {
+                    String mimeType = key.substring(EXTRA_DATA_TYPE_RESULTS_DATA.length());
+                    if (mimeType.isEmpty()) {
+                        continue;
+                    }
+                    Bundle bundle = clipDataIntent.getBundleExtra(key);
+                    String uriStr = bundle.getString(remoteInputResultKey);
+                    if (uriStr == null || uriStr.isEmpty()) {
+                        continue;
+                    }
+                    results.put(mimeType, Uri.parse(uriStr));
+                }
+            }
+            return results.isEmpty() ? null : results;
+        } else {
+            Log.w(TAG, "RemoteInput is only supported from API Level 16");
+            return null;
+        }
     }
 
     /**
@@ -270,7 +297,18 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
      *               which also had one or more remote input requested.
      */
     public static Bundle getResultsFromIntent(Intent intent) {
-        return IMPL.getResultsFromIntent(intent);
+        if (Build.VERSION.SDK_INT >= 20) {
+            return android.app.RemoteInput.getResultsFromIntent(intent);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
+            if (clipDataIntent == null) {
+                return null;
+            }
+            return clipDataIntent.getExtras().getParcelable(RemoteInput.EXTRA_RESULTS_DATA);
+        } else {
+            Log.w(TAG, "RemoteInput is only supported from API Level 16");
+            return null;
+        }
     }
 
     /**
@@ -286,7 +324,53 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
      */
     public static void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent,
             Bundle results) {
-        IMPL.addResultsToIntent(remoteInputs, intent, results);
+        if (Build.VERSION.SDK_INT >= 26) {
+            android.app.RemoteInput.addResultsToIntent(fromCompat(remoteInputs), intent, results);
+        } else if (Build.VERSION.SDK_INT >= 20) {
+            // Implementations of RemoteInput#addResultsToIntent prior to SDK 26 don't actually add
+            // results, they wipe out old results and insert the new one. Work around that by
+            // preserving old results.
+            Bundle existingTextResults =
+                    android.support.v4.app.RemoteInput.getResultsFromIntent(intent);
+            if (existingTextResults == null) {
+                existingTextResults = results;
+            } else {
+                existingTextResults.putAll(results);
+            }
+            for (RemoteInput input : remoteInputs) {
+                // Data results are also wiped out. So grab them and add them back in.
+                Map<String, Uri> existingDataResults =
+                        android.support.v4.app.RemoteInput.getDataResultsFromIntent(
+                                intent, input.getResultKey());
+                RemoteInput[] arr = new RemoteInput[1];
+                arr[0] = input;
+                android.app.RemoteInput.addResultsToIntent(
+                        fromCompat(arr), intent, existingTextResults);
+                if (existingDataResults != null) {
+                    RemoteInput.addDataResultToIntent(input, intent, existingDataResults);
+                }
+            }
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
+            if (clipDataIntent == null) {
+                clipDataIntent = new Intent();  // First time we've added a result.
+            }
+            Bundle resultsBundle = clipDataIntent.getBundleExtra(RemoteInput.EXTRA_RESULTS_DATA);
+            if (resultsBundle == null) {
+                resultsBundle = new Bundle();
+            }
+            for (RemoteInput remoteInput : remoteInputs) {
+                Object result = results.get(remoteInput.getResultKey());
+                if (result instanceof CharSequence) {
+                    resultsBundle.putCharSequence(
+                            remoteInput.getResultKey(), (CharSequence) result);
+                }
+            }
+            clipDataIntent.putExtra(RemoteInput.EXTRA_RESULTS_DATA, resultsBundle);
+            intent.setClipData(ClipData.newIntent(RemoteInput.RESULTS_CLIP_LABEL, clipDataIntent));
+        } else {
+            Log.w(TAG, "RemoteInput is only supported from API Level 16");
+        }
     }
 
     /**
@@ -299,121 +383,72 @@ public final class RemoteInput extends RemoteInputCompatBase.RemoteInput {
      */
     public static void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
             Map<String, Uri> results) {
-        IMPL.addDataResultToIntent(remoteInput, intent, results);
-    }
-
-    private static final Impl IMPL;
-
-    interface Impl {
-        Bundle getResultsFromIntent(Intent intent);
-        Map<String, Uri> getDataResultsFromIntent(Intent intent, String remoteInputResultKey);
-        void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent,
-                Bundle results);
-        void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
-                Map<String, Uri> results);
-    }
-
-    static class ImplBase implements Impl {
-        @Override
-        public Bundle getResultsFromIntent(Intent intent) {
-            Log.w(TAG, "RemoteInput is only supported from API Level 16");
-            return null;
-        }
-
-        @Override
-        public Map<String, Uri> getDataResultsFromIntent(
-                Intent intent, String remoteInputResultKey) {
-            Log.w(TAG, "RemoteInput is only supported from API Level 16");
-            return null;
-        }
-
-        @Override
-        public void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent, Bundle results) {
-            Log.w(TAG, "RemoteInput is only supported from API Level 16");
-        }
-
-        @Override
-        public void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
-                Map<String, Uri> results) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            android.app.RemoteInput.addDataResultToIntent(fromCompat(remoteInput), intent, results);
+        } else if (Build.VERSION.SDK_INT >= 16) {
+            Intent clipDataIntent = getClipDataIntentFromIntent(intent);
+            if (clipDataIntent == null) {
+                clipDataIntent = new Intent();  // First time we've added a result.
+            }
+            for (Map.Entry<String, Uri> entry : results.entrySet()) {
+                String mimeType = entry.getKey();
+                Uri uri = entry.getValue();
+                if (mimeType == null) {
+                    continue;
+                }
+                Bundle resultsBundle =
+                        clipDataIntent.getBundleExtra(getExtraResultsKeyForData(mimeType));
+                if (resultsBundle == null) {
+                    resultsBundle = new Bundle();
+                }
+                resultsBundle.putString(remoteInput.getResultKey(), uri.toString());
+                clipDataIntent.putExtra(getExtraResultsKeyForData(mimeType), resultsBundle);
+            }
+            intent.setClipData(ClipData.newIntent(RemoteInput.RESULTS_CLIP_LABEL, clipDataIntent));
+        } else {
             Log.w(TAG, "RemoteInput is only supported from API Level 16");
         }
     }
 
-    @RequiresApi(16)
-    static class ImplJellybean implements Impl {
-        @Override
-        public Bundle getResultsFromIntent(Intent intent) {
-            return RemoteInputCompatJellybean.getResultsFromIntent(intent);
-        }
-
-        @Override
-        public Map<String, Uri> getDataResultsFromIntent(
-                Intent intent, String remoteInputResultKey) {
-            return RemoteInputCompatJellybean.getDataResultsFromIntent(
-                    intent, remoteInputResultKey);
-        }
-
-        @Override
-        public void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent, Bundle results) {
-            RemoteInputCompatJellybean.addResultsToIntent(remoteInputs, intent, results);
-        }
-
-        @Override
-        public void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
-                Map<String, Uri> results) {
-            RemoteInputCompatJellybean.addDataResultToIntent(remoteInput, intent, results);
-        }
+    private static String getExtraResultsKeyForData(String mimeType) {
+        return EXTRA_DATA_TYPE_RESULTS_DATA + mimeType;
     }
 
     @RequiresApi(20)
-    static class ImplApi20 implements Impl {
-        @Override
-        public Bundle getResultsFromIntent(Intent intent) {
-            return RemoteInputCompatApi20.getResultsFromIntent(intent);
+    static android.app.RemoteInput[] fromCompat(RemoteInput[] srcArray) {
+        if (srcArray == null) {
+            return null;
         }
-
-        @Override
-        public Map<String, Uri> getDataResultsFromIntent(
-                Intent intent, String remoteInputResultKey) {
-            return RemoteInputCompatApi20.getDataResultsFromIntent(intent, remoteInputResultKey);
+        android.app.RemoteInput[] result = new android.app.RemoteInput[srcArray.length];
+        for (int i = 0; i < srcArray.length; i++) {
+            result[i] = fromCompat(srcArray[i]);
         }
-
-        @Override
-        public void addResultsToIntent(RemoteInput[] remoteInputs, Intent intent, Bundle results) {
-            RemoteInputCompatApi20.addResultsToIntent(remoteInputs, intent, results);
-        }
-
-        @Override
-        public void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
-                Map<String, Uri> results) {
-            RemoteInputCompatApi20.addDataResultToIntent(remoteInput, intent, results);
-        }
+        return result;
     }
 
-    static {
-        if (Build.VERSION.SDK_INT >= 20) {
-            IMPL = new ImplApi20();
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            IMPL = new ImplJellybean();
-        } else {
-            IMPL = new ImplBase();
-        }
+    @RequiresApi(20)
+    static android.app.RemoteInput fromCompat(RemoteInput src) {
+        return new android.app.RemoteInput.Builder(src.getResultKey())
+                .setLabel(src.getLabel())
+                .setChoices(src.getChoices())
+                .setAllowFreeFormInput(src.getAllowFreeFormInput())
+                .addExtras(src.getExtras())
+                .build();
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final Factory FACTORY = new Factory() {
-        @Override
-        public RemoteInput build(String resultKey,
-                CharSequence label, CharSequence[] choices, boolean allowFreeFormInput,
-                Bundle extras, Set<String> allowedDataTypes) {
-            return new RemoteInput(
-                    resultKey, label, choices, allowFreeFormInput, extras, allowedDataTypes);
+    @RequiresApi(16)
+    private static Intent getClipDataIntentFromIntent(Intent intent) {
+        ClipData clipData = intent.getClipData();
+        if (clipData == null) {
+            return null;
         }
-
-        @Override
-        public RemoteInput[] newArray(int size) {
-            return new RemoteInput[size];
+        ClipDescription clipDescription = clipData.getDescription();
+        if (!clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_INTENT)) {
+            return null;
         }
-    };
+        if (!clipDescription.getLabel().equals(RemoteInput.RESULTS_CLIP_LABEL)) {
+            return null;
+        }
+        return clipData.getItemAt(0).getIntent();
+    }
 }

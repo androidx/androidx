@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="8637371582779057866">"Çaktivizo \"Cilësinë e lartë\""</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2429655367176440226">"Aktivizo titrat"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="6133362019475930048">"Çaktivizo titrat me sekuencë kohore"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Fut një fotografi në modalitetin e fotografisë"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="3040035547765350690">"Aktivizo modalitetin e figurës brenda figurës"</string>
     <string name="lb_playback_time_separator" msgid="3208380806582304911">"/"</string>
     <string name="lb_playback_controls_shown" msgid="6382160135512023238">"Kontrollet e medias të shfaqura"</string>
     <string name="lb_playback_controls_hidden" msgid="8940984081242033574">"Kontrollet e medias të fshehura, shtyp bllokun e drejtimit për t\'i shfaqur"</string>

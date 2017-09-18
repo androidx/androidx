@@ -17,7 +17,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class PhotoItem implements Parcelable {
-
+    private int mId;
     private String mTitle;
     private String mContent;
     private int mImageResourceId;
@@ -26,10 +26,22 @@ public class PhotoItem implements Parcelable {
         this(title, null, imageResourceId);
     }
 
+    public PhotoItem(String title, int imageResourceId, int id) {
+        this(title, imageResourceId);
+        mId = id;
+    }
+
     public PhotoItem(String title, String content, int imageResourceId) {
         mTitle = title;
         mContent = content;
         mImageResourceId = imageResourceId;
+        // the id was set to -1 if user don't provide this parameter
+        mId = -1;
+    }
+
+    public PhotoItem(String title, String content, int imageResourceId, int id) {
+        this(title, content, imageResourceId);
+        mId = id;
     }
 
     public int getImageResourceId() {
@@ -73,8 +85,34 @@ public class PhotoItem implements Parcelable {
         }
     };
 
+    public int getId() {
+        return this.mId;
+    }
+
     private PhotoItem(Parcel in) {
         mTitle = in.readString();
         mImageResourceId = in.readInt();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PhotoItem photoItem = (PhotoItem) o;
+        if (mId != photoItem.mId) return false;
+        if (mImageResourceId != photoItem.mImageResourceId) return false;
+        if (mTitle != null ? !mTitle.equals(photoItem.mTitle) : photoItem.mTitle != null) {
+            return false;
+        }
+        return mContent != null ? mContent.equals(photoItem.mContent) : photoItem.mContent == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mId;
+        result = 31 * result + (mTitle != null ? mTitle.hashCode() : 0);
+        result = 31 * result + (mContent != null ? mContent.hashCode() : 0);
+        result = 31 * result + mImageResourceId;
+        return result;
     }
 }

@@ -1,12 +1,10 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
     api project(':support-compat')
 
-    androidTestImplementation (libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
+    androidTestImplementation libs.test_runner, { exclude module: 'support-annotations' }
 }
 
 android {
@@ -22,6 +20,7 @@ android {
 
 supportLibrary {
     name 'Android Support TV Provider'
+    publish true
     inceptionYear '2017'
     description 'Android Support Library for TV Provider'
 }

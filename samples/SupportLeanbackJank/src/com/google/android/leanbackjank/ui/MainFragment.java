@@ -17,6 +17,7 @@
 package com.google.android.leanbackjank.ui;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BackgroundManager;
@@ -27,6 +28,7 @@ import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.ShadowOverlayHelper;
 import android.support.v4.content.res.ResourcesCompat;
 
 import com.google.android.leanbackjank.IntentDefaults;
@@ -90,6 +92,8 @@ public class MainFragment extends BrowseFragment {
                 resource = R.raw.testvideo_1080p_60fps;
             } else if (whichVideo == IntentKeys.VIDEO_480P_60FPS) {
                 resource = R.raw.bbb_480p;
+            } else if (whichVideo == IntentKeys.VIDEO_360P_60FPS) {
+                resource = R.raw.bbb_360p;
             }
             Uri uri = Uri.parse("android.resource://" + getActivity().getPackageName() + "/"
                     + resource);
@@ -129,7 +133,16 @@ public class MainFragment extends BrowseFragment {
 
     private void loadVideoData(int categoryCount, int entriesPerCat, boolean disableShadows,
             boolean useSingleBitmap, int cardWidth, int cardHeight) {
-        ListRowPresenter listRowPresenter = new ListRowPresenter();
+        ListRowPresenter listRowPresenter = new ListRowPresenter() {
+            @Override
+            protected ShadowOverlayHelper.Options createShadowOverlayOptions() {
+                Resources res = getResources();
+                ShadowOverlayHelper.Options options = new ShadowOverlayHelper.Options();
+                options.dynamicShadowZ(res.getDimension(R.dimen.shadow_unfocused_z),
+                        res.getDimension(R.dimen.shadow_focused_z));
+                return options;
+            }
+        };
         listRowPresenter.setShadowEnabled(!disableShadows);
         // see b/64451726, leanback bug causes child rounded corner is incorrectly disabled when
         // shadow is disabled. To make the test data consistent and comparable, by default treat

@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
+import android.support.LibraryVersions
+import android.support.Version
 import android.support.checkapi.ApiXmlConversionTask
 import android.support.checkapi.CheckApiTask
 import android.support.checkapi.UpdateApiTask
 import android.support.doclava.DoclavaTask
 import android.support.jdiff.JDiffTask
-import android.support.Version
-
-import org.gradle.api.InvalidUserDataException
-
 import groovy.io.FileType
-import groovy.transform.Field;
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import groovy.transform.Field
 
 // Set up platform API files for federation.
 if (project.androidApiTxt != null) {
@@ -91,6 +86,9 @@ void registerJavaProjectForDocsTask(Task task, javaCompileTask) {
 
 // Generates online docs.
 task generateDocs(type: DoclavaTask, dependsOn: [configurations.doclava, generateSdkApi]) {
+    ext.artifacts = []
+    ext.sinces = []
+
     def offlineDocs = project.docs.offline
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = 'Generates d.android.com-style documentation. To generate offline docs use ' +
@@ -102,15 +100,6 @@ task generateDocs(type: DoclavaTask, dependsOn: [configurations.doclava, generat
     // Base classpath is Android SDK, sub-projects add their own.
     classpath = project.ext.androidJar
 
-    // Track API change history.
-    def apiFilePattern = /(\d+\.\d+\.\d).txt/
-    def sinceValues = []
-    File apiDir = new File(supportRootFolder, 'api')
-    apiDir.eachFileMatch FileType.FILES, ~apiFilePattern, { File apiFile ->
-        def apiLevel = (apiFile.name =~ apiFilePattern)[0][1]
-        sinceValues.add([apiFile.absolutePath, apiLevel])
-    }
-
     // Default hidden errors + hidden superclass (111) and
     // deprecation mismatch (113) to match framework docs.
     final def hidden = [105, 106, 107, 111, 112, 113, 115, 116, 121]
@@ -119,19 +108,25 @@ task generateDocs(type: DoclavaTask, dependsOn: [configurations.doclava, generat
     doclavaWarnings = []
     doclavaHidden += hidden
 
+    // Track API change history prior to split versioning.
+    def apiFilePattern = /(\d+\.\d+\.\d).txt/
+    File apiDir = new File(supportRootFolder, 'api')
+    apiDir.eachFileMatch FileType.FILES, ~apiFilePattern, { File apiFile ->
+        def apiLevel = (apiFile.name =~ apiFilePattern)[0][1]
+        sinces.add([apiFile.absolutePath, apiLevel])
+    }
+
     options {
         addStringOption "templatedir",
                 "${supportRootFolder}/../../external/doclava/res/assets/templates-sdk"
         addStringOption "stubpackages", "android.support.*"
         addStringOption "samplesdir", "${supportRootFolder}/samples"
-
         addMultilineMultiValueOption("federate").setValue([
                 ['Android', 'https://developer.android.com']
         ])
         addMultilineMultiValueOption("federationapi").setValue([
                 ['Android', generateSdkApi.apiFile.absolutePath]
         ])
-        addMultilineMultiValueOption("since").setValue(sinceValues)
         addMultilineMultiValueOption("hdf").setValue([
                 ['android.whichdoc', 'online'],
                 ['android.hasSamples', 'true'],
@@ -148,6 +143,15 @@ task generateDocs(type: DoclavaTask, dependsOn: [configurations.doclava, generat
     }
 
     exclude '**/BuildConfig.java'
+
+    doFirst {
+        if (artifacts.size() > 0) {
+            options.addMultilineMultiValueOption("artifact").setValue(artifacts)
+        }
+        if (sinces.size() > 0) {
+            options.addMultilineMultiValueOption("since").setValue(sinces)
+        }
+    }
 }
 
 // Generates a distribution artifact for online docs.
@@ -204,7 +208,7 @@ task distDocs(type: Zip, dependsOn: generateDocs) {
 @Field def CHECK_API_CONFIG_PATCH = [
         onFailMessage:
                 "Public API definition may not change in finalized or patch releases.\n" +
-                        "\n" + MSG_HIDE_API,
+                "\n" + MSG_HIDE_API,
         errors: (2..30)-[22],
         warnings: [],
         hidden: [22]
@@ -222,27 +226,25 @@ CheckApiTask createCheckApiTask(Project project, String taskName, def checkApiCo
 
         newApiFile = newApi
         oldApiFile = oldApi
-        newRemovedApiFile = new File(project.docsDir, 'release/removed.txt')
-        oldRemovedApiFile = new File(project.projectDir, 'api/removed.txt')
 
         whitelistErrorsFile = whitelist
 
         doFirst {
-            logger.lifecycle "Verifying ${newApi.name} against ${oldApi.name}..."
+            logger.lifecycle "Verifying ${newApi.name} against ${oldApi ? oldApi.name : "nothing"}..."
         }
     }
 }
 
 DoclavaTask createGenerateApiTask(Project project) {
     // Generates API files
-    return project.tasks.create(name: "generateApi", type: DoclavaTask.class, dependsOn: configurations.doclava) {
+    return project.tasks.create(name: "generateApi", type: DoclavaTask.class,
+            dependsOn: configurations.doclava) {
         docletpath = configurations.doclava.resolve()
         destinationDir = project.docsDir
 
         // Base classpath is Android SDK, sub-projects add their own.
         classpath = rootProject.ext.androidJar
-        apiFile = new File(project.docsDir, 'release/current.txt')
-        removedApiFile = new File(project.docsDir, 'release/removed.txt')
+        apiFile = new File(project.docsDir, 'release/' + project.name + '/current.txt')
         generateDocs = false
 
         options {
@@ -254,29 +256,32 @@ DoclavaTask createGenerateApiTask(Project project) {
 }
 
 /**
- * Returns the most recent API, optionally restricting to APIs before
- * <code>beforeApi</code>.
+ * Returns the API file for the specified reference version.
  *
  * @param refApi the reference API version, ex. 25.0.0-SNAPSHOT
  * @return the most recently released API file
  */
-File getApiFile(File rootFolder, String refApi, boolean release = false) {
-    Version refVersion = new Version(refApi)
-    File apiDir = new File(rootFolder, 'api')
-    // If this is a patch or release version, ignore the extra.
-    return new File(apiDir, "$refVersion.major.$refVersion.minor.0" +
-            (refVersion.patch || release ? "" : refVersion.extra) + ".txt")
+File getApiFile(File rootDir, Version refVersion, boolean forceRelease = false) {
+    File apiDir = new File(rootDir, 'api')
+
+    if (!refVersion.isSnapshot() || forceRelease) {
+        // Release API file is always X.Y.0.txt.
+        return new File(apiDir, "$refVersion.major.$refVersion.minor.0.txt")
+    }
+
+    // Non-release API file is always current.txt.
+    return new File(apiDir, 'current.txt')
 }
 
-File getPreviousApiFile(File rootFolder, String refApi) {
+File getLastReleasedApiFile(File rootFolder, String refApi) {
     Version refVersion = new Version(refApi)
     File apiDir = new File(rootFolder, 'api')
 
     File lastFile = null
     Version lastVersion = null
 
-    // Only look at released versions and snapshots thereof, ex. X.Y.0.txt or X.Y.0-SNAPSHOT.txt.
-    apiDir.eachFileMatch FileType.FILES, ~/(\d+)\.(\d+)\.0(-SNAPSHOT)?\.txt/, { File file ->
+    // Only look at released versions and snapshots thereof, ex. X.Y.0.txt.
+    apiDir.eachFileMatch FileType.FILES, ~/(\d+)\.(\d+)\.0\.txt/, { File file ->
         Version version = new Version(stripExtension(file.name))
         if ((lastFile == null || lastVersion < version) && version < refVersion) {
             lastFile = file
@@ -299,20 +304,20 @@ void initializeApiChecksForProject(Project project) {
     if (!project.hasProperty("docsDir")) {
         project.ext.docsDir = new File(rootProject.docsDir, project.name)
     }
+    def artifact = project.group + ":" + project.name + ":" + project.version
     def version = new Version(project.version)
     def workingDir = project.projectDir
 
-    def generateApi = createGenerateApiTask(project)
+    DoclavaTask generateApi = createGenerateApiTask(project)
     createVerifyUpdateApiAllowedTask(project)
 
     // Make sure the API surface has not broken since the last release.
-    def previousApiFile = version.isPatch() ? getApiFile(workingDir, project.version)
-            : getPreviousApiFile(workingDir, project.version)
+    File lastReleasedApiFile = getLastReleasedApiFile(workingDir, project.version)
 
-    def whitelistFile = new File(
-            previousApiFile.parentFile, stripExtension(previousApiFile.name) + ".ignore")
+    def whitelistFile = lastReleasedApiFile == null ? null : new File(
+            lastReleasedApiFile.parentFile, stripExtension(lastReleasedApiFile.name) + ".ignore")
     def checkApiRelease = createCheckApiTask(project, "checkApiRelease", CHECK_API_CONFIG_RELEASE,
-            previousApiFile, generateApi.apiFile, whitelistFile).dependsOn(generateApi)
+            lastReleasedApiFile, generateApi.apiFile, whitelistFile).dependsOn(generateApi)
 
     // Allow a comma-delimited list of whitelisted errors.
     if (project.hasProperty("ignore")) {
@@ -320,9 +325,10 @@ void initializeApiChecksForProject(Project project) {
     }
 
     // Check whether the development API surface has changed.
-    def verifyConfig = version.isPatch() ? CHECK_API_CONFIG_DEVELOP : CHECK_API_CONFIG_PATCH
+    def verifyConfig = version.isPatch() ? CHECK_API_CONFIG_PATCH : CHECK_API_CONFIG_DEVELOP
+    File currentApiFile = getApiFile(workingDir, new Version(project.version))
     def checkApi = createCheckApiTask(project, "checkApi", verifyConfig,
-            getApiFile(workingDir, project.version), project.generateApi.apiFile)
+            currentApiFile, project.generateApi.apiFile)
             .dependsOn(generateApi, checkApiRelease)
 
     checkApi.group JavaBasePlugin.VERIFICATION_GROUP
@@ -332,6 +338,18 @@ void initializeApiChecksForProject(Project project) {
     createNewApiXmlTask(project)
     createOldApiXml(project)
     createGenerateDiffsTask(project)
+
+    // Track API change history.
+    def apiFilePattern = /(\d+\.\d+\.\d).txt/
+    File apiDir = new File(project.projectDir, 'api')
+    apiDir.eachFileMatch FileType.FILES, ~apiFilePattern, { File apiFile ->
+        def apiLevel = (apiFile.name =~ apiFilePattern)[0][1]
+        rootProject.generateDocs.sinces.add([apiFile.absolutePath, apiLevel])
+    }
+
+    // Associate current API surface with the Maven artifact.
+    rootProject.generateDocs.artifacts.add([generateApi.apiFile.absolutePath, artifact])
+    rootProject.generateDocs.dependsOn generateApi
 
     rootProject.createArchive.dependsOn checkApi
 }
@@ -343,14 +361,13 @@ Task createVerifyUpdateApiAllowedTask(Project project) {
         // no-op.
         doLast {
             def rootFolder = project.projectDir
-            def versionString = project.version
-            def version = new Version(versionString)
+            Version version = new Version(project.version)
 
             if (version.isPatch()) {
                 throw new GradleException("Public APIs may not be modified in patch releases.")
-            } else if (version.isSnapshot() && getApiFile(rootFolder, versionString, true).exists()) {
+            } else if (version.isSnapshot() && getApiFile(rootFolder, version, true).exists()) {
                 throw new GradleException("Inconsistent version. Public API file already exists.")
-            } else if (!version.isSnapshot() && getApiFile(rootFolder, versionString).exists()
+            } else if (!version.isSnapshot() && getApiFile(rootFolder, version).exists()
                     && !project.hasProperty("force")) {
                 throw new GradleException("Public APIs may not be modified in finalized releases.")
             }
@@ -364,9 +381,7 @@ UpdateApiTask createUpdateApiTask(Project project) {
         group JavaBasePlugin.VERIFICATION_GROUP
         description 'Updates the candidate API file to incorporate valid changes.'
         newApiFile = project.checkApiRelease.newApiFile
-        oldApiFile = getApiFile(project.projectDir, project.version)
-        newRemovedApiFile = project.checkApiRelease.newRemovedApiFile
-        oldRemovedApiFile = new File(project.projectDir, 'api/removed.txt')
+        oldApiFile = getApiFile(project.projectDir, new Version(project.version))
         whitelistErrors = project.checkApiRelease.whitelistErrors
         whitelistErrorsFile = project.checkApiRelease.whitelistErrorsFile
     }
@@ -413,7 +428,7 @@ ApiXmlConversionTask createOldApiXml(Project project) {
             inputApiFile = getPreviousApiFile(rootFolder, toApi)
         } else {
             // Use the most recently released API file.
-            inputApiFile = getApiFile(rootFolder, project.version);
+            inputApiFile = getApiFile(rootFolder, new Version(project.version))
         }
 
         outputApiXmlFile = new File(project.docsDir,
@@ -487,11 +502,6 @@ boolean hasJavaSources(releaseVariant) {
         file.name != "R.java" && file.name != "BuildConfig.java"
     }
     return !fs.isEmpty();
-}
-
-if (hasApiFolder(rootProject)) {
-    rootProject.version = rootProject.supportVersion
-    initializeApiChecksForProject(rootProject)
 }
 
 subprojects { subProject ->

@@ -17,6 +17,7 @@
     package="android.support.v14.preference">
     <uses-sdk android:minSdkVersion="14" />
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.v14.preference.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

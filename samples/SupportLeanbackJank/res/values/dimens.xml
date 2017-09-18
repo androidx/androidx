@@ -19,4 +19,6 @@
     <dimen name="grid_item_height">100dp</dimen>
     <dimen name="card_width">156dp</dimen>
     <dimen name="card_height">88dp</dimen>
+    <dimen name="shadow_unfocused_z">0dp</dimen>
+    <dimen name="shadow_focused_z">10dp</dimen>
 </resources>

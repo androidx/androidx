@@ -62,10 +62,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      */
     private static final float MAX_SCROLL_FACTOR = 1 / 3f;
 
-
     /**
      * Current orientation. Either {@link #HORIZONTAL} or {@link #VERTICAL}
      */
+    @RecyclerView.Orientation
     int mOrientation;
 
     /**
@@ -163,7 +163,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      *                      #VERTICAL}.
      * @param reverseLayout When set to true, layouts from end to start.
      */
-    public LinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
+    public LinearLayoutManager(Context context, @RecyclerView.Orientation int orientation,
+            boolean reverseLayout) {
         setOrientation(orientation);
         setReverseLayout(reverseLayout);
         setAutoMeasureEnabled(true);
@@ -319,6 +320,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * @return Current orientation,  either {@link #HORIZONTAL} or {@link #VERTICAL}
      * @see #setOrientation(int)
      */
+    @RecyclerView.Orientation
     public int getOrientation() {
         return mOrientation;
     }
@@ -329,7 +331,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      *
      * @param orientation {@link #HORIZONTAL} or {@link #VERTICAL}
      */
-    public void setOrientation(int orientation) {
+    public void setOrientation(@RecyclerView.Orientation int orientation) {
         if (orientation != HORIZONTAL && orientation != VERTICAL) {
             throw new IllegalArgumentException("invalid orientation:" + orientation);
         }

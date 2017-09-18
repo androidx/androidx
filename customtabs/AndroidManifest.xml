@@ -17,6 +17,7 @@
           package="android.support.customtabs">
     <uses-sdk android:minSdkVersion="15"/>
     <application>
-        <meta-data android:name="android.support.VERSION" android:value="${support-version}" />
+        <meta-data android:name="android.support.customtabs.VERSION"
+                   android:value="${support-version}" />
     </application>
 </manifest>

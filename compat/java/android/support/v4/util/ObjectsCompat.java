@@ -16,7 +16,6 @@
 package android.support.v4.util;
 
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 
 import java.util.Objects;
 
@@ -24,16 +23,6 @@ import java.util.Objects;
  * This class consists of static utility methods for operating on objects.
  */
 public class ObjectsCompat {
-    private static final ImplBase IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 19) {
-            IMPL = new ImplApi19();
-        } else {
-            IMPL = new ImplBase();
-        }
-    }
-
     private ObjectsCompat() {
         // Non-instantiable.
     }
@@ -55,20 +44,10 @@ public class ObjectsCompat {
      * @see Object#equals(Object)
      */
     public static boolean equals(Object a, Object b) {
-        return IMPL.equals(a, b);
-    }
-
-    private static class ImplBase {
-        public boolean equals(Object a, Object b) {
-            return (a == b) || (a != null && a.equals(b));
-        }
-    }
-
-    @RequiresApi(19)
-    private static class ImplApi19 extends ImplBase {
-        @Override
-        public boolean equals(Object a, Object b) {
+        if (Build.VERSION.SDK_INT >= 19) {
             return Objects.equals(a, b);
+        } else {
+            return (a == b) || (a != null && a.equals(b));
         }
     }
 }

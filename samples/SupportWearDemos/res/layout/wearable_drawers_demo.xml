@@ -35,5 +35,6 @@
         android:id="@+id/action_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:drawerTitle="Drawer Title"
         app:actionMenu="@menu/action_drawer_menu" />
 </android.support.wear.widget.drawer.WearableDrawerLayout>

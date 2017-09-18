@@ -32,6 +32,8 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         val OUT_PREFIX = """
             package foo.bar;
             import android.database.Cursor;
+            import javax.annotation.Generated;
+            @Generated("android.arch.persistence.room.RoomProcessor")
             public class MyContainerClass {
             """.trimIndent()
         const val OUT_SUFFIX = "}"

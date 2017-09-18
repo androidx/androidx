@@ -78,4 +78,12 @@
     <style name="TextView_Serif">
         <item name="fontFamily">@string/font_serif</item>
     </style>
+
+    <style name="TextView_Typeface_Serif">
+        <item name="android:typeface">serif</item>
+    </style>
+
+    <style name="TextView_Typeface_Monospace">
+        <item name="android:typeface">monospace</item>
+    </style>
 </resources>

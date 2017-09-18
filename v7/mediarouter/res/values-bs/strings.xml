@@ -18,11 +18,11 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Sistem"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Uređaji"</string>
-    <string name="mr_button_content_description" msgid="3698378085901466129">"Dugme za prebacivanje"</string>
-    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Dugme za prebacivanje. Veza je prekinuta"</string>
-    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Dugme za prebacivanje. Povezivanje"</string>
-    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Dugme za prebacivanje. Povezan"</string>
-    <string name="mr_chooser_title" msgid="414301941546135990">"Prebacujte na"</string>
+    <string name="mr_button_content_description" msgid="3698378085901466129">"Dugme za emitiranje"</string>
+    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Dugme za emitiranje. Veza je prekinuta"</string>
+    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Dugme za emitiranje. Povezivanje"</string>
+    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Dugme za emitiranje. Povezano"</string>
+    <string name="mr_chooser_title" msgid="414301941546135990">"Emitiranje na"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Traženje uređaja"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Prekini vezu"</string>
     <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Zaustavi prebacivanje"</string>

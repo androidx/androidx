@@ -23,7 +23,7 @@
     <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Cast-knappen. Kobler til"</string>
     <string name="mr_cast_button_connected" msgid="5088427771788648085">"Cast-knappen. Tilkoblet"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"Cast til"</string>
-    <string name="mr_chooser_searching" msgid="6349900579507521956">"Finner enheter"</string>
+    <string name="mr_chooser_searching" msgid="6349900579507521956">"Søker etter enheter"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Koble fra"</string>
     <string name="mr_controller_stop_casting" msgid="8857886794086583226">"Stopp castingen"</string>
     <string name="mr_controller_close_description" msgid="7333862312480583260">"Lukk"</string>

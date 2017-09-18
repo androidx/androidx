@@ -47,8 +47,8 @@ import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v4.graphics.PathParser;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.LayoutDirection;
 import android.util.Log;
 import android.util.Xml;
 
@@ -820,7 +820,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
     private boolean needMirroring() {
         if (Build.VERSION.SDK_INT >= 17) {
             return isAutoMirrored()
-                    && DrawableCompat.getLayoutDirection(this) == LayoutDirection.RTL;
+                    && DrawableCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
         } else {
             return false;
         }
@@ -1642,13 +1642,14 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         /////////////////////////////////////////////////////
         // Variables below need to be copied (deep copy if applicable) for mutation.
         private int[] mThemeAttrs;
-
+        private static final int FILL_TYPE_WINDING = 0;
         int mStrokeColor = Color.TRANSPARENT;
         float mStrokeWidth = 0;
 
         int mFillColor = Color.TRANSPARENT;
         float mStrokeAlpha = 1.0f;
-        int mFillRule = 0; // 0 is default value as "non-zero" fill type.
+        // Default fill rule is winding, or as known as "non-zero".
+        int mFillRule = FILL_TYPE_WINDING;
         float mFillAlpha = 1.0f;
         float mTrimPathStart = 0;
         float mTrimPathEnd = 1;
