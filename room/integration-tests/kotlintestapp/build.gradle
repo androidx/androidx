@@ -50,8 +50,8 @@ android {
 
 dependencies {
     implementation project(":room:common")
-    implementation project(":room:db")
-    implementation project(":room:db-impl")
+    implementation project(":persistence:db")
+    implementation project(":persistence:db-framework")
     implementation project(':room:runtime')
     implementation project(':arch:runtime')
 
