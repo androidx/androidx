@@ -122,6 +122,50 @@ public class NavControllerTest {
     }
 
     @Test
+    public void testSaveRestoreStateXml() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        NavController navController = new NavController(context);
+        TestNavigator navigator = new TestNavigator();
+        navController.addNavigator(navigator);
+        navController.setGraph(R.xml.nav_simple);
+        navController.navigate(R.id.second_test);
+
+        Bundle savedState = navController.saveState();
+        navController = new NavController(context);
+        navController.addNavigator(navigator);
+
+        // Restore state should automatically re-inflate the graph
+        // Since the graph has a set id
+        navController.restoreState(savedState);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+    }
+
+    @Test
+    public void testSaveRestoreStateProgrammatic() {
+        Context context = InstrumentationRegistry.getTargetContext();
+        NavController navController = new NavController(context);
+        TestNavigator navigator = new TestNavigator();
+        navController.addNavigator(navigator);
+        NavGraph graph = new NavInflater(context, navController).inflate(R.xml.nav_simple);
+        navController.setGraph(graph);
+        navController.navigate(R.id.second_test);
+
+        Bundle savedState = navController.saveState();
+        navController = new NavController(context);
+        navController.addNavigator(navigator);
+
+        // Restore state doesn't recreate any graph
+        navController.restoreState(savedState);
+        assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
+
+        // Explicitly setting a graph then restores the state
+        navController.setGraph(graph);
+        assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
+        assertThat(navigator.mBackStack.size(), is(2));
+    }
+
+    @Test
     public void testNavigateWithNoDefaultValue() throws Throwable {
         Bundle returnedArgs = navigateWithArgs(null);
 
