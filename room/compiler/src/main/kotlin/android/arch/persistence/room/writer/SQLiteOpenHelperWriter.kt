@@ -49,13 +49,12 @@ class SQLiteOpenHelperWriter(val database : Database) {
                     """
                     final $T $L = $T.builder($N.context)
                     .name($N.name)
-                    .version($L)
                     .callback($L)
                     .build()
                     """.trimIndent(),
                     SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG, sqliteConfigVar,
                     SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG,
-                    configuration, configuration, database.version, callbackVar)
+                    configuration, configuration, callbackVar)
             addStatement("final $T $N = $N.sqliteOpenHelperFactory.create($L)",
                     SupportDbTypeNames.SQLITE_OPEN_HELPER, outVar,
                     configuration, sqliteConfigVar)
@@ -63,7 +62,7 @@ class SQLiteOpenHelperWriter(val database : Database) {
     }
 
     private fun createOpenCallback(scope: CodeGenScope) : TypeSpec {
-        return TypeSpec.anonymousClassBuilder("").apply {
+        return TypeSpec.anonymousClassBuilder(L, database.version).apply {
             superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
             addMethod(createCreateAllTables())
             addMethod(createDropAllTables())

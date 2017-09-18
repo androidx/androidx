@@ -44,6 +44,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
 
     public RoomOpenHelper(@NonNull DatabaseConfiguration configuration, @NonNull Delegate delegate,
             @NonNull String identityHash) {
+        super(delegate.version);
         mConfiguration = configuration;
         mDelegate = delegate;
         mIdentityHash = identityHash;
@@ -135,6 +136,12 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract static class Delegate {
+        public final int version;
+
+        public Delegate(int version) {
+            this.version = version;
+        }
+
         protected abstract void dropAllTables(SupportSQLiteDatabase database);
 
         protected abstract void createAllTables(SupportSQLiteDatabase database);
