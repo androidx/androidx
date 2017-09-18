@@ -199,8 +199,7 @@ public class TableInfoTest {
                 SupportSQLiteOpenHelper.Configuration
                         .builder(InstrumentationRegistry.getTargetContext())
                         .name(null)
-                        .version(1)
-                        .callback(new SupportSQLiteOpenHelper.Callback() {
+                        .callback(new SupportSQLiteOpenHelper.Callback(1) {
                             @Override
                             public void onCreate(SupportSQLiteDatabase db) {
                                 for (String query : queries) {
