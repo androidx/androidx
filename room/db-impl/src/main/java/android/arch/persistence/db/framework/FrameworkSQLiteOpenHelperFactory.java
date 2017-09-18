@@ -27,8 +27,6 @@ public final class FrameworkSQLiteOpenHelperFactory implements SupportSQLiteOpen
     @Override
     public SupportSQLiteOpenHelper create(SupportSQLiteOpenHelper.Configuration configuration) {
         return new FrameworkSQLiteOpenHelper(
-                configuration.context, configuration.name,
-                configuration.version, configuration.errorHandler, configuration.callback
-        );
+                configuration.context, configuration.name, configuration.callback);
     }
 }

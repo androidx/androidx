@@ -146,7 +146,7 @@ public class MigrationTestHelper extends TestWatcher {
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash());
-        return openDatabase(name, version, roomOpenHelper);
+        return openDatabase(name, roomOpenHelper);
     }
 
     /**
@@ -189,17 +189,15 @@ public class MigrationTestHelper extends TestWatcher {
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 schemaBundle.getDatabase().getIdentityHash());
-        return openDatabase(name, version, roomOpenHelper);
+        return openDatabase(name, roomOpenHelper);
     }
 
-    private SupportSQLiteDatabase openDatabase(String name, int version,
-            RoomOpenHelper roomOpenHelper) {
+    private SupportSQLiteDatabase openDatabase(String name, RoomOpenHelper roomOpenHelper) {
         SupportSQLiteOpenHelper.Configuration config =
                 SupportSQLiteOpenHelper.Configuration
                         .builder(mInstrumentation.getTargetContext())
                         .callback(roomOpenHelper)
                         .name(name)
-                        .version(version)
                         .build();
         SupportSQLiteDatabase db = mOpenFactory.create(config).getWritableDatabase();
         mManagedDatabases.add(new WeakReference<>(db));
@@ -401,6 +399,7 @@ public class MigrationTestHelper extends TestWatcher {
         final DatabaseBundle mDatabaseBundle;
 
         RoomOpenHelperDelegate(DatabaseBundle databaseBundle) {
+            super(databaseBundle.getVersion());
             mDatabaseBundle = databaseBundle;
         }
 

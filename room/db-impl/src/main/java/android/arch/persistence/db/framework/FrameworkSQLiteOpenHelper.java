@@ -28,42 +28,14 @@ import android.support.annotation.RequiresApi;
 class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
     private final OpenHelper mDelegate;
 
-    FrameworkSQLiteOpenHelper(Context context, String name, int version,
-            DatabaseErrorHandler errorHandler,
-            SupportSQLiteOpenHelper.Callback callback) {
-        mDelegate = createDelegate(context, name, version, errorHandler, callback);
+    FrameworkSQLiteOpenHelper(Context context, String name,
+            Callback callback) {
+        mDelegate = createDelegate(context, name, callback);
     }
 
-    private OpenHelper createDelegate(Context context, String name,
-            int version, DatabaseErrorHandler errorHandler,
-            final Callback callback) {
-        return new OpenHelper(context, name, null, version, errorHandler) {
-            @Override
-            public void onCreate(SQLiteDatabase sqLiteDatabase) {
-                mWrappedDb = new FrameworkSQLiteDatabase(sqLiteDatabase);
-                callback.onCreate(mWrappedDb);
-            }
-
-            @Override
-            public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-                callback.onUpgrade(getWrappedDb(sqLiteDatabase), oldVersion, newVersion);
-            }
-
-            @Override
-            public void onConfigure(SQLiteDatabase db) {
-                callback.onConfigure(getWrappedDb(db));
-            }
-
-            @Override
-            public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                callback.onDowngrade(getWrappedDb(db), oldVersion, newVersion);
-            }
-
-            @Override
-            public void onOpen(SQLiteDatabase db) {
-                callback.onOpen(getWrappedDb(db));
-            }
-        };
+    private OpenHelper createDelegate(Context context, String name, Callback callback) {
+        final FrameworkSQLiteDatabase[] dbRef = new FrameworkSQLiteDatabase[1];
+        return new OpenHelper(context, name, dbRef, callback);
     }
 
     @Override
@@ -92,14 +64,29 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
         mDelegate.close();
     }
 
-    abstract static class OpenHelper extends SQLiteOpenHelper {
+    static class OpenHelper extends SQLiteOpenHelper {
+        /**
+         * This is used as an Object reference so that we can access the wrapped database inside
+         * the constructor. SQLiteOpenHelper requires the error handler to be passed in the
+         * constructor.
+         */
+        final FrameworkSQLiteDatabase[] mDbRef;
+        final Callback mCallback;
 
-        FrameworkSQLiteDatabase mWrappedDb;
-
-        OpenHelper(Context context, String name,
-                SQLiteDatabase.CursorFactory factory, int version,
-                DatabaseErrorHandler errorHandler) {
-            super(context, name, factory, version, errorHandler);
+        OpenHelper(Context context, String name, final FrameworkSQLiteDatabase[] dbRef,
+                final Callback callback) {
+            super(context, name, null, callback.version,
+                    new DatabaseErrorHandler() {
+                        @Override
+                        public void onCorruption(SQLiteDatabase dbObj) {
+                            FrameworkSQLiteDatabase db = dbRef[0];
+                            if (db != null) {
+                                callback.onCorruption(db);
+                            }
+                        }
+                    });
+            mCallback = callback;
+            mDbRef = dbRef;
         }
 
         SupportSQLiteDatabase getWritableSupportDatabase() {
@@ -113,16 +100,43 @@ class FrameworkSQLiteOpenHelper implements SupportSQLiteOpenHelper {
         }
 
         FrameworkSQLiteDatabase getWrappedDb(SQLiteDatabase sqLiteDatabase) {
-            if (mWrappedDb == null) {
-                mWrappedDb = new FrameworkSQLiteDatabase(sqLiteDatabase);
+            FrameworkSQLiteDatabase dbRef = mDbRef[0];
+            if (dbRef == null) {
+                dbRef = new FrameworkSQLiteDatabase(sqLiteDatabase);
+                mDbRef[0] = dbRef;
             }
-            return mWrappedDb;
+            return mDbRef[0];
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase sqLiteDatabase) {
+            mCallback.onCreate(getWrappedDb(sqLiteDatabase));
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+            mCallback.onUpgrade(getWrappedDb(sqLiteDatabase), oldVersion, newVersion);
+        }
+
+        @Override
+        public void onConfigure(SQLiteDatabase db) {
+            mCallback.onConfigure(getWrappedDb(db));
+        }
+
+        @Override
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            mCallback.onDowngrade(getWrappedDb(db), oldVersion, newVersion);
+        }
+
+        @Override
+        public void onOpen(SQLiteDatabase db) {
+            mCallback.onOpen(getWrappedDb(db));
         }
 
         @Override
         public synchronized void close() {
             super.close();
-            mWrappedDb = null;
+            mDbRef[0] = null;
         }
     }
 }

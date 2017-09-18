@@ -17,13 +17,18 @@
 package android.arch.persistence.db;
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
-import android.database.DefaultDatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
+import android.util.Pair;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * An interface to map the behavior of {@link android.database.sqlite.SQLiteOpenHelper}.
@@ -99,10 +104,29 @@ public interface SupportSQLiteOpenHelper {
     void close();
 
     /**
-     * Matching callback methods from {@link android.database.sqlite.SQLiteOpenHelper}.
+     * Handles various lifecycle events for the SQLite connection, similar to
+     * {@link android.database.sqlite.SQLiteOpenHelper}.
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
     abstract class Callback {
+        private static final String TAG = "SupportSQLite";
+        /**
+         * Version number of the database (starting at 1); if the database is older,
+         * {@link SupportSQLiteOpenHelper.Callback#onUpgrade(SupportSQLiteDatabase, int, int)}
+         * will be used to upgrade the database; if the database is newer,
+         * {@link SupportSQLiteOpenHelper.Callback#onDowngrade(SupportSQLiteDatabase, int, int)}
+         * will be used to downgrade the database.
+         */
+        public final int version;
+
+        /**
+         * Creates a new Callback to get database lifecycle events.
+         * @param version The version for the database instance. See {@link #version}.
+         */
+        public Callback(int version) {
+            this.version = version;
+        }
+
         /**
          * Called when the database connection is being configured, to enable features such as
          * write-ahead logging or foreign key support.
@@ -193,6 +217,79 @@ public interface SupportSQLiteOpenHelper {
         public void onOpen(SupportSQLiteDatabase db) {
 
         }
+
+        /**
+         * The method invoked when database corruption is detected. Default implementation will
+         * delete the database file.
+         *
+         * @param db the {@link SupportSQLiteDatabase} object representing the database on which
+         *           corruption is detected.
+         */
+        public void onCorruption(SupportSQLiteDatabase db) {
+            // the following implementation is taken from {@link DefaultDatabaseErrorHandler}.
+
+            Log.e(TAG, "Corruption reported by sqlite on database: " + db.getPath());
+            // is the corruption detected even before database could be 'opened'?
+            if (!db.isOpen()) {
+                // database files are not even openable. delete this database file.
+                // NOTE if the database has attached databases, then any of them could be corrupt.
+                // and not deleting all of them could cause corrupted database file to remain and
+                // make the application crash on database open operation. To avoid this problem,
+                // the application should provide its own {@link DatabaseErrorHandler} impl class
+                // to delete ALL files of the database (including the attached databases).
+                deleteDatabaseFile(db.getPath());
+                return;
+            }
+
+            List<Pair<String, String>> attachedDbs = null;
+            try {
+                // Close the database, which will cause subsequent operations to fail.
+                // before that, get the attached database list first.
+                try {
+                    attachedDbs = db.getAttachedDbs();
+                } catch (SQLiteException e) {
+                /* ignore */
+                }
+                try {
+                    db.close();
+                } catch (IOException e) {
+                /* ignore */
+                }
+            } finally {
+                // Delete all files of this corrupt database and/or attached databases
+                if (attachedDbs != null) {
+                    for (Pair<String, String> p : attachedDbs) {
+                        deleteDatabaseFile(p.second);
+                    }
+                } else {
+                    // attachedDbs = null is possible when the database is so corrupt that even
+                    // "PRAGMA database_list;" also fails. delete the main database file
+                    deleteDatabaseFile(db.getPath());
+                }
+            }
+        }
+
+        private void deleteDatabaseFile(String fileName) {
+            if (fileName.equalsIgnoreCase(":memory:") || fileName.trim().length() == 0) {
+                return;
+            }
+            Log.e(TAG, "deleting the database file: " + fileName);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    SQLiteDatabase.deleteDatabase(new File(fileName));
+                } else {
+                    try {
+                        //noinspection ResultOfMethodCallIgnored
+                        new File(fileName).delete();
+                    } catch (Exception error) {
+                        Log.e(TAG, "error while deleting corrupted database file", error);
+                    }
+                }
+            } catch (Exception e) {
+            /* print warning and ignore exception */
+                Log.w(TAG, "delete failed: ", e);
+            }
+        }
     }
 
     /**
@@ -211,33 +308,15 @@ public interface SupportSQLiteOpenHelper {
         @Nullable
         public final String name;
         /**
-         * Version number of the database (starting at 1); if the database is older,
-         * {@link SupportSQLiteOpenHelper.Callback#onUpgrade(SupportSQLiteDatabase, int, int)}
-         * will be used to upgrade the database; if the database is newer,
-         * {@link SupportSQLiteOpenHelper.Callback#onDowngrade(SupportSQLiteDatabase, int, int)}
-         * will be used to downgrade the database.
-         */
-        public final int version;
-        /**
          * The callback class to handle creation, upgrade and downgrade.
          */
         @NonNull
         public final SupportSQLiteOpenHelper.Callback callback;
-        /**
-         * The {@link DatabaseErrorHandler} to be used when sqlite reports database
-         * corruption, or null to use the default error handler.
-         */
-        @Nullable
-        public final DatabaseErrorHandler errorHandler;
 
-        Configuration(@NonNull Context context, @Nullable String name,
-                int version, @Nullable DatabaseErrorHandler errorHandler,
-                @NonNull Callback callback) {
+        Configuration(@NonNull Context context, @Nullable String name, @NonNull Callback callback) {
             this.context = context;
             this.name = name;
-            this.version = version;
             this.callback = callback;
-            this.errorHandler = errorHandler;
         }
 
         /**
@@ -255,9 +334,7 @@ public interface SupportSQLiteOpenHelper {
         public static class Builder {
             Context mContext;
             String mName;
-            int mVersion = 1;
             SupportSQLiteOpenHelper.Callback mCallback;
-            DatabaseErrorHandler mErrorHandler;
 
             public Configuration build() {
                 if (mCallback == null) {
@@ -268,26 +345,11 @@ public interface SupportSQLiteOpenHelper {
                     throw new IllegalArgumentException("Must set a non-null context to create"
                             + " the configuration.");
                 }
-                if (mErrorHandler == null) {
-                    mErrorHandler = new DefaultDatabaseErrorHandler();
-                }
-                return new Configuration(mContext, mName, mVersion, mErrorHandler,
-                        mCallback);
+                return new Configuration(mContext, mName, mCallback);
             }
 
             Builder(@NonNull Context context) {
                 mContext = context;
-            }
-
-            /**
-             * @param errorHandler The {@link DatabaseErrorHandler} to be used when sqlite
-             *                     reports database corruption, or null to use the default error
-             *                     handler.
-             * @return This
-             */
-            public Builder errorHandler(@Nullable DatabaseErrorHandler errorHandler) {
-                mErrorHandler = errorHandler;
-                return this;
             }
 
             /**
@@ -305,20 +367,6 @@ public interface SupportSQLiteOpenHelper {
              */
             public Builder callback(@NonNull Callback callback) {
                 mCallback = callback;
-                return this;
-            }
-
-            /**
-             * @param version Version number of the database (starting at 1); if the database is
-             * older,
-             * {@link SupportSQLiteOpenHelper.Callback#onUpgrade(SupportSQLiteDatabase, int, int)}
-             * will be used to upgrade the database; if the database is newer,
-             * {@link SupportSQLiteOpenHelper.Callback#onDowngrade(SupportSQLiteDatabase, int, int)}
-             * will be used to downgrade the database.
-             * @return this
-             */
-            public Builder version(int version) {
-                mVersion = version;
                 return this;
             }
         }
