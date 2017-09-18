@@ -42,7 +42,7 @@ android {
 
 dependencies {
     compile libs.support.annotations
-    compile project(":room:db")
+    compile project(":persistence:db")
 }
 createAndroidCheckstyle(project)
 
@@ -58,9 +58,9 @@ android.libraryVariants.all { variant ->
 
 version = LibraryVersions.ROOM.toString()
 supportLibrary {
-    name 'Android DB-Impl'
+    name 'Android Support SQLite - Framework Implementation'
     publish true
     inceptionYear '2017'
-    description "Android DB-Impl"
+    description "The implementation of Support SQLite library using the framework code."
     url SupportLibraryExtension.ARCHITECTURE_URL
 }

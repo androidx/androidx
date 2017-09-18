@@ -30,8 +30,7 @@ class FrameworkSQLiteStatement implements SupportSQLiteStatement {
      *
      * @param delegate The SQLiteStatement to delegate calls to.
      */
-    @SuppressWarnings("WeakerAccess")
-    public FrameworkSQLiteStatement(SQLiteStatement delegate) {
+    FrameworkSQLiteStatement(SQLiteStatement delegate) {
         mDelegate = delegate;
     }
 

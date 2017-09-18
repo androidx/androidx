@@ -273,14 +273,16 @@ public interface SupportSQLiteOpenHelper {
             if (fileName.equalsIgnoreCase(":memory:") || fileName.trim().length() == 0) {
                 return;
             }
-            Log.e(TAG, "deleting the database file: " + fileName);
+            Log.w(TAG, "deleting the database file: " + fileName);
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     SQLiteDatabase.deleteDatabase(new File(fileName));
                 } else {
                     try {
-                        //noinspection ResultOfMethodCallIgnored
-                        new File(fileName).delete();
+                        final boolean deleted = new File(fileName).delete();
+                        if (!deleted) {
+                            Log.e(TAG, "Could not delete the database file " + fileName);
+                        }
                     } catch (Exception error) {
                         Log.e(TAG, "error while deleting corrupted database file", error);
                     }

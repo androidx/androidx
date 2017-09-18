@@ -46,8 +46,8 @@ android {
 
 dependencies {
     api project(":room:common")
-    api project(":room:db")
-    api project(":room:db-impl")
+    api project(":persistence:db-framework")
+    api project(":persistence:db")
     api project(":arch:runtime")
     provided project(":paging:common")
     provided project(":lifecycle:runtime")
