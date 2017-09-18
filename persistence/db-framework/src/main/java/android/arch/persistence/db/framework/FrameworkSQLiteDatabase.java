@@ -53,8 +53,7 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
      *
      * @param delegate The delegate to receive all calls.
      */
-    @SuppressWarnings("WeakerAccess")
-    public FrameworkSQLiteDatabase(SQLiteDatabase delegate) {
+    FrameworkSQLiteDatabase(SQLiteDatabase delegate) {
         mDelegate = delegate;
     }
 
