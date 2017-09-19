@@ -16,13 +16,15 @@
 
 package android.arch.background.workmanager;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
+import android.support.annotation.RequiresApi;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +45,7 @@ public final class WorkManager implements LifecycleObserver {
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
     private WorkExecutionManager mForegroundWorkExecutionMgr;
+    private WorkSpecConverter<JobInfo> mWorkSpecConverter;
 
     private WorkManager(
             Context context,
@@ -61,6 +64,11 @@ public final class WorkManager implements LifecycleObserver {
                         : backgroundExecutor;
         mWorkDatabase = WorkDatabase.getInstance(mContext, mName);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+
+        // TODO(janclarin): Wrap JobScheduler logic behind another interface.
+        if (Build.VERSION.SDK_INT >= 21) {
+            mWorkSpecConverter = new JobSchedulerConverter(mContext);
+        }
     }
 
     /**
@@ -122,7 +130,7 @@ public final class WorkManager implements LifecycleObserver {
     }
 
     /**
-     * A Runnable to enqueue WorkItems in the database.
+     * A Runnable to enqueue a {@link Work} in the database.
      */
     private class EnqueueRunnable implements Runnable {
         private Work mWork;
@@ -153,14 +161,24 @@ public final class WorkManager implements LifecycleObserver {
                     }
 
                     if (Build.VERSION.SDK_INT >= 21) {
-                        // TODO: Schedule on JobScheduler.
-                        Log.d(TAG, "Schedule JobScheduler here");
+                        scheduleWorkWithJobScheduler();
+                        // TODO(janclarin): Schedule dependent work.
                     }
                 }
 
                 mWorkDatabase.setTransactionSuccessful();
             } finally {
                 mWorkDatabase.endTransaction();
+            }
+        }
+
+        @RequiresApi(api = 21)
+        private void scheduleWorkWithJobScheduler() {
+            JobScheduler jobScheduler =
+                    (JobScheduler) mContext.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            if (jobScheduler != null) {
+                JobInfo jobInfo = mWorkSpecConverter.convert(mWork.getWorkSpec());
+                jobScheduler.schedule(jobInfo);
             }
         }
     }
