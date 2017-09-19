@@ -16,8 +16,8 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.WorkSpec.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.WorkSpec.STATUS_FAILED;
+import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Work.STATUS_FAILED;
 
 import android.content.Context;
 import android.util.Log;

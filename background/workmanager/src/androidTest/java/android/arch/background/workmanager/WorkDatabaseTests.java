@@ -107,7 +107,7 @@ public class WorkDatabaseTests {
     @Test
     public void backoffPolicy() throws InterruptedException, ExecutionException, TimeoutException {
         Work work0 = new Work.Builder(TestWorker.class)
-                .withBackoffCriteria(WorkSpec.BACKOFF_POLICY_LINEAR, 50000)
+                .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManager.enqueue(work0).then(work1);
@@ -116,11 +116,11 @@ public class WorkDatabaseTests {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertEquals(WorkSpec.BACKOFF_POLICY_LINEAR, workSpec0.mBackoffPolicy);
+        assertEquals(Work.BACKOFF_POLICY_LINEAR, workSpec0.mBackoffPolicy);
         assertEquals(50000, workSpec0.mBackoffDelayDuration);
 
-        assertEquals(WorkSpec.BACKOFF_POLICY_EXPONENTIAL, workSpec1.mBackoffPolicy);
-        assertEquals(WorkSpec.DEFAULT_BACKOFF_DELAY_DURATION, workSpec1.mBackoffDelayDuration);
+        assertEquals(Work.BACKOFF_POLICY_EXPONENTIAL, workSpec1.mBackoffPolicy);
+        assertEquals(Work.DEFAULT_BACKOFF_DELAY_DURATION, workSpec1.mBackoffDelayDuration);
     }
 
     @Test

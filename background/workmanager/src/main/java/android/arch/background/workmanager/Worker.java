@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.WorkSpec.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.WorkSpec.STATUS_FAILED;
-import static android.arch.background.workmanager.WorkSpec.STATUS_RUNNING;
-import static android.arch.background.workmanager.WorkSpec.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Work.STATUS_FAILED;
+import static android.arch.background.workmanager.Work.STATUS_RUNNING;
+import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
 
 import android.content.Context;
 import android.util.Log;
