@@ -16,8 +16,8 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.WorkItem.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.WorkItem.STATUS_FAILED;
+import static android.arch.background.workmanager.WorkSpec.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.WorkSpec.STATUS_FAILED;
 
 import android.content.Context;
 import android.util.Log;
@@ -87,7 +87,7 @@ class WorkExecutionManager {
     }
 
     /**
-     * A callable that looks up the {@link WorkItem} from the database for a given mId, instantiates
+     * A callable that looks up the {@link WorkSpec} from the database for a given mId, instantiates
      * its Worker, and then calls it.
      */
     private class InternalRunnable implements Runnable {
@@ -100,19 +100,19 @@ class WorkExecutionManager {
 
         @Override
         public void run() {
-            WorkItemDao workItemDao = mWorkDatabase.workItemDao();
-            WorkItem workItem = workItemDao.getWorkItem(mId);
-            if (workItem != null) {
-                int status = workItem.mStatus;
+            WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+            WorkSpec workSpec = workSpecDao.getWorkSpec(mId);
+            if (workSpec != null) {
+                int status = workSpec.mStatus;
                 if (status != STATUS_ENQUEUED) {
                     Log.d(TAG, "Status for " + mId + " is not enqueued; not doing any work");
                     return;
                 }
 
-                Worker worker = Worker.fromWorkItem(mAppContext, mWorkDatabase, workItem);
+                Worker worker = Worker.fromWorkSpec(mAppContext, mWorkDatabase, workSpec);
                 if (worker == null) {
-                    Log.e(TAG, "Could not create Worker " + workItem.mWorkerClassName);
-                    workItemDao.setWorkItemStatus(mId, STATUS_FAILED);
+                    Log.e(TAG, "Could not create Worker " + workSpec.mWorkerClassName);
+                    workSpecDao.setWorkSpecStatus(mId, STATUS_FAILED);
                     return;
                 }
 
@@ -131,7 +131,7 @@ class WorkExecutionManager {
                     mFutures.remove(mId);
                 }
             } else {
-                Log.e(TAG, "Didn't find WorkItem for id " + mId);
+                Log.e(TAG, "Didn't find WorkSpec for id " + mId);
                 synchronized (mLock) {
                     mFutures.remove(mId);
                 }

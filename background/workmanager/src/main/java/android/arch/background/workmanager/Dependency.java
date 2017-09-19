@@ -23,30 +23,30 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
- * Database entity that defines a dependency between two {@link WorkItem}s.
+ * Database entity that defines a dependency between two {@link WorkSpec}s.
  */
 
 // TODO(xbhatnag): Replace with single foreign key. (b/65681278)
 @Entity(foreignKeys = {
         @ForeignKey(
-                entity = WorkItem.class,
+                entity = WorkSpec.class,
                 parentColumns = "id",
-                childColumns = "work_item_id",
+                childColumns = "work_spec_id",
                 onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
         @ForeignKey(
-                entity = WorkItem.class,
+                entity = WorkSpec.class,
                 parentColumns = "id",
                 childColumns = "prerequisite_id",
                 onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)},
-        indices = {@Index(value = "work_item_id"), @Index(value = "prerequisite_id")})
+        indices = {@Index(value = "work_spec_id"), @Index(value = "prerequisite_id")})
 class Dependency {
     // Note: Since this is always null, SQLite will auto-increment the primary key id.
     @ColumnInfo(name = "id")
     @PrimaryKey
     Integer mId;
 
-    @ColumnInfo(name = "work_item_id")
-    String mWorkItemId;
+    @ColumnInfo(name = "work_spec_id")
+    String mWorkSpecId;
 
     @ColumnInfo(name = "prerequisite_id")
     String mPrerequisiteId;

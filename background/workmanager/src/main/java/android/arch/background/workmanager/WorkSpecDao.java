@@ -29,7 +29,7 @@ import android.arch.persistence.room.Query;
 public interface WorkSpecDao {
 
     /**
-     * Attempts to insert a WorkSpec into the database.
+     * Attempts to insert a {@link WorkSpec} into the database.
      *
      * @param workSpec The WorkSpec to insert.
      */
@@ -42,4 +42,14 @@ public interface WorkSpecDao {
      */
     @Query("SELECT * FROM workspec WHERE id=:id")
     WorkSpec getWorkSpec(String id);
+
+    /**
+     * Updates the status of a {@link WorkSpec}.
+     *
+     * @param id The identifier for the {@link WorkSpec}
+     * @param status The new status
+     * @return The number of rows that were updated (should be 0 or 1)
+     */
+    @Query("UPDATE workspec SET status=:status WHERE id=:id")
+    int setWorkSpecStatus(String id, int status);
 }

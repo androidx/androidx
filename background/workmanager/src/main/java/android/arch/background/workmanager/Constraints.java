@@ -23,7 +23,7 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 
 /**
- * The constraints that can be applied to one {@link WorkItem}.
+ * The constraints that can be applied to one {@link WorkSpec}.
  */
 
 public class Constraints {
@@ -72,7 +72,7 @@ public class Constraints {
         private long mInitialDelay = 0L;
 
         /**
-         * Specify whether device should be plugged in for {@link WorkItem} to run.
+         * Specify whether device should be plugged in for {@link WorkSpec} to run.
          * Default is false.
          *
          * @param requiresCharging true if device must be plugged in, false otherwise
@@ -84,7 +84,7 @@ public class Constraints {
         }
 
         /**
-         * Specify whether device should be idle for {@link WorkItem} to run. Default is false.
+         * Specify whether device should be idle for {@link WorkSpec} to run. Default is false.
          *
          * @param requiresDeviceIdle true if device must be idle, false otherwise
          * @return current builder
@@ -95,7 +95,7 @@ public class Constraints {
         }
 
         /**
-         * Specify whether device should have a particular {@link NetworkType} for {@link WorkItem}
+         * Specify whether device should have a particular {@link NetworkType} for {@link WorkSpec}
          * to run. Default is {@value #NETWORK_TYPE_ANY}
          *
          * @param networkType type of network required
@@ -108,7 +108,7 @@ public class Constraints {
 
         /**
          * Specify whether device battery should not be below critical threshold for
-         * {@link WorkItem} to run. Default is false.
+         * {@link WorkSpec} to run. Default is false.
          *
          * @param requiresBatteryNotLow true if battery should not be below critical threshold,
          *                              false otherwise
@@ -121,7 +121,7 @@ public class Constraints {
 
         /**
          * Specify whether device available storage should not be below critical threshold for
-         * {@link WorkItem} to run. Default is false.
+         * {@link WorkSpec} to run. Default is false.
          *
          * @param requiresStorageNotLow true if available storage should not be below critical
          *                              threshold, false otherwise
@@ -133,9 +133,9 @@ public class Constraints {
         }
 
         /**
-         * Specify whether {@link WorkItem} should run with an initial delay. Default is 0ms.
+         * Specify whether {@link WorkSpec} should run with an initial delay. Default is 0ms.
          *
-         * @param duration initial delay before running WorkItem (in milliseconds)
+         * @param duration initial delay before running WorkSpec (in milliseconds)
          * @return current builder
          */
         public Builder setInitialDelay(long duration) {
@@ -147,7 +147,7 @@ public class Constraints {
         /**
          * Generates the {@link Constraints} from this Builder.
          *
-         * @return new {@link Constraints} which can be attached to a {@link WorkItem}
+         * @return new {@link Constraints} which can be attached to a {@link WorkSpec}
          */
         public Constraints build() {
             return new Constraints(this);

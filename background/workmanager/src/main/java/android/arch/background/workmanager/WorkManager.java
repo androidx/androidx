@@ -86,10 +86,39 @@ public final class WorkManager implements LifecycleObserver {
     /**
      * Enqueues an item for background processing.
      *
-     * @param work the {@link Work} to enqueue
+     * @param work The {@link Work} to enqueue
+     * @return A {@link WorkContinuation} that allows further chaining
      */
-    public void enqueue(Work work) {
-        mEnqueueExecutor.execute(new EnqueueRunnable(work));
+    public WorkContinuation enqueue(Work work) {
+        return enqueue(work, null);
+    }
+
+    /**
+     * Enqueues an item for background processing.
+     *
+     * @param workBuilder The {@link Work.Builder} to enqueue; internally {@code build} is called
+     *                    on it
+     * @return A {@link WorkContinuation} that allows further chaining
+     */
+    public WorkContinuation enqueue(Work.Builder workBuilder) {
+        return enqueue(workBuilder.build(), null);
+    }
+
+    /**
+     * Enqueues an item for background processing.
+     *
+     * @param workerClass The {@link Worker} to enqueue; this is a convenience method that makes a
+     *                    {@link Work} object with default arguments using this Worker
+     * @return A {@link WorkContinuation} that allows further chaining
+     */
+    public WorkContinuation enqueue(Class<? extends Worker> workerClass) {
+        return enqueue(new Work.Builder(workerClass).build(), null);
+    }
+
+    WorkContinuation enqueue(Work work, String prerequisiteId) {
+        WorkContinuation workContinuation = new WorkContinuation(this, work.getId());
+        mEnqueueExecutor.execute(new EnqueueRunnable(work, prerequisiteId));
+        return workContinuation;
     }
 
     /**
@@ -97,30 +126,36 @@ public final class WorkManager implements LifecycleObserver {
      */
     private class EnqueueRunnable implements Runnable {
         private Work mWork;
+        private String mPrerequisiteId; // TODO(sumir)
 
-        EnqueueRunnable(Work work) {
+        EnqueueRunnable(Work work, String prerequisiteId) {
             mWork = work;
+            mPrerequisiteId = prerequisiteId;
         }
 
         @Override
         public void run() {
-            // TODO: check for prerequisites.
+            // TODO(sumir): check for prerequisites.
             mWorkDatabase.beginTransaction();
             try {
                 mWorkDatabase.workSpecDao().insertWorkSpec(mWork.getWorkSpec());
-                mWorkDatabase.workItemDao().insertWorkItems(mWork.getWorkItems());
-                mWorkDatabase.dependencyDao().insertDependencies(mWork.generateDependencies());
+                if (mPrerequisiteId != null) {
+                    Dependency dep = new Dependency();
+                    dep.mPrerequisiteId = mPrerequisiteId;
+                    dep.mWorkSpecId = mWork.getId();
+                    mWorkDatabase.dependencyDao().insertDependency(dep);
+                } else {
+                    if (mForegroundWorkExecutionMgr != null) {
+                        mForegroundWorkExecutionMgr.enqueue(
+                                mWork.getId(),
+                                0L /* TODO: delay */);
+                        // TODO: Schedule dependent work.
+                    }
 
-                if (mForegroundWorkExecutionMgr != null) {
-                    mForegroundWorkExecutionMgr.enqueue(
-                        mWork.getWorkItems().get(0).mId,
-                        0L /* TODO: delay */);
-                    // TODO: Schedule dependent work.
-                }
-
-                if (Build.VERSION.SDK_INT >= 21) {
-                    // TODO: Schedule on JobScheduler.
-                    Log.d(TAG, "Schedule JobScheduler here");
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        // TODO: Schedule on JobScheduler.
+                        Log.d(TAG, "Schedule JobScheduler here");
+                    }
                 }
 
                 mWorkDatabase.setTransactionSuccessful();

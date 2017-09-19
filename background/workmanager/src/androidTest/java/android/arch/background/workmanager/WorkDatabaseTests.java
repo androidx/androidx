@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -53,26 +52,24 @@ public class WorkDatabaseTests {
 
     @Test
     public void insert() throws InterruptedException, ExecutionException, TimeoutException {
-        Work work = new Work.Builder(TestWorker.class)
-                .then(TestWorker.class)
-                .then(TestWorker.class)
-                .build();
-        mWorkManager.enqueue(work);
+        final int workCount = 3;
+        final Work[] workArray = new Work[workCount];
+        for (int i = 0; i < workCount; ++i) {
+            workArray[i] = new Work.Builder(TestWorker.class).build();
+        }
+        mWorkManager.enqueue(workArray[0]).then(workArray[1]).then(workArray[2]);
         Thread.sleep(5000);
 
-        List<String> workItemIds = work.getWorkItemIds();
-        assertEquals(3, workItemIds.size());
-        for (String id : workItemIds) {
-            assertNotNull(mDatabase.workItemDao().getWorkItem(id));
+        for (int i = 0; i < workCount; ++i) {
+            String id = workArray[i].getId();
+            assertNotNull(mDatabase.workSpecDao().getWorkSpec(id));
+            assertEquals(mDatabase.dependencyDao().hasDependencies(id), (i > 0));
         }
-        assertFalse(mDatabase.dependencyDao().hasDependencies(workItemIds.get(0)));
-        assertTrue(mDatabase.dependencyDao().hasDependencies(workItemIds.get(1)));
-        assertTrue(mDatabase.dependencyDao().hasDependencies(workItemIds.get(2)));
     }
 
     @Test
     public void constraints() throws InterruptedException, ExecutionException, TimeoutException {
-        Work work = new Work.Builder(TestWorker.class)
+        Work work0 = new Work.Builder(TestWorker.class)
                 .withConstraints(
                         new Constraints.Builder()
                                 .setRequiresCharging(true)
@@ -82,50 +79,48 @@ public class WorkDatabaseTests {
                                 .setRequiresStorageNotLow(true)
                                 .setInitialDelay(5000)
                                 .build())
-                .then(TestWorker.class)
                 .build();
-        mWorkManager.enqueue(work);
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        mWorkManager.enqueue(work0).then(work1);
         Thread.sleep(5000);
 
-        List<String> workItemIds = work.getWorkItemIds();
-        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(workItemIds.get(0));
-        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(workItemIds.get(1));
+        WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
+        WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertNotNull(workItem0.mConstraints);
-        assertTrue(workItem0.mConstraints.mRequiresCharging);
-        assertTrue(workItem0.mConstraints.mRequiresDeviceIdle);
-        assertTrue(workItem0.mConstraints.mRequiresBatteryNotLow);
-        assertTrue(workItem0.mConstraints.mRequiresStorageNotLow);
-        assertEquals(5000, workItem0.mConstraints.mInitialDelay);
-        assertEquals(Constraints.NETWORK_TYPE_METERED, workItem0.mConstraints.mRequiresNetworkType);
+        assertNotNull(workSpec0.mConstraints);
+        assertTrue(workSpec0.mConstraints.mRequiresCharging);
+        assertTrue(workSpec0.mConstraints.mRequiresDeviceIdle);
+        assertTrue(workSpec0.mConstraints.mRequiresBatteryNotLow);
+        assertTrue(workSpec0.mConstraints.mRequiresStorageNotLow);
+        assertEquals(5000, workSpec0.mConstraints.mInitialDelay);
+        assertEquals(Constraints.NETWORK_TYPE_METERED, workSpec0.mConstraints.mRequiresNetworkType);
 
-        assertNotNull(workItem1.mConstraints);
-        assertFalse(workItem1.mConstraints.mRequiresCharging);
-        assertFalse(workItem1.mConstraints.mRequiresDeviceIdle);
-        assertFalse(workItem1.mConstraints.mRequiresBatteryNotLow);
-        assertFalse(workItem1.mConstraints.mRequiresStorageNotLow);
-        assertEquals(0, workItem1.mConstraints.mInitialDelay);
-        assertEquals(Constraints.NETWORK_TYPE_ANY, workItem1.mConstraints.mRequiresNetworkType);
+        assertNotNull(workSpec1.mConstraints);
+        assertFalse(workSpec1.mConstraints.mRequiresCharging);
+        assertFalse(workSpec1.mConstraints.mRequiresDeviceIdle);
+        assertFalse(workSpec1.mConstraints.mRequiresBatteryNotLow);
+        assertFalse(workSpec1.mConstraints.mRequiresStorageNotLow);
+        assertEquals(0, workSpec1.mConstraints.mInitialDelay);
+        assertEquals(Constraints.NETWORK_TYPE_ANY, workSpec1.mConstraints.mRequiresNetworkType);
     }
 
     @Test
     public void backoffPolicy() throws InterruptedException, ExecutionException, TimeoutException {
-        Work work = new Work.Builder(TestWorker.class)
-                .withBackoffCriteria(WorkItem.BACKOFF_POLICY_LINEAR, 50000)
-                .then(TestWorker.class)
+        Work work0 = new Work.Builder(TestWorker.class)
+                .withBackoffCriteria(WorkSpec.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
-        mWorkManager.enqueue(work);
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        mWorkManager.enqueue(work0).then(work1);
         Thread.sleep(5000);
 
-        List<String> workItemIds = work.getWorkItemIds();
-        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(workItemIds.get(0));
-        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(workItemIds.get(1));
+        WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
+        WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertEquals(WorkItem.BACKOFF_POLICY_LINEAR, workItem0.mBackoffPolicy);
-        assertEquals(50000, workItem0.mBackoffDelayDuration);
+        assertEquals(WorkSpec.BACKOFF_POLICY_LINEAR, workSpec0.mBackoffPolicy);
+        assertEquals(50000, workSpec0.mBackoffDelayDuration);
 
-        assertEquals(WorkItem.BACKOFF_POLICY_EXPONENTIAL, workItem1.mBackoffPolicy);
-        assertEquals(WorkItem.DEFAULT_BACKOFF_DELAY_DURATION, workItem1.mBackoffDelayDuration);
+        assertEquals(WorkSpec.BACKOFF_POLICY_EXPONENTIAL, workSpec1.mBackoffPolicy);
+        assertEquals(WorkSpec.DEFAULT_BACKOFF_DELAY_DURATION, workSpec1.mBackoffDelayDuration);
     }
 
     @Test
@@ -136,24 +131,23 @@ public class WorkDatabaseTests {
         Arguments args = new Arguments();
         args.putString(key, expectedValue);
 
-        Work work = new Work.Builder(TestWorker.class)
+        Work work0 = new Work.Builder(TestWorker.class)
                 .withArguments(args)
-                .then(TestWorker.class)
                 .build();
-        mWorkManager.enqueue(work);
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        mWorkManager.enqueue(work0).then(work1);
         Thread.sleep(5000);
 
-        List<String> workItemIds = work.getWorkItemIds();
-        WorkItem workItem0 = mDatabase.workItemDao().getWorkItem(workItemIds.get(0));
-        WorkItem workItem1 = mDatabase.workItemDao().getWorkItem(workItemIds.get(1));
+        WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
+        WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertNotNull(workItem0.mArguments);
-        assertNotNull(workItem1.mArguments);
+        assertNotNull(workSpec0.mArguments);
+        assertNotNull(workSpec1.mArguments);
 
-        assertEquals(1, workItem0.mArguments.size());
-        assertEquals(0, workItem1.mArguments.size());
+        assertEquals(1, workSpec0.mArguments.size());
+        assertEquals(0, workSpec1.mArguments.size());
 
-        String actualValue = workItem0.mArguments.getString(key, null);
+        String actualValue = workSpec0.mArguments.getString(key, null);
         assertNotNull(actualValue);
         assertEquals(expectedValue, actualValue);
     }

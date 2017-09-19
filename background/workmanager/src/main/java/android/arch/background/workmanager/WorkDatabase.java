@@ -25,7 +25,7 @@ import android.support.annotation.VisibleForTesting;
 /**
  * A Room database for keeping track of work statuses.
  */
-@Database(entities = {WorkSpec.class, WorkItem.class, Dependency.class}, version = 1)
+@Database(entities = {WorkSpec.class, Dependency.class}, version = 1)
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME_PREFIX = "android.arch.background.workmanager.work.";
@@ -71,11 +71,6 @@ public abstract class WorkDatabase extends RoomDatabase {
      * @return The Data Access Object for {@link WorkSpec}s.
      */
     public abstract WorkSpecDao workSpecDao();
-
-    /**
-     * @return The Data Access Object for {@link WorkItem}s.
-     */
-    public abstract WorkItemDao workItemDao();
 
     /**
      * @return The Data Access Object for {@link Dependency}s.

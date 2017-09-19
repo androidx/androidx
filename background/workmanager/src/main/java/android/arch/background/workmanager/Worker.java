@@ -16,10 +16,10 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.WorkItem.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.WorkItem.STATUS_FAILED;
-import static android.arch.background.workmanager.WorkItem.STATUS_RUNNING;
-import static android.arch.background.workmanager.WorkItem.STATUS_SUCCEEDED;
+import static android.arch.background.workmanager.WorkSpec.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.WorkSpec.STATUS_FAILED;
+import static android.arch.background.workmanager.WorkSpec.STATUS_RUNNING;
+import static android.arch.background.workmanager.WorkSpec.STATUS_SUCCEEDED;
 
 import android.content.Context;
 import android.util.Log;
@@ -37,12 +37,12 @@ public abstract class Worker<T> implements Callable<T> {
 
     protected Context mAppContext;
     private WorkDatabase mWorkDatabase;
-    private WorkItem mWorkItem;
+    private WorkSpec mWorkSpec;
 
-    public Worker(Context appContext, WorkDatabase workDatabase, WorkItem workItem) {
+    public Worker(Context appContext, WorkDatabase workDatabase, WorkSpec workSpec) {
         this.mAppContext = appContext;
         this.mWorkDatabase = workDatabase;
-        this.mWorkItem = workItem;
+        this.mWorkSpec = workSpec;
     }
 
     /**
@@ -54,11 +54,11 @@ public abstract class Worker<T> implements Callable<T> {
 
     @Override
     public final T call() {
-        String id = mWorkItem.mId;
+        String id = mWorkSpec.mId;
         Log.v(TAG, "Worker.call for " + id);
-        WorkItemDao workItemDao = mWorkDatabase.workItemDao();
-        mWorkItem.mStatus = STATUS_RUNNING;
-        workItemDao.setWorkItemStatus(id, STATUS_RUNNING);
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        mWorkSpec.mStatus = STATUS_RUNNING;
+        workSpecDao.setWorkSpecStatus(id, STATUS_RUNNING);
 
         T result = null;
 
@@ -68,36 +68,36 @@ public abstract class Worker<T> implements Callable<T> {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + id);
-            mWorkItem.mStatus = STATUS_SUCCEEDED;
-            workItemDao.setWorkItemStatus(id, STATUS_SUCCEEDED);
+            mWorkSpec.mStatus = STATUS_SUCCEEDED;
+            workSpecDao.setWorkSpecStatus(id, STATUS_SUCCEEDED);
         } catch (Exception e) {
             // TODO: Retry policies.
             if (e instanceof InterruptedException) {
                 Log.d(TAG, "Work interrupted for " + id);
-                mWorkItem.mStatus = STATUS_ENQUEUED;
-                workItemDao.setWorkItemStatus(id, STATUS_ENQUEUED);
+                mWorkSpec.mStatus = STATUS_ENQUEUED;
+                workSpecDao.setWorkSpecStatus(id, STATUS_ENQUEUED);
             } else {
                 Log.d(TAG, "Work failed for " + id, e);
-                mWorkItem.mStatus = STATUS_FAILED;
-                workItemDao.setWorkItemStatus(id, STATUS_FAILED);
+                mWorkSpec.mStatus = STATUS_FAILED;
+                workSpecDao.setWorkSpecStatus(id, STATUS_FAILED);
             }
         }
 
         return result;
     }
 
-    static Worker fromWorkItem(
+    static Worker fromWorkSpec(
             final Context context,
             final WorkDatabase workDatabase,
-            final WorkItem workItem) {
+            final WorkSpec workSpec) {
         Context appContext = context.getApplicationContext();
-        String workerClassName = workItem.mWorkerClassName;
+        String workerClassName = workSpec.mWorkerClassName;
         try {
             Class<?> clazz = Class.forName(workerClassName);
             if (Worker.class.isAssignableFrom(clazz)) {
                 return (Worker) clazz
-                        .getConstructor(Context.class, WorkDatabase.class, WorkItem.class)
-                        .newInstance(appContext, workDatabase, workItem);
+                        .getConstructor(Context.class, WorkDatabase.class, WorkSpec.class)
+                        .newInstance(appContext, workDatabase, workSpec);
             } else {
                 Log.e(TAG, "" + workerClassName + " is not of type Worker");
             }

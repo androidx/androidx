@@ -23,8 +23,8 @@ import android.content.Context;
  */
 
 public class TestWorker extends Worker<String> {
-    public TestWorker(Context appContext, WorkDatabase workDatabase, WorkItem workItem) {
-        super(appContext, workDatabase, workItem);
+    public TestWorker(Context appContext, WorkDatabase workDatabase, WorkSpec workSpec) {
+        super(appContext, workDatabase, workSpec);
     }
 
     @Override

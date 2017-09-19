@@ -22,30 +22,28 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
-import java.util.List;
-
 /**
- * The Data Access Object for {@link Dependency}s.
+ * The Data Access Object for {@link Dependency}.
  */
 @Dao
 public interface DependencyDao {
     /**
-     * Attempts to insert Dependencies into the database.
+     * Attempts to insert a {@link Dependency} into the database.
      *
-     * @param dependencies The {@link Dependency}s to insert
+     * @param dependency The {@link Dependency}s to insert
      */
     @Insert(onConflict = FAIL)
-    void insertDependencies(List<Dependency> dependencies);
+    void insertDependency(Dependency dependency);
 
     /**
-     * Determines if a {@link WorkItem} is dependent on other {@link WorkItem}s
-     * that are not in a {@value WorkItem#STATUS_SUCCEEDED} state.
+     * Determines if a {@link WorkSpec is dependent on other {@link WorkSpec}s
+     * that are not in a {@value WorkSpec#STATUS_SUCCEEDED} state.
      *
-     * @param id The identifier for the {@link WorkItem}
-     * @return true if the {@link WorkItem} is dependent on other {@link WorkItem}s
+     * @param id The identifier for the {@link WorkSpec}
+     * @return true if the {@link WorkSpec} is dependent on other {@link WorkSpec}s
      */
-    @Query("SELECT COUNT(id) > 0 FROM workitem WHERE status!=2 AND id IN"
-            + "(SELECT prerequisite_id FROM dependency WHERE work_item_id=:id)")
+    @Query("SELECT COUNT(id) > 0 FROM workspec WHERE status!=2 AND id IN"
+            + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
     boolean hasDependencies(String id); // TODO: Replace 2 with STATUS_SUCCEEDED constant
                                      // TODO: Refactor this method to a separate DAO.
 }
