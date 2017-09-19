@@ -105,21 +105,27 @@ public final class WorkManager implements LifecycleObserver {
         @Override
         public void run() {
             // TODO: check for prerequisites.
-            // TODO: insert in a transaction.
-            mWorkDatabase.workSpecDao().insertWorkSpec(mWork.getWorkSpec());
-            mWorkDatabase.workItemDao().insertWorkItems(mWork.getWorkItems());
-            mWorkDatabase.dependencyDao().insertDependencies(mWork.generateDependencies());
+            mWorkDatabase.beginTransaction();
+            try {
+                mWorkDatabase.workSpecDao().insertWorkSpec(mWork.getWorkSpec());
+                mWorkDatabase.workItemDao().insertWorkItems(mWork.getWorkItems());
+                mWorkDatabase.dependencyDao().insertDependencies(mWork.generateDependencies());
 
-            if (mForegroundWorkExecutionMgr != null) {
-                mForegroundWorkExecutionMgr.enqueue(
+                if (mForegroundWorkExecutionMgr != null) {
+                    mForegroundWorkExecutionMgr.enqueue(
                         mWork.getWorkItems().get(0).mId,
                         0L /* TODO: delay */);
-                // TODO: Schedule dependent work.
-            }
+                    // TODO: Schedule dependent work.
+                }
 
-            if (Build.VERSION.SDK_INT >= 21) {
-                // TODO: Schedule on JobScheduler.
-                Log.d(TAG, "Schedule JobScheduler here");
+                if (Build.VERSION.SDK_INT >= 21) {
+                    // TODO: Schedule on JobScheduler.
+                    Log.d(TAG, "Schedule JobScheduler here");
+                }
+
+                mWorkDatabase.setTransactionSuccessful();
+            } finally {
+                mWorkDatabase.endTransaction();
             }
         }
     }
