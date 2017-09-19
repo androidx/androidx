@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.persistence.room.integration.kotlintestapp
+package android.arch.persistence.room.integration.kotlintestapp.dao
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
@@ -33,6 +33,9 @@ interface BooksDao {
 
     @Insert
     fun addAuthors(vararg authors: Author)
+
+    @Query("SELECT * FROM author WHERE authorId = :authorId")
+    fun getAuthor(authorId: String): Author
 
     @Insert
     fun addBooks(vararg books: Book)

@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package android.arch.persistence.room.integration.kotlintestapp
+package android.arch.persistence.room.integration.kotlintestapp.dao
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.RoomDatabase
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Query
 import android.arch.persistence.room.integration.kotlintestapp.vo.Author
-import android.arch.persistence.room.integration.kotlintestapp.vo.Book
-import android.arch.persistence.room.integration.kotlintestapp.vo.BookAuthor
-import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 
-@Database(entities = arrayOf(Book::class, Author::class, Publisher::class, BookAuthor::class),
-        version = 1)
-abstract class BooksDatabase : RoomDatabase() {
 
-    abstract fun booksDao(): BooksDao
+@Dao
+interface DerivedDao : BaseDao<Author> {
 
+    @Query("SELECT * FROM author WHERE authorId = :authorId")
+    fun getAuthor(authorId: String): Author
 }
