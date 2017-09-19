@@ -18,6 +18,7 @@ package android.arch.persistence.room.processor
 
 import COMMON
 import android.arch.persistence.room.parser.SQLTypeAffinity
+import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import android.arch.persistence.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import android.arch.persistence.room.processor.ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
 import android.arch.persistence.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
@@ -465,6 +466,20 @@ class PojoProcessorTest {
                 ProcessorErrors.relationBadProject("foo.bar.User", listOf("i_dont_exist"),
                         listOf("uid", "name", "lastName", "ageColumn"))
         )
+    }
+
+    @Test
+    fun relation_badReturnTypeInGetter() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid")
+                private List<User> user;
+                public void setUser(List<User> user){ this.user = user;}
+                public User getUser(){return null;}
+                """, COMMON.USER
+        ) { _ ->
+        }.failsToCompile().withErrorContaining(CANNOT_FIND_GETTER_FOR_FIELD)
     }
 
     @Test
