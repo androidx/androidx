@@ -16,16 +16,11 @@
 
 package android.arch.background.workmanager;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
-import android.support.annotation.IntDef;
-
-import java.lang.annotation.Retention;
 
 /**
  * Stores information about a logical unit of work.
@@ -33,25 +28,6 @@ import java.lang.annotation.Retention;
 @Entity
 @TypeConverters(Arguments.class)
 class WorkSpec {
-
-    @Retention(SOURCE)
-    @IntDef({STATUS_FAILED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_ENQUEUED})
-    @interface WorkStatus {
-    }
-
-    @Retention(SOURCE)
-    @IntDef({BACKOFF_POLICY_EXPONENTIAL, BACKOFF_POLICY_LINEAR})
-    @interface BackoffPolicy {
-    }
-
-    static final int STATUS_ENQUEUED = 0;
-    static final int STATUS_RUNNING = 1;
-    static final int STATUS_SUCCEEDED = 2;
-    static final int STATUS_FAILED = 3;
-
-    public static final int BACKOFF_POLICY_EXPONENTIAL = 0;
-    public static final int BACKOFF_POLICY_LINEAR = 1;
-    public static final long DEFAULT_BACKOFF_DELAY_DURATION = 30000;
 
 
     @ColumnInfo(name = "id")
@@ -67,8 +43,8 @@ class WorkSpec {
     long mFlexDuration;
 
     @ColumnInfo(name = "status")
-    @WorkSpec.WorkStatus
-    int mStatus = STATUS_ENQUEUED;
+    @Work.WorkStatus
+    int mStatus = Work.STATUS_ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
@@ -80,11 +56,11 @@ class WorkSpec {
 
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
-    @WorkSpec.BackoffPolicy
-    int mBackoffPolicy = BACKOFF_POLICY_EXPONENTIAL;
+    @Work.BackoffPolicy
+    int mBackoffPolicy = Work.BACKOFF_POLICY_EXPONENTIAL;
 
     @ColumnInfo(name = "backoff_delay_duration")
-    long mBackoffDelayDuration = DEFAULT_BACKOFF_DELAY_DURATION;
+    long mBackoffDelayDuration = Work.DEFAULT_BACKOFF_DELAY_DURATION;
 
     WorkSpec(String id) {
         mId = id;

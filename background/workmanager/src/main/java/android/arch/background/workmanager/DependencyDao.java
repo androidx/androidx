@@ -37,7 +37,7 @@ public interface DependencyDao {
 
     /**
      * Determines if a {@link WorkSpec is dependent on other {@link WorkSpec}s
-     * that are not in a {@value WorkSpec#STATUS_SUCCEEDED} state.
+     * that are not in a {@value Work#STATUS_SUCCEEDED} state.
      *
      * @param id The identifier for the {@link WorkSpec}
      * @return true if the {@link WorkSpec} is dependent on other {@link WorkSpec}s
