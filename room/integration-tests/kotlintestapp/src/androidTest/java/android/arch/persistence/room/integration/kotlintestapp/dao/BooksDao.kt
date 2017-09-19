@@ -20,7 +20,12 @@ import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
-import android.arch.persistence.room.integration.kotlintestapp.vo.*
+import android.arch.persistence.room.integration.kotlintestapp.vo.Author
+import android.arch.persistence.room.integration.kotlintestapp.vo.Book
+import android.arch.persistence.room.integration.kotlintestapp.vo.BookAuthor
+import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
+import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
+import android.arch.persistence.room.integration.kotlintestapp.vo.PublisherWithBooks
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -45,6 +50,11 @@ interface BooksDao {
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBook(bookId: String): Book
+
+    @Query("""SELECT * FROM book WHERE
+            bookId IN(:bookIds)
+            order by bookId DESC""")
+    fun getBooksMultiLineQuery(bookIds: List<String>): List<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookLiveData(bookId: String): LiveData<Book>
