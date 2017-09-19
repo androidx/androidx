@@ -1863,7 +1863,7 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * Sets whether this node is visible to the user.
+     * Gets whether this node is visible to the user.
      *
      * @return Whether the node is visible to the user.
      */
