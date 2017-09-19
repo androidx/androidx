@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,18 @@
 
 package android.arch.persistence.room.integration.kotlintestapp.vo
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
-import android.arch.persistence.room.TypeConverters
+import android.arch.persistence.room.TypeConverter
+
 import java.util.Date
 
-@Entity
-@TypeConverters(DateConverter::class, StringToIntListConverters::class)
-data class Author(
-        @PrimaryKey val authorId: String,
-        val name: String,
-        val dateOfBirth: Date? = null,
-        val aList: List<Integer>? = null)
+class DateConverter {
+    @TypeConverter
+    fun toDate(timestamp: Long?): Date? {
+        return if (timestamp == null) null else Date(timestamp)
+    }
+
+    @TypeConverter
+    fun toTimestamp(date: Date?): Long? {
+        return date?.time
+    }
+}
