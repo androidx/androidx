@@ -16,16 +16,25 @@
 
 package android.arch.navigation;
 
-import android.content.Context;
+import android.os.Bundle;
 
 /**
- * Simple NavigatorProvider that only supports &lt;navigation&gt; and &lt;test&gt; navigation
- * elements.
+ * A {@link Navigator} that does not have a {@link Navigator.Name} used to test
+ * {@link SimpleNavigatorProvider}.
  */
-class TestNavigatorProvider extends SimpleNavigatorProvider {
+class NoNameNavigator extends Navigator<NavDestination> {
+    @Override
+    public NavDestination createDestination() {
+        return new NavDestination(this);
+    }
 
-    TestNavigatorProvider(Context context) {
-        addNavigator(new NavGraphNavigator(context));
-        addNavigator(new TestNavigator());
+    @Override
+    public void navigate(NavDestination destination, Bundle args, NavOptions navOptions) {
+        throw new IllegalStateException("navigate is not supported");
+    }
+
+    @Override
+    public boolean popBackStack() {
+        throw new IllegalStateException("popBackStack is not supported");
     }
 }

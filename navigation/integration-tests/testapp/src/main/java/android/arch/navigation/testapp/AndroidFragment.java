@@ -57,8 +57,10 @@ public class AndroidFragment extends Fragment {
                 EditText editArgs = view.findViewById(R.id.edit_args);
                 Bundle args = new Bundle();
                 args.putString("myarg", editArgs.getText().toString());
-                PendingIntent deeplink = Navigation.findController(v).createDeepLink(R.id.android,
-                        args);
+                PendingIntent deeplink = Navigation.findController(v).createDeepLink()
+                        .setDestination(R.id.android)
+                        .setArguments(args)
+                        .createPendingIntent();
                 NotificationManager notificationManager = (NotificationManager)
                         getContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

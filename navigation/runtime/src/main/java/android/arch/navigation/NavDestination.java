@@ -29,6 +29,7 @@ import android.support.v4.util.Pair;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 /**
@@ -220,6 +221,26 @@ public class NavDestination {
             }
         }
         return null;
+    }
+
+    /**
+     * Build an array containing the hierarchy from the root down to this destination.
+     *
+     * @return An array containing all of the ids from the root to this destination
+     */
+    @NonNull
+    int[] buildDeepLinkIds() {
+        ArrayDeque<NavDestination> hierarchy = new ArrayDeque<>();
+        hierarchy.add(this);
+        while (hierarchy.peekFirst().getParent() != null) {
+            hierarchy.addFirst(hierarchy.peekFirst().getParent());
+        }
+        int[] deepLinkIds = new int[hierarchy.size()];
+        int index = 0;
+        for (NavDestination destination : hierarchy) {
+            deepLinkIds[index++] = destination.getId();
+        }
+        return deepLinkIds;
     }
 
     /**
