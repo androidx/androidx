@@ -79,6 +79,9 @@ dependencies {
     androidTestCompile(libs.espresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it's own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it's own MockMaker
+
     testCompile libs.junit
 }
 
