@@ -341,7 +341,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         mCircleDiameter = (int) (CIRCLE_DIAMETER * metrics.density);
 
         createProgressView();
-        ViewCompat.setChildrenDrawingOrderEnabled(this, true);
+        setChildrenDrawingOrderEnabled(true);
         // the absolute offset has to take into account that the circle starts at an offset
         mSpinnerOffsetEnd = (int) (DEFAULT_CIRCLE_TARGET * metrics.density);
         mTotalDragDistance = mSpinnerOffsetEnd;
