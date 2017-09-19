@@ -3029,7 +3029,10 @@ public class ViewCompat {
      *        {@link ViewGroup#getChildDrawingOrder(int, int)}, false otherwise
      *
      * <p>Prior to API 7 this will have no effect.</p>
+     *
+     * @deprecated Use {@link ViewGroup#setChildrenDrawingOrderEnabled(boolean)} directly.
      */
+    @Deprecated
     public static void setChildrenDrawingOrderEnabled(ViewGroup viewGroup, boolean enabled) {
        IMPL.setChildrenDrawingOrderEnabled(viewGroup, enabled);
     }
