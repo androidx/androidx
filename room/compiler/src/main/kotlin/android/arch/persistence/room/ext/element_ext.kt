@@ -47,13 +47,6 @@ fun Element.isNonNull() =
                 || hasAnnotation(org.jetbrains.annotations.NotNull::class)
 
 /**
- * Checks if it has all of the annotations
- */
-fun Element.hasAllOf(vararg klasses: KClass<out Annotation>): Boolean {
-    return !klasses.any { !hasAnnotation(it) }
-}
-
-/**
  * gets all members including super privates. does not handle duplicate field names!!!
  */
 // TODO handle conflicts with super: b/35568142
