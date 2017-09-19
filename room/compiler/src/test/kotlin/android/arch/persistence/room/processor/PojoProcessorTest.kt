@@ -100,6 +100,72 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun transient_ignore() {
+        singleRun("""
+            transient int foo;
+            int bar;
+        """) { pojo ->
+            assertThat(pojo.fields.size, `is`(1))
+            assertThat(pojo.fields[0].name, `is`("bar"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_withColumnInfo() {
+        singleRun("""
+            @ColumnInfo
+            transient int foo;
+            int bar;
+        """) { pojo ->
+            assertThat(pojo.fields.map { it.name }.toSet(), `is`(setOf("bar", "foo")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_embedded() {
+        singleRun("""
+            @Embedded
+            transient Foo foo;
+            int bar;
+            static class Foo {
+                int x;
+            }
+        """) { pojo ->
+            assertThat(pojo.fields.map { it.name }.toSet(), `is`(setOf("x", "bar")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_insideEmbedded() {
+        singleRun("""
+            @Embedded
+            Foo foo;
+            int bar;
+            static class Foo {
+                transient int x;
+                int y;
+            }
+        """) { pojo ->
+            assertThat(pojo.fields.map { it.name }.toSet(), `is`(setOf("bar", "y")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun transient_relation() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid")
+                public transient List<User> user;
+                """, COMMON.USER
+        ) { pojo ->
+            assertThat(pojo.relations.size, `is`(1))
+            assertThat(pojo.relations.first().entityField.name, `is`("uid"))
+            assertThat(pojo.relations.first().parentField.name, `is`("id"))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
     fun embedded() {
         singleRun(
                 """

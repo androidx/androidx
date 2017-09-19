@@ -39,8 +39,8 @@
  *     database row. For each {@link android.arch.persistence.room.Entity Entity}, a database table
  *     is created to hold the items. The Entity class must be referenced in the
  *     {@link android.arch.persistence.room.Database#entities() Database#entities} array. Each field
- *     of the Entity is persisted in the database unless it is annotated with
- *     {@link android.arch.persistence.room.Ignore Ignore}. Entities must have no-arg constructors.
+ *     of the Entity (and its super class) is persisted in the database unless it is denoted
+ *     otherwise (see {@link android.arch.persistence.room.Entity Entity} docs for details).
  *     </li>
  *     <li>{@link android.arch.persistence.room.Dao Dao}: This annotation marks a class or interface
  *     as a Data Access Object. Data access objects are the main component of Room that are

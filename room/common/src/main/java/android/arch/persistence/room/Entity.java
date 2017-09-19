@@ -36,6 +36,9 @@ import java.lang.annotation.Target;
  * When a class is marked as an Entity, all of its fields are persisted. If you would like to
  * exclude some of its fields, you can mark them with {@link Ignore}.
  * <p>
+ * If a field is {@code transient}, it is automatically ignored <b>unless</b> it is annotated with
+ * {@link ColumnInfo}, {@link Embedded} or {@link Relation}.
+ * <p>
  * Example:
  * <pre>
  * {@literal @}Entity
