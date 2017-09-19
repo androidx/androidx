@@ -37,18 +37,22 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
 dependencies {
     api project(':lifecycle:extensions')
     api project(':room:runtime')
     annotationProcessor project(":room:compiler")
-
-    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
-    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
-    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
-
+    androidTestImplementation libs.test_runner, { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core, { exclude module: 'support-annotations' }
+    androidTestImplementation libs.mockito_core, { exclude group: 'net.bytebuddy' }
+    // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' }
+    // DexMaker has it"s own MockMaker
     testCompile libs.junit
 }
 
