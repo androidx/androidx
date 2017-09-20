@@ -28,7 +28,6 @@ dependencies {
     testCompile libs.mockito_core
     compile libs.support.annotations
     compile project(path: ':arch:common')
-    compile libs.junit
     testCompile libs.kotlin.stdlib
 }
 
