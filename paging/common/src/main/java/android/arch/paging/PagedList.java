@@ -177,8 +177,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
          *
          * @return The newly constructed PagedList
          */
-        @NonNull
         @WorkerThread
+        @NonNull
         public PagedList<Value> build() {
             if (mDataSource == null) {
                 throw new IllegalArgumentException("DataSource required");
