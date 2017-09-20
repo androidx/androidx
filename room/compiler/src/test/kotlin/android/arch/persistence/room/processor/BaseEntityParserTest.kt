@@ -20,6 +20,7 @@ import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.testing.TestInvocation
 import android.arch.persistence.room.testing.TestProcessor
 import android.arch.persistence.room.vo.Entity
+import android.support.annotation.NonNull
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
@@ -68,7 +69,8 @@ abstract class BaseEntityParserTest {
                                 android.arch.persistence.room.PrimaryKey::class,
                                 android.arch.persistence.room.Ignore::class,
                                 Embedded::class,
-                                android.arch.persistence.room.ColumnInfo::class)
+                                android.arch.persistence.room.ColumnInfo::class,
+                                NonNull::class)
                         .nextRunHandler { invocation ->
                             val entity = invocation.roundEnv
                                     .getElementsAnnotatedWith(

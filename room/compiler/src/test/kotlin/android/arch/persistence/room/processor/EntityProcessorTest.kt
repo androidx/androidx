@@ -18,6 +18,7 @@ package android.arch.persistence.room.processor
 
 import COMMON
 import android.arch.persistence.room.parser.SQLTypeAffinity
+import android.arch.persistence.room.processor.ProcessorErrors.PRIMARY_KEY_NULL
 import android.arch.persistence.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import android.arch.persistence.room.vo.CallType
 import android.arch.persistence.room.vo.Field
@@ -1025,6 +1026,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
 
                 @Embedded(prefix = "bar_")
                 @PrimaryKey
+                @NonNull
                 public Foo foo;
 
                 static class Foo {
@@ -1042,6 +1044,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
+                import android.support.annotation.NonNull;
                 import android.arch.persistence.room.*;
 
                 public class Base {
@@ -1049,6 +1052,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     String name, lastName;
                     @Embedded(prefix = "bar_")
                     @PrimaryKey
+                    @NonNull
                     public Foo foo;
 
                     static class Foo {
@@ -1086,6 +1090,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public int id;
                 @Embedded(prefix = "bar_")
                 @PrimaryKey
+                @NonNull
                 public Foo foo;
 
                 static class Foo {
@@ -1106,6 +1111,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
         val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
                 """
                 package foo.bar;
+                import android.support.annotation.NonNull;
                 import android.arch.persistence.room.*;
 
                 public class Base {
@@ -1113,6 +1119,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     String name, lastName;
                     @Embedded(prefix = "bar_")
                     @PrimaryKey
+                    @NonNull
                     public Foo foo;
 
                     static class Foo {
@@ -1132,6 +1139,80 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     `is`(listOf("id")))
         }.compilesWithoutError().withNoteContaining(
                 "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
+    }
+
+    @Test
+    fun primaryKey_NonNull() {
+        singleEntity(
+                """
+            @PrimaryKey
+            @NonNull
+            public String id;
+            """) { entity, _ ->
+            assertThat(entity.primaryKey.fields.size, `is`(1))
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun primaryKey_Nullable() {
+        singleEntity(
+                """
+            @PrimaryKey
+            public String id;
+            """) { entity, _ ->
+            assertThat(entity.primaryKey.fields.size, `is`(1))
+            assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+        }.failsToCompile().withErrorContaining(PRIMARY_KEY_NULL)
+    }
+
+    @Test
+    fun primaryKey_MultipleNullable() {
+        singleEntity(
+                """
+            @PrimaryKey
+            public String id;
+            @PrimaryKey
+            public String anotherId;
+            """) { entity, _ ->
+        }.failsToCompile().withErrorContaining(PRIMARY_KEY_NULL)
+    }
+
+    @Test
+    fun primaryKey_MultipleNullableAndNonNullable() {
+        singleEntity(
+                """
+            @PrimaryKey
+            @NonNull
+            public String id;
+            @PrimaryKey
+            public String anotherId;
+            """) { entity, _ ->
+        }.failsToCompile().withErrorContaining(PRIMARY_KEY_NULL)
+    }
+
+    @Test
+    fun primaryKey_definedAsAttributesNullable() {
+        singleEntity(
+                """
+                public int id;
+                public String foo;
+                """,
+                attributes = mapOf("primaryKeys" to "{\"id\", \"foo\"}")) { _, _ ->
+        }.failsToCompile().withErrorContaining(PRIMARY_KEY_NULL)
+    }
+
+    @Test
+    fun primaryKey_definedAsAttributesNonNull() {
+        singleEntity(
+                """
+                public int id;
+                @NonNull
+                public String foo;
+                """,
+                attributes = mapOf("primaryKeys" to "{\"id\", \"foo\"}")) { entity, _ ->
+            assertThat(entity.primaryKey.fields.map { it.name }, `is`(listOf("id", "foo")))
+        }.compilesWithoutError()
     }
 
     @Test
