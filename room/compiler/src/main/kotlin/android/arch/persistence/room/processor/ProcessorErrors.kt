@@ -122,6 +122,9 @@ object ProcessorErrors {
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
             " @Update but does not have any parameters to update."
 
+    val TRANSACTION_METHOD_MODIFIERS = "Method annotated with @Transaction must not be " +
+            "private, final, or abstract."
+
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
             "annotated with @Entity or a collection/array of it."
 
