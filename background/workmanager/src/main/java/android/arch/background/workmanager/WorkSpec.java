@@ -27,8 +27,7 @@ import android.arch.persistence.room.TypeConverters;
  */
 @Entity
 @TypeConverters(Arguments.class)
-class WorkSpec {
-
+public class WorkSpec {
 
     @ColumnInfo(name = "id")
     @PrimaryKey
