@@ -311,7 +311,6 @@ public abstract class RoomDatabase {
         private ArrayList<Callback> mCallbacks;
 
         private SupportSQLiteOpenHelper.Factory mFactory;
-        private boolean mInMemory;
         private boolean mAllowMainThreadQueries;
         private boolean mRequireMigration;
         /**
