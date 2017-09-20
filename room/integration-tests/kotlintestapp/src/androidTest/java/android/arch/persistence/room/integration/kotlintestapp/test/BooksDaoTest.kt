@@ -105,4 +105,16 @@ class BooksDaoTest : TestDatabaseTest() {
 
         assertThat(author, CoreMatchers.`is`<Author>(TestUtil.AUTHOR_1))
     }
+
+    @Test
+    fun findBooksInMultiLineQuery() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+        booksDao.addBooks(TestUtil.BOOK_2)
+
+        val books = database.booksDao().getBooksMultiLineQuery(arrayListOf(
+                TestUtil.BOOK_1.bookId,
+                TestUtil.BOOK_2.bookId))
+        assertThat(books, `is`(listOf(TestUtil.BOOK_2, TestUtil.BOOK_1)))
+    }
 }
