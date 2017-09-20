@@ -52,7 +52,7 @@ public class JobSchedulerConverterTest {
         @Constraints.NetworkType int workSpecNetworkType = Constraints.NETWORK_TYPE_UNMETERED;
         Constraints expectedConstraints = new Constraints.Builder()
                 .setInitialDelay(12345)
-                .setRequiresNetworkType(workSpecNetworkType)
+                .setRequiredNetworkType(workSpecNetworkType)
                 .setRequiresCharging(true)
                 .setRequiresDeviceIdle(true)
                 .setRequiresBatteryNotLow(true)

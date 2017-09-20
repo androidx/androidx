@@ -41,7 +41,7 @@ public class Constraints {
     public static final int NETWORK_TYPE_NOT_ROAMING = 4;
 
     @NetworkType
-    int mRequiresNetworkType;
+    int mRequiredNetworkType;
     boolean mRequiresCharging;
     boolean mRequiresDeviceIdle;
     boolean mRequiresBatteryNotLow;
@@ -54,7 +54,7 @@ public class Constraints {
     private Constraints(Builder builder) {
         mRequiresCharging = builder.mRequiresCharging;
         mRequiresDeviceIdle = builder.mRequiresDeviceIdle;
-        mRequiresNetworkType = builder.mRequiresNetworkType;
+        mRequiredNetworkType = builder.mRequiredNetworkType;
         mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
         mInitialDelay = builder.mInitialDelay;
@@ -66,7 +66,7 @@ public class Constraints {
     public static class Builder {
         private boolean mRequiresCharging = false;
         private boolean mRequiresDeviceIdle = false;
-        private int mRequiresNetworkType = NETWORK_TYPE_ANY;
+        private int mRequiredNetworkType = NETWORK_TYPE_ANY;
         private boolean mRequiresBatteryNotLow = false;
         private boolean mRequiresStorageNotLow = false;
         private long mInitialDelay = 0L;
@@ -101,8 +101,8 @@ public class Constraints {
          * @param networkType type of network required
          * @return current builder
          */
-        public Builder setRequiresNetworkType(@NetworkType int networkType) {
-            this.mRequiresNetworkType = networkType;
+        public Builder setRequiredNetworkType(@NetworkType int networkType) {
+            this.mRequiredNetworkType = networkType;
             return this;
         }
 

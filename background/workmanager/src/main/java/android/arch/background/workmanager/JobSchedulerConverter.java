@@ -41,7 +41,7 @@ class JobSchedulerConverter implements WorkSpecConverter<JobInfo> {
     public JobInfo convert(WorkSpec workSpec) {
         Constraints constraints = workSpec.mConstraints;
         int jobId = generateJobId(workSpec.mId);
-        int jobNetworkType = convertNetworkType(constraints.mRequiresNetworkType);
+        int jobNetworkType = convertNetworkType(constraints.mRequiredNetworkType);
         JobInfo.Builder builder =
                 new JobInfo.Builder(jobId, mWorkServiceComponent)
                         .setMinimumLatency(constraints.mInitialDelay)
