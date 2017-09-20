@@ -72,7 +72,7 @@ class QueryWriter constructor(val parameters : List<QueryParameter>,
                 query.sections.forEach {
                     when (it.type) {
                         TEXT -> addStatement("$L.append($S)", stringBuilderVar, it.text)
-                        NEWLINE -> addStatement("$L.append($S)", "\n")
+                        NEWLINE -> addStatement("$L.append($S)", stringBuilderVar, "\n")
                         BIND_VAR -> {
                             // If it is null, will be reported as error before. We just try out
                             // best to generate as much code as possible.
