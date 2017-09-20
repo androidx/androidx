@@ -16,6 +16,7 @@
 
 package android.arch.paging;
 
+import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -198,13 +199,16 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
         return list;
     }
 
+    @AnyThread
     @NonNull
     public abstract Key getKey(@NonNull Value item);
 
+    @WorkerThread
     public int countItemsBefore(@NonNull Key key) {
         return COUNT_UNDEFINED;
     }
 
+    @WorkerThread
     public int countItemsAfter(@NonNull Key key) {
         return COUNT_UNDEFINED;
     }
