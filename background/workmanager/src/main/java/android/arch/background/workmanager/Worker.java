@@ -35,9 +35,17 @@ public abstract class Worker<T> implements Callable<T> {
 
     private static final String TAG = "Worker";
 
-    protected Context mAppContext;
+    private Context mAppContext;
     private WorkDatabase mWorkDatabase;
     private WorkSpec mWorkSpec;
+
+    protected final Context getAppContext() {
+        return mAppContext;
+    }
+
+    protected final Arguments getArguments() {
+        return mWorkSpec.mArguments;
+    }
 
     /**
      * Override this method to do your actual background processing.

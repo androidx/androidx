@@ -17,13 +17,12 @@
 package android.arch.background.workmanager;
 
 /**
- * Simple Test Worker
+ * Worker that immediately throws Unhandled Exception.
  */
 
-public class TestWorker extends Worker<String> {
-
+public class ExceptionTestWorker extends Worker<Void> {
     @Override
-    public String doWork() {
-        return getAppContext().getPackageName();
+    public Void doWork() {
+        throw new RuntimeException();
     }
 }

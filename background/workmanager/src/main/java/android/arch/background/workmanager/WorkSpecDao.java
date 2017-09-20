@@ -52,4 +52,14 @@ public interface WorkSpecDao {
      */
     @Query("UPDATE workspec SET status=:status WHERE id=:id")
     int setWorkSpecStatus(String id, int status);
+
+    /**
+     * Retrieves the status of a {@link WorkSpec}.
+     *
+     * @param id The identifier for the {@link WorkSpec}
+     * @return The status of the {@link WorkSpec}
+     */
+    @Query("SELECT status FROM workspec WHERE id=:id")
+    @Work.WorkStatus
+    int getWorkSpecStatus(String id);
 }

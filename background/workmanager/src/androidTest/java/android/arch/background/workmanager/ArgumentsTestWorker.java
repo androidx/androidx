@@ -17,13 +17,12 @@
 package android.arch.background.workmanager;
 
 /**
- * Simple Test Worker
+ * Worker that tests Arguments.
  */
 
-public class TestWorker extends Worker<String> {
-
+public class ArgumentsTestWorker extends Worker<Arguments> {
     @Override
-    public String doWork() {
-        return getAppContext().getPackageName();
+    public Arguments doWork() {
+        return getArguments();
     }
 }
