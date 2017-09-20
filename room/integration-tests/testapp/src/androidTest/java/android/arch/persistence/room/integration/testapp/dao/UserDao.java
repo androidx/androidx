@@ -24,6 +24,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
 import android.arch.persistence.room.integration.testapp.TestDatabase;
 import android.arch.persistence.room.integration.testapp.vo.AvgWeightByAge;
@@ -259,4 +260,10 @@ public abstract class UserDao {
             + " WHERE mLastName > :lastName or (mLastName = :lastName and (mName < :name or (mName = :name and mId > :id)))"
             + " ORDER BY mLastName ASC, mName DESC, mId ASC")
     public abstract int userComplexCountBefore(String lastName, String name, int id);
+
+    @Transaction
+    public void insertBothByAnnotation(final User a, final User b) {
+        insert(a);
+        insert(b);
+    }
 }
