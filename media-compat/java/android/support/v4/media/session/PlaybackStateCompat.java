@@ -202,6 +202,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * @see Builder#setActions(long)
      * @deprecated Use {@link #ACTION_SET_SHUFFLE_MODE} instead.
      */
+    @Deprecated
     public static final long ACTION_SET_SHUFFLE_MODE_ENABLED = 1 << 19;
 
     /**

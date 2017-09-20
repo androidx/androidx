@@ -55,7 +55,7 @@ interface IMediaSession {
     int getRatingType() = 31;
     boolean isCaptioningEnabled() = 44;
     int getRepeatMode() = 36;
-    boolean isShuffleModeEnabledDeprecated() = 37;
+    boolean isShuffleModeEnabledRemoved() = 37;
     int getShuffleMode() = 46;
     void addQueueItem(in MediaDescriptionCompat description) = 40;
     void addQueueItemAt(in MediaDescriptionCompat description, int index) = 41;
@@ -83,7 +83,7 @@ interface IMediaSession {
     void rateWithExtras(in RatingCompat rating, in Bundle extras) = 50;
     void setCaptioningEnabled(boolean enabled) = 45;
     void setRepeatMode(int repeatMode) = 38;
-    void setShuffleModeEnabledDeprecated(boolean shuffleMode) = 39;
+    void setShuffleModeEnabledRemoved(boolean shuffleMode) = 39;
     void setShuffleMode(int shuffleMode) = 47;
     void sendCustomAction(String action, in Bundle args) = 25;
 }
