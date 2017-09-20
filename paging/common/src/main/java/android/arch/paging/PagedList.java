@@ -27,16 +27,65 @@ import java.util.concurrent.Executor;
 /**
  * Lazy loading list that pages in content from a {@link DataSource}.
  * <p>
- * A PagedList is a lazy loaded list, which presents data from a {@link DataSource}. If the
- * DataSource is counted (returns a valid number from its count method(s)), the PagedList will
- * present {@code null} items in place of not-yet-loaded content to serve as placeholders.
+ * A PagedList is a {@link List} which loads its data in chunks (pages) from a {@link DataSource}.
+ * Items can be accessed with {@link #get(int)}, and further loading can be triggered with
+ * {@link #loadAround(int)}. See {@link PagedListAdapter}, which enables the binding of a PagedList
+ * to a {@link android.support.v7.widget.RecyclerView}.
+ * <h4>Loading Data</h4>
  * <p>
- * When {@link #loadAround} is called, items will be loaded in near the passed position. If
- * placeholder {@code null}s are present in the list, they will be replaced as content is loaded.
+ * All data in a PagedList is loaded from its {@link DataSource}. Creating a PagedList loads data
+ * from the DataSource immediately, and should for this reason be done on a background thread. The
+ * constructed PagedList may then be passed to and used on the UI thread. This is done to prevent
+ * passing a list with no loaded content to the UI thread, which should generally not be presented
+ * to the user.
  * <p>
- * In this way, PagedList can present data for an unbounded, infinite scrolling list, or a very
- * large but countable list. See {@link PagedListAdapter}, which enables the binding of a PagedList
- * to a RecyclerView. Use {@link Config} to control how many items a PagedList loads, and when.
+ * When {@link #loadAround} is called, items will be loaded in near the passed list index. If
+ * placeholder {@code null}s are present in the list, they will be replaced as content is
+ * loaded. If not, newly loaded items will be inserted at the beginning or end of the list.
+ * <p>
+ * PagedList can present data for an unbounded, infinite scrolling list, or a very large but
+ * countable list. Use {@link Config} to control how many items a PagedList loads, and when.
+ * <p>
+ * If you use {@link LivePagedListProvider} to get a
+ * {@link android.arch.lifecycle.LiveData}&lt;PagedList>, it will initialize PagedLists on a
+ * background thread for you.
+ * <h4>Placeholders</h4>
+ * <p>
+ * There are two ways that PagedList can represent its not-yet-loaded data - with or without
+ * {@code null} placeholders.
+ * <p>
+ * With placeholders, the PagedList is always the full size of the data set. {@code get(N)} returns
+ * the {@code N}th item in the data set, or {@code null} if its not yet loaded.
+ * <p>
+ * Without {@code null} placeholders, the PagedList is the sublist of data that has already been
+ * loaded. The size of the PagedList is the number of currently loaded items, and {@code get(N)}
+ * returns the {@code N}th <em>loaded</em> item. This is not necessarily the {@code N}th item in the
+ * data set.
+ * <p>
+ * Placeholders have several benefits:
+ * <ul>
+ *     <li>They express the full sized list to the presentation layer (often a
+ *     {@link PagedListAdapter}), and so can support scrollbars (without jumping as pages are
+ *     loaded) and fast-scrolling to any position, whether loaded or not.
+ *     <li>They avoid the need for a loading spinner at the end of the loaded list, since the list
+ *     is always full sized.
+ * </ul>
+ * <p>
+ * They also have drawbacks:
+ * <ul>
+ *     <li>Your Adapter (or other presentation mechanism) needs to account for {@code null} items.
+ *     This often means providing default values in data you bind to a
+ *     {@link android.support.v7.widget.RecyclerView.ViewHolder}.
+ *     <li>They don't work well if your item views are of different sizes, as this will prevent
+ *     loading items from cross-fading nicely.
+ *     <li>They require you to count your data set, which can be expensive or impossible, depending
+ *     on where your data comes from.
+ * </ul>
+ * <p>
+ * Placeholders are enabled by default, but can be disabled in two ways. They are disabled if the
+ * DataSource returns {@link DataSource#COUNT_UNDEFINED} from any item counting method, or if
+ * {@code false} is passed to {@link Config.Builder#setEnablePlaceholders(boolean)} when building a
+ * {@link Config}.
  *
  * @param <T> The type of the entries in the list.
  */
@@ -92,6 +141,18 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * Builder class for PagedList.
      * <p>
      * DataSource, main thread and background executor, and Config must all be provided.
+     * <p>
+     * A valid PagedList may not be constructed without data, so building a PagedList queries
+     * initial data from the data source. This is done because it's generally undesired to present a
+     * PagedList with no data in it to the UI. It's better to present initial data, so that the UI
+     * doesn't show an empty list, or placeholders for a few frames, just before showing initial
+     * content.
+     * <p>
+     * Because PagedLists are initialized with data, PagedLists must be built on a background
+     * thread.
+     * <p>
+     * {@link LivePagedListProvider} does this creation on a background thread automatically, if you
+     * want to receive a {@code LiveData<PagedList<...>>}.
      *
      * @param <Key> Type of key used to load data from the DataSource.
      * @param <Value> Type of items held and loaded by the PagedList.
@@ -174,6 +235,12 @@ public abstract class PagedList<T> extends AbstractList<T> {
          * <p>
          * This call will initial data and perform any counting needed to initialize the PagedList,
          * therefore it should only be called on a worker thread.
+         * <p>
+         * While build() will always return a PagedList, it's important to note that the PagedList
+         * initial load may fail to acquire data from the DataSource. This can happen for example if
+         * the DataSource is invalidated during its initial load. If this happens, the PagedList
+         * will be immediately {@link PagedList#isDetached() detached}, and you can retry
+         * construction (including setting a new DataSource).
          *
          * @return The newly constructed PagedList
          */
@@ -403,6 +470,16 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * Defines the number of items loaded at once from the DataSource.
              * <p>
              * Should be several times the number of visible items onscreen.
+             * <p>
+             * Configuring your page size depends on how your data is being loaded and used. Smaller
+             * page sizes improve memory usage, latency, and avoid GC churn. Larger pages generally
+             * improve loading throughput, to a point
+             * (avoid loading more than 2MB from SQLite at once, since it incurs extra cost).
+             * <p>
+             * If you're loading data for very large, social-media style cards that take up most of
+             * a screen, and your database isn't a bottleneck, 10-20 may make sense. If you're
+             * displaying dozens of items in a tiled grid, which can present items during a scroll
+             * much more quickly, consider closer to 100.
              *
              * @param pageSize Number of items loaded at once from the DataSource.
              * @return this
@@ -414,12 +491,15 @@ public abstract class PagedList<T> extends AbstractList<T> {
 
             /**
              * Defines how far from the edge of loaded content an access must be to trigger further
-             * loading. Defaults to page size.
-             * <p>
-             * A value of 0 indicates that no list items will be loaded before they are first
-             * requested.
+             * loading.
              * <p>
              * Should be several times the number of visible items onscreen.
+             * <p>
+             * If not set, defaults to page size.
+             * <p>
+             * A value of 0 indicates that no list items will be loaded until they are specifically
+             * requested. This is generally not recommended, so that users don't observe a
+             * placeholder item (with placeholders) or end of list (without) while scrolling.
              *
              * @param prefetchDistance Distance the PagedList should prefetch.
              * @return this
@@ -432,8 +512,10 @@ public abstract class PagedList<T> extends AbstractList<T> {
             /**
              * Pass false to disable null placeholders in PagedLists using this Config.
              * <p>
-             * A PagedList will present null placeholders for not yet loaded content if two
-             * contitions are met:
+             * If not set, defaults to true.
+             * <p>
+             * A PagedList will present null placeholders for not-yet-loaded content if two
+             * conditions are met:
              * <p>
              * 1) Its DataSource can count all unloaded items (so that the number of nulls to
              * present is known).
@@ -442,6 +524,13 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * <p>
              * Call {@code setEnablePlaceholders(false)} to ensure the receiver of the PagedList
              * (often a {@link PagedListAdapter}) doesn't need to account for null items.
+             * <p>
+             * If placeholders are disabled, not-yet-loaded content will not be present in the list.
+             * Paging will still occur, but as items are loaded or removed, they will be signaled
+             * as inserts to the {@link PagedList.Callback}.
+             * {@link PagedList.Callback#onChanged(int, int)} will not be issued as part of loading,
+             * though a {@link PagedListAdapter} may still receive change events as a result of
+             * PagedList diffing.
              *
              * @param enablePlaceholders False if null placeholders should be disabled.
              * @return this
