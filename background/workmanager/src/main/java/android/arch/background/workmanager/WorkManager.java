@@ -126,7 +126,7 @@ public final class WorkManager implements LifecycleObserver {
      */
     private class EnqueueRunnable implements Runnable {
         private Work mWork;
-        private String mPrerequisiteId; // TODO(sumir)
+        private String mPrerequisiteId;
 
         EnqueueRunnable(Work work, String prerequisiteId) {
             mWork = work;
@@ -135,7 +135,6 @@ public final class WorkManager implements LifecycleObserver {
 
         @Override
         public void run() {
-            // TODO(sumir): check for prerequisites.
             mWorkDatabase.beginTransaction();
             try {
                 mWorkDatabase.workSpecDao().insertWorkSpec(mWork.getWorkSpec());

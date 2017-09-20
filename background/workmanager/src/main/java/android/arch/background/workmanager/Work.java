@@ -78,9 +78,9 @@ public class Work {
         }
 
         /**
-         * Add constraints to the current {@link WorkSpec}.
+         * Add constraints to the {@link Work}.
          *
-         * @param constraints the constraints to attach to the work item
+         * @param constraints The constraints for the {@link Work}
          * @return current builder
          */
         public Builder withConstraints(@NonNull Constraints constraints) {
@@ -89,10 +89,10 @@ public class Work {
         }
 
         /**
-         * Change backoff policy and delay for the current {@link WorkSpec}.
+         * Change backoff policy and delay for the {@link Work}.
          * Default is {@value Work#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
          *
-         * @param backoffPolicy Backoff Policy to use for current {@link WorkSpec}
+         * @param backoffPolicy Backoff Policy to use for {@link Work}
          * @param backoffDelayDuration Time to wait before restarting {@link Worker}
          *                             (in milliseconds)
          * @return current builder
@@ -106,12 +106,24 @@ public class Work {
         }
 
         /**
-         * Add arguments to the current {@link WorkSpec}.
+         * Add arguments to the {@link Work}.
+         *
          * @param arguments key/value pairs that will be provided to the {@link Worker} class
          * @return current builder
          */
         public Builder withArguments(Arguments arguments) {
             mWorkSpec.mArguments = arguments;
+            return this;
+        }
+
+        /**
+         * Add an optional tag to the {@link Work}.  This is particularly useful for modules or
+         * libraries who want to query for or cancel all of their own work.
+         *
+         * @param tag A tag for identifying the {@link Work} in queries.
+         */
+        public Builder withTag(String tag) {
+            mWorkSpec.mTag = tag;
             return this;
         }
 

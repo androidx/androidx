@@ -54,6 +54,8 @@ class WorkSpec {
 
     Arguments mArguments = new Arguments();
 
+    String mTag;
+
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
     @Work.BackoffPolicy
