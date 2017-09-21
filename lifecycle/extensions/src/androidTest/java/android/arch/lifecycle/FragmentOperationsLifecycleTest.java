@@ -34,6 +34,7 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import org.junit.Rule;
@@ -55,7 +56,7 @@ public class FragmentOperationsLifecycleTest {
     @UiThreadTest
     public void addRemoveFragment() {
         EmptyActivity activity = mActivityTestRule.getActivity();
-        LifecycleFragment fragment = new LifecycleFragment();
+        Fragment fragment = new Fragment();
         FragmentManager fm = activity.getSupportFragmentManager();
         fm.beginTransaction().add(fragment, "tag").commitNow();
         CollectingObserver observer = observeAndCollectIn(fragment);
@@ -70,7 +71,7 @@ public class FragmentOperationsLifecycleTest {
     @UiThreadTest
     public void fragmentInBackstack() {
         EmptyActivity activity = mActivityTestRule.getActivity();
-        LifecycleFragment fragment1 = new LifecycleFragment();
+        Fragment fragment1 = new Fragment();
         FragmentManager fm = activity.getSupportFragmentManager();
         fm.beginTransaction().add(R.id.fragment_container, fragment1, "tag").addToBackStack(null)
                 .commit();
@@ -78,7 +79,7 @@ public class FragmentOperationsLifecycleTest {
         CollectingObserver observer1 = observeAndCollectIn(fragment1);
         assertThat(observer1.getEventsAndReset(), is(asList(ON_CREATE, ON_START, ON_RESUME)));
 
-        LifecycleFragment fragment2 = new LifecycleFragment();
+        Fragment fragment2 = new Fragment();
         fm.beginTransaction().replace(R.id.fragment_container, fragment2).addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
@@ -95,7 +96,7 @@ public class FragmentOperationsLifecycleTest {
         assertThat(observer1.getEventsAndReset(), is(asList(ON_PAUSE, ON_STOP, ON_DESTROY)));
     }
 
-    private static CollectingObserver observeAndCollectIn(LifecycleFragment fragment) {
+    private static CollectingObserver observeAndCollectIn(Fragment fragment) {
         CollectingObserver observer = new CollectingObserver();
         fragment.getLifecycle().addObserver(observer);
         return observer;
