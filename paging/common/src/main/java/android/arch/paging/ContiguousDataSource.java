@@ -41,6 +41,8 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
         return true;
     }
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
     @Nullable
     public abstract NullPaddedList<Value> loadInitial(
@@ -58,7 +60,10 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
      * @param pageSize        Suggested number of items to load.
      * @return List of items, starting at position currentEndIndex + 1. Null if the data source is
      * no longer valid, and should not be queried again.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
     @Nullable
     public final List<Value> loadAfter(int currentEndIndex,
@@ -88,7 +93,10 @@ public abstract class ContiguousDataSource<Key, Value> extends DataSource<Key, V
      *                          on item contents.
      * @param pageSize          Suggested number of items to load.
      * @return List of items, in descending order, starting at position currentBeginIndex - 1.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WorkerThread
     @Nullable
     public final List<Value> loadBefore(int currentBeginIndex,
