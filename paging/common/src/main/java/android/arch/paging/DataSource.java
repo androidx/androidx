@@ -17,6 +17,7 @@
 package android.arch.paging;
 
 import android.support.annotation.AnyThread;
+import android.support.annotation.WorkerThread;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,6 +65,7 @@ public abstract class DataSource<Key, Value> {
      * @return number of items that this DataSource can provide in total, or
      * {@link #COUNT_UNDEFINED} if expensive or undesired to compute.
      */
+    @WorkerThread
     public abstract int countItems();
 
     /**
@@ -143,6 +145,7 @@ public abstract class DataSource<Key, Value> {
      *
      * @return True if the data source is invalid, and can no longer return data.
      */
+    @WorkerThread
     public boolean isInvalid() {
         return mInvalid.get();
     }

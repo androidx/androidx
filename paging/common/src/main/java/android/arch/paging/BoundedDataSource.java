@@ -18,6 +18,7 @@ package android.arch.paging;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.WorkerThread;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,15 +50,18 @@ public abstract class BoundedDataSource<Value> extends PositionalDataSource<Valu
      * @return List of loaded items. Null if the BoundedDataSource is no longer valid, and should
      *         not be queried again.
      */
+    @WorkerThread
     @Nullable
     public abstract List<Value> loadRange(int startPosition, int loadCount);
 
+    @WorkerThread
     @Nullable
     @Override
     public List<Value> loadAfter(int startIndex, int pageSize) {
         return loadRange(startIndex, pageSize);
     }
 
+    @WorkerThread
     @Nullable
     @Override
     public List<Value> loadBefore(int startIndex, int pageSize) {
