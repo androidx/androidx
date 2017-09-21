@@ -39,7 +39,6 @@ public final class WorkManager implements LifecycleObserver {
     private static final String TAG = "WorkManager";
 
     private Context mContext;
-    private String mName;
     private ScheduledExecutorService mForegroundExecutor;
     private ExecutorService mBackgroundExecutor;
     private WorkDatabase mWorkDatabase;
@@ -49,11 +48,9 @@ public final class WorkManager implements LifecycleObserver {
 
     private WorkManager(
             Context context,
-            String name,
             ScheduledExecutorService foregroundExecutor,
             ExecutorService backgroundExecutor) {
         mContext = context.getApplicationContext();
-        mName = name;
         mForegroundExecutor =
                 (foregroundExecutor == null)
                         ? Executors.newScheduledThreadPool(4)   // TODO: Configure intelligently.
@@ -62,7 +59,7 @@ public final class WorkManager implements LifecycleObserver {
                 (backgroundExecutor == null)
                         ? Executors.newSingleThreadExecutor()   // TODO: Configure intelligently.
                         : backgroundExecutor;
-        mWorkDatabase = WorkDatabase.getInstance(mContext, mName);
+        mWorkDatabase = WorkDatabase.getInstance(mContext);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         // TODO(janclarin): Wrap JobScheduler logic behind another interface.
@@ -187,13 +184,8 @@ public final class WorkManager implements LifecycleObserver {
      */
     public static class Builder {
 
-        private String mName;
         private ScheduledExecutorService mForegroundExecutor;
         private ExecutorService mBackgroundExecutor;
-
-        public Builder(String name) {
-            mName = name;
-        }
 
         /**
          * @param foregroundExecutor The ExecutorService to run in-process during active lifecycles
@@ -221,7 +213,7 @@ public final class WorkManager implements LifecycleObserver {
          * @return The {@link WorkManager}
          */
         public WorkManager build(Context context) {
-            return new WorkManager(context, mName, mForegroundExecutor, mBackgroundExecutor);
+            return new WorkManager(context, mForegroundExecutor, mBackgroundExecutor);
         }
     }
 }

@@ -42,8 +42,7 @@ public class WorkDatabaseTests {
     @Before
     public void setUp() {
         mDatabase = WorkDatabase.getInMemoryInstance(InstrumentationRegistry.getTargetContext());
-        mWorkManager = new WorkManager.Builder("test")
-                .build(InstrumentationRegistry.getTargetContext());
+        mWorkManager = new WorkManager.Builder().build(InstrumentationRegistry.getTargetContext());
     }
 
     @After

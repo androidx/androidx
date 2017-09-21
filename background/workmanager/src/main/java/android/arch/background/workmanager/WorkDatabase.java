@@ -28,7 +28,7 @@ import android.support.annotation.VisibleForTesting;
 @Database(entities = {WorkSpec.class, Dependency.class}, version = 1)
 abstract class WorkDatabase extends RoomDatabase {
 
-    private static final String DB_NAME_PREFIX = "android.arch.background.workmanager.work.";
+    private static final String DB_NAME = "android.arch.background.workmanager.work";
 
     private static WorkDatabase sInstance;
 
@@ -36,15 +36,14 @@ abstract class WorkDatabase extends RoomDatabase {
      * Returns a static instance of the WorkDatabase.
      *
      * @param context A context (this method will use the application context from it)
-     * @param name The database name (will be prefixed by {@code DB_NAME_PREFIX})
      * @return The singleton WorkDatabase for this process
      */
-    public static WorkDatabase getInstance(Context context, String name) {
+    public static WorkDatabase getInstance(Context context) {
         if (sInstance == null) {
             sInstance = Room.databaseBuilder(
                     context.getApplicationContext(),
                     WorkDatabase.class,
-                    DB_NAME_PREFIX + name)
+                    DB_NAME)
                     .build();
         }
         return sInstance;
