@@ -270,6 +270,16 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     }
 
     /**
+     * Returns the Lifecycle of the provider.
+     *
+     * @return The lifecycle of the provider.
+     */
+    @Override
+    public Lifecycle getLifecycle() {
+        return super.getLifecycle();
+    }
+
+    /**
      * Perform initialization of all fragments and loaders.
      */
     @SuppressWarnings("deprecation")
