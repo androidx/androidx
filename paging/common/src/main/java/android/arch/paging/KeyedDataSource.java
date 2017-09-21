@@ -199,15 +199,63 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
         return list;
     }
 
-    @AnyThread
+    /**
+     * Return a key associated with the given item.
+     * <p>
+     * If your KeyedDataSource is loading from a source that is sorted and loaded by a unique
+     * integer ID, you would return {@code item.getID()} here. This key can then be passed to
+     * {@link #loadBefore(Key, int)} or {@link #loadAfter(Key, int)} to load additional items
+     * adjacent to the item passed to this function.
+     * <p>
+     * If your key is more complex, such as when you're sorting by name, then resolving collisions
+     * with integer ID, you'll need to return both. In such a case you would use a wrapper class,
+     * such as {@code Pair<String, Integer>} or, in Kotlin,
+     * {@code data class Key(val name: String, val id: Int)}
+     *
+     * @param item Item to get the key from.
+     * @return Key associated with given item.
+     */
     @NonNull
+    @AnyThread
     public abstract Key getKey(@NonNull Value item);
 
+    /**
+     * Return the number of items that occur before the item uniquely identified by {@code key} in
+     * the data set.
+     * <p>
+     * For example, if you're loading items sorted by ID, then this would return the total number of
+     * items with ID less than {@code key}.
+     * <p>
+     * If you return {@link #COUNT_UNDEFINED} here, or from {@link #countItemsAfter(Key)}, your
+     * data source will not present placeholder null items in place of unloaded data.
+     *
+     * @param key A unique identifier of an item in the data set.
+     * @return Number of items in the data set before the item identified by {@code key}, or
+     *         {@link #COUNT_UNDEFINED}.
+     *
+     * @see #countItemsAfter(Key)
+     */
     @WorkerThread
     public int countItemsBefore(@NonNull Key key) {
         return COUNT_UNDEFINED;
     }
 
+    /**
+     * Return the number of items that occur after the item uniquely identified by {@code key} in
+     * the data set.
+     * <p>
+     * For example, if you're loading items sorted by ID, then this would return the total number of
+     * items with ID greater than {@code key}.
+     * <p>
+     * If you return {@link #COUNT_UNDEFINED} here, or from {@link #countItemsBefore(Key)}, your
+     * data source will not present placeholder null items in place of unloaded data.
+     *
+     * @param key A unique identifier of an item in the data set.
+     * @return Number of items in the data set after the item identified by {@code key}, or
+     *         {@link #COUNT_UNDEFINED}.
+     *
+     * @see #countItemsBefore(Key)
+     */
     @WorkerThread
     public int countItemsAfter(@NonNull Key key) {
         return COUNT_UNDEFINED;
