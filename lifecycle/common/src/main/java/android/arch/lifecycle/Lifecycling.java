@@ -47,6 +47,10 @@ class Lifecycling {
 
     @NonNull
     static GenericLifecycleObserver getCallback(Object object) {
+        if (object instanceof FullLifecycleObserver) {
+            return new FullLifecycleObserverAdapter((FullLifecycleObserver) object);
+        }
+
         if (object instanceof GenericLifecycleObserver) {
             return (GenericLifecycleObserver) object;
         }

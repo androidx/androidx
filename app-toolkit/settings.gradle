@@ -57,6 +57,9 @@ project(':lifecycle:runtime').projectDir = new File(supportRoot, "lifecycle/runt
 include ':lifecycle:common'
 project(':lifecycle:common').projectDir = new File(supportRoot, "lifecycle/common")
 
+include ':lifecycle:common-java8'
+project(':lifecycle:common-java8').projectDir = new File(supportRoot, "lifecycle/common-java8")
+
 include ':lifecycle:compiler'
 project(':lifecycle:compiler').projectDir = new File(supportRoot, "lifecycle/compiler")
 
