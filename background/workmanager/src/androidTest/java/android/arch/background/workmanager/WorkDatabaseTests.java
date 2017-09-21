@@ -21,6 +21,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.arch.persistence.db.SupportSQLiteDatabase;
+import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -149,5 +151,24 @@ public class WorkDatabaseTests {
         String actualValue = workSpec0.mArguments.getString(key, null);
         assertNotNull(actualValue);
         assertEquals(expectedValue, actualValue);
+    }
+
+    // Note this only tests the logic of the method, not the actual "on start" part.
+    @Test
+    public void cleanupOnStart() throws InterruptedException, ExecutionException, TimeoutException {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        Work work = new Work.Builder(TestWorker.class).build();
+        WorkSpec workSpec = work.getWorkSpec();
+        workSpec.mStatus = Work.STATUS_RUNNING;
+        workSpecDao.insertWorkSpec(work.getWorkSpec());
+
+        assertEquals(workSpecDao.getWorkSpec(work.getId()).mStatus, Work.STATUS_RUNNING);
+
+        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
+        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
+        WorkDatabase.generateCleanupCallback().onOpen(db);
+
+        assertEquals(workSpecDao.getWorkSpec(work.getId()).mStatus, Work.STATUS_ENQUEUED);
     }
 }

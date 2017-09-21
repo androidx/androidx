@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.persistence.room.Dao;
@@ -42,8 +43,7 @@ public interface DependencyDao {
      * @param id The identifier for the {@link WorkSpec}
      * @return true if the {@link WorkSpec} is dependent on other {@link WorkSpec}s
      */
-    @Query("SELECT COUNT(id) > 0 FROM workspec WHERE status!=2 AND id IN"
+    @Query("SELECT COUNT(id) > 0 FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND id IN"
             + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
-    boolean hasDependencies(String id); // TODO: Replace 2 with STATUS_SUCCEEDED constant
-                                     // TODO: Refactor this method to a separate DAO.
+    boolean hasDependencies(String id);
 }

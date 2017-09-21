@@ -16,10 +16,15 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Work.STATUS_RUNNING;
+
+import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 /**
@@ -29,6 +34,8 @@ import android.support.annotation.VisibleForTesting;
 abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";
+    private static final String CLEANUP_SQL =
+            "UPDATE workspec SET status=" + STATUS_ENQUEUED + " WHERE status=" + STATUS_RUNNING;
 
     private static WorkDatabase sInstance;
 
@@ -44,6 +51,7 @@ abstract class WorkDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     WorkDatabase.class,
                     DB_NAME)
+                    .addCallback(generateCleanupCallback())
                     .build();
         }
         return sInstance;
@@ -61,9 +69,23 @@ abstract class WorkDatabase extends RoomDatabase {
             sInstance = Room.inMemoryDatabaseBuilder(
                     context.getApplicationContext(),
                     WorkDatabase.class)
+                    .addCallback(generateCleanupCallback())
                     .build();
         }
         return sInstance;
+    }
+
+    static Callback generateCleanupCallback() {
+        return new Callback() {
+            @Override
+            public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                super.onOpen(db);
+                db.beginTransaction();
+                db.execSQL(CLEANUP_SQL);
+                db.setTransactionSuccessful();
+                db.endTransaction();
+            }
+        };
     }
 
     /**
