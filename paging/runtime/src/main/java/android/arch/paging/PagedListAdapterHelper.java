@@ -57,6 +57,7 @@ import java.util.List;
  *     public final LiveData&lt;PagedList&lt;User>> usersList;
  *     public MyViewModel(UserDao userDao) {
  *         usersList = userDao.usersByLastName().create(
+ *                 /* initial load position {@literal *}/ 0,
  *                 new PagedList.Config.Builder()
  *                         .setPageSize(50)
  *                         .setPrefetchDistance(50)
@@ -79,7 +80,7 @@ import java.util.List;
  * class UserAdapter extends RecyclerView.Adapter&lt;UserViewHolder> {
  *     private final PagedListAdapterHelper&lt;User> mHelper;
  *     public UserAdapter(PagedListAdapterHelper.Builder&lt;User> builder) {
- *         mHelper = new PagedListAdapterHelper(this, User.DIFF_CALLBACK);
+ *         mHelper = new PagedListAdapterHelper(this, DIFF_CALLBACK);
  *     }
  *     {@literal @}Override
  *     public int getItemCount() {
@@ -99,13 +100,7 @@ import java.util.List;
  *             holder.clear();
  *         }
  *     }
- * }
- *
- * {@literal @}Entity
- * class User {
- *      // ... simple POJO code omitted ...
- *
- *      public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;Customer>() {
+ *     public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;User>() {
  *          {@literal @}Override
  *          public boolean areItemsTheSame(
  *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
