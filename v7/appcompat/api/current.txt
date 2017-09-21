@@ -303,14 +303,6 @@ package android.support.v7.app {
     ctor public AppCompatDialogFragment();
   }
 
-  public deprecated class NotificationCompat extends android.support.v4.app.NotificationCompat {
-    ctor public deprecated NotificationCompat();
-  }
-
-  public static deprecated class NotificationCompat.Builder extends android.support.v4.app.NotificationCompat.Builder {
-    ctor public deprecated NotificationCompat.Builder(android.content.Context);
-  }
-
 }
 
 package android.support.v7.content.res {
