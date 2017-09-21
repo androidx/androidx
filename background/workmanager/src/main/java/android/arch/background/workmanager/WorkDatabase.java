@@ -26,7 +26,7 @@ import android.support.annotation.VisibleForTesting;
  * A Room database for keeping track of work statuses.
  */
 @Database(entities = {WorkSpec.class, Dependency.class}, version = 1)
-public abstract class WorkDatabase extends RoomDatabase {
+abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME_PREFIX = "android.arch.background.workmanager.work.";
 

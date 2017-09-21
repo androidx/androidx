@@ -40,10 +40,9 @@ import android.arch.persistence.room.PrimaryKey;
                 onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)},
         indices = {@Index(value = "work_spec_id"), @Index(value = "prerequisite_id")})
 class Dependency {
-    // Note: Since this is always null, SQLite will auto-increment the primary key id.
     @ColumnInfo(name = "id")
-    @PrimaryKey
-    Integer mId;
+    @PrimaryKey(autoGenerate = true)
+    long mId;
 
     @ColumnInfo(name = "work_spec_id")
     String mWorkSpecId;
