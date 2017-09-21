@@ -21,16 +21,18 @@ import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
+import android.support.annotation.NonNull;
 
 /**
  * Stores information about a logical unit of work.
  */
 @Entity
 @TypeConverters(Arguments.class)
-public class WorkSpec {
+class WorkSpec {
 
     @ColumnInfo(name = "id")
     @PrimaryKey
+    @NonNull
     String mId;
 
     // TODO(xbhatnag)
@@ -63,7 +65,7 @@ public class WorkSpec {
     @ColumnInfo(name = "backoff_delay_duration")
     long mBackoffDelayDuration = Work.DEFAULT_BACKOFF_DELAY_DURATION;
 
-    WorkSpec(String id) {
+    WorkSpec(@NonNull String id) {
         mId = id;
     }
 }

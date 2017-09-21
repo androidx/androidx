@@ -16,16 +16,11 @@
 
 package android.arch.background.workmanager;
 
-import android.content.Context;
-
 /**
  * Simple Test Worker
  */
 
 public class TestWorker extends Worker<String> {
-    public TestWorker(Context appContext, WorkDatabase workDatabase, WorkSpec workSpec) {
-        super(appContext, workDatabase, workSpec);
-    }
 
     @Override
     public String doWork() {

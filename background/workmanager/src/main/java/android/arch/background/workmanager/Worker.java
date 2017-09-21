@@ -39,18 +39,18 @@ public abstract class Worker<T> implements Callable<T> {
     private WorkDatabase mWorkDatabase;
     private WorkSpec mWorkSpec;
 
-    public Worker(Context appContext, WorkDatabase workDatabase, WorkSpec workSpec) {
-        this.mAppContext = appContext;
-        this.mWorkDatabase = workDatabase;
-        this.mWorkSpec = workSpec;
-    }
-
     /**
      * Override this method to do your actual background processing.
      *
      * @return The result payload
      */
     public abstract T doWork();
+
+    final void internalInit(Context appContext, WorkDatabase workDatabase, WorkSpec workSpec) {
+        mAppContext = appContext;
+        mWorkDatabase = workDatabase;
+        mWorkSpec = workSpec;
+    }
 
     @Override
     public final T call() {
@@ -95,9 +95,9 @@ public abstract class Worker<T> implements Callable<T> {
         try {
             Class<?> clazz = Class.forName(workerClassName);
             if (Worker.class.isAssignableFrom(clazz)) {
-                return (Worker) clazz
-                        .getConstructor(Context.class, WorkDatabase.class, WorkSpec.class)
-                        .newInstance(appContext, workDatabase, workSpec);
+                Worker worker = (Worker) clazz.newInstance();
+                worker.internalInit(appContext, workDatabase, workSpec);
+                return worker;
             } else {
                 Log.e(TAG, "" + workerClassName + " is not of type Worker");
             }
