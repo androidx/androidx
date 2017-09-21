@@ -84,27 +84,21 @@ import java.util.List;
  *         User user = mHelper.getItem(position);
  *         holder.bindTo(user);
  *     }
- * }
- *
- * {@literal @}Entity
- * class User {
- *      // ... simple POJO code omitted ...
- *
- *      public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;Customer>() {
- *          {@literal @}Override
- *          public boolean areItemsTheSame(
- *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
- *              // User properties may have changed if reloaded from the DB, but ID is fixed
- *              return oldUser.getId() == newUser.getId();
- *          }
- *          {@literal @}Override
- *          public boolean areContentsTheSame(
- *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
- *              // NOTE: if you use equals, your object must properly override Object#equals()
- *              // Incorrectly returning false here will result in too many animations.
- *              return oldUser.equals(newUser);
- *          }
- *      }
+ *     public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;User>() {
+ *         {@literal @}Override
+ *         public boolean areItemsTheSame(
+ *                 {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *             // User properties may have changed if reloaded from the DB, but ID is fixed
+ *             return oldUser.getId() == newUser.getId();
+ *         }
+ *         {@literal @}Override
+ *         public boolean areContentsTheSame(
+ *                 {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *             // NOTE: if you use equals, your object must properly override Object#equals()
+ *             // Incorrectly returning false here will result in too many animations.
+ *             return oldUser.equals(newUser);
+ *         }
+ *     }
  * }</pre>
  *
  * @param <T> Type of the lists this helper will receive.

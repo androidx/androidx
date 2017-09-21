@@ -51,6 +51,7 @@ import android.support.v7.widget.RecyclerView;
  *     public final LiveData&lt;PagedList&lt;User>> usersList;
  *     public MyViewModel(UserDao userDao) {
  *         usersList = userDao.usersByLastName().create(
+ *                 /* initial load position {@literal *}/ 0,
  *                 new PagedList.Config.Builder()
  *                         .setPageSize(50)
  *                         .setPrefetchDistance(50)
@@ -72,7 +73,7 @@ import android.support.v7.widget.RecyclerView;
  *
  * class UserAdapter extends PagedListAdapter&lt;User, UserViewHolder> {
  *     public UserAdapter() {
- *         super(User.DIFF_CALLBACK);
+ *         super(DIFF_CALLBACK);
  *     }
  *     {@literal @}Override
  *     public void onBindViewHolder(UserViewHolder holder, int position) {
@@ -85,27 +86,21 @@ import android.support.v7.widget.RecyclerView;
  *             holder.clear();
  *         }
  *     }
- * }
- *
- * {@literal @}Entity
- * class User {
- *      // ... simple POJO code omitted ...
- *
- *      public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;Customer>() {
- *          {@literal @}Override
- *          public boolean areItemsTheSame(
- *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
- *              // User properties may have changed if reloaded from the DB, but ID is fixed
- *              return oldUser.getId() == newUser.getId();
- *          }
- *          {@literal @}Override
- *          public boolean areContentsTheSame(
- *                  {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
- *              // NOTE: if you use equals, your object must properly override Object#equals()
- *              // Incorrectly returning false here will result in too many animations.
- *              return oldUser.equals(newUser);
- *          }
- *      }
+ *     public static final DiffCallback&lt;User> DIFF_CALLBACK = new DiffCallback&lt;User>() {
+ *         {@literal @}Override
+ *         public boolean areItemsTheSame(
+ *                 {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *             // User properties may have changed if reloaded from the DB, but ID is fixed
+ *             return oldUser.getId() == newUser.getId();
+ *         }
+ *         {@literal @}Override
+ *         public boolean areContentsTheSame(
+ *                 {@literal @}NonNull User oldUser, {@literal @}NonNull User newUser) {
+ *             // NOTE: if you use equals, your object must properly override Object#equals()
+ *             // Incorrectly returning false here will result in too many animations.
+ *             return oldUser.equals(newUser);
+ *         }
+ *     }
  * }</pre>
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
