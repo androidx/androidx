@@ -230,10 +230,17 @@ public class ArrayObjectAdapter extends ObjectAdapter {
      * specified position.
      *
      * @param itemList List of new Items
-     * @param callback DiffCallback Object to compute the difference between the old data set and
-     *                 new data set.
+     * @param callback Optional DiffCallback Object to compute the difference between the old data
+     *                 set and new data set. When null, {@link #notifyChanged()} will be fired.
      */
     public void setItems(final List itemList, final DiffCallback callback) {
+        if (callback == null) {
+            // shortcut when DiffCallback is not provided
+            mItems.clear();
+            mItems.addAll(itemList);
+            notifyChanged();
+            return;
+        }
         mOldItems.clear();
         mOldItems.addAll(mItems);
 

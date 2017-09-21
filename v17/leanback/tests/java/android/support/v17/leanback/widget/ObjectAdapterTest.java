@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -375,6 +376,28 @@ public class ObjectAdapterTest {
 
         // isImmediateNotifySupported
         assertTrue(mAdapter.isImmediateNotifySupported());
+    }
+
+
+    @Test
+    public void testSetItemsNoDiffCallback() {
+        mItems.add(new AdapterItem(1, "a"));
+        mItems.add(new AdapterItem(2, "b"));
+        mItems.add(new AdapterItem(3, "c"));
+        mAdapter.setItems(mItems, null);
+        Mockito.verify(mObserver, times(1)).onChanged();
+        Mockito.verify(mObserver, never()).onItemRangeInserted(anyInt(), anyInt());
+        Mockito.verify(mObserver, never()).onItemRangeRemoved(anyInt(), anyInt());
+        Mockito.verify(mObserver, never()).onItemRangeMoved(anyInt(), anyInt(), anyInt());
+
+        mItems.add(new AdapterItem(4, "a"));
+        mItems.add(new AdapterItem(5, "b"));
+        mItems.add(new AdapterItem(6, "c"));
+        mAdapter.setItems(mItems, null);
+        Mockito.verify(mObserver, times(2)).onChanged();
+        Mockito.verify(mObserver, never()).onItemRangeInserted(anyInt(), anyInt());
+        Mockito.verify(mObserver, never()).onItemRangeRemoved(anyInt(), anyInt());
+        Mockito.verify(mObserver, never()).onItemRangeMoved(anyInt(), anyInt(), anyInt());
     }
 
     /**
