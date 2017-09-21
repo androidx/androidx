@@ -41,7 +41,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     private FragmentManager mFragmentManager;
     private int mContainerId;
     private int mBackStackCount;
-    private HashMap<String, Class<? extends Fragment>> mFragmentClasses = new HashMap<>();
 
     private final FragmentManager.OnBackStackChangedListener mOnBackStackChangedListener =
             new FragmentManager.OnBackStackChangedListener() {
@@ -84,23 +83,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     @Override
     public Destination createDestination() {
         return new Destination(this);
-    }
-
-    Class<? extends Fragment> getFragmentClassByName(String name) {
-        if (name != null && name.charAt(0) == '.') {
-            name = mContext.getPackageName() + name;
-        }
-        Class<? extends Fragment> clazz = mFragmentClasses.get(name);
-        if (clazz == null) {
-            try {
-                clazz = (Class<? extends Fragment>) Class.forName(name, true,
-                        mContext.getClassLoader());
-                mFragmentClasses.put(name, clazz);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return clazz;
     }
 
     @NonNull
@@ -166,22 +148,34 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
      * NavDestination specific to {@link FragmentNavigator}
      */
     public static class Destination extends NavDestination {
+        private static final HashMap<String, Class<? extends Fragment>> sFragmentClasses =
+                new HashMap<>();
+
         private Class<? extends Fragment> mFragmentClass;
 
         /**
-         * Construct a new fragment destination to navigate to the given Fragment.
+         * Construct a new fragment destination. This destination is not valid until you set the
+         * Fragment via {@link #setFragmentClass(Class)}.
          *
          * @param navigatorProvider The {@link NavController} which this destination
          *                          will be associated with.
-         * @param clazz Fragment this destination should create when navigated to
          */
-        public Destination(@NonNull NavigatorProvider navigatorProvider,
-                Class<? extends Fragment> clazz) {
-            super(navigatorProvider.getNavigator(FragmentNavigator.class));
-            setFragmentClass(clazz);
+        public Destination(@NonNull NavigatorProvider navigatorProvider) {
+            //noinspection unchecked
+            this((Navigator<? extends Destination>) navigatorProvider
+                    .getNavigator(FragmentNavigator.class));
         }
 
-        Destination(@NonNull FragmentNavigator fragmentNavigator) {
+        /**
+         * Construct a new fragment destination. This destination is not valid until you set the
+         * Fragment via {@link #setFragmentClass(Class)}.
+         *
+         * @param fragmentNavigator The {@link FragmentNavigator} which this destination
+         *                          will be associated with. Generally retrieved via a
+         *                          {@link NavController}'s
+         *                          {@link NavigatorProvider#getNavigator(Class)} method.
+         */
+        public Destination(@NonNull Navigator<? extends Destination> fragmentNavigator) {
             super(fragmentNavigator);
         }
 
@@ -190,19 +184,37 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             super.onInflate(context, attrs);
             TypedArray a = context.getResources().obtainAttributes(attrs,
                     R.styleable.FragmentNavigator);
-            setFragmentClass(((FragmentNavigator) getNavigator())
-                    .getFragmentClassByName(a.getString(
+            setFragmentClass(getFragmentClassByName(context, a.getString(
                             R.styleable.FragmentNavigator_android_name)));
             a.recycle();
+        }
+
+        private Class<? extends Fragment> getFragmentClassByName(Context context, String name) {
+            if (name != null && name.charAt(0) == '.') {
+                name = context.getPackageName() + name;
+            }
+            Class<? extends Fragment> clazz = sFragmentClasses.get(name);
+            if (clazz == null) {
+                try {
+                    clazz = (Class<? extends Fragment>) Class.forName(name, true,
+                            context.getClassLoader());
+                    sFragmentClasses.put(name, clazz);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return clazz;
         }
 
         /**
          * Set the Fragment associated with this destination
          * @param clazz The class name of the Fragment to show when you navigate to this
          *              destination
+         * @return this {@link Destination}
          */
-        public void setFragmentClass(Class<? extends Fragment> clazz) {
+        public Destination setFragmentClass(Class<? extends Fragment> clazz) {
             mFragmentClass = clazz;
+            return this;
         }
 
         /**
@@ -213,7 +225,13 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             return mFragmentClass;
         }
 
-        Fragment createFragment(Bundle args) {
+        /**
+         * Create a new instance of the {@link Fragment} associated with this destination.
+         * @param args optional args to set on the new Fragment
+         * @return an instance of the {@link #getFragmentClass() Fragment class} associated
+         * with this destination
+         */
+        public Fragment createFragment(@Nullable Bundle args) {
             Class<? extends Fragment> clazz = getFragmentClass();
             if (clazz == null) {
                 throw new IllegalStateException("fragment class not set");

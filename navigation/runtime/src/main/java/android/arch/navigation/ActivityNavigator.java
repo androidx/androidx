@@ -78,6 +78,10 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
 
     @Override
     public void navigate(Destination destination, Bundle args, NavOptions navOptions) {
+        if (destination.getIntent() == null) {
+            throw new IllegalStateException("Destination " + destination.getId()
+                    + " does not have an Intent set.");
+        }
         Intent intent = new Intent(destination.getIntent());
         if (args != null) {
             intent.putExtras(args);
@@ -149,19 +153,30 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         private String mDataPattern;
 
         /**
-         * Construct a new activity destination to navigate to the given Intent.
+         * Construct a new activity destination. This destination is not valid until you set the
+         * Intent via {@link #setIntent(Intent)} or one or more of the other set method.
+         *
          *
          * @param navigatorProvider The {@link NavController} which this destination
          *                          will be associated with.
-         * @param intent Intent this destination should trigger when navigated to
          */
-        public Destination(@NonNull NavigatorProvider navigatorProvider, Intent intent) {
-            super(navigatorProvider.getNavigator(ActivityNavigator.class));
-            setIntent(intent);
+        public Destination(@NonNull NavigatorProvider navigatorProvider) {
+            //noinspection unchecked
+            this((Navigator<? extends Destination>) navigatorProvider
+                    .getNavigator(ActivityNavigator.class));
         }
 
-        Destination(@NonNull ActivityNavigator navigator) {
-            super(navigator);
+        /**
+         * Construct a new activity destination. This destination is not valid until you set the
+         * Intent via {@link #setIntent(Intent)} or one or more of the other set method.
+         *
+         * @param activityNavigator The {@link ActivityNavigator} which this destination
+         *                          will be associated with. Generally retrieved via a
+         *                          {@link NavController}'s
+         *                          {@link NavigatorProvider#getNavigator(Class)} method.
+         */
+        public Destination(@NonNull Navigator<? extends Destination> activityNavigator) {
+            super(activityNavigator);
         }
 
         @Override
@@ -189,9 +204,11 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         /**
          * Set the Intent to start when navigating to this destination.
          * @param intent Intent to associated with this destination.
+         * @return this {@link Destination}
          */
-        public void setIntent(Intent intent) {
+        public Destination setIntent(Intent intent) {
             mIntent = intent;
+            return this;
         }
 
         /**
@@ -206,12 +223,14 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * Set an explicit {@link ComponentName} to navigate to.
          *
          * @param name The component name of the Activity to start.
+         * @return this {@link Destination}
          */
-        public void setComponentName(ComponentName name) {
+        public Destination setComponentName(ComponentName name) {
             if (mIntent == null) {
                 mIntent = new Intent();
             }
             mIntent.setComponent(name);
+            return this;
         }
 
         /**
@@ -228,12 +247,14 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         /**
          * Sets the action sent when navigating to this destination.
          * @param action The action string to use.
+         * @return this {@link Destination}
          */
-        public void setAction(String action) {
+        public Destination setAction(String action) {
             if (mIntent == null) {
                 mIntent = new Intent();
             }
             mIntent.setAction(action);
+            return this;
         }
 
         /**
@@ -255,12 +276,14 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          *
          * @param data A static URI that should always be used.
          * @see #setDataPattern(String)
+         * @return this {@link Destination}
          */
-        public void setData(Uri data) {
+        public Destination setData(Uri data) {
             if (mIntent == null) {
                 mIntent = new Intent();
             }
             mIntent.setData(data);
+            return this;
         }
 
         /**
@@ -282,9 +305,11 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          *                    will be replaced with URI encoded versions of the Strings in the
          *                    arguments Bundle.
          * @see #setData
+         * @return this {@link Destination}
          */
-        public void setDataPattern(String dataPattern) {
+        public Destination setDataPattern(String dataPattern) {
             mDataPattern = dataPattern;
+            return this;
         }
 
         /**

@@ -145,8 +145,7 @@ public class NavHostFragment extends Fragment {
         final Context context = getContext();
 
         mNavController = new NavController(context);
-        mNavController.addNavigator(
-                new FragmentNavigator(context, getChildFragmentManager(), getId()));
+        mNavController.addNavigator(createFragmentNavigator());
 
         Bundle navState = null;
         if (savedInstanceState != null) {
@@ -169,6 +168,18 @@ public class NavHostFragment extends Fragment {
                 mNavController.setMetadataGraph();
             }
         }
+    }
+
+    /**
+     * Create the FragmentNavigator that this NavHostFragment will use. By default, this uses
+     * {@link FragmentNavigator}, which replaces the entire contents of the NavHostFragment.
+     * <p>
+     * This is only called once in {@link #onCreate(Bundle)} and should not be called directly by
+     * subclasses.
+     * @return a new instance of a FragmentNavigator
+     */
+    protected Navigator<? extends FragmentNavigator.Destination> createFragmentNavigator() {
+        return new FragmentNavigator(getContext(), getChildFragmentManager(), getId());
     }
 
     @Nullable
