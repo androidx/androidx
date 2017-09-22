@@ -485,11 +485,6 @@ public class MediaPlayerGlue extends PlaybackControlGlue implements
     }
 
     @Override
-    public boolean isReadyForPlayback() {
-        return mInitialized;
-    }
-
-    @Override
     public boolean isPrepared() {
         return mInitialized;
     }

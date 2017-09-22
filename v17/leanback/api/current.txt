@@ -1315,7 +1315,6 @@ package android.support.v17.leanback.media {
     method protected java.util.List<android.support.v17.leanback.media.PlaybackGlue.PlayerCallback> getPlayerCallbacks();
     method public boolean isPlaying();
     method public boolean isPrepared();
-    method public deprecated boolean isReadyForPlayback();
     method public void next();
     method protected void onAttachedToHost(android.support.v17.leanback.media.PlaybackGlueHost);
     method protected void onDetachedFromHost();
@@ -1329,7 +1328,6 @@ package android.support.v17.leanback.media {
     method public void previous();
     method public void removePlayerCallback(android.support.v17.leanback.media.PlaybackGlue.PlayerCallback);
     method public final void setHost(android.support.v17.leanback.media.PlaybackGlueHost);
-    method public deprecated void setPlayerCallback(android.support.v17.leanback.media.PlaybackGlue.PlayerCallback);
   }
 
   public static abstract class PlaybackGlue.PlayerCallback {
@@ -1337,7 +1335,6 @@ package android.support.v17.leanback.media {
     method public void onPlayCompleted(android.support.v17.leanback.media.PlaybackGlue);
     method public void onPlayStateChanged(android.support.v17.leanback.media.PlaybackGlue);
     method public void onPreparedStateChanged(android.support.v17.leanback.media.PlaybackGlue);
-    method public deprecated void onReadyForPlayback();
   }
 
   public abstract class PlaybackGlueHost {
