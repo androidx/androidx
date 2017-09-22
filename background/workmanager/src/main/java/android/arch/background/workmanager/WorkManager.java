@@ -25,6 +25,7 @@ import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.VisibleForTesting;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,26 +47,28 @@ public final class WorkManager implements LifecycleObserver {
     private WorkExecutionManager mForegroundWorkExecutionMgr;
     private WorkSpecConverter<JobInfo> mWorkSpecConverter;
 
-    private WorkManager(
-            Context context,
-            ScheduledExecutorService foregroundExecutor,
-            ExecutorService backgroundExecutor) {
+    private WorkManager(Context context, Builder builder) {
         mContext = context.getApplicationContext();
         mForegroundExecutor =
-                (foregroundExecutor == null)
+                (builder.mForegroundExecutor == null)
                         ? Executors.newScheduledThreadPool(4)   // TODO: Configure intelligently.
-                        : foregroundExecutor;
+                        : builder.mForegroundExecutor;
         mBackgroundExecutor =
-                (backgroundExecutor == null)
+                (builder.mBackgroundExecutor == null)
                         ? Executors.newSingleThreadExecutor()   // TODO: Configure intelligently.
-                        : backgroundExecutor;
-        mWorkDatabase = WorkDatabase.getInstance(mContext);
+                        : builder.mBackgroundExecutor;
+        mWorkDatabase = WorkDatabase.create(mContext, builder.mUseInMemoryDatabase);
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
         // TODO(janclarin): Wrap JobScheduler logic behind another interface.
         if (Build.VERSION.SDK_INT >= 21) {
             mWorkSpecConverter = new JobSchedulerConverter(mContext);
         }
+    }
+
+    @VisibleForTesting
+    WorkDatabase getWorkDatabase() {
+        return mWorkDatabase;
     }
 
     /**
@@ -186,6 +189,7 @@ public final class WorkManager implements LifecycleObserver {
 
         private ScheduledExecutorService mForegroundExecutor;
         private ExecutorService mBackgroundExecutor;
+        private boolean mUseInMemoryDatabase;
 
         /**
          * @param foregroundExecutor The ExecutorService to run in-process during active lifecycles
@@ -207,13 +211,24 @@ public final class WorkManager implements LifecycleObserver {
         }
 
         /**
+         * Call this method to use an in-memory database.  Useful for tests.
+         *
+         * @return The Builder
+         */
+        @VisibleForTesting
+        Builder withInMemoryDatabase() {
+            mUseInMemoryDatabase = true;
+            return this;
+        }
+
+        /**
          * Builds the {@link WorkManager}.
          *
          * @param context The context used for initialization (we will get the Application context)
          * @return The {@link WorkManager}
          */
         public WorkManager build(Context context) {
-            return new WorkManager(context, mForegroundExecutor, mBackgroundExecutor);
+            return new WorkManager(context, this);
         }
     }
 }

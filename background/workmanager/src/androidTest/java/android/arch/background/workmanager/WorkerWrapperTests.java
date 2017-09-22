@@ -41,7 +41,7 @@ public class WorkerWrapperTests {
     @Before
     public void setup() {
         mContext = InstrumentationRegistry.getTargetContext();
-        mDatabase = WorkDatabase.getInMemoryInstance(mContext);
+        mDatabase = WorkDatabase.create(mContext, true);
         mWorkSpecDao = mDatabase.workSpecDao();
     }
 

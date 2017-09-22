@@ -43,8 +43,10 @@ public class WorkDatabaseTests {
 
     @Before
     public void setUp() {
-        mDatabase = WorkDatabase.getInMemoryInstance(InstrumentationRegistry.getTargetContext());
-        mWorkManager = new WorkManager.Builder().build(InstrumentationRegistry.getTargetContext());
+        mWorkManager = new WorkManager.Builder()
+                .withInMemoryDatabase()
+                .build(InstrumentationRegistry.getTargetContext());
+        mDatabase = mWorkManager.getWorkDatabase();
     }
 
     @After
@@ -153,9 +155,8 @@ public class WorkDatabaseTests {
         assertEquals(expectedValue, actualValue);
     }
 
-    // Note this only tests the logic of the method, not the actual "on start" part.
     @Test
-    public void cleanupOnStart() throws InterruptedException, ExecutionException, TimeoutException {
+    public void generateCleanupCallback() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         Work work = new Work.Builder(TestWorker.class).build();

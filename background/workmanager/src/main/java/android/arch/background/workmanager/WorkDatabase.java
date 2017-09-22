@@ -25,7 +25,6 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 
 /**
  * A Room database for keeping track of work statuses.
@@ -37,42 +36,21 @@ abstract class WorkDatabase extends RoomDatabase {
     private static final String CLEANUP_SQL =
             "UPDATE workspec SET status=" + STATUS_ENQUEUED + " WHERE status=" + STATUS_RUNNING;
 
-    private static WorkDatabase sInstance;
-
     /**
-     * Returns a static instance of the WorkDatabase.
+     * Creates an instance of the WorkDatabase.
      *
      * @param context A context (this method will use the application context from it)
-     * @return The singleton WorkDatabase for this process
+     * @param inMemoryDatabase {@code true} to generate an in-memory database
+     * @return The created WorkDatabase
      */
-    public static WorkDatabase getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = Room.databaseBuilder(
-                    context.getApplicationContext(),
-                    WorkDatabase.class,
-                    DB_NAME)
-                    .addCallback(generateCleanupCallback())
-                    .build();
+    static WorkDatabase create(Context context, boolean inMemoryDatabase) {
+        RoomDatabase.Builder<WorkDatabase> builder;
+        if (inMemoryDatabase) {
+            builder = Room.inMemoryDatabaseBuilder(context, WorkDatabase.class);
+        } else {
+            builder = Room.databaseBuilder(context, WorkDatabase.class, DB_NAME);
         }
-        return sInstance;
-    }
-
-    /**
-     * Returns an in memory static instance of the WorkDatabase used for testing.
-     *
-     * @param context A context (this method will use the application context from it)
-     * @return The singleton WorkDatabase for this process
-     */
-    @VisibleForTesting
-    static WorkDatabase getInMemoryInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = Room.inMemoryDatabaseBuilder(
-                    context.getApplicationContext(),
-                    WorkDatabase.class)
-                    .addCallback(generateCleanupCallback())
-                    .build();
-        }
-        return sInstance;
+        return builder.addCallback(generateCleanupCallback()).build();
     }
 
     static Callback generateCleanupCallback() {
