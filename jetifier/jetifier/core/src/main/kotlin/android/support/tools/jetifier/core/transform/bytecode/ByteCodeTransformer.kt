@@ -27,8 +27,7 @@ import org.objectweb.asm.ClassWriter
  */
 class ByteCodeTransformer internal constructor(config: Config) : Transformer {
 
-    private val remapper: CoreRemapperImpl = CoreRemapperImpl(
-            config.rewriteRules, config.restrictToPackagePrefix)
+    private val remapper: CoreRemapperImpl = CoreRemapperImpl(config)
 
 
     override fun canTransform(file: ArchiveFile): Boolean {

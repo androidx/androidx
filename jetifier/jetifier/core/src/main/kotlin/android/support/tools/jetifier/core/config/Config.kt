@@ -21,11 +21,11 @@ import android.support.tools.jetifier.core.rules.RewriteRule
 /**
  * The main and only one configuration that is used by the tool and all its transformers.
  *
- * [restrictToPackagePrefix] Package prefix that limits the scope of the rewriting.
+ * [restrictToPackagePrefixes] Package prefixes that limit the scope of the rewriting.
  * [rewriteRules] List of rules that are applied on the byte code to rewrite it.
  */
 data class Config(
-        val restrictToPackagePrefix: String,
+        val restrictToPackagePrefixes: List<String>,
         val rewriteRules: List<RewriteRule>) {
 
     companion object {

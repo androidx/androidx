@@ -18,13 +18,14 @@ package android.support.tools.jetifier.core.config
 
 import android.support.tools.jetifier.core.rules.RewriteRule
 import com.google.gson.annotations.SerializedName
+import java.util.ArrayList
 
 /**
  * Data model of [Config] for JSON manipulation.
  */
 class ConfigJson(
-        @SerializedName("restrictToPackagePrefix")
-        val restrictToPackage: String,
+        @SerializedName("restrictToPackagePrefixes")
+        val restrictToPackages: ArrayList<String>,
 
         @SerializedName("rules")
         val rules: ArrayList<RuleJson?>) {
@@ -35,7 +36,7 @@ class ConfigJson(
                 .filterNotNull()
                 .map { it.getRule() }
 
-        return Config(restrictToPackage, rulesResult.toList())
+        return Config(restrictToPackages.filterNotNull().toList(), rulesResult.toList())
     }
 
     /**
