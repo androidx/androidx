@@ -16,20 +16,22 @@
 
 package android.arch.background.workmanager;
 
+import android.util.Log;
+
 /**
  * Worker that sleeps for 5 seconds before returning.
  */
 
-public class SleepTestWorker extends Worker<Void> {
+public class SleepTestWorker extends Worker {
     public static final long SLEEP_DURATION = 5000;
 
     @Override
-    public Void doWork() {
+    public void doWork() {
         try {
+            Log.d("SleepTestWorker", "Sleeping : " + SLEEP_DURATION);
             Thread.sleep(SLEEP_DURATION);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return null;
     }
 }

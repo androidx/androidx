@@ -16,95 +16,46 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Work.STATUS_FAILED;
-import static android.arch.background.workmanager.Work.STATUS_RUNNING;
-import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
-
 import android.content.Context;
 import android.util.Log;
 
-import java.util.concurrent.Callable;
-
 /**
  * The basic unit of work.
- *
- * @param <T> The payload type for this unit of work.
  */
-public abstract class Worker<T> implements Callable<T> {
+public abstract class Worker {
 
     private static final String TAG = "Worker";
 
     private Context mAppContext;
-    private WorkDatabase mWorkDatabase;
-    private WorkSpec mWorkSpec;
+    private Arguments mArguments;
 
     protected final Context getAppContext() {
         return mAppContext;
     }
 
     protected final Arguments getArguments() {
-        return mWorkSpec.mArguments;
+        return mArguments;
     }
 
     /**
      * Override this method to do your actual background processing.
-     *
-     * @return The result payload
      */
-    public abstract T doWork();
+    public abstract void doWork();
 
-    final void internalInit(Context appContext, WorkDatabase workDatabase, WorkSpec workSpec) {
+    private void internalInit(Context appContext, Arguments arguments) {
         mAppContext = appContext;
-        mWorkDatabase = workDatabase;
-        mWorkSpec = workSpec;
+        mArguments = arguments;
     }
 
-    @Override
-    public final T call() {
-        String id = mWorkSpec.mId;
-        Log.v(TAG, "Worker.call for " + id);
-        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        mWorkSpec.mStatus = STATUS_RUNNING;
-        workSpecDao.setWorkSpecStatus(id, STATUS_RUNNING);
-
-        T result = null;
-
-        try {
-            checkForInterruption();
-            result = doWork();
-            checkForInterruption();
-
-            Log.d(TAG, "Work succeeded for " + id);
-            mWorkSpec.mStatus = STATUS_SUCCEEDED;
-            workSpecDao.setWorkSpecStatus(id, STATUS_SUCCEEDED);
-        } catch (Exception e) {
-            // TODO: Retry policies.
-            if (e instanceof InterruptedException) {
-                Log.d(TAG, "Work interrupted for " + id);
-                mWorkSpec.mStatus = STATUS_ENQUEUED;
-                workSpecDao.setWorkSpecStatus(id, STATUS_ENQUEUED);
-            } else {
-                Log.d(TAG, "Work failed for " + id, e);
-                mWorkSpec.mStatus = STATUS_FAILED;
-                workSpecDao.setWorkSpecStatus(id, STATUS_FAILED);
-            }
-        }
-
-        return result;
-    }
-
-    static Worker fromWorkSpec(
-            final Context context,
-            final WorkDatabase workDatabase,
-            final WorkSpec workSpec) {
+    static Worker fromWorkSpec(Context context, WorkSpec workSpec) {
         Context appContext = context.getApplicationContext();
         String workerClassName = workSpec.mWorkerClassName;
+        Arguments arguments = workSpec.mArguments;
         try {
             Class<?> clazz = Class.forName(workerClassName);
             if (Worker.class.isAssignableFrom(clazz)) {
                 Worker worker = (Worker) clazz.newInstance();
-                worker.internalInit(appContext, workDatabase, workSpec);
+                worker.internalInit(appContext, arguments);
                 return worker;
             } else {
                 Log.e(TAG, "" + workerClassName + " is not of type Worker");
@@ -113,11 +64,5 @@ public abstract class Worker<T> implements Callable<T> {
             Log.e(TAG, "Trouble instantiating " + workerClassName, e);
         }
         return null;
-    }
-
-    private void checkForInterruption() throws InterruptedException {
-        if (Thread.currentThread().isInterrupted()) {
-            throw new InterruptedException();
-        }
     }
 }

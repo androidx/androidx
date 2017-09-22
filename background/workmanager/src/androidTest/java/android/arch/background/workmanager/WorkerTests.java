@@ -25,79 +25,48 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.Executors;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class WorkerTests {
-    private WorkDatabase mDatabase;
-    private WorkSpecDao mWorkSpecDao;
     private Context mContext;
 
     @Before
-    public void setup() {
+    public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
-        mDatabase = WorkDatabase.getInMemoryInstance(mContext);
-        mWorkSpecDao = mDatabase.workSpecDao();
-    }
-
-    @After
-    public void tearDown() {
-        //TODO(sumir): Include any tear down needed.
     }
 
     @Test
-    public void testRunsSuccessfully() throws InterruptedException {
+    public void context() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
-        Worker worker = Worker.fromWorkSpec(mContext, mDatabase, work.getWorkSpec());
+        Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
+
         assertNotNull(worker);
-        worker.call();
-        assertEquals(Work.STATUS_SUCCEEDED, mWorkSpecDao.getWorkSpecStatus(work.getId()));
+        assertEquals(mContext.getApplicationContext(), worker.getAppContext());
     }
 
     @Test
-    public void testUncaughtException() throws InterruptedException {
-        Work work = new Work.Builder(ExceptionTestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
-        Worker worker = Worker.fromWorkSpec(mContext, mDatabase, work.getWorkSpec());
-        assertNotNull(worker);
-        worker.call();
-        assertEquals(Work.STATUS_FAILED, mWorkSpecDao.getWorkSpecStatus(work.getId()));
-    }
-
-    @Test
-    public void testStatusRunning() throws InterruptedException {
-        Work work = new Work.Builder(SleepTestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
-        Worker worker = Worker.fromWorkSpec(mContext, mDatabase, work.getWorkSpec());
-        assertNotNull(worker);
-        Executors.newSingleThreadExecutor().submit(worker);
-        Thread.sleep(2000);
-        assertEquals(Work.STATUS_RUNNING, mWorkSpecDao.getWorkSpecStatus(work.getId()));
-    }
-
-    @Test
-    public void testArguments() throws InterruptedException {
+    public void arguments() throws InterruptedException {
         Arguments arguments = new Arguments();
         String key = "KEY";
         String expectedValue = "VALUE";
         arguments.putString(key, expectedValue);
 
-        Work work = new Work.Builder(ArgumentsTestWorker.class).withArguments(arguments).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
-        Worker worker = Worker.fromWorkSpec(mContext, mDatabase, work.getWorkSpec());
-        assertNotNull(worker);
-        Object result = worker.call();
+        Work work = new Work.Builder(TestWorker.class).withArguments(arguments).build();
+        Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
 
-        assertTrue(result instanceof Arguments);
-        Arguments actualArguments = (Arguments) result;
-        assertTrue(actualArguments.containsKey(key));
-        assertEquals(expectedValue, actualArguments.getString(key, null));
+        assertNotNull(worker);
+        assertNotNull(worker.getArguments());
+        assertEquals(expectedValue, worker.getArguments().getString(key, null));
+
+        work = new Work.Builder(TestWorker.class).build();
+        worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
+
+        assertNotNull(worker);
+        assertNotNull(worker.getArguments());
+        assertTrue(worker.getArguments().isEmpty());
     }
 }
