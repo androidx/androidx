@@ -16,6 +16,7 @@
 
 package android.support.tools.jetifier.core.transform.bytecode
 
+import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
 import android.support.tools.jetifier.core.rules.RewriteRule
@@ -29,8 +30,7 @@ import java.util.regex.Pattern
 /**
  * Applies the given collection of [RewriteRule] during the remapping process. Uses caching also.
  */
-class CoreRemapperImpl(private val rewriteRules: List<RewriteRule>,
-                       private val restrictToPackagePrefix : String) : CoreRemapper {
+class CoreRemapperImpl(private val config: Config) : CoreRemapper {
 
     private val tag = "CoreRemapperImpl"
 
@@ -42,7 +42,7 @@ class CoreRemapperImpl(private val rewriteRules: List<RewriteRule>,
     }
 
     override fun rewriteType(type: JavaType): JavaType {
-        if (!type.fullName.startsWith(restrictToPackagePrefix)) {
+        if (!isTypeSupported(type)) {
             return type
         }
 
@@ -53,7 +53,7 @@ class CoreRemapperImpl(private val rewriteRules: List<RewriteRule>,
         }
 
         // Try to find a rule
-        for (rule in rewriteRules) {
+        for (rule in config.rewriteRules) {
             val mappedTypeName = rule.apply(type) ?: continue
             typesRewritesCache.put(type, mappedTypeName)
 
@@ -68,7 +68,7 @@ class CoreRemapperImpl(private val rewriteRules: List<RewriteRule>,
     }
 
     override fun rewriteField(field : JavaField): JavaField {
-        if (!field.owner.fullName.startsWith(restrictToPackagePrefix)) {
+        if (!isTypeSupported(field.owner)) {
             return field
         }
 
@@ -79,7 +79,7 @@ class CoreRemapperImpl(private val rewriteRules: List<RewriteRule>,
         }
 
         // Try to find a rule
-        for (rule in rewriteRules) {
+        for (rule in config.rewriteRules) {
             val mappedFieldName = rule.apply(field) ?: continue
             fieldsRewritesCache.put(field, mappedFieldName)
 
@@ -89,5 +89,9 @@ class CoreRemapperImpl(private val rewriteRules: List<RewriteRule>,
 
         Log.i(tag, "No rule for: %s", field)
         return field
+    }
+
+    private fun isTypeSupported(type: JavaType) : Boolean {
+        return config.restrictToPackagePrefixes.any{ type.fullName.startsWith(it) }
     }
 }

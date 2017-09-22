@@ -39,7 +39,7 @@ class Archive(
 
     companion object {
         /** Defines file extensions that are recognized as archives */
-        const val ARCHIVE_EXTENSIONS = listOf(".jar", ".zip", ".aar")
+        val ARCHIVE_EXTENSIONS = listOf(".jar", ".zip", ".aar")
 
         const val TAG = "Archive"
     }
