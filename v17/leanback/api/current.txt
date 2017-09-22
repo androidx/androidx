@@ -580,27 +580,6 @@ package android.support.v17.leanback.app {
     method public abstract void onHeaderSelected(android.support.v17.leanback.widget.RowHeaderPresenter.ViewHolder, android.support.v17.leanback.widget.Row);
   }
 
-  public abstract deprecated class MediaControllerGlue extends android.support.v17.leanback.app.PlaybackControlGlue {
-    ctor public MediaControllerGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[]);
-    ctor public MediaControllerGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[], int[]);
-    method public void attachToMediaController(android.support.v4.media.session.MediaControllerCompat);
-    method public void detach();
-    method public int getCurrentPosition();
-    method public int getCurrentSpeedId();
-    method public android.graphics.drawable.Drawable getMediaArt();
-    method public final android.support.v4.media.session.MediaControllerCompat getMediaController();
-    method public int getMediaDuration();
-    method public java.lang.CharSequence getMediaSubtitle();
-    method public java.lang.CharSequence getMediaTitle();
-    method public long getSupportedActions();
-    method public boolean hasValidMedia();
-    method public boolean isMediaPlaying();
-    method protected void pausePlayback();
-    method protected void skipToNext();
-    method protected void skipToPrevious();
-    method protected void startPlayback(int);
-  }
-
   public abstract class OnboardingFragment extends android.app.Fragment {
     ctor public OnboardingFragment();
     method public final int getArrowBackgroundColor();
