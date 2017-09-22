@@ -16,13 +16,16 @@
 
 package android.arch.background.workmanager;
 
+import android.util.Log;
+
 /**
  * Worker that immediately throws Unhandled Exception.
  */
 
-public class ExceptionTestWorker extends Worker<Void> {
+public class ExceptionTestWorker extends Worker {
     @Override
-    public Void doWork() {
+    public void doWork() {
+        Log.d("ExceptionTestWorker", "Throwing Exception");
         throw new RuntimeException();
     }
 }

@@ -16,6 +16,11 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Work.STATUS_FAILED;
+import static android.arch.background.workmanager.Work.STATUS_RUNNING;
+import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
+
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -65,7 +70,7 @@ class WorkerWrapper implements Runnable {
             return;
         }
 
-        Worker worker = Worker.fromWorkSpec(mAppContext, mWorkDatabase, workSpec);
+        Worker worker = Worker.fromWorkSpec(mAppContext, workSpec);
         if (worker == null) {
             Log.e(TAG, "Could not create Worker " + workSpec.mWorkerClassName);
             workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
@@ -73,7 +78,34 @@ class WorkerWrapper implements Runnable {
             return;
         }
 
-        worker.call();
-        mListener.onSuccess(mWorkSpecId); // TODO(xbhatnag): Check if Worker succeeded.
+        workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_RUNNING);
+        // TODO(xbhatnag): Add Running Status to Listener.
+
+        try {
+            checkForInterruption();
+            worker.doWork();
+            checkForInterruption();
+
+            Log.d(TAG, "Work succeeded for " + mWorkSpecId);
+            mListener.onSuccess(mWorkSpecId);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_SUCCEEDED);
+        } catch (Exception e) {
+            // TODO: Retry policies.
+            if (e instanceof InterruptedException) {
+                Log.d(TAG, "Work interrupted for " + mWorkSpecId);
+                // TODO(xbhatnag): Add Rescheduled Status to Listener.
+                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
+            } else {
+                Log.d(TAG, "Work failed for " + mWorkSpecId, e);
+                // TODO(xbhatnag): Add Failed Status to Listener.
+                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_FAILED);
+            }
+        }
+    }
+
+    private void checkForInterruption() throws InterruptedException {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new InterruptedException();
+        }
     }
 }

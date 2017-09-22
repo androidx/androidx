@@ -16,14 +16,16 @@
 
 package android.arch.background.workmanager;
 
+import android.util.Log;
+
 /**
  * Simple Test Worker
  */
 
-public class TestWorker extends Worker<String> {
+public class TestWorker extends Worker {
 
     @Override
-    public String doWork() {
-        return getAppContext().getPackageName();
+    public void doWork() {
+        Log.d("TestWorker", "TestWorker Ran!");
     }
 }
