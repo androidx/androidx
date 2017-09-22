@@ -81,21 +81,7 @@ class WorkExecutionManager implements WorkerWrapper.Listener {
     }
 
     @Override
-    public void onPermanentError(String workSpecId) {
-        synchronized (mLock) {
-            mFutures.remove(workSpecId);
-        }
-    }
-
-    @Override
-    public void onSuccess(String workSpecId) {
-        synchronized (mLock) {
-            mFutures.remove(workSpecId);
-        }
-    }
-
-    @Override
-    public void onNotEnqueued(String workSpecId) {
+    public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
         synchronized (mLock) {
             mFutures.remove(workSpecId);
         }

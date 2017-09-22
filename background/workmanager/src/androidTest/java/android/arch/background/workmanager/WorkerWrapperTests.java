@@ -39,7 +39,7 @@ public class WorkerWrapperTests {
     private Context mContext;
 
     @Before
-    public void setup() {
+    public void setUp() {
         mContext = InstrumentationRegistry.getTargetContext();
         mDatabase = WorkDatabase.getInMemoryInstance(mContext);
         mWorkSpecDao = mDatabase.workSpecDao();
@@ -51,62 +51,65 @@ public class WorkerWrapperTests {
     }
 
     @Test
-    public void success() {
+    public void testSuccess() {
         Work work = new Work.Builder(TestWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
         new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener).run();
-        Mockito.verify(mockListener).onSuccess(work.getId());
+        Mockito.verify(mockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
         assertEquals(Work.STATUS_SUCCEEDED, mWorkSpecDao.getWorkSpecStatus(work.getId()));
     }
 
     @Test
-    public void invalidWorkSpecId() {
+    public void testPermanentErrorWithInvalidWorkSpecId() {
         final String invalidWorkSpecId = "INVALID_ID";
         WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
         new WorkerWrapper(mContext, mDatabase, invalidWorkSpecId, mockListener).run();
-        Mockito.verify(mockListener).onPermanentError(invalidWorkSpecId);
+        Mockito.verify(mockListener)
+                .onExecuted(invalidWorkSpecId, WorkerWrapper.RESULT_PERMANENT_ERROR);
     }
 
     @Test
-    public void notEnqueuedWorkSpecStatus() {
+    public void testNotEnqueued() {
         Work work = new Work.Builder(TestWorker.class).build();
         work.getWorkSpec().mStatus = Work.STATUS_RUNNING;
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
         new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener).run();
-        Mockito.verify(mockListener).onNotEnqueued(work.getId());
+        Mockito.verify(mockListener)
+                .onExecuted(work.getId(), WorkerWrapper.RESULT_NOT_ENQUEUED);
     }
 
     @Test
-    public void invalidWorkerClass() {
+    public void testPermanentErrorWithInvalidWorkerClass() {
         Work work = new Work.Builder(TestWorker.class).build();
         work.getWorkSpec().mWorkerClassName = "INVALID_CLASS_NAME";
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
         new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener).run();
-        Mockito.verify(mockListener).onPermanentError(work.getId());
-    }
-
-    @Test
-    public void uncaughtException() throws InterruptedException {
-        Work work = new Work.Builder(ExceptionTestWorker.class).build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
-        WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
-        new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener).run();
-        // TODO(xbhatnag): Add test for FAILED state to listener.
+        Mockito.verify(mockListener)
+                .onExecuted(work.getId(), WorkerWrapper.RESULT_PERMANENT_ERROR);
         assertEquals(Work.STATUS_FAILED, mWorkSpecDao.getWorkSpecStatus(work.getId()));
     }
 
     @Test
-    public void running() throws InterruptedException {
+    public void testFailed() throws InterruptedException {
+        Work work = new Work.Builder(ExceptionTestWorker.class).build();
+        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
+        new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener).run();
+        Mockito.verify(mockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_FAILED);
+        assertEquals(Work.STATUS_FAILED, mWorkSpecDao.getWorkSpecStatus(work.getId()));
+    }
+
+    @Test
+    public void testRunning() throws InterruptedException {
         Work work = new Work.Builder(SleepTestWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
         Runnable wrapper = new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener);
         Executors.newSingleThreadExecutor().submit(wrapper);
         Thread.sleep(2000);
-        // TODO(xbhatnag): Add test for RUNNING state to listener.
         assertEquals(Work.STATUS_RUNNING, mWorkSpecDao.getWorkSpecStatus(work.getId()));
     }
 }
