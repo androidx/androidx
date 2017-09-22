@@ -16,11 +16,7 @@
 
 package android.arch.background.workmanager;
 
-import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Work.STATUS_FAILED;
-
 import android.content.Context;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,10 +27,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A class to manage the actual in-process (foreground) execution of work.
  */
-class WorkExecutionManager {
-
-    private static final String TAG = "WorkExecMgr";
-
+class WorkExecutionManager implements WorkerWrapper.Listener {
     private Context mAppContext;
     private WorkDatabase mWorkDatabase;
     private ScheduledExecutorService mExecutor;
@@ -53,7 +46,8 @@ class WorkExecutionManager {
 
     void enqueue(String id, long delayMs) {
         synchronized (mLock) {
-            InternalRunnable runnable = new InternalRunnable(id);
+            WorkerWrapper runnable = new WorkerWrapper(
+                    mAppContext, mWorkDatabase, id, this);
             Future<?> future = mExecutor.schedule(runnable, delayMs, TimeUnit.MILLISECONDS);
             mFutures.put(id, future);
         }
@@ -86,56 +80,24 @@ class WorkExecutionManager {
         }
     }
 
-    /**
-     * A callable that looks up the {@link WorkSpec} from the database for a given mId, instantiates
-     * its Worker, and then calls it.
-     */
-    private class InternalRunnable implements Runnable {
-
-        String mId;
-
-        InternalRunnable(String id) {
-            mId = id;
+    @Override
+    public void onPermanentError(String workSpecId) {
+        synchronized (mLock) {
+            mFutures.remove(workSpecId);
         }
+    }
 
-        @Override
-        public void run() {
-            WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-            WorkSpec workSpec = workSpecDao.getWorkSpec(mId);
-            if (workSpec != null) {
-                int status = workSpec.mStatus;
-                if (status != STATUS_ENQUEUED) {
-                    Log.d(TAG, "Status for " + mId + " is not enqueued; not doing any work");
-                    return;
-                }
+    @Override
+    public void onSuccess(String workSpecId) {
+        synchronized (mLock) {
+            mFutures.remove(workSpecId);
+        }
+    }
 
-                Worker worker = Worker.fromWorkSpec(mAppContext, mWorkDatabase, workSpec);
-                if (worker == null) {
-                    Log.e(TAG, "Could not create Worker " + workSpec.mWorkerClassName);
-                    workSpecDao.setWorkSpecStatus(mId, STATUS_FAILED);
-                    return;
-                }
-
-                synchronized (mLock) {
-                    if (mFutures.get(mId) == null) {
-                        Log.d(
-                                TAG,
-                                "InternalRunnable for id " + mId
-                                        + " was interrupted; not starting work");
-                        return;
-                    }
-                }
-
-                worker.call();
-                synchronized (mLock) {
-                    mFutures.remove(mId);
-                }
-            } else {
-                Log.e(TAG, "Didn't find WorkSpec for id " + mId);
-                synchronized (mLock) {
-                    mFutures.remove(mId);
-                }
-            }
+    @Override
+    public void onNotEnqueued(String workSpecId) {
+        synchronized (mLock) {
+            mFutures.remove(workSpecId);
         }
     }
 }
