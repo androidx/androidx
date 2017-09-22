@@ -22,6 +22,8 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
+import java.util.List;
+
 /**
  * The Data Access Object for {@link WorkSpec}s.
  */
@@ -42,6 +44,15 @@ public interface WorkSpecDao {
      */
     @Query("SELECT * FROM workspec WHERE id=:id")
     WorkSpec getWorkSpec(String id);
+
+    /**
+     * Retrieves {@link WorkSpec}s with the identifiers.
+     *
+     * @param ids The identifiers of desired {@link WorkSpec}s.
+     * @return The {@link WorkSpec}s with the requested IDs.
+     */
+    @Query("SELECT * FROM workspec WHERE id IN (:ids)")
+    List<WorkSpec> getWorkSpecs(List<String> ids);
 
     /**
      * Updates the status of a {@link WorkSpec}.

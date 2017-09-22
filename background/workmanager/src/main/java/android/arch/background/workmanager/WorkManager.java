@@ -147,9 +147,7 @@ public final class WorkManager implements LifecycleObserver {
             try {
                 mWorkDatabase.workSpecDao().insertWorkSpec(mWork.getWorkSpec());
                 if (mPrerequisiteId != null) {
-                    Dependency dep = new Dependency();
-                    dep.mPrerequisiteId = mPrerequisiteId;
-                    dep.mWorkSpecId = mWork.getId();
+                    Dependency dep = new Dependency(mWork.getId(), mPrerequisiteId);
                     mWorkDatabase.dependencyDao().insertDependency(dep);
                 } else {
                     if (mForegroundWorkExecutionMgr != null) {

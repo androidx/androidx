@@ -21,6 +21,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 /**
  * Database entity that defines a dependency between two {@link WorkSpec}s.
@@ -40,13 +41,21 @@ import android.arch.persistence.room.PrimaryKey;
                 onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)},
         indices = {@Index(value = "work_spec_id"), @Index(value = "prerequisite_id")})
 class Dependency {
+    // TODO(janclarin): May want to enforce strict primary key on workSpecId + prerequisiteId.
     @ColumnInfo(name = "id")
     @PrimaryKey(autoGenerate = true)
     long mId;
 
+    @NonNull
     @ColumnInfo(name = "work_spec_id")
     String mWorkSpecId;
 
+    @NonNull
     @ColumnInfo(name = "prerequisite_id")
     String mPrerequisiteId;
+
+    Dependency(@NonNull String workSpecId, @NonNull String prerequisiteId) {
+        mWorkSpecId = workSpecId;
+        mPrerequisiteId = prerequisiteId;
+    }
 }

@@ -23,11 +23,13 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
+import java.util.List;
+
 /**
  * The Data Access Object for {@link Dependency}.
  */
 @Dao
-public interface DependencyDao {
+interface DependencyDao {
     /**
      * Attempts to insert a {@link Dependency} into the database.
      *
@@ -35,6 +37,16 @@ public interface DependencyDao {
      */
     @Insert(onConflict = FAIL)
     void insertDependency(Dependency dependency);
+
+    @Query("SELECT * FROM dependency")
+    List<Dependency> getAllDependencies();
+
+    /**
+     * Delete all {@link Dependency} with {@code prerequisiteId}.
+     * @param prerequisiteId ID of a {@link WorkSpec} that is a prerequisite for another one.
+     */
+    @Query("DELETE FROM dependency WHERE prerequisite_id=:prerequisiteId")
+    void deleteDependenciesWithPrerequisite(String prerequisiteId);
 
     /**
      * Determines if a {@link WorkSpec is dependent on other {@link WorkSpec}s
@@ -46,4 +58,21 @@ public interface DependencyDao {
     @Query("SELECT COUNT(id) > 0 FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND id IN"
             + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
     boolean hasDependencies(String id);
+
+    /**
+     * Retrieves the IDs of all {@link WorkSpec} that
+     * <ol>
+     * <li>Have exactly one {@link Dependency} and,</li>
+     * <li>2. That {@link Dependency}'s prerequisite ID matches the specified one.</li>
+     * </ol>
+     *
+     * {@link WorkSpec}s with 0 prerequisites will not have any {@link Dependency}s.
+     *
+     * @param prerequisiteId The {@link WorkSpec} ID to find {@link Dependency}s for.
+     * @return List of {@link WorkSpec} IDs with exactly one {@link Dependency} with prerequisiteId.
+     */
+    @Query("SELECT work_spec_id FROM dependency NATURAL JOIN "
+            + "(SELECT work_spec_id FROM dependency WHERE prerequisite_id=:prerequisiteId) "
+            + "GROUP BY work_spec_id HAVING COUNT(work_spec_id)=1")
+    List<String> getWorkSpecIdsWithSinglePrerequisite(String prerequisiteId);
 }
