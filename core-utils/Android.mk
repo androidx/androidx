@@ -27,7 +27,6 @@ LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-core-utils
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under,gingerbread) \
     $(call all-java-files-under,kitkat) \
     $(call all-java-files-under,api21) \
     $(call all-java-files-under,java)
