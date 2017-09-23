@@ -24,6 +24,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -53,7 +54,8 @@ public final class NavUtils {
      * @return true if navigating up should recreate a new task stack, false if the same task
      *         should be used for the destination
      */
-    public static boolean shouldUpRecreateTask(Activity sourceActivity, Intent targetIntent) {
+    public static boolean shouldUpRecreateTask(@NonNull Activity sourceActivity,
+            @NonNull Intent targetIntent) {
         if (Build.VERSION.SDK_INT >= 16) {
             return sourceActivity.shouldUpRecreateTask(targetIntent);
         } else {
@@ -74,7 +76,7 @@ public final class NavUtils {
      *
      * @param sourceActivity The current activity from which the user is attempting to navigate up
      */
-    public static void navigateUpFromSameTask(Activity sourceActivity) {
+    public static void navigateUpFromSameTask(@NonNull Activity sourceActivity) {
         Intent upIntent = getParentActivityIntent(sourceActivity);
 
         if (upIntent == null) {
@@ -101,7 +103,7 @@ public final class NavUtils {
      * @param sourceActivity The current activity from which the user is attempting to navigate up
      * @param upIntent An intent representing the target destination for up navigation
      */
-    public static void navigateUpTo(Activity sourceActivity, Intent upIntent) {
+    public static void navigateUpTo(@NonNull Activity sourceActivity, @NonNull Intent upIntent) {
         if (Build.VERSION.SDK_INT >= 16) {
             sourceActivity.navigateUpTo(upIntent);
         } else {
@@ -121,7 +123,8 @@ public final class NavUtils {
      * @param sourceActivity Activity to fetch a parent intent for
      * @return a new Intent targeting the defined parent activity of sourceActivity
      */
-    public static Intent getParentActivityIntent(Activity sourceActivity) {
+    @Nullable
+    public static Intent getParentActivityIntent(@NonNull Activity sourceActivity) {
         if (Build.VERSION.SDK_INT >= 16) {
             // Prefer the "real" JB definition if available,
             // else fall back to the meta-data element.
@@ -157,7 +160,9 @@ public final class NavUtils {
      * @return a new Intent targeting the defined parent activity of sourceActivity
      * @throws NameNotFoundException if the ComponentName for sourceActivityClass is invalid
      */
-    public static Intent getParentActivityIntent(Context context, Class<?> sourceActivityClass)
+    @Nullable
+    public static Intent getParentActivityIntent(@NonNull Context context,
+            @NonNull Class<?> sourceActivityClass)
             throws NameNotFoundException {
         String parentActivity = getParentActivityName(context,
                 new ComponentName(context, sourceActivityClass));
@@ -182,7 +187,9 @@ public final class NavUtils {
      * @return a new Intent targeting the defined parent activity of sourceActivity
      * @throws NameNotFoundException if the ComponentName for sourceActivityClass is invalid
      */
-    public static Intent getParentActivityIntent(Context context, ComponentName componentName)
+    @Nullable
+    public static Intent getParentActivityIntent(@NonNull Context context,
+            @NonNull ComponentName componentName)
             throws NameNotFoundException {
         String parentActivity = getParentActivityName(context, componentName);
         if (parentActivity == null) return null;
@@ -207,7 +214,7 @@ public final class NavUtils {
      *         it was not specified
      */
     @Nullable
-    public static String getParentActivityName(Activity sourceActivity) {
+    public static String getParentActivityName(@NonNull Activity sourceActivity) {
         try {
             return getParentActivityName(sourceActivity, sourceActivity.getComponentName());
         } catch (NameNotFoundException e) {
@@ -226,7 +233,8 @@ public final class NavUtils {
      *         it was not specified
      */
     @Nullable
-    public static String getParentActivityName(Context context, ComponentName componentName)
+    public static String getParentActivityName(@NonNull Context context,
+            @NonNull ComponentName componentName)
             throws NameNotFoundException {
         PackageManager pm = context.getPackageManager();
         ActivityInfo info = pm.getActivityInfo(componentName, PackageManager.GET_META_DATA);
