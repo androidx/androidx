@@ -1,3 +1,31 @@
+package android.support.wear.ambient {
+
+  public final class AmbientMode extends android.app.Fragment {
+    ctor public AmbientMode();
+    method public static <T extends android.app.Activity & android.support.wear.ambient.AmbientMode.AmbientCallbackProvider> android.support.wear.ambient.AmbientMode.AmbientController attachAmbientSupport(T);
+    field public static final java.lang.String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
+    field public static final java.lang.String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
+    field public static final java.lang.String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
+  }
+
+  public static abstract class AmbientMode.AmbientCallback {
+    ctor public AmbientMode.AmbientCallback();
+    method public void onEnterAmbient(android.os.Bundle);
+    method public void onExitAmbient();
+    method public void onUpdateAmbient();
+  }
+
+  public static abstract interface AmbientMode.AmbientCallbackProvider {
+    method public abstract android.support.wear.ambient.AmbientMode.AmbientCallback getAmbientCallback();
+  }
+
+  public final class AmbientMode.AmbientController {
+    method public boolean isAmbient();
+    method public void setAutoResumeEnabled(boolean);
+  }
+
+}
+
 package android.support.wear.utils {
 
   public class MetadataConstants {
