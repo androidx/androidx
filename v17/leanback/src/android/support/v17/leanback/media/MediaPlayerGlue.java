@@ -22,6 +22,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
@@ -50,7 +51,11 @@ import java.util.List;
  * </ul>
  *
  * @hide
+ * @deprecated Use {@link MediaPlayerAdapter} with {@link PlaybackTransportControlGlue} or
+ *             {@link PlaybackBannerControlGlue}.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated
 public class MediaPlayerGlue extends PlaybackControlGlue implements
         OnItemViewSelectedListener {
 
