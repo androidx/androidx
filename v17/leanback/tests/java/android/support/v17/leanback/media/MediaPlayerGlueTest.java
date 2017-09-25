@@ -62,12 +62,13 @@ public class MediaPlayerGlueTest {
         glue.setHost(host);
         glue.setMode(MediaPlayerGlue.REPEAT_ALL);
         final boolean[] ready = new boolean[] {false};
-        glue.setPlayerCallback(new PlaybackGlue.PlayerCallback() {
+        glue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             @Override
-            public void onReadyForPlayback() {
-                glue.play();
-                ready[0] = true;
-
+            public void onPreparedStateChanged(PlaybackGlue glue) {
+                if (glue.isPrepared()) {
+                    glue.play();
+                    ready[0] = true;
+                }
             }
         });
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
