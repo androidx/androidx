@@ -47,8 +47,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerViewAccessibilityDelegate;
 import android.text.Selection;
 import android.text.Spannable;
+import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1825,13 +1827,16 @@ public class GridWidgetTest {
                 mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
     }
 
-    @Test
-    public void testScrollAndRemove() throws Throwable {
+    void testScrollAndRemove(int[] itemsLength, int numItems) throws Throwable {
 
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.horizontal_linear);
-        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        if (itemsLength != null) {
+            intent.putExtra(GridActivity.EXTRA_ITEMS, itemsLength);
+        } else {
+            intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, numItems);
+        }
         initActivity(intent);
         mOrientation = BaseGridView.HORIZONTAL;
         mNumRows = 1;
@@ -1863,7 +1868,39 @@ public class GridWidgetTest {
         });
         waitForScrollIdle();
         assertEquals(leftEdge,
-                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft());
+                mGridView.getLayoutManager().findViewByPosition(focusToIndex).getLeft(), DELTA);
+    }
+
+    @Test
+    public void testScrollAndRemove() throws Throwable {
+        // test random lengths for 50 items
+        testScrollAndRemove(null, 50);
+    }
+
+    /**
+     * This test verifies if scroll limits are ignored when onLayoutChildren compensate remaining
+     * scroll distance. b/64931938
+     * In the test, second child is long, other children are short.
+     * Test scrolls to the long child, and when scrolling, remove the long child. We made it long
+     * to have enough remaining scroll distance when the layout pass kicks in.
+     * The onLayoutChildren() would compensate the remaining scroll distance, moving all items
+     * toward right, which will make the first item's left edge bigger than left padding,
+     * which would violate the "scroll limit of left" in a regular scroll case, but
+     * in layout pass, we still honor that scroll request, ignoring the scroll limit.
+     */
+    @Test
+    public void testScrollAndRemoveSample1() throws Throwable {
+        DisplayMetrics dm = InstrumentationRegistry.getInstrumentation().getTargetContext()
+                .getResources().getDisplayMetrics();
+        // screen width for long item and 4DP for other items
+        int longItemLength = dm.widthPixels;
+        int shortItemLength = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, dm);
+        int[] items = new int[1000];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = shortItemLength;
+        }
+        items[1] = longItemLength;
+        testScrollAndRemove(items, 0);
     }
 
     @Test
