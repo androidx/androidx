@@ -1157,7 +1157,7 @@ package android.support.v17.leanback.media {
     method public void play();
   }
 
-  public abstract class MediaControllerGlue extends android.support.v17.leanback.media.PlaybackControlGlue {
+  public abstract deprecated class MediaControllerGlue extends android.support.v17.leanback.media.PlaybackControlGlue {
     ctor public MediaControllerGlue(android.content.Context, int[], int[]);
     method public void attachToMediaController(android.support.v4.media.session.MediaControllerCompat);
     method public void detach();
