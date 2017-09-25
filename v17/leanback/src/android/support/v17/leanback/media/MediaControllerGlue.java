@@ -28,7 +28,10 @@ import android.util.Log;
 
 /**
  * A helper class for implementing a glue layer for {@link MediaControllerCompat}.
+ * @deprecated Use {@link MediaControllerAdapter} with {@link PlaybackTransportControlGlue} or
+ *             {@link PlaybackBannerControlGlue}.
  */
+@Deprecated
 public abstract class MediaControllerGlue extends PlaybackControlGlue {
     static final String TAG = "MediaControllerGlue";
     static final boolean DEBUG = false;
