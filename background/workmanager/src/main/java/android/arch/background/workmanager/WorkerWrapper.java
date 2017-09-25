@@ -17,19 +17,33 @@
 package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
-import static android.arch.background.workmanager.Work.STATUS_FAILED;
-import static android.arch.background.workmanager.Work.STATUS_RUNNING;
-import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
+
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
+import java.lang.annotation.Retention;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
  * its Worker, and then calls it.
  */
 class WorkerWrapper implements Runnable {
+    @Retention(SOURCE)
+    @IntDef({RESULT_NOT_ENQUEUED, RESULT_PERMANENT_ERROR, RESULT_FAILED, RESULT_INTERRUPTED,
+            RESULT_SUCCEEDED})
+    public @interface ExecutionResult {
+    }
+
+    public static final int RESULT_NOT_ENQUEUED = 0;
+    public static final int RESULT_PERMANENT_ERROR = 1;
+    public static final int RESULT_FAILED = 2;
+    public static final int RESULT_INTERRUPTED = 3;
+    public static final int RESULT_SUCCEEDED = 4;
+
     private static final String TAG = "WorkerWrapper";
     private Context mAppContext;
     private WorkDatabase mWorkDatabase;
@@ -41,9 +55,7 @@ class WorkerWrapper implements Runnable {
      * the lifecycle of the Worker.
      */
     interface Listener {
-        void onPermanentError(String workSpecId);
-        void onNotEnqueued(String workSpecId);
-        void onSuccess(String workSpecId);
+        void onExecuted(String workSpecId, @ExecutionResult int result);
     }
 
     WorkerWrapper(Context context, WorkDatabase database, String workSpecId,
@@ -60,13 +72,13 @@ class WorkerWrapper implements Runnable {
         WorkSpec workSpec = workSpecDao.getWorkSpec(mWorkSpecId);
         if (workSpec == null) {
             Log.e(TAG, "Didn't find WorkSpec for id " + mWorkSpecId);
-            mListener.onPermanentError(mWorkSpecId);
+            mListener.onExecuted(mWorkSpecId, RESULT_PERMANENT_ERROR);
             return;
         }
 
         if (workSpec.mStatus != Work.STATUS_ENQUEUED) {
             Log.d(TAG, "Status for " + mWorkSpecId + " is not enqueued; not doing any work");
-            mListener.onNotEnqueued(mWorkSpecId);
+            mListener.onExecuted(mWorkSpecId, RESULT_NOT_ENQUEUED);
             return;
         }
 
@@ -74,12 +86,11 @@ class WorkerWrapper implements Runnable {
         if (worker == null) {
             Log.e(TAG, "Could not create Worker " + workSpec.mWorkerClassName);
             workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
-            mListener.onPermanentError(mWorkSpecId);
+            mListener.onExecuted(mWorkSpecId, RESULT_PERMANENT_ERROR);
             return;
         }
 
-        workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_RUNNING);
-        // TODO(xbhatnag): Add Running Status to Listener.
+        workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_RUNNING);
 
         try {
             checkForInterruption();
@@ -87,18 +98,18 @@ class WorkerWrapper implements Runnable {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + mWorkSpecId);
-            mListener.onSuccess(mWorkSpecId);
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_SUCCEEDED);
+            mListener.onExecuted(mWorkSpecId, RESULT_SUCCEEDED);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
         } catch (Exception e) {
             // TODO: Retry policies.
             if (e instanceof InterruptedException) {
                 Log.d(TAG, "Work interrupted for " + mWorkSpecId);
-                // TODO(xbhatnag): Add Rescheduled Status to Listener.
+                mListener.onExecuted(mWorkSpecId, RESULT_INTERRUPTED);
                 workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
             } else {
                 Log.d(TAG, "Work failed for " + mWorkSpecId, e);
-                // TODO(xbhatnag): Add Failed Status to Listener.
-                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_FAILED);
+                mListener.onExecuted(mWorkSpecId, RESULT_FAILED);
+                workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
             }
         }
     }
