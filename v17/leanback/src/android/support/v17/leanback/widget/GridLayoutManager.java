@@ -2348,21 +2348,22 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     // scroll in main direction may add/prune views
     private int scrollDirectionPrimary(int da) {
         if (TRACE) TraceCompat.beginSection("scrollPrimary");
-        boolean isMaxUnknown = false, isMinUnknown = false;
-        int minScroll = 0, maxScroll = 0;
-        if (!mIsSlidingChildViews) {
+        // We apply the cap of maxScroll/minScroll to the delta, except for two cases:
+        // 1. when children are in sliding out mode
+        // 2. During onLayoutChildren(), it may compensate the remaining scroll delta,
+        //    we should honor the request regardless if it goes over minScroll / maxScroll.
+        //    (see b/64931938 testScrollAndRemove and testScrollAndRemoveSample1)
+        if (!mIsSlidingChildViews && !mInLayout) {
             if (da > 0) {
-                isMaxUnknown = mWindowAlignment.mainAxis().isMaxUnknown();
-                if (!isMaxUnknown) {
-                    maxScroll = mWindowAlignment.mainAxis().getMaxScroll();
+                if (!mWindowAlignment.mainAxis().isMaxUnknown()) {
+                    int maxScroll = mWindowAlignment.mainAxis().getMaxScroll();
                     if (da > maxScroll) {
                         da = maxScroll;
                     }
                 }
             } else if (da < 0) {
-                isMinUnknown = mWindowAlignment.mainAxis().isMinUnknown();
-                if (!isMinUnknown) {
-                    minScroll = mWindowAlignment.mainAxis().getMinScroll();
+                if (!mWindowAlignment.mainAxis().isMinUnknown()) {
+                    int minScroll = mWindowAlignment.mainAxis().getMinScroll();
                     if (da < minScroll) {
                         da = minScroll;
                     }
@@ -2856,7 +2857,8 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (!mScrollEnabled && smooth) {
             return;
         }
-        if (getScrollPosition(view, childView, sTwoInts)) {
+        if (getScrollPosition(view, childView, sTwoInts)
+                || extraDelta != 0 || extraDeltaSecondary != 0) {
             scrollGrid(sTwoInts[0] + extraDelta, sTwoInts[1] + extraDeltaSecondary, smooth);
         }
     }
