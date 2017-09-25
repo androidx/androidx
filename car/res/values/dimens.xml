@@ -14,11 +14,44 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <!-- The margin on both sides of the screen before the contents of the PagedListView. -->
+    <dimen name="car_card_margin">96dp</dimen>
+
+    <!-- The height of the dividers in the list. -->
+    <dimen name="car_divider_height">1dp</dimen>
+
+    <!-- Sample row height used for scroll bar calculations in the off chance that a view hasn't
+         been measured. It's highly unlikely that this value will actually be used for more than
+         a frame max. The sample row is a 96dp card + 16dp margin on either side. -->
+    <dimen name="car_sample_row_height">128dp</dimen>
+
+    <!-- The amount of space the LayoutManager will make sure the last item on the screen is
+         peeking before scrolling down -->
+    <dimen name="car_last_card_peek_amount">16dp</dimen>
+
     <!-- The margin on both sizes of the screen. This margin limits the amount of space that
          content can take up on screen. -->
     <dimen name="car_screen_margin_size">16dp</dimen>
 
-    <!-- The spacing between each column that fits on the screen. The number of columsns is
+    <!-- The spacing between each column that fits on the screen. The number of columns is
          determined by integer/car_screen_num_of_columns. -->
     <dimen name="car_screen_gutter_size">16dp</dimen>
+
+    <!-- The size of the container that holds the scroll bars in the PagedListView. -->
+    <dimen name="car_paged_list_view_pagination_width">96dp</dimen>
+
+    <!-- The margin on both sizes of the scroll bar thumb. -->
+    <dimen name="car_paged_list_view_scrollbar_thumb_margin">8dp</dimen>
+
+    <!-- The padding around the scroll bar. -->
+    <dimen name="car_scroll_bar_padding">16dp</dimen>
+
+    <!-- The width of the scroll bar thumb. -->
+    <dimen name="car_scroll_bar_thumb_width">6dp</dimen>
+
+    <!-- The minimum the scrollbar thumb can shrink to -->
+    <dimen name="min_thumb_height">48dp</dimen>
+
+    <!-- The maximum the scrollbar thumb can grow to -->
+    <dimen name="max_thumb_height">128dp</dimen>
 </resources>
