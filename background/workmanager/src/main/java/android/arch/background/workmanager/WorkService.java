@@ -28,6 +28,13 @@ import android.util.Log;
 public class WorkService extends JobService {
 
     private static final String TAG = "WorkService";
+    private Scheduler mScheduler;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mScheduler = SchedulerHelper.getScheduler();
+    }
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -35,6 +42,7 @@ public class WorkService extends JobService {
         Log.d(TAG, jobId + " scheduled on JobScheduler");
         // TODO(janclarin): Schedule work with instance of WorkExecutionManager.
         // TODO(janclarin): Call jobFinished after task is completed.
+        // TODO(janclarin): Call mScheduler.onWorkFinished(workId) when work completes successfully.
         jobFinished(params, false);
         return true;
     }
