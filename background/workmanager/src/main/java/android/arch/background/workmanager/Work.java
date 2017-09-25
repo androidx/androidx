@@ -18,6 +18,9 @@ package android.arch.background.workmanager;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.background.workmanager.model.Arguments;
+import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
@@ -59,7 +62,7 @@ public class Work {
      * @return The id for this set of work.
      */
     public String getId() {
-        return mWorkSpec.mId;
+        return mWorkSpec.getId();
     }
 
 
@@ -74,7 +77,7 @@ public class Work {
         private WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
 
         public Builder(Class<? extends Worker> workerClass) {
-            mWorkSpec.mWorkerClassName = workerClass.getName();
+            mWorkSpec.setWorkerClassName(workerClass.getName());
         }
 
         /**
@@ -84,7 +87,7 @@ public class Work {
          * @return current builder
          */
         public Builder withConstraints(@NonNull Constraints constraints) {
-            mWorkSpec.mConstraints = constraints;
+            mWorkSpec.setConstraints(constraints);
             return this;
         }
 
@@ -100,8 +103,8 @@ public class Work {
         public Builder withBackoffCriteria(@BackoffPolicy int backoffPolicy,
                                            long backoffDelayDuration) {
             // TODO(xbhatnag): Enforce restrictions on backoff delay. 30 seconds?
-            mWorkSpec.mBackoffPolicy = backoffPolicy;
-            mWorkSpec.mBackoffDelayDuration = backoffDelayDuration;
+            mWorkSpec.setBackoffPolicy(backoffPolicy);
+            mWorkSpec.setBackoffDelayDuration(backoffDelayDuration);
             return this;
         }
 
@@ -112,7 +115,7 @@ public class Work {
          * @return current builder
          */
         public Builder withArguments(Arguments arguments) {
-            mWorkSpec.mArguments = arguments;
+            mWorkSpec.setArguments(arguments);
             return this;
         }
 
@@ -123,7 +126,7 @@ public class Work {
          * @param tag A tag for identifying the {@link Work} in queries.
          */
         public Builder withTag(String tag) {
-            mWorkSpec.mTag = tag;
+            mWorkSpec.setTag(tag);
             return this;
         }
 

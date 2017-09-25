@@ -20,6 +20,7 @@ import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
@@ -76,7 +77,7 @@ class WorkerWrapper implements Runnable {
             return;
         }
 
-        if (workSpec.mStatus != Work.STATUS_ENQUEUED) {
+        if (workSpec.getStatus() != Work.STATUS_ENQUEUED) {
             Log.d(TAG, "Status for " + mWorkSpecId + " is not enqueued; not doing any work");
             mListener.onExecuted(mWorkSpecId, RESULT_NOT_ENQUEUED);
             return;
@@ -84,7 +85,7 @@ class WorkerWrapper implements Runnable {
 
         Worker worker = Worker.fromWorkSpec(mAppContext, workSpec);
         if (worker == null) {
-            Log.e(TAG, "Could not create Worker " + workSpec.mWorkerClassName);
+            Log.e(TAG, "Could not create Worker " + workSpec.getWorkerClassName());
             workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
             mListener.onExecuted(mWorkSpecId, RESULT_PERMANENT_ERROR);
             return;

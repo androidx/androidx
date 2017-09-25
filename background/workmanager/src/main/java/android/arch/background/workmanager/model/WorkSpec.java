@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.model;
 
+import android.arch.background.workmanager.Work;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
@@ -28,7 +29,7 @@ import android.support.annotation.NonNull;
  */
 @Entity
 @TypeConverters(Arguments.class)
-class WorkSpec {
+public class WorkSpec {
 
     @ColumnInfo(name = "id")
     @PrimaryKey
@@ -65,7 +66,88 @@ class WorkSpec {
     @ColumnInfo(name = "backoff_delay_duration")
     long mBackoffDelayDuration = Work.DEFAULT_BACKOFF_DELAY_DURATION;
 
-    WorkSpec(@NonNull String id) {
+    public WorkSpec(@NonNull String id) {
         mId = id;
+    }
+
+    @NonNull
+    public String getId() {
+        return mId;
+    }
+
+    public void setId(@NonNull String id) {
+        mId = id;
+    }
+
+    public long getRepeatDuration() {
+        return mRepeatDuration;
+    }
+
+    public void setRepeatDuration(long repeatDuration) {
+        mRepeatDuration = repeatDuration;
+    }
+
+    public long getFlexDuration() {
+        return mFlexDuration;
+    }
+
+    public void setFlexDuration(long flexDuration) {
+        mFlexDuration = flexDuration;
+    }
+
+    public int getStatus() {
+        return mStatus;
+    }
+
+    public void setStatus(int status) {
+        mStatus = status;
+    }
+
+    public String getWorkerClassName() {
+        return mWorkerClassName;
+    }
+
+    public void setWorkerClassName(String workerClassName) {
+        mWorkerClassName = workerClassName;
+    }
+
+    public Constraints getConstraints() {
+        return mConstraints;
+    }
+
+    public void setConstraints(Constraints constraints) {
+        mConstraints = constraints;
+    }
+
+    public Arguments getArguments() {
+        return mArguments;
+    }
+
+    public void setArguments(Arguments arguments) {
+        mArguments = arguments;
+    }
+
+    public String getTag() {
+        return mTag;
+    }
+
+    public void setTag(String tag) {
+        mTag = tag;
+    }
+
+    public int getBackoffPolicy() {
+        return mBackoffPolicy;
+    }
+
+    public void setBackoffPolicy(int backoffPolicy) {
+        mBackoffPolicy = backoffPolicy;
+    }
+
+    public long getBackoffDelayDuration() {
+        return mBackoffDelayDuration;
+    }
+
+    public void setBackoffDelayDuration(long backoffDelayDuration) {
+        mBackoffDelayDuration = backoffDelayDuration;
     }
 }

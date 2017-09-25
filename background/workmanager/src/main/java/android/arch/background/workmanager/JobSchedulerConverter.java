@@ -17,6 +17,8 @@
 package android.arch.background.workmanager;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
@@ -39,19 +41,19 @@ class JobSchedulerConverter implements WorkSpecConverter<JobInfo> {
 
     @Override
     public JobInfo convert(WorkSpec workSpec) {
-        Constraints constraints = workSpec.mConstraints;
-        int jobId = generateJobId(workSpec.mId);
-        int jobNetworkType = convertNetworkType(constraints.mRequiredNetworkType);
+        Constraints constraints = workSpec.getConstraints();
+        int jobId = generateJobId(workSpec.getId());
+        int jobNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         JobInfo.Builder builder =
                 new JobInfo.Builder(jobId, mWorkServiceComponent)
-                        .setMinimumLatency(constraints.mInitialDelay)
+                        .setMinimumLatency(constraints.getInitialDelay())
                         .setRequiredNetworkType(jobNetworkType)
-                        .setRequiresCharging(constraints.mRequiresCharging)
-                        .setRequiresDeviceIdle(constraints.mRequiresDeviceIdle);
+                        .setRequiresCharging(constraints.requiresCharging())
+                        .setRequiresDeviceIdle(constraints.requiresDeviceIdle());
 
         if (Build.VERSION.SDK_INT >= 26) {
-            builder.setRequiresBatteryNotLow(constraints.mRequiresBatteryNotLow);
-            builder.setRequiresStorageNotLow(constraints.mRequiresStorageNotLow);
+            builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());
+            builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());
         } else {
             // TODO(janclarin): Create compat version of batteryNotLow/storageNotLow constraints.
             Log.w(TAG, "Could not set requiresBatteryNowLow or requiresStorageNotLow constraints.");

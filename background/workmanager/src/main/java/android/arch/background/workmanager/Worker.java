@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.model.Arguments;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
 import android.util.Log;
 
@@ -49,8 +51,8 @@ public abstract class Worker {
 
     static Worker fromWorkSpec(Context context, WorkSpec workSpec) {
         Context appContext = context.getApplicationContext();
-        String workerClassName = workSpec.mWorkerClassName;
-        Arguments arguments = workSpec.mArguments;
+        String workerClassName = workSpec.getWorkerClassName();
+        Arguments arguments = workSpec.getArguments();
         try {
             Class<?> clazz = Class.forName(workerClassName);
             if (Worker.class.isAssignableFrom(clazz)) {

@@ -21,10 +21,11 @@ import android.arch.background.workmanager.Worker;
  * A Test Worker.
  */
 
-public class TestWorker extends Worker<String> {
+public class TestWorker extends Worker {
 
     @Override
-    public String doWork() {
-        return "test!";
+    public void doWork() {
+        int x = 0;
+        x++;
     }
 }

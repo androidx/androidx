@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
