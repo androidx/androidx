@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.FragmentActivityUtils;
 import android.support.v4.app.test.NonConfigOnStopActivity;
 
 import org.junit.Rule;
@@ -41,7 +42,7 @@ public class FragmentManagerNonConfigTest {
      */
     @Test
     public void nonConfigStop() throws Throwable {
-        FragmentActivity activity = FragmentTestUtil.recreateActivity(mActivityRule,
+        FragmentActivity activity = FragmentActivityUtils.recreateActivity(mActivityRule,
                 mActivityRule.getActivity());
 
         // A fragment was added in onStop(), but we shouldn't see it here...
