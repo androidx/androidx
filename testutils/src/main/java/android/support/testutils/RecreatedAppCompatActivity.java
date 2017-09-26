@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-package android.support.v4.app.test;
+package android.support.testutils;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
+import android.support.test.rule.ActivityTestRule;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.concurrent.CountDownLatch;
 
-public class RecreatedActivity extends FragmentActivity {
+/**
+ * Extension of {@link AppCompatActivity} that keeps track of when it is recreated.
+ * In order to use this class, have your activity extend it and call
+ * {@link AppCompatActivityUtils#recreateActivity(ActivityTestRule, RecreatedAppCompatActivity)}
+ * API.
+ */
+public class RecreatedAppCompatActivity extends AppCompatActivity {
     // These must be cleared after each test using clearState()
-    public static RecreatedActivity sActivity;
+    public static RecreatedAppCompatActivity sActivity;
     public static CountDownLatch sResumed;
     public static CountDownLatch sDestroyed;
 
-    public static void clearState() {
+    static void clearState() {
         sActivity = null;
         sResumed = null;
         sDestroyed = null;

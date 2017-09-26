@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.support.design.testutils;
+package android.support.testutils;
 
 import static org.junit.Assert.assertTrue;
 
@@ -24,15 +24,20 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility methods for testing activities.
+ * Utility methods for testing AppCompat activities.
  */
-public class ActivityUtils {
+public class AppCompatActivityUtils {
     private static final Runnable DO_NOTHING = new Runnable() {
         @Override
         public void run() {
         }
     };
 
+    /**
+     * Waits for the execution of the provided activity test rule.
+     *
+     * @param rule Activity test rule to wait for.
+     */
     public static void waitForExecution(
             final ActivityTestRule<? extends RecreatedAppCompatActivity> rule) {
         // Wait for two cycles. When starting a postponed transition, it will post to

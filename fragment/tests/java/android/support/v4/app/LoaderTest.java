@@ -30,6 +30,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.testutils.FragmentActivityUtils;
 import android.support.v4.app.test.LoaderActivity;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -58,7 +59,7 @@ public class LoaderTest {
     public void testLeak() throws Throwable {
         // Restart the activity because mActivityRule keeps a strong reference to the
         // old activity.
-        LoaderActivity activity = FragmentTestUtil.recreateActivity(mActivityRule,
+        LoaderActivity activity = FragmentActivityUtils.recreateActivity(mActivityRule,
                 mActivityRule.getActivity());
 
         LoaderFragment fragment = new LoaderFragment();
@@ -80,7 +81,7 @@ public class LoaderTest {
 
         WeakReference<LoaderActivity> weakActivity = new WeakReference(LoaderActivity.sActivity);
 
-        activity = FragmentTestUtil.recreateActivity(mActivityRule, activity);
+        activity = FragmentActivityUtils.recreateActivity(mActivityRule, activity);
 
         // Wait for everything to settle. We have to make sure that the old Activity
         // is ready to be collected.
@@ -101,7 +102,7 @@ public class LoaderTest {
 
         assertEquals("Loaded!", activity.textView.getText().toString());
 
-        activity = FragmentTestUtil.recreateActivity(mActivityRule, activity);
+        activity = FragmentActivityUtils.recreateActivity(mActivityRule, activity);
 
         FragmentTestUtil.waitForExecution(mActivityRule);
 
