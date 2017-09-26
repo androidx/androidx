@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.model.WorkSpec;
+
 import java.util.List;
 
 /**
