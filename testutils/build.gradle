@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-apply plugin: 'java'
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     compile libs.junit
 }
 
-targetCompatibility = '1.7'
-sourceCompatibility = '1.7'
+android {
+    defaultConfig {
+        minSdkVersion 14
+    }
+    lintOptions {
+        disable 'InvalidPackage' // Lint is unhappy about junit package
+    }
+}
