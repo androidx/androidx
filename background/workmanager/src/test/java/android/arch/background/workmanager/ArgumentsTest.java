@@ -20,6 +20,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.arch.background.workmanager.model.Arguments;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;

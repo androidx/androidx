@@ -19,6 +19,8 @@ package android.arch.background.workmanager;
 import static org.junit.Assert.assertEquals;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -59,16 +61,18 @@ public class JobSchedulerConverterTest {
                 .setRequiresStorageNotLow(true)
                 .build();
         WorkSpec workSpec = new WorkSpec("id");
-        workSpec.mConstraints = expectedConstraints;
+        workSpec.setConstraints(expectedConstraints);
         JobInfo jobInfo = mConverter.convert(workSpec);
 
         int expectedNetworkType = mConverter.convertNetworkType(workSpecNetworkType);
         assertEquals(expectedNetworkType, jobInfo.getNetworkType());
-        assertEquals(expectedConstraints.mInitialDelay, jobInfo.getMinLatencyMillis());
-        assertEquals(expectedConstraints.mRequiresCharging, jobInfo.isRequireCharging());
-        assertEquals(expectedConstraints.mRequiresDeviceIdle, jobInfo.isRequireDeviceIdle());
-        assertEquals(expectedConstraints.mRequiresBatteryNotLow, jobInfo.isRequireBatteryNotLow());
-        assertEquals(expectedConstraints.mRequiresStorageNotLow, jobInfo.isRequireStorageNotLow());
+        assertEquals(expectedConstraints.getInitialDelay(), jobInfo.getMinLatencyMillis());
+        assertEquals(expectedConstraints.requiresCharging(), jobInfo.isRequireCharging());
+        assertEquals(expectedConstraints.requiresDeviceIdle(), jobInfo.isRequireDeviceIdle());
+        assertEquals(expectedConstraints.requiresBatteryNotLow(),
+                jobInfo.isRequireBatteryNotLow());
+        assertEquals(expectedConstraints.requiresStorageNotLow(),
+                jobInfo.isRequireStorageNotLow());
     }
 
     @Test

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.model;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -30,7 +30,7 @@ public class Constraints {
     @Retention(SOURCE)
     @IntDef({NETWORK_TYPE_CONNECTED, NETWORK_TYPE_METERED, NETWORK_TYPE_ANY,
             NETWORK_TYPE_NOT_ROAMING, NETWORK_TYPE_UNMETERED})
-    @interface NetworkType {
+    public @interface NetworkType {
     }
 
     // TODO(xbhatnag): Merge with JobScheduler values.
@@ -48,7 +48,7 @@ public class Constraints {
     boolean mRequiresStorageNotLow;
     long mInitialDelay;
 
-    Constraints() { // stub required for room
+    public Constraints() { // stub required for room
     }
 
     private Constraints(Builder builder) {
@@ -58,6 +58,66 @@ public class Constraints {
         mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
         mInitialDelay = builder.mInitialDelay;
+    }
+
+    public int getRequiredNetworkType() {
+        return mRequiredNetworkType;
+    }
+
+    public void setRequiredNetworkType(int requiredNetworkType) {
+        mRequiredNetworkType = requiredNetworkType;
+    }
+
+    /**
+     * @return If the constraints require charging.
+     */
+    public boolean requiresCharging() {
+        return mRequiresCharging;
+    }
+
+    public void setRequiresCharging(boolean requiresCharging) {
+        mRequiresCharging = requiresCharging;
+    }
+
+    /**
+     * @return If the constraints require device idle.
+     */
+    public boolean requiresDeviceIdle() {
+        return mRequiresDeviceIdle;
+    }
+
+    public void setRequiresDeviceIdle(boolean requiresDeviceIdle) {
+        mRequiresDeviceIdle = requiresDeviceIdle;
+    }
+
+    /**
+     * @return If the constraints require battery not low status.
+     */
+    public boolean requiresBatteryNotLow() {
+        return mRequiresBatteryNotLow;
+    }
+
+    public void setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
+        mRequiresBatteryNotLow = requiresBatteryNotLow;
+    }
+
+    /**
+     * @return If the constraints require storage not low status.
+     */
+    public boolean requiresStorageNotLow() {
+        return mRequiresStorageNotLow;
+    }
+
+    public void setRequiresStorageNotLow(boolean requiresStorageNotLow) {
+        mRequiresStorageNotLow = requiresStorageNotLow;
+    }
+
+    public long getInitialDelay() {
+        return mInitialDelay;
+    }
+
+    public void setInitialDelay(long initialDelay) {
+        mInitialDelay = initialDelay;
     }
 
     /**

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.model;
 
+import android.arch.background.workmanager.Worker;
 import android.arch.persistence.room.TypeConverter;
 
 import java.io.ByteArrayInputStream;

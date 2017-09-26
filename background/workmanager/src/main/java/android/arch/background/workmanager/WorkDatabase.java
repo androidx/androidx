@@ -19,6 +19,7 @@ package android.arch.background.workmanager;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;

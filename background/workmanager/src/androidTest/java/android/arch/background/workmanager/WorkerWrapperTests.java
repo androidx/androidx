@@ -72,7 +72,7 @@ public class WorkerWrapperTests {
     @Test
     public void testNotEnqueued() {
         Work work = new Work.Builder(TestWorker.class).build();
-        work.getWorkSpec().mStatus = Work.STATUS_RUNNING;
+        work.getWorkSpec().setStatus(Work.STATUS_RUNNING);
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
         new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener).run();
@@ -83,7 +83,7 @@ public class WorkerWrapperTests {
     @Test
     public void testPermanentErrorWithInvalidWorkerClass() {
         Work work = new Work.Builder(TestWorker.class).build();
-        work.getWorkSpec().mWorkerClassName = "INVALID_CLASS_NAME";
+        work.getWorkSpec().setWorkerClassName("INVALID_CLASS_NAME");
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
         WorkerWrapper.Listener mockListener = Mockito.mock(WorkerWrapper.Listener.class);
         new WorkerWrapper(mContext, mDatabase, work.getId(), mockListener).run();

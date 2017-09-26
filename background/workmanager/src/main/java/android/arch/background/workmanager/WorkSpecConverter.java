@@ -16,6 +16,9 @@
 
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.WorkSpec;
+
 /**
  * Converts a {@link WorkSpec} into type T.
  * @param <T> The type to convert to.

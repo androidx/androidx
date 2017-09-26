@@ -19,6 +19,7 @@ package android.arch.background.workmanager;
 import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;

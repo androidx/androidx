@@ -21,6 +21,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.arch.background.workmanager.model.Arguments;
+import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.support.test.InstrumentationRegistry;
@@ -90,21 +93,23 @@ public class WorkDatabaseTests {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertNotNull(workSpec0.mConstraints);
-        assertTrue(workSpec0.mConstraints.mRequiresCharging);
-        assertTrue(workSpec0.mConstraints.mRequiresDeviceIdle);
-        assertTrue(workSpec0.mConstraints.mRequiresBatteryNotLow);
-        assertTrue(workSpec0.mConstraints.mRequiresStorageNotLow);
-        assertEquals(5000, workSpec0.mConstraints.mInitialDelay);
-        assertEquals(Constraints.NETWORK_TYPE_METERED, workSpec0.mConstraints.mRequiredNetworkType);
+        Constraints constraints = workSpec0.getConstraints();
+        assertNotNull(constraints);
+        assertTrue(constraints.requiresCharging());
+        assertTrue(constraints.requiresDeviceIdle());
+        assertTrue(constraints.requiresBatteryNotLow());
+        assertTrue(constraints.requiresStorageNotLow());
+        assertEquals(5000, constraints.getInitialDelay());
+        assertEquals(Constraints.NETWORK_TYPE_METERED, constraints.getRequiredNetworkType());
 
-        assertNotNull(workSpec1.mConstraints);
-        assertFalse(workSpec1.mConstraints.mRequiresCharging);
-        assertFalse(workSpec1.mConstraints.mRequiresDeviceIdle);
-        assertFalse(workSpec1.mConstraints.mRequiresBatteryNotLow);
-        assertFalse(workSpec1.mConstraints.mRequiresStorageNotLow);
-        assertEquals(0, workSpec1.mConstraints.mInitialDelay);
-        assertEquals(Constraints.NETWORK_TYPE_ANY, workSpec1.mConstraints.mRequiredNetworkType);
+        constraints = workSpec1.getConstraints();
+        assertNotNull(constraints);
+        assertFalse(constraints.requiresCharging());
+        assertFalse(constraints.requiresDeviceIdle());
+        assertFalse(constraints.requiresBatteryNotLow());
+        assertFalse(constraints.requiresStorageNotLow());
+        assertEquals(0, constraints.getInitialDelay());
+        assertEquals(Constraints.NETWORK_TYPE_ANY, constraints.getRequiredNetworkType());
     }
 
     @Test
@@ -119,11 +124,11 @@ public class WorkDatabaseTests {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertEquals(Work.BACKOFF_POLICY_LINEAR, workSpec0.mBackoffPolicy);
-        assertEquals(50000, workSpec0.mBackoffDelayDuration);
+        assertEquals(Work.BACKOFF_POLICY_LINEAR, workSpec0.getBackoffPolicy());
+        assertEquals(50000, workSpec0.getBackoffDelayDuration());
 
-        assertEquals(Work.BACKOFF_POLICY_EXPONENTIAL, workSpec1.mBackoffPolicy);
-        assertEquals(Work.DEFAULT_BACKOFF_DELAY_DURATION, workSpec1.mBackoffDelayDuration);
+        assertEquals(Work.BACKOFF_POLICY_EXPONENTIAL, workSpec1.getBackoffPolicy());
+        assertEquals(Work.DEFAULT_BACKOFF_DELAY_DURATION, workSpec1.getBackoffDelayDuration());
     }
 
     @Test
@@ -144,13 +149,13 @@ public class WorkDatabaseTests {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertNotNull(workSpec0.mArguments);
-        assertNotNull(workSpec1.mArguments);
+        assertNotNull(workSpec0.getArguments());
+        assertNotNull(workSpec1.getArguments());
 
-        assertEquals(1, workSpec0.mArguments.size());
-        assertEquals(0, workSpec1.mArguments.size());
+        assertEquals(1, workSpec0.getArguments().size());
+        assertEquals(0, workSpec1.getArguments().size());
 
-        String actualValue = workSpec0.mArguments.getString(key, null);
+        String actualValue = workSpec0.getArguments().getString(key, null);
         assertNotNull(actualValue);
         assertEquals(expectedValue, actualValue);
     }
@@ -161,15 +166,15 @@ public class WorkDatabaseTests {
 
         Work work = new Work.Builder(TestWorker.class).build();
         WorkSpec workSpec = work.getWorkSpec();
-        workSpec.mStatus = Work.STATUS_RUNNING;
+        workSpec.setStatus(Work.STATUS_RUNNING);
         workSpecDao.insertWorkSpec(work.getWorkSpec());
 
-        assertEquals(workSpecDao.getWorkSpec(work.getId()).mStatus, Work.STATUS_RUNNING);
+        assertEquals(workSpecDao.getWorkSpec(work.getId()).getStatus(), Work.STATUS_RUNNING);
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
-        assertEquals(workSpecDao.getWorkSpec(work.getId()).mStatus, Work.STATUS_ENQUEUED);
+        assertEquals(workSpecDao.getWorkSpec(work.getId()).getStatus(), Work.STATUS_ENQUEUED);
     }
 }
