@@ -18,10 +18,10 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="5441529851481176817">"Sistem"</string>
     <string name="mr_user_route_category_name" msgid="7498112907524977311">"Perangkat"</string>
-    <string name="mr_button_content_description" msgid="3698378085901466129">"Tombol transmisi"</string>
-    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Tombol transmisi. Terputus"</string>
-    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Tombol transmisi. Menghubungkan"</string>
-    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Tombol transmisi. Terhubung"</string>
+    <string name="mr_button_content_description" msgid="3698378085901466129">"Tombol Cast"</string>
+    <string name="mr_cast_button_disconnected" msgid="816305490427819240">"Tombol Cast. Terputus"</string>
+    <string name="mr_cast_button_connecting" msgid="2187642765091873834">"Tombol Cast. Menghubungkan"</string>
+    <string name="mr_cast_button_connected" msgid="5088427771788648085">"Tombol Cast. Terhubung"</string>
     <string name="mr_chooser_title" msgid="414301941546135990">"Transmisikan ke"</string>
     <string name="mr_chooser_searching" msgid="6349900579507521956">"Mencari perangkat"</string>
     <string name="mr_controller_disconnect" msgid="1227264889412989580">"Putuskan sambungan"</string>
