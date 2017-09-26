@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from SearchSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -16,7 +19,6 @@ package android.support.v17.leanback.app;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import android.support.v17.leanback.widget.SearchBar;
 import android.support.v17.leanback.widget.SearchOrbView;
 import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -393,7 +396,7 @@ public class SearchFragment extends Fragment {
         mIsPaused = false;
         if (mSpeechRecognitionCallback == null && null == mSpeechRecognizer) {
             mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(
-                    FragmentUtil.getContext(this));
+                    FragmentUtil.getContext(SearchFragment.this));
             mSearchBar.setSpeechRecognizer(mSpeechRecognizer);
         }
         if (mPendingStartRecognitionWhenPaused) {
