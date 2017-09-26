@@ -17,6 +17,7 @@
 package android.arch.background.workmanager;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,28 +28,29 @@ import java.util.concurrent.TimeUnit;
 /**
  * A class to manage the actual in-process (foreground) execution of work.
  */
-class WorkExecutionManager implements WorkerWrapper.Listener {
+class WorkExecutionManager implements ExecutionListener {
     private Context mAppContext;
     private WorkDatabase mWorkDatabase;
     private ScheduledExecutorService mExecutor;
-
+    private ExecutionListener mListener;
     private Map<String, Future<?>> mFutures = new HashMap<>();
     private final Object mLock = new Object();
 
     WorkExecutionManager(
             Context context,
             WorkDatabase workDatabase,
-            ScheduledExecutorService executor) {
+            ScheduledExecutorService executor,
+            @NonNull ExecutionListener listener) {
         mAppContext = context.getApplicationContext();
         mWorkDatabase = workDatabase;
         mExecutor = executor;
+        mListener = listener;
     }
 
     void enqueue(String id, long delayMs) {
         synchronized (mLock) {
-            WorkerWrapper runnable = new WorkerWrapper(
-                    mAppContext, mWorkDatabase, id, this);
-            Future<?> future = mExecutor.schedule(runnable, delayMs, TimeUnit.MILLISECONDS);
+            WorkerWrapper wrapper = new WorkerWrapper(mAppContext, mWorkDatabase, id, this);
+            Future<?> future = mExecutor.schedule(wrapper, delayMs, TimeUnit.MILLISECONDS);
             mFutures.put(id, future);
         }
     }
@@ -84,6 +86,9 @@ class WorkExecutionManager implements WorkerWrapper.Listener {
     public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
         synchronized (mLock) {
             mFutures.remove(workSpecId);
+        }
+        if (mListener != null) { // TODO(xbhatnag): mListener should not be null
+            mListener.onExecuted(workSpecId, result);
         }
     }
 }

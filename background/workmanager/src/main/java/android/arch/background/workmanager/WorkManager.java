@@ -79,7 +79,8 @@ public final class WorkManager implements LifecycleObserver {
         mForegroundWorkExecutionMgr = new WorkExecutionManager(
                 mContext,
                 mWorkDatabase,
-                mForegroundExecutor);
+                mForegroundExecutor,
+                null /* TODO: scheduler */);
     }
 
     /**

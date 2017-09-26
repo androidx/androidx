@@ -19,39 +19,70 @@ package android.arch.background.workmanager;
 import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.
  */
 @TargetApi(21)
-public class WorkService extends JobService {
+public class WorkService extends JobService implements ExecutionListener {
 
     private static final String TAG = "WorkService";
+    private WorkExecutionManager mWorkExecutionManager;
     private Scheduler mScheduler;
+    private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Context context = getApplicationContext();
         mScheduler = SchedulerHelper.getScheduler();
+        WorkDatabase database = WorkDatabase.create(context, false);
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        mWorkExecutionManager = new WorkExecutionManager(
+                context, database, executorService, this);
     }
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        int jobId = params.getJobId();
-        Log.d(TAG, jobId + " scheduled on JobScheduler");
-        // TODO(janclarin): Schedule work with instance of WorkExecutionManager.
-        // TODO(janclarin): Call jobFinished after task is completed.
-        // TODO(janclarin): Call mScheduler.onWorkFinished(workId) when work completes successfully.
-        jobFinished(params, false);
+        String workSpecId = params.getExtras().getString(JobSchedulerConverter.EXTRAS_WORK_SPEC_ID);
+        if (TextUtils.isEmpty(workSpecId)) {
+            Log.e(TAG, "WorkSpec id not found!");
+            return false;
+        }
+        Log.d(TAG, workSpecId + " started on JobScheduler");
+        mJobParameters.put(workSpecId, params);
+        mWorkExecutionManager.enqueue(workSpecId, 0 /* TODO: delay */);
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        int jobId = params.getJobId();
-        // TODO(janclarin): Cancel work with instance of WorkExecutionManager.
-        Log.d(TAG, jobId + " stopped");
-        return false;
+        String workSpecId = params.getExtras().getString(JobSchedulerConverter.EXTRAS_WORK_SPEC_ID);
+        if (TextUtils.isEmpty(workSpecId)) {
+            Log.e(TAG, "WorkSpec id not found!");
+            return false;
+        }
+        boolean canceled = mWorkExecutionManager.cancel(workSpecId);
+        Log.d(TAG, workSpecId + "; cancel = " + canceled);
+        return canceled;
+    }
+
+    @Override
+    public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
+        Log.d(TAG, workSpecId + " executed on JobScheduler");
+        if (mScheduler != null) { // TODO(xbhatnag): mScheduler should not be null
+            mScheduler.onExecuted(workSpecId, result);
+        }
+        JobParameters parameters = mJobParameters.get(workSpecId);
+        boolean needsReschedule = (result == WorkerWrapper.RESULT_INTERRUPTED);
+        jobFinished(parameters, needsReschedule);
     }
 }

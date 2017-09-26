@@ -41,11 +41,14 @@ public class JobSchedulerConverterTest {
 
     @Test
     public void convert() {
-        String uuid = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
+        String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
         // TODO(janclarin): Use int mapping for UUID from DB.
-        int expectedIntId = JobSchedulerConverter.generateJobId(uuid);
-        WorkSpec workSpec = new WorkSpec(uuid);
+        int expectedIntId = JobSchedulerConverter.generateJobId(expectedWorkSpecId);
+        WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
         JobInfo jobInfo = mConverter.convert(workSpec);
+        String actualWorkSpecId = jobInfo.getExtras().getString(
+                JobSchedulerConverter.EXTRAS_WORK_SPEC_ID);
+        assertEquals(expectedWorkSpecId, actualWorkSpecId);
         assertEquals(expectedIntId, jobInfo.getId());
     }
 

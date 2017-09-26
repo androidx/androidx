@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Schedules {@link Work} depending on completion of {@link Dependency}s.
  */
-abstract class Scheduler {
+abstract class Scheduler implements ExecutionListener {
     protected WorkDatabase mWorkDatabase;
 
     protected Scheduler(WorkDatabase workDatabase) {
@@ -51,12 +51,20 @@ abstract class Scheduler {
      *
      * @param workId The ID of the {@link WorkSpec} that was completed.
      */
-    void onWorkFinished(String workId) {
+    private void scheduleDependentWork(String workId) {
+        // TODO(janclarin): Migrate to WorkerWrapper. Ensure DB work in single transaction.
         DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
         List<String> dependentWorkIds = dependencyDao.getWorkSpecIdsWithSinglePrerequisite(workId);
         for (WorkSpec workSpec : mWorkDatabase.workSpecDao().getWorkSpecs(dependentWorkIds)) {
             schedule(workSpec);
         }
         dependencyDao.deleteDependenciesWithPrerequisite(workId);
+    }
+
+    @Override
+    public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
+        if (result == WorkerWrapper.RESULT_SUCCEEDED) {
+            scheduleDependentWork(workSpecId);
+        }
     }
 }

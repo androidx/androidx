@@ -22,6 +22,7 @@ import android.arch.background.workmanager.model.WorkSpec;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -32,6 +33,7 @@ import android.util.Log;
 @RequiresApi(api = 21)
 class JobSchedulerConverter implements WorkSpecConverter<JobInfo> {
     private static final String TAG = "JobSchedulerConverter";
+    static final String EXTRAS_WORK_SPEC_ID = "WORK_SPEC_ID";
 
     private final ComponentName mWorkServiceComponent;
 
@@ -44,9 +46,14 @@ class JobSchedulerConverter implements WorkSpecConverter<JobInfo> {
         Constraints constraints = workSpec.getConstraints();
         int jobId = generateJobId(workSpec.getId());
         int jobNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
+
+        PersistableBundle extras = new PersistableBundle();
+        extras.putString(EXTRAS_WORK_SPEC_ID, workSpec.getId());
+
         JobInfo.Builder builder =
                 new JobInfo.Builder(jobId, mWorkServiceComponent)
                         .setMinimumLatency(constraints.getInitialDelay())
+                        .setExtras(extras)
                         .setRequiredNetworkType(jobNetworkType)
                         .setRequiresCharging(constraints.requiresCharging())
                         .setRequiresDeviceIdle(constraints.requiresDeviceIdle());

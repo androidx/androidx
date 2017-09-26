@@ -22,6 +22,8 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -49,18 +51,10 @@ class WorkerWrapper implements Runnable {
     private Context mAppContext;
     private WorkDatabase mWorkDatabase;
     private String mWorkSpecId;
-    private Listener mListener;
-
-    /**
-     * Listener that communicates with {@link WorkExecutionManager} and reports
-     * the lifecycle of the Worker.
-     */
-    interface Listener {
-        void onExecuted(String workSpecId, @ExecutionResult int result);
-    }
+    private ExecutionListener mListener;
 
     WorkerWrapper(Context context, WorkDatabase database, String workSpecId,
-                  @NonNull Listener listener) {
+                  @NonNull ExecutionListener listener) {
         mAppContext = context.getApplicationContext();
         mWorkDatabase = database;
         mWorkSpecId = workSpecId;
@@ -73,13 +67,13 @@ class WorkerWrapper implements Runnable {
         WorkSpec workSpec = workSpecDao.getWorkSpec(mWorkSpecId);
         if (workSpec == null) {
             Log.e(TAG, "Didn't find WorkSpec for id " + mWorkSpecId);
-            mListener.onExecuted(mWorkSpecId, RESULT_PERMANENT_ERROR);
+            notifyListener(RESULT_PERMANENT_ERROR);
             return;
         }
 
         if (workSpec.getStatus() != Work.STATUS_ENQUEUED) {
             Log.d(TAG, "Status for " + mWorkSpecId + " is not enqueued; not doing any work");
-            mListener.onExecuted(mWorkSpecId, RESULT_NOT_ENQUEUED);
+            notifyListener(RESULT_NOT_ENQUEUED);
             return;
         }
 
@@ -87,7 +81,7 @@ class WorkerWrapper implements Runnable {
         if (worker == null) {
             Log.e(TAG, "Could not create Worker " + workSpec.getWorkerClassName());
             workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
-            mListener.onExecuted(mWorkSpecId, RESULT_PERMANENT_ERROR);
+            notifyListener(RESULT_PERMANENT_ERROR);
             return;
         }
 
@@ -99,25 +93,36 @@ class WorkerWrapper implements Runnable {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + mWorkSpecId);
-            mListener.onExecuted(mWorkSpecId, RESULT_SUCCEEDED);
+            notifyListener(RESULT_SUCCEEDED);
             workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
         } catch (Exception e) {
             // TODO: Retry policies.
             if (e instanceof InterruptedException) {
                 Log.d(TAG, "Work interrupted for " + mWorkSpecId);
-                mListener.onExecuted(mWorkSpecId, RESULT_INTERRUPTED);
+                notifyListener(RESULT_INTERRUPTED);
                 workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
             } else {
                 Log.d(TAG, "Work failed for " + mWorkSpecId, e);
-                mListener.onExecuted(mWorkSpecId, RESULT_FAILED);
+                notifyListener(RESULT_FAILED);
                 workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
             }
         }
+
+        mListener = null;
     }
 
     private void checkForInterruption() throws InterruptedException {
         if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();
         }
+    }
+
+    private void notifyListener(@ExecutionResult final int result) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                mListener.onExecuted(mWorkSpecId, result);
+            }
+        });
     }
 }
