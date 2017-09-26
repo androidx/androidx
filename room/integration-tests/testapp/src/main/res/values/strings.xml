@@ -16,4 +16,5 @@
 
 <resources>
     <string name="insert">Insert</string>
+    <string name="loading">loading</string>
 </resources>

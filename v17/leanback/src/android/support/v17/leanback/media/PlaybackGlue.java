@@ -49,21 +49,10 @@ public abstract class PlaybackGlue {
      */
     public abstract static class PlayerCallback {
         /**
-         * This method is fired when media is ready for playback {@link #isPrepared()}.
-         * @deprecated use {@link #onPreparedStateChanged(PlaybackGlue)}.
-         */
-        @Deprecated
-        public void onReadyForPlayback() {
-        }
-
-        /**
          * Event for {@link #isPrepared()} changed.
          * @param glue The PlaybackGlue that has changed {@link #isPrepared()}.
          */
         public void onPreparedStateChanged(PlaybackGlue glue) {
-            if (glue.isPrepared()) {
-                onReadyForPlayback();
-            }
         }
 
         /**
@@ -98,41 +87,12 @@ public abstract class PlaybackGlue {
     }
 
     /**
-     * Returns true when the media player is ready to start media playback. Subclasses must
-     * implement this method correctly. When returning false, app may listen to
-     * {@link PlayerCallback#onReadyForPlayback()} event.
-     *
-     * @see PlayerCallback#onReadyForPlayback()
-     * @deprecated Use isPrepared() instead.
-     */
-    @Deprecated
-    public boolean isReadyForPlayback() {
-        return true;
-    }
-
-    /**
      * Returns true when the media player is prepared to start media playback. When returning false,
      * app may listen to {@link PlayerCallback#onPreparedStateChanged(PlaybackGlue)} event.
      * @return True if prepared, false otherwise.
      */
     public boolean isPrepared() {
-        return isReadyForPlayback();
-    }
-
-    /**
-     * Sets the {@link PlayerCallback} callback. It will reset the existing callbacks.
-     * In most cases you would call {@link #addPlayerCallback(PlayerCallback)}.
-     * @deprecated Use {@link #addPlayerCallback(PlayerCallback)}.
-     */
-    @Deprecated
-    public void setPlayerCallback(PlayerCallback playerCallback) {
-        if (playerCallback == null) {
-            if (mPlayerCallbacks != null) {
-                mPlayerCallbacks.clear();
-            }
-        } else {
-            addPlayerCallback(playerCallback);
-        }
+        return true;
     }
 
     /**
@@ -174,9 +134,29 @@ public abstract class PlaybackGlue {
     }
 
     /**
-     * Starts the media player.
+     * Starts the media player. Does nothing if {@link #isPrepared()} is false. To wait
+     * {@link #isPrepared()} to be true before playing, use {@link #playWhenPrepared()}.
      */
     public void play() {
+    }
+
+    /**
+     * Starts play when {@link #isPrepared()} becomes true.
+     */
+    public void playWhenPrepared() {
+        if (isPrepared()) {
+            play();
+        } else {
+            addPlayerCallback(new PlayerCallback() {
+                @Override
+                public void onPreparedStateChanged(PlaybackGlue glue) {
+                    if (glue.isPrepared()) {
+                        removePlayerCallback(this);
+                        play();
+                    }
+                }
+            });
+        }
     }
 
     /**

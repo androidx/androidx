@@ -23,8 +23,5 @@ buildscript {
         classpath libs.jacoco
         classpath libs.gradle
         classpath libs.kotlin.gradle_plugin
-        if (enablePublicRepos) {
-            classpath libs.localize_maven
-        }
     }
 }

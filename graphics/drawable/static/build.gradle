@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
@@ -25,6 +25,7 @@ android {
 
 supportLibrary {
     name 'Android Support VectorDrawable'
+    publish true
     inceptionYear '2015'
     description 'Android Support VectorDrawable'
 }

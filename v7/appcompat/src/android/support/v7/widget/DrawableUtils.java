@@ -188,9 +188,7 @@ public class DrawableUtils {
             case 9: return PorterDuff.Mode.SRC_ATOP;
             case 14: return PorterDuff.Mode.MULTIPLY;
             case 15: return PorterDuff.Mode.SCREEN;
-            case 16: return Build.VERSION.SDK_INT >= 11
-                    ? PorterDuff.Mode.valueOf("ADD")
-                    : defaultMode;
+            case 16: return PorterDuff.Mode.ADD;
             default: return defaultMode;
         }
     }

@@ -29,11 +29,4 @@ public interface GenericLifecycleObserver extends LifecycleObserver {
      * @param event The event
      */
     void onStateChanged(LifecycleOwner source, Lifecycle.Event event);
-
-    /**
-     * Returns the actual receiver of the event
-     *
-     * @return The actual receiver
-     */
-    Object getReceiver();
 }

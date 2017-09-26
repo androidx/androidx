@@ -27,17 +27,15 @@ LOCAL_MODULE := android-support-compat
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
 LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/java
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under,ics) \
-    $(call all-java-files-under,jellybean) \
-    $(call all-java-files-under,kitkat) \
-    $(call all-java-files-under,api20) \
-    $(call all-java-files-under,api23) \
-    $(call all-java-files-under,api24) \
     $(call all-java-files-under,java) \
     $(call all-Iaidl-files-under,java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-annotations
+LOCAL_STATIC_JAVA_LIBRARIES := \
+    apptoolkit-arch-core-common \
+    apptoolkit-lifecycle-common \
+    apptoolkit-lifecycle-runtime
 LOCAL_JAR_EXCLUDE_FILES := none
 LOCAL_JAVA_LANGUAGE_VERSION := 1.7
 LOCAL_AAPT_FLAGS := --add-javadoc-annotation doconly

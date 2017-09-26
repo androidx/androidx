@@ -43,7 +43,7 @@ public class User {
 
     private Date mBirthday;
 
-    @ColumnInfo(name = "custommm")
+    @ColumnInfo(name = "custommm", collate = ColumnInfo.NOCASE)
     private String mCustomField;
 
     public int getId() {

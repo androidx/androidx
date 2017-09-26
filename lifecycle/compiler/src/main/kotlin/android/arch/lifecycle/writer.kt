@@ -18,6 +18,7 @@ package android.arch.lifecycle
 
 import android.arch.lifecycle.model.AdapterClass
 import android.arch.lifecycle.model.EventMethodCall
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -25,23 +26,28 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.annotation.processing.Filer
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.tools.StandardLocation
 
-fun writeModels(infos: List<AdapterClass>, filer: Filer) {
-    infos.forEach({ adapter -> writeAdapter(adapter, filer) })
+fun writeModels(infos: List<AdapterClass>, processingEnv: ProcessingEnvironment) {
+    infos.forEach({ writeAdapter(it, processingEnv) })
 }
 
+
+private val GENERATED_PACKAGE = "javax.annotation"
+private val GENERATED_NAME = "Generated"
 private val LIFECYCLE_OWNER = ClassName.get(LifecycleOwner::class.java)
 private val LIFECYCLE_EVENT = Lifecycle.Event::class.java
 
 private val T = "\$T"
 private val N = "\$N"
 private val L = "\$L"
+private val S = "\$S"
 
-private fun writeAdapter(adapter: AdapterClass, filer: Filer) {
+private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnvironment) {
     val ownerParam = ParameterSpec.builder(LIFECYCLE_OWNER, "owner").build()
     val eventParam = ParameterSpec.builder(ClassName.get(LIFECYCLE_EVENT), "event").build()
     val receiverName = "mReceiver"
@@ -69,13 +75,6 @@ private fun writeAdapter(adapter: AdapterClass, filer: Filer) {
                     }
                 }
     }.build()
-
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    val getWrappedMethod = MethodSpec.methodBuilder("getReceiver")
-            .returns(ClassName.get(Object::class.java))
-            .addModifiers(Modifier.PUBLIC)
-            .addStatement("return $N", receiverField)
-            .build()
 
     val receiverParam = ParameterSpec.builder(
             ClassName.get(adapter.type), "receiver").build()
@@ -106,17 +105,54 @@ private fun writeAdapter(adapter: AdapterClass, filer: Filer) {
             .build()
 
     val adapterName = getAdapterName(adapter.type)
-    val adapterTypeSpec = TypeSpec.classBuilder(adapterName)
+    val adapterTypeSpecBuilder = TypeSpec.classBuilder(adapterName)
             .addModifiers(Modifier.PUBLIC)
             .addSuperinterface(ClassName.get(GenericLifecycleObserver::class.java))
             .addField(receiverField)
             .addMethod(constructor)
             .addMethod(dispatchMethod)
-            .addMethod(getWrappedMethod)
             .addMethods(syntheticMethods)
-            .build()
-    JavaFile.builder(adapter.type.getPackageQName(), adapterTypeSpec)
-            .build().writeTo(filer)
+
+    addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder, processingEnv)
+
+    JavaFile.builder(adapter.type.getPackageQName(), adapterTypeSpecBuilder.build())
+            .build().writeTo(processingEnv.filer)
+
+    generateKeepRule(adapter.type, processingEnv)
+}
+
+private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
+                                   processingEnv: ProcessingEnvironment) {
+    val generatedAnnotationAvailable = processingEnv
+            .elementUtils
+            .getTypeElement(GENERATED_PACKAGE + "." + GENERATED_NAME) != null
+    if (generatedAnnotationAvailable) {
+        val generatedAnnotationSpec =
+                AnnotationSpec.builder(ClassName.get(GENERATED_PACKAGE, GENERATED_NAME)).addMember(
+                "value",
+                S,
+                LifecycleProcessor::class.java.canonicalName).build()
+        adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)
+    }
+}
+
+private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnvironment) {
+    val adapterClass = type.getPackageQName() + "." + getAdapterName(type)
+    val observerClass = type.toString()
+    val keepRule = """# Generated keep rule for Lifecycle observer adapter.
+        |-keep class $adapterClass {
+        |   ifused class $observerClass {
+        |       <init>(...);
+        |   };
+        |}
+        |""".trimMargin()
+
+    // Write the keep rule to the META-INF/proguard directory of the Jar file. The file name
+    // contains the fully qualified observer name so that file names are unique. This will allow any
+    // jar file merging to not overwrite keep rule files.
+    val path = "META-INF/proguard/$observerClass.pro"
+    val out = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", path)
+    out.openWriter().use { it.write(keepRule) }
 }
 
 private fun MethodSpec.Builder.writeMethodCalls(eventParam: ParameterSpec,

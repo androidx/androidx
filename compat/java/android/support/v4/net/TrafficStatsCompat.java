@@ -19,7 +19,6 @@ package android.support.v4.net;
 import android.net.TrafficStats;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.RequiresApi;
 
 import java.net.DatagramSocket;
 import java.net.Socket;
@@ -29,51 +28,6 @@ import java.net.SocketException;
  * Helper for accessing features in {@link TrafficStats}.
  */
 public final class TrafficStatsCompat {
-    static class TrafficStatsCompatBaseImpl {
-        public void tagDatagramSocket(DatagramSocket socket) throws SocketException {
-            final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
-            TrafficStats.tagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
-            // The developer is still using the FD, so we need to detach it to
-            // prevent the PFD finalizer from closing it in their face. We had to
-            // wait until after the tagging call above, since detaching clears out
-            // the getFileDescriptor() result which tagging depends on.
-            pfd.detachFd();
-        }
-
-        public void untagDatagramSocket(DatagramSocket socket) throws SocketException {
-            final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
-            TrafficStats.untagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
-            // The developer is still using the FD, so we need to detach it to
-            // prevent the PFD finalizer from closing it in their face. We had to
-            // wait until after the tagging call above, since detaching clears out
-            // the getFileDescriptor() result which tagging depends on.
-            pfd.detachFd();
-        }
-    }
-
-    @RequiresApi(24)
-    static class TrafficStatsCompatApi24Impl extends TrafficStatsCompatBaseImpl {
-        @Override
-        public void tagDatagramSocket(DatagramSocket socket) throws SocketException {
-            TrafficStats.tagDatagramSocket(socket);
-        }
-
-        @Override
-        public void untagDatagramSocket(DatagramSocket socket) throws SocketException {
-            TrafficStats.untagDatagramSocket(socket);
-        }
-    }
-
-    private static final TrafficStatsCompatBaseImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 24) {
-            IMPL = new TrafficStatsCompatApi24Impl();
-        } else {
-            IMPL = new TrafficStatsCompatBaseImpl();
-        }
-    }
-
     /**
      * Clear active tag used when accounting {@link Socket} traffic originating
      * from the current thread.
@@ -178,14 +132,34 @@ public final class TrafficStatsCompat {
      * @see #setThreadStatsTag(int)
      */
     public static void tagDatagramSocket(DatagramSocket socket) throws SocketException {
-        IMPL.tagDatagramSocket(socket);
+        if (Build.VERSION.SDK_INT >= 24) {
+            TrafficStats.tagDatagramSocket(socket);
+        } else {
+            final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
+            TrafficStats.tagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
+            // The developer is still using the FD, so we need to detach it to
+            // prevent the PFD finalizer from closing it in their face. We had to
+            // wait until after the tagging call above, since detaching clears out
+            // the getFileDescriptor() result which tagging depends on.
+            pfd.detachFd();
+        }
     }
 
     /**
      * Remove any statistics parameters from the given {@link DatagramSocket}.
      */
     public static void untagDatagramSocket(DatagramSocket socket) throws SocketException {
-        IMPL.untagDatagramSocket(socket);
+        if (Build.VERSION.SDK_INT >= 24) {
+            TrafficStats.untagDatagramSocket(socket);
+        } else {
+            final ParcelFileDescriptor pfd = ParcelFileDescriptor.fromDatagramSocket(socket);
+            TrafficStats.untagSocket(new DatagramSocketWrapper(socket, pfd.getFileDescriptor()));
+            // The developer is still using the FD, so we need to detach it to
+            // prevent the PFD finalizer from closing it in their face. We had to
+            // wait until after the tagging call above, since detaching clears out
+            // the getFileDescriptor() result which tagging depends on.
+            pfd.detachFd();
+        }
     }
 
     private TrafficStatsCompat() {}

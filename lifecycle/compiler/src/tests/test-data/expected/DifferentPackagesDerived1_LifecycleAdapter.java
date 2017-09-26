@@ -20,9 +20,10 @@ import android.arch.lifecycle.GenericLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import foo.DifferentPackagesBase1_LifecycleAdapter;
-import java.lang.Object;
 import java.lang.Override;
+import javax.annotation.Generated;
 
+@Generated("android.arch.lifecycle.LifecycleProcessor")
 public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecycleObserver {
   final DifferentPackagesDerived1 mReceiver;
 
@@ -36,9 +37,5 @@ public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecy
       DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver,owner);
       mReceiver.onStop2(owner);
     }
-  }
-
-  public Object getReceiver() {
-    return mReceiver;
   }
 }

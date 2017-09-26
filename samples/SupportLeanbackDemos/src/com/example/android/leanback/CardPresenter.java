@@ -15,6 +15,7 @@ package com.example.android.leanback;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v4.content.res.ResourcesCompat;
@@ -25,10 +26,16 @@ import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
+import java.util.List;
 import java.util.Random;
 
 public class CardPresenter extends Presenter {
+
+    // String constant
     private static final String TAG = "CardPresenter";
+    public static final String IMAGE = "ImageResourceId";
+    public static final String TITLE = "Title";
+    public static final String CONTENT = "Content";
 
     private static final int IMAGE_HEIGHT_DP = 120;
 
@@ -104,12 +111,36 @@ public class CardPresenter extends Presenter {
         Log.d(TAG, "onBindViewHolder for " + item.toString());
         PhotoItem photoItem = (PhotoItem) item;
         final Context context = viewHolder.view.getContext();
-        Drawable drawable =  ResourcesCompat.getDrawable(context.getResources(),
+        Drawable drawable = ResourcesCompat.getDrawable(context.getResources(),
                 photoItem.getImageResourceId(), context.getTheme());
         ((ImageCardView) viewHolder.view).setMainImage(drawable);
         ((ImageCardView) viewHolder.view).setTitleText(photoItem.getTitle());
         if (!TextUtils.isEmpty(photoItem.getContent())) {
             ((ImageCardView) viewHolder.view).setContentText(photoItem.getContent());
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder viewHolder, Object item, List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(viewHolder, item, payloads);
+        } else {
+            PhotoItem photoItem = (PhotoItem) item;
+            Bundle o = (Bundle) payloads.get(0);
+            for (String key : o.keySet()) {
+                if (key.equals(IMAGE)) {
+                    final Context context = viewHolder.view.getContext();
+                    Drawable drawable = ResourcesCompat.getDrawable(context.getResources(),
+                            photoItem.getImageResourceId(), context.getTheme());
+                    ((ImageCardView) viewHolder.view).setMainImage(drawable);
+                }
+                if (key.equals(CONTENT)) {
+                    ((ImageCardView) viewHolder.view).setContentText(photoItem.getContent());
+                }
+                if (key.equals(TITLE)) {
+                    ((ImageCardView) viewHolder.view).setTitleText(photoItem.getTitle());
+                }
+            }
         }
     }
 

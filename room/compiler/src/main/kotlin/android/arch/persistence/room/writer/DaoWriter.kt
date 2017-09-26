@@ -30,6 +30,7 @@ import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.InsertionMethod
 import android.arch.persistence.room.vo.QueryMethod
 import android.arch.persistence.room.vo.ShortcutMethod
+import android.arch.persistence.room.vo.TransactionMethod
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -46,6 +47,7 @@ import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.type.DeclaredType
+import javax.lang.model.type.TypeKind
 
 /**
  * Creates the implementation for a class annotated with Dao.
@@ -83,7 +85,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         // delete queries that must be rebuild every single time
         val oneOffDeleteOrUpdateQueries = groupedDeleteUpdate[true] ?: emptyList()
         val shortcutMethods = createInsertionMethods() +
-                createDeletionMethods() + createUpdateMethods() +
+                createDeletionMethods() + createUpdateMethods() + createTransactionMethods() +
                 createPreparedDeleteOrUpdateQueries(preparedDeleteOrUpdateQueries)
 
         builder.apply {
@@ -157,6 +159,63 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
             endControlFlow()
         }
         return methodBuilder.build()
+    }
+
+    private fun createTransactionMethods(): List<PreparedStmtQuery> {
+        return dao.transactionMethods.map {
+            PreparedStmtQuery(emptyMap(), createTransactionMethodBody(it))
+        }
+    }
+
+    private fun createTransactionMethodBody(method: TransactionMethod): MethodSpec {
+        val scope = CodeGenScope(this)
+        val methodBuilder = overrideWithoutAnnotations(method.element, declaredDao).apply {
+            addStatement("$N.beginTransaction()", dbField)
+            beginControlFlow("try").apply {
+                val returnsValue = method.element.returnType.kind != TypeKind.VOID
+                val resultVar = if (returnsValue) {
+                    scope.getTmpVar("_result")
+                } else {
+                    null
+                }
+                addDelegateToSuperStatement(method.element, resultVar)
+                addStatement("$N.setTransactionSuccessful()", dbField)
+                if (returnsValue) {
+                    addStatement("return $N", resultVar)
+                }
+            }
+            nextControlFlow("finally").apply {
+                addStatement("$N.endTransaction()", dbField)
+            }
+            endControlFlow()
+        }
+        return methodBuilder.build()
+    }
+
+    private fun MethodSpec.Builder.addDelegateToSuperStatement(element: ExecutableElement,
+                                                               result: String?) {
+        val params: MutableList<Any> = mutableListOf()
+        val format = buildString {
+            if (result != null) {
+                append("$T $L = ")
+                params.add(element.returnType)
+                params.add(result)
+            }
+            append("super.$N(")
+            params.add(element.simpleName)
+            var first = true
+            element.parameters.forEach {
+                if (first) {
+                    first = false
+                } else {
+                    append(", ")
+                }
+                append(L)
+                params.add(it.simpleName)
+            }
+            append(")")
+        }
+        addStatement(format, *params.toTypedArray())
     }
 
     private fun createConstructor(dbParam: ParameterSpec,

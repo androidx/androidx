@@ -55,7 +55,6 @@ public class CustomDatabaseTest {
         Customer customer = new Customer();
         for (int i = 0; i < 100; i++) {
             SampleDatabase db = builder.build();
-            customer.setId(i);
             db.getCustomerDao().insert(customer);
             // Give InvalidationTracker enough time to start #mRefreshRunnable and pass the
             // initialization check.

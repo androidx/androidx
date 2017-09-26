@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -124,6 +125,18 @@ public abstract class Presenter implements FacetProvider {
      * Binds a {@link View} to an item.
      */
     public abstract void onBindViewHolder(ViewHolder viewHolder, Object item);
+
+    /**
+     * Binds a {@link View} to an item with a list of payloads.
+     * @param viewHolder  The ViewHolder which should be updated to represent the contents of the
+     *                    item at the given position in the data set.
+     * @param item        The item which should be bound to view holder.
+     * @param payloads    A non-null list of merged payloads. Can be empty list if requires full
+     *                    update.
+     */
+    public void onBindViewHolder(ViewHolder viewHolder, Object item, List<Object> payloads) {
+        onBindViewHolder(viewHolder, item);
+    }
 
     /**
      * Unbinds a {@link View} from an item. Any expensive references may be

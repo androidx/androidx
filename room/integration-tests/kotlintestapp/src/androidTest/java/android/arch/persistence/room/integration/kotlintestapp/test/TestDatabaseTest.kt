@@ -18,8 +18,8 @@ package android.arch.persistence.room.integration.kotlintestapp.test
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
 import android.arch.persistence.room.Room
-import android.arch.persistence.room.integration.kotlintestapp.BooksDao
-import android.arch.persistence.room.integration.kotlintestapp.BooksDatabase
+import android.arch.persistence.room.integration.kotlintestapp.dao.BooksDao
+import android.arch.persistence.room.integration.kotlintestapp.TestDatabase
 import android.support.test.InstrumentationRegistry
 import org.junit.After
 import org.junit.Before
@@ -30,14 +30,14 @@ abstract class TestDatabaseTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    protected lateinit var database: BooksDatabase
+    protected lateinit var database: TestDatabase
     protected lateinit var booksDao: BooksDao
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(),
-                BooksDatabase::class.java)
+                TestDatabase::class.java)
                 // allowing main thread queries, just for testing
                 .allowMainThreadQueries()
                 .build()

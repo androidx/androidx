@@ -949,6 +949,7 @@ public final class TvContractCompat {
                 TYPE_ARTIST,
                 TYPE_PLAYLIST,
                 TYPE_STATION,
+                TYPE_GAME
         })
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(LIBRARY_GROUP)
@@ -1038,6 +1039,13 @@ public final class TvContractCompat {
          */
         int TYPE_STATION = 11;
 
+        /**
+         * The program type for game.
+         *
+         * @see #COLUMN_TYPE
+         */
+        int TYPE_GAME = 12;
+
         /** @hide */
         @IntDef({
                 ASPECT_RATIO_16_9,
@@ -1045,6 +1053,7 @@ public final class TvContractCompat {
                 ASPECT_RATIO_4_3,
                 ASPECT_RATIO_1_1,
                 ASPECT_RATIO_2_3,
+                ASPECT_RATIO_MOVIE_POSTER,
         })
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(LIBRARY_GROUP)
@@ -1090,11 +1099,21 @@ public final class TvContractCompat {
          */
         int ASPECT_RATIO_2_3 = 4;
 
+        /**
+         * The aspect ratio for movie poster which is 1:1.441.
+         *
+         * @see #COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
+         */
+        int ASPECT_RATIO_MOVIE_POSTER = 5;
+
         /** @hide */
         @IntDef({
                 AVAILABILITY_AVAILABLE,
                 AVAILABILITY_FREE_WITH_SUBSCRIPTION,
                 AVAILABILITY_PAID_CONTENT,
+                AVAILABILITY_PURCHASED,
+                AVAILABILITY_FREE,
         })
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(LIBRARY_GROUP)
@@ -1115,12 +1134,26 @@ public final class TvContractCompat {
         int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1;
 
         /**
-         * The availability for "paid content, either to-own or rental
+         * The availability for "paid content", either to-own or rental
          * (user has not purchased/rented).
          *
          * @see #COLUMN_AVAILABILITY
          */
         int AVAILABILITY_PAID_CONTENT = 2;
+
+        /**
+         * The availability for content already purchased by the user.
+         *
+         * @see #COLUMN_AVAILABILITY
+         */
+        int AVAILABILITY_PURCHASED = 3;
+
+        /**
+         * The availability for free content.
+         *
+         * @see #COLUMN_AVAILABILITY
+         */
+        int AVAILABILITY_FREE = 4;
 
         /** @hide */
         @IntDef({
@@ -1199,8 +1232,9 @@ public final class TvContractCompat {
          * {@link #TYPE_TRACK},
          * {@link #TYPE_ALBUM},
          * {@link #TYPE_ARTIST},
-         * {@link #TYPE_PLAYLIST}, and
-         * {@link #TYPE_STATION}.
+         * {@link #TYPE_PLAYLIST},
+         * {@link #TYPE_STATION}, and
+         * {@link #TYPE_GAME}.
          *
          * <p>This is a required field if the program is from a {@link Channels#TYPE_PREVIEW}
          * channel.
@@ -1216,8 +1250,9 @@ public final class TvContractCompat {
          * {@link #ASPECT_RATIO_16_9},
          * {@link #ASPECT_RATIO_3_2},
          * {@link #ASPECT_RATIO_4_3},
-         * {@link #ASPECT_RATIO_1_1}, and
-         * {@link #ASPECT_RATIO_2_3}.
+         * {@link #ASPECT_RATIO_1_1},
+         * {@link #ASPECT_RATIO_2_3}, and
+         * {@link #ASPECT_RATIO_MOVIE_POSTER}.
          *
          * <p>Type: INTEGER
          */
@@ -1230,8 +1265,9 @@ public final class TvContractCompat {
          * {@link #ASPECT_RATIO_16_9},
          * {@link #ASPECT_RATIO_3_2},
          * {@link #ASPECT_RATIO_4_3},
-         * {@link #ASPECT_RATIO_1_1}, and
-         * {@link #ASPECT_RATIO_2_3}.
+         * {@link #ASPECT_RATIO_1_1},
+         * {@link #ASPECT_RATIO_2_3}, and
+         * {@link #ASPECT_RATIO_MOVIE_POSTER}.
          *
          * <p>Type: INTEGER
          */
@@ -1263,8 +1299,10 @@ public final class TvContractCompat {
          *
          * <p>The value should match one of the followings:
          * {@link #AVAILABILITY_AVAILABLE},
-         * {@link #AVAILABILITY_FREE_WITH_SUBSCRIPTION}, and
-         * {@link #AVAILABILITY_PAID_CONTENT}.
+         * {@link #AVAILABILITY_FREE_WITH_SUBSCRIPTION},
+         * {@link #AVAILABILITY_PAID_CONTENT},
+         * {@link #AVAILABILITY_PURCHASED} and
+         * {@link #AVAILABILITY_FREE}.
          *
          * <p>Type: INTEGER
          */
@@ -1274,7 +1312,8 @@ public final class TvContractCompat {
          * The starting price of this TV program.
          *
          * <p>This indicates the lowest regular acquisition cost of the content. It is only used
-         * if the availability of the program is {@link #AVAILABILITY_PAID_CONTENT}.
+         * if the availability of the program is {@link #AVAILABILITY_PAID_CONTENT} or
+         * {@link #AVAILABILITY_FREE}.
          *
          * <p>Type: TEXT
          * @see #COLUMN_OFFER_PRICE
@@ -1462,6 +1501,67 @@ public final class TvContractCompat {
          */
         String COLUMN_CONTENT_ID = "content_id";
 
+        /**
+         * The content description of the logo of this TV program.
+         *
+         * <p>A description of the logo shown on the program used in accessibility mode.
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         * @see #COLUMN_LOGO_URI
+         */
+        String COLUMN_LOGO_CONTENT_DESCRIPTION = "logo_content_description";
+
+        /**
+         * A genre(s) that are related to this TV program.
+         *
+         * <p>A short freeform description of the genre(s) of the program. Usually a comma seperated
+         * list of a few genres. For example: Drama, Sci-Fi.
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        String COLUMN_GENRE = "genre";
+
+        /**
+         * The start time of this TV program, in milliseconds since the epoch.
+         *
+         * <p>Should be empty if this program is not live.
+         *
+         * <p>Type: INTEGER (long)
+         * @see #COLUMN_LIVE
+         */
+        String COLUMN_START_TIME_UTC_MILLIS = "start_time_utc_millis";
+
+        /**
+         * The end time of this TV program, in milliseconds since the epoch.
+         *
+         * <p>Should be empty if this program is not live.
+         *
+         * <p>Type: INTEGER (long)
+         * @see #COLUMN_LIVE
+         */
+        String COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis";
+
+        /**
+         * The URI for the preview audio.
+         *
+         * <p>The data in the column must be a URL, or a URI in one of the following formats:
+         *
+         * <ul>
+         * <li>content ({@link android.content.ContentResolver#SCHEME_CONTENT})</li>
+         * <li>android.resource ({@link android.content.ContentResolver#SCHEME_ANDROID_RESOURCE})
+         * </li>
+         * <li>file ({@link android.content.ContentResolver#SCHEME_FILE})</li>
+         * </ul>
+         *
+         * <p>Can be empty.
+         *
+         * <p>Type: TEXT
+         */
+        String COLUMN_PREVIEW_AUDIO_URI = "preview_audio_uri";
     }
 
     /** Column definitions for the TV channels table. */

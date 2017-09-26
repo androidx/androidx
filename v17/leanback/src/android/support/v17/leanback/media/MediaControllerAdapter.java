@@ -303,7 +303,7 @@ public class MediaControllerAdapter extends PlayerAdapter {
         if ((actionsFromController & PlaybackStateCompat.ACTION_SET_REPEAT_MODE) != 0) {
             supportedActions |= ACTION_REPEAT;
         }
-        if ((actionsFromController & PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED) != 0) {
+        if ((actionsFromController & PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE) != 0) {
             supportedActions |= ACTION_SHUFFLE;
         }
         return supportedActions;

@@ -47,6 +47,10 @@ class Lifecycling {
 
     @NonNull
     static GenericLifecycleObserver getCallback(Object object) {
+        if (object instanceof FullLifecycleObserver) {
+            return new FullLifecycleObserverAdapter((FullLifecycleObserver) object);
+        }
+
         if (object instanceof GenericLifecycleObserver) {
             return (GenericLifecycleObserver) object;
         }
@@ -80,7 +84,8 @@ class Lifecycling {
     @Nullable
     private static Constructor<? extends GenericLifecycleObserver> getGeneratedAdapterConstructor(
             Class<?> klass) {
-        final String fullPackage = klass.getPackage().getName();
+        Package aPackage = klass.getPackage();
+        final String fullPackage = aPackage != null ? aPackage.getName() : "";
 
         String name = klass.getCanonicalName();
         // anonymous class bug:35073837

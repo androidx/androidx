@@ -19,6 +19,7 @@ package android.support.v4.app;
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Activity;
+import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -44,6 +45,7 @@ import android.view.Window;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.Collection;
 
 /**
  * Base class for activities that want to use the support-based
@@ -265,6 +267,16 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mFragments.dispatchConfigurationChanged(newConfig);
+    }
+
+    /**
+     * Returns the Lifecycle of the provider.
+     *
+     * @return The lifecycle of the provider.
+     */
+    @Override
+    public Lifecycle getLifecycle() {
+        return super.getLifecycle();
     }
 
     /**
@@ -517,6 +529,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        markState(getSupportFragmentManager(), Lifecycle.State.CREATED);
         Parcelable p = mFragments.saveAllState();
         if (p != null) {
             outState.putParcelable(FRAGMENTS_TAG, p);
@@ -571,6 +584,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         super.onStop();
 
         mStopped = true;
+        markState(getSupportFragmentManager(), Lifecycle.State.CREATED);
         mHandler.sendEmptyMessage(MSG_REALLY_STOPPED);
 
         mFragments.dispatchStop();
@@ -945,6 +959,17 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
         public boolean onHasView() {
             final Window w = getWindow();
             return (w != null && w.peekDecorView() != null);
+        }
+    }
+
+    private static void markState(FragmentManager manager, Lifecycle.State state) {
+        Collection<Fragment> fragments = manager.getFragments();
+        for (Fragment fragment : fragments) {
+            if (fragment == null) {
+                continue;
+            }
+            fragment.mLifecycleRegistry.markState(state);
+            markState(fragment.getChildFragmentManager(), state);
         }
     }
 }

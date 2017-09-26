@@ -265,6 +265,16 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void findByCollateNoCase() {
+        User user = TestUtil.createUser(3);
+        user.setCustomField("abc");
+        mUserDao.insert(user);
+        List<User> users = mUserDao.findByCustomField("ABC");
+        assertThat(users, hasSize(1));
+        assertThat(users.get(0).getId(), is(3));
+    }
+
+    @Test
     public void deleteByAge() {
         User user1 = TestUtil.createUser(3);
         user1.setAge(30);
@@ -491,5 +501,27 @@ public class SimpleEntityReadWriteTest {
         assertThat(mUserDao.loadByIds(3)[0].getWeight(), is(10f));
         assertThat(mUserDao.updateByAgeAndIds(3f, 30, Arrays.asList(3, 5)), is(1));
         assertThat(mUserDao.loadByIds(3)[0].getWeight(), is(3f));
+    }
+
+    @Test
+    public void transactionByAnnotation() {
+        User a = TestUtil.createUser(3);
+        User b = TestUtil.createUser(5);
+        mUserDao.insertBothByAnnotation(a, b);
+        assertThat(mUserDao.count(), is(2));
+    }
+
+    @Test
+    public void transactionByAnnotation_failure() {
+        User a = TestUtil.createUser(3);
+        User b = TestUtil.createUser(3);
+        boolean caught = false;
+        try {
+            mUserDao.insertBothByAnnotation(a, b);
+        } catch (SQLiteConstraintException e) {
+            caught = true;
+        }
+        assertTrue("SQLiteConstraintException expected", caught);
+        assertThat(mUserDao.count(), is(0));
     }
 }

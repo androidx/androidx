@@ -29,7 +29,7 @@ import javax.lang.model.type.TypeMirror
 
 object ProcessorErrors {
     private fun String.trim(): String {
-        return this.trimIndent().replace(System.lineSeparator(), " ")
+        return this.trimIndent().replace("\n", " ")
     }
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
     val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
@@ -122,6 +122,9 @@ object ProcessorErrors {
     val UPDATE_MISSING_PARAMS = "Method annotated with" +
             " @Update but does not have any parameters to update."
 
+    val TRANSACTION_METHOD_MODIFIERS = "Method annotated with @Transaction must not be " +
+            "private, final, or abstract."
+
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
             "annotated with @Entity or a collection/array of it."
 
@@ -130,6 +133,10 @@ object ProcessorErrors {
 
     val LIVE_DATA_QUERY_WITHOUT_SELECT = "LiveData return type can only be used with SELECT" +
             " queries."
+
+    val LIVE_DATA_QUERY_NOTHING_TO_OBSERVE = "LiveData return type can only be used with SELECT" +
+            " queries that directly or indirectly (via @Relation, for example) access at least" +
+            " one table.";
 
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
@@ -440,4 +447,10 @@ object ProcessorErrors {
             Room cannot pick a constructor since multiple constructors are suitable. Try to annotate
             unwanted constructors with @Ignore.
             """.trim()
+
+    val PAGING_SPECIFY_DATA_SOURCE_TYPE = "For now, Room only supports TiledDataSource class."
+
+    val PRIMARY_KEY_NULL = "You must annotate primary keys with @NonNull. SQLite considers this a " +
+            "bug and Room does not allow it. See SQLite docs for details: " +
+            "https://www.sqlite.org/lang_createtable.html"
 }

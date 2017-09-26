@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
-// disable paging for now.
-project.ext.noDocs = true
-uploadArchives.enabled = false
+import android.support.LibraryVersions
+import android.support.SupportLibraryExtension
+
+apply plugin: android.support.FlatfootAndroidLibraryPlugin
+
 android {
     compileSdkVersion tools.current_sdk
     buildToolsVersion tools.build_tools_version
@@ -26,25 +26,10 @@ android {
     defaultConfig {
         minSdkVersion flatfoot.min_sdk
         targetSdkVersion tools.current_sdk
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-    buildTypes.all {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-    }
-
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
@@ -57,19 +42,13 @@ dependencies {
     compile project(":lifecycle:runtime")
     compile project(':lifecycle:extensions')
 
-    compile libs.support.recyclerview
-    testCompile libs.junit
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker_mockito
-    testCompile libs.support.annotations
+    compile libs.support.recyclerview, libs.support_exclude_config
 
-    androidTestCompile libs.junit
-    androidTestCompile(libs.test_runner) {
-        exclude module: 'support-annotations'
-    }
-    androidTestCompile(libs.espresso_core, {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has it"s own MockMaker
+    androidTestImplementation libs.test_runner,      { exclude module: 'support-annotations' }
+    androidTestImplementation libs.espresso_core,    { exclude module: 'support-annotations' }
 
 }
 
@@ -83,4 +62,13 @@ android.libraryVariants.all { variant ->
         from variant.javaCompile.destinationDir
         destinationDir new File(project.buildDir, "libJar")
     }
+}
+
+version = LibraryVersions.PAGING.toString()
+supportLibrary {
+    name 'Android Lifecycle Extensions'
+    publish true
+    inceptionYear '2017'
+    description "Android Lifecycle Extensions"
+    url SupportLibraryExtension.ARCHITECTURE_URL
 }

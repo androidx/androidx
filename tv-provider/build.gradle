@@ -1,4 +1,4 @@
-apply plugin: android.support.SupportLibraryPlugin
+apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
     api project(':support-annotations')
@@ -20,6 +20,7 @@ android {
 
 supportLibrary {
     name 'Android Support TV Provider'
+    publish true
     inceptionYear '2017'
     description 'Android Support Library for TV Provider'
 }

@@ -33,6 +33,7 @@ import java.lang.annotation.Target;
 public @interface ColumnInfo {
     /**
      * Name of the column in the database. Defaults to the field name if not set.
+     *
      * @return Name of the column in the database.
      */
     String name() default INHERIT_FIELD_NAME;
@@ -40,13 +41,14 @@ public @interface ColumnInfo {
     /**
      * The type affinity for the column, which will be used when constructing the database.
      * <p>
-     * If it is not specified, Room resolves it based on the field's type and available
-     * TypeConverters.
+     * If it is not specified, the value defaults to {@link #UNDEFINED} and Room resolves it based
+     * on the field's type and available TypeConverters.
      * <p>
      * See <a href="https://www.sqlite.org/datatype3.html">SQLite types documentation</a> for
      * details.
      *
-     * @return The type affinity of the column.
+     * @return The type affinity of the column. This is either {@link #UNDEFINED}, {@link #TEXT},
+     * {@link #INTEGER}, {@link #REAL}, or {@link #BLOB}.
      */
     @SuppressWarnings("unused") @SQLiteTypeAffinity int typeAffinity() default UNDEFINED;
 
@@ -60,6 +62,17 @@ public @interface ColumnInfo {
     boolean index() default false;
 
     /**
+     * The collation sequence for the column, which will be used when constructing the database.
+     * <p>
+     * The default value is {@link #UNSPECIFIED}. In that case, Room does not add any
+     * collation sequence to the column, and SQLite treats it like {@link #BINARY}.
+     *
+     * @return The collation sequence of the column. This is either {@link #UNSPECIFIED},
+     * {@link #BINARY}, {@link #NOCASE}, or {@link #RTRIM}.
+     */
+    @Collate int collate() default UNSPECIFIED;
+
+    /**
      * Constant to let Room inherit the field name as the column name. If used, Room will use the
      * field name as the column name.
      */
@@ -67,22 +80,32 @@ public @interface ColumnInfo {
 
     /**
      * Undefined type affinity. Will be resolved based on the type.
+     *
+     * @see #typeAffinity()
      */
     int UNDEFINED = 1;
     /**
      * Column affinity constant for strings.
+     *
+     * @see #typeAffinity()
      */
     int TEXT = 2;
     /**
      * Column affinity constant for integers or booleans.
+     *
+     * @see #typeAffinity()
      */
     int INTEGER = 3;
     /**
      * Column affinity constant for floats or doubles.
+     *
+     * @see #typeAffinity()
      */
     int REAL = 4;
     /**
      * Column affinity constant for binary data.
+     *
+     * @see #typeAffinity()
      */
     int BLOB = 5;
 
@@ -91,5 +114,35 @@ public @interface ColumnInfo {
      */
     @IntDef({UNDEFINED, TEXT, INTEGER, REAL, BLOB})
     @interface SQLiteTypeAffinity {
+    }
+
+    /**
+     * Collation sequence is not specified. The match will behave like {@link #BINARY}.
+     *
+     * @see #collate()
+     */
+    int UNSPECIFIED = 1;
+    /**
+     * Collation sequence for case-sensitive match.
+     *
+     * @see #collate()
+     */
+    int BINARY = 2;
+    /**
+     * Collation sequence for case-insensitive match.
+     *
+     * @see #collate()
+     */
+    int NOCASE = 3;
+    /**
+     * Collation sequence for case-sensitive match except that trailing space characters are
+     * ignored.
+     *
+     * @see #collate()
+     */
+    int RTRIM = 4;
+
+    @IntDef({UNSPECIFIED, BINARY, NOCASE, RTRIM})
+    @interface Collate {
     }
 }

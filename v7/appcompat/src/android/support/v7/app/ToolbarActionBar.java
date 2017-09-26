@@ -16,6 +16,7 @@
 
 package android.support.v7.app;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -246,6 +247,7 @@ class ToolbarActionBar extends ActionBar {
         mDecorToolbar.setSubtitle(resId != 0 ? mDecorToolbar.getContext().getText(resId) : null);
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     public void setDisplayOptions(@DisplayOptions int options) {
         setDisplayOptions(options, 0xffffffff);

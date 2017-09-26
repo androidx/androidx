@@ -52,6 +52,7 @@ import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
+import javax.lang.model.element.Modifier.TRANSIENT
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -82,7 +83,12 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         // TODO handle conflicts with super: b/35568142
         val allFields = element.getAllFieldsIncludingPrivateSupers(context.processingEnv)
                 .filter {
-                    !it.hasAnnotation(Ignore::class) && !it.hasAnyOf(Modifier.STATIC)
+                    !it.hasAnnotation(Ignore::class)
+                            && !it.hasAnyOf(STATIC)
+                            && (!it.hasAnyOf(TRANSIENT)
+                                    || it.hasAnnotation(ColumnInfo::class)
+                                    || it.hasAnnotation(Embedded::class)
+                                    || it.hasAnnotation(Relation::class))
                 }
                 .groupBy { field ->
                     context.checker.check(

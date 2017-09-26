@@ -568,6 +568,9 @@
             <enum name="multiply" value="14" />
             <!-- [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc] -->
             <enum name="screen" value="15" />
+            <!-- Combines the tint and icon color and alpha channels, clamping the
+                 result to valid color values. Saturate(S + D) -->
+            <enum name="add" value="16" />
         </attr>
     </declare-styleable>
 
@@ -1037,6 +1040,9 @@
             <enum name="multiply" value="14" />
             <!-- [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc] -->
             <enum name="screen" value="15" />
+            <!-- Combines the tint and icon color and alpha channels, clamping the
+                 result to valid color values. Saturate(S + D) -->
+            <enum name="add" value="16" />
         </attr>
     </declare-styleable>
 
@@ -1175,6 +1181,9 @@
             <enum name="multiply" value="14" />
             <!-- [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc] -->
             <enum name="screen" value="15" />
+            <!-- Combines the tint and icon color and alpha channels, clamping the
+                 result to valid color values. Saturate(S + D) -->
+            <enum name="add" value="16" />
         </attr>
     </declare-styleable>
 

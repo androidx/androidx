@@ -57,17 +57,9 @@ ext.localMavenRepo = localMavenRepo
 file(localMavenRepo).delete()
 file(localMavenRepo).mkdirs()
 
-ext.repoNames = ["$prebuiltsRootUri/maven_repo",
-                 "$prebuiltsRootUri/gradle-plugin",
-                 "$prebuiltsRootUri/tools/common/m2/repository",
-                 "$prebuiltsRootUri/tools/common/m2/internal",
-                 "$prebuiltsRootUri/tools/common/offline-m2",
-                 "$prebuiltsRootUri/maven_repo/android",
-                 "file://$fullSdkPath/extras/android/m2repository",
-                 "file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
+ext.repoNames += ["file://${new File(supportLibBuildDir, "support_repo").absolutePath}"]
 
 apply from: "${ext.supportRootFolder}/app-toolkit/dependencies.gradle"
-ext.enablePublicRepos = System.getenv("ALLOW_PUBLIC_REPOS")
 
 // repository creation task
 def buildServerAnchorTask = rootProject.tasks.create(name : "runBuildServerCompilationTasks",
@@ -92,16 +84,17 @@ if (ext.inAppToolkitProject) {
 def zipFlatfootDocsTask = rootProject.tasks.create(name : "createFlatfootDocsArchive", type : Zip) {
     from rootProject.docsDir
     destinationDir distDir
-    baseName = String.format("flatfoot-docs-%s", LibraryVersions.FLATFOOT.toString())
+    baseName = "flatfoot-docs"
 }
 
 buildServerAnchorTask.dependsOn zipFlatfootDocsTask
 zipFlatfootDocsTask.dependsOn rootProject.tasks["generateDocs"]
-
+buildServerAnchorTask.dependsOn createDiffArchive
 buildServerAnchorTask.dependsOn createArchive
 
 rootProject.ext.flatfootProjectGroups = [
         "room" : "android.arch.persistence.room",
+        "persistence" : "android.arch.persistence",
         "lifecycle" : "android.arch.lifecycle",
         "arch" : "android.arch.core",
         "paging" : "android.arch.paging",
@@ -118,16 +111,17 @@ subprojects {
         return
     }
 
-    def mavenGroup = project.getPath().split(":")[1]
+    def projectPath = project.getPath().split(":")
+    def mavenGroup = projectPath[1]
     def finalGroup = rootProject.flatfootProjectGroups[mavenGroup]
 
     if (finalGroup == null) {
         return
     }
-    project.group = finalGroup
-    if (!project.version) {
-        project.version = LibraryVersions.FLATFOOT.toString()
+    if (projectPath.size() == 2) {// root project.
+        return
     }
+    project.group = finalGroup
 
     if (project.getPath().contains("integration-tests")) {
         // disable upload tasks
@@ -137,38 +131,21 @@ subprojects {
             }
         }
     } else {
-        // add license to pom
-        project.tasks.whenTaskAdded { task ->
-            if (task instanceof Upload) {
-                task.repositories {
-                    mavenDeployer {
-                        repository(url: project.uri(project.rootProject.supportRepoOut))
-                        pom.project {
-                            url "https://developer.android.com/topic/libraries/architecture/index.html"
-                            inceptionYear 2017
-                            licenses {
-                                license {
-                                    name 'The Apache Software License, Version 2.0'
-                                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                                    distribution 'repo'
-                                }
-                            }
-                            scm {
-                                url "http://source.android.com"
-                                connection "scm:git:https://android.googlesource.com/platform/frameworks/support"
-                            }
-                            developers {
-                                developer {
-                                    name 'The Android Open Source Project'
-                                }
-                            }
-                        }
-                    }
+        def checkApi = project.tasks.create("checkVersion") {
+            doFirst {
+                if (project.version == null
+                        || project.version == LibraryVersions.SUPPORT_LIBRARY.toString()) {
+                    throw new GradleException("bad version for $project with $project.version")
                 }
             }
         }
-    }
 
+        project.tasks.whenTaskAdded { task ->
+            if (task instanceof Upload) {
+                task.dependsOn checkApi
+            }
+        }
+    }
 
     project.plugins.whenPluginAdded { plugin ->
         def isAndroidLibrary = "com.android.build.gradle.LibraryPlugin"
@@ -205,28 +182,6 @@ subprojects {
         }
         if (task.name.startsWith("assembleDebug")) {
             buildServerAnchorTask.dependsOn task
-        }
-    }
-
-    if (enablePublicRepos) {
-        project.afterEvaluate {
-            apply plugin: 'com.android.databinding.localizemaven'
-            project.localizeMaven {
-                localRepoDir = file("$prebuiltsRoot/tools/common/m2/repository")
-                otherRepoDirs = repoNames
-                licenseInformation = [
-                        [
-                                libraries: ["org.jetbrains:annotations",
-                                            "org.jetbrains.kotlin:kotlin-compiler-runner"],
-                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
-                        ],
-                        [
-                                libraries: ["com.google.code.gson:gson"],
-                                licenses : ["http://www.apache.org/licenses/LICENSE-2.0.txt"]
-                        ]
-
-                ]
-            }
         }
     }
 }

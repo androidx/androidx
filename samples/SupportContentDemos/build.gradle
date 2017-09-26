@@ -31,6 +31,13 @@ android {
         targetSdkVersion project.ext.currentSdk
     }
 
+    signingConfigs {
+        debug {
+            // Use a local debug keystore to avoid build server issues.
+            storeFile project.rootProject.init.debugKeystore
+        }
+    }
+
     lintOptions {
         abortOnError true
         disable "SetTextI18n", "AppCompatResource", "WrongConstant", "AllowBackup",

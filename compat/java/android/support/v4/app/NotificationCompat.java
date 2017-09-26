@@ -581,7 +581,8 @@ public class NotificationCompat {
      * Constant for {@link Builder#setGroupAlertBehavior(int)}, meaning that all children
      * notification in a group should be silenced (no sound or vibration) even if they would
      * otherwise make sound or vibrate. Use this constant to mute this notification if this
-     * notification is a group child.
+     * notification is a group child. This must be applied to all children notifications you want
+     * to mute.
      *
      * <p> For example, you might want to use this constant if you post a number of children
      * notifications at once (say, after a periodic sync), and only need to notify the user
@@ -596,7 +597,8 @@ public class NotificationCompat {
      * to mute this notification if this notification is a group summary.
      *
      * <p>For example, you might want to use this constant if only the children notifications
-     * in your group have content and the summary is only used to visually group notifications.
+     * in your group have content and the summary is only used to visually group notifications
+     * rather than to alert the user that new information is available.
      */
     public static final int GROUP_ALERT_CHILDREN = Notification.GROUP_ALERT_CHILDREN;
 
@@ -638,45 +640,28 @@ public class NotificationCompat {
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mContentTitle;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mContentText;
+        public ArrayList<Action> mActions = new ArrayList<>();
+
+        CharSequence mContentTitle;
+        CharSequence mContentText;
         PendingIntent mContentIntent;
         PendingIntent mFullScreenIntent;
         RemoteViews mTickerView;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public Bitmap mLargeIcon;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mContentInfo;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public int mNumber;
+        Bitmap mLargeIcon;
+        CharSequence mContentInfo;
+        int mNumber;
         int mPriority;
         boolean mShowWhen = true;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public boolean mUseChronometer;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public Style mStyle;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence mSubText;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public CharSequence[] mRemoteInputHistory;
+        boolean mUseChronometer;
+        Style mStyle;
+        CharSequence mSubText;
+        CharSequence[] mRemoteInputHistory;
         int mProgressMax;
         int mProgress;
         boolean mProgressIndeterminate;
         String mGroupKey;
         boolean mGroupSummary;
         String mSortKey;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public ArrayList<Action> mActions = new ArrayList<Action>();
         boolean mLocalOnly = false;
         boolean mColorized;
         boolean mColorizedSet;
@@ -693,10 +678,12 @@ public class NotificationCompat {
         String mShortcutId;
         long mTimeout;
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
+        Notification mNotification = new Notification();
 
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public Notification mNotification = new Notification();
+        /**
+         * @deprecated This field was not meant to be public.
+         */
+        @Deprecated
         public ArrayList<String> mPeople;
 
         /**
@@ -930,8 +917,9 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the text that is displayed in the status bar when the notification first
-         * arrives.
+         * Sets the "ticker" text which is sent to accessibility services. Prior to
+         * {@link Build.VERSION_CODES#LOLLIPOP}, sets the text that is displayed in the status bar
+         * when the notification first arrives.
          */
         public Builder setTicker(CharSequence tickerText) {
             mNotification.tickerText = limitCharSequenceLength(tickerText);
@@ -939,9 +927,10 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the text that is displayed in the status bar when the notification first
-         * arrives, and also a RemoteViews object that may be displayed instead on some
-         * devices.
+         * Sets the "ticker" text which is sent to accessibility services. Prior to
+         * {@link Build.VERSION_CODES#LOLLIPOP}, sets the text that is displayed in the status bar
+         * when the notification first arrives, and also a RemoteViews object that may be displayed
+         * instead on some devices.
          */
         public Builder setTicker(CharSequence tickerText, RemoteViews views) {
             mNotification.tickerText = limitCharSequenceLength(tickerText);
@@ -1459,7 +1448,9 @@ public class NotificationCompat {
          * Sets the group alert behavior for this notification. Use this method to mute this
          * notification if alerts for this notification's group should be handled by a different
          * notification. This is only applicable for notifications that belong to a
-         * {@link #setGroup(String) group}.
+         * {@link #setGroup(String) group}. This must be called on all notifications you want to
+         * mute. For example, if you want only the summary of your group to make noise, all
+         * children in the group should have the group alert behavior {@link #GROUP_ALERT_SUMMARY}.
          *
          * <p> The default value is {@link #GROUP_ALERT_ALL}.</p>
          */
@@ -2731,7 +2722,7 @@ public class NotificationCompat {
      * or {@link NotificationCompat.Builder#addAction(NotificationCompat.Action)}
      * to attach actions.
      */
-    public static class Action extends NotificationCompatBase.Action {
+    public static class Action {
         final Bundle mExtras;
         private final RemoteInput[] mRemoteInputs;
 
@@ -2779,17 +2770,14 @@ public class NotificationCompat {
             this.mAllowGeneratedReplies = allowGeneratedReplies;
         }
 
-        @Override
         public int getIcon() {
             return icon;
         }
 
-        @Override
         public CharSequence getTitle() {
             return title;
         }
 
-        @Override
         public PendingIntent getActionIntent() {
             return actionIntent;
         }
@@ -2797,7 +2785,6 @@ public class NotificationCompat {
         /**
          * Get additional metadata carried around with this Action.
          */
-        @Override
         public Bundle getExtras() {
             return mExtras;
         }
@@ -2806,7 +2793,6 @@ public class NotificationCompat {
          * Return whether the platform should automatically generate possible replies for this
          * {@link Action}
          */
-        @Override
         public boolean getAllowGeneratedReplies() {
             return mAllowGeneratedReplies;
         }
@@ -2816,7 +2802,6 @@ public class NotificationCompat {
          * May return null if no remote inputs were added. Only returns inputs which accept
          * a text input. For inputs which only accept data use {@link #getDataOnlyRemoteInputs}.
          */
-        @Override
         public RemoteInput[] getRemoteInputs() {
             return mRemoteInputs;
         }
@@ -2831,7 +2816,6 @@ public class NotificationCompat {
          * <p>This method exists so that legacy RemoteInput collectors that pre-date the addition
          * of non-textual RemoteInputs do not access these remote inputs.
          */
-        @Override
         public RemoteInput[] getDataOnlyRemoteInputs() {
             return mDataOnlyRemoteInputs;
         }
@@ -3221,26 +3205,6 @@ public class NotificationCompat {
                 return (mFlags & FLAG_HINT_DISPLAY_INLINE) != 0;
             }
         }
-
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public static final Factory FACTORY = new Factory() {
-            @Override
-            public NotificationCompatBase.Action build(int icon, CharSequence title,
-                    PendingIntent actionIntent, Bundle extras,
-                    RemoteInputCompatBase.RemoteInput[] remoteInputs,
-                    RemoteInputCompatBase.RemoteInput[] dataOnlyRemoteInputs,
-                    boolean allowGeneratedReplies) {
-                return new Action(icon, title, actionIntent, extras,
-                        (RemoteInput[]) remoteInputs, (RemoteInput[]) dataOnlyRemoteInputs,
-                        allowGeneratedReplies);
-            }
-
-            @Override
-            public Action[] newArray(int length) {
-                return new Action[length];
-            }
-        };
     }
 
 
@@ -3428,24 +3392,14 @@ public class NotificationCompat {
                 final ArrayList<Parcelable> parcelables =
                         wearableBundle.getParcelableArrayList(KEY_ACTIONS);
                 if (Build.VERSION.SDK_INT >= 16 && parcelables != null) {
-                    NotificationCompatBase.Action[] actions =
-                            Action.FACTORY.newArray(parcelables.size());
+                    Action[] actions = new Action[parcelables.size()];
                     for (int i = 0; i < actions.length; i++) {
-                        if (Build.VERSION.SDK_INT >= 24) {
+                        if (Build.VERSION.SDK_INT >= 20) {
                             actions[i] = NotificationCompat.getActionCompatFromAction(
-                                    (Notification.Action) parcelables.get(i),
-                                    Action.FACTORY,
-                                    RemoteInput.FACTORY);
-                        } else if (Build.VERSION.SDK_INT >= 20) {
-                            actions[i] = NotificationCompat.getActionCompatFromAction(
-                                    (Notification.Action) parcelables.get(i),
-                                    Action.FACTORY,
-                                    RemoteInput.FACTORY);
+                                    (Notification.Action) parcelables.get(i));
                         } else if (Build.VERSION.SDK_INT >= 16) {
                             actions[i] = NotificationCompatJellybean.getActionFromBundle(
-                                    (Bundle) parcelables.get(i),
-                                    Action.FACTORY,
-                                    RemoteInput.FACTORY);
+                                    (Bundle) parcelables.get(i));
                         }
                     }
                     Collections.addAll(mActions, (Action[]) actions);
@@ -3488,13 +3442,10 @@ public class NotificationCompat {
             if (!mActions.isEmpty()) {
                 if (Build.VERSION.SDK_INT >= 16) {
                     ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
-                    for (NotificationCompatBase.Action action : mActions) {
-                        if (Build.VERSION.SDK_INT >= 24) {
+                    for (Action action : mActions) {
+                        if (Build.VERSION.SDK_INT >= 20) {
                             parcelables.add(
-                                    NotificationCompatApi24.getActionFromActionCompat(action));
-                        } else if (Build.VERSION.SDK_INT >= 20) {
-                            parcelables.add(
-                                    NotificationCompatApi20.getActionFromActionCompat(action));
+                                    WearableExtender.getActionFromActionCompat(action));
                         } else if (Build.VERSION.SDK_INT >= 16) {
                             parcelables.add(NotificationCompatJellybean.getBundleForAction(action));
                         }
@@ -3550,13 +3501,40 @@ public class NotificationCompat {
             return builder;
         }
 
+        @RequiresApi(20)
+        private static Notification.Action getActionFromActionCompat(Action actionCompat) {
+            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                    actionCompat.getIcon(), actionCompat.getTitle(),
+                    actionCompat.getActionIntent());
+            Bundle actionExtras;
+            if (actionCompat.getExtras() != null) {
+                actionExtras = new Bundle(actionCompat.getExtras());
+            } else {
+                actionExtras = new Bundle();
+            }
+            actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
+                    actionCompat.getAllowGeneratedReplies());
+            if (Build.VERSION.SDK_INT >= 24) {
+                actionBuilder.setAllowGeneratedReplies(actionCompat.getAllowGeneratedReplies());
+            }
+            actionBuilder.addExtras(actionExtras);
+            RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
+            if (remoteInputCompats != null) {
+                android.app.RemoteInput[] remoteInputs = RemoteInput.fromCompat(remoteInputCompats);
+                for (android.app.RemoteInput remoteInput : remoteInputs) {
+                    actionBuilder.addRemoteInput(remoteInput);
+                }
+            }
+            return actionBuilder.build();
+        }
+
         @Override
         public WearableExtender clone() {
             WearableExtender that = new WearableExtender();
-            that.mActions = new ArrayList<Action>(this.mActions);
+            that.mActions = new ArrayList<>(this.mActions);
             that.mFlags = this.mFlags;
             that.mDisplayIntent = this.mDisplayIntent;
-            that.mPages = new ArrayList<Notification>(this.mPages);
+            that.mPages = new ArrayList<>(this.mPages);
             that.mBackground = this.mBackground;
             that.mContentIcon = this.mContentIcon;
             that.mContentIconGravity = this.mContentIconGravity;
@@ -4177,13 +4155,15 @@ public class NotificationCompat {
                 mColor = carBundle.getInt(EXTRA_COLOR, NotificationCompat.COLOR_DEFAULT);
 
                 Bundle b = carBundle.getBundle(EXTRA_CONVERSATION);
-                mUnreadConversation = (UnreadConversation) getUnreadConversationFromBundle(b);
+                mUnreadConversation = getUnreadConversationFromBundle(b);
             }
         }
 
         @RequiresApi(21)
-        private static NotificationCompatBase.UnreadConversation getUnreadConversationFromBundle(
-                Bundle b) {
+        private static UnreadConversation getUnreadConversationFromBundle(@Nullable Bundle b) {
+            if (b == null) {
+                return null;
+            }
             Parcelable[] parcelableMessages = b.getParcelableArray(KEY_MESSAGES);
             String[] messages = null;
             if (parcelableMessages != null) {
@@ -4217,8 +4197,8 @@ public class NotificationCompat {
                 return null;
             }
 
-            RemoteInputCompatBase.RemoteInput remoteInputCompat = remoteInput != null
-                    ? RemoteInput.FACTORY.build(remoteInput.getResultKey(),
+            RemoteInput remoteInputCompat = remoteInput != null
+                    ? new RemoteInput(remoteInput.getResultKey(),
                     remoteInput.getLabel(),
                     remoteInput.getChoices(),
                     remoteInput.getAllowFreeFormInput(),
@@ -4226,12 +4206,8 @@ public class NotificationCompat {
                     null /* allowedDataTypes */)
                     : null;
 
-            return UnreadConversation.FACTORY.build(
-                    messages,
-                    remoteInputCompat,
-                    onReply,
-                    onRead,
-                    participants, b.getLong(KEY_TIMESTAMP));
+            return new UnreadConversation(messages, remoteInputCompat, onReply,
+                    onRead, participants, b.getLong(KEY_TIMESTAMP));
         }
 
         @RequiresApi(21)
@@ -4249,7 +4225,7 @@ public class NotificationCompat {
                 messages[i] = m;
             }
             b.putParcelableArray(KEY_MESSAGES, messages);
-            RemoteInputCompatBase.RemoteInput remoteInputCompat = uc.getRemoteInput();
+            RemoteInput remoteInputCompat = uc.getRemoteInput();
             if (remoteInputCompat != null) {
                 android.app.RemoteInput remoteInput =
                         new android.app.RemoteInput.Builder(remoteInputCompat.getResultKey())
@@ -4365,7 +4341,7 @@ public class NotificationCompat {
         /**
          * A class which holds the unread messages from a conversation.
          */
-        public static class UnreadConversation extends NotificationCompatBase.UnreadConversation {
+        public static class UnreadConversation {
             private final String[] mMessages;
             private final RemoteInput mRemoteInput;
             private final PendingIntent mReplyPendingIntent;
@@ -4387,7 +4363,6 @@ public class NotificationCompat {
             /**
              * Gets the list of messages conveyed by this notification.
              */
-            @Override
             public String[] getMessages() {
                 return mMessages;
             }
@@ -4396,7 +4371,6 @@ public class NotificationCompat {
              * Gets the remote input that will be used to convey the response to a message list, or
              * null if no such remote input exists.
              */
-            @Override
             public RemoteInput getRemoteInput() {
                 return mRemoteInput;
             }
@@ -4405,7 +4379,6 @@ public class NotificationCompat {
              * Gets the pending intent that will be triggered when the user replies to this
              * notification.
              */
-            @Override
             public PendingIntent getReplyPendingIntent() {
                 return mReplyPendingIntent;
             }
@@ -4414,7 +4387,6 @@ public class NotificationCompat {
              * Gets the pending intent that Android Auto will send after it reads aloud all messages
              * in this object's message list.
              */
-            @Override
             public PendingIntent getReadPendingIntent() {
                 return mReadPendingIntent;
             }
@@ -4422,7 +4394,6 @@ public class NotificationCompat {
             /**
              * Gets the participants in the conversation.
              */
-            @Override
             public String[] getParticipants() {
                 return mParticipants;
             }
@@ -4430,7 +4401,6 @@ public class NotificationCompat {
             /**
              * Gets the firs participant in the conversation.
              */
-            @Override
             public String getParticipant() {
                 return mParticipants.length > 0 ? mParticipants[0] : null;
             }
@@ -4438,23 +4408,9 @@ public class NotificationCompat {
             /**
              * Gets the timestamp of the conversation.
              */
-            @Override
             public long getLatestTimestamp() {
                 return mLatestTimestamp;
             }
-
-            static final Factory FACTORY = new Factory() {
-                @Override
-                public UnreadConversation build(
-                        String[] messages, RemoteInputCompatBase.RemoteInput remoteInput,
-                        PendingIntent replyPendingIntent, PendingIntent readPendingIntent,
-                        String[] participants, long latestTimestamp) {
-                    return new UnreadConversation(
-                            messages, (RemoteInput) remoteInput, replyPendingIntent,
-                            readPendingIntent,
-                            participants, latestTimestamp);
-                }
-            };
 
             /**
              * Builder class for {@link CarExtender.UnreadConversation} objects.
@@ -4607,8 +4563,7 @@ public class NotificationCompat {
      */
     public static Action getAction(Notification notification, int actionIndex) {
         if (Build.VERSION.SDK_INT >= 20) {
-            return getActionCompatFromAction(notification.actions[actionIndex],
-                    Action.FACTORY, RemoteInput.FACTORY);
+            return getActionCompatFromAction(notification.actions[actionIndex]);
         } else if (Build.VERSION.SDK_INT >= 19) {
             Notification.Action action = notification.actions[actionIndex];
             Bundle actionExtras = null;
@@ -4617,23 +4572,30 @@ public class NotificationCompat {
             if (actionExtrasMap != null) {
                 actionExtras = actionExtrasMap.get(actionIndex);
             }
-            return (Action) NotificationCompatJellybean.readAction(Action.FACTORY,
-                    RemoteInput.FACTORY, action.icon, action.title, action.actionIntent,
-                    actionExtras);
+            return NotificationCompatJellybean.readAction(action.icon, action.title,
+                    action.actionIntent, actionExtras);
         } else if (Build.VERSION.SDK_INT >= 16) {
-            return (Action) NotificationCompatJellybean.getAction(notification, actionIndex,
-                    Action.FACTORY, RemoteInput.FACTORY);
+            return NotificationCompatJellybean.getAction(notification, actionIndex);
         } else {
             return null;
         }
     }
 
     @RequiresApi(20)
-    static Action getActionCompatFromAction(Notification.Action action,
-            NotificationCompatBase.Action.Factory actionFactory,
-            RemoteInputCompatBase.RemoteInput.Factory remoteInputFactory) {
-        RemoteInputCompatBase.RemoteInput[] remoteInputs = RemoteInputCompatApi20.toCompat(
-                action.getRemoteInputs(), remoteInputFactory);
+    static Action getActionCompatFromAction(Notification.Action action) {
+        final RemoteInput[] remoteInputs;
+        final android.app.RemoteInput[] srcArray = action.getRemoteInputs();
+        if (srcArray == null) {
+            remoteInputs = null;
+        } else {
+            remoteInputs = new RemoteInput[srcArray.length];
+            for (int i = 0; i < srcArray.length; i++) {
+                android.app.RemoteInput src = srcArray[i];
+                remoteInputs[i] = new RemoteInput(src.getResultKey(), src.getLabel(),
+                        src.getChoices(), src.getAllowFreeFormInput(), src.getExtras(), null);
+            }
+        }
+
         final boolean allowGeneratedReplies;
         if (Build.VERSION.SDK_INT >= 24) {
             allowGeneratedReplies = action.getExtras().getBoolean(
@@ -4643,7 +4605,7 @@ public class NotificationCompat {
             allowGeneratedReplies = action.getExtras().getBoolean(
                     NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES);
         }
-        return (Action) actionFactory.build(action.icon, action.title, action.actionIntent,
+        return new Action(action.icon, action.title, action.actionIntent,
                 action.getExtras(), remoteInputs, null, allowGeneratedReplies);
     }
 

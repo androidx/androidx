@@ -155,6 +155,9 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
         for (final FontFileResourceEntry e : entry.getEntries()) {
             final ByteBuffer buffer =
                     TypefaceCompatUtil.copyToDirectBuffer(context, resources, e.getResourceId());
+            if (buffer == null) {
+                return null;
+            }
             // TODO: support ttc index.
             if (!addFontWeightStyle(family, buffer, 0, e.getWeight(), e.isItalic())) {
                 return null;

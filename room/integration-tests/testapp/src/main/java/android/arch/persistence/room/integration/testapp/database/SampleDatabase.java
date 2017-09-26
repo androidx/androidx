@@ -18,10 +18,6 @@ package android.arch.persistence.room.integration.testapp.database;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverter;
-import android.arch.persistence.room.TypeConverters;
-
-import java.util.Date;
 
 /**
  * Sample database of customers.
