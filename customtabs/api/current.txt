@@ -114,6 +114,7 @@ package android.support.customtabs {
   }
 
   public final class CustomTabsSession {
+    method public static android.support.customtabs.CustomTabsSession createMockSessionForTesting(android.content.ComponentName);
     method public boolean mayLaunchUrl(android.net.Uri, android.os.Bundle, java.util.List<android.os.Bundle>);
     method public int postMessage(java.lang.String, android.os.Bundle);
     method public boolean requestPostMessageChannel(android.net.Uri);
@@ -124,6 +125,7 @@ package android.support.customtabs {
   }
 
   public class CustomTabsSessionToken {
+    method public static android.support.customtabs.CustomTabsSessionToken createMockSessionTokenForTesting();
     method public android.support.customtabs.CustomTabsCallback getCallback();
     method public static android.support.customtabs.CustomTabsSessionToken getSessionTokenFromIntent(android.content.Intent);
     method public boolean isAssociatedWith(android.support.customtabs.CustomTabsSession);
@@ -144,6 +146,11 @@ package android.support.customtabs {
     method public final void onServiceDisconnected(android.content.ComponentName);
     method public final boolean postMessage(java.lang.String, android.os.Bundle);
     method public void unbindFromContext(android.content.Context);
+  }
+
+  public class TrustedWebUtils {
+    method public static void launchAsTrustedWebActivity(android.content.Context, android.support.customtabs.CustomTabsIntent, android.net.Uri);
+    field public static final java.lang.String EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY = "android.support.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY";
   }
 
 }
