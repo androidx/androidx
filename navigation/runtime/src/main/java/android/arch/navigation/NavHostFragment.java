@@ -19,8 +19,8 @@ package android.arch.navigation;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.NavigationRes;
 import android.support.annotation.Nullable;
-import android.support.annotation.XmlRes;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -80,14 +80,14 @@ public class NavHostFragment extends Fragment {
     /**
      * Create a new NavHostFragment instance with an inflated {@link NavGraph} resource.
      *
-     * @param graphRes resource id of the navigation graph to inflate
+     * @param graphResId resource id of the navigation graph to inflate
      * @return a new NavHostFragment instance
      */
-    public static NavHostFragment create(@XmlRes int graphRes) {
+    public static NavHostFragment create(@NavigationRes int graphResId) {
         Bundle b = null;
-        if (graphRes != 0) {
+        if (graphResId != 0) {
             b = new Bundle();
-            b.putInt(KEY_GRAPH_ID, graphRes);
+            b.putInt(KEY_GRAPH_ID, graphResId);
         }
 
         final NavHostFragment result = new NavHostFragment();
@@ -113,18 +113,18 @@ public class NavHostFragment extends Fragment {
      * Set a {@link NavGraph} for this navigation host's {@link NavController} by resource id.
      * The existing graph will be replaced.
      *
-     * @param graphRes resource id of the navigation graph to inflate
+     * @param graphResId resource id of the navigation graph to inflate
      */
-    public void setGraph(@XmlRes int graphRes) {
+    public void setGraph(@NavigationRes int graphResId) {
         if (mNavController == null) {
             Bundle args = getArguments();
             if (args == null) {
                 args = new Bundle();
             }
-            args.putInt(KEY_GRAPH_ID, graphRes);
+            args.putInt(KEY_GRAPH_ID, graphResId);
             setArguments(args);
         } else {
-            mNavController.setGraph(graphRes);
+            mNavController.setGraph(graphResId);
         }
     }
 

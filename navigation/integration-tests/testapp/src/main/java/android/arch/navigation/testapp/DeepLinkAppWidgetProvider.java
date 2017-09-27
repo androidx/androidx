@@ -36,7 +36,7 @@ public class DeepLinkAppWidgetProvider extends AppWidgetProvider {
         Bundle args = new Bundle();
         args.putString("myarg", "From Widget");
         PendingIntent pendingIntent = new NavDeepLinkBuilder(context)
-                .setGraph(R.xml.nav_main)
+                .setGraph(R.navigation.nav_main)
                 .setDestination(R.id.android)
                 .setArguments(args)
                 .createPendingIntent();

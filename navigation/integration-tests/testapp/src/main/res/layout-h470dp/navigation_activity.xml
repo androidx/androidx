@@ -32,7 +32,7 @@
         android:layout_weight="1"
         android:id="@+id/my_nav_host_fragment"
         android:name="android.arch.navigation.NavHostFragment"
-        app:navGraph="@xml/nav_main"
+        app:navGraph="@navigation/nav_main"
         app:defaultNavHost="true"
         />
     <android.support.design.widget.BottomNavigationView

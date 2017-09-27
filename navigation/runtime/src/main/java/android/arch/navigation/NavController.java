@@ -22,8 +22,8 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.XmlRes;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.util.Pair;
 
@@ -365,15 +365,15 @@ public class NavController {
      *
      * <p>The inflated graph can be retrieved via {@link #getGraph()}.</p>
      *
-     * @param resid resource id of the navigation graph to inflate
+     * @param graphResId resource id of the navigation graph to inflate
      *
      * @see #getNavInflater()
      * @see #setGraph(NavGraph)
      * @see #getGraph
      */
-    public void setGraph(@XmlRes int resid) {
-        mGraph = getNavInflater().inflate(resid);
-        mGraphId = resid;
+    public void setGraph(@NavigationRes int graphResId) {
+        mGraph = getNavInflater().inflate(graphResId);
+        mGraphId = graphResId;
         onGraphCreated();
     }
 

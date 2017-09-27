@@ -45,7 +45,7 @@ public class NavInflaterTest {
     public void testInflateSimple() {
         Context context = InstrumentationRegistry.getTargetContext();
         NavInflater navInflater = new NavInflater(context, new TestNavigatorProvider(context));
-        NavGraph graph = navInflater.inflate(R.xml.nav_simple);
+        NavGraph graph = navInflater.inflate(R.navigation.nav_simple);
 
         assertThat(graph, is(notNullValue(NavGraph.class)));
         assertThat(graph.getStartDestination(), is(R.id.start_test));
@@ -55,7 +55,7 @@ public class NavInflaterTest {
     public void testInflateDeepLinkWithApplicationId() {
         Context context = InstrumentationRegistry.getTargetContext();
         NavInflater navInflater = new NavInflater(context, new TestNavigatorProvider(context));
-        NavGraph graph = navInflater.inflate(R.xml.nav_deep_link);
+        NavGraph graph = navInflater.inflate(R.navigation.nav_deep_link);
 
         assertThat(graph, is(notNullValue(NavGraph.class)));
         Uri expectedUri = Uri.parse("android-app://"
@@ -102,7 +102,7 @@ public class NavInflaterTest {
     private Bundle inflateDefaultArgumentsFromGraph() {
         Context context = InstrumentationRegistry.getTargetContext();
         NavInflater navInflater = new NavInflater(context, new TestNavigatorProvider(context));
-        NavGraph graph = navInflater.inflate(R.xml.nav_default_arguments);
+        NavGraph graph = navInflater.inflate(R.navigation.nav_default_arguments);
 
         NavDestination startDestination = graph.findNode(graph.getStartDestination());
         Bundle defaultArguments = startDestination.getDefaultArguments();

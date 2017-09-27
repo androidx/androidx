@@ -23,9 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.XmlRes;
 import android.support.v4.app.TaskStackBuilder;
 
 import java.util.ArrayDeque;
@@ -120,7 +120,7 @@ public class NavDeepLinkBuilder {
      * @return this object for chaining
      */
     @NonNull
-    public NavDeepLinkBuilder setGraph(@XmlRes int navGraphId) {
+    public NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId) {
         return setGraph(new NavInflater(mContext, new PermissiveNavigatorProvider(mContext))
                 .inflate(navGraphId));
     }

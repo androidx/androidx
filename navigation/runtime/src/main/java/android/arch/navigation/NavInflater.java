@@ -21,7 +21,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
-import android.support.annotation.XmlRes;
+import android.support.annotation.NavigationRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -105,12 +105,12 @@ public class NavInflater {
     /**
      * Inflate a NavGraph from the given XML resource id.
      *
-     * @param navres
+     * @param graphResId
      * @return
      */
-    public NavGraph inflate(@XmlRes int navres) {
+    public NavGraph inflate(@NavigationRes int graphResId) {
         Resources res = mContext.getResources();
-        XmlResourceParser parser = res.getXml(navres);
+        XmlResourceParser parser = res.getXml(graphResId);
         final AttributeSet attrs = Xml.asAttributeSet(parser);
         try {
             int type;
@@ -131,7 +131,7 @@ public class NavInflater {
             return (NavGraph) destination;
         } catch (Exception e) {
             throw new RuntimeException("Exception inflating "
-                    + res.getResourceName(navres) + " line "
+                    + res.getResourceName(graphResId) + " line "
                     + parser.getLineNumber(), e);
         } finally {
             parser.close();

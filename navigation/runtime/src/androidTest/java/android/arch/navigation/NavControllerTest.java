@@ -30,7 +30,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
-import android.support.annotation.XmlRes;
+import android.support.annotation.NavigationRes;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
@@ -65,7 +65,7 @@ public class NavControllerTest {
         NavController navController = new NavController(context);
         TestNavigator navigator = new TestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.xml.nav_start_destination);
+        navController.setGraph(R.navigation.nav_start_destination);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
     }
 
@@ -75,7 +75,7 @@ public class NavControllerTest {
         NavController navController = new NavController(context);
         TestNavigator navigator = new TestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.xml.nav_missing_start_destination);
+        navController.setGraph(R.navigation.nav_missing_start_destination);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -84,7 +84,7 @@ public class NavControllerTest {
         NavController navController = new NavController(context);
         TestNavigator navigator = new TestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.xml.nav_invalid_start_destination);
+        navController.setGraph(R.navigation.nav_invalid_start_destination);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class NavControllerTest {
         NavController navController = new NavController(context);
         TestNavigator navigator = new TestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.xml.nav_nested_start_destination);
+        navController.setGraph(R.navigation.nav_nested_start_destination);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.nested_test));
     }
 
@@ -103,7 +103,7 @@ public class NavControllerTest {
         NavController navController = activity.getNavController();
         assertThat(navController.getGraph(), is(nullValue(NavGraph.class)));
 
-        navController.setGraph(R.xml.nav_start_destination);
+        navController.setGraph(R.navigation.nav_start_destination);
         assertThat(navController.getGraph(), is(notNullValue(NavGraph.class)));
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
     }
@@ -112,7 +112,7 @@ public class NavControllerTest {
     public void testNavigate() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
@@ -129,7 +129,7 @@ public class NavControllerTest {
         NavController navController = new NavController(context);
         TestNavigator navigator = new TestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
 
         Bundle savedState = navController.saveState();
@@ -150,7 +150,7 @@ public class NavControllerTest {
         TestNavigator navigator = new TestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
         NavGraph graph = new NavInflater(context, navController.getNavigatorProvider())
-                .inflate(R.xml.nav_simple);
+                .inflate(R.navigation.nav_simple);
         navController.setGraph(graph);
         navController.navigate(R.id.second_test);
 
@@ -208,7 +208,7 @@ public class NavControllerTest {
     private Bundle navigateWithArgs(Bundle args) throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_arguments);
+        navController.setGraph(R.navigation.nav_arguments);
 
         navController.navigate(R.id.second_test, args);
 
@@ -224,7 +224,7 @@ public class NavControllerTest {
     public void testNavigateThenPop() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
@@ -243,7 +243,7 @@ public class NavControllerTest {
     public void testNavigateThenNavigateUp() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
@@ -263,7 +263,7 @@ public class NavControllerTest {
     public void testNavigateViaAction() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.start_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
                 .getNavigator(TestNavigator.class);
@@ -278,7 +278,7 @@ public class NavControllerTest {
     public void testNavigateOptionSingleTop() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
@@ -294,7 +294,7 @@ public class NavControllerTest {
     public void testNavigateOptionPopUpTo() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
@@ -310,7 +310,7 @@ public class NavControllerTest {
     public void testNavigateOptionPopSelf() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_simple);
+        navController.setGraph(R.navigation.nav_simple);
         navController.navigate(R.id.second_test);
         assertThat(navController.getCurrentDestination().getId(), is(R.id.second_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
@@ -326,7 +326,7 @@ public class NavControllerTest {
     public void testNavigateViaActionWithArgs() throws Throwable {
         NavigationActivity activity = launchActivity();
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_arguments);
+        navController.setGraph(R.navigation.nav_arguments);
 
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);
@@ -351,8 +351,8 @@ public class NavControllerTest {
 
     @Test
     public void testDeeplink() throws Throwable {
-        NavigationActivity activity = launchDeepLink(R.xml.nav_deep_link, R.id.deep_link_test,
-                null);
+        NavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
+                R.id.deep_link_test, null);
         NavController navController = activity.getNavController();
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
@@ -373,7 +373,7 @@ public class NavControllerTest {
         NavController navController = new NavController(mInstrumentation.getTargetContext());
         TestNavigator navigator = new TestNavigator();
         navController.getNavigatorProvider().addNavigator(navigator);
-        navController.setGraph(R.xml.nav_deep_link);
+        navController.setGraph(R.navigation.nav_deep_link);
 
         TaskStackBuilder taskStackBuilder = navController.createDeepLink()
                 .setDestination(R.id.deep_link_test)
@@ -386,8 +386,8 @@ public class NavControllerTest {
     public void testDeeplinkWithArgs() throws Throwable {
         Bundle args = new Bundle();
         args.putString(TEST_ARG, TEST_ARG_VALUE);
-        NavigationActivity activity = launchDeepLink(R.xml.nav_deep_link, R.id.deep_link_test,
-                args);
+        NavigationActivity activity = launchDeepLink(R.navigation.nav_deep_link,
+                R.id.deep_link_test, args);
         NavController navController = activity.getNavController();
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
@@ -413,7 +413,7 @@ public class NavControllerTest {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NavigationActivity activity = launchActivity(intent);
         NavController navController = activity.getNavController();
-        navController.setGraph(R.xml.nav_deep_link);
+        navController.setGraph(R.navigation.nav_deep_link);
 
         assertThat(navController.getCurrentDestination().getId(), is(R.id.deep_link_test));
         TestNavigator navigator = (TestNavigator) navController.getNavigatorProvider()
@@ -444,8 +444,8 @@ public class NavControllerTest {
         return activity;
     }
 
-    private NavigationActivity launchDeepLink(@XmlRes int graphId, @IdRes int destId, Bundle args)
-            throws Throwable {
+    private NavigationActivity launchDeepLink(@NavigationRes int graphId, @IdRes int destId,
+            Bundle args) throws Throwable {
         TaskStackBuilder intents = new NavDeepLinkBuilder(mInstrumentation.getTargetContext())
                 .setGraph(graphId)
                 .setDestination(destId)
