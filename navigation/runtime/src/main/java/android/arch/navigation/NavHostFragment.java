@@ -145,7 +145,7 @@ public class NavHostFragment extends Fragment {
         final Context context = getContext();
 
         mNavController = new NavController(context);
-        mNavController.addNavigator(createFragmentNavigator());
+        mNavController.getNavigatorProvider().addNavigator(createFragmentNavigator());
 
         Bundle navState = null;
         if (savedInstanceState != null) {

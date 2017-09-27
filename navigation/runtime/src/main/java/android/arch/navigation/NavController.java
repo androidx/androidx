@@ -49,7 +49,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * (For example, if the navigation structure of the application is determined by live data obtained'
  * from a remote server.)</p>
  */
-public class NavController extends SimpleNavigatorProvider {
+public class NavController {
     private static final String KEY_GRAPH_ID = "android-support-nav:controller:graphId";
     private static final String KEY_BACK_STACK_IDS = "android-support-nav:controller:backStackIds";
     static final String KEY_DEEP_LINK_IDS = "android-support-nav:controller:deepLinkIds";
@@ -69,6 +69,22 @@ public class NavController extends SimpleNavigatorProvider {
     private int[] mBackStackToRestore;
 
     private final Deque<NavDestination> mBackStack = new ArrayDeque<>();
+
+    private final SimpleNavigatorProvider mNavigatorProvider = new SimpleNavigatorProvider() {
+        @Override
+        public void addNavigator(String name, Navigator<? extends NavDestination> navigator) {
+            Navigator previousNavigator = getNavigator(name);
+            super.addNavigator(name, navigator);
+            if (previousNavigator != navigator) {
+                if (previousNavigator != null) {
+                    previousNavigator.removeOnNavigatorNavigatedListener(mOnNavigatedListener);
+                }
+                if (navigator != null) {
+                    navigator.addOnNavigatorNavigatedListener(mOnNavigatedListener);
+                }
+            }
+        }
+    };
 
     private final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
             new Navigator.OnNavigatorNavigatedListener() {
@@ -148,13 +164,28 @@ public class NavController extends SimpleNavigatorProvider {
             }
             context = ((ContextWrapper) context).getBaseContext();
         }
-        addNavigator(new NavGraphNavigator(mContext));
-        addNavigator(new ActivityNavigator(mContext));
+        mNavigatorProvider.addNavigator(new NavGraphNavigator(mContext));
+        mNavigatorProvider.addNavigator(new ActivityNavigator(mContext));
     }
 
     @NonNull
     Context getContext() {
         return mContext;
+    }
+
+    /**
+     * Retrieve the NavController's {@link NavigatorProvider}. All {@link Navigator Navigators} used
+     * to construct the {@link NavGraph navigation graph} for this nav controller should be added
+     * to this navigator provider before the graph is constructed.
+     * <p>
+     * Generally, the Navigators are set for you by the component hosting this NavController,
+     * such as a {@link NavHostFragment} and you do not need to manually interact with the
+     * navigator provider.
+     * </p>
+     * @return The {@link NavigatorProvider} used by this NavController.
+     */
+    public NavigatorProvider getNavigatorProvider() {
+        return mNavigatorProvider;
     }
 
     /**
@@ -296,20 +327,6 @@ public class NavController extends SimpleNavigatorProvider {
         }
     }
 
-    @Override
-    public void addNavigator(String name, Navigator<? extends NavDestination> navigator) {
-        Navigator previousNavigator = getNavigator(name);
-        super.addNavigator(name, navigator);
-        if (previousNavigator != navigator) {
-            if (previousNavigator != null) {
-                previousNavigator.removeOnNavigatorNavigatedListener(mOnNavigatedListener);
-            }
-            if (navigator != null) {
-                navigator.addOnNavigatorNavigatedListener(mOnNavigatedListener);
-            }
-        }
-    }
-
     /**
      * Sets the {@link NavGraph navigation graph} as specified in the application manifest.
      *
@@ -337,7 +354,7 @@ public class NavController extends SimpleNavigatorProvider {
      */
     public NavInflater getNavInflater() {
         if (mInflater == null) {
-            mInflater = new NavInflater(mContext, this);
+            mInflater = new NavInflater(mContext, mNavigatorProvider);
         }
         return mInflater;
     }
