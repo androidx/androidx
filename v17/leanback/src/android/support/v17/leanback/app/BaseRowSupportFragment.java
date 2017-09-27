@@ -1,6 +1,3 @@
-// CHECKSTYLE:OFF Generated code
-/* This file is auto-generated from BaseRowFragment.java.  DO NOT MODIFY. */
-
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -16,7 +13,6 @@
  */
 package android.support.v17.leanback.app;
 
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRow;
@@ -25,6 +21,7 @@ import android.support.v17.leanback.widget.OnChildViewHolderSelectedListener;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
