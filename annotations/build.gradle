@@ -14,6 +14,7 @@ jar {
     // below by the annotationsZip task.
     exclude('android/support/annotation/ProductionVisibility.class')
     exclude('android/support/annotation/DimensionUnit.class')
+    preserveFileTimestamps = false
 }
 
 // configuration for the javadoc to include all source sets.
