@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from OnboardingSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2015 The Android Open Source Project
  *
@@ -22,7 +25,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
-import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.widget.PagingIndicator;
+import android.app.Fragment;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -340,7 +343,7 @@ abstract public class OnboardingFragment extends Fragment {
         if (mStartButtonTextSet) {
             ((Button) mStartButton).setText(mStartButtonText);
         }
-        final Context context = FragmentUtil.getContext(this);
+        final Context context = FragmentUtil.getContext(OnboardingFragment.this);
         if (sSlideDistance == 0) {
             sSlideDistance = (int) (SLIDE_DISTANCE * context.getResources()
                     .getDisplayMetrics().scaledDensity);
@@ -538,7 +541,7 @@ abstract public class OnboardingFragment extends Fragment {
     }
 
     private void resolveTheme() {
-        final Context context = FragmentUtil.getContext(this);
+        final Context context = FragmentUtil.getContext(OnboardingFragment.this);
         int theme = onProvideTheme();
         if (theme == -1) {
             // Look up the onboardingTheme in the activity's currently specified theme. If it
@@ -592,7 +595,7 @@ abstract public class OnboardingFragment extends Fragment {
     }
 
     boolean startLogoAnimation() {
-        final Context context = FragmentUtil.getContext(this);
+        final Context context = FragmentUtil.getContext(OnboardingFragment.this);
         if (context == null) {
             return false;
         }
@@ -655,7 +658,7 @@ abstract public class OnboardingFragment extends Fragment {
         View container = getView();
         // Create custom views.
         LayoutInflater inflater = getThemeInflater(LayoutInflater.from(
-                FragmentUtil.getContext(this)));
+                FragmentUtil.getContext(OnboardingFragment.this)));
         ViewGroup backgroundContainer = (ViewGroup) container.findViewById(
                 R.id.background_container);
         View background = onCreateBackgroundView(inflater, backgroundContainer);
@@ -716,7 +719,7 @@ abstract public class OnboardingFragment extends Fragment {
      *                          been done in the past, {@code false} otherwise
      */
     protected final void startEnterAnimation(boolean force) {
-        final Context context = FragmentUtil.getContext(this);
+        final Context context = FragmentUtil.getContext(OnboardingFragment.this);
         if (context == null) {
             return;
         }
@@ -772,7 +775,7 @@ abstract public class OnboardingFragment extends Fragment {
      * default fade and slide animation. Returning null will disable the animation.
      */
     protected Animator onCreateDescriptionAnimator() {
-        return AnimatorInflater.loadAnimator(FragmentUtil.getContext(this),
+        return AnimatorInflater.loadAnimator(FragmentUtil.getContext(OnboardingFragment.this),
                 R.animator.lb_onboarding_description_enter);
     }
 
@@ -781,7 +784,7 @@ abstract public class OnboardingFragment extends Fragment {
      * default fade and slide animation. Returning null will disable the animation.
      */
     protected Animator onCreateTitleAnimator() {
-        return AnimatorInflater.loadAnimator(FragmentUtil.getContext(this),
+        return AnimatorInflater.loadAnimator(FragmentUtil.getContext(OnboardingFragment.this),
                 R.animator.lb_onboarding_title_enter);
     }
 
@@ -919,7 +922,7 @@ abstract public class OnboardingFragment extends Fragment {
             }
         });
 
-        final Context context = FragmentUtil.getContext(this);
+        final Context context = FragmentUtil.getContext(OnboardingFragment.this);
         // Animator for switching between page indicator and button.
         if (getCurrentPageIndex() == getPageCount() - 1) {
             mStartButton.setVisibility(View.VISIBLE);
