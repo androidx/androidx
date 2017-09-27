@@ -16,6 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.arch.background.workmanager">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application>
         <meta-data android:name="android.arch.background.workmanager.VERSION"
                    android:value="${version}" />

@@ -28,13 +28,13 @@ import java.lang.annotation.Retention;
 
 public class Constraints {
     @Retention(SOURCE)
-    @IntDef({NETWORK_TYPE_CONNECTED, NETWORK_TYPE_METERED, NETWORK_TYPE_ANY,
+    @IntDef({NETWORK_TYPE_CONNECTED, NETWORK_TYPE_METERED, NETWORK_TYPE_NONE,
             NETWORK_TYPE_NOT_ROAMING, NETWORK_TYPE_UNMETERED})
     public @interface NetworkType {
     }
 
     // TODO(xbhatnag): Merge with JobScheduler values.
-    public static final int NETWORK_TYPE_ANY = 0;
+    public static final int NETWORK_TYPE_NONE = 0;
     public static final int NETWORK_TYPE_CONNECTED = 1;
     public static final int NETWORK_TYPE_UNMETERED = 2;
     public static final int NETWORK_TYPE_METERED = 3;
@@ -126,7 +126,7 @@ public class Constraints {
     public static class Builder {
         private boolean mRequiresCharging = false;
         private boolean mRequiresDeviceIdle = false;
-        private int mRequiredNetworkType = NETWORK_TYPE_ANY;
+        private int mRequiredNetworkType = NETWORK_TYPE_NONE;
         private boolean mRequiresBatteryNotLow = false;
         private boolean mRequiresStorageNotLow = false;
         private long mInitialDelay = 0L;
@@ -156,7 +156,7 @@ public class Constraints {
 
         /**
          * Specify whether device should have a particular {@link NetworkType} for {@link WorkSpec}
-         * to run. Default is {@value #NETWORK_TYPE_ANY}
+         * to run. Default is {@value #NETWORK_TYPE_NONE}
          *
          * @param networkType type of network required
          * @return current builder
