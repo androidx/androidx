@@ -34,6 +34,7 @@ import android.support.annotation.XmlRes;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
+import android.support.v4.app.TaskStackBuilder;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -357,14 +358,17 @@ public class NavControllerTest {
     }
 
     @Test
-    public void testDeepLinkFromAppContext() throws Throwable {
+    public void testDeepLinkFromNavGraph() throws Throwable {
         NavController navController = new NavController(mInstrumentation.getTargetContext());
         TestNavigator navigator = new TestNavigator();
         navController.addNavigator(navigator);
         navController.setGraph(R.xml.nav_deep_link);
 
-        Intent intent = navController.createDeepLinkIntent(R.id.deep_link_test, null);
-        assertThat(intent, is(notNullValue(Intent.class)));
+        TaskStackBuilder taskStackBuilder = navController.createDeepLink()
+                .setDestination(R.id.deep_link_test)
+                .createTaskStackBuilder();
+        assertThat(taskStackBuilder, is(notNullValue(TaskStackBuilder.class)));
+        assertThat(taskStackBuilder.getIntentCount(), is(1));
     }
 
     @Test
@@ -428,17 +432,17 @@ public class NavControllerTest {
 
     private NavigationActivity launchDeepLink(@XmlRes int graphId, @IdRes int destId, Bundle args)
             throws Throwable {
-        NavigationActivity activity = launchActivity();
-        NavController navController = activity.getNavController();
-        navController.setGraph(graphId);
-
-        Intent intent = navController.createDeepLinkIntent(destId, args);
-        assertThat(intent, is(notNullValue(Intent.class)));
+        TaskStackBuilder intents = new NavDeepLinkBuilder(mInstrumentation.getTargetContext())
+                .setGraph(graphId)
+                .setDestination(destId)
+                .setArguments(args)
+                .createTaskStackBuilder();
+        Intent intent = intents.editIntentAt(0);
         intent.setAction(TEST_DEEP_LINK_ACTION);
 
         // Now launch the deeplink Intent
         NavigationActivity deeplinkActivity = launchActivity(intent);
-        navController = deeplinkActivity.getNavController();
+        NavController navController = deeplinkActivity.getNavController();
         navController.setGraph(graphId);
 
         return deeplinkActivity;
