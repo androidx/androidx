@@ -16,9 +16,11 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
@@ -74,4 +76,14 @@ public interface WorkSpecDao {
     @Query("SELECT status FROM workspec WHERE id=:id")
     @Work.WorkStatus
     int getWorkSpecStatus(String id);
+
+    /**
+     * Retrieves work ids for items that are runnable (items that are {@code ENQUEUED} and don't
+     * have dependencies).
+     *
+     * @return A {@link LiveData} list of work ids.
+     */
+    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND id NOT IN "
+            + "(SELECT DISTINCT work_spec_id FROM dependency)")
+    LiveData<List<String>> getRunnableWorkIds();
 }
