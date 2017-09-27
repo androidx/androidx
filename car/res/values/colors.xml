@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <!-- These colors are from
+         http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
+    <color name="car_grey_50">#fffafafa</color>
+    <color name="car_grey_900">#ff212121</color>
+
+    <!-- The tinting colors to create a light- and dark-colored icon respectively. -->
+    <color name="car_tint_light">@color/car_grey_50</color>
+    <color name="car_tint_dark">@color/car_grey_900</color>
+
+    <!-- The tinting color for an icon. This icon is assumed to be on a light background. -->
+    <color name="car_tint">@color/car_tint_dark</color>
+
+    <!-- An inverted tinting from car_tint. -->
+    <color name="car_tint_inverse">@color/car_tint_light</color>
+
+    <!-- The color of the divider. The color here is a lighter shade. -->
+    <color name="car_list_divider_light">#1fffffff</color>
+
+    <!-- The color of the divider. The color here is a darker shade. -->
+    <color name="car_list_divider_dark">#1f000000</color>
+
+    <!-- The color of the dividers in the list. This color is assumed to be on a light colored
+         view. -->
+    <color name="car_list_divider">@color/car_list_divider_dark</color>
+
+    <!-- The ripple colors. The "dark" and "light" designation here refers to the color of the
+         ripple  itself. -->
+    <color name="car_card_ripple_background_dark">#17000000</color>
+    <color name="car_card_ripple_background_light">#27ffffff</color>
+
+    <!-- The ripple color for a light colored card. -->
+    <color name="car_card_ripple_background">@color/car_card_ripple_background_dark</color>
+
+    <!-- The ripple color for a dark-colored card. This color is the opposite of
+         car_card_ripple_background. -->
+    <color name="car_card_ripple_background_inverse">@color/car_card_ripple_background_light</color>
+
+    <!-- The lighter and darker color for the scrollbar thumb. -->
+    <color name="car_scrollbar_thumb_light">#99ffffff</color>
+    <color name="car_scrollbar_thumb_dark">#7f0b0f12</color>
+
+    <!-- The color of the scroll bar indicator in the PagedListView. This color is assumed to be on
+         a light-colored background. -->
+    <color name="car_scrollbar_thumb">@color/car_scrollbar_thumb_dark</color>
+
+    <!-- The inverted color of the scroll bar indicator. This color is always the opposite of
+         car_scrollbar_thumb. -->
+    <color name="car_scrollbar_thumb_inverse">@color/car_scrollbar_thumb_light</color>
+</resources>

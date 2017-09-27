@@ -20,4 +20,28 @@ limitations under the License.
              determine the width of the card. -->
         <attr name="columnSpan" format="integer" />
     </declare-styleable>
+
+    <!-- The configurable attributes in PagedListView. -->
+    <declare-styleable name="PagedListView">
+        <!-- Fade duration in ms -->
+        <attr name="fadeLastItem" format="boolean" />
+        <!-- Set to true/false to offset rows as they slide off screen. Defaults to true -->
+        <attr name="offsetRows" format="boolean" />
+        <!--  Whether or not there is a margin on the right that matches the width of the container
+              for the scrollbars. -->
+        <attr name="rightGutterEnabled" format="boolean" />
+        <!-- Whether to display the scrollbar or not. Defaults to true. -->
+        <attr name="scrollBarEnabled" format="boolean" />
+        <!-- Whether or not to show a diving line between each item of the list. -->
+        <attr name="showPagedListViewDivider" format="boolean" />
+        <!-- An optional id that specifies a child View whose starting edge will be used to
+             determine the start position of the dividing line. -->
+        <attr name="alignDividerStartTo" format="reference" />
+        <!-- An optional id that specifies a child View whose ending edge will be used to
+             determine the end position of the dividing line. -->
+        <attr name="alignDividerEndTo" format="reference" />
+        <!-- A starting margin before the drawing of the dividing line. This margin will be an
+             offset from the view specified by "alignDividerStartTo" if given. -->
+        <attr name="dividerStartMargin" format="dimension" />
+    </declare-styleable>
 </resources>
