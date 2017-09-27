@@ -17,6 +17,8 @@
 package android.arch.background.workmanager;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -37,6 +39,7 @@ public class WorkerWrapperTests {
     private static final long LISTENER_SLEEP_DURATION = 2000;
     private WorkDatabase mDatabase;
     private WorkSpecDao mWorkSpecDao;
+    private DependencyDao mDependencyDao;
     private Context mContext;
     private ExecutionListener mMockListener;
 
@@ -45,6 +48,7 @@ public class WorkerWrapperTests {
         mContext = InstrumentationRegistry.getTargetContext();
         mDatabase = WorkDatabase.create(mContext, true);
         mWorkSpecDao = mDatabase.workSpecDao();
+        mDependencyDao = mDatabase.dependencyDao();
         mMockListener = Mockito.mock(ExecutionListener.class);
     }
 
@@ -115,5 +119,19 @@ public class WorkerWrapperTests {
         assertEquals(Work.STATUS_RUNNING, mWorkSpecDao.getWorkSpecStatus(work.getId()));
         Thread.sleep(SleepTestWorker.SLEEP_DURATION);
         Mockito.verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
+    }
+
+    @Test
+    public void testDependenciesRemoved() throws InterruptedException {
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Dependency dependency = new Dependency(work2.getId(), work1.getId());
+        mWorkSpecDao.insertWorkSpec(work1.getWorkSpec());
+        mWorkSpecDao.insertWorkSpec(work2.getWorkSpec());
+        mDependencyDao.insertDependency(dependency);
+
+        assertTrue(mDependencyDao.hasDependencies(work2.getId()));
+        new WorkerWrapper(mContext, mDatabase, work1.getId(), mMockListener).run();
+        assertFalse(mDependencyDao.hasDependencies(work2.getId()));
     }
 }
