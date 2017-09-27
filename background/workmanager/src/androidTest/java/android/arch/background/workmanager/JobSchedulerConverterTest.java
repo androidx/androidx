@@ -80,7 +80,7 @@ public class JobSchedulerConverterTest {
 
     @Test
     public void convertNetworkTypeAny() {
-        convertNetworkTypeHelper(Constraints.NETWORK_TYPE_ANY, JobInfo.NETWORK_TYPE_NONE);
+        convertNetworkTypeHelper(Constraints.NETWORK_TYPE_NONE, JobInfo.NETWORK_TYPE_NONE);
     }
 
     @Test

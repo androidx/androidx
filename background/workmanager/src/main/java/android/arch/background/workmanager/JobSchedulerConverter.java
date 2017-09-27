@@ -72,7 +72,7 @@ class JobSchedulerConverter implements WorkSpecConverter<JobInfo> {
     public int convertNetworkType(@Constraints.NetworkType int networkType)
             throws IllegalArgumentException {
         switch(networkType) {
-            case Constraints.NETWORK_TYPE_ANY:
+            case Constraints.NETWORK_TYPE_NONE:
                 return JobInfo.NETWORK_TYPE_NONE;
             case Constraints.NETWORK_TYPE_CONNECTED:
                 return JobInfo.NETWORK_TYPE_ANY;

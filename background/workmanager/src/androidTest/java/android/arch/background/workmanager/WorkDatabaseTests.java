@@ -109,7 +109,7 @@ public class WorkDatabaseTests {
         assertFalse(constraints.requiresBatteryNotLow());
         assertFalse(constraints.requiresStorageNotLow());
         assertEquals(0, constraints.getInitialDelay());
-        assertEquals(Constraints.NETWORK_TYPE_ANY, constraints.getRequiredNetworkType());
+        assertEquals(Constraints.NETWORK_TYPE_NONE, constraints.getRequiredNetworkType());
     }
 
     @Test
