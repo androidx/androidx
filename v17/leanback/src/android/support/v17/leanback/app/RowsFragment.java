@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from RowsSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -625,6 +628,11 @@ public class RowsFragment extends BaseRowFragment implements
 
     }
 
+    /**
+     * The adapter that RowsFragment implements
+     * BrowseFragment.MainFragmentRowsAdapter.
+     * @see #getMainFragmentRowsAdapter().
+     */
     public static class MainFragmentRowsAdapter
             extends BrowseFragment.MainFragmentRowsAdapter<RowsFragment> {
 

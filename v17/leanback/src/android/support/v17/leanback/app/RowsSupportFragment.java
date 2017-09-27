@@ -1,6 +1,3 @@
-// CHECKSTYLE:OFF Generated code
-/* This file is auto-generated from RowsFragment.java.  DO NOT MODIFY. */
-
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -628,6 +625,11 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
 
     }
 
+    /**
+     * The adapter that RowsSupportFragment implements
+     * BrowseSupportFragment.MainFragmentRowsAdapter.
+     * @see #getMainFragmentRowsAdapter().
+     */
     public static class MainFragmentRowsAdapter
             extends BrowseSupportFragment.MainFragmentRowsAdapter<RowsSupportFragment> {
 
