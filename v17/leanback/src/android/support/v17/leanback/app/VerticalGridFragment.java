@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from VerticalGridSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -240,7 +243,7 @@ public class VerticalGridFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return TransitionHelper.loadTransition(FragmentUtil.getContext(this),
+        return TransitionHelper.loadTransition(FragmentUtil.getContext(VerticalGridFragment.this),
                 R.transition.lb_vertical_grid_entrance_transition);
     }
 

@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from VideoSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2016 The Android Open Source Project
  *
@@ -38,7 +41,7 @@ public class VideoFragment extends PlaybackFragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
-        mVideoSurface = (SurfaceView) LayoutInflater.from(FragmentUtil.getContext(this)).inflate(
+        mVideoSurface = (SurfaceView) LayoutInflater.from(FragmentUtil.getContext(VideoFragment.this)).inflate(
                 R.layout.lb_video_surface, root, false);
         root.addView(mVideoSurface, 0);
         mVideoSurface.getHolder().addCallback(new SurfaceHolder.Callback() {
