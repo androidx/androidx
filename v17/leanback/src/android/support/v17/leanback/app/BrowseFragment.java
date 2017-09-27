@@ -1,3 +1,6 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from BrowseSupportFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -15,10 +18,6 @@ package android.support.v17.leanback.app;
 
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentManager.BackStackEntry;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -45,6 +44,10 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.ScaleFrameLayout;
 import android.support.v17.leanback.widget.TitleViewAdapter;
 import android.support.v17.leanback.widget.VerticalGridView;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentManager.BackStackEntry;
+import android.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -1110,7 +1113,7 @@ public class BrowseFragment extends BaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final Context context = FragmentUtil.getContext(this);
+        final Context context = FragmentUtil.getContext(BrowseFragment.this);
         TypedArray ta = context.obtainStyledAttributes(R.styleable.LeanbackTheme);
         mContainerListMarginStart = (int) ta.getDimension(
                 R.styleable.LeanbackTheme_browseRowsMarginStart, context.getResources()
@@ -1278,7 +1281,7 @@ public class BrowseFragment extends BaseFragment {
     }
 
     void createHeadersTransition() {
-        mHeadersTransition = TransitionHelper.loadTransition(FragmentUtil.getContext(this),
+        mHeadersTransition = TransitionHelper.loadTransition(FragmentUtil.getContext(BrowseFragment.this),
                 mShowingHeaders
                         ? R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
 
@@ -1710,7 +1713,7 @@ public class BrowseFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return TransitionHelper.loadTransition(FragmentUtil.getContext(this),
+        return TransitionHelper.loadTransition(FragmentUtil.getContext(BrowseFragment.this),
                 R.transition.lb_browse_entrance_transition);
     }
 

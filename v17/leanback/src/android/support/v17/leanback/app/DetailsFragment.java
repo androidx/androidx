@@ -1,3 +1,9 @@
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from DetailsSupportFragment.java.  DO NOT MODIFY. */
+
+// CHECKSTYLE:OFF Generated code
+/* This file is auto-generated from DetailsFragment.java.  DO NOT MODIFY. */
+
 /*
  * Copyright (C) 2014 The Android Open Source Project
  *
@@ -771,7 +777,7 @@ public class DetailsFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return TransitionHelper.loadTransition(FragmentUtil.getContext(this),
+        return TransitionHelper.loadTransition(FragmentUtil.getContext(DetailsFragment.this),
                 R.transition.lb_details_enter_transition);
     }
 
