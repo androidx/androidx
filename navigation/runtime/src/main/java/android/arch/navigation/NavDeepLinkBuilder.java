@@ -191,6 +191,10 @@ public class NavDeepLinkBuilder {
     /**
      * Construct the full {@link TaskStackBuilder task stack} needed to deep link to the given
      * destination.
+     * <p>
+     * You must have {@link #setGraph set a NavGraph} and {@link #setDestination set a destination}
+     * before calling this method.
+     * </p>
      *
      * @return a {@link TaskStackBuilder} which can be used to
      * {@link TaskStackBuilder#startActivities() send the deep link} or
@@ -199,8 +203,20 @@ public class NavDeepLinkBuilder {
      */
     @NonNull
     public TaskStackBuilder createTaskStackBuilder() {
+        if (mIntent.getIntArrayExtra(NavController.KEY_DEEP_LINK_IDS) == null) {
+            if (mGraph == null) {
+                throw new IllegalStateException("You must call setGraph() "
+                        + "before constructing the deep link");
+            } else {
+                throw new IllegalStateException("You must call setDestination() "
+                        + "before constructing the deep link");
+            }
+        }
+        // We create a copy of the Intent to ensure the Intent does not have itself
+        // as an extra. This also prevents developers from modifying the internal Intent
+        // via taskStackBuilder.editIntentAt()
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(mContext)
-                .addNextIntentWithParentStack(mIntent);
+                .addNextIntentWithParentStack(new Intent(mIntent));
         for (int index = 0; index < taskStackBuilder.getIntentCount(); index++) {
             // Attach the original Intent to each Activity so that they can know
             // they were constructed in response to a deep link
@@ -214,6 +230,10 @@ public class NavDeepLinkBuilder {
      * Construct a {@link PendingIntent} to the {@link #setDestination(int) deep link destination}.
      * <p>
      * This constructs the entire {@link #createTaskStackBuilder() task stack} needed.
+     * <p>
+     * You must have {@link #setGraph set a NavGraph} and {@link #setDestination set a destination}
+     * before calling this method.
+     * </p>
      *
      * @return a PendingIntent constructed with
      * {@link TaskStackBuilder#getPendingIntent(int, int)} to deep link to the
