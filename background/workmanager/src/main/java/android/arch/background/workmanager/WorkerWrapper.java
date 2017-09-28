@@ -93,22 +93,20 @@ class WorkerWrapper implements Runnable {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + mWorkSpecId);
+            setSuccessAndRemoveDependencies();
             notifyListener(RESULT_SUCCEEDED);
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
         } catch (Exception e) {
             // TODO: Retry policies.
             if (e instanceof InterruptedException) {
                 Log.d(TAG, "Work interrupted for " + mWorkSpecId);
-                notifyListener(RESULT_INTERRUPTED);
                 workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
+                notifyListener(RESULT_INTERRUPTED);
             } else {
                 Log.d(TAG, "Work failed for " + mWorkSpecId, e);
-                notifyListener(RESULT_FAILED);
                 workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
+                notifyListener(RESULT_FAILED);
             }
         }
-
-        mListener = null;
     }
 
     private void checkForInterruption() throws InterruptedException {
@@ -124,5 +122,16 @@ class WorkerWrapper implements Runnable {
                 mListener.onExecuted(mWorkSpecId, result);
             }
         });
+    }
+
+    private void setSuccessAndRemoveDependencies() {
+        mWorkDatabase.beginTransaction();
+        try {
+            mWorkDatabase.workSpecDao().setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
+            mWorkDatabase.dependencyDao().deleteDependenciesWithPrerequisite(mWorkSpecId);
+            mWorkDatabase.setTransactionSuccessful();
+        } finally {
+            mWorkDatabase.endTransaction();
+        }
     }
 }

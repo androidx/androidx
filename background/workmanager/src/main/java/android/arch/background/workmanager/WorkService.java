@@ -33,17 +33,14 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @TargetApi(21)
 public class WorkService extends JobService implements ExecutionListener {
-
     private static final String TAG = "WorkService";
     private WorkExecutionManager mWorkExecutionManager;
-    private Scheduler mScheduler;
     private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
     public void onCreate() {
         super.onCreate();
         Context context = getApplicationContext();
-        mScheduler = SchedulerHelper.getScheduler();
         WorkDatabase database = WorkDatabase.create(context, false);
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         mWorkExecutionManager = new WorkExecutionManager(
@@ -78,9 +75,6 @@ public class WorkService extends JobService implements ExecutionListener {
     @Override
     public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
         Log.d(TAG, workSpecId + " executed on JobScheduler");
-        if (mScheduler != null) { // TODO(xbhatnag): mScheduler should not be null
-            mScheduler.onExecuted(workSpecId, result);
-        }
         JobParameters parameters = mJobParameters.get(workSpecId);
         boolean needsReschedule = (result == WorkerWrapper.RESULT_INTERRUPTED);
         jobFinished(parameters, needsReschedule);
