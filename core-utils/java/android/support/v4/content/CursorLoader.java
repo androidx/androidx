@@ -20,6 +20,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.os.CancellationSignal;
 import android.support.v4.os.OperationCanceledException;
 
@@ -115,7 +117,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
      * calls to {@link #setUri(Uri)}, {@link #setSelection(String)}, etc
      * to specify the query to perform.
      */
-    public CursorLoader(Context context) {
+    public CursorLoader(@NonNull Context context) {
         super(context);
         mObserver = new ForceLoadContentObserver();
     }
@@ -126,8 +128,9 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
      * ContentResolver.query()} for documentation on the meaning of the
      * parameters.  These will be passed as-is to that call.
      */
-    public CursorLoader(Context context, Uri uri, String[] projection, String selection,
-            String[] selectionArgs, String sortOrder) {
+    public CursorLoader(@NonNull Context context, @NonNull Uri uri, @Nullable String[] projection,
+            @Nullable String selection, @Nullable String[] selectionArgs,
+            @Nullable String sortOrder) {
         super(context);
         mObserver = new ForceLoadContentObserver();
         mUri = uri;
@@ -183,43 +186,48 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
         mCursor = null;
     }
 
+    @NonNull
     public Uri getUri() {
         return mUri;
     }
 
-    public void setUri(Uri uri) {
+    public void setUri(@NonNull Uri uri) {
         mUri = uri;
     }
 
+    @Nullable
     public String[] getProjection() {
         return mProjection;
     }
 
-    public void setProjection(String[] projection) {
+    public void setProjection(@Nullable String[] projection) {
         mProjection = projection;
     }
 
+    @Nullable
     public String getSelection() {
         return mSelection;
     }
 
-    public void setSelection(String selection) {
+    public void setSelection(@Nullable String selection) {
         mSelection = selection;
     }
 
+    @Nullable
     public String[] getSelectionArgs() {
         return mSelectionArgs;
     }
 
-    public void setSelectionArgs(String[] selectionArgs) {
+    public void setSelectionArgs(@Nullable String[] selectionArgs) {
         mSelectionArgs = selectionArgs;
     }
 
+    @Nullable
     public String getSortOrder() {
         return mSortOrder;
     }
 
-    public void setSortOrder(String sortOrder) {
+    public void setSortOrder(@Nullable String sortOrder) {
         mSortOrder = sortOrder;
     }
 

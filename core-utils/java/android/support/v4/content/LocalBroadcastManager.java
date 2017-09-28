@@ -16,10 +16,6 @@
 
 package android.support.v4.content;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +23,12 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Helper to register for and send broadcasts of Intents to local objects
@@ -98,7 +99,8 @@ public final class LocalBroadcastManager {
     private static final Object mLock = new Object();
     private static LocalBroadcastManager mInstance;
 
-    public static LocalBroadcastManager getInstance(Context context) {
+    @NonNull
+    public static LocalBroadcastManager getInstance(@NonNull Context context) {
         synchronized (mLock) {
             if (mInstance == null) {
                 mInstance = new LocalBroadcastManager(context.getApplicationContext());
@@ -132,7 +134,8 @@ public final class LocalBroadcastManager {
      *
      * @see #unregisterReceiver
      */
-    public void registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+    public void registerReceiver(@NonNull BroadcastReceiver receiver,
+            @NonNull IntentFilter filter) {
         synchronized (mReceivers) {
             ReceiverRecord entry = new ReceiverRecord(filter, receiver);
             ArrayList<ReceiverRecord> filters = mReceivers.get(receiver);
@@ -162,7 +165,7 @@ public final class LocalBroadcastManager {
      *
      * @see #registerReceiver
      */
-    public void unregisterReceiver(BroadcastReceiver receiver) {
+    public void unregisterReceiver(@NonNull BroadcastReceiver receiver) {
         synchronized (mReceivers) {
             final ArrayList<ReceiverRecord> filters = mReceivers.remove(receiver);
             if (filters == null) {
@@ -205,7 +208,7 @@ public final class LocalBroadcastManager {
      * broadcast receivers.  (Note tha delivery may not ultimately take place if one of those
      * receivers is unregistered before it is dispatched.)
      */
-    public boolean sendBroadcast(Intent intent) {
+    public boolean sendBroadcast(@NonNull Intent intent) {
         synchronized (mReceivers) {
             final String action = intent.getAction();
             final String type = intent.resolveTypeIfNeeded(
@@ -281,7 +284,7 @@ public final class LocalBroadcastManager {
      * the Intent this function will block and immediately dispatch them before
      * returning.
      */
-    public void sendBroadcastSync(Intent intent) {
+    public void sendBroadcastSync(@NonNull Intent intent) {
         if (sendBroadcast(intent)) {
             executePendingBroadcasts();
         }
