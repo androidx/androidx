@@ -44,9 +44,25 @@ public final class WorkManager {
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
     private WorkSpecConverter<JobInfo> mWorkSpecConverter;
 
-    private WorkManager(Context context, Builder builder) {
+    private static WorkManager sInstance = null;
+
+    /**
+     * Creates/Retrieves the static instance of {@link WorkManager}
+     *
+     * @param context {@link Context} used to create static instance
+     * @return {@link WorkManager} object
+     */
+    public static synchronized WorkManager getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new WorkManager(context, false);
+        }
+        return sInstance;
+    }
+
+    @VisibleForTesting
+    WorkManager(Context context, boolean useInMemoryDatabase) {
         mContext = context.getApplicationContext();
-        mWorkDatabase = WorkDatabase.create(mContext, builder.mUseInMemoryDatabase);
+        mWorkDatabase = WorkDatabase.create(mContext, useInMemoryDatabase);
 
         mForegroundProcessor =
                 new ForegroundProcessor(mContext, mWorkDatabase, ProcessLifecycleOwner.get());
@@ -143,35 +159,6 @@ public final class WorkManager {
                 JobInfo jobInfo = mWorkSpecConverter.convert(mWork.getWorkSpec());
                 jobScheduler.schedule(jobInfo);
             }
-        }
-    }
-
-    /**
-     * A Builder for {@link WorkManager}.
-     */
-    public static class Builder {
-
-        private boolean mUseInMemoryDatabase;
-
-        /**
-         * Call this method to use an in-memory database.  Useful for tests.
-         *
-         * @return The Builder
-         */
-        @VisibleForTesting
-        Builder withInMemoryDatabase() {
-            mUseInMemoryDatabase = true;
-            return this;
-        }
-
-        /**
-         * Builds the {@link WorkManager}.
-         *
-         * @param context The context used for initialization (we will get the Application context)
-         * @return The {@link WorkManager}
-         */
-        public WorkManager build(Context context) {
-            return new WorkManager(context, this);
         }
     }
 }
