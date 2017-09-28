@@ -54,6 +54,7 @@ public class WorkDatabaseTests {
 
     @After
     public void tearDown() {
+        mDatabase.close();
     }
 
     @Test

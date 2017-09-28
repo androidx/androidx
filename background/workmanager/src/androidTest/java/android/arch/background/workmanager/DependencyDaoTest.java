@@ -21,12 +21,10 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.arch.background.workmanager.model.WorkSpec;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,20 +34,13 @@ import java.util.List;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
-public class DependencyDaoTest {
-    private static final String TEST_PREREQUISITE_ID = "singlePrerequisiteId";
-    private WorkDatabase mDatabase;
+public class DependencyDaoTest extends DatabaseTest {
+    private static final String TEST_PREREQUISITE_ID = "TestPrerequisiteId";
     private DependencyDao mDependencyDao;
 
     @Before
     public void setUp() {
-        mDatabase = WorkDatabase.create(InstrumentationRegistry.getTargetContext(), true);
         mDependencyDao = mDatabase.dependencyDao();
-    }
-
-    @After
-    public void tearDown() {
-        mDatabase.close();
     }
 
     @Test
