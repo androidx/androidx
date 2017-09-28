@@ -44,7 +44,6 @@ import android.arch.persistence.room.vo.Pojo
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.ABSTRACT
@@ -53,6 +52,7 @@ import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
 import javax.lang.model.element.Modifier.TRANSIENT
+import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
@@ -63,9 +63,11 @@ import javax.lang.model.util.ElementFilter
 /**
  * Processes any class as if it is a Pojo.
  */
-class PojoProcessor(baseContext: Context, val element: TypeElement,
+class PojoProcessor(baseContext: Context,
+                    val element: TypeElement,
                     val bindingScope: FieldProcessor.BindingScope,
-                    val parent: EmbeddedField?) {
+                    val parent: EmbeddedField?,
+                    val referenceStack: LinkedHashSet<Name> = LinkedHashSet<Name>()) {
     val context = baseContext.fork(element)
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class,
@@ -73,12 +75,17 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
     }
     fun process() : Pojo {
         return context.cache.pojos.get(Cache.PojoKey(element, bindingScope, parent), {
-            doProcess()
+            referenceStack.add(element.qualifiedName)
+            try {
+                doProcess()
+            }
+            finally {
+                referenceStack.remove(element.qualifiedName)
+            }
         })
     }
 
     private fun doProcess(): Pojo {
-        // TODO handle recursion: b/35980205
         val declaredType = MoreTypes.asDeclared(element.asType())
         // TODO handle conflicts with super: b/35568142
         val allFields = element.getAllFieldsIncludingPrivateSupers(context.processingEnv)
@@ -103,6 +110,7 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                         null
                     }
                 }
+
         val myFields = allFields[null]
                 ?.map {
                     FieldProcessor(
@@ -113,22 +121,25 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                             fieldParent = parent).process()
                 } ?: emptyList()
 
-        val embeddedFields = allFields[Embedded::class]
-                ?.map {
-                    processEmbeddedField(declaredType, it)
-                } ?: emptyList()
-        val subFields = embeddedFields.flatMap { it.pojo.fields }
+        val embeddedFields =
+                allFields[Embedded::class]
+                        ?.map {
+                            processEmbeddedField(declaredType, it)
+                        }
+                        ?.filterNotNull()
+                        ?: emptyList()
 
+        val subFields = embeddedFields.flatMap { it.pojo.fields }
         val fields = myFields + subFields
 
         val myRelationsList = allFields[Relation::class]
                 ?.map {
                     processRelationField(fields, declaredType, it)
                 }
-                ?.filterNotNull() ?: emptyList()
+                ?.filterNotNull()
+                ?: emptyList()
 
         val subRelations = embeddedFields.flatMap { it.pojo.relations }
-
         val relations = myRelationsList + subRelations
 
         fields.groupBy { it.columnName }
@@ -141,6 +152,7 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                         context.logger.e(it.element, POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME)
                     }
                 }
+
         val methods = MoreElements.getLocalAndInheritedMethods(element,
                 context.processingEnv.elementUtils)
                 .filter {
@@ -156,6 +168,7 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         val setterCandidates = methods.filter {
             it.parameters.size == 1 && it.returnType.kind == TypeKind.VOID
         }
+
         // don't try to find a constructor for binding to statement.
         val constructor = if (bindingScope == FieldProcessor.BindingScope.BIND_TO_STMT) {
             // we don't need to construct this POJO.
@@ -177,13 +190,12 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
             assignSetter(it.field, setterCandidates, constructor)
         }
 
-        val pojo = Pojo(element = element,
+        return Pojo(element = element,
                 type = declaredType,
                 fields = fields,
                 embeddedFields = embeddedFields,
                 relations = relations,
                 constructor = constructor)
-        return pojo
     }
 
     private fun chooseConstructor(myFields: List<Field>, embedded: List<EmbeddedField>)
@@ -274,31 +286,51 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         return goodConstructors.first()
     }
 
-    private fun processEmbeddedField(declaredType: DeclaredType?, it: Element): EmbeddedField {
-        val fieldPrefix = it.getAnnotationValue(Embedded::class.java, "prefix")
-                ?.toString() ?: ""
+    private fun processEmbeddedField(declaredType: DeclaredType?, variableElement: VariableElement)
+            : EmbeddedField? {
+
+        val asTypeElement = MoreTypes.asTypeElement(variableElement.asType())
+
+        if (detectReferenceRecursion(asTypeElement)) {
+            return null
+        }
+
+        val fieldPrefix = variableElement
+                .getAnnotationValue(Embedded::class.java, "prefix")
+                ?.toString()
+                ?: ""
         val inheritedPrefix = parent?.prefix ?: ""
-        val embeddedField = Field(
-                it,
-                it.simpleName.toString(),
-                type = context.processingEnv.typeUtils.asMemberOf(declaredType, it),
-                affinity = null,
-                parent = parent)
+        val embeddedField = Field(variableElement,
+                                  variableElement.simpleName.toString(),
+                                  type = context
+                                          .processingEnv
+                                          .typeUtils
+                                          .asMemberOf(declaredType, variableElement),
+                                  affinity = null,
+                                  parent = parent)
         val subParent = EmbeddedField(
                 field = embeddedField,
                 prefix = inheritedPrefix + fieldPrefix,
                 parent = parent)
-        val asVariable = MoreElements.asVariable(it)
-        subParent.pojo = PojoProcessor(baseContext = context.fork(it),
-                element = MoreTypes.asTypeElement(asVariable.asType()),
+        subParent.pojo = PojoProcessor(
+                baseContext = context.fork(variableElement),
+                element = asTypeElement,
                 bindingScope = bindingScope,
-                parent = subParent).process()
+                parent = subParent,
+                referenceStack = referenceStack).process()
         return subParent
     }
 
     private fun processRelationField(myFields : List<Field>, container: DeclaredType?,
                                      relationElement: VariableElement)
             : android.arch.persistence.room.vo.Relation? {
+
+        val asTypeElement = MoreTypes.asTypeElement(MoreElements.asVariable(relationElement).asType())
+
+        if (detectReferenceRecursion(asTypeElement)) {
+            return null
+        }
+
         val annotation = MoreElements.getAnnotationMirror(relationElement, Relation::class.java)
                 .orNull()!!
         val parentColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "parentColumn")
@@ -339,14 +371,17 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
         val entity : Entity
         if (entityClassInput == null
                 || MoreTypes.isTypeOf(Any::class.java, entityClassInput)) {
-            entity = EntityProcessor(context, typeArgElement).process()
+            entity = EntityProcessor(context, typeArgElement, referenceStack).process()
             pojo = entity
         } else {
-            entity = EntityProcessor(context, MoreTypes.asTypeElement(entityClassInput)).process()
-            pojo = PojoProcessor(baseContext = context,
+            entity = EntityProcessor(context, MoreTypes.asTypeElement(entityClassInput),
+                                     referenceStack).process()
+            pojo = PojoProcessor(
+                    baseContext = context,
                     element = typeArgElement,
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    parent = parent).process()
+                    parent = parent,
+                    referenceStack = referenceStack).process()
         }
         // now find the field in the entity.
         val entityColumnInput = AnnotationMirrors.getAnnotationValue(annotation, "entityColumn")
@@ -393,6 +428,31 @@ class PojoProcessor(baseContext: Context, val element: TypeElement,
                 entityField = entityField,
                 projection = projection
         )
+    }
+
+    private fun detectReferenceRecursion(typeElement: TypeElement): Boolean {
+        if (referenceStack.contains(typeElement.qualifiedName)) {
+            context.logger.e(
+                    typeElement,
+                    ProcessorErrors
+                            .RECURSIVE_REFERENCE_DETECTED
+                            .format(computeReferenceRecursionString(typeElement)))
+            return true
+        }
+        return false
+    }
+
+    private fun computeReferenceRecursionString(typeElement: TypeElement): String {
+        val recursiveTailTypeName = typeElement.qualifiedName
+
+        val referenceRecursionList = mutableListOf<Name>()
+        with (referenceRecursionList) {
+            add(recursiveTailTypeName)
+            addAll(referenceStack.toList().takeLastWhile { it != recursiveTailTypeName })
+            add(recursiveTailTypeName)
+        }
+
+        return referenceRecursionList.joinToString(" -> ")
     }
 
     private fun assignGetters(fields: List<Field>, getterCandidates: List<ExecutableElement>) {
