@@ -33,6 +33,8 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.support.annotation.GuardedBy;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -362,7 +364,7 @@ public class FileProvider extends ContentProvider {
      * @param info A {@link ProviderInfo} for the new provider.
      */
     @Override
-    public void attachInfo(Context context, ProviderInfo info) {
+    public void attachInfo(@NonNull Context context, @NonNull ProviderInfo info) {
         super.attachInfo(context, info);
 
         // Sanity check our security
@@ -396,7 +398,8 @@ public class FileProvider extends ContentProvider {
      * @throws IllegalArgumentException When the given {@link File} is outside
      * the paths supported by the provider.
      */
-    public static Uri getUriForFile(Context context, String authority, File file) {
+    public static Uri getUriForFile(@NonNull Context context, @NonNull String authority,
+            @NonNull File file) {
         final PathStrategy strategy = getPathStrategy(context, authority);
         return strategy.getUriForFile(file);
     }
@@ -430,8 +433,9 @@ public class FileProvider extends ContentProvider {
      *
      */
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
-            String sortOrder) {
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
+            @Nullable String[] selectionArgs,
+            @Nullable String sortOrder) {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
 
@@ -470,7 +474,7 @@ public class FileProvider extends ContentProvider {
      * extension; otherwise <code>application/octet-stream</code>.
      */
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
 
@@ -491,7 +495,7 @@ public class FileProvider extends ContentProvider {
      * subclass FileProvider if you want to provide different functionality.
      */
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         throw new UnsupportedOperationException("No external inserts");
     }
 
@@ -500,7 +504,8 @@ public class FileProvider extends ContentProvider {
      * subclass FileProvider if you want to provide different functionality.
      */
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, @Nullable String selection,
+            @Nullable String[] selectionArgs) {
         throw new UnsupportedOperationException("No external updates");
     }
 
@@ -516,7 +521,8 @@ public class FileProvider extends ContentProvider {
      * @return 1 if the delete succeeds; otherwise, 0.
      */
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, @Nullable String selection,
+            @Nullable String[] selectionArgs) {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
         return file.delete() ? 1 : 0;
@@ -538,7 +544,8 @@ public class FileProvider extends ContentProvider {
      * @return A new {@link ParcelFileDescriptor} with which you can access the file.
      */
     @Override
-    public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+    public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode)
+            throws FileNotFoundException {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
         final int fileMode = modeToMode(mode);
