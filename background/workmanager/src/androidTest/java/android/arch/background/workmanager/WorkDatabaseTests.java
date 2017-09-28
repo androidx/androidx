@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.support.test.InstrumentationRegistry;

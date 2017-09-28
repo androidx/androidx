@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.arch.background.workmanager.model.Dependency;
+import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
@@ -80,8 +82,8 @@ public class DependencyDaoTest extends DatabaseTest {
         List<String> resultWorkSpecIds =
                     mDependencyDao.getWorkSpecIdsWithSinglePrerequisite(TEST_PREREQUISITE_ID);
         assertEquals(2, resultWorkSpecIds.size());
-        assertEquals(expectedDep1.mWorkSpecId, resultWorkSpecIds.get(0));
-        assertEquals(expectedDep2.mWorkSpecId, resultWorkSpecIds.get(1));
+        assertEquals(expectedDep1.getWorkSpecId(), resultWorkSpecIds.get(0));
+        assertEquals(expectedDep2.getWorkSpecId(), resultWorkSpecIds.get(1));
     }
 
     @Test
@@ -99,7 +101,7 @@ public class DependencyDaoTest extends DatabaseTest {
         List<Dependency> resultDependencies = mDependencyDao.getAllDependencies();
         assertNotNull(resultDependencies);
         for (Dependency dependency : resultDependencies) {
-            assertNotEquals(TEST_PREREQUISITE_ID, dependency.mPrerequisiteId);
+            assertNotEquals(TEST_PREREQUISITE_ID, dependency.getPrerequisiteId());
         }
     }
 
@@ -112,8 +114,8 @@ public class DependencyDaoTest extends DatabaseTest {
         // Prevent re-inserting work specs with the same IDs.
         Set<String> workSpecIds = new HashSet<>();
         for (Dependency dependency : dependencies) {
-            workSpecIds.add(dependency.mPrerequisiteId);
-            workSpecIds.add(dependency.mWorkSpecId);
+            workSpecIds.add(dependency.getPrerequisiteId());
+            workSpecIds.add(dependency.getWorkSpecId());
         }
         mDatabase.beginTransaction();
         try {

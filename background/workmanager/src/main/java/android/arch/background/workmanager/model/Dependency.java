@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.model;
 
-import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
@@ -41,7 +40,7 @@ import android.support.annotation.NonNull;
                 childColumns = "prerequisite_id",
                 onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)},
         indices = {@Index(value = "work_spec_id"), @Index(value = "prerequisite_id")})
-class Dependency {
+public class Dependency {
     // TODO(janclarin): May want to enforce strict primary key on workSpecId + prerequisiteId.
     @ColumnInfo(name = "id")
     @PrimaryKey(autoGenerate = true)
@@ -55,8 +54,34 @@ class Dependency {
     @ColumnInfo(name = "prerequisite_id")
     String mPrerequisiteId;
 
-    Dependency(@NonNull String workSpecId, @NonNull String prerequisiteId) {
+    public Dependency(@NonNull String workSpecId, @NonNull String prerequisiteId) {
         mWorkSpecId = workSpecId;
+        mPrerequisiteId = prerequisiteId;
+    }
+
+    public long getId() {
+        return mId;
+    }
+
+    public void setId(long id) {
+        mId = id;
+    }
+
+    @NonNull
+    public String getWorkSpecId() {
+        return mWorkSpecId;
+    }
+
+    public void setWorkSpecId(@NonNull String workSpecId) {
+        mWorkSpecId = workSpecId;
+    }
+
+    @NonNull
+    public String getPrerequisiteId() {
+        return mPrerequisiteId;
+    }
+
+    public void setPrerequisiteId(@NonNull String prerequisiteId) {
         mPrerequisiteId = prerequisiteId;
     }
 }

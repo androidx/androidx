@@ -18,6 +18,9 @@ package android.arch.background.workmanager;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.arch.background.workmanager.foreground.ForegroundProcessor;
+import android.arch.background.workmanager.model.Dependency;
+import android.arch.background.workmanager.systemjob.SystemJobConverter;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
@@ -50,7 +53,7 @@ public final class WorkManager {
 
         // TODO(janclarin): Wrap JobScheduler logic behind another interface.
         if (Build.VERSION.SDK_INT >= 21) {
-            mWorkSpecConverter = new JobSchedulerConverter(mContext);
+            mWorkSpecConverter = new SystemJobConverter(mContext);
         }
     }
 

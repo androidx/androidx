@@ -23,7 +23,7 @@ import android.arch.background.workmanager.model.WorkSpec;
  * Converts a {@link WorkSpec} into type T.
  * @param <T> The type to convert to.
  */
-interface WorkSpecConverter<T> {
+public interface WorkSpecConverter<T> {
     /**
      * Converts a {@link WorkSpec} into type T.
      * @param workSpec The {@link WorkSpec} to convert to type T.

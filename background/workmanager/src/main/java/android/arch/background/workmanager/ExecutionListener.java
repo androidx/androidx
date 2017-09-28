@@ -19,6 +19,6 @@ package android.arch.background.workmanager;
 /**
  * Listener that reports the result of a {@link Worker}s execution.
  */
-interface ExecutionListener {
+public interface ExecutionListener {
     void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result);
 }

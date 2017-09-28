@@ -17,6 +17,7 @@ package android.arch.background.workmanager;
 
 import static org.junit.Assert.assertEquals;
 
+import android.arch.background.workmanager.systemjob.SystemJobProcessor;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;

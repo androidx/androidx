@@ -21,6 +21,7 @@ import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkSpecDao;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -35,7 +36,7 @@ import java.lang.annotation.Retention;
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
  * its Worker, and then calls it.
  */
-class WorkerWrapper implements Runnable {
+public class WorkerWrapper implements Runnable {
     @Retention(SOURCE)
     @IntDef({RESULT_NOT_ENQUEUED, RESULT_PERMANENT_ERROR, RESULT_FAILED, RESULT_INTERRUPTED,
             RESULT_SUCCEEDED, RESULT_RESCHEDULED})

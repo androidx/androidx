@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.model;
 
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
-import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.Work;
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;

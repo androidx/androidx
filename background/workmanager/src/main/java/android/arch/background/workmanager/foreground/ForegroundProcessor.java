@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.foreground;
 
+import android.arch.background.workmanager.Processor;
+import android.arch.background.workmanager.WorkDatabase;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
