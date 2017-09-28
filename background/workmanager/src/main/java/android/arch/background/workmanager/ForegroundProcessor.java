@@ -24,7 +24,6 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -38,9 +37,6 @@ import java.util.concurrent.Future;
 public class ForegroundProcessor extends Processor
         implements Observer<List<String>>, LifecycleObserver {
 
-    // TODO(sumir): Be more intelligent about this.
-    private ExecutorService mExecutorService = Executors.newScheduledThreadPool(4);
-    private Map<String, Future<?>> mEnqueuedWork = new LinkedHashMap<>();
     private LifecycleOwner mLifecycleOwner;
 
     public ForegroundProcessor(
@@ -54,6 +50,17 @@ public class ForegroundProcessor extends Processor
     }
 
     @Override
+    public ExecutorService createExecutorService() {
+        // TODO(sumir): Be more intelligent about this.
+        return Executors.newScheduledThreadPool(4);
+    }
+
+    @Override
+    public boolean isActive() {
+        return mLifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
+    }
+
+    @Override
     public void onChanged(@Nullable List<String> runnableWorkIds) {
         // TODO(sumir): Optimize this.  Also, do we need to worry about items *removed* from the
         // list or can we safely ignore them as we are doing right now?
@@ -64,37 +71,10 @@ public class ForegroundProcessor extends Processor
         }
 
         for (String workId : runnableWorkIds) {
-            if (!mEnqueuedWork.containsKey(workId)) {
+            if (!mEnqueuedWorkMap.containsKey(workId)) {
                 process(workId);
             }
         }
-    }
-
-    @Override
-    public void process(String id) {
-        if (isActive()) {
-            WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
-                    .withListener(this)
-                    .verifyAllConstraints()
-                    .build();
-            Future<?> future = mExecutorService.submit(workWrapper);   // TODO(sumir): Delays
-            mEnqueuedWork.put(id, future);
-        }
-    }
-
-    private boolean isActive() {
-        return mLifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
-    }
-
-    @Override
-    public void cancel(String id) {
-        // TODO(sumir)
-    }
-
-    @Override
-    public void onExecuted(String workSpecId, int result) {
-        mEnqueuedWork.remove(workSpecId);
-        // TODO(sumir): Bubble this upstream.
     }
 
     /**
@@ -102,7 +82,7 @@ public class ForegroundProcessor extends Processor
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onLifecycleStop() {
-        Iterator<Map.Entry<String, Future<?>>> it = mEnqueuedWork.entrySet().iterator();
+        Iterator<Map.Entry<String, Future<?>>> it = mEnqueuedWorkMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Future<?>> entry = it.next();
             if (entry.getValue().cancel(false)) {
