@@ -16,7 +16,6 @@
 
 package android.support.v4.app;
 
-import android.support.annotation.RequiresApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -25,6 +24,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
@@ -70,6 +72,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
     private static final String TAG = "TaskStackBuilder";
 
     public interface SupportParentable {
+        @Nullable
         Intent getSupportParentActivityIntent();
     }
 
@@ -117,7 +120,8 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      * @param context The context that will launch the new task stack or generate a PendingIntent
      * @return A new TaskStackBuilder
      */
-    public static TaskStackBuilder create(Context context) {
+    @NonNull
+    public static TaskStackBuilder create(@NonNull Context context) {
         return new TaskStackBuilder(context);
     }
 
@@ -142,7 +146,8 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      * @param nextIntent Intent for the next Activity in the synthesized task stack
      * @return This TaskStackBuilder for method chaining
      */
-    public TaskStackBuilder addNextIntent(Intent nextIntent) {
+    @NonNull
+    public TaskStackBuilder addNextIntent(@NonNull Intent nextIntent) {
         mIntents.add(nextIntent);
         return this;
     }
@@ -159,7 +164,8 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      *                   Its chain of parents as specified in the manifest will be added.
      * @return This TaskStackBuilder for method chaining.
      */
-    public TaskStackBuilder addNextIntentWithParentStack(Intent nextIntent) {
+    @NonNull
+    public TaskStackBuilder addNextIntentWithParentStack(@NonNull Intent nextIntent) {
         ComponentName target = nextIntent.getComponent();
         if (target == null) {
             target = nextIntent.resolveActivity(mSourceContext.getPackageManager());
@@ -178,7 +184,8 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      * @param sourceActivity All parents of this activity will be added
      * @return This TaskStackBuilder for method chaining
      */
-    public TaskStackBuilder addParentStack(Activity sourceActivity) {
+    @NonNull
+    public TaskStackBuilder addParentStack(@NonNull Activity sourceActivity) {
         Intent parent = null;
         if (sourceActivity instanceof SupportParentable) {
             parent = ((SupportParentable) sourceActivity).getSupportParentActivityIntent();
@@ -207,7 +214,8 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      * @param sourceActivityClass All parents of this activity will be added
      * @return This TaskStackBuilder for method chaining
      */
-    public TaskStackBuilder addParentStack(Class<?> sourceActivityClass) {
+    @NonNull
+    public TaskStackBuilder addParentStack(@NonNull Class<?> sourceActivityClass) {
         return addParentStack(new ComponentName(mSourceContext, sourceActivityClass));
     }
 
@@ -264,6 +272,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      * @param index Index from 0-getIntentCount()
      * @return the intent at position index
      */
+    @Nullable
     public Intent editIntentAt(int index) {
         return mIntents.get(index);
     }
@@ -300,7 +309,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      * @param options Additional options for how the Activity should be started.
      * See {@link android.content.Context#startActivity(Intent, Bundle)}
      */
-    public void startActivities(Bundle options) {
+    public void startActivities(@Nullable Bundle options) {
         if (mIntents.isEmpty()) {
             throw new IllegalStateException(
                     "No intents added to TaskStackBuilder; cannot startActivities");
@@ -325,8 +334,10 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      *              {@link PendingIntent#FLAG_UPDATE_CURRENT}, or any of the flags supported by
      *              {@link Intent#fillIn(Intent, int)} to control which unspecified parts of the
      *              intent that can be supplied when the actual send happens.
-     * @return The obtained PendingIntent
+     * @return The obtained PendingIntent.  May return null only if
+     * {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
      */
+    @Nullable
     public PendingIntent getPendingIntent(int requestCode, int flags) {
         return getPendingIntent(requestCode, flags, null);
     }
@@ -342,9 +353,11 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      *              intent that can be supplied when the actual send happens.
      * @param options Additional options for how the Activity should be started.
      * See {@link android.content.Context#startActivity(Intent, Bundle)}
-     * @return The obtained PendingIntent
+     * @return The obtained PendingIntent.  May return null only if
+     * {@link PendingIntent#FLAG_NO_CREATE} has been supplied.
      */
-    public PendingIntent getPendingIntent(int requestCode, int flags, Bundle options) {
+    @Nullable
+    public PendingIntent getPendingIntent(int requestCode, int flags, @Nullable Bundle options) {
         if (mIntents.isEmpty()) {
             throw new IllegalStateException(
                     "No intents added to TaskStackBuilder; cannot getPendingIntent");
@@ -364,6 +377,7 @@ public final class TaskStackBuilder implements Iterable<Intent> {
      *
      * @return An array containing the intents added to this builder.
      */
+    @NonNull
     public Intent[] getIntents() {
         Intent[] intents = new Intent[mIntents.size()];
         if (intents.length == 0) return intents;
