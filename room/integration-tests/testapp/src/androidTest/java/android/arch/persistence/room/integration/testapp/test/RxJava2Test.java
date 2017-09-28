@@ -22,7 +22,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.arch.core.executor.AppToolkitTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.arch.persistence.room.EmptyResultSetException;
+import android.arch.persistence.room.integration.testapp.vo.Pet;
 import android.arch.persistence.room.integration.testapp.vo.User;
+import android.arch.persistence.room.integration.testapp.vo.UserAndAllPets;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -38,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Predicate;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.TestScheduler;
 import io.reactivex.subscribers.TestSubscriber;
@@ -268,5 +271,38 @@ public class RxJava2Test extends TestDatabaseTest {
         subscriber.assertValues(0, 1);
         subscriber.cancel();
         subscriber.assertNoErrors();
+    }
+
+    @Test
+    public void flowableWithRelation() throws InterruptedException {
+        final TestSubscriber<UserAndAllPets> subscriber = new TestSubscriber<>();
+
+        mUserPetDao.flowableUserWithPets(3).subscribe(subscriber);
+        drain();
+        subscriber.assertSubscribed();
+
+        drain();
+        subscriber.assertNoValues();
+
+        final User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        drain();
+        subscriber.assertValue(new Predicate<UserAndAllPets>() {
+            @Override
+            public boolean test(UserAndAllPets userAndAllPets) throws Exception {
+                return userAndAllPets.user.equals(user);
+            }
+        });
+        subscriber.assertValueCount(1);
+        final Pet[] pets = TestUtil.createPetsForUser(3, 1, 2);
+        mPetDao.insertAll(pets);
+        drain();
+        subscriber.assertValueAt(1, new Predicate<UserAndAllPets>() {
+            @Override
+            public boolean test(UserAndAllPets userAndAllPets) throws Exception {
+                return userAndAllPets.user.equals(user)
+                        && userAndAllPets.pets.equals(Arrays.asList(pets));
+            }
+        });
     }
 }
