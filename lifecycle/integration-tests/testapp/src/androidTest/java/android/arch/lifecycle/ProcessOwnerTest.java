@@ -37,6 +37,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.app.FragmentActivity;
 
 import org.junit.After;
 import org.junit.Rule;
@@ -78,7 +79,7 @@ public class ProcessOwnerTest {
 
     @Test
     public void testNavigation() throws Throwable {
-        LifecycleActivity firstActivity = setupObserverOnResume();
+        FragmentActivity firstActivity = setupObserverOnResume();
         Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
                 NavigationTestActivitySecond.class.getCanonicalName(), null, false);
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
@@ -88,15 +89,15 @@ public class ProcessOwnerTest {
         firstActivity.finish();
         firstActivity.startActivity(intent);
 
-        LifecycleActivity secondActivity = (LifecycleActivity) monitor.waitForActivity();
+        FragmentActivity secondActivity = (FragmentActivity) monitor.waitForActivity();
         assertThat("Failed to navigate", secondActivity, notNullValue());
         checkProcessObserverSilent(secondActivity);
     }
 
     @Test
     public void testRecreation() throws Throwable {
-        LifecycleActivity activity = setupObserverOnResume();
-        LifecycleActivity recreated = TestUtils.recreateActivity(activity, activityTestRule);
+        FragmentActivity activity = setupObserverOnResume();
+        FragmentActivity recreated = TestUtils.recreateActivity(activity, activityTestRule);
         assertThat("Failed to recreate", recreated, notNullValue());
         checkProcessObserverSilent(recreated);
     }
@@ -112,14 +113,15 @@ public class ProcessOwnerTest {
 
         NavigationTestActivityFirst activity = activityTestRule.getActivity();
         activity.startActivity(new Intent(activity, NavigationDialogActivity.class));
-        LifecycleActivity dialogActivity = (LifecycleActivity) monitor.waitForActivity();
+        FragmentActivity dialogActivity = (FragmentActivity) monitor.waitForActivity();
         checkProcessObserverSilent(dialogActivity);
 
         List<Event> events = Collections.synchronizedList(new ArrayList<>());
 
         LifecycleObserver collectingObserver = new LifecycleObserver() {
             @OnLifecycleEvent(Event.ON_ANY)
-            public void onStateChanged(LifecycleOwner provider, Event event) {
+            public void onStateChanged(@SuppressWarnings("unused") LifecycleOwner provider,
+                    Event event) {
                 events.add(event);
             }
         };
@@ -138,8 +140,8 @@ public class ProcessOwnerTest {
         dialogActivity.finish();
     }
 
-    private LifecycleActivity setupObserverOnResume() throws Throwable {
-        LifecycleActivity firstActivity = activityTestRule.getActivity();
+    private FragmentActivity setupObserverOnResume() throws Throwable {
+        FragmentActivity firstActivity = activityTestRule.getActivity();
         waitTillResumed(firstActivity, activityTestRule);
         addProcessObserver(mObserver);
         mObserver.mChangedState = false;
@@ -156,7 +158,7 @@ public class ProcessOwnerTest {
                 ProcessLifecycleOwner.get().getLifecycle().removeObserver(observer));
     }
 
-    private void checkProcessObserverSilent(LifecycleActivity activity) throws Throwable {
+    private void checkProcessObserverSilent(FragmentActivity activity) throws Throwable {
         waitTillResumed(activity, activityTestRule);
         assertThat(mObserver.mChangedState, is(false));
         activityTestRule.runOnUiThread(() ->

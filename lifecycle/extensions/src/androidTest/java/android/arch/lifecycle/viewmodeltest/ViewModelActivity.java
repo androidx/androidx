@@ -16,15 +16,14 @@
 
 package android.arch.lifecycle.viewmodeltest;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.arch.lifecycle.extensions.test.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 
-import android.arch.lifecycle.LifecycleActivity;
-import android.arch.lifecycle.LifecycleFragment;
-import android.arch.lifecycle.ViewModelProviders;
-
-public class ViewModelActivity extends LifecycleActivity {
+public class ViewModelActivity extends FragmentActivity {
     public static final String KEY_FRAGMENT_MODEL = "fragment-model";
     public static final String KEY_ACTIVITY_MODEL = "activity-model";
     public static final String FRAGMENT_TAG_1 = "f1";
@@ -47,7 +46,7 @@ public class ViewModelActivity extends LifecycleActivity {
         defaultActivityModel = ViewModelProviders.of(this).get(TestViewModel.class);
     }
 
-    public static class ViewModelFragment extends LifecycleFragment {
+    public static class ViewModelFragment extends Fragment {
         public TestViewModel fragmentModel;
         public TestViewModel activityModel;
         public TestViewModel defaultActivityModel;

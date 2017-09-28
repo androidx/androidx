@@ -16,13 +16,13 @@
 
 package android.arch.lifecycle.testapp;
 
-import android.arch.lifecycle.LifecycleActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 /**
  * Activity for testing events by themselves
  */
-public class LifecycleTestActivity extends LifecycleActivity {
+public class LifecycleTestActivity extends FragmentActivity {
 
     /**
      * identifies that

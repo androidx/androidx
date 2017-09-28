@@ -32,6 +32,7 @@ import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
@@ -120,7 +121,7 @@ public class ViewModelTest {
             void onResume() {
                 try {
                     final FragmentManager manager = activity.getSupportFragmentManager();
-                    LifecycleFragment fragment = new LifecycleFragment();
+                    Fragment fragment = new Fragment();
                     manager.beginTransaction().add(fragment, "temp").commitNow();
                     ViewModel1 vm = ViewModelProviders.of(fragment).get(ViewModel1.class);
                     assertThat(vm.mCleared, is(false));
