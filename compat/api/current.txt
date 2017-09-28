@@ -28,7 +28,7 @@ package android.support.v4.app {
     method public static void finishAffinity(android.app.Activity);
     method public static void finishAfterTransition(android.app.Activity);
     method public static android.net.Uri getReferrer(android.app.Activity);
-    method public static boolean invalidateOptionsMenu(android.app.Activity);
+    method public static deprecated boolean invalidateOptionsMenu(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
     method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
