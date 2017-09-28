@@ -1605,12 +1605,21 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     super.onAnimationEnd(animation);
-                    container.endViewTransition(viewToAnimate);
+                    // onAnimationEnd() comes during draw(), so there can still be some
+                    // draw events happening after this call. We don't want to detach
+                    // the view until after the onAnimationEnd()
+                    container.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            container.endViewTransition(viewToAnimate);
 
-                    if (fragment.getAnimatingAway() != null) {
-                        fragment.setAnimatingAway(null);
-                        moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0, false);
-                    }
+                            if (fragment.getAnimatingAway() != null) {
+                                fragment.setAnimatingAway(null);
+                                moveToState(fragment, fragment.getStateAfterAnimating(), 0, 0,
+                                        false);
+                            }
+                        }
+                    });
                 }
             });
             setHWLayerAnimListenerIfAlpha(viewToAnimate, anim);

@@ -312,7 +312,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { _, _ ->
             // do nothing
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.LIVE_DATA_QUERY_NOTHING_TO_OBSERVE)
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test
@@ -324,7 +324,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { _, _ ->
             // do nothing
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.LIVE_DATA_QUERY_NOTHING_TO_OBSERVE)
+                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test

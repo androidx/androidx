@@ -120,7 +120,9 @@ public class ActivityCompat extends ContextCompat {
      *
      * @param activity Invalidate the options menu of this activity
      * @return true if this operation was supported and it completed; false if it was not available.
+     * @deprecated Use {@link Activity#invalidateOptionsMenu()} directly.
      */
+    @Deprecated
     public static boolean invalidateOptionsMenu(Activity activity) {
         activity.invalidateOptionsMenu();
         return true;

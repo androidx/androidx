@@ -25,7 +25,6 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.text.TextUtils;
 
 /**
@@ -464,10 +463,9 @@ public class PreferenceManager {
             pm.setSharedPreferencesMode(sharedPreferencesMode);
             pm.inflateFromResource(context, resId, null);
 
-            SharedPreferences.Editor editor =
-                    defaultValueSp.edit().putBoolean(KEY_HAS_SET_DEFAULT_VALUES, true);
-
-            SharedPreferencesCompat.EditorCompat.getInstance().apply(editor);
+            defaultValueSp.edit()
+                    .putBoolean(KEY_HAS_SET_DEFAULT_VALUES, true)
+                    .apply();
         }
     }
 
@@ -511,7 +509,7 @@ public class PreferenceManager {
 
     private void setNoCommit(boolean noCommit) {
         if (!noCommit && mEditor != null) {
-            SharedPreferencesCompat.EditorCompat.getInstance().apply(mEditor);
+            mEditor.apply();
         }
         mNoCommit = noCommit;
     }

@@ -28,7 +28,7 @@ package android.support.v4.app {
     method public static void finishAffinity(android.app.Activity);
     method public static void finishAfterTransition(android.app.Activity);
     method public static android.net.Uri getReferrer(android.app.Activity);
-    method public static boolean invalidateOptionsMenu(android.app.Activity);
+    method public static deprecated boolean invalidateOptionsMenu(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
     method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
@@ -641,12 +641,12 @@ package android.support.v4.content {
     field public static final java.lang.String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
   }
 
-  public final class SharedPreferencesCompat {
+  public final deprecated class SharedPreferencesCompat {
   }
 
-  public static final class SharedPreferencesCompat.EditorCompat {
-    method public void apply(android.content.SharedPreferences.Editor);
-    method public static android.support.v4.content.SharedPreferencesCompat.EditorCompat getInstance();
+  public static final deprecated class SharedPreferencesCompat.EditorCompat {
+    method public deprecated void apply(android.content.SharedPreferences.Editor);
+    method public static deprecated android.support.v4.content.SharedPreferencesCompat.EditorCompat getInstance();
   }
 
 }

@@ -18,17 +18,17 @@ package android.arch.persistence.room.solver.binderprovider
 
 import android.arch.persistence.room.ext.RoomRxJava2TypeNames
 import android.arch.persistence.room.ext.RxJava2TypeNames
-import android.arch.persistence.room.parser.ParsedQuery
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.processor.ProcessorErrors
-import android.arch.persistence.room.solver.QueryResultBinderProvider
+import android.arch.persistence.room.solver.ObservableQueryResultBinderProvider
 import android.arch.persistence.room.solver.query.result.FlowableQueryResultBinder
+import android.arch.persistence.room.solver.query.result.QueryResultAdapter
 import android.arch.persistence.room.solver.query.result.QueryResultBinder
-import com.google.common.annotations.VisibleForTesting
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-class FlowableQueryResultBinderProvider(val context : Context) : QueryResultBinderProvider {
+class FlowableQueryResultBinderProvider(context: Context) :
+        ObservableQueryResultBinderProvider(context) {
     private val flowableTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
                 .getTypeElement(RxJava2TypeNames.FLOWABLE.toString())?.asType()
@@ -39,10 +39,14 @@ class FlowableQueryResultBinderProvider(val context : Context) : QueryResultBind
                 .getTypeElement(RoomRxJava2TypeNames.RX_ROOM.toString()) != null
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
-        val typeArg = declared.typeArguments.first()
-        return FlowableQueryResultBinder(typeArg, query.tables.map { it.name },
-                context.typeAdapterStore.findQueryResultAdapter(typeArg, query))
+    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
+
+    override fun create(typeArg: TypeMirror, resultAdapter: QueryResultAdapter?,
+                        tableNames: Set<String>): QueryResultBinder {
+        return FlowableQueryResultBinder(
+                typeArg = typeArg,
+                queryTableNames = tableNames,
+                adapter = resultAdapter)
     }
 
     override fun matches(declared: DeclaredType): Boolean =

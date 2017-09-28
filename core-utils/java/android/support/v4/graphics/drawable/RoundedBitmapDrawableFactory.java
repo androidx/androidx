@@ -21,10 +21,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.graphics.BitmapCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
+
+import java.io.InputStream;
 
 /**
  * Constructs {@link RoundedBitmapDrawable RoundedBitmapDrawable} objects,
@@ -63,7 +67,8 @@ public final class RoundedBitmapDrawableFactory {
      * Returns a new drawable by creating it from a bitmap, setting initial target density based on
      * the display metrics of the resources.
      */
-    public static RoundedBitmapDrawable create(Resources res, Bitmap bitmap) {
+    @NonNull
+    public static RoundedBitmapDrawable create(@NonNull Resources res, @Nullable Bitmap bitmap) {
         if (Build.VERSION.SDK_INT >= 21) {
             return new RoundedBitmapDrawable21(res, bitmap);
         }
@@ -73,8 +78,8 @@ public final class RoundedBitmapDrawableFactory {
     /**
      * Returns a new drawable, creating it by opening a given file path and decoding the bitmap.
      */
-    public static RoundedBitmapDrawable create(Resources res,
-            String filepath) {
+    @NonNull
+    public static RoundedBitmapDrawable create(@NonNull Resources res, @NonNull String filepath) {
         final RoundedBitmapDrawable drawable = create(res, BitmapFactory.decodeFile(filepath));
         if (drawable.getBitmap() == null) {
             Log.w(TAG, "RoundedBitmapDrawable cannot decode " + filepath);
@@ -86,8 +91,8 @@ public final class RoundedBitmapDrawableFactory {
     /**
      * Returns a new drawable, creating it by decoding a bitmap from the given input stream.
      */
-    public static RoundedBitmapDrawable create(Resources res,
-            java.io.InputStream is) {
+    @NonNull
+    public static RoundedBitmapDrawable create(@NonNull Resources res, @NonNull InputStream is) {
         final RoundedBitmapDrawable drawable = create(res, BitmapFactory.decodeStream(is));
         if (drawable.getBitmap() == null) {
             Log.w(TAG, "RoundedBitmapDrawable cannot decode " + is);
