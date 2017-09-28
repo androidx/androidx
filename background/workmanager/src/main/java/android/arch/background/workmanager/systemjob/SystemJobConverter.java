@@ -41,17 +41,29 @@ public class SystemJobConverter implements WorkSpecConverter<JobInfo> {
     public static final String EXTRAS_WORK_SPEC_ID = "WORK_SPEC_ID";
 
     private final ComponentName mWorkServiceComponent;
+    private final SystemJobIdGenerator mJobIdGenerator;
 
+    /**
+     * Constructs a {@link SystemJobIdGenerator}.
+     *
+     * @param context A non-null {@link Context}.
+     */
     public SystemJobConverter(@NonNull Context context) {
-        mWorkServiceComponent = new ComponentName(context, SystemJobService.class);
+        this(context, new SystemJobIdGenerator(context));
+    }
+
+    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+    public SystemJobConverter(@NonNull Context context, SystemJobIdGenerator jobIdGenerator) {
+        Context appContext = context.getApplicationContext();
+        mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
+        mJobIdGenerator = jobIdGenerator;
     }
 
     @Override
     public JobInfo convert(WorkSpec workSpec) {
         Constraints constraints = workSpec.getConstraints();
-        int jobId = generateJobId(workSpec.getId());
+        int jobId = mJobIdGenerator.nextId();
         int jobNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
-
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRAS_WORK_SPEC_ID, workSpec.getId());
 
@@ -95,17 +107,5 @@ public class SystemJobConverter implements WorkSpecConverter<JobInfo> {
                 break;
         }
         throw new IllegalArgumentException("NetworkType of " + networkType + " is not supported.");
-    }
-
-    /**
-     * Generates a job ID from a UUID.
-     *
-     * @param uuid The UUID to use
-     * @return The job ID associated with that UUID
-     */
-    // TODO(janclarin): Store UUID mapping with incrementing integer work ID.
-    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-    public static int generateJobId(String uuid) {
-        return uuid.hashCode();
     }
 }

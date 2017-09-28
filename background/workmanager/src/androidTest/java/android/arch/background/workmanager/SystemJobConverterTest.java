@@ -17,11 +17,14 @@
 package android.arch.background.workmanager;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.systemjob.SystemJobConverter;
+import android.arch.background.workmanager.systemjob.SystemJobIdGenerator;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -33,24 +36,29 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SystemJobConverterTest {
+    private SystemJobIdGenerator mMockJobIdGenerator;
     private SystemJobConverter mConverter;
 
     @Before
     public void setUp() {
-        mConverter = new SystemJobConverter(InstrumentationRegistry.getTargetContext());
+        mMockJobIdGenerator = mock(SystemJobIdGenerator.class);
+        mConverter = new SystemJobConverter(
+                InstrumentationRegistry.getTargetContext(),
+                mMockJobIdGenerator);
     }
 
     @Test
     public void convert() {
+        int expectedJobId = 101;
+        when(mMockJobIdGenerator.nextId()).thenReturn(expectedJobId);
+
         String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
-        // TODO(janclarin): Use int mapping for UUID from DB.
-        int expectedIntId = SystemJobConverter.generateJobId(expectedWorkSpecId);
         WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(
                 SystemJobConverter.EXTRAS_WORK_SPEC_ID);
         assertEquals(expectedWorkSpecId, actualWorkSpecId);
-        assertEquals(expectedIntId, jobInfo.getId());
+        assertEquals(expectedJobId, jobInfo.getId());
     }
 
     @Test
