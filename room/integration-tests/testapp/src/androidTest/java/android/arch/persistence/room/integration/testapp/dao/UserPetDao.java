@@ -33,6 +33,8 @@ import android.arch.persistence.room.integration.testapp.vo.UserWithPetsAndToys;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
+
 @Dao
 public interface UserPetDao {
     @Query("SELECT * FROM User u, Pet p WHERE u.mId = p.mUserId")
@@ -61,6 +63,9 @@ public interface UserPetDao {
 
     @Query("SELECT * FROM User u where u.mId = :userId")
     LiveData<UserAndAllPets> liveUserWithPets(int userId);
+
+    @Query("SELECT * FROM User u where u.mId = :userId")
+    Flowable<UserAndAllPets> flowableUserWithPets(int userId);
 
     @Query("SELECT * FROM User u where u.mId = :uid")
     EmbeddedUserAndAllPets loadUserAndPetsAsEmbedded(int uid);

@@ -25,7 +25,6 @@ import android.arch.persistence.room.parser.SQLTypeAffinity
 import android.arch.persistence.room.vo.CustomTypeConverter
 import android.arch.persistence.room.vo.Field
 import com.squareup.javapoet.TypeName
-import javax.lang.model.type.TypeMirror
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -134,9 +133,9 @@ object ProcessorErrors {
     val LIVE_DATA_QUERY_WITHOUT_SELECT = "LiveData return type can only be used with SELECT" +
             " queries."
 
-    val LIVE_DATA_QUERY_NOTHING_TO_OBSERVE = "LiveData return type can only be used with SELECT" +
-            " queries that directly or indirectly (via @Relation, for example) access at least" +
-            " one table.";
+    val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
+            " etc) can only be used with SELECT queries that directly or indirectly (via" +
+            " @Relation, for example) access at least one table."
 
     private val TOO_MANY_MATCHING_GETTERS = "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
