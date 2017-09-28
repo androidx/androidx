@@ -112,7 +112,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         val indexInputs = entityIndices + fieldIndices + superIndices
         val indices = validateAndCreateIndices(indexInputs, pojo)
 
-        val primaryKey = findPrimaryKey(pojo.fields, pojo.embeddedFields)
+        val primaryKey = findAndValidatePrimaryKey(pojo.fields, pojo.embeddedFields)
         val affinity = primaryKey.fields.firstOrNull()?.affinity ?: SQLTypeAffinity.TEXT
         context.checker.check(
                 !primaryKey.autoGenerateId || affinity == SQLTypeAffinity.INTEGER,
@@ -226,7 +226,7 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
         }.filterNotNull()
     }
 
-    private fun findPrimaryKey(fields: List<Field>, embeddedFields: List<EmbeddedField>)
+    private fun findAndValidatePrimaryKey(fields: List<Field>, embeddedFields: List<EmbeddedField>)
             : PrimaryKey {
         val candidates = collectPrimaryKeysFromEntityAnnotations(element, fields) +
                 collectPrimaryKeysFromPrimaryKeyAnnotations(fields) +
@@ -242,7 +242,15 @@ class EntityProcessor(baseContext: Context, val element: TypeElement) {
                 .map { candidate ->
                     candidate.fields.map { field ->
                         context.checker.check(field.nonNull, field.element,
-                                ProcessorErrors.PRIMARY_KEY_NULL)
+                                ProcessorErrors.primaryKeyNull(field.getPath()))
+                        // Validate parents for nullability
+                        var parent = field.parent
+                        while(parent != null) {
+                            val parentField = parent.field
+                            context.checker.check(parentField.nonNull, parentField.element,
+                                    ProcessorErrors.primaryKeyNull(parentField.getPath()))
+                            parent = parentField.parent
+                        }
                     }
                 }
 
