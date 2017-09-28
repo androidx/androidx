@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.IntentCompat;
 import android.support.v4.content.SharedPreferencesCompat;
 
@@ -46,7 +47,7 @@ public class AppLaunchChecker {
      * @param context Context to check
      * @return true if this app has been started by the user from the launcher at least once
      */
-    public static boolean hasStartedFromLauncher(Context context) {
+    public static boolean hasStartedFromLauncher(@NonNull Context context) {
         return context.getSharedPreferences(SHARED_PREFS_NAME, 0)
                 .getBoolean(KEY_STARTED_FROM_LAUNCHER, false);
     }
@@ -62,7 +63,7 @@ public class AppLaunchChecker {
      *
      * @param activity the Activity currently running onCreate
      */
-    public static void onActivityCreate(Activity activity) {
+    public static void onActivityCreate(@NonNull Activity activity) {
         final SharedPreferences sp = activity.getSharedPreferences(SHARED_PREFS_NAME, 0);
         if (sp.getBoolean(KEY_STARTED_FROM_LAUNCHER, false)) {
             return;
