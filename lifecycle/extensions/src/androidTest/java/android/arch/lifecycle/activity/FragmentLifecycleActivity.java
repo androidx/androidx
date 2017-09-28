@@ -17,7 +17,6 @@
 package android.arch.lifecycle.activity;
 
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleFragment;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
@@ -26,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
@@ -70,9 +70,9 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
         mLoggedEvents.clear();
     }
 
-    public static class MainFragment extends LifecycleFragment {
+    public static class MainFragment extends Fragment {
         @Nullable
-        LifecycleFragment mNestedFragment;
+        Fragment mNestedFragment;
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +85,7 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
         }
     }
 
-    public static class NestedFragment extends LifecycleFragment {
+    public static class NestedFragment extends Fragment {
     }
 
     public static Intent intentFor(Context context, boolean nested) {
@@ -98,7 +98,8 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
         mObservedOwner = provider;
         provider.getLifecycle().addObserver(new LifecycleObserver() {
             @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-            public void anyEvent(LifecycleOwner owner, Lifecycle.Event event) {
+            public void anyEvent(@SuppressWarnings("unused") LifecycleOwner owner,
+                    Lifecycle.Event event) {
                 mLoggedEvents.add(event);
             }
         });

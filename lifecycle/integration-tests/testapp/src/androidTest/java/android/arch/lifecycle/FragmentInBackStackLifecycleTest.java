@@ -37,6 +37,7 @@ import android.arch.lifecycle.testapp.R;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
@@ -58,20 +59,20 @@ public class FragmentInBackStackLifecycleTest {
         final ArrayList<Event> collectedEvents = new ArrayList<>();
         LifecycleObserver collectingObserver = new LifecycleObserver() {
             @OnLifecycleEvent(Event.ON_ANY)
-            void onAny(LifecycleOwner owner, Event event) {
+            void onAny(@SuppressWarnings("unused") LifecycleOwner owner, Event event) {
                 collectedEvents.add(event);
             }
         };
         final FragmentActivity activity = activityTestRule.getActivity();
         activityTestRule.runOnUiThread(() -> {
             FragmentManager fm = activity.getSupportFragmentManager();
-            LifecycleFragment fragment = new LifecycleFragment();
+            Fragment fragment = new Fragment();
             fm.beginTransaction().add(R.id.fragment_container, fragment, "tag").addToBackStack(null)
                     .commit();
             fm.executePendingTransactions();
 
             fragment.getLifecycle().addObserver(collectingObserver);
-            LifecycleFragment fragment2 = new LifecycleFragment();
+            Fragment fragment2 = new Fragment();
             fm.beginTransaction().replace(R.id.fragment_container, fragment2).addToBackStack(null)
                     .commit();
             fm.executePendingTransactions();
@@ -82,12 +83,13 @@ public class FragmentInBackStackLifecycleTest {
         EmptyActivity newActivity = recreateActivity(activityTestRule.getActivity(),
                 activityTestRule);
 
+        //noinspection ArraysAsListWithZeroOrOneArgument
         assertThat(collectedEvents, is(asList(ON_DESTROY)));
         collectedEvents.clear();
         EmptyActivity lastActivity = recreateActivity(newActivity, activityTestRule);
         activityTestRule.runOnUiThread(() -> {
             FragmentManager fm = lastActivity.getSupportFragmentManager();
-            LifecycleFragment fragment = (LifecycleFragment) fm.findFragmentByTag("tag");
+            Fragment fragment = fm.findFragmentByTag("tag");
             fragment.getLifecycle().addObserver(collectingObserver);
             assertThat(collectedEvents, iterableWithSize(0));
             fm.popBackStackImmediate();
