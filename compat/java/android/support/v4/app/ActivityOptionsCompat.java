@@ -315,7 +315,7 @@ public class ActivityOptionsCompat {
      * @param screenSpacePixelRect Launch bounds to use for the activity or null for fullscreen.
      */
     public ActivityOptionsCompat setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
-        return null;
+        return this;
     }
 
     /**
