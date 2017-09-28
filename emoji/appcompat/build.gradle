@@ -26,10 +26,6 @@ android {
     defaultConfig {
         minSdkVersion 14
     }
-
-    sourceSets {
-        main.java.srcDir 'src'
-    }
 }
 
 supportLibrary {
