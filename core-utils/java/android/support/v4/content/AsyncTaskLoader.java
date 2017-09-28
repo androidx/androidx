@@ -21,6 +21,8 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.os.OperationCanceledException;
 import android.support.v4.util.TimeUtils;
@@ -121,11 +123,11 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     long mLastLoadCompleteTime = -10000;
     Handler mHandler;
 
-    public AsyncTaskLoader(Context context) {
+    public AsyncTaskLoader(@NonNull Context context) {
         this(context, ModernAsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    private AsyncTaskLoader(Context context, Executor executor) {
+    private AsyncTaskLoader(@NonNull Context context, @NonNull Executor executor) {
         super(context);
         mExecutor = executor;
     }
@@ -200,7 +202,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
      * @param data The value that was returned by {@link #loadInBackground}, or null
      * if the task threw {@link OperationCanceledException}.
      */
-    public void onCanceled(D data) {
+    public void onCanceled(@Nullable D data) {
     }
 
     void executePendingTask() {
@@ -284,6 +286,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
      * @see #cancelLoadInBackground
      * @see #onCanceled
      */
+    @Nullable
     public abstract D loadInBackground();
 
     /**
@@ -298,6 +301,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
      *
      * @see #loadInBackground
      */
+    @Nullable
     protected D onLoadInBackground() {
         return loadInBackground();
     }
