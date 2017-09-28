@@ -34,7 +34,7 @@ import javax.lang.model.type.TypeMirror
 /**
  * Binds the result as an RxJava2 Flowable.
  */
-class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: List<String>,
+class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: Set<String>,
                                 adapter: QueryResultAdapter?)
     : BaseObservableQueryResultBinder(adapter) {
     override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
