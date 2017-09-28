@@ -19,8 +19,18 @@ package android.support.v4.content;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
+/**
+ * @deprecated This compatibility class is no longer required. Use {@link SharedPreferences}
+ * directly.
+ */
+@Deprecated
 public final class SharedPreferencesCompat {
 
+    /**
+     * @deprecated This compatibility class is no longer required. Use
+     * {@link SharedPreferences.Editor} directly.
+     */
+    @Deprecated
     public final static class EditorCompat {
 
         private static EditorCompat sInstance;
@@ -46,14 +56,22 @@ public final class SharedPreferencesCompat {
         private EditorCompat() {
             mHelper = new Helper();
         }
-
+        /**
+         * @deprecated This compatibility class is no longer required. Use
+         * {@link SharedPreferences.Editor} directly.
+         */
+        @Deprecated
         public static EditorCompat getInstance() {
             if (sInstance == null) {
                 sInstance = new EditorCompat();
             }
             return sInstance;
         }
-
+        /**
+         * @deprecated This compatibility method is no longer required. Use
+         * {@link SharedPreferences.Editor#apply()} directly.
+         */
+        @Deprecated
         public void apply(@NonNull SharedPreferences.Editor editor) {
             // Note that this redirection is needed to not break the public API chain
             // of getInstance().apply() calls. Otherwise this method could (and should)
