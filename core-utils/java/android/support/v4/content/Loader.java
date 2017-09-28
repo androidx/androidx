@@ -19,6 +19,8 @@ package android.support.v4.content;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.DebugUtils;
 
 import java.io.FileDescriptor;
@@ -80,7 +82,7 @@ public class Loader<D> {
          * @param loader the loader that completed the load
          * @param data the result of the load
          */
-        public void onLoadComplete(Loader<D> loader, D data);
+        void onLoadComplete(@NonNull Loader<D> loader, @Nullable D data);
     }
 
     /**
@@ -97,7 +99,7 @@ public class Loader<D> {
          *
          * @param loader the loader that canceled the load
          */
-        public void onLoadCanceled(Loader<D> loader);
+        void onLoadCanceled(@NonNull Loader<D> loader);
     }
 
     /**
@@ -110,7 +112,7 @@ public class Loader<D> {
      *
      * @param context used to retrieve the application context.
      */
-    public Loader(Context context) {
+    public Loader(@NonNull Context context) {
         mContext = context.getApplicationContext();
     }
 
@@ -121,7 +123,7 @@ public class Loader<D> {
      *
      * @param data the result of the load
      */
-    public void deliverResult(D data) {
+    public void deliverResult(@Nullable D data) {
         if (mListener != null) {
             mListener.onLoadComplete(this, data);
         }
@@ -142,6 +144,7 @@ public class Loader<D> {
     /**
      * @return an application context retrieved from the Context passed to the constructor.
      */
+    @NonNull
     public Context getContext() {
         return mContext;
     }
@@ -160,7 +163,7 @@ public class Loader<D> {
      *
      * <p>Must be called from the process's main thread.
      */
-    public void registerListener(int id, OnLoadCompleteListener<D> listener) {
+    public void registerListener(int id, @NonNull OnLoadCompleteListener<D> listener) {
         if (mListener != null) {
             throw new IllegalStateException("There is already a listener registered");
         }
@@ -173,7 +176,7 @@ public class Loader<D> {
      *
      * Must be called from the process's main thread.
      */
-    public void unregisterListener(OnLoadCompleteListener<D> listener) {
+    public void unregisterListener(@NonNull OnLoadCompleteListener<D> listener) {
         if (mListener == null) {
             throw new IllegalStateException("No listener register");
         }
@@ -192,7 +195,7 @@ public class Loader<D> {
      *
      * @param listener The listener to register.
      */
-    public void registerOnLoadCanceledListener(OnLoadCanceledListener<D> listener) {
+    public void registerOnLoadCanceledListener(@NonNull OnLoadCanceledListener<D> listener) {
         if (mOnLoadCanceledListener != null) {
             throw new IllegalStateException("There is already a listener registered");
         }
@@ -207,7 +210,7 @@ public class Loader<D> {
      *
      * @param listener The listener to unregister.
      */
-    public void unregisterOnLoadCanceledListener(OnLoadCanceledListener<D> listener) {
+    public void unregisterOnLoadCanceledListener(@NonNull OnLoadCanceledListener<D> listener) {
         if (mOnLoadCanceledListener == null) {
             throw new IllegalStateException("No listener register");
         }
@@ -493,7 +496,8 @@ public class Loader<D> {
      * For debugging, converts an instance of the Loader's data class to
      * a string that can be printed.  Must handle a null data.
      */
-    public String dataToString(D data) {
+    @NonNull
+    public String dataToString(@Nullable D data) {
         StringBuilder sb = new StringBuilder(64);
         DebugUtils.buildShortClassTag(data, sb);
         sb.append("}");
