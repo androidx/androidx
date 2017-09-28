@@ -49,7 +49,9 @@ class WorkExecutionManager implements ExecutionListener {
 
     void enqueue(String id, long delayMs) {
         synchronized (mLock) {
-            WorkerWrapper wrapper = new WorkerWrapper(mAppContext, mWorkDatabase, id, this);
+            WorkerWrapper wrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
+                    .withListener(this)
+                    .build();
             Future<?> future = mExecutor.schedule(wrapper, delayMs, TimeUnit.MILLISECONDS);
             mFutures.put(id, future);
         }

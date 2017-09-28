@@ -25,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.PowerManager;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.net.ConnectivityManagerCompat;
 import android.util.Log;
 
@@ -32,16 +33,25 @@ import android.util.Log;
  * ConstraintsChecker ensures that {@link Constraints} are satisfied for {@link WorkSpec}s.
  */
 
-class ConstraintsChecker {
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+public class ConstraintsChecker {
     private static final String TAG = "ConstraintsChecker";
     private static final float BATTERY_LOW_THRESHOLD = 15f;
     private Context mContext;
 
-    ConstraintsChecker(Context context) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public ConstraintsChecker(Context context) {
         mContext = context.getApplicationContext();
     }
 
-    boolean areAllConstraintsMet(WorkSpec workSpec) {
+    /**
+     * Determines if all {@link Constraints} specified in a given {@link WorkSpec}
+     * are currently satisfied
+     * @param workSpec {@link WorkSpec} to check
+     * @return {@code true} if all {@link Constraints} are satisfied, {@code false} otherwise
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    public boolean areAllConstraintsMet(WorkSpec workSpec) {
         return isBatteryConstraintMet(workSpec)
                 && isChargingConstraintMet(workSpec)
                 && isDeviceIdleConstraintMet(workSpec)

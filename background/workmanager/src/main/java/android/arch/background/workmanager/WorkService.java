@@ -76,7 +76,8 @@ public class WorkService extends JobService implements ExecutionListener {
     public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
         Log.d(TAG, workSpecId + " executed on JobScheduler");
         JobParameters parameters = mJobParameters.get(workSpecId);
-        boolean needsReschedule = (result == WorkerWrapper.RESULT_INTERRUPTED);
+        boolean needsReschedule = (result == WorkerWrapper.RESULT_INTERRUPTED
+                || result == WorkerWrapper.RESULT_RESCHEDULED);
         jobFinished(parameters, needsReschedule);
     }
 }
