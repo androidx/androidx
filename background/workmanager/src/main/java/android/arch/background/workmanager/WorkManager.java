@@ -36,7 +36,6 @@ public final class WorkManager {
     private static final String TAG = "WorkManager";
 
     private Context mContext;
-    private ExecutorService mBackgroundExecutor;
     private Processor mForegroundProcessor;
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
@@ -44,10 +43,6 @@ public final class WorkManager {
 
     private WorkManager(Context context, Builder builder) {
         mContext = context.getApplicationContext();
-        mBackgroundExecutor =
-                (builder.mBackgroundExecutor == null)
-                        ? Executors.newSingleThreadExecutor()   // TODO: Configure intelligently.
-                        : builder.mBackgroundExecutor;
         mWorkDatabase = WorkDatabase.create(mContext, builder.mUseInMemoryDatabase);
 
         mForegroundProcessor =
@@ -153,18 +148,7 @@ public final class WorkManager {
      */
     public static class Builder {
 
-        private ExecutorService mBackgroundExecutor;
         private boolean mUseInMemoryDatabase;
-
-        /**
-         * @param backgroundExecutor The ExecutorService to run via OS-defined background execution
-         *                           such as {@link android.app.job.JobScheduler}
-         * @return The Builder
-         */
-        public Builder withBackgroundExecutor(ExecutorService backgroundExecutor) {
-            mBackgroundExecutor = backgroundExecutor;
-            return this;
-        }
 
         /**
          * Call this method to use an in-memory database.  Useful for tests.

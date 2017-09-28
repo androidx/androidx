@@ -25,8 +25,6 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.
@@ -34,7 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @TargetApi(21)
 public class WorkService extends JobService implements ExecutionListener {
     private static final String TAG = "WorkService";
-    private WorkExecutionManager mWorkExecutionManager;
+    private SystemJobProcessor mSystemJobProcessor;
     private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
     @Override
@@ -42,9 +40,7 @@ public class WorkService extends JobService implements ExecutionListener {
         super.onCreate();
         Context context = getApplicationContext();
         WorkDatabase database = WorkDatabase.create(context, false);
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        mWorkExecutionManager = new WorkExecutionManager(
-                context, database, executorService, this);
+        mSystemJobProcessor = new SystemJobProcessor(context, database, this);
     }
 
     @Override
@@ -56,7 +52,7 @@ public class WorkService extends JobService implements ExecutionListener {
         }
         Log.d(TAG, workSpecId + " started on JobScheduler");
         mJobParameters.put(workSpecId, params);
-        mWorkExecutionManager.enqueue(workSpecId, 0 /* TODO: delay */);
+        mSystemJobProcessor.process(workSpecId);
         return true;
     }
 
@@ -67,9 +63,9 @@ public class WorkService extends JobService implements ExecutionListener {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
         }
-        boolean canceled = mWorkExecutionManager.cancel(workSpecId);
-        Log.d(TAG, workSpecId + "; cancel = " + canceled);
-        return canceled;
+        boolean cancelled = mSystemJobProcessor.cancel(workSpecId, true);
+        Log.d(TAG, workSpecId + "; cancel = " + cancelled);
+        return cancelled;
     }
 
     @Override
