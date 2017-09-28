@@ -73,7 +73,10 @@ public class ForegroundProcessor extends Processor
     @Override
     public void process(String id) {
         if (isActive()) {
-            WorkerWrapper workWrapper = new WorkerWrapper(mAppContext, mWorkDatabase, id, this);
+            WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
+                    .withListener(this)
+                    .verifyAllConstraints()
+                    .build();
             Future<?> future = mExecutorService.submit(workWrapper);   // TODO(sumir): Delays
             mEnqueuedWork.put(id, future);
         }

@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
@@ -37,7 +38,7 @@ import java.lang.annotation.Retention;
 class WorkerWrapper implements Runnable {
     @Retention(SOURCE)
     @IntDef({RESULT_NOT_ENQUEUED, RESULT_PERMANENT_ERROR, RESULT_FAILED, RESULT_INTERRUPTED,
-            RESULT_SUCCEEDED})
+            RESULT_SUCCEEDED, RESULT_RESCHEDULED})
     public @interface ExecutionResult {
     }
 
@@ -46,19 +47,21 @@ class WorkerWrapper implements Runnable {
     public static final int RESULT_FAILED = 2;
     public static final int RESULT_INTERRUPTED = 3;
     public static final int RESULT_SUCCEEDED = 4;
+    public static final int RESULT_RESCHEDULED = 5;
 
     private static final String TAG = "WorkerWrapper";
     private Context mAppContext;
     private WorkDatabase mWorkDatabase;
     private String mWorkSpecId;
     private ExecutionListener mListener;
+    private ConstraintsChecker mConstraintsChecker;
 
-    WorkerWrapper(Context context, WorkDatabase database, String workSpecId,
-                  @NonNull ExecutionListener listener) {
-        mAppContext = context.getApplicationContext();
-        mWorkDatabase = database;
-        mWorkSpecId = workSpecId;
-        mListener = listener;
+    private WorkerWrapper(Builder builder) {
+        mAppContext = builder.mAppContext;
+        mWorkDatabase = builder.mWorkDatabase;
+        mWorkSpecId = builder.mWorkSpecId;
+        mListener = builder.mListener;
+        mConstraintsChecker = builder.mConstraintsChecker;
     }
 
     @Override
@@ -89,23 +92,29 @@ class WorkerWrapper implements Runnable {
 
         try {
             checkForInterruption();
+            if (mConstraintsChecker != null
+                    && !mConstraintsChecker.areAllConstraintsMet(workSpec)) {
+                // TODO(xbhatnag): Retry Policies
+                Log.d(TAG, "Constraints not satisfied. Retrying");
+                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
+                notifyListener(RESULT_RESCHEDULED);
+                return;
+            }
             worker.doWork();
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + mWorkSpecId);
             setSuccessAndRemoveDependencies();
             notifyListener(RESULT_SUCCEEDED);
+        } catch (InterruptedException e) {
+            // TODO(xbhatnag): Retry Policies
+            Log.d(TAG, "Work interrupted for " + mWorkSpecId);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
+            notifyListener(RESULT_INTERRUPTED);
         } catch (Exception e) {
-            // TODO: Retry policies.
-            if (e instanceof InterruptedException) {
-                Log.d(TAG, "Work interrupted for " + mWorkSpecId);
-                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
-                notifyListener(RESULT_INTERRUPTED);
-            } else {
-                Log.d(TAG, "Work failed for " + mWorkSpecId, e);
-                workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
-                notifyListener(RESULT_FAILED);
-            }
+            Log.d(TAG, "Work failed for " + mWorkSpecId, e);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
+            notifyListener(RESULT_FAILED);
         }
     }
 
@@ -116,6 +125,9 @@ class WorkerWrapper implements Runnable {
     }
 
     private void notifyListener(@ExecutionResult final int result) {
+        if (mListener == null) {
+            return;
+        }
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -132,6 +144,45 @@ class WorkerWrapper implements Runnable {
             mWorkDatabase.setTransactionSuccessful();
         } finally {
             mWorkDatabase.endTransaction();
+        }
+    }
+
+    /**
+     * Builder class for {@link WorkerWrapper}
+     */
+    static class Builder {
+        private Context mAppContext;
+        private WorkDatabase mWorkDatabase;
+        private String mWorkSpecId;
+        private ExecutionListener mListener;
+        private ConstraintsChecker mConstraintsChecker;
+
+        Builder(@NonNull Context context,
+                @NonNull WorkDatabase database,
+                @NonNull String workSpecId) {
+            mAppContext = context.getApplicationContext();
+            mWorkDatabase = database;
+            mWorkSpecId = workSpecId;
+        }
+
+        Builder withListener(ExecutionListener listener) {
+            mListener = listener;
+            return this;
+        }
+
+        Builder verifyAllConstraints() {
+            mConstraintsChecker = new ConstraintsChecker(mAppContext);
+            return this;
+        }
+
+        @VisibleForTesting
+        Builder verifyAllConstraints(ConstraintsChecker constraintsChecker) {
+            mConstraintsChecker = constraintsChecker;
+            return this;
+        }
+
+        WorkerWrapper build() {
+            return new WorkerWrapper(this);
         }
     }
 }
