@@ -24,7 +24,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.IntentCompat;
-import android.support.v4.content.SharedPreferencesCompat;
 
 /**
  * This class provides APIs for determining how an app has been launched.
@@ -77,8 +76,7 @@ public class AppLaunchChecker {
         if (Intent.ACTION_MAIN.equals(launchIntent.getAction())
                 && (launchIntent.hasCategory(Intent.CATEGORY_LAUNCHER)
                 || launchIntent.hasCategory(IntentCompat.CATEGORY_LEANBACK_LAUNCHER))) {
-            SharedPreferencesCompat.EditorCompat.getInstance().apply(
-                    sp.edit().putBoolean(KEY_STARTED_FROM_LAUNCHER, true));
+            sp.edit().putBoolean(KEY_STARTED_FROM_LAUNCHER, true).apply();
         }
     }
 }
