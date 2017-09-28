@@ -18,9 +18,6 @@ package android.arch.background.workmanager;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
@@ -29,36 +26,32 @@ import android.support.annotation.VisibleForTesting;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * WorkManager is a class used to enqueue persisted work that is guaranteed to run after its
  * constraints are met.
  */
-public final class WorkManager implements LifecycleObserver {
+public final class WorkManager {
 
     private static final String TAG = "WorkManager";
 
     private Context mContext;
-    private ScheduledExecutorService mForegroundExecutor;
     private ExecutorService mBackgroundExecutor;
+    private Processor mForegroundProcessor;
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
-    private WorkExecutionManager mForegroundWorkExecutionMgr;
     private WorkSpecConverter<JobInfo> mWorkSpecConverter;
 
     private WorkManager(Context context, Builder builder) {
         mContext = context.getApplicationContext();
-        mForegroundExecutor =
-                (builder.mForegroundExecutor == null)
-                        ? Executors.newScheduledThreadPool(4)   // TODO: Configure intelligently.
-                        : builder.mForegroundExecutor;
         mBackgroundExecutor =
                 (builder.mBackgroundExecutor == null)
                         ? Executors.newSingleThreadExecutor()   // TODO: Configure intelligently.
                         : builder.mBackgroundExecutor;
         mWorkDatabase = WorkDatabase.create(mContext, builder.mUseInMemoryDatabase);
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+
+        mForegroundProcessor =
+                new ForegroundProcessor(mContext, mWorkDatabase, ProcessLifecycleOwner.get());
 
         // TODO(janclarin): Wrap JobScheduler logic behind another interface.
         if (Build.VERSION.SDK_INT >= 21) {
@@ -69,27 +62,6 @@ public final class WorkManager implements LifecycleObserver {
     @VisibleForTesting
     WorkDatabase getWorkDatabase() {
         return mWorkDatabase;
-    }
-
-    /**
-     * Called when the process lifecycle is considered started.
-     */
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onLifecycleStart() {
-        mForegroundWorkExecutionMgr = new WorkExecutionManager(
-                mContext,
-                mWorkDatabase,
-                mForegroundExecutor,
-                null /* TODO: scheduler */);
-    }
-
-    /**
-     * Called when the process lifecycle is considered stopped.
-     */
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onLifecycleStop() {
-        mForegroundWorkExecutionMgr.shutdown();
-        mForegroundWorkExecutionMgr = null;
     }
 
     /**
@@ -151,12 +123,7 @@ public final class WorkManager implements LifecycleObserver {
                     Dependency dep = new Dependency(mWork.getId(), mPrerequisiteId);
                     mWorkDatabase.dependencyDao().insertDependency(dep);
                 } else {
-                    if (mForegroundWorkExecutionMgr != null) {
-                        mForegroundWorkExecutionMgr.enqueue(
-                                mWork.getId(),
-                                0L /* TODO: delay */);
-                        // TODO: Schedule dependent work.
-                    }
+                    mForegroundProcessor.process(mWork.getId());
 
                     if (Build.VERSION.SDK_INT >= 21) {
                         scheduleWorkWithJobScheduler();
@@ -186,18 +153,8 @@ public final class WorkManager implements LifecycleObserver {
      */
     public static class Builder {
 
-        private ScheduledExecutorService mForegroundExecutor;
         private ExecutorService mBackgroundExecutor;
         private boolean mUseInMemoryDatabase;
-
-        /**
-         * @param foregroundExecutor The ExecutorService to run in-process during active lifecycles
-         * @return The Builder
-         */
-        public Builder withForegroundExecutor(ScheduledExecutorService foregroundExecutor) {
-            mForegroundExecutor = foregroundExecutor;
-            return this;
-        }
 
         /**
          * @param backgroundExecutor The ExecutorService to run via OS-defined background execution

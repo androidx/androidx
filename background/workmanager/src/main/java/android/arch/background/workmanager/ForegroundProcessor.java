@@ -17,9 +17,9 @@ package android.arch.background.workmanager;
 
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
-import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
@@ -40,13 +40,17 @@ public class ForegroundProcessor extends Processor
 
     // TODO(sumir): Be more intelligent about this.
     private ExecutorService mExecutorService = Executors.newScheduledThreadPool(4);
-
     private Map<String, Future<?>> mEnqueuedWork = new LinkedHashMap<>();
+    private LifecycleOwner mLifecycleOwner;
 
-    public ForegroundProcessor(Context appContext, WorkDatabase workDatabase) {
+    public ForegroundProcessor(
+            Context appContext,
+            WorkDatabase workDatabase,
+            LifecycleOwner lifecycleOwner) {
         super(appContext, workDatabase);
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-        mWorkDatabase.workSpecDao().getRunnableWorkIds().observe(ProcessLifecycleOwner.get(), this);
+        mLifecycleOwner = lifecycleOwner;
+        mLifecycleOwner.getLifecycle().addObserver(this);
+        mWorkDatabase.workSpecDao().getRunnableWorkIds().observe(mLifecycleOwner, this);
     }
 
     @Override
@@ -68,9 +72,15 @@ public class ForegroundProcessor extends Processor
 
     @Override
     public void process(String id) {
-        WorkerWrapper workWrapper = new WorkerWrapper(mAppContext, mWorkDatabase, id, this);
-        Future<?> future = mExecutorService.submit(workWrapper);   // TODO(sumir): Delays
-        mEnqueuedWork.put(id, future);
+        if (isActive()) {
+            WorkerWrapper workWrapper = new WorkerWrapper(mAppContext, mWorkDatabase, id, this);
+            Future<?> future = mExecutorService.submit(workWrapper);   // TODO(sumir): Delays
+            mEnqueuedWork.put(id, future);
+        }
+    }
+
+    private boolean isActive() {
+        return mLifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
     }
 
     @Override

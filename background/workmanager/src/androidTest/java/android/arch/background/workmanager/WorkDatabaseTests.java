@@ -70,7 +70,10 @@ public class WorkDatabaseTests {
         for (int i = 0; i < workCount; ++i) {
             String id = workArray[i].getId();
             assertNotNull(mDatabase.workSpecDao().getWorkSpec(id));
-            assertEquals(mDatabase.dependencyDao().hasDependencies(id), (i > 0));
+            assertEquals(
+                    "index " + i + " does not have expected number of dependencies!",
+                    mDatabase.dependencyDao().hasDependencies(id),
+                    (i > 0));
         }
     }
 

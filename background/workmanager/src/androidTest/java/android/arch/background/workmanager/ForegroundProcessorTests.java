@@ -17,6 +17,9 @@ package android.arch.background.workmanager;
 
 import static org.junit.Assert.assertEquals;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -35,9 +38,21 @@ public class ForegroundProcessorTests {
 
     @Before
     public void setUp() {
+        LifecycleOwner alwaysActiveLifecycleOwner = new LifecycleOwner() {
+
+            LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+
+            @Override
+            public Lifecycle getLifecycle() {
+                mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+                return mLifecycleRegistry;
+            }
+        };
+
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mWorkDatabase = WorkDatabase.create(appContext, true);
-        mForegroundProcessor = new ForegroundProcessor(appContext, mWorkDatabase);
+        mForegroundProcessor =
+                new ForegroundProcessor(appContext, mWorkDatabase, alwaysActiveLifecycleOwner);
     }
 
     @After
