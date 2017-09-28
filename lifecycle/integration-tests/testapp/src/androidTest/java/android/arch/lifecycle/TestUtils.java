@@ -23,15 +23,16 @@ import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityMonitor;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.v4.app.FragmentActivity;
 
 import java.util.concurrent.CountDownLatch;
 
-public class TestUtils {
+class TestUtils {
 
     private static final long TIMEOUT_MS = 2000;
 
     @SuppressWarnings("unchecked")
-    public static <T extends Activity> T recreateActivity(final T activity, ActivityTestRule rule)
+    static <T extends Activity> T recreateActivity(final T activity, ActivityTestRule rule)
             throws Throwable {
         ActivityMonitor monitor = new ActivityMonitor(
                 activity.getClass().getCanonicalName(), null, false);
@@ -60,7 +61,7 @@ public class TestUtils {
         return result;
     }
 
-    static void waitTillResumed(final LifecycleActivity a, ActivityTestRule<?> activityRule)
+    static void waitTillResumed(final FragmentActivity a, ActivityTestRule<?> activityRule)
             throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         activityRule.runOnUiThread(() -> {

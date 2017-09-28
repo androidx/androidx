@@ -16,13 +16,12 @@
 
 package android.arch.lifecycle.activity;
 
+import android.arch.lifecycle.extensions.test.R;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 
-import android.arch.lifecycle.LifecycleActivity;
-import android.arch.lifecycle.extensions.test.R;
-
-public class EmptyActivity extends LifecycleActivity {
+public class EmptyActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
