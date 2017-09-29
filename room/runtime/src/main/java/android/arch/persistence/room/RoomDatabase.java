@@ -216,7 +216,11 @@ public abstract class RoomDatabase {
      */
     public void endTransaction() {
         mOpenHelper.getWritableDatabase().endTransaction();
-        mInvalidationTracker.refreshVersionsAsync();
+        if (!inTransaction()) {
+            // enqueue refresh only if we are NOT in a transaction. Otherwise, wait for the last
+            // endTransaction call to do it.
+            mInvalidationTracker.refreshVersionsAsync();
+        }
     }
 
     /**
