@@ -16,7 +16,8 @@
 
 package android.arch.background.workmanager;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,8 +58,8 @@ public class SystemJobConverterTest {
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(
                 SystemJobConverter.EXTRAS_WORK_SPEC_ID);
-        assertEquals(expectedWorkSpecId, actualWorkSpecId);
-        assertEquals(expectedJobId, jobInfo.getId());
+        assertThat(actualWorkSpecId, is(expectedWorkSpecId));
+        assertThat(jobInfo.getId(), is(expectedJobId));
     }
 
     @Test
@@ -77,14 +78,14 @@ public class SystemJobConverterTest {
         JobInfo jobInfo = mConverter.convert(workSpec);
 
         int expectedNetworkType = mConverter.convertNetworkType(workSpecNetworkType);
-        assertEquals(expectedNetworkType, jobInfo.getNetworkType());
-        assertEquals(expectedConstraints.getInitialDelay(), jobInfo.getMinLatencyMillis());
-        assertEquals(expectedConstraints.requiresCharging(), jobInfo.isRequireCharging());
-        assertEquals(expectedConstraints.requiresDeviceIdle(), jobInfo.isRequireDeviceIdle());
-        assertEquals(expectedConstraints.requiresBatteryNotLow(),
-                jobInfo.isRequireBatteryNotLow());
-        assertEquals(expectedConstraints.requiresStorageNotLow(),
-                jobInfo.isRequireStorageNotLow());
+        assertThat(jobInfo.getNetworkType(), is(expectedNetworkType));
+        assertThat(jobInfo.getMinLatencyMillis(), is(expectedConstraints.getInitialDelay()));
+        assertThat(jobInfo.isRequireCharging(), is(expectedConstraints.requiresCharging()));
+        assertThat(jobInfo.isRequireDeviceIdle(), is(expectedConstraints.requiresDeviceIdle()));
+        assertThat(
+                jobInfo.isRequireBatteryNotLow(), is(expectedConstraints.requiresBatteryNotLow()));
+        assertThat(
+                jobInfo.isRequireStorageNotLow(), is(expectedConstraints.requiresStorageNotLow()));
     }
 
     @Test
@@ -117,6 +118,6 @@ public class SystemJobConverterTest {
     private void convertNetworkTypeHelper(@Constraints.NetworkType int constraintNetworkType,
                                           int expectedJobInfoNetworkType) {
         int convertedNetworkType = mConverter.convertNetworkType(constraintNetworkType);
-        assertEquals(expectedJobInfoNetworkType, convertedNetworkType);
+        assertThat(convertedNetworkType, is(expectedJobInfoNetworkType));
     }
 }

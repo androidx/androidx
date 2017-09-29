@@ -16,9 +16,10 @@
 
 package android.arch.background.workmanager;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -39,8 +40,8 @@ public class ArgumentsTest {
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);
 
-        assertNotNull(restoredArgs);
-        assertEquals(0, restoredArgs.size());
+        assertThat(restoredArgs, is(notNullValue()));
+        assertThat(restoredArgs.size(), is(0));
     }
 
     @Test
@@ -54,16 +55,16 @@ public class ArgumentsTest {
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);
 
-        assertNotNull(restoredArgs);
-        assertEquals(2, restoredArgs.size());
+        assertThat(restoredArgs, is(notNullValue()));
+        assertThat(restoredArgs.size(), is(2));
 
         String actualValue1 = restoredArgs.getString(KEY1, null);
-        assertNotNull(actualValue1);
-        assertEquals(expectedValue1, actualValue1);
+        assertThat(actualValue1, is(notNullValue()));
+        assertThat(actualValue1, is(expectedValue1));
 
         String actualValue2 = restoredArgs.getString(KEY2, null);
-        assertNotNull(actualValue2);
-        assertEquals(expectedValue2, actualValue2);
+        assertThat(actualValue2, is(notNullValue()));
+        assertThat(actualValue2, is(expectedValue2));
     }
 
     @Test
@@ -77,13 +78,13 @@ public class ArgumentsTest {
         byte[] byteArray = Arguments.toByteArray(args);
         Arguments restoredArgs = Arguments.fromByteArray(byteArray);
 
-        assertNotNull(restoredArgs);
-        assertEquals(2, restoredArgs.size());
+        assertThat(restoredArgs, is(notNullValue()));
+        assertThat(restoredArgs.size(), is(2));
 
         int[] actualValue1 = restoredArgs.getIntArray(KEY1);
-        assertArrayEquals(expectedValue1, actualValue1);
+        assertThat(actualValue1, is(equalTo(expectedValue1)));
 
         int[] actualValue2 = restoredArgs.getIntArray(KEY2);
-        assertArrayEquals(expectedValue2, actualValue2);
+        assertThat(actualValue2, is(equalTo(expectedValue2)));
     }
 }

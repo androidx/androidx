@@ -15,9 +15,13 @@
  */
 package android.arch.background.workmanager;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-import android.arch.background.workmanager.systemjob.SystemJobProcessor;
+import android.arch.background.workmanager.foreground.ForegroundProcessor;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -27,22 +31,30 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
-public class SystemJobProcessorTests {
+public class ForegroundProcessorTest {
 
     private WorkDatabase mWorkDatabase;
-    private ExecutionListener mMockListener;
-    private SystemJobProcessor mSystemJobProcessor;
+    private ForegroundProcessor mForegroundProcessor;
 
     @Before
     public void setUp() {
+        LifecycleOwner alwaysActiveLifecycleOwner = new LifecycleOwner() {
+
+            LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+
+            @Override
+            public Lifecycle getLifecycle() {
+                mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+                return mLifecycleRegistry;
+            }
+        };
+
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mWorkDatabase = WorkDatabase.create(appContext, true);
-        mMockListener = Mockito.mock(ExecutionListener.class);
-        mSystemJobProcessor =
-                new SystemJobProcessor(appContext, mWorkDatabase, mMockListener);
+        mForegroundProcessor =
+                new ForegroundProcessor(appContext, mWorkDatabase, alwaysActiveLifecycleOwner);
     }
 
     @After
@@ -55,11 +67,9 @@ public class SystemJobProcessorTests {
     public void testSimpleWorker() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
         mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
-        mSystemJobProcessor.process(work.getId());
+        mForegroundProcessor.process(work.getId());
         Thread.sleep(1000L);
-        Mockito.verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
-        assertEquals(
-                Work.STATUS_SUCCEEDED,
-                mWorkDatabase.workSpecDao().getWorkSpecStatus(work.getId()));
+        assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
+                is(Work.STATUS_SUCCEEDED));
     }
 }
