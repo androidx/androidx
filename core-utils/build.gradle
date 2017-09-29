@@ -14,14 +14,6 @@ android {
     defaultConfig {
         minSdkVersion 14
     }
-
-    sourceSets {
-        main.java.srcDirs = [
-                'kitkat',
-                'api21',
-                'java'
-        ]
-    }
 }
 
 supportLibrary {
