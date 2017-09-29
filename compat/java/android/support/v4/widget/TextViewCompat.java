@@ -479,6 +479,7 @@ public final class TextViewCompat {
     /**
      * Returns drawables for the start, top, end, and bottom borders from the given text view.
      */
+    @NonNull
     public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
         return IMPL.getCompoundDrawablesRelative(textView);
     }
@@ -493,7 +494,8 @@ public final class TextViewCompat {
      *
      * @attr name android:autoSizeTextType
      */
-    public static void setAutoSizeTextTypeWithDefaults(TextView textView, int autoSizeTextType) {
+    public static void setAutoSizeTextTypeWithDefaults(@NonNull TextView textView,
+            int autoSizeTextType) {
         IMPL.setAutoSizeTextTypeWithDefaults(textView, autoSizeTextType);
     }
 
@@ -519,7 +521,7 @@ public final class TextViewCompat {
      * @attr name android:autoSizeStepGranularity
      */
     public static void setAutoSizeTextTypeUniformWithConfiguration(
-            TextView textView,
+            @NonNull TextView textView,
             int autoSizeMinTextSize,
             int autoSizeMaxTextSize,
             int autoSizeStepGranularity,
@@ -542,7 +544,7 @@ public final class TextViewCompat {
      * @attr name android:autoSizeTextType
      * @attr name android:autoSizePresetSizes
      */
-    public static void setAutoSizeTextTypeUniformWithPresetSizes(TextView textView,
+    public static void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull TextView textView,
             @NonNull int[] presetSizes, int unit) throws IllegalArgumentException {
         IMPL.setAutoSizeTextTypeUniformWithPresetSizes(textView, presetSizes, unit);
     }
@@ -556,7 +558,7 @@ public final class TextViewCompat {
      *
      * @attr name android:autoSizeTextType
      */
-    public static int getAutoSizeTextType(TextView textView) {
+    public static int getAutoSizeTextType(@NonNull TextView textView) {
         return IMPL.getAutoSizeTextType(textView);
     }
 
@@ -565,7 +567,7 @@ public final class TextViewCompat {
      *
      * @attr name android:autoSizeStepGranularity
      */
-    public static int getAutoSizeStepGranularity(TextView textView) {
+    public static int getAutoSizeStepGranularity(@NonNull TextView textView) {
         return IMPL.getAutoSizeStepGranularity(textView);
     }
 
@@ -575,7 +577,7 @@ public final class TextViewCompat {
      *
      * @attr name android:autoSizeMinTextSize
      */
-    public static int getAutoSizeMinTextSize(TextView textView) {
+    public static int getAutoSizeMinTextSize(@NonNull TextView textView) {
         return IMPL.getAutoSizeMinTextSize(textView);
     }
 
@@ -585,7 +587,7 @@ public final class TextViewCompat {
      *
      * @attr name android:autoSizeMaxTextSize
      */
-    public static int getAutoSizeMaxTextSize(TextView textView) {
+    public static int getAutoSizeMaxTextSize(@NonNull TextView textView) {
         return IMPL.getAutoSizeMaxTextSize(textView);
     }
 
@@ -594,7 +596,8 @@ public final class TextViewCompat {
      *
      * @attr name android:autoSizePresetSizes
      */
-    public static int[] getAutoSizeTextAvailableSizes(TextView textView) {
+    @NonNull
+    public static int[] getAutoSizeTextAvailableSizes(@NonNull TextView textView) {
         return IMPL.getAutoSizeTextAvailableSizes(textView);
     }
 }
