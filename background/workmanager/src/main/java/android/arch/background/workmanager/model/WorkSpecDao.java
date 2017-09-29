@@ -16,6 +16,7 @@
 
 package android.arch.background.workmanager.model;
 
+import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
@@ -68,6 +69,16 @@ public interface WorkSpecDao {
     int setWorkSpecStatus(String id, int status);
 
     /**
+     * Updates the status of multiple {@link WorkSpec}s.
+     *
+     * @param ids A list of identifiers for {@link WorkSpec}s
+     * @param status The new status
+     * @return The number of rows that were updated
+     */
+    @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
+    int setWorkSpecStatus(List<String> ids, int status);
+
+    /**
      * Retrieves the status of a {@link WorkSpec}.
      *
      * @param id The identifier for the {@link WorkSpec}
@@ -78,12 +89,22 @@ public interface WorkSpecDao {
     int getWorkSpecStatus(String id);
 
     /**
-     * Retrieves work ids for items that are runnable (items that are {@code ENQUEUED} and don't
-     * have dependencies).
+     * Retrieves work ids for items that are runnable (items that are {@code STATUS_ENQUEUED} and
+     * don't have dependencies).
      *
      * @return A {@link LiveData} list of work ids.
      */
     @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND id NOT IN "
             + "(SELECT DISTINCT work_spec_id FROM dependency)")
     LiveData<List<String>> getRunnableWorkIds();
+
+    /**
+     * Retrieves work ids for items that are no longer considered blocked (items that are currently
+     * {@code STATUS_BLOCKED} but aren't in the {@link Dependency} table).
+     *
+     * @return A list of work ids.
+     */
+    @Query("SELECT id FROM workspec WHERE status=" + STATUS_BLOCKED + " AND id NOT IN "
+            + "(SELECT DISTINCT work_spec_id FROM dependency)")
+    List<String> getUnblockedWorkIds();
 }

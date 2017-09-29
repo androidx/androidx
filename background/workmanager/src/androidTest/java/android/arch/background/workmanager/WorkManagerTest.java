@@ -41,7 +41,7 @@ import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class WorkDatabaseTests {
+public class WorkManagerTest {
     private WorkDatabase mDatabase;
     private WorkManager mWorkManager;
 

@@ -16,10 +16,13 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
+
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.systemjob.SystemJobConverter;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
@@ -132,11 +135,19 @@ public final class WorkManager {
         public void run() {
             mWorkDatabase.beginTransaction();
             try {
-                mWorkDatabase.workSpecDao().insertWorkSpec(mWork.getWorkSpec());
+                WorkSpec workSpec = mWork.getWorkSpec();
+                if (mPrerequisiteId != null) {
+                    workSpec.setStatus(STATUS_BLOCKED);
+                }
+                mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
+
                 if (mPrerequisiteId != null) {
                     Dependency dep = new Dependency(mWork.getId(), mPrerequisiteId);
                     mWorkDatabase.dependencyDao().insertDependency(dep);
-                } else {
+                }
+                mWorkDatabase.setTransactionSuccessful();
+
+                if (mPrerequisiteId != null) {
                     mForegroundProcessor.process(mWork.getId());
 
                     if (Build.VERSION.SDK_INT >= 21) {
@@ -144,8 +155,6 @@ public final class WorkManager {
                         // TODO(janclarin): Schedule dependent work.
                     }
                 }
-
-                mWorkDatabase.setTransactionSuccessful();
             } finally {
                 mWorkDatabase.endTransaction();
             }

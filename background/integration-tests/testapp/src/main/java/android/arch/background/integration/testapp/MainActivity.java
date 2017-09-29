@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_activity);
 
         WorkManager workManager = WorkManager.getInstance(this);
-        workManager.enqueue(TestWorker.class).then(TestWorker.class);
+        workManager.enqueue(TestWorker.class);
+        workManager
+                .enqueue(SleepyToastWorker.createWithArgs(1000L, "First worker"))
+                .then(SleepyToastWorker.createWithArgs(2000L, "Second worker"));
     }
 }

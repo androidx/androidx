@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkSpecDao;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -97,6 +100,8 @@ public class DependencyDaoTest extends DatabaseTest {
         };
 
         insertDependenciesWithWorkSpecs(dependencies);
+        // Note that this does NOT set unblocked dependencies to ENQUEUED (and this method does not
+        // test for that).
         mDependencyDao.deleteDependenciesWithPrerequisite(TEST_PREREQUISITE_ID);
         List<Dependency> resultDependencies = mDependencyDao.getAllDependencies();
         assertNotNull(resultDependencies);
@@ -117,12 +122,15 @@ public class DependencyDaoTest extends DatabaseTest {
             workSpecIds.add(dependency.getPrerequisiteId());
             workSpecIds.add(dependency.getWorkSpecId());
         }
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         mDatabase.beginTransaction();
         try {
             for (String workSpecId : workSpecIds) {
-                mDatabase.workSpecDao().insertWorkSpec(new WorkSpec(workSpecId));
+                workSpecDao.insertWorkSpec(new WorkSpec(workSpecId));
             }
             for (Dependency dependency : dependencies) {
+                workSpecDao.setWorkSpecStatus(dependency.getWorkSpecId(), STATUS_BLOCKED);
                 mDependencyDao.insertDependency(dependency);
             }
             mDatabase.setTransactionSuccessful();
