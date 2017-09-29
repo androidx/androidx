@@ -27,4 +27,5 @@ interface ICustomTabsCallback {
     void extraCallback(String callbackName, in Bundle args) = 2;
     void onMessageChannelReady(in Bundle extras) = 3;
     void onPostMessage(String message, in Bundle extras) = 4;
+    void onRelationshipValidationResult(int relation, in Uri origin, boolean result, in Bundle extras) = 5;
 }

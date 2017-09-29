@@ -16,6 +16,7 @@
 
 package android.support.customtabs;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 
@@ -49,6 +50,13 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         public void onPostMessage(final String message, final Bundle extras)
                 throws RemoteException {
             TestCustomTabsCallback.this.onPostMessage(message, extras);
+        }
+
+        @Override
+        public void onRelationshipValidationResult(int relation, Uri origin, boolean result,
+                                                   Bundle extras) throws RemoteException {
+            TestCustomTabsCallback.this.onRelationshipValidationResult(
+                    relation, origin, result, extras);
         }
     };
 
