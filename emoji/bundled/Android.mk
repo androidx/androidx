@@ -28,7 +28,7 @@ include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-emoji-bundled
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_SRC_FILES := $(call all-java-files-under, src)
+LOCAL_SRC_FILES := $(call all-java-files-under, src/main/java)
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-annotations \
     android-support-emoji \
