@@ -73,11 +73,13 @@ public class SearchSupportFragment extends android.support.v17.leanback.app.Sear
                 diff.putLong(IMAGE, newItem.getImageResourceId());
             }
 
-            if (!oldItem.getTitle().equals(newItem.getTitle())) {
+            if (oldItem.getTitle() != null && newItem.getTitle() != null
+                    && !oldItem.getTitle().equals(newItem.getTitle())) {
                 diff.putString(TITLE, newItem.getTitle());
             }
 
-            if (!oldItem.getContent().equals(newItem.getContent())) {
+            if (oldItem.getContent() != null && newItem.getContent() != null
+                    && !oldItem.getContent().equals(newItem.getContent())) {
                 diff.putString(CONTENT, newItem.getContent());
             }
             return diff;
@@ -138,11 +140,11 @@ public class SearchSupportFragment extends android.support.v17.leanback.app.Sear
             if (mFirstRowAdapter == null) {
                 mFirstRowAdapter = createFirstListRowAdapter();
             } else {
-                mFirstRowAdapter.setItems(createDataSetOne(), mDiffCallback);
+                mFirstRowAdapter.setItems(createDataSetOneDebug(), mDiffCallback);
             }
             mIsDataSetOnePresented = true;
         } else {
-            mFirstRowAdapter.setItems(createDataSetTwo(), mDiffCallback);
+            mFirstRowAdapter.setItems(createDataSetTwoDebug(), mDiffCallback);
             mIsDataSetOnePresented = false;
         }
         mRowsAdapter.add(new ListRow(header, mFirstRowAdapter));
@@ -180,7 +182,7 @@ public class SearchSupportFragment extends android.support.v17.leanback.app.Sear
 
     private ArrayObjectAdapter createFirstListRowAdapter() {
         ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
-        listRowAdapter.setItems(createDataSetOne(), mDiffCallback);
+        listRowAdapter.setItems(createDataSetOneDebug(), mDiffCallback);
         mIsDataSetOnePresented = true;
         return listRowAdapter;
     }
@@ -322,4 +324,31 @@ public class SearchSupportFragment extends android.support.v17.leanback.app.Sear
         return photoItems;
     }
 
+
+    private ArrayList<PhotoItem> createDataSetOneDebug() {
+        ArrayList<PhotoItem> photoItems = new ArrayList<>();
+        photoItems.add(new PhotoItem(
+                "Hello world",
+                R.drawable.gallery_photo_1,
+                1));
+        return photoItems;
+    }
+
+    /**
+     * Create a new data set (data set one) for the last row of this browse fragment. It will be
+     * changed by another set of data when user click one of the photo items in the list.
+     * Different with other rows in the browsing fragment, the photo item in last row all have been
+     * allocated with a unique id. And the id will be used to jduge if two photo items are the same
+     * or not.
+     *
+     * @return List of photoItem
+     */
+    private ArrayList<PhotoItem> createDataSetTwoDebug() {
+        ArrayList<PhotoItem> photoItems = new ArrayList<>();
+        photoItems.add(new PhotoItem(
+                "Hello world Hello world",
+                R.drawable.gallery_photo_1,
+                1));
+        return photoItems;
+    }
 }

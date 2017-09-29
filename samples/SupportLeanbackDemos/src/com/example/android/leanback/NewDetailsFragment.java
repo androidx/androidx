@@ -16,6 +16,7 @@ package com.example.android.leanback;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -306,6 +307,10 @@ public class NewDetailsFragment extends android.support.v17.leanback.app.Details
                         adapter.set(ACTION_BUY, mActionBuy);
                         break;
                 }
+                // one line text with icon
+                Drawable d = ResourcesCompat.getDrawable(context.getResources(),
+                        R.drawable.ic_action_a, context.getTheme());
+                adapter.set(202, new Action(202, "Top", null, d));
                 dor.setActionsAdapter(adapter);
                 mRowsAdapter.add(0, dor);
                 setSelectedPosition(0, true);
