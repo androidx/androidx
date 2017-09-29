@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.util.Pair;
@@ -60,7 +61,8 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to supply
      * these options as the options Bundle when starting an activity.
      */
-    public static ActivityOptionsCompat makeCustomAnimation(Context context,
+    @NonNull
+    public static ActivityOptionsCompat makeCustomAnimation(@NonNull Context context,
             int enterResId, int exitResId) {
         if (Build.VERSION.SDK_INT >= 16) {
             return createImpl(ActivityOptions.makeCustomAnimation(context, enterResId, exitResId));
@@ -88,7 +90,8 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to supply
      * these options as the options Bundle when starting an activity.
      */
-    public static ActivityOptionsCompat makeScaleUpAnimation(View source,
+    @NonNull
+    public static ActivityOptionsCompat makeScaleUpAnimation(@NonNull View source,
             int startX, int startY, int startWidth, int startHeight) {
         if (Build.VERSION.SDK_INT >= 16) {
             return createImpl(ActivityOptions.makeScaleUpAnimation(
@@ -111,7 +114,8 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to
      * supply these options as the options Bundle when starting an activity.
      */
-    public static ActivityOptionsCompat makeClipRevealAnimation(View source,
+    @NonNull
+    public static ActivityOptionsCompat makeClipRevealAnimation(@NonNull View source,
             int startX, int startY, int width, int height) {
         if (Build.VERSION.SDK_INT >= 23) {
             return createImpl(ActivityOptions.makeClipRevealAnimation(
@@ -139,8 +143,9 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to supply
      * these options as the options Bundle when starting an activity.
      */
-    public static ActivityOptionsCompat makeThumbnailScaleUpAnimation(View source,
-            Bitmap thumbnail, int startX, int startY) {
+    @NonNull
+    public static ActivityOptionsCompat makeThumbnailScaleUpAnimation(@NonNull View source,
+            @NonNull Bitmap thumbnail, int startX, int startY) {
         if (Build.VERSION.SDK_INT >= 16) {
             return createImpl(ActivityOptions.makeThumbnailScaleUpAnimation(
                     source, thumbnail, startX, startY));
@@ -166,8 +171,9 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to
      *         supply these options as the options Bundle when starting an activity.
      */
-    public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
-            View sharedElement, String sharedElementName) {
+    @NonNull
+    public static ActivityOptionsCompat makeSceneTransitionAnimation(@NonNull Activity activity,
+            @NonNull View sharedElement, @NonNull String sharedElementName) {
         if (Build.VERSION.SDK_INT >= 21) {
             return createImpl(ActivityOptions.makeSceneTransitionAnimation(
                     activity, sharedElement, sharedElementName));
@@ -192,8 +198,9 @@ public class ActivityOptionsCompat {
      * @return Returns a new ActivityOptions object that you can use to
      *         supply these options as the options Bundle when starting an activity.
      */
+    @NonNull
     @SuppressWarnings("unchecked")
-    public static ActivityOptionsCompat makeSceneTransitionAnimation(Activity activity,
+    public static ActivityOptionsCompat makeSceneTransitionAnimation(@NonNull Activity activity,
             Pair<View, String>... sharedElements) {
         if (Build.VERSION.SDK_INT >= 21) {
             android.util.Pair<View, String>[] pairs = null;
@@ -219,6 +226,7 @@ public class ActivityOptionsCompat {
      * {@link android.R.attr#launchMode launchMode} values of
      * <code>singleInstance</code> or <code>singleTask</code>.
      */
+    @NonNull
     public static ActivityOptionsCompat makeTaskLaunchBehind() {
         if (Build.VERSION.SDK_INT >= 21) {
             return createImpl(ActivityOptions.makeTaskLaunchBehind());
@@ -230,6 +238,7 @@ public class ActivityOptionsCompat {
      * Create a basic ActivityOptions that has no special animation associated with it.
      * Other options can still be set.
      */
+    @NonNull
     public static ActivityOptionsCompat makeBasic() {
         if (Build.VERSION.SDK_INT >= 23) {
             return createImpl(ActivityOptions.makeBasic());
@@ -314,6 +323,7 @@ public class ActivityOptionsCompat {
      * {@link android.content.pm.PackageManager#FEATURE_PICTURE_IN_PICTURE} enabled.
      * @param screenSpacePixelRect Launch bounds to use for the activity or null for fullscreen.
      */
+    @NonNull
     public ActivityOptionsCompat setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
         return this;
     }
@@ -335,6 +345,7 @@ public class ActivityOptionsCompat {
      * object; you must not modify it, but can supply it to the startActivity
      * methods that take an options Bundle.
      */
+    @Nullable
     public Bundle toBundle() {
         return null;
     }
@@ -344,7 +355,7 @@ public class ActivityOptionsCompat {
      * otherOptions. Any values defined in otherOptions replace those in the
      * base options.
      */
-    public void update(ActivityOptionsCompat otherOptions) {
+    public void update(@NonNull ActivityOptionsCompat otherOptions) {
         // Do nothing.
     }
 
@@ -372,7 +383,7 @@ public class ActivityOptionsCompat {
      *
      * @param receiver A broadcast receiver that will receive the report.
      */
-    public void requestUsageTimeReport(PendingIntent receiver) {
+    public void requestUsageTimeReport(@NonNull PendingIntent receiver) {
         // Do nothing.
     }
 }
