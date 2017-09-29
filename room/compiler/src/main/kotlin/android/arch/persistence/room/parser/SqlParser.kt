@@ -24,7 +24,6 @@ import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
-import java.util.ArrayList
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
@@ -120,6 +119,7 @@ class QueryVisitor(val original: String, val syntaxErrors: ArrayList<String>,
 
 class SqlParser {
     companion object {
+        private val INVALID_IDENTIFIER_CHARS = arrayOf('`', '\"')
         fun parse(input: String): ParsedQuery {
             val inputStream = ANTLRInputStream(input)
             val lexer = SQLiteLexer(inputStream)
@@ -153,6 +153,9 @@ class SqlParser {
                         listOf("unknown error while parsing $input : ${antlrError.message}"))
             }
         }
+
+        fun isValidIdentifier(input : String) : Boolean =
+                input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
     }
 }
 
