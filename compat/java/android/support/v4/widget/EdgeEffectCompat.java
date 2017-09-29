@@ -18,6 +18,7 @@ package android.support.v4.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.widget.EdgeEffect;
 
@@ -170,7 +171,8 @@ public final class EdgeEffectCompat {
      *
      * @see {@link EdgeEffect#onPull(float, float)}
      */
-    public static void onPull(EdgeEffect edgeEffect, float deltaDistance, float displacement) {
+    public static void onPull(@NonNull EdgeEffect edgeEffect, float deltaDistance,
+            float displacement) {
         IMPL.onPull(edgeEffect, deltaDistance, displacement);
     }
 

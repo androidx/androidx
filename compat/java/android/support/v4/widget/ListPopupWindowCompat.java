@@ -17,6 +17,8 @@
 package android.support.v4.widget;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ListPopupWindow;
@@ -88,8 +90,9 @@ public final class ListPopupWindowCompat {
      * @return a touch listener that controls drag-to-open behavior, or {@code null} on
      *         unsupported APIs
      */
+    @Nullable
     public static OnTouchListener createDragToOpenListener(
-            ListPopupWindow listPopupWindow, View src) {
+            @NonNull ListPopupWindow listPopupWindow, @NonNull View src) {
         if (Build.VERSION.SDK_INT >= 19) {
             return listPopupWindow.createDragToOpenListener(src);
         } else {

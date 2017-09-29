@@ -20,6 +20,8 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.widget.ImageView;
 
@@ -130,21 +132,24 @@ public class ImageViewCompat {
     /**
      * Return the tint applied to the image drawable, if specified.
      */
-    public static ColorStateList getImageTintList(ImageView view) {
+    @Nullable
+    public static ColorStateList getImageTintList(@NonNull ImageView view) {
         return IMPL.getImageTintList(view);
     }
 
     /**
      * Applies a tint to the image drawable.
      */
-    public static void setImageTintList(ImageView view, ColorStateList tintList) {
+    public static void setImageTintList(@NonNull ImageView view,
+            @Nullable ColorStateList tintList) {
         IMPL.setImageTintList(view, tintList);
     }
 
     /**
      * Return the blending mode used to apply the tint to the image drawable, if specified.
      */
-    public static PorterDuff.Mode getImageTintMode(ImageView view) {
+    @Nullable
+    public static PorterDuff.Mode getImageTintMode(@NonNull ImageView view) {
         return IMPL.getImageTintMode(view);
     }
 
@@ -153,7 +158,7 @@ public class ImageViewCompat {
      * {@link #setImageTintList(android.widget.ImageView, android.content.res.ColorStateList)}
      * to the image drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
      */
-    public static void setImageTintMode(ImageView view, PorterDuff.Mode mode) {
+    public static void setImageTintMode(@NonNull ImageView view, @Nullable PorterDuff.Mode mode) {
         IMPL.setImageTintMode(view, mode);
     }
 
