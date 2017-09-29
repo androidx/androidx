@@ -166,10 +166,12 @@ public class InvalidationTracker {
 
     private static void appendTriggerName(StringBuilder builder, String tableName,
             String triggerType) {
-        builder.append("room_table_modification_trigger_")
+        builder.append("`")
+                .append("room_table_modification_trigger_")
                 .append(tableName)
                 .append("_")
-                .append(triggerType);
+                .append(triggerType)
+                .append("`");
     }
 
     private void stopTrackingTable(SupportSQLiteDatabase writableDb, int tableId) {
@@ -192,9 +194,9 @@ public class InvalidationTracker {
             appendTriggerName(stringBuilder, tableName, trigger);
             stringBuilder.append(" AFTER ")
                     .append(trigger)
-                    .append(" ON ")
+                    .append(" ON `")
                     .append(tableName)
-                    .append(" BEGIN INSERT OR REPLACE INTO ")
+                    .append("` BEGIN INSERT OR REPLACE INTO ")
                     .append(UPDATE_TABLE_NAME)
                     .append(" VALUES(null, ")
                     .append(tableId)
