@@ -18,6 +18,7 @@ package android.support.v4.graphics.drawable;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -27,13 +28,17 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
+import android.support.v4.content.ContextCompat;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Icon}.
@@ -202,25 +207,63 @@ public class IconCompat {
     }
 
     /**
+     * Use {@link #addToShortcutIntent(Intent, Drawable)} instead
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void addToShortcutIntent(Intent outIntent) {
+    @Deprecated
+    public void addToShortcutIntent(@NonNull Intent outIntent) {
+        addToShortcutIntent(outIntent, null);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void addToShortcutIntent(@NonNull Intent outIntent, @Nullable Drawable badge) {
+        Bitmap icon;
         switch (mType) {
             case TYPE_BITMAP:
-                outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, (Bitmap) mObj1);
+                icon = (Bitmap) mObj1;
+                if (badge != null) {
+                    // Do not modify the original icon when applying a badge
+                    icon = icon.copy(icon.getConfig(), true);
+                }
                 break;
             case TYPE_ADAPTIVE_BITMAP:
-                outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON,
-                        createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, true));
+                icon = createLegacyIconFromAdaptiveIcon((Bitmap) mObj1, true);
                 break;
             case TYPE_RESOURCE:
-                outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
-                        Intent.ShortcutIconResource.fromContext((Context) mObj1, mInt1));
+                if (badge == null) {
+                    outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                            Intent.ShortcutIconResource.fromContext((Context) mObj1, mInt1));
+                    return;
+                } else {
+                    Context context = (Context) mObj1;
+                    Drawable dr = ContextCompat.getDrawable(context, mInt1);
+                    if (dr.getIntrinsicWidth() <= 0 || dr.getIntrinsicHeight() <= 0) {
+                        int size = ((ActivityManager) context.getSystemService(
+                                Context.ACTIVITY_SERVICE)).getLauncherLargeIconSize();
+                        icon = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+                    } else {
+                        icon = Bitmap.createBitmap(dr.getIntrinsicWidth(), dr.getIntrinsicHeight(),
+                                Bitmap.Config.ARGB_8888);
+                    }
+                    dr.setBounds(0, 0, icon.getWidth(), icon.getHeight());
+                    dr.draw(new Canvas(icon));
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Icon type not supported for intent shortcuts");
         }
+        if (badge != null) {
+            // Badge the icon
+            int w = icon.getWidth();
+            int h = icon.getHeight();
+            badge.setBounds(w / 2, h / 2, w, h);
+            badge.draw(new Canvas(icon));
+        }
+        outIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON, icon);
     }
 
     /**

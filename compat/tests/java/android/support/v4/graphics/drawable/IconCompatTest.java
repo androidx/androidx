@@ -17,6 +17,9 @@
 package android.support.v4.graphics.drawable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.annotation.TargetApi;
@@ -34,6 +37,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
+import android.support.v4.content.ContextCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +49,7 @@ import java.util.Arrays;
 @SmallTest
 public class IconCompatTest {
 
-    private void verifyClippedCircle(Bitmap bitmap, int fillColor, int size) {
+    private static void verifyClippedCircle(Bitmap bitmap, int fillColor, int size) {
         assertEquals(size, bitmap.getHeight());
         assertEquals(bitmap.getWidth(), bitmap.getHeight());
         assertEquals(fillColor, bitmap.getPixel(size / 2, size / 2));
@@ -53,7 +57,21 @@ public class IconCompatTest {
         assertEquals(Color.TRANSPARENT, bitmap.getPixel(0, 0));
         assertEquals(Color.TRANSPARENT, bitmap.getPixel(0, size - 1));
         assertEquals(Color.TRANSPARENT, bitmap.getPixel(size - 1, 0));
+
+        // The badge is a full rectangle located at the bottom right corner. Check a single pixel
+        // in that region to verify that badging was properly applied.
         assertEquals(Color.TRANSPARENT, bitmap.getPixel(size - 1, size - 1));
+    }
+
+    public static void verifyBadgeBitmap(Intent intent, int bgColor, int badgeColor) {
+        Bitmap bitmap = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        assertEquals(bgColor, bitmap.getPixel(2, 2));
+        assertEquals(bgColor, bitmap.getPixel(w - 2, 2));
+        assertEquals(bgColor, bitmap.getPixel(2, h - 2));
+        assertEquals(badgeColor, bitmap.getPixel(w - 2, h - 2));
     }
 
     @Test
@@ -69,8 +87,43 @@ public class IconCompatTest {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.RED);
         Intent intent = new Intent();
-        IconCompat.createWithBitmap(bitmap).addToShortcutIntent(intent);
+        IconCompat.createWithBitmap(bitmap).addToShortcutIntent(intent, null);
         assertEquals(bitmap, intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON));
+    }
+
+    @Test
+    public void testAddBitmapToShortcutIntent_badged() {
+        Context context = InstrumentationRegistry.getContext();
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.RED);
+        Intent intent = new Intent();
+
+        Drawable badge = ContextCompat.getDrawable(context, R.drawable.test_drawable_blue);
+        IconCompat.createWithBitmap(bitmap).addToShortcutIntent(intent, badge);
+        assertNotSame(bitmap, intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON));
+
+        verifyBadgeBitmap(intent, Color.RED, ContextCompat.getColor(context, R.color.test_blue));
+    }
+
+    @Test
+    public void testAddResourceToShortcutIntent_badged() {
+        Context context = InstrumentationRegistry.getContext();
+        Intent intent = new Intent();
+
+        // No badge
+        IconCompat.createWithResource(context, R.drawable.test_drawable_green)
+                .addToShortcutIntent(intent, null);
+        assertNotNull(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE));
+        assertNull(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON));
+
+        intent = new Intent();
+        Drawable badge = ContextCompat.getDrawable(context, R.drawable.test_drawable_red);
+        IconCompat.createWithResource(context, R.drawable.test_drawable_blue)
+                .addToShortcutIntent(intent, badge);
+
+        assertNull(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE));
+        verifyBadgeBitmap(intent, ContextCompat.getColor(context, R.color.test_blue),
+                ContextCompat.getColor(context, R.color.test_red));
     }
 
     @Test
@@ -90,7 +143,7 @@ public class IconCompatTest {
         Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
         bitmap.eraseColor(Color.GREEN);
         Intent intent = new Intent();
-        IconCompat.createWithAdaptiveBitmap(bitmap).addToShortcutIntent(intent);
+        IconCompat.createWithAdaptiveBitmap(bitmap).addToShortcutIntent(intent, null);
 
         Bitmap clipped = intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
         verifyClippedCircle(clipped, Color.GREEN, clipped.getWidth());
