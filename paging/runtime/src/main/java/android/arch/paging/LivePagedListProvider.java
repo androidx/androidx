@@ -16,7 +16,7 @@
 
 package android.arch.paging;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.ComputableLiveData;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.AnyThread;
@@ -134,9 +134,9 @@ public abstract class LivePagedListProvider<Key, Value> {
 
                     mList = new PagedList.Builder<Key, Value>()
                             .setDataSource(mDataSource)
-                            .setMainThreadExecutor(AppToolkitTaskExecutor.getMainThreadExecutor())
+                            .setMainThreadExecutor(ArchTaskExecutor.getMainThreadExecutor())
                             .setBackgroundThreadExecutor(
-                                    AppToolkitTaskExecutor.getIOThreadExecutor())
+                                    ArchTaskExecutor.getIOThreadExecutor())
                             .setConfig(config)
                             .setInitialKey(initializeKey)
                             .build();

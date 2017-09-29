@@ -19,7 +19,7 @@ package android.arch.persistence.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.arch.persistence.room.EmptyResultSetException;
 import android.arch.persistence.room.integration.testapp.vo.Pet;
@@ -55,7 +55,7 @@ public class RxJava2Test extends TestDatabaseTest {
     public void setupSchedulers() {
         mTestScheduler = new TestScheduler();
         mTestScheduler.start();
-        AppToolkitTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             @Override
             public void executeOnDiskIO(Runnable runnable) {
                 mTestScheduler.scheduleDirect(runnable);
@@ -76,7 +76,7 @@ public class RxJava2Test extends TestDatabaseTest {
     @After
     public void clearSchedulers() {
         mTestScheduler.shutdown();
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     private void drain() throws InterruptedException {

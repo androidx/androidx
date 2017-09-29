@@ -16,7 +16,7 @@
 
 package android.arch.lifecycle;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -53,7 +53,7 @@ public abstract class ComputableLiveData<T> {
             @Override
             protected void onActive() {
                 // TODO if we make this class public, we should accept an executor
-                AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
+                ArchTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
             }
         };
     }
@@ -115,7 +115,7 @@ public abstract class ComputableLiveData<T> {
             if (mInvalid.compareAndSet(false, true)) {
                 if (isActive) {
                     // TODO if we make this class public, we should accept an executor.
-                    AppToolkitTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
+                    ArchTaskExecutor.getInstance().executeOnDiskIO(mRefreshRunnable);
                 }
             }
         }
@@ -127,7 +127,7 @@ public abstract class ComputableLiveData<T> {
      * When there are active observers, this will trigger a call to {@link #compute()}.
      */
     public void invalidate() {
-        AppToolkitTaskExecutor.getInstance().executeOnMainThread(mInvalidationRunnable);
+        ArchTaskExecutor.getInstance().executeOnMainThread(mInvalidationRunnable);
     }
 
     @SuppressWarnings("WeakerAccess")
