@@ -22,6 +22,7 @@ import android.app.Notification;
 import android.app.Service;
 import android.os.Build;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -92,7 +93,7 @@ public final class ServiceCompat {
      * {@link #STOP_FOREGROUND_DETACH}.
      * @see Service#startForeground(int, Notification)
      */
-    public static void stopForeground(Service service, @StopForegroundFlags int flags) {
+    public static void stopForeground(@NonNull Service service, @StopForegroundFlags int flags) {
         if (Build.VERSION.SDK_INT >= 24) {
             service.stopForeground(flags);
         } else {

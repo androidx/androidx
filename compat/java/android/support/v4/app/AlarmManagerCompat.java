@@ -19,6 +19,7 @@ package android.support.v4.app;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.os.Build;
+import android.support.annotation.NonNull;
 
 /**
  * Compatibility library for {@link AlarmManager} with fallbacks for older platforms.
@@ -52,8 +53,8 @@ public final class AlarmManagerCompat {
      * @see android.content.Context#registerReceiver
      * @see android.content.Intent#filterEquals
      */
-    public static void setAlarmClock(AlarmManager alarmManager, long triggerTime,
-            PendingIntent showIntent, PendingIntent operation) {
+    public static void setAlarmClock(@NonNull AlarmManager alarmManager, long triggerTime,
+            @NonNull PendingIntent showIntent, @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 21) {
             alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, showIntent),
                     operation);
@@ -110,8 +111,8 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
      */
-    public static void setAndAllowWhileIdle(AlarmManager alarmManager, int type,
-            long triggerAtMillis, PendingIntent operation) {
+    public static void setAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
+            long triggerAtMillis, @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 23) {
             alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
         } else {
@@ -155,8 +156,8 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
      */
-    public static void setExact(AlarmManager alarmManager, int type, long triggerAtMillis,
-            PendingIntent operation) {
+    public static void setExact(@NonNull AlarmManager alarmManager, int type, long triggerAtMillis,
+            @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 19) {
             alarmManager.setExact(type, triggerAtMillis, operation);
         } else {
@@ -215,8 +216,8 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
      */
-    public static void setExactAndAllowWhileIdle(AlarmManager alarmManager, int type,
-            long triggerAtMillis, PendingIntent operation) {
+    public static void setExactAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
+            long triggerAtMillis, @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 23) {
             alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);
         } else {
