@@ -16,8 +16,6 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.State.RESUMED;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -47,28 +45,7 @@ import io.reactivex.subjects.AsyncSubject;
 
 @SmallTest
 public class LiveDataReactiveStreamsTest {
-    private static final Lifecycle sLifecycle = new Lifecycle() {
-        @Override
-        public void addObserver(LifecycleObserver observer) {
-        }
-
-        @Override
-        public void removeObserver(LifecycleObserver observer) {
-        }
-
-        @Override
-        public State getCurrentState() {
-            return RESUMED;
-        }
-    };
-    private static final LifecycleOwner S_LIFECYCLE_OWNER = new LifecycleOwner() {
-
-        @Override
-        public Lifecycle getLifecycle() {
-            return sLifecycle;
-        }
-
-    };
+    private LifecycleOwner mLifecycleOwner;
 
     private final List<String> mLiveDataOutput = new ArrayList<>();
     private final Observer<String> mObserver = new Observer<String>() {
@@ -85,6 +62,17 @@ public class LiveDataReactiveStreamsTest {
 
     @Before
     public void init() {
+        mLifecycleOwner = new LifecycleOwner() {
+            LifecycleRegistry mRegistry = new LifecycleRegistry(this);
+            {
+                mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+            }
+
+            @Override
+            public Lifecycle getLifecycle() {
+                return mRegistry;
+            }
+        };
         mTestThread = Thread.currentThread();
         AppToolkitTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
 
@@ -117,7 +105,7 @@ public class LiveDataReactiveStreamsTest {
         PublishProcessor<String> processor = PublishProcessor.create();
         LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
 
-        liveData.observe(S_LIFECYCLE_OWNER, mObserver);
+        liveData.observe(mLifecycleOwner, mObserver);
 
         processor.onNext("foo");
         processor.onNext("bar");
@@ -132,13 +120,13 @@ public class LiveDataReactiveStreamsTest {
         PublishProcessor<String> processor = PublishProcessor.create();
         LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
 
-        liveData.observe(S_LIFECYCLE_OWNER, mObserver);
+        liveData.observe(mLifecycleOwner, mObserver);
 
         processor.onNext("foo");
         processor.onNext("bar");
 
         // The second mObserver should only get the newest value and any later values.
-        liveData.observe(S_LIFECYCLE_OWNER, new Observer<String>() {
+        liveData.observe(mLifecycleOwner, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 output2.add(s);
@@ -157,7 +145,7 @@ public class LiveDataReactiveStreamsTest {
                 .concatWith(Flowable.just("bar", "baz").observeOn(sBackgroundScheduler));
         LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(input);
 
-        liveData.observe(S_LIFECYCLE_OWNER, mObserver);
+        liveData.observe(mLifecycleOwner, mObserver);
 
         assertThat(mLiveDataOutput, is(Collections.singletonList("foo")));
         sBackgroundScheduler.triggerActions();
@@ -170,7 +158,7 @@ public class LiveDataReactiveStreamsTest {
         liveData.setValue("foo");
         assertThat(liveData.getValue(), is("foo"));
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
+        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
                 .subscribe(mOutputProcessor);
 
         liveData.setValue("bar");
@@ -188,7 +176,7 @@ public class LiveDataReactiveStreamsTest {
         assertThat(liveData.getValue(), is("foo"));
 
         Disposable disposable = Flowable
-                .fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
+                .fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
                 .subscribe(new Consumer<String>() {
                     @Override
                     public void accept(String s) throws Exception {
@@ -216,7 +204,7 @@ public class LiveDataReactiveStreamsTest {
 
         final AsyncSubject<Subscription> subscriptionSubject = AsyncSubject.create();
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
+        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
                 .subscribe(new Subscriber<String>() {
                     @Override
                     public void onSubscribe(Subscription s) {
@@ -275,7 +263,7 @@ public class LiveDataReactiveStreamsTest {
     public void convertsToPublisherWithAsyncData() {
         MutableLiveData<String> liveData = new MutableLiveData<>();
 
-        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(S_LIFECYCLE_OWNER, liveData))
+        Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(mLifecycleOwner, liveData))
                 .observeOn(sBackgroundScheduler)
                 .subscribe(mOutputProcessor);
 
