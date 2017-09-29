@@ -43,9 +43,13 @@ import android.support.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 @SuppressWarnings({"unchecked"})
+@RunWith(JUnit4.class)
 public class LiveDataTest {
     private PublicLiveData<String> mLiveData;
     private LifecycleOwner mOwner;
@@ -416,6 +420,40 @@ public class LiveDataTest {
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
         mRegistry.handleLifecycleEvent(ON_START);
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
+    }
+
+    @Test
+    public void testRemoveDuringAddition() {
+        mRegistry.handleLifecycleEvent(ON_START);
+        mLiveData.setValue("bla");
+        mLiveData.observeForever(new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                mLiveData.removeObserver(this);
+            }
+        });
+        assertThat(mLiveData.hasActiveObservers(), is(false));
+        InOrder inOrder = Mockito.inOrder(mActiveObserversChanged);
+        inOrder.verify(mActiveObserversChanged).onCall(true);
+        inOrder.verify(mActiveObserversChanged).onCall(false);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testRemoveDuringBringingUpToState() {
+        mLiveData.setValue("bla");
+        mLiveData.observeForever(new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                mLiveData.removeObserver(this);
+            }
+        });
+        mRegistry.handleLifecycleEvent(ON_RESUME);
+        assertThat(mLiveData.hasActiveObservers(), is(false));
+        InOrder inOrder = Mockito.inOrder(mActiveObserversChanged);
+        inOrder.verify(mActiveObserversChanged).onCall(true);
+        inOrder.verify(mActiveObserversChanged).onCall(false);
+        inOrder.verifyNoMoreInteractions();
     }
 
     @SuppressWarnings("WeakerAccess")
