@@ -13,6 +13,10 @@
 # limitations under the License.
 
 LOCAL_PATH:= $(call my-dir)
+
+# Disable the frameworks support for PDK builds instead
+# use prebuilts/sdk/current/
+ifneq ($(TARGET_BUILD_PDK),true)
 # Don't include in unbundled build.
 ifeq ($(TARGET_BUILD_APPS),)
 
@@ -69,4 +73,5 @@ include $(call all-makefiles-under,$(LOCAL_PATH))
 # Clear out variables
 SUPPORT_CURRENT_SDK_VERSION :=
 
+endif
 endif
