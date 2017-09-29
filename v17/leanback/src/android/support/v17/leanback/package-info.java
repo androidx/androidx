@@ -41,13 +41,13 @@
  * <p>
  * Leanback contains a mixture of higher level building blocks such as Fragments in the
  * {@link android.support.v17.leanback.app} package. Notable examples are the
- * {@link android.support.v17.leanback.app.BrowseFragment},
- * {@link android.support.v17.leanback.app.DetailsFragment},
- * {@link android.support.v17.leanback.app.PlaybackFragment} and the
- * {@link android.support.v17.leanback.app.GuidedStepFragment}.  Helper classes are also provided
- * that work with the leanback fragments, for example the
+ * {@link android.support.v17.leanback.app.BrowseSupportFragment},
+ * {@link android.support.v17.leanback.app.DetailsSupportFragment},
+ * {@link android.support.v17.leanback.app.PlaybackSupportFragment} and the
+ * {@link android.support.v17.leanback.app.GuidedStepSupportFragment}.  Helper classes are also
+ * provided that work with the leanback fragments, for example the
  * {@link android.support.v17.leanback.media.PlaybackTransportControlGlue} and
- * {@link android.support.v17.leanback.app.PlaybackFragmentGlueHost}.
+ * {@link android.support.v17.leanback.app.PlaybackSupportFragmentGlueHost}.
  * </p>
  * <p>
  * Many lower level building blocks are also provided in the {@link android.support.v17.leanback.widget} package.
