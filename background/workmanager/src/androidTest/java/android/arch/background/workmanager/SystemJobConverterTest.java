@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import android.app.job.JobInfo;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.systemjob.SystemJobConverter;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -31,23 +32,23 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class JobSchedulerConverterTest {
-    private JobSchedulerConverter mConverter;
+public class SystemJobConverterTest {
+    private SystemJobConverter mConverter;
 
     @Before
     public void setUp() {
-        mConverter = new JobSchedulerConverter(InstrumentationRegistry.getTargetContext());
+        mConverter = new SystemJobConverter(InstrumentationRegistry.getTargetContext());
     }
 
     @Test
     public void convert() {
         String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
         // TODO(janclarin): Use int mapping for UUID from DB.
-        int expectedIntId = JobSchedulerConverter.generateJobId(expectedWorkSpecId);
+        int expectedIntId = SystemJobConverter.generateJobId(expectedWorkSpecId);
         WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(
-                JobSchedulerConverter.EXTRAS_WORK_SPEC_ID);
+                SystemJobConverter.EXTRAS_WORK_SPEC_ID);
         assertEquals(expectedWorkSpecId, actualWorkSpecId);
         assertEquals(expectedIntId, jobInfo.getId());
     }

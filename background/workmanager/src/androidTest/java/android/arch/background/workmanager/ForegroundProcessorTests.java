@@ -17,6 +17,7 @@ package android.arch.background.workmanager;
 
 import static org.junit.Assert.assertEquals;
 
+import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;

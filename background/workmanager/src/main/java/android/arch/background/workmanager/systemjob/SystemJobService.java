@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.systemjob;
 
 import android.annotation.TargetApi;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.arch.background.workmanager.ExecutionListener;
+import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.WorkerWrapper;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,8 +33,8 @@ import java.util.Map;
  * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.
  */
 @TargetApi(21)
-public class WorkService extends JobService implements ExecutionListener {
-    private static final String TAG = "WorkService";
+public class SystemJobService extends JobService implements ExecutionListener {
+    private static final String TAG = "SystemJobService";
     private SystemJobProcessor mSystemJobProcessor;
     private Map<String, JobParameters> mJobParameters = new HashMap<>();
 
@@ -45,7 +48,7 @@ public class WorkService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        String workSpecId = params.getExtras().getString(JobSchedulerConverter.EXTRAS_WORK_SPEC_ID);
+        String workSpecId = params.getExtras().getString(SystemJobConverter.EXTRAS_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
@@ -58,7 +61,7 @@ public class WorkService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        String workSpecId = params.getExtras().getString(JobSchedulerConverter.EXTRAS_WORK_SPEC_ID);
+        String workSpecId = params.getExtras().getString(SystemJobConverter.EXTRAS_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Log.e(TAG, "WorkSpec id not found!");
             return false;

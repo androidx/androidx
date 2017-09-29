@@ -19,7 +19,10 @@ package android.arch.background.workmanager;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 
+import android.arch.background.workmanager.model.Dependency;
+import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
@@ -31,7 +34,7 @@ import android.support.annotation.NonNull;
  * A Room database for keeping track of work statuses.
  */
 @Database(entities = {WorkSpec.class, Dependency.class}, version = 1)
-abstract class WorkDatabase extends RoomDatabase {
+public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "android.arch.background.workmanager.work";
     private static final String CLEANUP_SQL =
@@ -44,7 +47,7 @@ abstract class WorkDatabase extends RoomDatabase {
      * @param inMemoryDatabase {@code true} to generate an in-memory database
      * @return The created WorkDatabase
      */
-    static WorkDatabase create(Context context, boolean inMemoryDatabase) {
+    public static WorkDatabase create(Context context, boolean inMemoryDatabase) {
         RoomDatabase.Builder<WorkDatabase> builder;
         if (inMemoryDatabase) {
             builder = Room.inMemoryDatabaseBuilder(context, WorkDatabase.class);

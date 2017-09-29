@@ -23,7 +23,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.Dependency;
+import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.model.WorkSpecDao;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;

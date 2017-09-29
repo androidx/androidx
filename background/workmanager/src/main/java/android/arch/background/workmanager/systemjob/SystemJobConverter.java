@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.systemjob;
+
+import static android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.WorkSpecConverter;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.ComponentName;
@@ -25,20 +28,22 @@ import android.os.Build;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 /**
  * Converts a {@link WorkSpec} into a JobInfo.
  */
 @RequiresApi(api = 21)
-class JobSchedulerConverter implements WorkSpecConverter<JobInfo> {
-    private static final String TAG = "JobSchedulerConverter";
-    static final String EXTRAS_WORK_SPEC_ID = "WORK_SPEC_ID";
+public class SystemJobConverter implements WorkSpecConverter<JobInfo> {
+    private static final String TAG = "SystemJobConverter";
+    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+    public static final String EXTRAS_WORK_SPEC_ID = "WORK_SPEC_ID";
 
     private final ComponentName mWorkServiceComponent;
 
-    JobSchedulerConverter(@NonNull Context context) {
-        mWorkServiceComponent = new ComponentName(context, WorkService.class);
+    public SystemJobConverter(@NonNull Context context) {
+        mWorkServiceComponent = new ComponentName(context, SystemJobService.class);
     }
 
     @Override
@@ -92,8 +97,15 @@ class JobSchedulerConverter implements WorkSpecConverter<JobInfo> {
         throw new IllegalArgumentException("NetworkType of " + networkType + " is not supported.");
     }
 
+    /**
+     * Generates a job ID from a UUID.
+     *
+     * @param uuid The UUID to use
+     * @return The job ID associated with that UUID
+     */
     // TODO(janclarin): Store UUID mapping with incrementing integer work ID.
-    static int generateJobId(String uuid) {
+    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+    public static int generateJobId(String uuid) {
         return uuid.hashCode();
     }
 }
