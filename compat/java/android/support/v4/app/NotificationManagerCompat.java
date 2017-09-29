@@ -36,6 +36,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.annotation.GuardedBy;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.lang.reflect.Field;
@@ -144,7 +146,8 @@ public final class NotificationManagerCompat {
     public static final int IMPORTANCE_MAX = 5;
 
     /** Get a {@link NotificationManagerCompat} instance for a provided context. */
-    public static NotificationManagerCompat from(Context context) {
+    @NonNull
+    public static NotificationManagerCompat from(@NonNull Context context) {
         return new NotificationManagerCompat(context);
     }
 
@@ -167,7 +170,7 @@ public final class NotificationManagerCompat {
      * @param tag the string identifier of the notification.
      * @param id the ID of the notification
      */
-    public void cancel(String tag, int id) {
+    public void cancel(@Nullable String tag, int id) {
         mNotificationManager.cancel(tag, id);
         if (Build.VERSION.SDK_INT <= MAX_SIDE_CHANNEL_SDK_VERSION) {
             pushSideChannelQueue(new CancelTask(mContext.getPackageName(), id, tag));
@@ -197,7 +200,7 @@ public final class NotificationManagerCompat {
      * @param id the ID of the notification. The pair (tag, id) must be unique within your app.
      * @param notification the notification to post to the system
     */
-    public void notify(String tag, int id, Notification notification) {
+    public void notify(@Nullable String tag, int id, @NonNull Notification notification) {
         if (useSideChannelForNotification(notification)) {
             pushSideChannelQueue(new NotifyTask(mContext.getPackageName(), id, tag, notification));
             // Cancel this notification in notification manager if it just transitioned to being
@@ -253,7 +256,8 @@ public final class NotificationManagerCompat {
     /**
      * Get the set of packages that have an enabled notification listener component within them.
      */
-    public static Set<String> getEnabledListenerPackages(Context context) {
+    @NonNull
+    public static Set<String> getEnabledListenerPackages(@NonNull Context context) {
         final String enabledNotificationListeners = Settings.Secure.getString(
                 context.getContentResolver(),
                 SETTING_ENABLED_NOTIFICATION_LISTENERS);
