@@ -1002,6 +1002,21 @@ class EntityProcessorTest : BaseEntityParserTest() {
     }
 
     @Test
+    fun primaryKey_nonNull_notNeeded() {
+        listOf("long", "Long", "Integer", "int").forEach { type ->
+            singleEntity(
+                    """
+                @PrimaryKey
+                public $type id;
+                """) { entity, _ ->
+                assertThat(entity.primaryKey.fields.size, `is`(1))
+                assertThat(entity.primaryKey.fields.firstOrNull()?.name, `is`("id"))
+                assertThat(entity.primaryKey.autoGenerateId, `is`(false))
+            }.compilesWithoutError()
+        }
+    }
+
+    @Test
     fun primaryKey_autoGenerateBadType() {
         listOf("String", "float", "Float", "Double", "double").forEach { type ->
             singleEntity(
@@ -1270,7 +1285,7 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 public String b;
 
                 static class Baz {
-                    public String bb;
+                    public Integer bb;
                 }
             }
                 """) { _, _ ->
@@ -1383,6 +1398,71 @@ class EntityProcessorTest : BaseEntityParserTest() {
                 .and().withNoteContaining(
                 "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
                 .and().withErrorCount(3)
+    }
+
+    @Test
+    fun primaryKey_integerOverrideEmbedded() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import android.support.annotation.NonNull;
+                import android.arch.persistence.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Embedded(prefix = "bar_")
+                    @PrimaryKey
+                    public Foo foo;
+
+                    static class Foo {
+                        public Integer a;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { _, _ ->
+        }.compilesWithoutError().withNoteContaining(
+                "PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+    }
+
+    @Test
+    fun primaryKey_singleStringPrimaryKeyOverrideEmbedded() {
+        val parent = JavaFileObjects.forSourceLines("foo.bar.Base",
+                """
+                package foo.bar;
+                import android.support.annotation.NonNull;
+                import android.arch.persistence.room.*;
+
+                public class Base {
+                    long baseId;
+                    String name, lastName;
+                    @Embedded(prefix = "bar_")
+                    @PrimaryKey
+                    public Foo foo;
+
+                    static class Foo {
+                        public String a;
+                    }
+                }
+                """)
+        singleEntity(
+                """
+                @PrimaryKey
+                public int id;
+                """,
+                baseClass = "foo.bar.Base",
+                jfos = listOf(parent)) { _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.primaryKeyNull("foo"))
+                .and().withErrorContaining(ProcessorErrors.primaryKeyNull("foo > a"))
+                .and().withNoteContaining(
+                "PrimaryKey[foo > a] is overridden by PrimaryKey[id]")
+                .and().withErrorCount(2)
     }
 
     @Test
