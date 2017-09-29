@@ -16,10 +16,8 @@
 
 package android.arch.background.workmanager.model;
 
-import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
-import android.arch.background.workmanager.Work;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
@@ -55,14 +53,12 @@ public interface DependencyDao {
     void deleteDependenciesWithPrerequisite(String prerequisiteId);
 
     /**
-     * Determines if a {@link WorkSpec is dependent on other {@link WorkSpec}s
-     * that are not in a {@value Work#STATUS_SUCCEEDED} state.
+     * Determines if a {@link WorkSpec is dependent on other {@link WorkSpec}s.
      *
      * @param id The identifier for the {@link WorkSpec}
-     * @return true if the {@link WorkSpec} is dependent on other {@link WorkSpec}s
+     * @return {@code true} if the {@link WorkSpec} is dependent on other {@link WorkSpec}s
      */
-    @Query("SELECT COUNT(id) > 0 FROM workspec WHERE status!=" + STATUS_SUCCEEDED + " AND id IN"
-            + "(SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id)")
+    @Query("SELECT COUNT(*) > 0 FROM dependency WHERE work_spec_id=:id")
     boolean hasDependencies(String id);
 
     /**

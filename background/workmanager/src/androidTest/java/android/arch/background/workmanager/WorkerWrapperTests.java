@@ -16,6 +16,10 @@
 
 package android.arch.background.workmanager;
 
+import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
+import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -146,20 +150,33 @@ public class WorkerWrapperTests {
     }
 
     @Test
-    public void testDependenciesRemoved() throws InterruptedException {
-        Work work1 = new Work.Builder(TestWorker.class).build();
-        Work work2 = new Work.Builder(TestWorker.class).build();
-        Dependency dependency = new Dependency(work2.getId(), work1.getId());
-        mWorkSpecDao.insertWorkSpec(work1.getWorkSpec());
-        mWorkSpecDao.insertWorkSpec(work2.getWorkSpec());
-        mDependencyDao.insertDependency(dependency);
+    public void testDependencies() throws InterruptedException {
+        Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
+        Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
+        Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
 
-        assertTrue(mDependencyDao.hasDependencies(work2.getId()));
-        new WorkerWrapper.Builder(mContext, mDatabase, work1.getId())
+        mDatabase.beginTransaction();
+        try {
+            mWorkSpecDao.insertWorkSpec(prerequisiteWork.getWorkSpec());
+            mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+            mDependencyDao.insertDependency(dependency);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+
+        assertEquals(STATUS_ENQUEUED, mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()));
+        assertEquals(STATUS_BLOCKED, mWorkSpecDao.getWorkSpecStatus(work.getId()));
+        assertTrue(mDependencyDao.hasDependencies(work.getId()));
+
+        new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
                 .withListener(mMockListener)
                 .build()
                 .run();
-        assertFalse(mDependencyDao.hasDependencies(work2.getId()));
+
+        assertEquals(STATUS_SUCCEEDED, mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()));
+        assertEquals(STATUS_ENQUEUED, mWorkSpecDao.getWorkSpecStatus(work.getId()));
+        assertFalse(mDependencyDao.hasDependencies(work.getId()));
     }
 
     @Test

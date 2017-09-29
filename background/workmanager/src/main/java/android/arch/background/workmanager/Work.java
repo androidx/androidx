@@ -23,6 +23,7 @@ import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.util.UUID;
@@ -34,7 +35,7 @@ import java.util.UUID;
 public class Work {
 
     @Retention(SOURCE)
-    @IntDef({STATUS_FAILED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_ENQUEUED})
+    @IntDef({STATUS_ENQUEUED, STATUS_RUNNING, STATUS_SUCCEEDED, STATUS_FAILED, STATUS_BLOCKED})
     public @interface WorkStatus {
     }
 
@@ -47,6 +48,7 @@ public class Work {
     public static final int STATUS_RUNNING = 1;
     public static final int STATUS_SUCCEEDED = 2;
     public static final int STATUS_FAILED = 3;
+    public static final int STATUS_BLOCKED = 4;
 
     public static final int BACKOFF_POLICY_EXPONENTIAL = 0;
     public static final int BACKOFF_POLICY_LINEAR = 1;
@@ -78,6 +80,12 @@ public class Work {
 
         public Builder(Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
+        }
+
+        @VisibleForTesting
+        Builder withInitialStatus(@WorkStatus int status) {
+            mWorkSpec.setStatus(status);
+            return this;
         }
 
         /**

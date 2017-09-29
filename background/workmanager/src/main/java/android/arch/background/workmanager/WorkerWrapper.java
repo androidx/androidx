@@ -20,6 +20,7 @@ import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.content.Context;
@@ -31,6 +32,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
+import java.util.List;
 
 /**
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
@@ -138,11 +140,22 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void setSuccessAndRemoveDependencies() {
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
+
         mWorkDatabase.beginTransaction();
         try {
-            mWorkDatabase.workSpecDao().setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
-            mWorkDatabase.dependencyDao().deleteDependenciesWithPrerequisite(mWorkSpecId);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
+            dependencyDao.deleteDependenciesWithPrerequisite(mWorkSpecId);
+            List<String> unblockedWorkIds = workSpecDao.getUnblockedWorkIds();
+            if (unblockedWorkIds.size() > 0) {
+                workSpecDao.setWorkSpecStatus(unblockedWorkIds, Work.STATUS_ENQUEUED);
+            }
             mWorkDatabase.setTransactionSuccessful();
+
+            for (String id : unblockedWorkIds) {
+                // TODO(sumir): Schedule on Scheduler impl.
+            }
         } finally {
             mWorkDatabase.endTransaction();
         }
