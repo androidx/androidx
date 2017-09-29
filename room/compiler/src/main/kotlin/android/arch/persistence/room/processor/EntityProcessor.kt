@@ -22,6 +22,7 @@ import android.arch.persistence.room.ext.getAsString
 import android.arch.persistence.room.ext.getAsStringList
 import android.arch.persistence.room.ext.toType
 import android.arch.persistence.room.parser.SQLTypeAffinity
+import android.arch.persistence.room.parser.SqlParser
 import android.arch.persistence.room.processor.ProcessorErrors.INDEX_COLUMNS_CANNOT_BE_EMPTY
 import android.arch.persistence.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import android.arch.persistence.room.processor.cache.Cache
@@ -126,6 +127,13 @@ class EntityProcessor(baseContext: Context,
 
         val entityForeignKeys = validateAndCreateForeignKeyReferences(foreignKeyInputs, pojo)
         checkIndicesForForeignKeys(entityForeignKeys, primaryKey, indices)
+
+        context.checker.check(SqlParser.isValidIdentifier(tableName), element,
+                ProcessorErrors.INVALID_TABLE_NAME)
+        pojo.fields.forEach {
+            context.checker.check(SqlParser.isValidIdentifier(it.columnName), it.element,
+                    ProcessorErrors.INVALID_COLUMN_NAME)
+        }
 
         val entity = Entity(element = element,
                 tableName = tableName,

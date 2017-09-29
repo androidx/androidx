@@ -63,6 +63,22 @@ class SqlParserTest {
     }
 
     @Test
+    fun validColumnNames() {
+        listOf("f", "fo", "f2", "f 2", "foo_2", "foo-2", "_", "foo bar baz",
+                "foo 2 baz", "_baz", "fooBar", "2", "*", "foo*2", "dsa$", "\$fsa",
+                "-bar", "şoöğüı").forEach {
+            assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true))
+        }
+    }
+
+    @Test
+    fun invalidColumnNames() {
+        listOf("", " ", "fd`a`", "f`a", "`a", "\"foo bar\"", "\"", "`").forEach {
+            assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(false))
+        }
+    }
+
+    @Test
     fun extractTableNames() {
         assertThat(SqlParser.parse("select * from users").tables,
                 `is`(setOf(Table("users", "users"))))
