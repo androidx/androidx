@@ -89,6 +89,7 @@ public final class FontRequest {
      * Returns the selected font provider's authority. This tells the system what font provider
      * it should request the font from.
      */
+    @NonNull
     public String getProviderAuthority() {
         return mProviderAuthority;
     }
@@ -97,6 +98,7 @@ public final class FontRequest {
      * Returns the selected font provider's package. This helps the system verify that the provider
      * identified by the given authority is the one requested.
      */
+    @NonNull
     public String getProviderPackage() {
         return mProviderPackage;
     }
@@ -105,6 +107,7 @@ public final class FontRequest {
      * Returns the query string. Refer to your font provider's documentation on the format of this
      * string.
      */
+    @NonNull
     public String getQuery() {
         return mQuery;
     }

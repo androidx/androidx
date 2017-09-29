@@ -600,6 +600,7 @@ public class FontsContractCompat {
      * @param fonts An array of {@link FontInfo} to be used to create a Typeface.
      * @return A Typeface object. Returns null if typeface creation fails.
      */
+    @Nullable
     public static Typeface buildTypeface(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts) {
         return TypefaceCompat.createFromFontInfo(context, cancellationSignal, fonts,
