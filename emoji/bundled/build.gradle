@@ -10,7 +10,6 @@ android {
     }
 
     sourceSets {
-        main.java.srcDir 'src'
         main.assets.srcDirs new File(fontDir, "font").getAbsolutePath()
     }
 }
