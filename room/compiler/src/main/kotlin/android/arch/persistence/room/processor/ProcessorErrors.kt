@@ -17,7 +17,6 @@
 package android.arch.persistence.room.processor
 
 import android.arch.persistence.room.Delete
-import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Update
@@ -459,4 +458,9 @@ object ProcessorErrors {
                 "bug and Room does not allow it. See SQLite docs for details: " +
                 "https://www.sqlite.org/lang_createtable.html"
     }
+
+    val INVALID_COLUMN_NAME = "Invalid column name. Room does not allow using ` or \" in column" +
+            " names"
+
+    val INVALID_TABLE_NAME = "Invalid table name. Room does not allow using ` or \" in table names"
 }

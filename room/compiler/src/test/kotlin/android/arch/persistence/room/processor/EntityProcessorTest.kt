@@ -1775,7 +1775,47 @@ class EntityProcessorTest : BaseEntityParserTest() {
                     @Embedded
                     MyEntity myEntity;
                 }
-                """){ _, _ ->
+                """) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.RECURSIVE_REFERENCE_DETECTED.format("foo.bar.MyEntity -> foo.bar.MyEntity.A -> foo.bar.MyEntity"))
+    }
+    fun okTableName() {
+        val annotation = mapOf("tableName" to "\"foo bar\"")
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun badTableName() {
+        val annotation = mapOf("tableName" to """ "foo`bar" """)
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                String name;
+                """,
+                attributes = annotation, jfos = listOf(COMMON.USER)
+        ){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_TABLE_NAME)
+    }
+
+    @Test
+    fun badColumnName() {
+        singleEntity(
+                """
+                @PrimaryKey
+                int id;
+                @ColumnInfo(name = "\"foo bar\"")
+                String name;
+                """,
+                jfos = listOf(COMMON.USER)
+        ){ _, _ ->
+        }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_COLUMN_NAME)
     }
 }
