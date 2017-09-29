@@ -71,4 +71,10 @@ public class TestCustomTabsService extends CustomTabsService {
         if (!mPostMessageRequested) return CustomTabsService.RESULT_FAILURE_DISALLOWED;
         return CustomTabsService.RESULT_SUCCESS;
     }
+
+    @Override
+    protected boolean validateRelationship(CustomTabsSessionToken sessionToken,
+                                           @Relation int relation, Uri origin, Bundle extras) {
+        return false;
+    }
 }
