@@ -17,6 +17,7 @@
 package android.support.v4.widget;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
@@ -213,8 +214,8 @@ public final class PopupWindowCompat {
      * @param yoff A vertical offset from the anchor in pixels
      * @param gravity Alignment of the popup relative to the anchor
      */
-    public static void showAsDropDown(PopupWindow popup, View anchor, int xoff, int yoff,
-            int gravity) {
+    public static void showAsDropDown(@NonNull PopupWindow popup, @NonNull View anchor,
+            int xoff, int yoff, int gravity) {
         IMPL.showAsDropDown(popup, anchor, xoff, yoff, gravity);
     }
 
@@ -224,7 +225,7 @@ public final class PopupWindowCompat {
      *
      * @param overlapAnchor Whether the popup should overlap its anchor.
      */
-    public static void setOverlapAnchor(PopupWindow popupWindow, boolean overlapAnchor) {
+    public static void setOverlapAnchor(@NonNull PopupWindow popupWindow, boolean overlapAnchor) {
         IMPL.setOverlapAnchor(popupWindow, overlapAnchor);
     }
 
@@ -234,7 +235,7 @@ public final class PopupWindowCompat {
      *
      * @return Whether the popup should overlap its anchor.
      */
-    public static boolean getOverlapAnchor(PopupWindow popupWindow) {
+    public static boolean getOverlapAnchor(@NonNull PopupWindow popupWindow) {
         return IMPL.getOverlapAnchor(popupWindow);
     }
 
@@ -247,7 +248,7 @@ public final class PopupWindowCompat {
      *
      * @see android.view.WindowManager.LayoutParams#type
      */
-    public static void setWindowLayoutType(PopupWindow popupWindow, int layoutType) {
+    public static void setWindowLayoutType(@NonNull PopupWindow popupWindow, int layoutType) {
         IMPL.setWindowLayoutType(popupWindow, layoutType);
     }
 
@@ -256,7 +257,7 @@ public final class PopupWindowCompat {
      *
      * @see #setWindowLayoutType(PopupWindow popupWindow, int)
      */
-    public static int getWindowLayoutType(PopupWindow popupWindow) {
+    public static int getWindowLayoutType(@NonNull PopupWindow popupWindow) {
         return IMPL.getWindowLayoutType(popupWindow);
     }
 }
