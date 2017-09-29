@@ -18,22 +18,6 @@ android {
         minSdkVersion 14
     }
 
-    sourceSets {
-        main.java.srcDirs = [
-                'base',
-                'api14',
-                'api18',
-                'api19',
-                'api21',
-                'api22',
-                'src'
-        ]
-        main.res.srcDirs = [
-                'res',
-                'res-public'
-        ]
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
