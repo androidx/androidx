@@ -197,7 +197,6 @@ public abstract class LiveData<T> {
             return;
         }
         owner.getLifecycle().addObserver(wrapper);
-        wrapper.activeStateChanged(isActiveState(owner.getLifecycle().getCurrentState()));
     }
 
     /**
@@ -376,7 +375,6 @@ public abstract class LiveData<T> {
             // immediately set active state, so we'd never dispatch anything to inactive
             // owner
             activeStateChanged(isActiveState(owner.getLifecycle().getCurrentState()));
-
         }
 
         void activeStateChanged(boolean newActive) {
