@@ -25,6 +25,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.customtabs.CustomTabsService.Relation;
 import android.support.customtabs.CustomTabsService.Result;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -182,6 +183,39 @@ public final class CustomTabsSession {
             } catch (RemoteException e) {
                 return CustomTabsService.RESULT_FAILURE_REMOTE_ERROR;
             }
+        }
+    }
+
+    /**
+     * Requests to validate a relationship between the application and an origin.
+     *
+     * <p>
+     * See <a href="https://developers.google.com/digital-asset-links/v1/getting-started">here</a>
+     * for documentation about Digital Asset Links. This methods requests the browser to verify
+     * a relation with the calling application, to grant the associated rights.
+     *
+     * <p>
+     * If this method returns {@code true}, the validation result will be provided through
+     * {@link CustomTabsCallback#onRelationshipValidationResult(int, Uri, boolean, Bundle)}.
+     * Otherwise the request didn't succeed. The client must call
+     * {@link CustomTabsClient#warmup(long)} before this.
+     *
+     * @param relation Relation to check, must be one of the {@code CustomTabsService#RELATION_* }
+     *                 constants.
+     * @param origin Origin.
+     * @param extras Reserved for future use.
+     * @return {@code true} if the request has been submitted successfully.
+     */
+    public boolean validateRelationship(@Relation int relation, @NonNull Uri origin,
+                                        @Nullable Bundle extras) {
+        if (relation < CustomTabsService.RELATION_USE_AS_ORIGIN
+                || relation > CustomTabsService.RELATION_HANDLE_ALL_URLS) {
+            return false;
+        }
+        try {
+            return mService.validateRelationship(mCallback, relation, origin, extras);
+        } catch (RemoteException e) {
+            return false;
         }
     }
 

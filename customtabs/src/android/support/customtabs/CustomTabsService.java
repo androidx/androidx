@@ -78,6 +78,23 @@ public abstract class CustomTabsService extends Service {
      */
     public static final int RESULT_FAILURE_MESSAGING_ERROR = -3;
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({RELATION_USE_AS_ORIGIN, RELATION_HANDLE_ALL_URLS})
+    public @interface Relation {
+    }
+
+    /**
+     * Used for {@link CustomTabsSession#validateRelationship(int, Uri, Bundle)}. For
+     * App -> Web transitions, requests the app to use the declared origin to be used as origin for
+     * the client app in the web APIs context.
+     */
+    public static final int RELATION_USE_AS_ORIGIN = 1;
+    /**
+     * Used for {@link CustomTabsSession#validateRelationship(int, Uri, Bundle)}. Requests the
+     * ability to handle all URLs from a given origin.
+     */
+    public static final int RELATION_HANDLE_ALL_URLS = 2;
+
     private final Map<IBinder, DeathRecipient> mDeathRecipientMap = new ArrayMap<>();
 
     private ICustomTabsService.Stub mBinder = new ICustomTabsService.Stub() {
@@ -136,6 +153,13 @@ public abstract class CustomTabsService extends Service {
         public int postMessage(ICustomTabsCallback callback, String message, Bundle extras) {
             return CustomTabsService.this.postMessage(
                     new CustomTabsSessionToken(callback), message, extras);
+        }
+
+        @Override
+        public boolean validateRelationship(
+                ICustomTabsCallback callback, @Relation int relation, Uri origin, Bundle extras) {
+            return CustomTabsService.this.validateRelationship(
+                    new CustomTabsSessionToken(callback), relation, origin, extras);
         }
     };
 
@@ -268,4 +292,23 @@ public abstract class CustomTabsService extends Service {
     @Result
     protected abstract int postMessage(
             CustomTabsSessionToken sessionToken, String message, Bundle extras);
+
+    /**
+     * Request to validate a relationship between the application and an origin.
+     *
+     * If this method returns true, the validation result will be provided through
+     * {@link CustomTabsCallback#onRelationshipValidationResult(int, Uri, boolean, Bundle)}.
+     * Otherwise the request didn't succeed. The client must call
+     * {@link CustomTabsClient#warmup(long)} before this.
+     *
+     * @param sessionToken The unique identifier for the session. Can not be null.
+     * @param relation Relation to check, must be one of the {@code CustomTabsService#RELATION_* }
+     *                 constants.
+     * @param origin Origin for the relation query.
+     * @param extras Reserved for future use.
+     * @return true if the request has been submitted successfully.
+     */
+    protected abstract boolean validateRelationship(
+            CustomTabsSessionToken sessionToken, @Relation int relation, Uri origin,
+            Bundle extras);
 }

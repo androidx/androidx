@@ -31,6 +31,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.customtabs.CustomTabsService.Relation;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -231,6 +232,20 @@ public class CustomTabsClient {
                     @Override
                     public void run() {
                         callback.onPostMessage(message, extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onRelationshipValidationResult(
+                    final @Relation int relation, final Uri requestedOrigin, final boolean result,
+                    final @Nullable Bundle extras) throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onRelationshipValidationResult(
+                                relation, requestedOrigin, result, extras);
                     }
                 });
             }
