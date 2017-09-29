@@ -292,6 +292,11 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      */
     GestureDetectorCompat mGestureDetector;
 
+    /**
+     * Callback for when long press occurs.
+     */
+    private ItemTouchHelperGestureListener mItemTouchHelperGestureListener;
+
     private final OnItemTouchListener mOnItemTouchListener = new OnItemTouchListener() {
         @Override
         public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent event) {
@@ -468,7 +473,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         mRecyclerView.addItemDecoration(this);
         mRecyclerView.addOnItemTouchListener(mOnItemTouchListener);
         mRecyclerView.addOnChildAttachStateChangeListener(this);
-        initGestureDetector();
+        startGestureDetection();
     }
 
     private void destroyCallbacks() {
@@ -485,14 +490,23 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         mOverdrawChild = null;
         mOverdrawChildPosition = -1;
         releaseVelocityTracker();
+        stopGestureDetection();
     }
 
-    private void initGestureDetector() {
-        if (mGestureDetector != null) {
-            return;
-        }
+    private void startGestureDetection() {
+        mItemTouchHelperGestureListener = new ItemTouchHelperGestureListener();
         mGestureDetector = new GestureDetectorCompat(mRecyclerView.getContext(),
-                new ItemTouchHelperGestureListener());
+                mItemTouchHelperGestureListener);
+    }
+
+    private void stopGestureDetection() {
+        if (mItemTouchHelperGestureListener != null) {
+            mItemTouchHelperGestureListener.doNotReactToLongPress();
+            mItemTouchHelperGestureListener = null;
+        }
+        if (mGestureDetector != null) {
+            mGestureDetector = null;
+        }
     }
 
     private void getSelectedDxDy(float[] outPosition) {
@@ -2242,7 +2256,31 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
     private class ItemTouchHelperGestureListener extends GestureDetector.SimpleOnGestureListener {
 
+        /**
+         * Whether to execute code in response to the the invoking of
+         * {@link ItemTouchHelperGestureListener#onLongPress(MotionEvent)}.
+         *
+         * It is necessary to control this here because
+         * {@link GestureDetector.SimpleOnGestureListener} can only be set on a
+         * {@link GestureDetector} in a GestureDetector's constructor, a GestureDetector will call
+         * onLongPress if an {@link MotionEvent#ACTION_DOWN} event is not followed by another event
+         * that would cancel it (like {@link MotionEvent#ACTION_UP} or
+         * {@link MotionEvent#ACTION_CANCEL}), the long press responding to the long press event
+         * needs to be cancellable to prevent unexpected behavior.
+         *
+         * @see #doNotReactToLongPress()
+         */
+        private boolean mShouldReactToLongPress = true;
+
         ItemTouchHelperGestureListener() {
+        }
+
+        /**
+         * Call to prevent executing code in response to
+         * {@link ItemTouchHelperGestureListener#onLongPress(MotionEvent)} being called.
+         */
+        void doNotReactToLongPress() {
+            mShouldReactToLongPress = false;
         }
 
         @Override
@@ -2252,6 +2290,9 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
         @Override
         public void onLongPress(MotionEvent e) {
+            if (!mShouldReactToLongPress) {
+                return;
+            }
             View child = findChildView(e);
             if (child != null) {
                 ViewHolder vh = mRecyclerView.getChildViewHolder(child);
