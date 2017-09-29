@@ -47,9 +47,7 @@ public class WorkDatabaseTests {
 
     @Before
     public void setUp() {
-        mWorkManager = new WorkManager.Builder()
-                .withInMemoryDatabase()
-                .build(InstrumentationRegistry.getTargetContext());
+        mWorkManager = new WorkManager(InstrumentationRegistry.getTargetContext(), true);
         mDatabase = mWorkManager.getWorkDatabase();
     }
 

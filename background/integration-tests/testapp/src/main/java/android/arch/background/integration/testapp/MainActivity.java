@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        WorkManager workManager = new WorkManager.Builder().build(this);
+        WorkManager workManager = WorkManager.getInstance(this);
         workManager.enqueue(TestWorker.class).then(TestWorker.class);
     }
 }
