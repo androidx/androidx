@@ -21,7 +21,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.annotation.RestrictTo;
 import android.support.v4.util.SimpleArrayMap;
 import android.view.Choreographer;
 
@@ -39,7 +38,6 @@ import java.util.ArrayList;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class AnimationHandler {
     /**
      * Callbacks that receives notifications for animation timing
@@ -74,6 +72,7 @@ class AnimationHandler {
     /**
      * Internal per-thread collections used to avoid set collisions as animations start and end
      * while being processed.
+     * @hide
      */
     private final SimpleArrayMap<AnimationFrameCallback, Long> mDelayedCallbackStartTime =
             new SimpleArrayMap<>();

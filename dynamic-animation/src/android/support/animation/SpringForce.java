@@ -17,7 +17,6 @@
 package android.support.animation;
 
 import android.support.annotation.FloatRange;
-import android.support.annotation.RestrictTo;
 
 /**
  * Spring Force defines the characteristics of the spring being used in the animation.
@@ -206,12 +205,11 @@ public final class SpringForce implements Force {
         return (float) mFinalPosition;
     }
 
-    //*********************** Below are private APIs *********************
+    /*********************** Below are private APIs *********************/
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public float getAcceleration(float lastDisplacement, float lastVelocity) {
 
@@ -226,7 +224,6 @@ public final class SpringForce implements Force {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public boolean isAtEquilibrium(float value, float velocity) {
         if (Math.abs(velocity) < mVelocityThreshold
