@@ -21,6 +21,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Helper for accessing features in {@link android.app.AppOpsManager}.
@@ -56,6 +57,7 @@ public final class AppOpsManagerCompat {
      * @param permission The permission.
      * @return The app op associated with the permission or null.
      */
+    @Nullable
     public static String permissionToOp(@NonNull String permission) {
         if (SDK_INT >= 23) {
             return AppOpsManager.permissionToOp(permission);

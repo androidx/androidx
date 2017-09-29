@@ -148,8 +148,8 @@ public class ActivityCompat extends ContextCompat {
      *                supplied here; there are no supported definitions for
      *                building it manually.
      */
-    public static void startActivityForResult(Activity activity, Intent intent, int requestCode,
-            @Nullable Bundle options) {
+    public static void startActivityForResult(@NonNull Activity activity, @NonNull Intent intent,
+            int requestCode, @Nullable Bundle options) {
         if (Build.VERSION.SDK_INT >= 16) {
             activity.startActivityForResult(intent, requestCode, options);
         } else {
@@ -183,9 +183,10 @@ public class ActivityCompat extends ContextCompat {
      *                supplied here; there are no supported definitions for
      *                building it manually.
      */
-    public static void startIntentSenderForResult(Activity activity, IntentSender intent,
-            int requestCode, Intent fillInIntent, int flagsMask, int flagsValues,
-            int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
+    public static void startIntentSenderForResult(@NonNull Activity activity,
+            @NonNull IntentSender intent, int requestCode, @Nullable Intent fillInIntent,
+            int flagsMask, int flagsValues, int extraFlags, @Nullable Bundle options)
+            throws IntentSender.SendIntentException {
         if (Build.VERSION.SDK_INT >= 16) {
             activity.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask,
                     flagsValues, extraFlags, options);
@@ -202,7 +203,7 @@ public class ActivityCompat extends ContextCompat {
      * <p>On Android 4.1+ calling this method will call through to the native version of this
      * method. For other platforms {@link Activity#finish()} will be called instead.</p>
      */
-    public static void finishAffinity(Activity activity) {
+    public static void finishAffinity(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= 16) {
             activity.finishAffinity();
         } else {
@@ -219,7 +220,7 @@ public class ActivityCompat extends ContextCompat {
      * <p>On Android 4.4 or lower, this method only finishes the Activity with no
      * special exit transition.</p>
      */
-    public static void finishAfterTransition(Activity activity) {
+    public static void finishAfterTransition(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
             activity.finishAfterTransition();
         } else {
@@ -244,7 +245,7 @@ public class ActivityCompat extends ContextCompat {
      * referrer information, applications can spoof it.</p>
      */
     @Nullable
-    public static Uri getReferrer(Activity activity) {
+    public static Uri getReferrer(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= 22) {
             return activity.getReferrer();
         }
@@ -268,8 +269,8 @@ public class ActivityCompat extends ContextCompat {
      *
      * @param callback Used to manipulate shared element transitions on the launched Activity.
      */
-    public static void setEnterSharedElementCallback(Activity activity,
-            SharedElementCallback callback) {
+    public static void setEnterSharedElementCallback(@NonNull Activity activity,
+            @Nullable SharedElementCallback callback) {
         if (Build.VERSION.SDK_INT >= 23) {
             android.app.SharedElementCallback frameworkCallback = callback != null
                     ? new SharedElementCallback23Impl(callback)
@@ -292,8 +293,8 @@ public class ActivityCompat extends ContextCompat {
      *
      * @param callback Used to manipulate shared element transitions on the launching Activity.
      */
-    public static void setExitSharedElementCallback(Activity activity,
-            SharedElementCallback callback) {
+    public static void setExitSharedElementCallback(@NonNull Activity activity,
+            @Nullable SharedElementCallback callback) {
         if (Build.VERSION.SDK_INT >= 23) {
             android.app.SharedElementCallback frameworkCallback = callback != null
                     ? new SharedElementCallback23Impl(callback)
@@ -307,13 +308,13 @@ public class ActivityCompat extends ContextCompat {
         }
     }
 
-    public static void postponeEnterTransition(Activity activity) {
+    public static void postponeEnterTransition(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
             activity.postponeEnterTransition();
         }
     }
 
-    public static void startPostponedEnterTransition(Activity activity) {
+    public static void startPostponedEnterTransition(@NonNull Activity activity) {
         if (Build.VERSION.SDK_INT >= 21) {
             activity.startPostponedEnterTransition();
         }
