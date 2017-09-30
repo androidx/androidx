@@ -21,7 +21,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
@@ -322,7 +322,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
                 return null;
             }
         });
-        AppToolkitTaskExecutor.getInstance().executeOnMainThread(futureTask);
+        ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
         futureTask.get();
     }
 

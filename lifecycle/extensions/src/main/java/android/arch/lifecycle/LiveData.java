@@ -19,7 +19,7 @@ package android.arch.lifecycle;
 import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.internal.SafeIterableMap;
 import android.arch.lifecycle.Lifecycle.State;
 import android.support.annotation.MainThread;
@@ -273,7 +273,7 @@ public abstract class LiveData<T> {
         if (!postTask) {
             return;
         }
-        AppToolkitTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
+        ArchTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
     }
 
     /**
@@ -401,7 +401,7 @@ public abstract class LiveData<T> {
     }
 
     private void assertMainThread(String methodName) {
-        if (!AppToolkitTaskExecutor.getInstance().isMainThread()) {
+        if (!ArchTaskExecutor.getInstance().isMainThread()) {
             throw new IllegalStateException("Cannot invoke " + methodName + " on a background"
                     + " thread");
         }

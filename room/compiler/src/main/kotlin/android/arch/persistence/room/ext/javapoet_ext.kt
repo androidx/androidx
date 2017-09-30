@@ -84,7 +84,7 @@ object RoomTypeNames {
 
 object ArchTypeNames {
     val APP_EXECUTOR : ClassName =
-            ClassName.get("android.arch.core.executor", "AppToolkitTaskExecutor")
+            ClassName.get("android.arch.core.executor", "ArchTaskExecutor")
 }
 
 object PagingTypeNames {

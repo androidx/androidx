@@ -16,7 +16,7 @@
 
 package android.arch.lifecycle;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.support.annotation.Nullable;
 
 import org.reactivestreams.Publisher;
@@ -85,7 +85,7 @@ public final class LiveDataReactiveStreams {
                         if (n < 0 || mCanceled) {
                             return;
                         }
-                        AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
+                        ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (mCanceled) {
@@ -110,7 +110,7 @@ public final class LiveDataReactiveStreams {
                         if (mCanceled) {
                             return;
                         }
-                        AppToolkitTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
+                        ArchTaskExecutor.getInstance().executeOnMainThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (mCanceled) {
