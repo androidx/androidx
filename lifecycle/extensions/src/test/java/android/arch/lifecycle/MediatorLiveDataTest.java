@@ -25,7 +25,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
 import android.support.annotation.Nullable;
 
@@ -69,7 +69,7 @@ public class MediatorLiveDataTest {
 
     @Before
     public void swapExecutorDelegate() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
+        ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
     }
 
     @Test
