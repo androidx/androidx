@@ -29,8 +29,8 @@ import java.util.concurrent.Executor;
  * @hide This API is not final.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppToolkitTaskExecutor extends TaskExecutor {
-    private static volatile AppToolkitTaskExecutor sInstance;
+public class ArchTaskExecutor extends TaskExecutor {
+    private static volatile ArchTaskExecutor sInstance;
 
     @NonNull
     private TaskExecutor mDelegate;
@@ -54,7 +54,7 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
         }
     };
 
-    private AppToolkitTaskExecutor() {
+    private ArchTaskExecutor() {
         mDefaultTaskExecutor = new DefaultTaskExecutor();
         mDelegate = mDefaultTaskExecutor;
     }
@@ -62,15 +62,15 @@ public class AppToolkitTaskExecutor extends TaskExecutor {
     /**
      * Returns an instance of the task executor.
      *
-     * @return The singleton AppToolkitTaskExecutor.
+     * @return The singleton ArchTaskExecutor.
      */
-    public static AppToolkitTaskExecutor getInstance() {
+    public static ArchTaskExecutor getInstance() {
         if (sInstance != null) {
             return sInstance;
         }
-        synchronized (AppToolkitTaskExecutor.class) {
+        synchronized (ArchTaskExecutor.class) {
             if (sInstance == null) {
-                sInstance = new AppToolkitTaskExecutor();
+                sInstance = new ArchTaskExecutor();
             }
         }
         return sInstance;

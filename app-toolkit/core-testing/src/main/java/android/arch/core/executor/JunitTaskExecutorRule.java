@@ -46,11 +46,11 @@ public class JunitTaskExecutorRule implements TestRule {
     }
 
     private void beforeStart() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(mTaskExecutor);
+        ArchTaskExecutor.getInstance().setDelegate(mTaskExecutor);
     }
 
     private void afterFinished() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     public TaskExecutor getTaskExecutor() {

@@ -17,7 +17,7 @@
 package android.arch.persistence.room.integration.testapp;
 
 import android.app.Application;
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.paging.DataSource;
@@ -47,7 +47,7 @@ public class CustomerViewModel extends AndroidViewModel {
         mDatabase = Room.databaseBuilder(this.getApplication(),
                 SampleDatabase.class, "customerDatabase").build();
 
-        AppToolkitTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
+        ArchTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
             @Override
             public void run() {
                 // fill with some simple data
@@ -73,7 +73,7 @@ public class CustomerViewModel extends AndroidViewModel {
     }
 
     void insertCustomer() {
-        AppToolkitTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
+        ArchTaskExecutor.getInstance().executeOnDiskIO(new Runnable() {
             @Override
             public void run() {
                 mDatabase.getCustomerDao().insert(createCustomer());

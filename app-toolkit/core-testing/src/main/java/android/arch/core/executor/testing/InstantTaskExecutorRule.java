@@ -16,7 +16,7 @@
 
 package android.arch.core.executor.testing;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 
 import org.junit.rules.TestWatcher;
@@ -32,7 +32,7 @@ public class InstantTaskExecutorRule extends TestWatcher {
     @Override
     protected void starting(Description description) {
         super.starting(description);
-        AppToolkitTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             @Override
             public void executeOnDiskIO(Runnable runnable) {
                 runnable.run();
@@ -53,6 +53,6 @@ public class InstantTaskExecutorRule extends TestWatcher {
     @Override
     protected void finished(Description description) {
         super.finished(description);
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 }

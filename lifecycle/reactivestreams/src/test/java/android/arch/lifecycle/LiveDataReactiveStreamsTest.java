@@ -19,7 +19,7 @@ package android.arch.lifecycle;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
@@ -74,7 +74,7 @@ public class LiveDataReactiveStreamsTest {
             }
         };
         mTestThread = Thread.currentThread();
-        AppToolkitTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
 
             @Override
             public void executeOnDiskIO(Runnable runnable) {
@@ -97,7 +97,7 @@ public class LiveDataReactiveStreamsTest {
 
     @After
     public void removeExecutorDelegate() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test
