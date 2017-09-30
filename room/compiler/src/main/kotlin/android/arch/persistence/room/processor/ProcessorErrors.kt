@@ -199,6 +199,16 @@ object ProcessorErrors {
                 """.trim()
     }
 
+    fun pojoMissingNonNull(pojoTypeName: TypeName, missingPojoFields: List<String>,
+                           allQueryColumns: List<String>) : String {
+        return """
+        The columns returned by the query does not have the fields
+        [${missingPojoFields.joinToString(",")}] in $pojoTypeName even though they are
+        annotated as non-null or primitive.
+        Columns returned by the query: [${allQueryColumns.joinToString(",")}]
+        """.trim()
+    }
+
     fun cursorPojoMismatch(pojoTypeName: TypeName,
                            unusedColumns: List<String>, allColumns: List<String>,
                            unusedFields: List<Field>, allFields: List<Field>): String {
