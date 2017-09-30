@@ -16,7 +16,7 @@
 
 package android.support.v7.recyclerview.extensions;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 
 import java.util.concurrent.Executor;
 
@@ -118,10 +118,10 @@ public final class ListAdapterConfig<T> {
                 throw new IllegalArgumentException("Must provide a diffCallback");
             }
             if (mBackgroundThreadExecutor == null) {
-                mBackgroundThreadExecutor = AppToolkitTaskExecutor.getIOThreadExecutor();
+                mBackgroundThreadExecutor = ArchTaskExecutor.getIOThreadExecutor();
             }
             if (mMainThreadExecutor == null) {
-                mMainThreadExecutor = AppToolkitTaskExecutor.getMainThreadExecutor();
+                mMainThreadExecutor = ArchTaskExecutor.getMainThreadExecutor();
             }
             return new ListAdapterConfig<>(
                     mMainThreadExecutor,

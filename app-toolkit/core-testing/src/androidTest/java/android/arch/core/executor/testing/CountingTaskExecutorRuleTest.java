@@ -19,7 +19,7 @@ package android.arch.core.executor.testing;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -115,13 +115,13 @@ public class CountingTaskExecutorRuleTest {
 
     private LatchRunnable runOnIO() {
         LatchRunnable latchRunnable = new LatchRunnable();
-        AppToolkitTaskExecutor.getInstance().executeOnDiskIO(latchRunnable);
+        ArchTaskExecutor.getInstance().executeOnDiskIO(latchRunnable);
         return latchRunnable;
     }
 
     private LatchRunnable runOnMain() {
         LatchRunnable latchRunnable = new LatchRunnable();
-        AppToolkitTaskExecutor.getInstance().executeOnMainThread(latchRunnable);
+        ArchTaskExecutor.getInstance().executeOnMainThread(latchRunnable);
         return latchRunnable;
     }
 

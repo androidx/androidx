@@ -27,7 +27,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.arch.core.executor.TaskExecutorWithFakeMainThread;
 import android.arch.lifecycle.util.InstantTaskExecutor;
@@ -58,12 +58,12 @@ public class ComputableLiveDataTest {
     @Before
     public void swapExecutorDelegate() {
         mTaskExecutor = spy(new InstantTaskExecutor());
-        AppToolkitTaskExecutor.getInstance().setDelegate(mTaskExecutor);
+        ArchTaskExecutor.getInstance().setDelegate(mTaskExecutor);
     }
 
     @After
     public void removeExecutorDelegate() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ComputableLiveDataTest {
     @Test
     public void noConcurrentCompute() throws InterruptedException {
         TaskExecutorWithFakeMainThread executor = new TaskExecutorWithFakeMainThread(2);
-        AppToolkitTaskExecutor.getInstance().setDelegate(executor);
+        ArchTaskExecutor.getInstance().setDelegate(executor);
         try {
             // # of compute calls
             final Semaphore computeCounter = new Semaphore(0);
@@ -121,7 +121,7 @@ public class ComputableLiveDataTest {
             // assert no other results arrive
             verify(observer, never()).onChanged(anyInt());
         } finally {
-            AppToolkitTaskExecutor.getInstance().setDelegate(null);
+            ArchTaskExecutor.getInstance().setDelegate(null);
         }
     }
 
