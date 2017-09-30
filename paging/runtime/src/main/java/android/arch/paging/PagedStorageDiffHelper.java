@@ -16,36 +16,31 @@
 
 package android.arch.paging;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.support.v7.recyclerview.extensions.DiffCallback;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ContiguousDiffHelper {
-    private ContiguousDiffHelper() {
+class PagedStorageDiffHelper {
+    private PagedStorageDiffHelper() {
     }
 
-    @NonNull
     static <T> DiffUtil.DiffResult computeDiff(
-            final NullPaddedList<T> oldList, final NullPaddedList<T> newList,
-            final DiffCallback<T> diffCallback, boolean detectMoves) {
+            final PagedStorage<?, T> oldList,
+            final PagedStorage<?, T> newList,
+            final DiffCallback<T> diffCallback) {
+        final int oldOffset = oldList.computeLeadingNulls();
+        final int newOffset = newList.computeLeadingNulls();
 
-        if (!oldList.isImmutable()) {
-            throw new IllegalArgumentException("list must be immutable to safely perform diff");
-        }
-        if (!newList.isImmutable()) {
-            throw new IllegalArgumentException("list must be immutable to safely perform diff");
-        }
+        final int oldSize = oldList.size() - oldOffset - oldList.computeTrailingNulls();
+        final int newSize = newList.size() - newOffset - newList.computeTrailingNulls();
+
         return DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Nullable
             @Override
             public Object getChangePayload(int oldItemPosition, int newItemPosition) {
-                T oldItem = oldList.mList.get(oldItemPosition);
-                T newItem = newList.mList.get(newItemPosition);
+                T oldItem = oldList.get(oldItemPosition + oldOffset);
+                T newItem = newList.get(newItemPosition + newList.getLeadingNullCount());
                 if (oldItem == null || newItem == null) {
                     return null;
                 }
@@ -54,21 +49,22 @@ class ContiguousDiffHelper {
 
             @Override
             public int getOldListSize() {
-                return oldList.mList.size();
+                return oldSize;
             }
 
             @Override
             public int getNewListSize() {
-                return newList.mList.size();
+                return newSize;
             }
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                T oldItem = oldList.mList.get(oldItemPosition);
-                T newItem = newList.mList.get(newItemPosition);
+                T oldItem = oldList.get(oldItemPosition + oldOffset);
+                T newItem = newList.get(newItemPosition + newList.getLeadingNullCount());
                 if (oldItem == newItem) {
                     return true;
                 }
+                //noinspection SimplifiableIfStatement
                 if (oldItem == null || newItem == null) {
                     return false;
                 }
@@ -77,18 +73,19 @@ class ContiguousDiffHelper {
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                T oldItem = oldList.mList.get(oldItemPosition);
-                T newItem = newList.mList.get(newItemPosition);
+                T oldItem = oldList.get(oldItemPosition + oldOffset);
+                T newItem = newList.get(newItemPosition + newList.getLeadingNullCount());
                 if (oldItem == newItem) {
                     return true;
                 }
+                //noinspection SimplifiableIfStatement
                 if (oldItem == null || newItem == null) {
                     return false;
                 }
 
                 return diffCallback.areContentsTheSame(oldItem, newItem);
             }
-        }, detectMoves);
+        }, true);
     }
 
     private static class OffsettingListUpdateCallback implements ListUpdateCallback {
@@ -134,21 +131,25 @@ class ContiguousDiffHelper {
      * immediately after dispatching this diff.
      */
     static <T> void dispatchDiff(ListUpdateCallback callback,
-            final NullPaddedList<T> oldList, final NullPaddedList<T> newList,
+            final PagedStorage<?, T> oldList,
+            final PagedStorage<?, T> newList,
             final DiffUtil.DiffResult diffResult) {
 
-        if (oldList.getLeadingNullCount() == 0
-                && oldList.getTrailingNullCount() == 0
-                && newList.getLeadingNullCount() == 0
-                && newList.getTrailingNullCount() == 0) {
+        final int trailingOld = oldList.computeTrailingNulls();
+        final int trailingNew = newList.computeTrailingNulls();
+        final int leadingOld = oldList.computeLeadingNulls();
+        final int leadingNew = newList.computeLeadingNulls();
+
+        if (trailingOld == 0
+                && trailingNew == 0
+                && leadingOld == 0
+                && leadingNew == 0) {
             // Simple case, dispatch & return
             diffResult.dispatchUpdatesTo(callback);
             return;
         }
 
         // First, remove or insert trailing nulls
-        final int trailingOld = oldList.getTrailingNullCount();
-        final int trailingNew = newList.getTrailingNullCount();
         if (trailingOld > trailingNew) {
             int count = trailingOld - trailingNew;
             callback.onRemoved(oldList.size() - count, count);
@@ -157,8 +158,6 @@ class ContiguousDiffHelper {
         }
 
         // Second, remove or insert leading nulls
-        final int leadingOld = oldList.getLeadingNullCount();
-        final int leadingNew = newList.getLeadingNullCount();
         if (leadingOld > leadingNew) {
             callback.onRemoved(0, leadingOld - leadingNew);
         } else if (leadingOld < leadingNew) {

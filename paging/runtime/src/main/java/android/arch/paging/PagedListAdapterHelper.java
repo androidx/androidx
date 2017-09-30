@@ -25,8 +25,6 @@ import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 import android.support.v7.widget.RecyclerView;
 
-import java.util.List;
-
 /**
  * Helper object for mapping a {@link PagedList} into a
  * {@link android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}.
@@ -123,12 +121,10 @@ public class PagedListAdapterHelper<T> {
     private final ListUpdateCallback mUpdateCallback;
     private final ListAdapterConfig<T> mConfig;
 
-    // true if our listener is detached from mList, because it's been snapshotted
-    private boolean mUpdateScheduled;
-
     private boolean mIsContiguous;
 
-    private PagedList<T> mList;
+    private PagedList<T> mPagedList;
+    private PagedList<T> mSnapshot;
 
     // Max generation of currently scheduled runnable
     private int mMaxScheduledGeneration;
@@ -182,12 +178,17 @@ public class PagedListAdapterHelper<T> {
     @SuppressWarnings("WeakerAccess")
     @Nullable
     public T getItem(int index) {
-        if (mList == null) {
-            throw new IndexOutOfBoundsException("Item count is zero, getItem() call is invalid");
+        if (mPagedList == null) {
+            if (mSnapshot == null) {
+                throw new IndexOutOfBoundsException(
+                        "Item count is zero, getItem() call is invalid");
+            } else {
+                return mSnapshot.get(index);
+            }
         }
 
-        mList.loadAround(index);
-        return mList.get(index);
+        mPagedList.loadAround(index);
+        return mPagedList.get(index);
     }
 
     /**
@@ -198,7 +199,11 @@ public class PagedListAdapterHelper<T> {
      */
     @SuppressWarnings("WeakerAccess")
     public int getItemCount() {
-        return mList == null ? 0 : mList.size();
+        if (mPagedList != null) {
+            return mPagedList.size();
+        }
+
+        return mSnapshot == null ? 0 : mSnapshot.size();
     }
 
     /**
@@ -212,7 +217,7 @@ public class PagedListAdapterHelper<T> {
      */
     public void setList(final PagedList<T> pagedList) {
         if (pagedList != null) {
-            if (mList == null) {
+            if (mPagedList == null && mSnapshot == null) {
                 mIsContiguous = pagedList.isContiguous();
             } else {
                 if (pagedList.isContiguous() != mIsContiguous) {
@@ -222,7 +227,7 @@ public class PagedListAdapterHelper<T> {
             }
         }
 
-        if (pagedList == mList) {
+        if (pagedList == mPagedList) {
             // nothing to do
             return;
         }
@@ -231,49 +236,51 @@ public class PagedListAdapterHelper<T> {
         final int runGeneration = ++mMaxScheduledGeneration;
 
         if (pagedList == null) {
-            mUpdateCallback.onRemoved(0, mList.size());
-            mList.removeWeakCallback(mPagedListCallback);
-            mList = null;
+            mUpdateCallback.onRemoved(0, getItemCount());
+            if (mPagedList != null) {
+                mPagedList.removeWeakCallback(mPagedListCallback);
+                mPagedList = null;
+            } else if (mSnapshot != null) {
+                mSnapshot = null;
+            }
             return;
         }
 
-        if (mList == null) {
+        if (mPagedList == null && mSnapshot == null) {
             // fast simple first insert
             mUpdateCallback.onInserted(0, pagedList.size());
-            mList = pagedList;
+            mPagedList = pagedList;
             pagedList.addWeakCallback(null, mPagedListCallback);
             return;
         }
 
-        if (!mList.isImmutable()) {
+        if (mPagedList != null) {
             // first update scheduled on this list, so capture mPages as a snapshot, removing
             // callbacks so we don't have resolve updates against a moving target
-            mList.removeWeakCallback(mPagedListCallback);
-            mList = (PagedList<T>) mList.snapshot();
+            mPagedList.removeWeakCallback(mPagedListCallback);
+            mSnapshot = (PagedList<T>) mPagedList.snapshot();
+            mPagedList = null;
         }
 
-        final PagedList<T> oldSnapshot = mList;
-        final List<T> newSnapshot = pagedList.snapshot();
-        mUpdateScheduled = true;
+        if (mSnapshot == null || mPagedList != null) {
+            throw new IllegalStateException("must be in snapshot state to diff");
+        }
+
+        final PagedList<T> oldSnapshot = mSnapshot;
+        final PagedList<T> newSnapshot = (PagedList<T>) pagedList.snapshot();
         mConfig.getBackgroundThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 final DiffUtil.DiffResult result;
-                if (mIsContiguous) {
-                    result = ContiguousDiffHelper.computeDiff(
-                            (NullPaddedList<T>) oldSnapshot, (NullPaddedList<T>) newSnapshot,
-                            mConfig.getDiffCallback(), true);
-                } else {
-                    result = SparseDiffHelper.computeDiff(
-                            (PageArrayList<T>) oldSnapshot, (PageArrayList<T>) newSnapshot,
-                            mConfig.getDiffCallback(), true);
-                }
+                result = PagedStorageDiffHelper.computeDiff(
+                        oldSnapshot.mStorage,
+                        newSnapshot.mStorage,
+                        mConfig.getDiffCallback());
 
                 mConfig.getMainThreadExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
                         if (mMaxScheduledGeneration == runGeneration) {
-                            mUpdateScheduled = false;
                             latchPagedList(pagedList, newSnapshot, result);
                         }
                     }
@@ -283,16 +290,17 @@ public class PagedListAdapterHelper<T> {
     }
 
     private void latchPagedList(
-            PagedList<T> newList, List<T> diffSnapshot,
+            PagedList<T> newList, PagedList<T> diffSnapshot,
             DiffUtil.DiffResult diffResult) {
-        if (mIsContiguous) {
-            ContiguousDiffHelper.dispatchDiff(mUpdateCallback,
-                    (NullPaddedList<T>) mList, (ContiguousPagedList<T>) newList, diffResult);
-        } else {
-            SparseDiffHelper.dispatchDiff(mUpdateCallback, diffResult);
+        if (mSnapshot == null || mPagedList != null) {
+            throw new IllegalStateException("must be in snapshot state to apply diff");
         }
-        mList = newList;
-        newList.addWeakCallback((PagedList<T>) diffSnapshot, mPagedListCallback);
+
+        PagedStorageDiffHelper.dispatchDiff(mUpdateCallback,
+                mSnapshot.mStorage, newList.mStorage, diffResult);
+        mPagedList = newList;
+        mSnapshot = null;
+        newList.addWeakCallback(diffSnapshot, mPagedListCallback);
     }
 
     /**
@@ -307,6 +315,9 @@ public class PagedListAdapterHelper<T> {
     @SuppressWarnings("WeakerAccess")
     @Nullable
     public PagedList<T> getCurrentList() {
-        return mList;
+        if (mSnapshot != null) {
+            return mSnapshot;
+        }
+        return mPagedList;
     }
 }
