@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
@@ -133,7 +133,7 @@ public class RxRoom {
                 public Disposable schedule(@NonNull Runnable run, long delay,
                         @NonNull TimeUnit unit) {
                     DisposableRunnable disposable = new DisposableRunnable(run, mDisposed);
-                    AppToolkitTaskExecutor.getInstance().executeOnDiskIO(run);
+                    ArchTaskExecutor.getInstance().executeOnDiskIO(run);
                     return disposable;
                 }
 

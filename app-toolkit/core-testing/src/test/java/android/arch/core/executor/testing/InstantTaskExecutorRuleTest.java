@@ -18,7 +18,7 @@ package android.arch.core.executor.testing;
 
 import static org.junit.Assert.assertTrue;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class InstantTaskExecutorRuleTest {
                 return null;
             }
         });
-        AppToolkitTaskExecutor.getInstance().executeOnMainThread(check);
+        ArchTaskExecutor.getInstance().executeOnMainThread(check);
         check.get(1, TimeUnit.SECONDS);
     }
 
@@ -60,7 +60,7 @@ public class InstantTaskExecutorRuleTest {
                 return null;
             }
         });
-        AppToolkitTaskExecutor.getInstance().executeOnDiskIO(check);
+        ArchTaskExecutor.getInstance().executeOnDiskIO(check);
         check.get(1, TimeUnit.SECONDS);
     }
 }

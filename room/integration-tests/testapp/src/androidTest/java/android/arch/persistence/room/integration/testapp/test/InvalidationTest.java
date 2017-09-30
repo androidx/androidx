@@ -21,7 +21,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.TaskExecutor;
 import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.Room;
@@ -68,7 +68,7 @@ public class InvalidationTest {
 
     @Before
     public void setSingleThreadedIO() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
+        ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             ExecutorService mIOExecutor = Executors.newSingleThreadExecutor();
             Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -91,7 +91,7 @@ public class InvalidationTest {
 
     @After
     public void clearExecutor() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     private void waitUntilIOThreadIsIdle() {
@@ -101,7 +101,7 @@ public class InvalidationTest {
                 return null;
             }
         });
-        AppToolkitTaskExecutor.getInstance().executeOnDiskIO(future);
+        ArchTaskExecutor.getInstance().executeOnDiskIO(future);
         //noinspection TryWithIdenticalCatches
         try {
             future.get();

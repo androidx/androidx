@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.arch.core.executor.AppToolkitTaskExecutor;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.lifecycle.util.InstantTaskExecutor;
 import android.support.annotation.Nullable;
 
@@ -70,12 +70,12 @@ public class LiveDataTest {
 
     @Before
     public void swapExecutorDelegate() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
+        ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
     }
 
     @After
     public void removeExecutorDelegate() {
-        AppToolkitTaskExecutor.getInstance().setDelegate(null);
+        ArchTaskExecutor.getInstance().setDelegate(null);
     }
 
     @Test
