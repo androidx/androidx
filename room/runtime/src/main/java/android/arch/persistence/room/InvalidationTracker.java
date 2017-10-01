@@ -352,11 +352,18 @@ public class InvalidationTracker {
                     return;
                 }
 
-                if (mDatabase.inTransaction()
-                        || !mPendingRefresh.compareAndSet(true, false)) {
+                if (!mPendingRefresh.compareAndSet(true, false)) {
                     // no pending refresh
                     return;
                 }
+
+                if (mDatabase.inTransaction()) {
+                    // current thread is in a transaction. when it ends, it will invoke
+                    // refreshRunnable again. mPendingRefresh is left as false on purpose
+                    // so that the last transaction can flip it on again.
+                    return;
+                }
+
                 mCleanupStatement.executeUpdateDelete();
                 mQueryArgs[0] = mMaxVersion;
                 Cursor cursor = mDatabase.query(SELECT_UPDATED_TABLES_SQL, mQueryArgs);
