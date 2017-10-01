@@ -305,4 +305,27 @@ public class RxJava2Test extends TestDatabaseTest {
             }
         });
     }
+
+    @Test
+    public void flowable_updateInTransaction() throws InterruptedException {
+        // When subscribing to the emissions of the user
+        final TestSubscriber<User> userTestSubscriber = mUserDao
+                .flowableUserById(3)
+                .observeOn(mTestScheduler)
+                .test();
+        drain();
+        userTestSubscriber.assertValueCount(0);
+
+        // When inserting a new user in the data source
+        mDatabase.beginTransaction();
+        try {
+            mUserDao.insert(TestUtil.createUser(3));
+            mDatabase.setTransactionSuccessful();
+
+        } finally {
+            mDatabase.endTransaction();
+        }
+        drain();
+        userTestSubscriber.assertValueCount(1);
+    }
 }
