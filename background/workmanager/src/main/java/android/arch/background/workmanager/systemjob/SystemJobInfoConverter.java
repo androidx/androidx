@@ -19,7 +19,6 @@ package android.arch.background.workmanager.systemjob;
 import static android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
 import android.app.job.JobInfo;
-import android.arch.background.workmanager.WorkSpecConverter;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.ComponentName;
@@ -35,8 +34,8 @@ import android.util.Log;
  * Converts a {@link WorkSpec} into a JobInfo.
  */
 @RequiresApi(api = 21)
-public class SystemJobConverter implements WorkSpecConverter<JobInfo> {
-    private static final String TAG = "SystemJobConverter";
+public class SystemJobInfoConverter {
+    private static final String TAG = "SystemJobInfoConverter";
     @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
     public static final String EXTRAS_WORK_SPEC_ID = "WORK_SPEC_ID";
 
@@ -48,18 +47,23 @@ public class SystemJobConverter implements WorkSpecConverter<JobInfo> {
      *
      * @param context A non-null {@link Context}.
      */
-    public SystemJobConverter(@NonNull Context context) {
+    public SystemJobInfoConverter(@NonNull Context context) {
         this(context, new SystemJobIdGenerator(context));
     }
 
     @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-    public SystemJobConverter(@NonNull Context context, SystemJobIdGenerator jobIdGenerator) {
+    public SystemJobInfoConverter(@NonNull Context context, SystemJobIdGenerator jobIdGenerator) {
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
         mJobIdGenerator = jobIdGenerator;
     }
 
-    @Override
+    /**
+     * Converts a {@link WorkSpec} into a {@link JobInfo}.
+     *
+     * @param workSpec The {@link WorkSpec} to convert
+     * @return The {@link JobInfo} representing the same information as the {@link WorkSpec}
+     */
     public JobInfo convert(WorkSpec workSpec) {
         Constraints constraints = workSpec.getConstraints();
         int jobId = mJobIdGenerator.nextId();
@@ -85,7 +89,13 @@ public class SystemJobConverter implements WorkSpecConverter<JobInfo> {
         return builder.build();
     }
 
-    @Override
+    /**
+     * Converts {@link Constraints.NetworkType} into {@link JobInfo}'s network values.
+     *
+     * @param networkType The {@link Constraints.NetworkType} network type
+     * @return The {@link JobInfo} network type
+     * @throws IllegalArgumentException if we encounter an invalid value
+     */
     public int convertNetworkType(@Constraints.NetworkType int networkType)
             throws IllegalArgumentException {
         switch(networkType) {
