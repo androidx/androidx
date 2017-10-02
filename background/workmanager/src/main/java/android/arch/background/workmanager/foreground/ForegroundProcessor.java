@@ -16,6 +16,7 @@
 package android.arch.background.workmanager.foreground;
 
 import android.arch.background.workmanager.Processor;
+import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
@@ -44,8 +45,9 @@ public class ForegroundProcessor extends Processor
     public ForegroundProcessor(
             Context appContext,
             WorkDatabase workDatabase,
+            Scheduler scheduler,
             LifecycleOwner lifecycleOwner) {
-        super(appContext, workDatabase);
+        super(appContext, workDatabase, scheduler);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
         mWorkDatabase.workSpecDao().getRunnableWorkIds().observe(mLifecycleOwner, this);

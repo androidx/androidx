@@ -58,6 +58,7 @@ public class WorkerWrapper implements Runnable {
     private String mWorkSpecId;
     private ExecutionListener mListener;
     private ConstraintsChecker mConstraintsChecker;
+    private Scheduler mScheduler;
 
     private WorkerWrapper(Builder builder) {
         mAppContext = builder.mAppContext;
@@ -65,6 +66,7 @@ public class WorkerWrapper implements Runnable {
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
         mConstraintsChecker = builder.mConstraintsChecker;
+        mScheduler = builder.mScheduler;
     }
 
     @Override
@@ -107,7 +109,7 @@ public class WorkerWrapper implements Runnable {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + mWorkSpecId);
-            setSuccessAndRemoveDependencies();
+            setSuccessAndUpdateDependencies();
             notifyListener(RESULT_SUCCEEDED);
         } catch (InterruptedException e) {
             // TODO(xbhatnag): Retry Policies
@@ -139,7 +141,7 @@ public class WorkerWrapper implements Runnable {
         });
     }
 
-    private void setSuccessAndRemoveDependencies() {
+    private void setSuccessAndUpdateDependencies() {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
 
@@ -153,8 +155,9 @@ public class WorkerWrapper implements Runnable {
             }
             mWorkDatabase.setTransactionSuccessful();
 
-            for (String id : unblockedWorkIds) {
-                // TODO(sumir): Schedule on Scheduler impl.
+            if (mScheduler != null) {
+                WorkSpec[] unblockedWorkSpecs = workSpecDao.getWorkSpecs(unblockedWorkIds);
+                mScheduler.schedule(unblockedWorkSpecs);
             }
         } finally {
             mWorkDatabase.endTransaction();
@@ -170,6 +173,7 @@ public class WorkerWrapper implements Runnable {
         private String mWorkSpecId;
         private ExecutionListener mListener;
         private ConstraintsChecker mConstraintsChecker;
+        private Scheduler mScheduler;
 
         Builder(@NonNull Context context,
                 @NonNull WorkDatabase database,
@@ -181,6 +185,11 @@ public class WorkerWrapper implements Runnable {
 
         Builder withListener(ExecutionListener listener) {
             mListener = listener;
+            return this;
+        }
+
+        Builder withScheduler(Scheduler scheduler) {
+            mScheduler = scheduler;
             return this;
         }
 

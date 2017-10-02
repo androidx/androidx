@@ -34,11 +34,14 @@ public abstract class Processor implements ExecutionListener {
     protected ExecutorService mExecutorService;
     protected Map<String, Future<?>> mEnqueuedWorkMap;
 
-    public Processor(Context appContext, WorkDatabase workDatabase) {
+    protected Scheduler mScheduler;
+
+    public Processor(Context appContext, WorkDatabase workDatabase, Scheduler scheduler) {
         mAppContext = appContext;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
         mExecutorService = createExecutorService();
+        mScheduler = scheduler;
     }
 
     /**
@@ -66,6 +69,7 @@ public abstract class Processor implements ExecutionListener {
         if (isActive()) {
             WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
                     .withListener(this)
+                    .withScheduler(mScheduler)
                     .build();
             Future<?> future = mExecutorService.submit(workWrapper);   // TODO(sumir): Delays
             mEnqueuedWorkMap.put(id, future);

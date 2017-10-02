@@ -18,16 +18,13 @@ package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.systemjob.SystemJobConverter;
+import android.arch.background.workmanager.systemjob.SystemJobScheduler;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.concurrent.ExecutorService;
@@ -45,7 +42,7 @@ public final class WorkManager {
     private Processor mForegroundProcessor;
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
-    private WorkSpecConverter<JobInfo> mWorkSpecConverter;
+    private Scheduler mScheduler;
 
     private static WorkManager sInstance = null;
 
@@ -66,19 +63,32 @@ public final class WorkManager {
     WorkManager(Context context, boolean useInMemoryDatabase) {
         mContext = context.getApplicationContext();
         mWorkDatabase = WorkDatabase.create(mContext, useInMemoryDatabase);
-
-        mForegroundProcessor =
-                new ForegroundProcessor(mContext, mWorkDatabase, ProcessLifecycleOwner.get());
-
-        // TODO(janclarin): Wrap JobScheduler logic behind another interface.
         if (Build.VERSION.SDK_INT >= 21) {
-            mWorkSpecConverter = new SystemJobConverter(mContext);
+            mScheduler = new SystemJobScheduler(mContext);
         }
+        mForegroundProcessor = new ForegroundProcessor(
+                mContext,
+                mWorkDatabase,
+                mScheduler,
+                ProcessLifecycleOwner.get());
     }
 
-    @VisibleForTesting
-    WorkDatabase getWorkDatabase() {
+    /**
+     * @return The {@link WorkDatabase} instance associated with this WorkManager.
+     */
+    // TODO(sumir): Fix public access.  Need it for SystemJobService, but these classes need to be
+    // refactored.
+    // @VisibleForTesting
+    public WorkDatabase getWorkDatabase() {
         return mWorkDatabase;
+    }
+
+    /**
+     * @return The {@link Scheduler} associated with this WorkManager based on the device's
+     * capabilities, SDK version, etc.
+     */
+    public Scheduler getScheduler() {
+        return mScheduler;
     }
 
     /**
@@ -149,24 +159,9 @@ public final class WorkManager {
 
                 if (mPrerequisiteId != null) {
                     mForegroundProcessor.process(mWork.getId());
-
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        scheduleWorkWithJobScheduler();
-                        // TODO(janclarin): Schedule dependent work.
-                    }
                 }
             } finally {
                 mWorkDatabase.endTransaction();
-            }
-        }
-
-        @RequiresApi(api = 21)
-        private void scheduleWorkWithJobScheduler() {
-            JobScheduler jobScheduler =
-                    (JobScheduler) mContext.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            if (jobScheduler != null) {
-                JobInfo jobInfo = mWorkSpecConverter.convert(mWork.getWorkSpec());
-                jobScheduler.schedule(jobInfo);
             }
         }
     }
