@@ -17,6 +17,7 @@ package android.arch.background.workmanager.systemjob;
 
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.Processor;
+import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.content.Context;
@@ -36,8 +37,9 @@ public class SystemJobProcessor extends Processor {
     public SystemJobProcessor(
             Context appContext,
             WorkDatabase workDatabase,
+            Scheduler scheduler,
             ExecutionListener outerListener) {
-        super(appContext, workDatabase);
+        super(appContext, workDatabase, scheduler);
         mOuterListener = outerListener;
     }
 

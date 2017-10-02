@@ -21,6 +21,7 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.arch.background.workmanager.ExecutionListener;
 import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.WorkManager;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.content.Context;
 import android.text.TextUtils;
@@ -42,8 +43,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
     public void onCreate() {
         super.onCreate();
         Context context = getApplicationContext();
-        WorkDatabase database = WorkDatabase.create(context, false);
-        mSystemJobProcessor = new SystemJobProcessor(context, database, this);
+        WorkManager workManager = WorkManager.getInstance(context);
+        WorkDatabase database = workManager.getWorkDatabase();
+        mSystemJobProcessor =
+                new SystemJobProcessor(context, database, workManager.getScheduler(), this);
     }
 
     @Override

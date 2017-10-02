@@ -17,6 +17,8 @@ package android.arch.background.workmanager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.lifecycle.Lifecycle;
@@ -36,6 +38,7 @@ import org.junit.runner.RunWith;
 public class ForegroundProcessorTest {
 
     private WorkDatabase mWorkDatabase;
+    private Scheduler mScheduler;
     private ForegroundProcessor mForegroundProcessor;
 
     @Before
@@ -53,8 +56,12 @@ public class ForegroundProcessorTest {
 
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mWorkDatabase = WorkDatabase.create(appContext, true);
-        mForegroundProcessor =
-                new ForegroundProcessor(appContext, mWorkDatabase, alwaysActiveLifecycleOwner);
+        mScheduler = mock(Scheduler.class);
+        mForegroundProcessor = new ForegroundProcessor(
+                appContext,
+                mWorkDatabase,
+                mScheduler,
+                alwaysActiveLifecycleOwner);
     }
 
     @After
@@ -71,5 +78,6 @@ public class ForegroundProcessorTest {
         Thread.sleep(1000L);
         assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
                 is(Work.STATUS_SUCCEEDED));
+        verify(mScheduler).schedule();
     }
 }

@@ -56,7 +56,7 @@ public interface WorkSpecDao {
      * @return The {@link WorkSpec}s with the requested IDs.
      */
     @Query("SELECT * FROM workspec WHERE id IN (:ids)")
-    List<WorkSpec> getWorkSpecs(List<String> ids);
+    WorkSpec[] getWorkSpecs(List<String> ids);
 
     /**
      * Updates the status of a {@link WorkSpec}.
