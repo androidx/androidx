@@ -760,6 +760,7 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
+        mFragments.noteStateNotSaved();
         int index = (requestCode >> 16) & 0xffff;
         if (index != 0) {
             index--;
