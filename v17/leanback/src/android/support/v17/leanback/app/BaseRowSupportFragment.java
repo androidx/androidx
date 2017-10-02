@@ -14,6 +14,8 @@
 package android.support.v17.leanback.app;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v17.leanback.widget.ItemBridgeAdapter;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ObjectAdapter;
@@ -75,7 +77,7 @@ abstract class BaseRowSupportFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             mSelectedPosition = savedInstanceState.getInt(CURRENT_SELECTED_POSITION, -1);
         }

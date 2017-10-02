@@ -15,6 +15,8 @@ package android.support.v17.leanback.app;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.util.StateMachine;
@@ -177,7 +179,7 @@ public class BaseSupportFragment extends BrandedSupportFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mStateMachine.fireEvent(EVT_ON_CREATEVIEW);
     }
