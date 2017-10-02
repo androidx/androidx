@@ -16,14 +16,17 @@
 
 package android.support.v4.util;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Container to ease passing around a tuple of two objects. This object provides a sensible
  * implementation of equals(), returning true if equals() is true on each of the contained
  * objects.
  */
 public class Pair<F, S> {
-    public final F first;
-    public final S second;
+    public final @Nullable F first;
+    public final @Nullable S second;
 
     /**
      * Constructor for a Pair.
@@ -31,7 +34,7 @@ public class Pair<F, S> {
      * @param first the first object in the Pair
      * @param second the second object in the pair
      */
-    public Pair(F first, S second) {
+    public Pair(@Nullable F first, @Nullable S second) {
         this.first = first;
         this.second = second;
     }
@@ -78,7 +81,8 @@ public class Pair<F, S> {
      * @param b the second object in the pair
      * @return a Pair that is templatized with the types of a and b
      */
-    public static <A, B> Pair <A, B> create(A a, B b) {
+    @NonNull
+    public static <A, B> Pair <A, B> create(@Nullable A a, @Nullable B b) {
         return new Pair<A, B>(a, b);
     }
 }

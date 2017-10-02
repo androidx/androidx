@@ -44,7 +44,8 @@ public final class FingerprintManagerCompat {
     private final Context mContext;
 
     /** Get a {@link FingerprintManagerCompat} instance for a provided context. */
-    public static FingerprintManagerCompat from(Context context) {
+    @NonNull
+    public static FingerprintManagerCompat from(@NonNull Context context) {
         return new FingerprintManagerCompat(context);
     }
 
@@ -119,8 +120,9 @@ public final class FingerprintManagerCompat {
         }
     }
 
+    @Nullable
     @RequiresApi(23)
-    private static FingerprintManager getFingerprintManagerOrNull(Context context) {
+    private static FingerprintManager getFingerprintManagerOrNull(@NonNull Context context) {
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
             return context.getSystemService(FingerprintManager.class);
         } else {
@@ -195,20 +197,20 @@ public final class FingerprintManagerCompat {
         private final Cipher mCipher;
         private final Mac mMac;
 
-        public CryptoObject(Signature signature) {
+        public CryptoObject(@NonNull Signature signature) {
             mSignature = signature;
             mCipher = null;
             mMac = null;
 
         }
 
-        public CryptoObject(Cipher cipher) {
+        public CryptoObject(@NonNull Cipher cipher) {
             mCipher = cipher;
             mSignature = null;
             mMac = null;
         }
 
-        public CryptoObject(Mac mac) {
+        public CryptoObject(@NonNull Mac mac) {
             mMac = mac;
             mCipher = null;
             mSignature = null;
@@ -218,18 +220,21 @@ public final class FingerprintManagerCompat {
          * Get {@link Signature} object.
          * @return {@link Signature} object or null if this doesn't contain one.
          */
+        @Nullable
         public Signature getSignature() { return mSignature; }
 
         /**
          * Get {@link Cipher} object.
          * @return {@link Cipher} object or null if this doesn't contain one.
          */
+        @Nullable
         public Cipher getCipher() { return mCipher; }
 
         /**
          * Get {@link Mac} object.
          * @return {@link Mac} object or null if this doesn't contain one.
          */
+        @Nullable
         public Mac getMac() { return mMac; }
     }
 

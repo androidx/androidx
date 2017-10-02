@@ -20,6 +20,8 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 
 /**
@@ -188,8 +190,9 @@ public final class AccessibilityServiceInfoCompat {
      * @param packageManager The current package manager
      * @return The localized description.
      */
+    @Nullable
     public static String loadDescription(
-            AccessibilityServiceInfo info, PackageManager packageManager) {
+            @NonNull AccessibilityServiceInfo info, @NonNull PackageManager packageManager) {
         if (Build.VERSION.SDK_INT >= 16) {
             return info.loadDescription(packageManager);
         } else {
@@ -206,6 +209,7 @@ public final class AccessibilityServiceInfoCompat {
      * @param feedbackType The feedback type.
      * @return The string representation.
      */
+    @NonNull
     public static String feedbackTypeToString(int feedbackType) {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
@@ -245,6 +249,7 @@ public final class AccessibilityServiceInfoCompat {
      * @param flag The flag.
      * @return The string representation.
      */
+    @Nullable
     public static String flagToString(int flag) {
         switch (flag) {
             case AccessibilityServiceInfo.DEFAULT:
@@ -276,7 +281,7 @@ public final class AccessibilityServiceInfoCompat {
      * @see #CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY
      * @see #CAPABILITY_CAN_FILTER_KEY_EVENTS
      */
-    public static int getCapabilities(AccessibilityServiceInfo info) {
+    public static int getCapabilities(@NonNull AccessibilityServiceInfo info) {
         if (Build.VERSION.SDK_INT >= 18) {
             return info.getCapabilities();
         } else {
@@ -296,6 +301,7 @@ public final class AccessibilityServiceInfoCompat {
      * @param capability The capability.
      * @return The string representation.
      */
+    @NonNull
     public static String capabilityToString(int capability) {
         switch (capability) {
             case CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT:

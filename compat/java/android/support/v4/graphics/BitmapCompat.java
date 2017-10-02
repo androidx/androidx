@@ -17,6 +17,7 @@ package android.support.v4.graphics;
 
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 
 /**
@@ -71,11 +72,11 @@ public final class BitmapCompat {
         }
     }
 
-    public static boolean hasMipMap(Bitmap bitmap) {
+    public static boolean hasMipMap(@NonNull Bitmap bitmap) {
         return IMPL.hasMipMap(bitmap);
     }
 
-    public static void setHasMipMap(Bitmap bitmap, boolean hasMipMap) {
+    public static void setHasMipMap(@NonNull Bitmap bitmap, boolean hasMipMap) {
         IMPL.setHasMipMap(bitmap, hasMipMap);
     }
 
@@ -86,7 +87,7 @@ public final class BitmapCompat {
      * @param bitmap the bitmap in which to return its allocation size
      * @return the allocation size in bytes
      */
-    public static int getAllocationByteCount(Bitmap bitmap) {
+    public static int getAllocationByteCount(@NonNull Bitmap bitmap) {
         return IMPL.getAllocationByteCount(bitmap);
     }
 

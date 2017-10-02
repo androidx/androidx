@@ -18,6 +18,9 @@
 package android.support.v4.util;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Helper class for creating pools of objects. An example use looks like this:
  * <pre>
@@ -53,6 +56,7 @@ public final class Pools {
         /**
          * @return An instance from the pool if such, null otherwise.
          */
+        @Nullable
         public T acquire();
 
         /**
@@ -63,7 +67,7 @@ public final class Pools {
          *
          * @throws IllegalStateException If the instance is already in the pool.
          */
-        public boolean release(T instance);
+        public boolean release(@NonNull T instance);
     }
 
     private Pools() {
@@ -108,7 +112,7 @@ public final class Pools {
         }
 
         @Override
-        public boolean release(T instance) {
+        public boolean release(@NonNull T instance) {
             if (isInPool(instance)) {
                 throw new IllegalStateException("Already in the pool!");
             }
@@ -120,7 +124,7 @@ public final class Pools {
             return false;
         }
 
-        private boolean isInPool(T instance) {
+        private boolean isInPool(@NonNull T instance) {
             for (int i = 0; i < mPoolSize; i++) {
                 if (mPool[i] == instance) {
                     return true;
@@ -157,7 +161,7 @@ public final class Pools {
         }
 
         @Override
-        public boolean release(T element) {
+        public boolean release(@NonNull T element) {
             synchronized (mLock) {
                 return super.release(element);
             }
