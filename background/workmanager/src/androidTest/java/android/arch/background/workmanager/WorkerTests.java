@@ -16,9 +16,10 @@
 
 package android.arch.background.workmanager;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.content.Context;
@@ -45,8 +46,8 @@ public class WorkerTests {
         Work work = new Work.Builder(TestWorker.class).build();
         Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
 
-        assertNotNull(worker);
-        assertEquals(mContext.getApplicationContext(), worker.getAppContext());
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.getAppContext(), is(equalTo(mContext.getApplicationContext())));
     }
 
     @Test
@@ -59,15 +60,13 @@ public class WorkerTests {
         Work work = new Work.Builder(TestWorker.class).withArguments(arguments).build();
         Worker worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
 
-        assertNotNull(worker);
-        assertNotNull(worker.getArguments());
-        assertEquals(expectedValue, worker.getArguments().getString(key, null));
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.getArguments().getString(key, null), is(expectedValue));
 
         work = new Work.Builder(TestWorker.class).build();
         worker = Worker.fromWorkSpec(mContext, work.getWorkSpec());
 
-        assertNotNull(worker);
-        assertNotNull(worker.getArguments());
-        assertTrue(worker.getArguments().isEmpty());
+        assertThat(worker, is(notNullValue()));
+        assertThat(worker.getArguments().isEmpty(), is(true));
     }
 }

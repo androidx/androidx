@@ -16,7 +16,8 @@
 
 package android.arch.background.workmanager.systemjob;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -52,22 +53,22 @@ public class SystemJobIdGeneratorTest {
 
     @Test
     public void testNextId_returnsInitialIdWhenNoStoredNextId() {
-        assertEquals(SystemJobIdGenerator.INITIAL_ID, mIdGenerator.nextId());
+        assertThat(mIdGenerator.nextId(), is(SystemJobIdGenerator.INITIAL_ID));
     }
 
     @Test
     public void testNextId_returnsStoredNextId() {
         int expectedId = 100;
         storeNextIdInSharedPrefs(expectedId);
-        assertEquals(expectedId, mIdGenerator.nextId());
+        assertThat(mIdGenerator.nextId(), is(expectedId));
     }
 
     @Test
     public void testNextId_returnsInitialIdAfterReturningMaxInteger() {
         int expectedId = Integer.MAX_VALUE;
         storeNextIdInSharedPrefs(expectedId);
-        assertEquals(expectedId, mIdGenerator.nextId());
-        assertEquals(SystemJobIdGenerator.INITIAL_ID, mIdGenerator.nextId());
+        assertThat(mIdGenerator.nextId(), is(expectedId));
+        assertThat(mIdGenerator.nextId(), is(SystemJobIdGenerator.INITIAL_ID));
     }
 
     /**

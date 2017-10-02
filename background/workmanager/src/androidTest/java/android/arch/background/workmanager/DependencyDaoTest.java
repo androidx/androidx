@@ -18,9 +18,12 @@ package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
@@ -62,8 +65,8 @@ public class DependencyDaoTest extends DatabaseTest {
         insertDependenciesWithWorkSpecs(dependencies);
         List<String> resultWorkSpecIds =
                 mDependencyDao.getWorkSpecIdsWithSinglePrerequisite(TEST_PREREQUISITE_ID);
-        assertEquals(1, resultWorkSpecIds.size());
-        assertEquals(expectedWorkSpecId, resultWorkSpecIds.get(0));
+        assertThat(resultWorkSpecIds, hasSize(1));
+        assertThat(resultWorkSpecIds.get(0), is(expectedWorkSpecId));
     }
 
     @Test
@@ -84,9 +87,9 @@ public class DependencyDaoTest extends DatabaseTest {
         insertDependenciesWithWorkSpecs(dependencies);
         List<String> resultWorkSpecIds =
                     mDependencyDao.getWorkSpecIdsWithSinglePrerequisite(TEST_PREREQUISITE_ID);
-        assertEquals(2, resultWorkSpecIds.size());
-        assertEquals(expectedDep1.getWorkSpecId(), resultWorkSpecIds.get(0));
-        assertEquals(expectedDep2.getWorkSpecId(), resultWorkSpecIds.get(1));
+        assertThat(resultWorkSpecIds, hasSize(2));
+        assertThat(resultWorkSpecIds,
+                containsInAnyOrder(expectedDep1.getWorkSpecId(), expectedDep2.getWorkSpecId()));
     }
 
     @Test
@@ -104,9 +107,9 @@ public class DependencyDaoTest extends DatabaseTest {
         // test for that).
         mDependencyDao.deleteDependenciesWithPrerequisite(TEST_PREREQUISITE_ID);
         List<Dependency> resultDependencies = mDependencyDao.getAllDependencies();
-        assertNotNull(resultDependencies);
+        assertThat(resultDependencies, is(notNullValue()));
         for (Dependency dependency : resultDependencies) {
-            assertNotEquals(TEST_PREREQUISITE_ID, dependency.getPrerequisiteId());
+            assertThat(dependency.getPrerequisiteId(), is(not(TEST_PREREQUISITE_ID)));
         }
     }
 

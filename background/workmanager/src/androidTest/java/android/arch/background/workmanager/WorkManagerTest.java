@@ -16,10 +16,9 @@
 
 package android.arch.background.workmanager;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
@@ -68,11 +67,11 @@ public class WorkManagerTest {
 
         for (int i = 0; i < workCount; ++i) {
             String id = workArray[i].getId();
-            assertNotNull(mDatabase.workSpecDao().getWorkSpec(id));
-            assertEquals(
+            assertThat(mDatabase.workSpecDao().getWorkSpec(id), is(notNullValue()));
+            assertThat(
                     "index " + i + " does not have expected number of dependencies!",
                     mDatabase.dependencyDao().hasDependencies(id),
-                    (i > 0));
+                    is(i > 0));
         }
     }
 
@@ -97,22 +96,22 @@ public class WorkManagerTest {
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
         Constraints constraints = workSpec0.getConstraints();
-        assertNotNull(constraints);
-        assertTrue(constraints.requiresCharging());
-        assertTrue(constraints.requiresDeviceIdle());
-        assertTrue(constraints.requiresBatteryNotLow());
-        assertTrue(constraints.requiresStorageNotLow());
-        assertEquals(5000, constraints.getInitialDelay());
-        assertEquals(Constraints.NETWORK_TYPE_METERED, constraints.getRequiredNetworkType());
+        assertThat(constraints, is(notNullValue()));
+        assertThat(constraints.requiresCharging(), is(true));
+        assertThat(constraints.requiresDeviceIdle(), is(true));
+        assertThat(constraints.requiresBatteryNotLow(), is(true));
+        assertThat(constraints.requiresStorageNotLow(), is(true));
+        assertThat(constraints.getInitialDelay(), is(5000L));
+        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_METERED));
 
         constraints = workSpec1.getConstraints();
-        assertNotNull(constraints);
-        assertFalse(constraints.requiresCharging());
-        assertFalse(constraints.requiresDeviceIdle());
-        assertFalse(constraints.requiresBatteryNotLow());
-        assertFalse(constraints.requiresStorageNotLow());
-        assertEquals(0, constraints.getInitialDelay());
-        assertEquals(Constraints.NETWORK_TYPE_NONE, constraints.getRequiredNetworkType());
+        assertThat(constraints, is(notNullValue()));
+        assertThat(constraints.requiresCharging(), is(false));
+        assertThat(constraints.requiresDeviceIdle(), is(false));
+        assertThat(constraints.requiresBatteryNotLow(), is(false));
+        assertThat(constraints.requiresStorageNotLow(), is(false));
+        assertThat(constraints.getInitialDelay(), is(0L));
+        assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_NONE));
     }
 
     @Test
@@ -127,11 +126,11 @@ public class WorkManagerTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertEquals(Work.BACKOFF_POLICY_LINEAR, workSpec0.getBackoffPolicy());
-        assertEquals(50000, workSpec0.getBackoffDelayDuration());
+        assertThat(workSpec0.getBackoffPolicy(), is(Work.BACKOFF_POLICY_LINEAR));
+        assertThat(workSpec0.getBackoffDelayDuration(), is(50000L));
 
-        assertEquals(Work.BACKOFF_POLICY_EXPONENTIAL, workSpec1.getBackoffPolicy());
-        assertEquals(Work.DEFAULT_BACKOFF_DELAY_DURATION, workSpec1.getBackoffDelayDuration());
+        assertThat(workSpec1.getBackoffPolicy(), is(Work.BACKOFF_POLICY_EXPONENTIAL));
+        assertThat(workSpec1.getBackoffDelayDuration(), is(Work.DEFAULT_BACKOFF_DELAY_DURATION));
     }
 
     @Test
@@ -152,15 +151,15 @@ public class WorkManagerTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
-        assertNotNull(workSpec0.getArguments());
-        assertNotNull(workSpec1.getArguments());
+        assertThat(workSpec0.getArguments(), is(notNullValue()));
+        assertThat(workSpec1.getArguments(), is(notNullValue()));
 
-        assertEquals(1, workSpec0.getArguments().size());
-        assertEquals(0, workSpec1.getArguments().size());
+        assertThat(workSpec0.getArguments().size(), is(1));
+        assertThat(workSpec1.getArguments().size(), is(0));
 
         String actualValue = workSpec0.getArguments().getString(key, null);
-        assertNotNull(actualValue);
-        assertEquals(expectedValue, actualValue);
+        assertThat(actualValue, is(notNullValue()));
+        assertThat(actualValue, is(expectedValue));
     }
 
     @Test
@@ -172,12 +171,12 @@ public class WorkManagerTest {
         workSpec.setStatus(Work.STATUS_RUNNING);
         workSpecDao.insertWorkSpec(work.getWorkSpec());
 
-        assertEquals(workSpecDao.getWorkSpec(work.getId()).getStatus(), Work.STATUS_RUNNING);
+        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(Work.STATUS_RUNNING));
 
         SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
         SupportSQLiteDatabase db = openHelper.getWritableDatabase();
         WorkDatabase.generateCleanupCallback().onOpen(db);
 
-        assertEquals(workSpecDao.getWorkSpec(work.getId()).getStatus(), Work.STATUS_ENQUEUED);
+        assertThat(workSpecDao.getWorkSpec(work.getId()).getStatus(), is(Work.STATUS_ENQUEUED));
     }
 }
