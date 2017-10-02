@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package android.support.design.testutils;
+package android.support.testutils;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.support.test.rule.ActivityTestRule;
+import android.support.v4.app.FragmentActivity;
 
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Activity that keeps track of resume / destroy lifecycle events, as well as of the last
- * instance of itself.
+ * Extension of {@link FragmentActivity} that keeps track of when it is recreated.
+ * In order to use this class, have your activity extend it and call
+ * {@link FragmentActivityUtils#recreateActivity(ActivityTestRule, RecreatedActivity)} API.
  */
-public class RecreatedAppCompatActivity extends AppCompatActivity {
+public class RecreatedActivity extends FragmentActivity {
     // These must be cleared after each test using clearState()
-    public static RecreatedAppCompatActivity sActivity;
+    public static RecreatedActivity sActivity;
     public static CountDownLatch sResumed;
     public static CountDownLatch sDestroyed;
 
-    public static void clearState() {
+    static void clearState() {
         sActivity = null;
         sResumed = null;
         sDestroyed = null;

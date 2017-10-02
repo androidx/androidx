@@ -24,8 +24,8 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 import android.support.design.test.R;
-import android.support.design.testutils.ActivityUtils;
 import android.support.test.filters.LargeTest;
+import android.support.testutils.AppCompatActivityUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,8 +59,8 @@ public class AppBarWithCollapsingToolbarStateRestoreTest
                 .check(matches(hasZ()))
                 .check(matches(isCollapsed()));
 
-        mActivity = ActivityUtils.recreateActivity(mActivityTestRule, mActivity);
-        ActivityUtils.waitForExecution(mActivityTestRule);
+        mActivity = AppCompatActivityUtils.recreateActivity(mActivityTestRule, mActivity);
+        AppCompatActivityUtils.waitForExecution(mActivityTestRule);
 
         // And check that the app bar still is restored correctly
         onView(withId(R.id.app_bar))

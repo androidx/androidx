@@ -16,7 +16,6 @@
 package android.support.v4.app;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -28,15 +27,12 @@ import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.v4.app.test.FragmentTestActivity;
-import android.support.v4.app.test.RecreatedActivity;
 import android.util.Pair;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class FragmentTestUtil {
     private static final Runnable DO_NOTHING = new Runnable() {
@@ -246,33 +242,5 @@ public class FragmentTestUtil {
                 } while (leak.get((int) (Math.random() * leak.size())).get() != null);
             }
         }
-    }
-
-    /**
-     * Restarts the RecreatedActivity and waits for the new activity to be resumed.
-     *
-     * @return The newly-restarted Activity
-     */
-    public static <T extends RecreatedActivity> T recreateActivity(
-            ActivityTestRule<? extends RecreatedActivity> rule, final T activity)
-            throws InterruptedException {
-        // Now switch the orientation
-        RecreatedActivity.sResumed = new CountDownLatch(1);
-        RecreatedActivity.sDestroyed = new CountDownLatch(1);
-
-        runOnUiThreadRethrow(rule, new Runnable() {
-            @Override
-            public void run() {
-                activity.recreate();
-            }
-        });
-        assertTrue(RecreatedActivity.sResumed.await(1, TimeUnit.SECONDS));
-        assertTrue(RecreatedActivity.sDestroyed.await(1, TimeUnit.SECONDS));
-        T newActivity = (T) RecreatedActivity.sActivity;
-
-        waitForExecution(rule);
-
-        RecreatedActivity.clearState();
-        return newActivity;
     }
 }

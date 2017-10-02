@@ -17,6 +17,13 @@
 apply plugin: android.support.SupportAndroidLibraryPlugin
 
 dependencies {
+    api project(':support-fragment')
+    api project(':appcompat-v7')
+
+    compile libs.test_runner,      { exclude module: 'support-annotations' }
+    compile libs.espresso_core,    { exclude module: 'support-annotations' }
+    compile libs.mockito_core,     { exclude group: 'net.bytebuddy' } // DexMaker has its own MockMaker
+    compile libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' } // DexMaker has its own MockMaker
     compile libs.junit
 }
 
