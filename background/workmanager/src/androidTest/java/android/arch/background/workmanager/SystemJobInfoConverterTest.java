@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 import android.app.job.JobInfo;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.systemjob.SystemJobConverter;
 import android.arch.background.workmanager.systemjob.SystemJobIdGenerator;
+import android.arch.background.workmanager.systemjob.SystemJobInfoConverter;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -36,14 +36,14 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class SystemJobConverterTest {
+public class SystemJobInfoConverterTest {
     private SystemJobIdGenerator mMockJobIdGenerator;
-    private SystemJobConverter mConverter;
+    private SystemJobInfoConverter mConverter;
 
     @Before
     public void setUp() {
         mMockJobIdGenerator = mock(SystemJobIdGenerator.class);
-        mConverter = new SystemJobConverter(
+        mConverter = new SystemJobInfoConverter(
                 InstrumentationRegistry.getTargetContext(),
                 mMockJobIdGenerator);
     }
@@ -57,7 +57,7 @@ public class SystemJobConverterTest {
         WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(
-                SystemJobConverter.EXTRAS_WORK_SPEC_ID);
+                SystemJobInfoConverter.EXTRAS_WORK_SPEC_ID);
         assertThat(actualWorkSpecId, is(expectedWorkSpecId));
         assertThat(jobInfo.getId(), is(expectedJobId));
     }

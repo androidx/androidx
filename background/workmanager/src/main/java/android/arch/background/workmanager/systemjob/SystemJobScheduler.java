@@ -29,17 +29,17 @@ import android.content.Context;
 public class SystemJobScheduler implements Scheduler {
 
     private JobScheduler mJobScheduler;
-    private SystemJobConverter mSystemJobConverter;
+    private SystemJobInfoConverter mSystemJobInfoConverter;
 
     public SystemJobScheduler(Context context) {
         mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        mSystemJobConverter = new SystemJobConverter(context);
+        mSystemJobInfoConverter = new SystemJobInfoConverter(context);
     }
 
     @Override
     public void schedule(WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
-            JobInfo jobInfo = mSystemJobConverter.convert(workSpec);
+            JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec);
             mJobScheduler.schedule(jobInfo);
         }
     }
