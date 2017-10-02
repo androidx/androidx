@@ -79,7 +79,7 @@ public class ContextCompat {
      *                length-1 will correspond to the top activity on the resulting task stack.
      * @return true if the underlying API was available and the call was successful, false otherwise
      */
-    public static boolean startActivities(Context context, Intent[] intents) {
+    public static boolean startActivities(@NonNull Context context, @NonNull Intent[] intents) {
         return startActivities(context, intents, null);
     }
 
@@ -110,7 +110,8 @@ public class ContextCompat {
      * See {@link android.content.Context#startActivity(Intent, android.os.Bundle)}
      * @return true if the underlying API was available and the call was successful, false otherwise
      */
-    public static boolean startActivities(Context context, Intent[] intents, Bundle options) {
+    public static boolean startActivities(@NonNull Context context, @NonNull Intent[] intents,
+            @Nullable Bundle options) {
         if (Build.VERSION.SDK_INT >= 16) {
             context.startActivities(intents, options);
         } else {
@@ -136,7 +137,8 @@ public class ContextCompat {
      *                supplied here; there are no supported definitions for
      *                building it manually.
      */
-    public static void startActivity(Context context, Intent intent, @Nullable Bundle options) {
+    public static void startActivity(@NonNull Context context, @NonNull Intent intent,
+            @Nullable Bundle options) {
         if (Build.VERSION.SDK_INT >= 16) {
             context.startActivity(intent, options);
         } else {
@@ -159,7 +161,8 @@ public class ContextCompat {
      *
      * @see ApplicationInfo#dataDir
      */
-    public static File getDataDir(Context context) {
+    @Nullable
+    public static File getDataDir(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
             return context.getDataDir();
         } else {
@@ -211,7 +214,8 @@ public class ContextCompat {
      * @see Context#getObbDir()
      * @see EnvironmentCompat#getStorageState(File)
      */
-    public static File[] getObbDirs(Context context) {
+    @NonNull
+    public static File[] getObbDirs(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
             return context.getObbDirs();
         } else {
@@ -263,7 +267,8 @@ public class ContextCompat {
      * @see Context#getExternalFilesDir(String)
      * @see EnvironmentCompat#getStorageState(File)
      */
-    public static File[] getExternalFilesDirs(Context context, String type) {
+    @NonNull
+    public static File[] getExternalFilesDirs(@NonNull Context context, @Nullable String type) {
         if (Build.VERSION.SDK_INT >= 19) {
             return context.getExternalFilesDirs(type);
         } else {
@@ -315,7 +320,8 @@ public class ContextCompat {
      * @see Context#getExternalCacheDir()
      * @see EnvironmentCompat#getStorageState(File)
      */
-    public static File[] getExternalCacheDirs(Context context) {
+    @NonNull
+    public static File[] getExternalCacheDirs(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 19) {
             return context.getExternalCacheDirs();
         } else {
@@ -346,7 +352,8 @@ public class ContextCompat {
      *           The value 0 is an invalid identifier.
      * @return Drawable An object that can be used to draw this resource.
      */
-    public static final Drawable getDrawable(Context context, @DrawableRes int id) {
+    @Nullable
+    public static final Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
         if (Build.VERSION.SDK_INT >= 21) {
             return context.getDrawable(id);
         } else if (Build.VERSION.SDK_INT >= 16) {
@@ -382,7 +389,9 @@ public class ContextCompat {
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
      */
-    public static final ColorStateList getColorStateList(Context context, @ColorRes int id) {
+    @Nullable
+    public static final ColorStateList getColorStateList(@NonNull Context context,
+            @ColorRes int id) {
         if (Build.VERSION.SDK_INT >= 23) {
             return context.getColorStateList(id);
         } else {
@@ -404,7 +413,7 @@ public class ContextCompat {
      *         does not exist.
      */
     @ColorInt
-    public static final int getColor(Context context, @ColorRes int id) {
+    public static final int getColor(@NonNull Context context, @ColorRes int id) {
         if (Build.VERSION.SDK_INT >= 23) {
             return context.getColor(id);
         } else {
@@ -444,7 +453,8 @@ public class ContextCompat {
      *
      * @see android.content.Context#getFilesDir()
      */
-    public static final File getNoBackupFilesDir(Context context) {
+    @Nullable
+    public static final File getNoBackupFilesDir(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 21) {
             return context.getNoBackupFilesDir();
         } else {
@@ -468,7 +478,7 @@ public class ContextCompat {
      *
      * @return The path of the directory holding application code cache files.
      */
-    public static File getCodeCacheDir(Context context) {
+    public static File getCodeCacheDir(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 21) {
             return context.getCodeCacheDir();
         } else {
@@ -522,7 +532,8 @@ public class ContextCompat {
      *
      * @see ContextCompat#isDeviceProtectedStorage(Context)
      */
-    public static Context createDeviceProtectedStorageContext(Context context) {
+    @Nullable
+    public static Context createDeviceProtectedStorageContext(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
             return context.createDeviceProtectedStorageContext();
         } else {
@@ -536,7 +547,7 @@ public class ContextCompat {
      *
      * @see ContextCompat#createDeviceProtectedStorageContext(Context)
      */
-    public static boolean isDeviceProtectedStorage(Context context) {
+    public static boolean isDeviceProtectedStorage(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= 24) {
             return context.isDeviceProtectedStorage();
         } else {
@@ -554,7 +565,7 @@ public class ContextCompat {
      * @see Context#startForegeroundService()
      * @see Context#startService()
      */
-    public static void startForegroundService(Context context, Intent intent) {
+    public static void startForegroundService(@NonNull Context context, @NonNull Intent intent) {
         if (Build.VERSION.SDK_INT >= 26) {
             context.startForegroundService(intent);
         } else {
