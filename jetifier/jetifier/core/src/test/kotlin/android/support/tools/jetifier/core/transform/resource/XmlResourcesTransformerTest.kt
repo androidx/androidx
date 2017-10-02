@@ -225,7 +225,7 @@ class XmlResourcesTransformerTest {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
             "$expectedXml\n"
 
-        val processor = XmlResourcesTransformer(Config(prefixes, rules))
+        val processor = XmlResourcesTransformer(Config(prefixes, rules, emptyList()))
         val result = processor.transform(given.toByteArray())
         val strResult = result.toString(Charset.defaultCharset())
 

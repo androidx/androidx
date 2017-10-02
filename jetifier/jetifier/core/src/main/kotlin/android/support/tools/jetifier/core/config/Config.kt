@@ -17,6 +17,7 @@
 package android.support.tools.jetifier.core.config
 
 import android.support.tools.jetifier.core.rules.RewriteRule
+import android.support.tools.jetifier.core.transform.pom.PomRewriteRule
 
 /**
  * The main and only one configuration that is used by the tool and all its transformers.
@@ -26,7 +27,8 @@ import android.support.tools.jetifier.core.rules.RewriteRule
  */
 data class Config(
         val restrictToPackagePrefixes: List<String>,
-        val rewriteRules: List<RewriteRule>) {
+        val rewriteRules: List<RewriteRule>,
+        val pomRewriteRules: List<PomRewriteRule>) {
 
     companion object {
         /** Path to the default config file located within the jar file. */

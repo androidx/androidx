@@ -21,7 +21,6 @@ import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.rules.JavaTypeXmlRef
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.utils.Log
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
@@ -66,9 +65,7 @@ class XmlResourcesTransformer internal constructor(private val config: Config) :
     private val typesRewritesCache = hashMapOf<JavaTypeXmlRef, JavaTypeXmlRef?>()
 
 
-    override fun canTransform(file: ArchiveFile): Boolean {
-        return file.relativePath.toLowerCase().endsWith(".xml")
-    }
+    override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()
 
     override fun runTransform(file: ArchiveFile) {
         file.data = transform(file.data)
