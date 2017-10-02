@@ -73,8 +73,7 @@ open class JetifierTask : DefaultTask() {
 
         for(inputFile in inputFiles) {
             val inputPath = inputFile.toPath()
-            val outputPath = File(outputDir, inputFile.name).toPath()
-            processor.transform(inputPath, outputPath)
+            processor.transform(listOf(inputPath), outputDir.toPath())
         }
     }
 

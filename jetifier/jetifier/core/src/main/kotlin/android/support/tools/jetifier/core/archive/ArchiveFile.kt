@@ -18,11 +18,14 @@ package android.support.tools.jetifier.core.archive
 
 import java.io.IOException
 import java.io.OutputStream
+import java.nio.file.Path
 
 /**
  * Represents a file in the archive that is not an archive.
  */
-class ArchiveFile(override val relativePath: String, var data: ByteArray) : ArchiveItem {
+class ArchiveFile(override val relativePath: Path, var data: ByteArray) : ArchiveItem {
+
+    override val fileName: String = relativePath.fileName.toString()
 
     override fun accept(visitor: ArchiveItemVisitor) {
         visitor.visit(this)

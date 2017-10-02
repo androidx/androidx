@@ -25,6 +25,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -33,7 +34,7 @@ import java.util.zip.ZipOutputStream
  * Represents an archive (zip, jar, aar ...)
  */
 class Archive(
-        override val relativePath: String,
+        override val relativePath: Path,
         val files: List<ArchiveItem>)
     : ArchiveItem {
 
@@ -44,14 +45,25 @@ class Archive(
         const val TAG = "Archive"
     }
 
+    override val fileName: String = relativePath.fileName.toString()
+
     override fun accept(visitor: ArchiveItemVisitor) {
         visitor.visit(this)
     }
 
     @Throws(IOException::class)
-    fun writeGlobal(outputPath: Path) {
-        Log.i(TAG, "Writing archive: %s", outputPath.toUri())
+    fun writeSelfToDir(outputDirPath: Path) {
+        val outputPath = Paths.get(outputDirPath.toString(), fileName)
 
+        if (Files.exists(outputPath)) {
+            Log.i(TAG, "Deleting old output file")
+            Files.delete(outputPath)
+        }
+
+        // Create directories if they don't exist yet
+        Files.createDirectories(outputDirPath)
+
+        Log.i(TAG, "Writing archive: %s", outputPath.toUri())
         Files.createFile(outputPath)
         val stream = BufferedOutputStream(FileOutputStream(outputPath.toFile()))
         writeSelfTo(stream)
@@ -65,7 +77,7 @@ class Archive(
         for (file in files) {
             Log.d(TAG, "Writing file: %s", file.relativePath)
 
-            val entry = ZipEntry(file.relativePath)
+            val entry = ZipEntry(file.relativePath.toString())
             out.putNextEntry(entry)
             file.writeSelfTo(out)
             out.closeEntry()
@@ -77,18 +89,19 @@ class Archive(
     object Builder {
 
         @Throws(IOException::class)
-        fun extract(mArchive: Path): Archive {
-            Log.i(TAG, "Extracting: %s", mArchive.toUri())
+        fun extract(archivePath: Path): Archive {
+            Log.i(TAG, "Extracting: %s", archivePath.toUri())
 
-            val inputStream = FileInputStream(mArchive.toFile())
+            val inputStream = FileInputStream(archivePath.toFile())
             inputStream.use {
-                val archive = extractArchive(it, "/")
+                val archive = extractArchive(it, archivePath)
                 return archive
             }
         }
 
         @Throws(IOException::class)
-        private fun extractArchive(inputStream: InputStream, relativePath: String): Archive {
+        private fun extractArchive(inputStream: InputStream, relativePath: Path)
+                : Archive {
             val zipIn = ZipInputStream(inputStream)
             val files = mutableListOf<ArchiveItem>()
 
@@ -96,11 +109,12 @@ class Archive(
             // iterates over entries in the zip file
             while (entry != null) {
                 if (!entry.isDirectory) {
+                    val entryPath = Paths.get(entry.name)
                     if (isArchive(entry)) {
-                        Log.i(TAG, "Extracting nested: %s", entry.name)
-                        files.add(extractArchive(zipIn, entry.name))
+                        Log.i(TAG, "Extracting nested: %s", entryPath)
+                        files.add(extractArchive(zipIn, entryPath))
                     } else {
-                        files.add(extractFile(zipIn, entry.name))
+                        files.add(extractFile(zipIn, entryPath))
                     }
                 }
                 zipIn.closeEntry()
@@ -113,7 +127,7 @@ class Archive(
         }
 
         @Throws(IOException::class)
-        private fun extractFile(zipIn: ZipInputStream, relativePath: String): ArchiveFile {
+        private fun extractFile(zipIn: ZipInputStream, relativePath: Path): ArchiveFile {
             Log.d(TAG, "Extracting archive: %s", relativePath)
 
             val data = zipIn.readBytes()
@@ -121,7 +135,7 @@ class Archive(
         }
 
         private fun isArchive(zipEntry: ZipEntry) : Boolean {
-            return ARCHIVE_EXTENSIONS.any { zipEntry.name.endsWith(it) }
+            return ARCHIVE_EXTENSIONS.any { zipEntry.name.endsWith(it, ignoreCase = true) }
         }
 
     }

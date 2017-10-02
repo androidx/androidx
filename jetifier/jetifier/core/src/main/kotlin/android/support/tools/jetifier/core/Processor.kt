@@ -22,6 +22,8 @@ import android.support.tools.jetifier.core.archive.ArchiveItemVisitor
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.transform.bytecode.ByteCodeTransformer
+import android.support.tools.jetifier.core.transform.pom.PomDocument
+import android.support.tools.jetifier.core.transform.pom.PomScanner
 import android.support.tools.jetifier.core.transform.resource.XmlResourcesTransformer
 import android.support.tools.jetifier.core.utils.Log
 import java.nio.file.Files
@@ -32,7 +34,7 @@ import java.nio.file.Path
  * the registered [Transformer]s over the set and creates new archives that will contain the
  * transformed files.
  */
-class Processor(config : Config) : ArchiveItemVisitor {
+class Processor(private val config : Config) : ArchiveItemVisitor {
 
     private val tag : String = "Processor"
 
@@ -43,32 +45,82 @@ class Processor(config : Config) : ArchiveItemVisitor {
     )
 
     /**
-     * Transforms the input archive given in [inputPath] using all the registered [Transformer]s
-     * and returns a new archive stored in [outputPath].
+     * Transforms the input libraries given in [inputLibraries] using all the registered
+     * [Transformer]s and returns new libraries stored in [outputPath].
      *
      * Currently we have the following transformers:
      * - [ByteCodeTransformer] for java native code
+     * - [XmlResourcesTransformer] for java native code
      */
-    fun transform(inputPath: Path, outputPath: Path) {
-        if (!Files.isReadable(inputPath)) {
-            Log.e(tag, "Cannot access the input file: '%s'", inputPath)
-        }
+    fun transform(inputLibraries: List<Path>, outputPath: Path) {
+        // 1) Extract and load all libraries
+        val libraries = loadLibraries(inputLibraries)
 
-        if (Files.exists(outputPath)) {
-            Log.i(tag, "Deleting old output file")
-            Files.delete(outputPath)
-        }
+        // 2) Search for POM files
+        val pomFiles = scanPomFiles(libraries)
 
-        Log.i(tag, "Started new transformation")
-        Log.i(tag, "- Input file: %s", inputPath)
-        Log.i(tag, "- Output file: %s", outputPath)
+        // 3) Transform all the libraries
+        libraries.forEach{ transformLibrary(it) }
 
-        val archive = Archive.Builder.extract(inputPath)
-        transform(archive)
-        archive.writeGlobal(outputPath)
+        // TODO: Here we might need to modify the POM files if they point at a library that we have
+        // just refactored.
+
+        // 4) Transform the previously discovered POM files
+        transformPomFiles(pomFiles)
+
+        // 5) Repackage the libraries back to archives
+        libraries.forEach{ it.writeSelfToDir(outputPath) }
+
+        return
     }
 
-    private fun transform(archive: Archive) {
+    private fun loadLibraries(inputLibraries : List<Path>) : List<Archive> {
+        val libraries = mutableListOf<Archive>()
+        for (libraryPath in inputLibraries) {
+            if (!Files.isReadable(libraryPath)) {
+                Log.e(tag, "Cannot access the input file: '%s'", libraryPath)
+                continue
+            }
+
+            libraries.add(Archive.Builder.extract(libraryPath))
+        }
+        return libraries.toList()
+    }
+
+    private fun scanPomFiles(libraries: List<Archive>) : List<PomDocument> {
+        val files = mutableListOf<PomDocument>()
+        var allPomsValid = true
+
+        for (library in libraries) {
+            val pomDocument = PomScanner.scanArchiveForPomFile(library)
+            if (pomDocument != null) {
+                pomDocument.logDocumentDetails()
+                allPomsValid = allPomsValid && pomDocument.validate(config.pomRewriteRules)
+                files.add(pomDocument)
+            }
+        }
+
+        if (!allPomsValid) {
+            throw IllegalArgumentException("At least one of the libraries depends on an older" +
+                    " version of support library. Check the logs for more details.")
+        }
+
+        return files
+    }
+
+    private fun transformPomFiles(files: List<PomDocument>) {
+        for (pomFile in files) {
+            if (pomFile.hasChanged) {
+                pomFile.applyRules(config.pomRewriteRules)
+                pomFile.saveBackToFile()
+            }
+        }
+    }
+
+    private fun transformLibrary(archive: Archive) {
+        Log.i(tag, "Started new transformation")
+        Log.i(tag, "- Input file: %s", archive.relativePath)
+
         archive.accept(this)
     }
 
