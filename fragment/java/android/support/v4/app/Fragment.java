@@ -1469,7 +1469,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param outState Bundle in which to place your saved state.
      */
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
     }
 
     /**
