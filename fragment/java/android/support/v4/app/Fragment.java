@@ -1082,7 +1082,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      * @return The LayoutInflater used to inflate Views of this Fragment.
      */
-    public LayoutInflater onGetLayoutInflater(Bundle savedInstanceState) {
+    @NonNull
+    public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         // TODO: move the implementation in getLayoutInflater to here
         return getLayoutInflater(savedInstanceState);
     }
@@ -1113,7 +1114,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      * @return The LayoutInflater used to inflate Views of this Fragment.
      */
-    LayoutInflater performGetLayoutInflater(Bundle savedInstanceState) {
+    @NonNull
+    LayoutInflater performGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         LayoutInflater layoutInflater = onGetLayoutInflater(savedInstanceState);
         mLayoutInflater = layoutInflater;
         return mLayoutInflater;
@@ -1129,8 +1131,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link #getLayoutInflater()} instead of this method.
      */
     @Deprecated
+    @NonNull
     @RestrictTo(LIBRARY_GROUP)
-    public LayoutInflater getLayoutInflater(Bundle savedFragmentState) {
+    public LayoutInflater getLayoutInflater(@Nullable Bundle savedFragmentState) {
         if (mHost == null) {
             throw new IllegalStateException("onGetLayoutInflater() cannot be executed until the "
                     + "Fragment is attached to the FragmentManager.");
@@ -1356,7 +1359,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return Return the View for the fragment's UI, or null.
      */
     @Nullable
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         return null;
     }
@@ -2231,8 +2234,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
     }
 
-    View performCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    View performCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         if (mChildFragmentManager != null) {
             mChildFragmentManager.noteStateNotSaved();
         }
