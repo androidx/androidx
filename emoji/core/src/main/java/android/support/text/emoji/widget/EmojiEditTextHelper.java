@@ -20,6 +20,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.text.emoji.EmojiCompat;
@@ -130,7 +131,8 @@ public final class EmojiEditTextHelper {
     /**
      * Updates the InputConnection with emoji support. Should be called from {@link
      * TextView#onCreateInputConnection(EditorInfo)}. When used on devices running API 18 or below,
-     * this method returns {@code inputConnection} that is given as a parameter.
+     * this method returns {@code inputConnection} that is given as a parameter. If
+     * {@code inputConnection} is {@code null}, returns {@code null}.
      *
      * @param inputConnection InputConnection instance created by TextView
      * @param outAttrs        EditorInfo passed into
@@ -138,10 +140,10 @@ public final class EmojiEditTextHelper {
      *
      * @return a new InputConnection instance that wraps {@code inputConnection}
      */
-    @NonNull
-    public InputConnection onCreateInputConnection(@NonNull final InputConnection inputConnection,
+    @Nullable
+    public InputConnection onCreateInputConnection(@Nullable final InputConnection inputConnection,
             @NonNull final EditorInfo outAttrs) {
-        Preconditions.checkNotNull(inputConnection, "inputConnection cannot be null");
+        if (inputConnection == null) return null;
         return mHelper.onCreateInputConnection(inputConnection, outAttrs);
     }
 
