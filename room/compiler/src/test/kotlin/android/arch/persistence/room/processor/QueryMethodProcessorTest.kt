@@ -70,6 +70,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     companion object {
         const val DAO_PREFIX = """
                 package foo.bar;
+                import android.support.annotation.NonNull;
                 import android.arch.persistence.room.*;
                 @Dao
                 abstract class MyClass {
@@ -596,6 +597,30 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         allColumns = listOf("lastName"),
                         allFields = listOf(createField("name"), createField("lastName"))
                 ))
+    }
+
+    @Test
+    fun pojo_missingNonNull() {
+        pojoTest("""
+            @NonNull
+            String name;
+            String lastName;
+            """, listOf("lastName")) { adapter, _, _ ->
+            assertThat(adapter?.mapping?.unusedColumns, `is`(emptyList()))
+            assertThat(adapter?.mapping?.unusedFields, `is`(
+                    adapter?.pojo?.fields?.filter { it.name == "name" }
+            ))
+        }?.failsToCompile()?.withWarningContaining(
+                ProcessorErrors.cursorPojoMismatch(
+                        pojoTypeName = POJO,
+                        unusedColumns = emptyList(),
+                        unusedFields = listOf(createField("name")),
+                        allColumns = listOf("lastName"),
+                        allFields = listOf(createField("name"), createField("lastName"))
+                ))?.and()?.withErrorContaining(
+                ProcessorErrors.pojoMissingNonNull(pojoTypeName = POJO,
+                        missingPojoFields = listOf("name"),
+                        allQueryColumns = listOf("lastName")))
     }
 
     @Test
