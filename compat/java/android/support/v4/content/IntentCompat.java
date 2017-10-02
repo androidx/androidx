@@ -18,6 +18,7 @@ package android.support.v4.content;
 
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.NonNull;
 
 /**
  * Helper for accessing features in {@link android.content.Intent}.
@@ -69,8 +70,9 @@ public final class IntentCompat {
      * @return Returns a newly created Intent that can be used to launch the
      * activity as a main application entry.
      */
-    public static Intent makeMainSelectorActivity(String selectorAction,
-            String selectorCategory) {
+    @NonNull
+    public static Intent makeMainSelectorActivity(@NonNull String selectorAction,
+            @NonNull String selectorCategory) {
         if (Build.VERSION.SDK_INT >= 15) {
             return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
         } else {
