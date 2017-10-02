@@ -24,6 +24,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.Dependency;
@@ -39,7 +41,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
 
 import java.util.concurrent.Executors;
 
@@ -52,6 +54,7 @@ public class WorkerWrapperTest {
     private DependencyDao mDependencyDao;
     private Context mContext;
     private ExecutionListener mMockListener;
+    private Scheduler mMockScheduler;
 
     @Before
     public void setUp() {
@@ -59,7 +62,8 @@ public class WorkerWrapperTest {
         mDatabase = WorkDatabase.create(mContext, true);
         mWorkSpecDao = mDatabase.workSpecDao();
         mDependencyDao = mDatabase.dependencyDao();
-        mMockListener = Mockito.mock(ExecutionListener.class);
+        mMockListener = mock(ExecutionListener.class);
+        mMockScheduler = mock(Scheduler.class);
     }
 
     @After
@@ -76,7 +80,7 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        Mockito.verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_SUCCEEDED));
     }
 
@@ -88,7 +92,7 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        Mockito.verify(mMockListener)
+        verify(mMockListener)
                 .onExecuted(invalidWorkSpecId, WorkerWrapper.RESULT_PERMANENT_ERROR);
     }
 
@@ -102,7 +106,7 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        Mockito.verify(mMockListener)
+        verify(mMockListener)
                 .onExecuted(work.getId(), WorkerWrapper.RESULT_NOT_ENQUEUED);
     }
 
@@ -116,8 +120,7 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        Mockito.verify(mMockListener)
-                .onExecuted(work.getId(), WorkerWrapper.RESULT_PERMANENT_ERROR);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_PERMANENT_ERROR);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_FAILED));
     }
 
@@ -130,7 +133,7 @@ public class WorkerWrapperTest {
                 .build()
                 .run();
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        Mockito.verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_FAILED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_FAILED);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_FAILED));
     }
 
@@ -145,7 +148,7 @@ public class WorkerWrapperTest {
         Thread.sleep(LISTENER_SLEEP_DURATION);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_RUNNING));
         Thread.sleep(SleepTestWorker.SLEEP_DURATION);
-        Mockito.verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
     }
 
     @Test
@@ -170,12 +173,17 @@ public class WorkerWrapperTest {
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
                 .withListener(mMockListener)
+                .withScheduler(mMockScheduler)
                 .build()
                 .run();
 
         assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(STATUS_SUCCEEDED));
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_ENQUEUED));
         assertThat(mDependencyDao.hasDependencies(work.getId()), is(false));
+
+        ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
+        verify(mMockScheduler).schedule(captor.capture());
+        assertThat(captor.getValue().getId(), is(work.getId()));
     }
 
     @Test
@@ -193,7 +201,7 @@ public class WorkerWrapperTest {
                 .build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
 
-        ConstraintsChecker mockChecker = Mockito.mock(ConstraintsChecker.class);
+        ConstraintsChecker mockChecker = mock(ConstraintsChecker.class);
         doReturn(false).when(mockChecker).areAllConstraintsMet(any(WorkSpec.class));
 
         new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
@@ -203,7 +211,7 @@ public class WorkerWrapperTest {
                 .run();
 
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        Mockito.verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_RESCHEDULED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_RESCHEDULED);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_ENQUEUED));
 
         doReturn(true).when(mockChecker).areAllConstraintsMet(any(WorkSpec.class));
@@ -215,7 +223,7 @@ public class WorkerWrapperTest {
                 .run();
 
         Thread.sleep(LISTENER_SLEEP_DURATION);
-        Mockito.verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
+        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_SUCCEEDED));
     }
 }

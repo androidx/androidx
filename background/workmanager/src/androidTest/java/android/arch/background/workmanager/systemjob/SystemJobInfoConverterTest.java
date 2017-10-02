@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.systemjob;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,8 +24,6 @@ import static org.mockito.Mockito.when;
 import android.app.job.JobInfo;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
-import android.arch.background.workmanager.systemjob.SystemJobIdGenerator;
-import android.arch.background.workmanager.systemjob.SystemJobInfoConverter;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;

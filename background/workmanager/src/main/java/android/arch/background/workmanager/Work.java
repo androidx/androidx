@@ -67,7 +67,7 @@ public class Work {
         return mWorkSpec.getId();
     }
 
-
+    @VisibleForTesting
     WorkSpec getWorkSpec() {
         return mWorkSpec;
     }
