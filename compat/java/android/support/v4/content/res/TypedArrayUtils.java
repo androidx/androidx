@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.AnyRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.StyleableRes;
 import android.util.AttributeSet;
@@ -80,7 +81,7 @@ public class TypedArrayUtils {
      * {@code defaultValue} if it does not exist.
      */
     public static boolean getNamedBoolean(@NonNull TypedArray a, @NonNull XmlPullParser parser,
-            String attrName, @StyleableRes int resId, boolean defaultValue) {
+            @NonNull String attrName, @StyleableRes int resId, boolean defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
@@ -97,7 +98,7 @@ public class TypedArrayUtils {
      * {@code defaultValue} if it does not exist.
      */
     public static int getNamedInt(@NonNull TypedArray a, @NonNull XmlPullParser parser,
-            String attrName, @StyleableRes int resId, int defaultValue) {
+            @NonNull String attrName, @StyleableRes int resId, int defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
@@ -115,7 +116,7 @@ public class TypedArrayUtils {
      */
     @ColorInt
     public static int getNamedColor(@NonNull TypedArray a, @NonNull XmlPullParser parser,
-            String attrName, @StyleableRes int resId, @ColorInt int defaultValue) {
+            @NonNull String attrName, @StyleableRes int resId, @ColorInt int defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
@@ -133,7 +134,7 @@ public class TypedArrayUtils {
      */
     @AnyRes
     public static int getNamedResourceId(@NonNull TypedArray a, @NonNull XmlPullParser parser,
-            String attrName, @StyleableRes int resId, @AnyRes int defaultValue) {
+            @NonNull String attrName, @StyleableRes int resId, @AnyRes int defaultValue) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return defaultValue;
@@ -149,8 +150,9 @@ public class TypedArrayUtils {
      * @return a string value in the {@link TypedArray} with the specified {@code resId}, or
      * null if it does not exist.
      */
+    @Nullable
     public static String getNamedString(@NonNull TypedArray a, @NonNull XmlPullParser parser,
-            String attrName, @StyleableRes int resId) {
+            @NonNull String attrName, @StyleableRes int resId) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return null;
@@ -164,8 +166,9 @@ public class TypedArrayUtils {
      * and return a temporary object holding its data.  This object is only
      * valid until the next call on to {@link TypedArray}.
      */
-    public static TypedValue peekNamedValue(TypedArray a, XmlPullParser parser, String attrName,
-            int resId) {
+    @Nullable
+    public static TypedValue peekNamedValue(@NonNull TypedArray a, @NonNull XmlPullParser parser,
+            @NonNull String attrName, int resId) {
         final boolean hasAttr = hasAttribute(parser, attrName);
         if (!hasAttr) {
             return null;
@@ -178,8 +181,9 @@ public class TypedArrayUtils {
      * Obtains styled attributes from the theme, if available, or unstyled
      * resources if the theme is null.
      */
-    public static TypedArray obtainAttributes(
-            Resources res, Resources.Theme theme, AttributeSet set, int[] attrs) {
+    @NonNull
+    public static TypedArray obtainAttributes(@NonNull Resources res,
+            @Nullable Resources.Theme theme, @NonNull AttributeSet set, @NonNull int[] attrs) {
         if (theme == null) {
             return res.obtainAttributes(set, attrs);
         }
@@ -190,7 +194,7 @@ public class TypedArrayUtils {
      * @return a boolean value of {@code index}. If it does not exist, a boolean value of
      * {@code fallbackIndex}. If it still does not exist, {@code defaultValue}.
      */
-    public static boolean getBoolean(TypedArray a, @StyleableRes int index,
+    public static boolean getBoolean(@NonNull TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex, boolean defaultValue) {
         boolean val = a.getBoolean(fallbackIndex, defaultValue);
         return a.getBoolean(index, val);
@@ -200,7 +204,8 @@ public class TypedArrayUtils {
      * @return a drawable value of {@code index}. If it does not exist, a drawable value of
      * {@code fallbackIndex}. If it still does not exist, {@code null}.
      */
-    public static Drawable getDrawable(TypedArray a, @StyleableRes int index,
+    @Nullable
+    public static Drawable getDrawable(@NonNull TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex) {
         Drawable val = a.getDrawable(index);
         if (val == null) {
@@ -213,7 +218,7 @@ public class TypedArrayUtils {
      * @return an int value of {@code index}. If it does not exist, an int value of
      * {@code fallbackIndex}. If it still does not exist, {@code defaultValue}.
      */
-    public static int getInt(TypedArray a, @StyleableRes int index,
+    public static int getInt(@NonNull TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex, int defaultValue) {
         int val = a.getInt(fallbackIndex, defaultValue);
         return a.getInt(index, val);
@@ -224,7 +229,7 @@ public class TypedArrayUtils {
      * {@code fallbackIndex}. If it still does not exist, {@code defaultValue}.
      */
     @AnyRes
-    public static int getResourceId(TypedArray a, @StyleableRes int index,
+    public static int getResourceId(@NonNull TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex, @AnyRes int defaultValue) {
         int val = a.getResourceId(fallbackIndex, defaultValue);
         return a.getResourceId(index, val);
@@ -234,7 +239,8 @@ public class TypedArrayUtils {
      * @return a string value of {@code index}. If it does not exist, a string value of
      * {@code fallbackIndex}. If it still does not exist, {@code null}.
      */
-    public static String getString(TypedArray a, @StyleableRes int index,
+    @Nullable
+    public static String getString(@NonNull TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex) {
         String val = a.getString(index);
         if (val == null) {
@@ -249,7 +255,8 @@ public class TypedArrayUtils {
      * @return a text value of {@code index}. If it does not exist, a text value of
      * {@code fallbackIndex}. If it still does not exist, {@code null}.
      */
-    public static CharSequence getText(TypedArray a, @StyleableRes int index,
+    @Nullable
+    public static CharSequence getText(@NonNull TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex) {
         CharSequence val = a.getText(index);
         if (val == null) {
@@ -264,7 +271,8 @@ public class TypedArrayUtils {
      * @return a string array value of {@code index}. If it does not exist, a string array value
      * of {@code fallbackIndex}. If it still does not exist, {@code null}.
      */
-    public static CharSequence[] getTextArray(TypedArray a, @StyleableRes int index,
+    @Nullable
+    public static CharSequence[] getTextArray(@NonNull TypedArray a, @StyleableRes int index,
             @StyleableRes int fallbackIndex) {
         CharSequence[] val = a.getTextArray(index);
         if (val == null) {
@@ -277,7 +285,7 @@ public class TypedArrayUtils {
      * @return The resource ID value in the {@code context} specified by {@code attr}. If it does
      * not exist, {@code fallbackAttr}.
      */
-    public static int getAttr(Context context, int attr, int fallbackAttr) {
+    public static int getAttr(@NonNull Context context, int attr, int fallbackAttr) {
         TypedValue value = new TypedValue();
         context.getTheme().resolveAttribute(attr, value, true);
         if (value.resourceId != 0) {
