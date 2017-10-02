@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -36,6 +37,7 @@ import org.mockito.stubbing.Answer;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 21)
 public class SystemJobIdGeneratorTest {
     private Integer mMockSharedPrefsNextId;
     private SystemJobIdGenerator mIdGenerator;

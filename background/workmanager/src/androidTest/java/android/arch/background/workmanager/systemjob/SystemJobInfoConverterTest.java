@@ -24,7 +24,9 @@ import static org.mockito.Mockito.when;
 import android.app.job.JobInfo;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.os.Build;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -34,6 +36,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 21)
 public class SystemJobInfoConverterTest {
     private SystemJobIdGenerator mMockJobIdGenerator;
     private SystemJobInfoConverter mConverter;
@@ -80,10 +83,14 @@ public class SystemJobInfoConverterTest {
         assertThat(jobInfo.getMinLatencyMillis(), is(expectedConstraints.getInitialDelay()));
         assertThat(jobInfo.isRequireCharging(), is(expectedConstraints.requiresCharging()));
         assertThat(jobInfo.isRequireDeviceIdle(), is(expectedConstraints.requiresDeviceIdle()));
-        assertThat(
-                jobInfo.isRequireBatteryNotLow(), is(expectedConstraints.requiresBatteryNotLow()));
-        assertThat(
-                jobInfo.isRequireStorageNotLow(), is(expectedConstraints.requiresStorageNotLow()));
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertThat(
+                    jobInfo.isRequireBatteryNotLow(),
+                    is(expectedConstraints.requiresBatteryNotLow()));
+            assertThat(
+                    jobInfo.isRequireStorageNotLow(),
+                    is(expectedConstraints.requiresStorageNotLow()));
+        }
     }
 
     @Test
@@ -103,12 +110,14 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 24)
     public void convertNetworkTypeNotRoaming() {
         convertNetworkTypeHelper(
                 Constraints.NETWORK_TYPE_NOT_ROAMING, JobInfo.NETWORK_TYPE_NOT_ROAMING);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
     public void convertNetworkTypeMetered() {
         convertNetworkTypeHelper(Constraints.NETWORK_TYPE_METERED, JobInfo.NETWORK_TYPE_METERED);
     }
