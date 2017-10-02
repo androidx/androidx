@@ -82,7 +82,8 @@ public class TypefaceCompat {
      *
      * @return null if not found.
      */
-    public static Typeface findFromCache(Resources resources, int id, int style) {
+    @Nullable
+    public static Typeface findFromCache(@NonNull Resources resources, int id, int style) {
         return sTypefaceCache.get(createResourceUid(resources, id, style));
     }
 
@@ -103,8 +104,10 @@ public class TypefaceCompat {
      *
      * @return null if failed to create.
      */
+    @Nullable
     public static Typeface createFromResourcesFamilyXml(
-            Context context, FamilyResourceEntry entry, Resources resources, int id, int style,
+            @NonNull Context context, @NonNull FamilyResourceEntry entry,
+            @NonNull Resources resources, int id, int style,
             @Nullable TextView targetView) {
         Typeface typeface;
         if (entry instanceof ProviderResourceEntry) {
@@ -127,7 +130,8 @@ public class TypefaceCompat {
      */
     @Nullable
     public static Typeface createFromResourcesFontFile(
-            Context context, Resources resources, int id, String path, int style) {
+            @NonNull Context context, @NonNull Resources resources, int id, String path,
+            int style) {
         Typeface typeface = sTypefaceCompatImpl.createFromResourcesFontFile(
                 context, resources, id, path, style);
         if (typeface != null) {
@@ -139,7 +143,8 @@ public class TypefaceCompat {
     /**
      * Create a Typeface from a given FontInfo list and a map that matches them to ByteBuffers.
      */
-    public static Typeface createFromFontInfo(Context context,
+    @Nullable
+    public static Typeface createFromFontInfo(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
         return sTypefaceCompatImpl.createFromFontInfo(context, cancellationSignal, fonts, style);
     }

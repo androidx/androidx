@@ -19,6 +19,8 @@ package android.support.v4.hardware.display;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.view.Display;
 import android.view.WindowManager;
@@ -52,7 +54,8 @@ public abstract class DisplayManagerCompat {
     /**
      * Gets an instance of the display manager given the context.
      */
-    public static DisplayManagerCompat getInstance(Context context) {
+    @NonNull
+    public static DisplayManagerCompat getInstance(@NonNull Context context) {
         synchronized (sInstances) {
             DisplayManagerCompat instance = sInstances.get(context);
             if (instance == null) {
@@ -76,6 +79,7 @@ public abstract class DisplayManagerCompat {
      * @param displayId The logical display id.
      * @return The display object, or null if there is no valid display with the given id.
      */
+    @Nullable
     public abstract Display getDisplay(int displayId);
 
     /**
@@ -83,6 +87,7 @@ public abstract class DisplayManagerCompat {
      *
      * @return An array containing all displays.
      */
+    @NonNull
     public abstract Display[] getDisplays();
 
     /**
@@ -101,6 +106,7 @@ public abstract class DisplayManagerCompat {
      *
      * @see #DISPLAY_CATEGORY_PRESENTATION
      */
+    @NonNull
     public abstract Display[] getDisplays(String category);
 
     private static class DisplayManagerCompatApi14Impl extends DisplayManagerCompat {

@@ -16,6 +16,8 @@
 
 package android.support.v4.util;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.File;
@@ -48,7 +50,7 @@ public class AtomicFile {
      * Create a new AtomicFile for a file located at the given File path.
      * The secondary backup file will be the same file path with ".bak" appended.
      */
-    public AtomicFile(File baseName) {
+    public AtomicFile(@NonNull File baseName) {
         mBaseName = baseName;
         mBackupName = new File(baseName.getPath() + ".bak");
     }
@@ -57,6 +59,7 @@ public class AtomicFile {
      * Return the path to the base file.  You should not generally use this,
      * as the data at that path may not be valid.
      */
+    @NonNull
     public File getBaseFile() {
         return mBaseName;
     }
@@ -83,6 +86,7 @@ public class AtomicFile {
      * safe (or will be lost).  You must do your own threading protection for
      * access to AtomicFile.
      */
+    @NonNull
     public FileOutputStream startWrite() throws IOException {
         // Rename the current file so it may be used as a backup during the next read
         if (mBaseName.exists()) {
@@ -95,7 +99,7 @@ public class AtomicFile {
                 mBaseName.delete();
             }
         }
-        FileOutputStream str = null;
+        FileOutputStream str;
         try {
             str = new FileOutputStream(mBaseName);
         } catch (FileNotFoundException e) {
@@ -118,7 +122,7 @@ public class AtomicFile {
      * commit the new data.  The next attempt to read the atomic file
      * will return the new file stream.
      */
-    public void finishWrite(FileOutputStream str) {
+    public void finishWrite(@Nullable FileOutputStream str) {
         if (str != null) {
             sync(str);
             try {
@@ -135,7 +139,7 @@ public class AtomicFile {
      * returned by {@link #startWrite()}.  This will close the current
      * write stream, and roll back to the previous state of the file.
      */
-    public void failWrite(FileOutputStream str) {
+    public void failWrite(@Nullable FileOutputStream str) {
         if (str != null) {
             sync(str);
             try {
@@ -160,6 +164,7 @@ public class AtomicFile {
      * be dropped.  You must do your own threading protection for access to
      * AtomicFile.
      */
+    @NonNull
     public FileInputStream openRead() throws FileNotFoundException {
         if (mBackupName.exists()) {
             mBaseName.delete();
@@ -172,6 +177,7 @@ public class AtomicFile {
      * A convenience for {@link #openRead()} that also reads all of the
      * file contents into a byte array which is returned.
      */
+    @NonNull
     public byte[] readFully() throws IOException {
         FileInputStream stream = openRead();
         try {
@@ -200,11 +206,9 @@ public class AtomicFile {
         }
     }
 
-    static boolean sync(FileOutputStream stream) {
+    private static boolean sync(@NonNull FileOutputStream stream) {
         try {
-            if (stream != null) {
-                stream.getFD().sync();
-            }
+            stream.getFD().sync();
             return true;
         } catch (IOException e) {
         }
