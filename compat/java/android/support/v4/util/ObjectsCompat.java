@@ -16,6 +16,7 @@
 package android.support.v4.util;
 
 import android.os.Build;
+import android.support.annotation.Nullable;
 
 import java.util.Objects;
 
@@ -43,7 +44,7 @@ public class ObjectsCompat {
      *         and {@code false} otherwise
      * @see Object#equals(Object)
      */
-    public static boolean equals(Object a, Object b) {
+    public static boolean equals(@Nullable Object a, @Nullable Object b) {
         if (Build.VERSION.SDK_INT >= 19) {
             return Objects.equals(a, b);
         } else {
