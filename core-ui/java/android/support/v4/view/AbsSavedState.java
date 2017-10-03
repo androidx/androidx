@@ -18,6 +18,8 @@ package android.support.v4.view;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * A {@link Parcelable} implementation that should be used by inheritance
@@ -40,7 +42,7 @@ public abstract class AbsSavedState implements Parcelable {
      *
      * @param superState The state of the superclass of this view
      */
-    protected AbsSavedState(Parcelable superState) {
+    protected AbsSavedState(@NonNull Parcelable superState) {
         if (superState == null) {
             throw new IllegalArgumentException("superState must not be null");
         }
@@ -52,7 +54,7 @@ public abstract class AbsSavedState implements Parcelable {
      *
      * @param source parcel to read from
      */
-    protected AbsSavedState(Parcel source) {
+    protected AbsSavedState(@NonNull Parcel source) {
         this(source, null);
     }
 
@@ -62,11 +64,12 @@ public abstract class AbsSavedState implements Parcelable {
      * @param source parcel to read from
      * @param loader ClassLoader to use for reading
      */
-    protected AbsSavedState(Parcel source, ClassLoader loader) {
+    protected AbsSavedState(@NonNull Parcel source, @Nullable ClassLoader loader) {
         Parcelable superState = source.readParcelable(loader);
         mSuperState = superState != null ? superState : EMPTY_STATE;
     }
 
+    @Nullable
     public final Parcelable getSuperState() {
         return mSuperState;
     }
