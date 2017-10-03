@@ -98,10 +98,10 @@ public class FontResourcesParserCompatTest {
         assertNotNull(result);
         ProviderResourceEntry providerEntry = (ProviderResourceEntry) result;
         FontRequest request = providerEntry.getRequest();
-        assertEquals("com.example.test.fontprovider.authority",
+        assertEquals("android.support.provider.fonts.font",
                 request.getProviderAuthority());
-        assertEquals("com.example.test.fontprovider.package", request.getProviderPackage());
-        assertEquals("MyRequestedFont", request.getQuery());
+        assertEquals("android.support.compat.test", request.getProviderPackage());
+        assertEquals("singleFontFamily", request.getQuery());
     }
 
     @Test
