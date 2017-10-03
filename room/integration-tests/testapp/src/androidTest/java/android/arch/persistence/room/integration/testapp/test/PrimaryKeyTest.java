@@ -26,6 +26,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.integration.testapp.PKeyTestDatabase;
 import android.arch.persistence.room.integration.testapp.vo.IntAutoIncPKeyEntity;
 import android.arch.persistence.room.integration.testapp.vo.IntegerAutoIncPKeyEntity;
+import android.arch.persistence.room.integration.testapp.vo.IntegerPKeyEntity;
 import android.arch.persistence.room.integration.testapp.vo.ObjectPKeyEntity;
 import android.database.sqlite.SQLiteConstraintException;
 import android.support.test.InstrumentationRegistry;
@@ -37,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -53,8 +55,8 @@ public class PrimaryKeyTest {
     public void integerTest() {
         IntegerAutoIncPKeyEntity entity = new IntegerAutoIncPKeyEntity();
         entity.data = "foo";
-        mDatabase.integerPKeyDao().insertMe(entity);
-        IntegerAutoIncPKeyEntity loaded = mDatabase.integerPKeyDao().getMe(1);
+        mDatabase.integerAutoIncPKeyDao().insertMe(entity);
+        IntegerAutoIncPKeyEntity loaded = mDatabase.integerAutoIncPKeyDao().getMe(1);
         assertThat(loaded, notNullValue());
         assertThat(loaded.data, is(entity.data));
     }
@@ -64,8 +66,8 @@ public class PrimaryKeyTest {
         IntegerAutoIncPKeyEntity entity = new IntegerAutoIncPKeyEntity();
         entity.pKey = 0;
         entity.data = "foo";
-        mDatabase.integerPKeyDao().insertMe(entity);
-        IntegerAutoIncPKeyEntity loaded = mDatabase.integerPKeyDao().getMe(0);
+        mDatabase.integerAutoIncPKeyDao().insertMe(entity);
+        IntegerAutoIncPKeyEntity loaded = mDatabase.integerAutoIncPKeyDao().getMe(0);
         assertThat(loaded, notNullValue());
         assertThat(loaded.data, is(entity.data));
     }
@@ -102,8 +104,8 @@ public class PrimaryKeyTest {
     public void getInsertedIdFromInteger() {
         IntegerAutoIncPKeyEntity entity = new IntegerAutoIncPKeyEntity();
         entity.data = "foo";
-        final long id = mDatabase.integerPKeyDao().insertAndGetId(entity);
-        assertThat(mDatabase.integerPKeyDao().getMe((int) id).data, is("foo"));
+        final long id = mDatabase.integerAutoIncPKeyDao().insertAndGetId(entity);
+        assertThat(mDatabase.integerAutoIncPKeyDao().getMe((int) id).data, is("foo"));
     }
 
     @Test
@@ -112,8 +114,9 @@ public class PrimaryKeyTest {
         entity.data = "foo";
         IntegerAutoIncPKeyEntity entity2 = new IntegerAutoIncPKeyEntity();
         entity2.data = "foo2";
-        final long[] ids = mDatabase.integerPKeyDao().insertAndGetIds(entity, entity2);
-        assertThat(mDatabase.integerPKeyDao().loadDataById(ids), is(Arrays.asList("foo", "foo2")));
+        final long[] ids = mDatabase.integerAutoIncPKeyDao().insertAndGetIds(entity, entity2);
+        assertThat(mDatabase.integerAutoIncPKeyDao().loadDataById(ids),
+                is(Arrays.asList("foo", "foo2")));
     }
 
     @Test
@@ -128,5 +131,17 @@ public class PrimaryKeyTest {
         }
         assertNotNull("Was expecting an exception", throwable);
         assertThat(throwable, instanceOf(SQLiteConstraintException.class));
+    }
+
+    @Test
+    public void insertNullPrimaryKeyForInteger() throws Exception {
+        IntegerPKeyEntity entity = new IntegerPKeyEntity();
+        entity.data = "data";
+        mDatabase.integerPKeyDao().insertMe(entity);
+
+        List<IntegerPKeyEntity> list = mDatabase.integerPKeyDao().loadAll();
+        assertThat(list.size(), is(1));
+        assertThat(list.get(0).data, is("data"));
+        assertNotNull(list.get(0).pKey);
     }
 }
