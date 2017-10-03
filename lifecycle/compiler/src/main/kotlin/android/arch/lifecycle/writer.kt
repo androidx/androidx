@@ -39,7 +39,6 @@ fun writeModels(infos: List<AdapterClass>, processingEnv: ProcessingEnvironment)
 
 private val GENERATED_PACKAGE = "javax.annotation"
 private val GENERATED_NAME = "Generated"
-private val LIFECYCLE_OWNER = ClassName.get(LifecycleOwner::class.java)
 private val LIFECYCLE_EVENT = Lifecycle.Event::class.java
 
 private val T = "\$T"
@@ -47,30 +46,42 @@ private val N = "\$N"
 private val L = "\$L"
 private val S = "\$S"
 
-private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnvironment) {
-    val ownerParam = ParameterSpec.builder(LIFECYCLE_OWNER, "owner").build()
-    val eventParam = ParameterSpec.builder(ClassName.get(LIFECYCLE_EVENT), "event").build()
-    val receiverName = "mReceiver"
-    val receiverField = FieldSpec.builder(ClassName.get(adapter.type), receiverName,
-            Modifier.FINAL).build()
+private val OWNER_PARAM: ParameterSpec = ParameterSpec.builder(
+        ClassName.get(LifecycleOwner::class.java), "owner").build()
+private val EVENT_PARAM: ParameterSpec = ParameterSpec.builder(
+        ClassName.get(LIFECYCLE_EVENT), "event").build()
+private val ON_ANY_PARAM: ParameterSpec = ParameterSpec.builder(TypeName.BOOLEAN, "onAny").build()
 
-    val dispatchMethodBuilder = MethodSpec.methodBuilder("onStateChanged")
+private val METHODS_LOGGER: ParameterSpec = ParameterSpec.builder(
+        ClassName.get(MethodCallsLogger::class.java), "logger").build()
+
+private const val HAS_LOGGER_VAR = "hasLogger"
+
+private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnvironment) {
+    val receiverField: FieldSpec = FieldSpec.builder(ClassName.get(adapter.type), "mReceiver",
+            Modifier.FINAL).build()
+    val dispatchMethodBuilder = MethodSpec.methodBuilder("callMethods")
             .returns(TypeName.VOID)
-            .addParameter(ownerParam)
-            .addParameter(eventParam)
+            .addParameter(OWNER_PARAM)
+            .addParameter(EVENT_PARAM)
+            .addParameter(ON_ANY_PARAM)
+            .addParameter(METHODS_LOGGER)
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Override::class.java)
     val dispatchMethod = dispatchMethodBuilder.apply {
-        adapter.calls
-                .groupBy { (eventMethod) -> eventMethod.onLifecycleEvent.value }
+
+        addStatement("boolean $L = $N != null", HAS_LOGGER_VAR, METHODS_LOGGER)
+        val callsByEventType = adapter.calls.groupBy { it.method.onLifecycleEvent.value }
+        beginControlFlow("if ($N)", ON_ANY_PARAM).apply {
+            writeMethodCalls(callsByEventType[Lifecycle.Event.ON_ANY] ?: emptyList(), receiverField)
+        }.endControlFlow()
+
+        callsByEventType
+                .filterKeys { key -> key != Lifecycle.Event.ON_ANY }
                 .forEach { (event, calls) ->
-                    if (event == Lifecycle.Event.ON_ANY) {
-                        writeMethodCalls(eventParam, calls, ownerParam, receiverField)
-                    } else {
-                        beginControlFlow("if ($N == $T.$L)", eventParam, LIFECYCLE_EVENT, event)
-                                .writeMethodCalls(eventParam, calls, ownerParam, receiverField)
-                        endControlFlow()
-                    }
+                    beginControlFlow("if ($N == $T.$L)", EVENT_PARAM, LIFECYCLE_EVENT, event)
+                    writeMethodCalls(calls, receiverField)
+                    endControlFlow()
                 }
     }.build()
 
@@ -84,16 +95,16 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
                 .addModifiers(Modifier.STATIC)
                 .addParameter(receiverParam)
         if (it.parameters.size >= 1) {
-            method.addParameter(ownerParam)
+            method.addParameter(OWNER_PARAM)
         }
         if (it.parameters.size == 2) {
-            method.addParameter(eventParam)
+            method.addParameter(EVENT_PARAM)
         }
 
         val count = it.parameters.size
         val paramString = generateParamString(count)
         method.addStatement("$N.$L($paramString)", receiverParam, it.name(),
-                *takeParams(count, ownerParam, eventParam))
+                *takeParams(count, OWNER_PARAM, EVENT_PARAM))
         method.build()
     }
 
@@ -105,7 +116,7 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
     val adapterName = getAdapterName(adapter.type)
     val adapterTypeSpecBuilder = TypeSpec.classBuilder(adapterName)
             .addModifiers(Modifier.PUBLIC)
-            .addSuperinterface(ClassName.get(GenericLifecycleObserver::class.java))
+            .addSuperinterface(ClassName.get(GeneratedAdapter::class.java))
             .addField(receiverField)
             .addMethod(constructor)
             .addMethod(dispatchMethod)
@@ -120,16 +131,16 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
 }
 
 private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
-                                   processingEnv: ProcessingEnvironment) {
+                                              processingEnv: ProcessingEnvironment) {
     val generatedAnnotationAvailable = processingEnv
             .elementUtils
             .getTypeElement(GENERATED_PACKAGE + "." + GENERATED_NAME) != null
     if (generatedAnnotationAvailable) {
         val generatedAnnotationSpec =
                 AnnotationSpec.builder(ClassName.get(GENERATED_PACKAGE, GENERATED_NAME)).addMember(
-                "value",
-                S,
-                LifecycleProcessor::class.java.canonicalName).build()
+                        "value",
+                        S,
+                        LifecycleProcessor::class.java.canonicalName).build()
         adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)
     }
 }
@@ -153,29 +164,33 @@ private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnviron
     out.openWriter().use { it.write(keepRule) }
 }
 
-private fun MethodSpec.Builder.writeMethodCalls(eventParam: ParameterSpec,
-                                                calls: List<EventMethodCall>,
-                                                ownerParam: ParameterSpec,
+private fun MethodSpec.Builder.writeMethodCalls(calls: List<EventMethodCall>,
                                                 receiverField: FieldSpec) {
     calls.forEach { (method, syntheticAccess) ->
         val count = method.method.parameters.size
-        if (syntheticAccess == null) {
-            val paramString = generateParamString(count)
-            addStatement("$N.$L($paramString)", receiverField,
-                    method.method.name(),
-                    *takeParams(count, ownerParam, eventParam))
+        val callType = 1 shl count
+        val methodName = method.method.name()
+        beginControlFlow("if (!$L || $N.approveCall($S, $callType))",
+                HAS_LOGGER_VAR, METHODS_LOGGER, methodName).apply {
 
-        } else {
-            val originalType = syntheticAccess
-            val paramString = generateParamString(count + 1)
-            val className = ClassName.get(originalType.getPackageQName(),
-                    getAdapterName(originalType))
-            addStatement("$T.$L($paramString)", className,
-                    syntheticName(method.method),
-                    *takeParams(count + 1, receiverField, ownerParam,
-                            eventParam))
-        }
+            if (syntheticAccess == null) {
+                val paramString = generateParamString(count)
+                addStatement("$N.$L($paramString)", receiverField,
+                        methodName,
+                        *takeParams(count, OWNER_PARAM, EVENT_PARAM))
+
+            } else {
+                val originalType = syntheticAccess
+                val paramString = generateParamString(count + 1)
+                val className = ClassName.get(originalType.getPackageQName(),
+                        getAdapterName(originalType))
+                addStatement("$T.$L($paramString)", className,
+                        syntheticName(method.method),
+                        *takeParams(count + 1, receiverField, OWNER_PARAM, EVENT_PARAM))
+            }
+        }.endControlFlow()
     }
+    addStatement("return")
 }
 
 private fun syntheticName(method: ExecutableElement) = "__synthetic_" + method.simpleName
