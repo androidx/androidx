@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsService.Relation;
 import android.support.v4.app.BundleCompat;
 import android.util.Log;
@@ -34,6 +35,29 @@ public class CustomTabsSessionToken {
     private final ICustomTabsCallback mCallbackBinder;
     private final CustomTabsCallback mCallback;
 
+    /* package */ static class MockCallback extends ICustomTabsCallback.Stub {
+        @Override
+        public void onNavigationEvent(int navigationEvent, Bundle extras) {}
+
+        @Override
+        public void extraCallback(String callbackName, Bundle args) {}
+
+        @Override
+        public void onMessageChannelReady(Bundle extras) {}
+
+        @Override
+        public void onPostMessage(String message, Bundle extras) {}
+
+        @Override
+        public void onRelationshipValidationResult(@Relation int relation, Uri requestedOrigin,
+                boolean result, Bundle extras) {}
+
+        @Override
+        public IBinder asBinder() {
+            return this;
+        }
+    }
+
     /**
      * Obtain a {@link CustomTabsSessionToken} from an intent. See {@link CustomTabsIntent.Builder}
      * for ways to generate an intent for custom tabs.
@@ -46,6 +70,17 @@ public class CustomTabsSessionToken {
         IBinder binder = BundleCompat.getBinder(b, CustomTabsIntent.EXTRA_SESSION);
         if (binder == null) return null;
         return new CustomTabsSessionToken(ICustomTabsCallback.Stub.asInterface(binder));
+    }
+
+    /**
+     * Provides browsers a way to generate a mock {@link CustomTabsSessionToken} for testing
+     * purposes.
+     *
+     * @return A mock token with no functionality.
+     */
+    @NonNull
+    public static CustomTabsSessionToken createMockSessionTokenForTesting() {
+        return new CustomTabsSessionToken(new MockCallback());
     }
 
     CustomTabsSessionToken(ICustomTabsCallback callbackBinder) {
