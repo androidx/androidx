@@ -57,21 +57,9 @@ class Lifecycling {
         //noinspection TryWithIdenticalCatches
         try {
             final Class<?> klass = object.getClass();
-            Constructor<? extends GenericLifecycleObserver> cachedConstructor = sCallbackCache.get(
+            Constructor<? extends GenericLifecycleObserver> constructor = getObserverConstuctor(
                     klass);
-            if (cachedConstructor != null) {
-                return cachedConstructor.newInstance(object);
-            }
-            cachedConstructor = getGeneratedAdapterConstructor(klass);
-            if (cachedConstructor != null) {
-                if (!cachedConstructor.isAccessible()) {
-                    cachedConstructor.setAccessible(true);
-                }
-            } else {
-                cachedConstructor = sREFLECTIVE;
-            }
-            sCallbackCache.put(klass, cachedConstructor);
-            return cachedConstructor.newInstance(object);
+            return constructor.newInstance(object);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
@@ -81,35 +69,87 @@ class Lifecycling {
         }
     }
 
-    @Nullable
-    private static Constructor<? extends GenericLifecycleObserver> getGeneratedAdapterConstructor(
+    @NonNull
+    private static Constructor<? extends GenericLifecycleObserver> getObserverConstuctor(
             Class<?> klass) {
-        Package aPackage = klass.getPackage();
-        final String fullPackage = aPackage != null ? aPackage.getName() : "";
-
-        String name = klass.getCanonicalName();
-        // anonymous class bug:35073837
-        if (name == null) {
-            return null;
+        Constructor<? extends GenericLifecycleObserver> constructor = sCallbackCache.get(klass);
+        if (constructor == null) {
+            constructor = resolveObserverConstructor(klass);
+            sCallbackCache.put(klass, constructor);
         }
-        final String adapterName = getAdapterName(fullPackage.isEmpty() ? name :
-                name.substring(fullPackage.length() + 1));
+        return constructor;
+    }
+
+    @Nullable
+    private static Constructor<? extends GenericLifecycleObserver> generatedConstructor(
+            Class<?> klass) {
         try {
-            @SuppressWarnings("unchecked")
-            final Class<? extends GenericLifecycleObserver> aClass =
+            Package aPackage = klass.getPackage();
+            String name = klass.getCanonicalName();
+            final String fullPackage = aPackage != null ? aPackage.getName() : "";
+            final String adapterName = getAdapterName(fullPackage.isEmpty() ? name :
+                    name.substring(fullPackage.length() + 1));
+
+            @SuppressWarnings("unchecked") final Class<? extends GenericLifecycleObserver> aClass =
                     (Class<? extends GenericLifecycleObserver>) Class.forName(
                             fullPackage.isEmpty() ? adapterName : fullPackage + "." + adapterName);
-            return aClass.getDeclaredConstructor(klass);
-        } catch (ClassNotFoundException e) {
-            final Class<?> superclass = klass.getSuperclass();
-            if (superclass != null) {
-                return getGeneratedAdapterConstructor(superclass);
+            Constructor<? extends GenericLifecycleObserver> constructor =
+                    aClass.getDeclaredConstructor(klass);
+            if (!constructor.isAccessible()) {
+                constructor.setAccessible(true);
             }
+            return constructor;
+        } catch (ClassNotFoundException e) {
+            return null;
         } catch (NoSuchMethodException e) {
             // this should not happen
             throw new RuntimeException(e);
         }
-        return null;
+    }
+
+    @NonNull
+    private static Constructor<? extends GenericLifecycleObserver> resolveObserverConstructor(
+            Class<?> klass) {
+
+        // anonymous class bug:35073837
+        if (klass.getCanonicalName() == null) {
+            return sREFLECTIVE;
+        }
+
+        Constructor<? extends GenericLifecycleObserver> constructor = generatedConstructor(klass);
+        if (constructor != null) {
+            return constructor;
+        }
+
+        boolean hasLifecycleMethods = ClassesInfoCache.sInstance.hasLifecycleMethods(klass);
+        if (hasLifecycleMethods) {
+            sCallbackCache.put(klass, sREFLECTIVE);
+            return sREFLECTIVE;
+        }
+
+        int counter = 0;
+        Class<?> lifecycleParent = null;
+        for (Class<?> intrface : klass.getInterfaces()) {
+            if (isLifecycleParent(intrface)) {
+                counter++;
+                lifecycleParent = intrface;
+            }
+        }
+
+        Class<?> superclass = klass.getSuperclass();
+        if (isLifecycleParent(superclass)) {
+            counter++;
+            lifecycleParent = superclass;
+        }
+
+        if (counter == 1) {
+            return getObserverConstuctor(lifecycleParent);
+        }
+        return sREFLECTIVE;
+    }
+
+    private static boolean isLifecycleParent(Class<?> klass) {
+        return klass != null && LifecycleObserver.class.isAssignableFrom(klass);
     }
 
     static String getAdapterName(String className) {
