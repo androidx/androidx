@@ -155,8 +155,11 @@ public final class WorkManager {
 
                 // Schedule in the background if there are no prerequisites.  Foreground scheduling
                 // happens automatically because we instantiated ForegroundProcessor earlier.
-                if (!hasPrerequisite) {
-                    mScheduler.schedule(workSpec);
+                // TODO(janclarin): Remove mScheduler != null check when Scheduler added for 23-.
+                if (mScheduler != null) {
+                    if (!hasPrerequisite) {
+                        mScheduler.schedule(workSpec);
+                    }
                 }
             } finally {
                 mWorkDatabase.endTransaction();

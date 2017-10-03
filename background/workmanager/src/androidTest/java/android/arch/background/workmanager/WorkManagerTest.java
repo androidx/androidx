@@ -35,12 +35,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class WorkManagerTest {
+    private static final long DEFAULT_SLEEP_TIME_MS = 1000L;
     private WorkDatabase mDatabase;
     private WorkManager mWorkManager;
 
@@ -56,14 +54,14 @@ public class WorkManagerTest {
     }
 
     @Test
-    public void insert() throws InterruptedException, ExecutionException, TimeoutException {
+    public void testEnqueue_insertWork() throws InterruptedException {
         final int workCount = 3;
         final Work[] workArray = new Work[workCount];
         for (int i = 0; i < workCount; ++i) {
             workArray[i] = new Work.Builder(TestWorker.class).build();
         }
         mWorkManager.enqueue(workArray[0]).then(workArray[1]).then(workArray[2]);
-        Thread.sleep(5000);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         for (int i = 0; i < workCount; ++i) {
             String id = workArray[i].getId();
@@ -76,7 +74,8 @@ public class WorkManagerTest {
     }
 
     @Test
-    public void constraints() throws InterruptedException, ExecutionException, TimeoutException {
+    public void testEnqueue_insertWorkConstraints() throws InterruptedException {
+        final long expectedInitialDelay = 1000L;
         Work work0 = new Work.Builder(TestWorker.class)
                 .withConstraints(
                         new Constraints.Builder()
@@ -85,12 +84,12 @@ public class WorkManagerTest {
                                 .setRequiredNetworkType(Constraints.NETWORK_TYPE_METERED)
                                 .setRequiresBatteryNotLow(true)
                                 .setRequiresStorageNotLow(true)
-                                .setInitialDelay(5000)
+                                .setInitialDelay(expectedInitialDelay)
                                 .build())
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManager.enqueue(work0).then(work1);
-        Thread.sleep(5000);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -101,7 +100,7 @@ public class WorkManagerTest {
         assertThat(constraints.requiresDeviceIdle(), is(true));
         assertThat(constraints.requiresBatteryNotLow(), is(true));
         assertThat(constraints.requiresStorageNotLow(), is(true));
-        assertThat(constraints.getInitialDelay(), is(5000L));
+        assertThat(constraints.getInitialDelay(), is(expectedInitialDelay));
         assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_METERED));
 
         constraints = workSpec1.getConstraints();
@@ -115,13 +114,13 @@ public class WorkManagerTest {
     }
 
     @Test
-    public void backoffPolicy() throws InterruptedException, ExecutionException, TimeoutException {
+    public void testEnqueue_insertWorkBackoffPolicy() throws InterruptedException {
         Work work0 = new Work.Builder(TestWorker.class)
                 .withBackoffCriteria(Work.BACKOFF_POLICY_LINEAR, 50000)
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManager.enqueue(work0).then(work1);
-        Thread.sleep(5000);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -134,7 +133,7 @@ public class WorkManagerTest {
     }
 
     @Test
-    public void arguments() throws InterruptedException, ExecutionException, TimeoutException {
+    public void testEnqueue_insertWorkArguments() throws InterruptedException {
         String key = "key";
         String expectedValue = "value";
 
@@ -146,7 +145,7 @@ public class WorkManagerTest {
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
         mWorkManager.enqueue(work0).then(work1);
-        Thread.sleep(5000);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
@@ -163,7 +162,7 @@ public class WorkManagerTest {
     }
 
     @Test
-    public void generateCleanupCallback() {
+    public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         Work work = new Work.Builder(TestWorker.class).build();
