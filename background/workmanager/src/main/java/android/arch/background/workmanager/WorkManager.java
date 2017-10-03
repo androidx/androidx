@@ -39,7 +39,6 @@ public final class WorkManager {
     private static final String TAG = "WorkManager";
 
     private Context mContext;
-    private Processor mForegroundProcessor;
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
     private Scheduler mScheduler;
@@ -66,11 +65,7 @@ public final class WorkManager {
         if (Build.VERSION.SDK_INT >= 21) {
             mScheduler = new SystemJobScheduler(mContext);
         }
-        mForegroundProcessor = new ForegroundProcessor(
-                mContext,
-                mWorkDatabase,
-                mScheduler,
-                ProcessLifecycleOwner.get());
+        new ForegroundProcessor(mContext, mWorkDatabase, mScheduler, ProcessLifecycleOwner.get());
     }
 
     /**
@@ -145,20 +140,23 @@ public final class WorkManager {
         public void run() {
             mWorkDatabase.beginTransaction();
             try {
+                boolean hasPrerequisite = (mPrerequisiteId != null);
                 WorkSpec workSpec = mWork.getWorkSpec();
-                if (mPrerequisiteId != null) {
+                if (hasPrerequisite) {
                     workSpec.setStatus(STATUS_BLOCKED);
                 }
                 mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
 
-                if (mPrerequisiteId != null) {
+                if (hasPrerequisite) {
                     Dependency dep = new Dependency(mWork.getId(), mPrerequisiteId);
                     mWorkDatabase.dependencyDao().insertDependency(dep);
                 }
                 mWorkDatabase.setTransactionSuccessful();
 
-                if (mPrerequisiteId != null) {
-                    mForegroundProcessor.process(mWork.getId());
+                // Schedule in the background if there are no prerequisites.  Foreground scheduling
+                // happens automatically because we instantiated ForegroundProcessor earlier.
+                if (!hasPrerequisite) {
+                    mScheduler.schedule(workSpec);
                 }
             } finally {
                 mWorkDatabase.endTransaction();
