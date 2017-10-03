@@ -145,7 +145,8 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
                 return null;
             }
         }
-        return createFromFamiliesWithDefault(family);
+        final Typeface typeface = createFromFamiliesWithDefault(family);
+        return Typeface.create(typeface, style);
     }
 
     @Override

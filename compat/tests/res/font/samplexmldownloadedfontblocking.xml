@@ -3,5 +3,7 @@
     app:fontProviderAuthority="android.support.provider.fonts.font"
     app:fontProviderPackage="android.support.compat.test"
     app:fontProviderQuery="singleFontFamily"
-    app:fontProviderCerts="@array/mock_provider_certs">
+    app:fontProviderFetchStrategy="blocking"
+    app:fontProviderCerts="@array/mock_provider_certs"
+    app:fontProviderFetchTimeout="-1">
 </font-family>
