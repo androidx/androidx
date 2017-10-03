@@ -16,6 +16,7 @@
 
 package android.support.v4.widget;
 
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ListView;
 
@@ -26,7 +27,7 @@ import android.widget.ListView;
 public class ListViewAutoScrollHelper extends AutoScrollHelper {
     private final ListView mTarget;
 
-    public ListViewAutoScrollHelper(ListView target) {
+    public ListViewAutoScrollHelper(@NonNull ListView target) {
         super(target);
 
         mTarget = target;
