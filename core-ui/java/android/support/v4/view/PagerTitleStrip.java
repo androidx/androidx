@@ -22,6 +22,8 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.FloatRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.TextViewCompat;
 import android.text.TextUtils.TruncateAt;
 import android.text.method.SingleLineTransformationMethod;
@@ -102,11 +104,11 @@ public class PagerTitleStrip extends ViewGroup {
         text.setTransformationMethod(new SingleLineAllCapsTransform(text.getContext()));
     }
 
-    public PagerTitleStrip(Context context) {
+    public PagerTitleStrip(@NonNull Context context) {
         this(context, null);
     }
 
-    public PagerTitleStrip(Context context, AttributeSet attrs) {
+    public PagerTitleStrip(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
         addView(mPrevText = new TextView(context));
