@@ -107,7 +107,8 @@ public final class AsyncLayoutInflater {
     };
 
     public interface OnInflateFinishedListener {
-        void onInflateFinished(View view, int resid, ViewGroup parent);
+        void onInflateFinished(@NonNull View view, @LayoutRes int resid,
+                @Nullable ViewGroup parent);
     }
 
     private static class InflateRequest {
