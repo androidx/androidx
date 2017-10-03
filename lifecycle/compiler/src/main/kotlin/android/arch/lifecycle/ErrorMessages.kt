@@ -33,5 +33,4 @@ object ErrorMessages {
     const val INVALID_ENCLOSING_ELEMENT =
             "Parent of OnLifecycleEvent should be a class or interface"
     const val INVALID_ANNOTATED_ELEMENT = "OnLifecycleEvent can only be added to methods"
-
 }

@@ -17,10 +17,11 @@
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
-class NoPackageOk {
+class NoPackageOk implements LifecycleObserver {
     @OnLifecycleEvent(ON_STOP)
     void onStop(LifecycleOwner provider){}
 }

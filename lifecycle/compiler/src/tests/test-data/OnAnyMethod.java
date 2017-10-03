@@ -20,17 +20,17 @@ import static android.arch.lifecycle.Lifecycle.Event.ON_ANY;
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
-public class OnAnyMethod {
+public class OnAnyMethod implements LifecycleObserver {
 
     @OnLifecycleEvent(ON_STOP)
     void onStop(LifecycleOwner provider){}
 
     @OnLifecycleEvent(ON_ANY)
     void any(LifecycleOwner provider){}
-
 
     @OnLifecycleEvent(ON_ANY)
     void any(LifecycleOwner provider, Event event){}
