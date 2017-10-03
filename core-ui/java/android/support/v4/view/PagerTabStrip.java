@@ -24,6 +24,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -76,11 +78,11 @@ public class PagerTabStrip extends PagerTitleStrip {
     private float mInitialMotionY;
     private int mTouchSlop;
 
-    public PagerTabStrip(Context context) {
+    public PagerTabStrip(@NonNull Context context) {
         this(context, null);
     }
 
-    public PagerTabStrip(Context context, AttributeSet attrs) {
+    public PagerTabStrip(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
         mIndicatorColor = mTextColor;

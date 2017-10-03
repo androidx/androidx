@@ -347,7 +347,7 @@ public class ViewPager extends ViewGroup {
          *                 position of the pager. 0 is front and center. 1 is one full
          *                 page position to the right, and -1 is one page position to the left.
          */
-        void transformPage(View page, float position);
+        void transformPage(@NonNull View page, float position);
     }
 
     /**
@@ -381,12 +381,12 @@ public class ViewPager extends ViewGroup {
     public @interface DecorView {
     }
 
-    public ViewPager(Context context) {
+    public ViewPager(@NonNull Context context) {
         super(context);
         initViewPager();
     }
 
-    public ViewPager(Context context, AttributeSet attrs) {
+    public ViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initViewPager();
     }
@@ -496,7 +496,7 @@ public class ViewPager extends ViewGroup {
      *
      * @param adapter Adapter to use
      */
-    public void setAdapter(PagerAdapter adapter) {
+    public void setAdapter(@Nullable PagerAdapter adapter) {
         if (mAdapter != null) {
             mAdapter.setViewPagerObserver(null);
             mAdapter.startUpdate(this);
@@ -561,6 +561,7 @@ public class ViewPager extends ViewGroup {
      *
      * @return The currently registered PagerAdapter
      */
+    @Nullable
     public PagerAdapter getAdapter() {
         return mAdapter;
     }
@@ -712,7 +713,7 @@ public class ViewPager extends ViewGroup {
      *
      * @param listener listener to add
      */
-    public void addOnPageChangeListener(OnPageChangeListener listener) {
+    public void addOnPageChangeListener(@NonNull OnPageChangeListener listener) {
         if (mOnPageChangeListeners == null) {
             mOnPageChangeListeners = new ArrayList<>();
         }
@@ -725,7 +726,7 @@ public class ViewPager extends ViewGroup {
      *
      * @param listener listener to remove
      */
-    public void removeOnPageChangeListener(OnPageChangeListener listener) {
+    public void removeOnPageChangeListener(@NonNull OnPageChangeListener listener) {
         if (mOnPageChangeListeners != null) {
             mOnPageChangeListeners.remove(listener);
         }
@@ -757,7 +758,8 @@ public class ViewPager extends ViewGroup {
      *                            to be drawn from last to first instead of first to last.
      * @param transformer PageTransformer that will modify each page's animation properties
      */
-    public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer) {
+    public void setPageTransformer(boolean reverseDrawingOrder,
+            @Nullable PageTransformer transformer) {
         setPageTransformer(reverseDrawingOrder, transformer, View.LAYER_TYPE_HARDWARE);
     }
 
@@ -774,8 +776,8 @@ public class ViewPager extends ViewGroup {
      *                      {@link View#LAYER_TYPE_SOFTWARE}, or
      *                      {@link View#LAYER_TYPE_NONE}.
      */
-    public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer,
-            int pageLayerType) {
+    public void setPageTransformer(boolean reverseDrawingOrder,
+            @Nullable PageTransformer transformer, int pageLayerType) {
         final boolean hasTransformer = transformer != null;
         final boolean needsPopulate = hasTransformer != (mPageTransformer != null);
         mPageTransformer = transformer;
@@ -881,7 +883,7 @@ public class ViewPager extends ViewGroup {
      *
      * @param d Drawable to display between pages
      */
-    public void setPageMarginDrawable(Drawable d) {
+    public void setPageMarginDrawable(@Nullable Drawable d) {
         mMarginDrawable = d;
         if (d != null) refreshDrawableState();
         setWillNotDraw(d == null);
@@ -1383,7 +1385,7 @@ public class ViewPager extends ViewGroup {
         Parcelable adapterState;
         ClassLoader loader;
 
-        public SavedState(Parcelable superState) {
+        public SavedState(@NonNull Parcelable superState) {
             super(superState);
         }
 
@@ -2744,7 +2746,7 @@ public class ViewPager extends ViewGroup {
      * @param event The key event to execute.
      * @return Return true if the event was handled, else false.
      */
-    public boolean executeKeyEvent(KeyEvent event) {
+    public boolean executeKeyEvent(@NonNull KeyEvent event) {
         boolean handled = false;
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
