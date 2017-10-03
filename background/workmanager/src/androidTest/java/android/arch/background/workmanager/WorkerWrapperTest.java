@@ -189,7 +189,7 @@ public class WorkerWrapperTest {
     @Test
     public void testConstraints() throws InterruptedException {
         Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(Constraints.NETWORK_TYPE_CONNECTED)
+                .setRequiredNetworkType(Constraints.NETWORK_TYPE_ANY)
                 .setRequiresBatteryNotLow(true)
                 .setRequiresCharging(true)
                 .setRequiresDeviceIdle(true)

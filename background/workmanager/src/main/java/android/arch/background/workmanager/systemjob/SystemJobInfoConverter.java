@@ -100,7 +100,7 @@ class SystemJobInfoConverter {
         switch(networkType) {
             case Constraints.NETWORK_TYPE_NONE:
                 return JobInfo.NETWORK_TYPE_NONE;
-            case Constraints.NETWORK_TYPE_CONNECTED:
+            case Constraints.NETWORK_TYPE_ANY:
                 return JobInfo.NETWORK_TYPE_ANY;
             case Constraints.NETWORK_TYPE_UNMETERED:
                 return JobInfo.NETWORK_TYPE_UNMETERED;
