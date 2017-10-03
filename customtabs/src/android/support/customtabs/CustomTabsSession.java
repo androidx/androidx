@@ -25,6 +25,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.customtabs.CustomTabsService.Relation;
 import android.support.customtabs.CustomTabsService.Result;
 import android.view.View;
@@ -42,6 +43,21 @@ public final class CustomTabsSession {
     private final ICustomTabsService mService;
     private final ICustomTabsCallback mCallback;
     private final ComponentName mComponentName;
+
+    /**
+     * Provides browsers a way to generate a mock {@link CustomTabsSession} for testing
+     * purposes.
+     *
+     * @param componentName The component the session should be created for.
+     * @return A mock session with no functionality.
+     */
+    @VisibleForTesting
+    @NonNull
+    public static CustomTabsSession createMockSessionForTesting(
+            @NonNull ComponentName componentName) {
+        return new CustomTabsSession(
+                null, new CustomTabsSessionToken.MockCallback(), componentName);
+    }
 
     /* package */ CustomTabsSession(
             ICustomTabsService service, ICustomTabsCallback callback, ComponentName componentName) {
