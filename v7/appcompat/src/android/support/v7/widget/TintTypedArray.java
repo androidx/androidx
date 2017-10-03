@@ -106,8 +106,7 @@ public class TintTypedArray {
      *         not a font resource.
      */
     @Nullable
-    public Typeface getFont(@StyleableRes int index, int style,
-            @Nullable ResourcesCompat.FontCallback fontCallback) {
+    public Typeface getFont(@StyleableRes int index, int style) {
         final int resourceId = mWrapped.getResourceId(index, 0);
         if (resourceId == 0) {
             return null;
@@ -115,7 +114,7 @@ public class TintTypedArray {
         if (mTypedValue == null) {
             mTypedValue = new TypedValue();
         }
-        return ResourcesCompat.getFont(mContext, resourceId, mTypedValue, style, fontCallback);
+        return ResourcesCompat.getFont(mContext, resourceId, mTypedValue, style);
     }
 
     public int length() {
