@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<resources>
+    <!-- The styling for title text. The color of this text changes based on day/night mode. -->
+    <style name="CarTitle" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_title_size</item>
+        <item name="android:textColor">@color/car_title</item>
+    </style>
+
+    <!-- Title text that is permanently a dark color. -->
+    <style name="CarTitle.Dark" >
+        <item name="android:textColor">@color/car_title_dark</item>
+    </style>
+
+    <!-- Title text that is permanently a light color. -->
+    <style name="CarTitle.Light" >
+        <item name="android:textColor">@color/car_title_light</item>
+    </style>
+
+    <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
+    <style name="CarBody1" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body1_size</item>
+        <item name="android:textColor">@color/car_body1</item>
+    </style>
+
+    <!-- An alternate styling for body text that is both a different color and size than
+         CarBody1. -->
+    <style name="CarBody2" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body2_size</item>
+        <item name="android:textColor">@color/car_body2</item>
+    </style>
+
+    <!-- The style for the menu bar (i.e. hamburger) and back arrow in the navigation drawer. -->
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@color/car_title_light</item>
+        <item name="spinBars">true</item>
+        <item name="barLength">@dimen/car_menu_bar_length</item>
+        <item name="thickness">@dimen/car_arrow_thickness</item>
+        <item name="gapBetweenBars">@dimen/car_menu_bar_spacing</item>
+        <item name="arrowShaftLength">@dimen/car_arrow_shaft_length</item>
+        <item name="arrowHeadLength">@dimen/car_arrow_head_length</item>
+        <item name="drawableSize">@dimen/car_arrow_size</item>
+    </style>
+</resources>

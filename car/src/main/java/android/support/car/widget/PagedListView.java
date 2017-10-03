@@ -27,7 +27,6 @@ import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.Px;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.UiThread;
 import android.support.car.R;
@@ -61,7 +60,6 @@ public class PagedListView extends FrameLayout {
     protected final CarLayoutManager mLayoutManager;
     protected final Handler mHandler = new Handler();
     private final boolean mScrollBarEnabled;
-    private final boolean mRightGutterEnabled;
     private final PagedScrollBarView mScrollBarView;
 
     private int mRowsPerPage = -1;
@@ -97,6 +95,11 @@ public class PagedListView extends FrameLayout {
      * }</pre>
      */
     public interface ItemCap {
+        /**
+         * A value to pass to {@link #setMaxItems(int)} that indicates there should be no limit.
+         */
+        int UNLIMITED = -1;
+
         /**
          * Sets the maximum number of items available in the adapter. A value less than '0' means
          * the list should not be capped.
@@ -139,7 +142,6 @@ public class PagedListView extends FrameLayout {
         }
         LayoutInflater.from(context).inflate(layoutId, this /*root*/, true /*attachToRoot*/);
 
-        FrameLayout maxWidthLayout = (FrameLayout) findViewById(R.id.recycler_view_container);
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.PagedListView, defStyleAttrs, defStyleRes);
         mRecyclerView = (CarRecyclerView) findViewById(R.id.recycler_view);
@@ -155,6 +157,16 @@ public class PagedListView extends FrameLayout {
         mRecyclerView.setOnScrollListener(mRecyclerViewOnScrollListener);
         mRecyclerView.getRecycledViewPool().setMaxRecycledViews(0, 12);
         mRecyclerView.setItemAnimator(new CarItemAnimator(mLayoutManager));
+
+        boolean offsetScrollBar = a.getBoolean(R.styleable.PagedListView_offsetScrollBar, false);
+        if (offsetScrollBar) {
+            MarginLayoutParams params = (MarginLayoutParams) mRecyclerView.getLayoutParams();
+            params.setMarginStart(getResources().getDimensionPixelSize(
+                    R.dimen.car_paged_list_view_pagination_width));
+            params.setMarginEnd(
+                    a.getDimensionPixelSize(R.styleable.PagedListView_listEndMargin, 0));
+            mRecyclerView.setLayoutParams(params);
+        }
 
         if (a.getBoolean(R.styleable.PagedListView_showPagedListViewDivider, true)) {
             int dividerStartMargin = a.getDimensionPixelSize(
@@ -199,45 +211,18 @@ public class PagedListView extends FrameLayout {
                         }
                     }
                 });
+
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
 
-        // Modify the layout if the Gutter or the Scroll Bar are not visible.
-        mRightGutterEnabled = a.getBoolean(R.styleable.PagedListView_rightGutterEnabled, false);
-        if (mRightGutterEnabled || !mScrollBarEnabled) {
-            FrameLayout.LayoutParams maxWidthLayoutLayoutParams =
-                    (FrameLayout.LayoutParams) maxWidthLayout.getLayoutParams();
-            if (mRightGutterEnabled) {
-                maxWidthLayoutLayoutParams.rightMargin =
-                        getResources().getDimensionPixelSize(R.dimen.car_card_margin);
-            }
-            if (!mScrollBarEnabled) {
-                maxWidthLayoutLayoutParams.setMarginStart(0);
-            }
-            maxWidthLayout.setLayoutParams(maxWidthLayoutLayoutParams);
+        // Modify the layout the Scroll Bar is not visible.
+        if (!mScrollBarEnabled) {
+            MarginLayoutParams params = (MarginLayoutParams) mRecyclerView.getLayoutParams();
+            params.setMarginStart(0);
+            mRecyclerView.setLayoutParams(params);
         }
 
         setDayNightStyle(DayNightStyle.AUTO);
         a.recycle();
-    }
-
-    /**
-     * Sets the starting and ending padding for each view in the list.
-     *
-     * @param start The start padding.
-     * @param end The end padding.
-     */
-    public void setListViewStartEndPadding(@Px int start, @Px int end) {
-        int carCardMargin = getResources().getDimensionPixelSize(R.dimen.car_card_margin);
-        int startGutter = mScrollBarEnabled ? carCardMargin : 0;
-        int startPadding = Math.max(start - startGutter, 0);
-        int endGutter = mRightGutterEnabled ? carCardMargin : 0;
-        int endPadding = Math.max(end - endGutter, 0);
-        mRecyclerView.setPaddingRelative(startPadding, mRecyclerView.getPaddingTop(),
-                endPadding, mRecyclerView.getPaddingBottom());
-
-        // Since we're setting padding we'll need to set the clip to padding to the same
-        // value as clip children to ensure that the cards fly off the screen.
-        mRecyclerView.setClipToPadding(mRecyclerView.getClipChildren());
     }
 
     @Override
