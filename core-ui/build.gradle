@@ -16,12 +16,6 @@ android {
         minSdkVersion 14
     }
 
-    sourceSets {
-        main.java.srcDirs = [
-                'java'
-        ]
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
