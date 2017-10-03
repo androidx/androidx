@@ -17,6 +17,7 @@
 package android.support.v7.graphics;
 
 import android.support.annotation.FloatRange;
+import android.support.annotation.NonNull;
 
 /**
  * A class which allows custom selection of colors in a {@link Palette}'s generation. Instances
@@ -122,7 +123,7 @@ public final class Target {
         setDefaultWeights();
     }
 
-    Target(Target from) {
+    Target(@NonNull Target from) {
         System.arraycopy(from.mSaturationTargets, 0, mSaturationTargets, 0,
                 mSaturationTargets.length);
         System.arraycopy(from.mLightnessTargets, 0, mLightnessTargets, 0,
@@ -295,13 +296,14 @@ public final class Target {
         /**
          * Create a new builder based on an existing {@link Target}.
          */
-        public Builder(Target target) {
+        public Builder(@NonNull Target target) {
             mTarget = new Target(target);
         }
 
         /**
          * Set the minimum saturation value for this target.
          */
+        @NonNull
         public Builder setMinimumSaturation(@FloatRange(from = 0, to = 1) float value) {
             mTarget.mSaturationTargets[INDEX_MIN] = value;
             return this;
@@ -310,6 +312,7 @@ public final class Target {
         /**
          * Set the target/ideal saturation value for this target.
          */
+        @NonNull
         public Builder setTargetSaturation(@FloatRange(from = 0, to = 1) float value) {
             mTarget.mSaturationTargets[INDEX_TARGET] = value;
             return this;
@@ -318,6 +321,7 @@ public final class Target {
         /**
          * Set the maximum saturation value for this target.
          */
+        @NonNull
         public Builder setMaximumSaturation(@FloatRange(from = 0, to = 1) float value) {
             mTarget.mSaturationTargets[INDEX_MAX] = value;
             return this;
@@ -326,6 +330,7 @@ public final class Target {
         /**
          * Set the minimum lightness value for this target.
          */
+        @NonNull
         public Builder setMinimumLightness(@FloatRange(from = 0, to = 1) float value) {
             mTarget.mLightnessTargets[INDEX_MIN] = value;
             return this;
@@ -334,6 +339,7 @@ public final class Target {
         /**
          * Set the target/ideal lightness value for this target.
          */
+        @NonNull
         public Builder setTargetLightness(@FloatRange(from = 0, to = 1) float value) {
             mTarget.mLightnessTargets[INDEX_TARGET] = value;
             return this;
@@ -342,6 +348,7 @@ public final class Target {
         /**
          * Set the maximum lightness value for this target.
          */
+        @NonNull
         public Builder setMaximumLightness(@FloatRange(from = 0, to = 1) float value) {
             mTarget.mLightnessTargets[INDEX_MAX] = value;
             return this;
@@ -358,6 +365,7 @@ public final class Target {
          *
          * @see #setTargetSaturation(float)
          */
+        @NonNull
         public Builder setSaturationWeight(@FloatRange(from = 0) float weight) {
             mTarget.mWeights[INDEX_WEIGHT_SAT] = weight;
             return this;
@@ -374,6 +382,7 @@ public final class Target {
          *
          * @see #setTargetLightness(float)
          */
+        @NonNull
         public Builder setLightnessWeight(@FloatRange(from = 0) float weight) {
             mTarget.mWeights[INDEX_WEIGHT_LUMA] = weight;
             return this;
@@ -389,6 +398,7 @@ public final class Target {
          * <p>A weight of 0 means that it has no weight, and thus has no
          * bearing on the selection.</p>
          */
+        @NonNull
         public Builder setPopulationWeight(@FloatRange(from = 0) float weight) {
             mTarget.mWeights[INDEX_WEIGHT_POP] = weight;
             return this;
@@ -401,6 +411,7 @@ public final class Target {
          * @param exclusive true if any the color is exclusive to this target, or false is the
          *                  color can be selected for other targets.
          */
+        @NonNull
         public Builder setExclusive(boolean exclusive) {
             mTarget.mIsExclusive = exclusive;
             return this;
@@ -409,6 +420,7 @@ public final class Target {
         /**
          * Builds and returns the resulting {@link Target}.
          */
+        @NonNull
         public Target build() {
             return mTarget;
         }

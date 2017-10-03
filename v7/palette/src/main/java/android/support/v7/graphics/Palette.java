@@ -80,7 +80,7 @@ public final class Palette {
         /**
          * Called when the {@link Palette} has been generated.
          */
-        void onGenerated(Palette palette);
+        void onGenerated(@NonNull Palette palette);
     }
 
     static final int DEFAULT_RESIZE_BITMAP_AREA = 112 * 112;
@@ -95,7 +95,8 @@ public final class Palette {
     /**
      * Start generating a {@link Palette} with the returned {@link Builder} instance.
      */
-    public static Builder from(Bitmap bitmap) {
+    @NonNull
+    public static Builder from(@NonNull Bitmap bitmap) {
         return new Builder(bitmap);
     }
 
@@ -104,7 +105,8 @@ public final class Palette {
      * This is useful for testing, or if you want to resurrect a {@link Palette} instance from a
      * list of swatches. Will return null if the {@code swatches} is null.
      */
-    public static Palette from(List<Swatch> swatches) {
+    @NonNull
+    public static Palette from(@NonNull List<Swatch> swatches) {
         return new Builder(swatches).generate();
     }
 
@@ -484,6 +486,7 @@ public final class Palette {
          *     hsv[1] is Saturation [0...1]
          *     hsv[2] is Lightness [0...1]
          */
+        @NonNull
         public float[] getHsl() {
             if (mHsl == null) {
                 mHsl = new float[3];
@@ -610,7 +613,7 @@ public final class Palette {
         /**
          * Construct a new {@link Builder} using a source {@link Bitmap}
          */
-        public Builder(Bitmap bitmap) {
+        public Builder(@NonNull Bitmap bitmap) {
             if (bitmap == null || bitmap.isRecycled()) {
                 throw new IllegalArgumentException("Bitmap is not valid");
             }
@@ -631,7 +634,7 @@ public final class Palette {
          * Construct a new {@link Builder} using a list of {@link Swatch} instances.
          * Typically only used for testing.
          */
-        public Builder(List<Swatch> swatches) {
+        public Builder(@NonNull List<Swatch> swatches) {
             if (swatches == null || swatches.isEmpty()) {
                 throw new IllegalArgumentException("List of Swatches is not valid");
             }
@@ -850,7 +853,8 @@ public final class Palette {
          * generated.
          */
         @NonNull
-        public AsyncTask<Bitmap, Void, Palette> generate(final PaletteAsyncListener listener) {
+        public AsyncTask<Bitmap, Void, Palette> generate(
+                @NonNull final PaletteAsyncListener listener) {
             if (listener == null) {
                 throw new IllegalArgumentException("listener can not be null");
             }
@@ -943,7 +947,7 @@ public final class Palette {
          *
          * @see Builder#addFilter(Filter)
          */
-        boolean isAllowed(int rgb, float[] hsl);
+        boolean isAllowed(@ColorInt int rgb, @NonNull float[] hsl);
     }
 
     /**
