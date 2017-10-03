@@ -23,16 +23,18 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.v4.content.res.FontResourcesParserCompat;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.FontsContractCompat.FontInfo;
 import android.support.v4.util.LruCache;
-import android.widget.TextView;
 
 /**
  * Helper for accessing features in {@link Typeface}.
@@ -108,16 +110,31 @@ public class TypefaceCompat {
     public static Typeface createFromResourcesFamilyXml(
             @NonNull Context context, @NonNull FamilyResourceEntry entry,
             @NonNull Resources resources, int id, int style,
-            @Nullable TextView targetView) {
+            @Nullable ResourcesCompat.FontCallback fontCallback, @Nullable Handler handler,
+            boolean isRequestFromLayoutInflator) {
         Typeface typeface;
         if (entry instanceof ProviderResourceEntry) {
             ProviderResourceEntry providerEntry = (ProviderResourceEntry) entry;
-            typeface = FontsContractCompat.getFontSync(context,
-                    providerEntry.getRequest(), targetView, providerEntry.getFetchStrategy(),
-                    providerEntry.getTimeout(), style);
+            final boolean isBlocking = isRequestFromLayoutInflator
+                    ? providerEntry.getFetchStrategy()
+                    == FontResourcesParserCompat.FETCH_STRATEGY_BLOCKING
+                    : fontCallback == null;
+            final int timeout = isRequestFromLayoutInflator ? providerEntry.getTimeout()
+                    : FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE;
+            typeface = FontsContractCompat.getFontSync(context, providerEntry.getRequest(),
+                    fontCallback, handler, isBlocking, timeout, style);
         } else {
             typeface = sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
                     context, (FontFamilyFilesResourceEntry) entry, resources, style);
+            if (fontCallback != null) {
+                if (typeface != null) {
+                    fontCallback.callbackSuccessAsync(typeface, handler);
+                } else {
+                    fontCallback.callbackFailAsync(
+                            FontsContractCompat.FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR,
+                            handler);
+                }
+            }
         }
         if (typeface != null) {
             sTypefaceCache.put(createResourceUid(resources, id, style), typeface);
@@ -135,7 +152,8 @@ public class TypefaceCompat {
         Typeface typeface = sTypefaceCompatImpl.createFromResourcesFontFile(
                 context, resources, id, path, style);
         if (typeface != null) {
-            sTypefaceCache.put(createResourceUid(resources, id, style), typeface);
+            final String resourceUid = createResourceUid(resources, id, style);
+            sTypefaceCache.put(resourceUid, typeface);
         }
         return typeface;
     }

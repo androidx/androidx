@@ -27,6 +27,8 @@ import android.content.res.Resources.Theme;
 import android.content.res.XmlResourceParser;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
@@ -36,9 +38,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.graphics.TypefaceCompat;
+import android.support.v4.provider.FontsContractCompat.FontRequestCallback;
+import android.support.v4.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
+import android.support.v4.util.Preconditions;
 import android.util.Log;
 import android.util.TypedValue;
-import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -175,8 +179,12 @@ public final class ResourcesCompat {
     /**
      * Returns a font Typeface associated with a particular resource ID.
      * <p>
+     * This method will block the calling thread to retrieve the requested font, including if it
+     * is from a font provider. If you wish to not have this behavior, use
+     * {@link #getFont(Context, int, FontCallback, Handler)} instead.
+     * <p>
      * Prior to API level 23, font resources with more than one font in a family will only load the
-     * first font in that family.
+     * font closest to a regular weight typeface.
      *
      * @param context A context to retrieve the Resources from.
      * @param id The desired resource identifier of a {@link Typeface},
@@ -184,8 +192,9 @@ public final class ResourcesCompat {
      *           package, type, and resource entry. The value 0 is an invalid
      *           identifier.
      * @return A font Typeface object.
-     * @throws NotFoundException Throws NotFoundException if the given ID does
-     *         not exist.
+     * @throws NotFoundException Throws NotFoundException if the given ID does not exist.
+     *
+     * @see #getFont(Context, int, FontCallback, Handler)
      */
     @Nullable
     public static Typeface getFont(@NonNull Context context, @FontRes int id)
@@ -193,34 +202,155 @@ public final class ResourcesCompat {
         if (context.isRestricted()) {
             return null;
         }
-        return loadFont(context, id, new TypedValue(), Typeface.NORMAL, null);
+        return loadFont(context, id, new TypedValue(), Typeface.NORMAL, null /* callback */,
+                null /* handler */, false /* isXmlRequest */);
     }
 
-    /** @hide */
+    /**
+     * Interface used to receive asynchronous font fetching events.
+     */
+    public abstract static class FontCallback {
+
+        /**
+         * Called when an asynchronous font was finished loading.
+         *
+         * @param typeface The font that was loaded.
+         */
+        public abstract void onFontRetrieved(@NonNull Typeface typeface);
+
+        /**
+         * Called when an asynchronous font failed to load.
+         *
+         * @param reason The reason the font failed to load. One of
+         *      {@link FontRequestFailReason#FAIL_REASON_PROVIDER_NOT_FOUND},
+         *      {@link FontRequestFailReason#FAIL_REASON_WRONG_CERTIFICATES},
+         *      {@link FontRequestFailReason#FAIL_REASON_FONT_LOAD_ERROR},
+         *      {@link FontRequestFailReason#FAIL_REASON_SECURITY_VIOLATION},
+         *      {@link FontRequestFailReason#FAIL_REASON_FONT_NOT_FOUND},
+         *      {@link FontRequestFailReason#FAIL_REASON_FONT_UNAVAILABLE} or
+         *      {@link FontRequestFailReason#FAIL_REASON_MALFORMED_QUERY}.
+         */
+        public abstract void onFontRetrievalFailed(@FontRequestFailReason int reason);
+
+        /**
+         * Call {@link #onFontRetrieved(Typeface)} on the handler given, or the Ui Thread if it is
+         * null.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public final void callbackSuccessAsync(final Typeface typeface, @Nullable Handler handler) {
+            if (handler == null) {
+                handler = new Handler(Looper.getMainLooper());
+            }
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    onFontRetrieved(typeface);
+                }
+            });
+        }
+
+        /**
+         * Call {@link #onFontRetrievalFailed(int)} on the handler given, or the Ui Thread if it is
+         * null.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public final void callbackFailAsync(
+                @FontRequestFailReason final int reason, @Nullable Handler handler) {
+            if (handler == null) {
+                handler = new Handler(Looper.getMainLooper());
+            }
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    onFontRetrievalFailed(reason);
+                }
+            });
+        }
+    }
+
+    /**
+     * Returns a font Typeface associated with a particular resource ID asynchronously.
+     * <p>
+     * Prior to API level 23, font resources with more than one font in a family will only load the
+     * font closest to a regular weight typeface.
+     * </p>
+     *
+     * @param context A context to retrieve the Resources from.
+     * @param id The desired resource identifier of a {@link Typeface}, as generated by the aapt
+     *           tool. This integer encodes the package, type, and resource entry. The value 0 is an
+     *           invalid identifier.
+     * @param fontCallback A callback to receive async fetching of this font. The callback will be
+     *           triggered on the UI thread.
+     * @param handler A handler for the thread the callback should be called on. If null, the
+     *           callback will be called on the UI thread.
+     * @throws NotFoundException Throws NotFoundException if the given ID does not exist.
+     */
+    public static void getFont(@NonNull Context context, @FontRes int id,
+            @NonNull FontCallback fontCallback, @Nullable Handler handler)
+            throws NotFoundException {
+        Preconditions.checkNotNull(fontCallback);
+        if (context.isRestricted()) {
+            fontCallback.callbackFailAsync(
+                    FontRequestCallback.FAIL_REASON_SECURITY_VIOLATION, handler);
+            return;
+        }
+        loadFont(context, id, new TypedValue(), Typeface.NORMAL, fontCallback, handler,
+                false /* isXmlRequest */);
+    }
+
+    /**
+     * Used by TintTypedArray.
+     *
+     * @hide
+     */
     @RestrictTo(LIBRARY_GROUP)
     public static Typeface getFont(@NonNull Context context, @FontRes int id, TypedValue value,
-            int style, @Nullable TextView targetView) throws NotFoundException {
+            int style, @Nullable FontCallback fontCallback) throws NotFoundException {
         if (context.isRestricted()) {
             return null;
         }
-        return loadFont(context, id, value, style, targetView);
+        return loadFont(context, id, value, style, fontCallback, null /* handler */,
+                true /* isXmlRequest */);
     }
 
+    /**
+     *
+     * @param context The Context to get Resources from
+     * @param id The Resource id to load
+     * @param value A TypedValue to use in the fetching
+     * @param style The font style to load
+     * @param fontCallback A callback to trigger when the font is fetched or an error occurs
+     * @param handler A handler to the thread the callback should be called on
+     * @param isRequestFromLayoutInflator Whether this request originated from XML. This is used to
+     *                     determine if we use or ignore the fontProviderFetchStrategy attribute in
+     *                     font provider XML fonts.
+     * @return
+     */
     private static Typeface loadFont(@NonNull Context context, int id, TypedValue value,
-            int style, @Nullable TextView targetView) {
+            int style, @Nullable FontCallback fontCallback, @Nullable Handler handler,
+            boolean isRequestFromLayoutInflator) {
         final Resources resources = context.getResources();
         resources.getValue(id, value, true);
-        Typeface typeface = loadFont(context, resources, value, id, style, targetView);
-        if (typeface != null) {
-            return typeface;
+        Typeface typeface = loadFont(context, resources, value, id, style, fontCallback, handler,
+                isRequestFromLayoutInflator);
+        if (typeface == null && fontCallback == null) {
+            throw new NotFoundException("Font resource ID #0x"
+                    + Integer.toHexString(id) + " could not be retrieved.");
         }
-        throw new NotFoundException("Font resource ID #0x"
-                + Integer.toHexString(id));
+        return typeface;
     }
 
+    /**
+     * Load the given font. This method will always return null for asynchronous requests, which
+     * provide a fontCallback, as there is no immediate result. When the callback is not provided,
+     * the request is treated as synchronous and fails if async loading is required.
+     */
     private static Typeface loadFont(
             @NonNull Context context, Resources wrapper, TypedValue value, int id, int style,
-            @Nullable TextView targetView) {
+            @Nullable FontCallback fontCallback, @Nullable Handler handler,
+            boolean isRequestFromLayoutInflator) {
         if (value.string == null) {
             throw new NotFoundException("Resource \"" + wrapper.getResourceName(id) + "\" ("
                     + Integer.toHexString(id) + ") is not a Font: " + value);
@@ -228,13 +358,20 @@ public final class ResourcesCompat {
 
         final String file = value.string.toString();
         if (!file.startsWith("res/")) {
-            // Early exit if the specified string is unlikely to the resource path.
+            // Early exit if the specified string is unlikely to be a resource path.
+            if (fontCallback != null) {
+                fontCallback.callbackFailAsync(
+                        FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR, handler);
+            }
             return null;
         }
+        Typeface typeface = TypefaceCompat.findFromCache(wrapper, id, style);
 
-        Typeface cached = TypefaceCompat.findFromCache(wrapper, id, style);
-        if (cached != null) {
-            return cached;
+        if (typeface != null) {
+            if (fontCallback != null) {
+                fontCallback.callbackSuccessAsync(typeface, handler);
+            }
+            return typeface;
         }
 
         try {
@@ -244,16 +381,34 @@ public final class ResourcesCompat {
                         FontResourcesParserCompat.parse(rp, wrapper);
                 if (familyEntry == null) {
                     Log.e(TAG, "Failed to find font-family tag");
+                    if (fontCallback != null) {
+                        fontCallback.callbackFailAsync(
+                                FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR, handler);
+                    }
                     return null;
                 }
-                return TypefaceCompat.createFromResourcesFamilyXml(
-                        context, familyEntry, wrapper, id, style, targetView);
+                return TypefaceCompat.createFromResourcesFamilyXml(context, familyEntry, wrapper,
+                        id, style, fontCallback, handler, isRequestFromLayoutInflator);
             }
-            return TypefaceCompat.createFromResourcesFontFile(context, wrapper, id, file, style);
+            typeface = TypefaceCompat.createFromResourcesFontFile(
+                    context, wrapper, id, file, style);
+            if (fontCallback != null) {
+                if (typeface != null) {
+                    fontCallback.callbackSuccessAsync(typeface, handler);
+                } else {
+                    fontCallback.callbackFailAsync(
+                            FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR, handler);
+                }
+            }
+            return typeface;
         } catch (XmlPullParserException e) {
             Log.e(TAG, "Failed to parse xml resource " + file, e);
         } catch (IOException e) {
             Log.e(TAG, "Failed to read xml resource " + file, e);
+        }
+        if (fontCallback != null) {
+            fontCallback.callbackFailAsync(
+                    FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR, handler);
         }
         return null;
     }

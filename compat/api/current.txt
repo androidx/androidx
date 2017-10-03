@@ -701,6 +701,13 @@ package android.support.v4.content.res {
     method public static android.graphics.drawable.Drawable getDrawable(android.content.res.Resources, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
     method public static android.graphics.drawable.Drawable getDrawableForDensity(android.content.res.Resources, int, int, android.content.res.Resources.Theme) throws android.content.res.Resources.NotFoundException;
     method public static android.graphics.Typeface getFont(android.content.Context, int) throws android.content.res.Resources.NotFoundException;
+    method public static void getFont(android.content.Context, int, android.support.v4.content.res.ResourcesCompat.FontCallback, android.os.Handler) throws android.content.res.Resources.NotFoundException;
+  }
+
+  public static abstract class ResourcesCompat.FontCallback {
+    ctor public ResourcesCompat.FontCallback();
+    method public abstract void onFontRetrievalFailed(int);
+    method public abstract void onFontRetrieved(android.graphics.Typeface);
   }
 
 }
@@ -963,6 +970,7 @@ package android.support.v4.provider {
     field public static final int FAIL_REASON_FONT_UNAVAILABLE = 2; // 0x2
     field public static final int FAIL_REASON_MALFORMED_QUERY = 3; // 0x3
     field public static final int FAIL_REASON_PROVIDER_NOT_FOUND = -1; // 0xffffffff
+    field public static final int FAIL_REASON_SECURITY_VIOLATION = -4; // 0xfffffffc
     field public static final int FAIL_REASON_WRONG_CERTIFICATES = -2; // 0xfffffffe
   }
 

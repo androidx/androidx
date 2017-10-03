@@ -17,7 +17,6 @@
 package android.support.v4.provider;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.v4.content.res.FontResourcesParserCompat.FetchStrategy;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -46,17 +45,16 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.res.FontResourcesParserCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.TypefaceCompat;
 import android.support.v4.graphics.TypefaceCompatUtil;
 import android.support.v4.provider.SelfDestructiveThread.ReplyCallback;
 import android.support.v4.util.LruCache;
 import android.support.v4.util.Preconditions;
 import android.support.v4.util.SimpleArrayMap;
-import android.widget.TextView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,11 +164,11 @@ public class FontsContractCompat {
     // space open for new provider codes, these should all be negative numbers.
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int RESULT_CODE_PROVIDER_NOT_FOUND = -1;
+    /* package */ static final int RESULT_CODE_PROVIDER_NOT_FOUND = -1;
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
-    // Note -3 is used by Typeface to indicate the font failed to load.
+    /* package */ static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
+    // Note -3 is used by FontRequestCallback to indicate the font failed to load.
 
     private static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
 
@@ -179,51 +177,87 @@ public class FontsContractCompat {
             new SelfDestructiveThread("fonts", Process.THREAD_PRIORITY_BACKGROUND,
                     BACKGROUND_THREAD_KEEP_ALIVE_DURATION_MS);
 
-    private static Typeface getFontInternal(final Context context, final FontRequest request,
+    @NonNull
+    private static TypefaceResult getFontInternal(final Context context, final FontRequest request,
             int style) {
         FontFamilyResult result;
         try {
             result = fetchFonts(context, null /* CancellationSignal */, request);
         } catch (PackageManager.NameNotFoundException e) {
-            return null;
+            return new TypefaceResult(null, FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND);
         }
         if (result.getStatusCode() == FontFamilyResult.STATUS_OK) {
-            return TypefaceCompat.createFromFontInfo(context, null /* CancellationSignal */,
-                    result.getFonts(), style);
+            final Typeface typeface = TypefaceCompat.createFromFontInfo(
+                    context, null /* CancellationSignal */, result.getFonts(), style);
+            return new TypefaceResult(typeface, typeface != null
+                    ? FontRequestCallback.RESULT_OK
+                    : FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR);
         }
-        return null;
+        int resultCode = result.getStatusCode() == FontFamilyResult.STATUS_WRONG_CERTIFICATES
+                ? FontRequestCallback.FAIL_REASON_WRONG_CERTIFICATES
+                : FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR;
+        return new TypefaceResult(null, resultCode);
     }
 
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
-    private static final SimpleArrayMap<String, ArrayList<ReplyCallback<Typeface>>>
+    private static final SimpleArrayMap<String, ArrayList<ReplyCallback<TypefaceResult>>>
             sPendingReplies = new SimpleArrayMap<>();
+
+    private static final class TypefaceResult {
+        final Typeface mTypeface;
+        @FontRequestCallback.FontRequestFailReason final int mResult;
+
+        TypefaceResult(@Nullable Typeface typeface,
+                @FontRequestCallback.FontRequestFailReason int result) {
+            mTypeface = typeface;
+            mResult = result;
+        }
+    }
+
+    /**
+     * Used for tests, should not be used otherwise.
+     * @hide
+     **/
+    @RestrictTo(LIBRARY_GROUP)
+    public static final void resetCache() {
+        sTypefaceCache.evictAll();
+    }
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     public static Typeface getFontSync(final Context context, final FontRequest request,
-            final @Nullable TextView targetView, @FetchStrategy int strategy, int timeout,
+            final @Nullable ResourcesCompat.FontCallback fontCallback,
+            final @Nullable Handler handler, boolean isBlockingFetch, int timeout,
             final int style) {
         final String id = request.getIdentifier() + "-" + style;
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
+            if (fontCallback != null) {
+                fontCallback.onFontRetrieved(cached);
+            }
             return cached;
         }
 
-        final boolean isBlockingFetch =
-                strategy == FontResourcesParserCompat.FETCH_STRATEGY_BLOCKING;
-
         if (isBlockingFetch && timeout == FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE) {
             // Wait forever. No need to post to the thread.
-            return getFontInternal(context, request, style);
+            TypefaceResult typefaceResult = getFontInternal(context, request, style);
+            if (fontCallback != null) {
+                if (typefaceResult.mResult == FontFamilyResult.STATUS_OK) {
+                    fontCallback.callbackSuccessAsync(typefaceResult.mTypeface, handler);
+                } else {
+                    fontCallback.callbackFailAsync(typefaceResult.mResult, handler);
+                }
+            }
+            return typefaceResult.mTypeface;
         }
 
-        final Callable<Typeface> fetcher = new Callable<Typeface>() {
+        final Callable<TypefaceResult> fetcher = new Callable<TypefaceResult>() {
             @Override
-            public Typeface call() throws Exception {
-                Typeface typeface = getFontInternal(context, request, style);
-                if (typeface != null) {
-                    sTypefaceCache.put(id, typeface);
+            public TypefaceResult call() throws Exception {
+                TypefaceResult typeface = getFontInternal(context, request, style);
+                if (typeface.mTypeface != null) {
+                    sTypefaceCache.put(id, typeface.mTypeface);
                 }
                 return typeface;
             }
@@ -231,37 +265,42 @@ public class FontsContractCompat {
 
         if (isBlockingFetch) {
             try {
-                return sBackgroundThread.postAndWait(fetcher, timeout);
+                return sBackgroundThread.postAndWait(fetcher, timeout).mTypeface;
             } catch (InterruptedException e) {
                 return null;
             }
         } else {
-            final WeakReference<TextView> textViewWeak = new WeakReference<TextView>(targetView);
-            final ReplyCallback<Typeface> reply = new ReplyCallback<Typeface>() {
-                @Override
-                public void onReply(final Typeface typeface) {
-                    final TextView textView = textViewWeak.get();
-                    if (textView != null) {
-                        targetView.setTypeface(typeface, style);
-                    }
-                }
-            };
+            final ReplyCallback<TypefaceResult> reply = fontCallback == null ? null
+                    : new ReplyCallback<TypefaceResult>() {
+                        @Override
+                        public void onReply(final TypefaceResult typeface) {
+                            if (typeface.mResult == FontFamilyResult.STATUS_OK) {
+                                fontCallback.callbackSuccessAsync(typeface.mTypeface, handler);
+                            } else {
+                                fontCallback.callbackFailAsync(typeface.mResult, handler);
+                            }
+                        }
+                    };
 
             synchronized (sLock) {
                 if (sPendingReplies.containsKey(id)) {
                     // Already requested. Do not request the same provider again and insert the
                     // reply to the queue instead.
-                    sPendingReplies.get(id).add(reply);
+                    if (reply != null) {
+                        sPendingReplies.get(id).add(reply);
+                    }
                     return null;
                 }
-                ArrayList<ReplyCallback<Typeface>> pendingReplies = new ArrayList<>();
-                pendingReplies.add(reply);
-                sPendingReplies.put(id, pendingReplies);
+                if (reply != null) {
+                    ArrayList<ReplyCallback<TypefaceResult>> pendingReplies = new ArrayList<>();
+                    pendingReplies.add(reply);
+                    sPendingReplies.put(id, pendingReplies);
+                }
             }
-            sBackgroundThread.postAndReply(fetcher, new ReplyCallback<Typeface>() {
+            sBackgroundThread.postAndReply(fetcher, new ReplyCallback<TypefaceResult>() {
                 @Override
-                public void onReply(final Typeface typeface) {
-                    final ArrayList<ReplyCallback<Typeface>> replies;
+                public void onReply(final TypefaceResult typeface) {
+                    final ArrayList<ReplyCallback<TypefaceResult>> replies;
                     synchronized (sLock) {
                         replies = sPendingReplies.get(id);
                         sPendingReplies.remove(id);
@@ -269,7 +308,7 @@ public class FontsContractCompat {
                     for (int i = 0; i < replies.size(); ++i) {
                         replies.get(i).onReply(typeface);
                     }
-                };
+                }
             });
             return null;
         }
@@ -292,8 +331,9 @@ public class FontsContractCompat {
          * @param weight An integer that indicates the font weight.
          * @param italic A boolean that indicates the font is italic style or not.
          * @param resultCode A boolean that indicates the font contents is ready.
+         *
+         * @hide
          */
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP)
         public FontInfo(@NonNull Uri uri, @IntRange(from = 0) int ttcIndex,
                 @IntRange(from = 1, to = 1000) int weight,
@@ -396,6 +436,9 @@ public class FontsContractCompat {
      * Interface used to receive asynchronously fetched typefaces.
      */
     public static class FontRequestCallback {
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP)
+        public static final int RESULT_OK = Columns.RESULT_CODE_OK;
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
          * provider was not found on the device.
@@ -411,6 +454,11 @@ public class FontsContractCompat {
          * returned by the provider was not loaded properly.
          */
         public static final int FAIL_REASON_FONT_LOAD_ERROR = -3;
+        /**
+         * Constant that signals that the font was not loaded due to security issues. This usually
+         * means the font was attempted to load on a restricted context.
+         */
+        public static final int FAIL_REASON_SECURITY_VIOLATION = -4;
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the font
          * provider did not return any results for the given query.
@@ -431,9 +479,10 @@ public class FontsContractCompat {
         @RestrictTo(LIBRARY_GROUP)
         @IntDef({ FAIL_REASON_PROVIDER_NOT_FOUND, FAIL_REASON_FONT_LOAD_ERROR,
                 FAIL_REASON_FONT_NOT_FOUND, FAIL_REASON_FONT_UNAVAILABLE,
-                FAIL_REASON_MALFORMED_QUERY, FAIL_REASON_WRONG_CERTIFICATES })
+                FAIL_REASON_MALFORMED_QUERY, FAIL_REASON_WRONG_CERTIFICATES,
+                FAIL_REASON_SECURITY_VIOLATION, RESULT_OK })
         @Retention(RetentionPolicy.SOURCE)
-        @interface FontRequestFailReason {}
+        public @interface FontRequestFailReason {}
 
         public FontRequestCallback() {}
 
