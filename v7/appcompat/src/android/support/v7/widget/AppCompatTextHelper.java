@@ -29,15 +29,12 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.appcompat.R;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.TextView;
-
-import java.lang.ref.WeakReference;
 
 @RequiresApi(9)
 class AppCompatTextHelper {
@@ -216,23 +213,8 @@ class AppCompatTextHelper {
                     ? R.styleable.TextAppearance_android_fontFamily
                     : R.styleable.TextAppearance_fontFamily;
             if (!context.isRestricted()) {
-                final WeakReference<TextView> textViewWeak = new WeakReference<>(mView);
-                ResourcesCompat.FontCallback replyCallback = new ResourcesCompat.FontCallback() {
-                    @Override
-                    public void onFontRetrieved(@NonNull Typeface typeface) {
-                        final TextView textView = textViewWeak.get();
-                        if (textView != null) {
-                            textView.setTypeface(typeface, mStyle);
-                        }
-                    }
-
-                    @Override
-                    public void onFontRetrievalFailed(int reason) {
-                        // Do nothing.
-                    }
-                };
                 try {
-                    mFontTypeface = a.getFont(fontFamilyId, mStyle, replyCallback);
+                    mFontTypeface = a.getFont(fontFamilyId, mStyle);
                 } catch (UnsupportedOperationException | Resources.NotFoundException e) {
                     // Expected if it is not a font resource.
                 }
