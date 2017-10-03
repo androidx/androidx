@@ -17,7 +17,10 @@
 package android.support.v4.graphics;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.annotation.SuppressLint;
 import android.app.Instrumentation;
@@ -28,16 +31,17 @@ import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.support.compat.test.R;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
-import android.support.testutils.PollingCheck;
 import android.support.v4.content.res.FontResourcesParserCompat;
 import android.support.v4.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import android.support.v4.content.res.FontResourcesParserCompat.ProviderResourceEntry;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.provider.FontRequest;
+import android.support.v4.provider.FontsContractCompat;
 import android.support.v4.provider.MockFontProvider;
-import android.widget.TextView;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,6 +51,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @SmallTest
 public class TypefaceCompatTest {
@@ -134,91 +140,169 @@ public class TypefaceCompatTest {
         return new ProviderResourceEntry(request, entry.getFetchStrategy(), entry.getTimeout());
     }
 
-    @Test
-    public void testCreateFromResourcesFamilyXml_resourceFont_syncloading() throws Exception {
-        Typeface typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
-                R.font.styletest_sync_providerfont, Typeface.NORMAL, null /* TextView */);
-        typeface = Typeface.create(typeface, Typeface.NORMAL);
-        assertEquals(R.font.large_a, getSelectedFontResourceId(typeface));
+    public static class FontCallback extends ResourcesCompat.FontCallback {
+        private final CountDownLatch mLatch;
+        Typeface mTypeface;
 
-        typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
-                R.font.styletest_sync_providerfont, Typeface.ITALIC, null /* TextView */);
-        typeface = Typeface.create(typeface, Typeface.ITALIC);
-        assertEquals(R.font.large_b, getSelectedFontResourceId(typeface));
+        FontCallback(CountDownLatch latch) {
+            mLatch = latch;
+        }
 
-        typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
-                R.font.styletest_sync_providerfont, Typeface.BOLD, null /* TextView */);
-        typeface = Typeface.create(typeface, Typeface.BOLD);
-        assertEquals(R.font.large_c, getSelectedFontResourceId(typeface));
+        @Override
+        public void onFontRetrieved(@NonNull Typeface typeface) {
+            mTypeface = typeface;
+            mLatch.countDown();
+        }
 
-        typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                getProviderResourceEntry(R.font.styletest_sync_providerfont), mResources,
-                R.font.styletest_sync_providerfont, Typeface.BOLD_ITALIC, null /* TextView */);
-        typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
-        assertEquals(R.font.large_d, getSelectedFontResourceId(typeface));
+        @Override
+        public void onFontRetrievalFailed(int reason) {
+            mLatch.countDown();
+        }
     }
 
     @Test
     public void testCreateFromResourcesFamilyXml_resourceFont_asyncloading() throws Exception {
+        final Instrumentation inst = InstrumentationRegistry.getInstrumentation();
+        CountDownLatch latch = new CountDownLatch(1);
+        final FontCallback callback = new FontCallback(latch);
+
+        inst.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
+                        R.font.styletest_async_providerfont, Typeface.NORMAL, callback,
+                        null /* handler */, false /* isXmlRequest */);
+            }
+        });
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+
+        assertEquals(R.font.large_a, getSelectedFontResourceId(callback.mTypeface));
+
+        latch = new CountDownLatch(1);
+        final FontCallback callback2 = new FontCallback(latch);
+        inst.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
+                        R.font.styletest_async_providerfont, Typeface.ITALIC, callback2,
+                        null /* handler */, false /* isXmlRequest */);
+            }
+        });
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+        assertEquals(R.font.large_b, getSelectedFontResourceId(callback2.mTypeface));
+
+        latch = new CountDownLatch(1);
+        final FontCallback callback3 = new FontCallback(latch);
+        inst.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
+                        R.font.styletest_async_providerfont, Typeface.BOLD, callback3,
+                        null /* handler */, false /* isXmlRequest */);
+            }
+        });
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+        assertEquals(R.font.large_c, getSelectedFontResourceId(callback3.mTypeface));
+
+        latch = new CountDownLatch(1);
+        final FontCallback callback4 = new FontCallback(latch);
+        inst.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
+                        R.font.styletest_async_providerfont, Typeface.BOLD_ITALIC, callback4,
+                        null /* handler */, false /* isXmlRequest */);
+            }
+        });
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+        assertEquals(R.font.large_d, getSelectedFontResourceId(callback4.mTypeface));
+    }
+
+    @Test
+    public void testProviderFont_xmlRequest() {
+        Typeface typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                getProviderResourceEntry(R.font.samplexmldownloadedfontblocking), mResources,
+                R.font.samplexmldownloadedfontblocking, Typeface.NORMAL, null,
+                null /* handler */, true /* isXmlRequest */);
+
+        assertNotNull(typeface);
+        assertNotEquals(Typeface.DEFAULT, typeface);
+    }
+
+    @Test
+    public void testProviderFont_nonXmlRequest_noCallback() {
+        // If we don't give a callback, the request should be blocking.
+        Typeface typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                getProviderResourceEntry(R.font.samplexmldownloadedfontblocking), mResources,
+                R.font.samplexmldownloadedfontblocking, Typeface.NORMAL, null,
+                null /* handler */, false /* isXmlRequest */);
+
+        assertNotNull(typeface);
+        assertNotEquals(Typeface.DEFAULT, typeface);
+    }
+
+    @Test
+    public void testProviderFont_nonXmlRequest_withCallback() throws InterruptedException {
         Instrumentation inst = InstrumentationRegistry.getInstrumentation();
-        final TextView textView = new TextView(mContext);
-        PollingCheck.PollingCheckCondition condition = new PollingCheck.PollingCheckCondition() {
-            @Override
-            public boolean canProceed() {
-                return textView.getTypeface() != null;
-            }
-        };
+        CountDownLatch latch = new CountDownLatch(1);
+        final FontCallback callback = new FontCallback(latch);
+        FontsContractCompat.resetCache();
 
-        textView.setTypeface(null);
+        final Typeface[] result = new Typeface[1];
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
-                        R.font.styletest_async_providerfont, Typeface.NORMAL, textView);
+                result[0] = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.samplexmldownloadedfontblocking),
+                        mResources, R.font.samplexmldownloadedfontblocking, Typeface.NORMAL,
+                        callback, null /* handler */, false /* isXmlRequest */);
             }
         });
-        PollingCheck.waitFor(condition);
-        assertEquals(R.font.large_a, getSelectedFontResourceId(textView.getTypeface()));
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+        assertNotNull(callback.mTypeface);
+        assertNull(result[0]);
+    }
 
-        textView.setTypeface(null);
+    @Test
+    public void testProviderFont_nonXmlRequest_withCallback_cached() throws InterruptedException {
+        Instrumentation inst = InstrumentationRegistry.getInstrumentation();
+        CountDownLatch latch = new CountDownLatch(1);
+        final FontCallback callback = new FontCallback(latch);
+        FontsContractCompat.resetCache();
+
+        final Typeface[] result = new Typeface[2];
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
-                        R.font.styletest_async_providerfont, Typeface.ITALIC, textView);
+                result[0] = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.samplexmldownloadedfontblocking),
+                        mResources, R.font.samplexmldownloadedfontblocking, Typeface.NORMAL,
+                        callback, null /* handler */, false /* isXmlRequest */);
             }
         });
-        PollingCheck.waitFor(condition);
-        assertEquals(R.font.large_b, getSelectedFontResourceId(textView.getTypeface()));
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+        assertNotNull(callback.mTypeface);
+        assertNull(result[0]);
 
-        textView.setTypeface(null);
+        latch = new CountDownLatch(1);
+        final FontCallback callback2 = new FontCallback(latch);
+
         inst.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
-                        R.font.styletest_async_providerfont, Typeface.BOLD, textView);
+                result[1] = TypefaceCompat.createFromResourcesFamilyXml(mContext,
+                        getProviderResourceEntry(R.font.samplexmldownloadedfontblocking),
+                        mResources, R.font.samplexmldownloadedfontblocking, Typeface.NORMAL,
+                        callback2, null /* handler */, false /* isXmlRequest */);
             }
         });
-        PollingCheck.waitFor(condition);
-        assertEquals(R.font.large_c, getSelectedFontResourceId(textView.getTypeface()));
-
-        textView.setTypeface(null);
-        inst.runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                TypefaceCompat.createFromResourcesFamilyXml(mContext,
-                        getProviderResourceEntry(R.font.styletest_async_providerfont), mResources,
-                        R.font.styletest_async_providerfont, Typeface.BOLD_ITALIC, textView);
-            }
-        });
-        PollingCheck.waitFor(condition);
-        assertEquals(R.font.large_d, getSelectedFontResourceId(textView.getTypeface()));
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+        assertNotNull(callback2.mTypeface);
+        assertNotNull(result[1]);
     }
 
     @Test
@@ -228,33 +312,45 @@ public class TypefaceCompatTest {
         final FamilyResourceEntry entry = FontResourcesParserCompat.parse(
                 mResources.getXml(R.font.styletestfont), mResources);
         Typeface typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry, mResources,
-                R.font.styletestfont, Typeface.NORMAL, null /* text view */);
-        assertEquals(typeface, TypefaceCompat.findFromCache(
-                mResources, R.font.styletestfont, Typeface.NORMAL));
+                R.font.styletestfont, Typeface.NORMAL, null /* callback */, null /* handler */,
+                false /* isXmlRequest */);
+        Typeface cachedTypeface = TypefaceCompat.findFromCache(
+                mResources, R.font.styletestfont, Typeface.NORMAL);
+        assertNotNull(cachedTypeface);
+        assertEquals(typeface, cachedTypeface);
         typeface = Typeface.create(typeface, Typeface.NORMAL);
         // styletestfont has a node of fontStyle="normal" fontWeight="400" font="@font/large_a".
         assertEquals(R.font.large_a, getSelectedFontResourceId(typeface));
 
         typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry, mResources,
-                R.font.styletestfont, Typeface.ITALIC, null);
-        assertEquals(typeface, TypefaceCompat.findFromCache(
-                mResources, R.font.styletestfont, Typeface.ITALIC));
+                R.font.styletestfont, Typeface.ITALIC, null /* callback */, null /* handler */,
+                false /* isXmlRequest */);
+        cachedTypeface = TypefaceCompat.findFromCache(
+                mResources, R.font.styletestfont, Typeface.ITALIC);
+        assertNotNull(cachedTypeface);
+        assertEquals(typeface, cachedTypeface);
         typeface = Typeface.create(typeface, Typeface.ITALIC);
         // styletestfont has a node of fontStyle="italic" fontWeight="400" font="@font/large_b".
         assertEquals(R.font.large_b, getSelectedFontResourceId(typeface));
 
         typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry, mResources,
-                R.font.styletestfont, Typeface.BOLD, null);
-        assertEquals(typeface, TypefaceCompat.findFromCache(
-                mResources, R.font.styletestfont, Typeface.BOLD));
+                R.font.styletestfont, Typeface.BOLD, null /* callback */, null /* handler */,
+                false /* isXmlRequest */);
+        cachedTypeface = TypefaceCompat.findFromCache(
+                mResources, R.font.styletestfont, Typeface.BOLD);
+        assertNotNull(cachedTypeface);
+        assertEquals(typeface, cachedTypeface);
         typeface = Typeface.create(typeface, Typeface.BOLD);
         // styletestfont has a node of fontStyle="normal" fontWeight="700" font="@font/large_c".
         assertEquals(R.font.large_c, getSelectedFontResourceId(typeface));
 
         typeface = TypefaceCompat.createFromResourcesFamilyXml(mContext, entry, mResources,
-                R.font.styletestfont, Typeface.BOLD_ITALIC, null);
-        assertEquals(typeface, TypefaceCompat.findFromCache(
-                mResources, R.font.styletestfont, Typeface.BOLD_ITALIC));
+                R.font.styletestfont, Typeface.BOLD_ITALIC, null /* callback */,
+                null /* handler */, false /* isXmlRequest */);
+        cachedTypeface = TypefaceCompat.findFromCache(
+                mResources, R.font.styletestfont, Typeface.BOLD_ITALIC);
+        assertNotNull(cachedTypeface);
+        assertEquals(typeface, cachedTypeface);
         typeface = Typeface.create(typeface, Typeface.BOLD_ITALIC);
         // styletestfont has a node of fontStyle="italic" fontWeight="700" font="@font/large_d".
         assertEquals(R.font.large_d, getSelectedFontResourceId(typeface));
@@ -265,15 +361,19 @@ public class TypefaceCompatTest {
         Typeface typeface = TypefaceCompat.createFromResourcesFontFile(mContext, mResources,
                 R.font.large_a, "res/font/large_a.ttf", Typeface.NORMAL);
         assertNotNull(typeface);
-        assertEquals(typeface, TypefaceCompat.findFromCache(
-                mResources, R.font.large_a, Typeface.NORMAL));
+        Typeface cachedTypeface = TypefaceCompat.findFromCache(
+                mResources, R.font.large_a, Typeface.NORMAL);
+        assertNotNull(cachedTypeface);
+        assertEquals(typeface, cachedTypeface);
         assertEquals(R.font.large_a, getSelectedFontResourceId(typeface));
 
         typeface = TypefaceCompat.createFromResourcesFontFile(mContext, mResources, R.font.large_b,
                 "res/font/large_b.ttf", Typeface.NORMAL);
         assertNotNull(typeface);
-        assertEquals(typeface, TypefaceCompat.findFromCache(
-                mResources, R.font.large_b, Typeface.NORMAL));
+        cachedTypeface = TypefaceCompat.findFromCache(
+                mResources, R.font.large_b, Typeface.NORMAL);
+        assertNotNull(cachedTypeface);
+        assertEquals(typeface, cachedTypeface);
         assertEquals(R.font.large_b, getSelectedFontResourceId(typeface));
     }
 }
