@@ -23,14 +23,10 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs = [
-                'java'
-        ]
         main.res.srcDirs = [
                 'res',
                 'res-public'
         ]
-        test.java.srcDir 'jvm-tests/src'
     }
 
     buildTypes.all {
