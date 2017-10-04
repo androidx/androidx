@@ -30,6 +30,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.AbsSavedState;
@@ -213,20 +215,20 @@ public class SlidingPaneLayout extends ViewGroup {
          * @param panel The child view that was moved
          * @param slideOffset The new offset of this sliding pane within its range, from 0-1
          */
-        void onPanelSlide(View panel, float slideOffset);
+        void onPanelSlide(@NonNull View panel, float slideOffset);
         /**
          * Called when a sliding pane becomes slid completely open. The pane may or may not
          * be interactive at this point depending on how much of the pane is visible.
          * @param panel The child view that was slid to an open position, revealing other panes
          */
-        void onPanelOpened(View panel);
+        void onPanelOpened(@NonNull View panel);
 
         /**
          * Called when a sliding pane becomes slid completely closed. The pane is now guaranteed
          * to be interactive. It may now obscure other views in the layout.
          * @param panel The child view that was slid to a closed position
          */
-        void onPanelClosed(View panel);
+        void onPanelClosed(@NonNull View panel);
     }
 
     /**
@@ -245,15 +247,15 @@ public class SlidingPaneLayout extends ViewGroup {
         }
     }
 
-    public SlidingPaneLayout(Context context) {
+    public SlidingPaneLayout(@NonNull Context context) {
         this(context, null);
     }
 
-    public SlidingPaneLayout(Context context, AttributeSet attrs) {
+    public SlidingPaneLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public SlidingPaneLayout(Context context, AttributeSet attrs, int defStyle) {
+    public SlidingPaneLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         final float density = context.getResources().getDisplayMetrics().density;
@@ -324,7 +326,7 @@ public class SlidingPaneLayout extends ViewGroup {
         return mCoveredFadeColor;
     }
 
-    public void setPanelSlideListener(PanelSlideListener listener) {
+    public void setPanelSlideListener(@Nullable PanelSlideListener listener) {
         mPanelSlideListener = listener;
     }
 
@@ -1081,7 +1083,7 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @param d drawable to use as a shadow
      */
-    public void setShadowDrawableLeft(Drawable d) {
+    public void setShadowDrawableLeft(@Nullable Drawable d) {
         mShadowDrawableLeft = d;
     }
 
@@ -1091,7 +1093,7 @@ public class SlidingPaneLayout extends ViewGroup {
      *
      * @param d drawable to use as a shadow
      */
-    public void setShadowDrawableRight(Drawable d) {
+    public void setShadowDrawableRight(@Nullable Drawable d) {
         mShadowDrawableRight = d;
     }
 
@@ -1410,20 +1412,20 @@ public class SlidingPaneLayout extends ViewGroup {
             super(width, height);
         }
 
-        public LayoutParams(android.view.ViewGroup.LayoutParams source) {
+        public LayoutParams(@NonNull android.view.ViewGroup.LayoutParams source) {
             super(source);
         }
 
-        public LayoutParams(MarginLayoutParams source) {
+        public LayoutParams(@NonNull MarginLayoutParams source) {
             super(source);
         }
 
-        public LayoutParams(LayoutParams source) {
+        public LayoutParams(@NonNull LayoutParams source) {
             super(source);
             this.weight = source.weight;
         }
 
-        public LayoutParams(Context c, AttributeSet attrs) {
+        public LayoutParams(@NonNull Context c, @Nullable AttributeSet attrs) {
             super(c, attrs);
 
             final TypedArray a = c.obtainStyledAttributes(attrs, ATTRS);
