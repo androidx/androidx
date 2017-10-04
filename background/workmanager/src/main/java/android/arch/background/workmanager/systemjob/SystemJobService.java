@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Service invoked by {@link android.app.job.JobScheduler} to run work tasks.
  */
-@TargetApi(21)
+@TargetApi(23)
 public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = "SystemJobService";
     private SystemJobProcessor mSystemJobProcessor;
@@ -51,8 +51,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        String workSpecId =
-                params.getExtras().getString(SystemJobInfoConverter.EXTRAS_WORK_SPEC_ID);
+        String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
@@ -65,8 +64,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        String workSpecId =
-                params.getExtras().getString(SystemJobInfoConverter.EXTRAS_WORK_SPEC_ID);
+        String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Log.e(TAG, "WorkSpec id not found!");
             return false;

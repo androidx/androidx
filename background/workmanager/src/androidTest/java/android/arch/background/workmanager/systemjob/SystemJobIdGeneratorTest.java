@@ -37,7 +37,7 @@ import org.mockito.stubbing.Answer;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 21)
+@SdkSuppress(minSdkVersion = 23)
 public class SystemJobIdGeneratorTest {
     private Integer mMockSharedPrefsNextId;
     private SystemJobIdGenerator mIdGenerator;

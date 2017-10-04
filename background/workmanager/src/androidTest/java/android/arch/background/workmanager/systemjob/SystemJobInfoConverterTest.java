@@ -35,8 +35,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 23)
 @SmallTest
-@SdkSuppress(minSdkVersion = 21)
 public class SystemJobInfoConverterTest {
     private SystemJobIdGenerator mMockJobIdGenerator;
     private SystemJobInfoConverter mConverter;
@@ -49,82 +49,148 @@ public class SystemJobInfoConverterTest {
                 mMockJobIdGenerator);
     }
 
-    @Test
-    public void convert() {
-        int expectedJobId = 101;
-        when(mMockJobIdGenerator.nextId()).thenReturn(expectedJobId);
+    private WorkSpec createWorkSpecWithConstraints(Constraints constraints) {
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setConstraints(constraints);
+        return workSpec;
+    }
 
-        String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
+    @Test
+    public void testConvert_ids() {
+        final String expectedWorkSpecId = "026e3422-9cd1-11e7-abc4-cec278b6b50a";
+        final int expectedJobId = 101;
+        when(mMockJobIdGenerator.nextId()).thenReturn(expectedJobId);
         WorkSpec workSpec = new WorkSpec(expectedWorkSpecId);
         JobInfo jobInfo = mConverter.convert(workSpec);
         String actualWorkSpecId = jobInfo.getExtras().getString(
-                SystemJobInfoConverter.EXTRAS_WORK_SPEC_ID);
+                SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         assertThat(actualWorkSpecId, is(expectedWorkSpecId));
         assertThat(jobInfo.getId(), is(expectedJobId));
     }
 
     @Test
-    public void convertWithConstraints() {
-        @Constraints.NetworkType int workSpecNetworkType = Constraints.NETWORK_TYPE_UNMETERED;
-        Constraints expectedConstraints = new Constraints.Builder()
-                .setInitialDelay(12345)
-                .setRequiredNetworkType(workSpecNetworkType)
-                .setRequiresCharging(true)
-                .setRequiresDeviceIdle(true)
-                .setRequiresBatteryNotLow(true)
-                .setRequiresStorageNotLow(true)
-                .build();
-        WorkSpec workSpec = new WorkSpec("id");
-        workSpec.setConstraints(expectedConstraints);
+    public void testConvert_initialDelay() {
+        final long expectedInitialDelay = 12123L;
+        WorkSpec workSpec = createWorkSpecWithConstraints(
+                new Constraints.Builder().setInitialDelay(expectedInitialDelay).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
-
-        int expectedNetworkType = mConverter.convertNetworkType(workSpecNetworkType);
-        assertThat(jobInfo.getNetworkType(), is(expectedNetworkType));
-        assertThat(jobInfo.getMinLatencyMillis(), is(expectedConstraints.getInitialDelay()));
-        assertThat(jobInfo.isRequireCharging(), is(expectedConstraints.requiresCharging()));
-        assertThat(jobInfo.isRequireDeviceIdle(), is(expectedConstraints.requiresDeviceIdle()));
-        if (Build.VERSION.SDK_INT >= 26) {
-            assertThat(
-                    jobInfo.isRequireBatteryNotLow(),
-                    is(expectedConstraints.requiresBatteryNotLow()));
-            assertThat(
-                    jobInfo.isRequireStorageNotLow(),
-                    is(expectedConstraints.requiresStorageNotLow()));
-        }
-    }
-
-    @Test
-    public void convertNetworkTypeAny() {
-        convertNetworkTypeHelper(Constraints.NETWORK_TYPE_NONE, JobInfo.NETWORK_TYPE_NONE);
-    }
-
-    @Test
-    public void convertNetworkTypeConnected() {
-        convertNetworkTypeHelper(Constraints.NETWORK_TYPE_CONNECTED, JobInfo.NETWORK_TYPE_ANY);
-    }
-
-    @Test
-    public void convertNetworkTypeUnmetered() {
-        convertNetworkTypeHelper(
-                Constraints.NETWORK_TYPE_UNMETERED, JobInfo.NETWORK_TYPE_UNMETERED);
+        assertThat(jobInfo.getMinLatencyMillis(), is(expectedInitialDelay));
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 24)
-    public void convertNetworkTypeNotRoaming() {
-        convertNetworkTypeHelper(
-                Constraints.NETWORK_TYPE_NOT_ROAMING, JobInfo.NETWORK_TYPE_NOT_ROAMING);
+    public void testConvert_requireCharging() {
+        final boolean expectedRequireCharging = true;
+        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+                .setRequiresCharging(expectedRequireCharging).build());
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        assertThat(jobInfo.isRequireCharging(), is(expectedRequireCharging));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testConvert_requireDeviceIdle() {
+        final boolean expectedRequireDeviceIdle = true;
+        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+                .setRequiresDeviceIdle(expectedRequireDeviceIdle).build());
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        assertThat(jobInfo.isRequireDeviceIdle(), is(expectedRequireDeviceIdle));
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    public void convertNetworkTypeMetered() {
-        convertNetworkTypeHelper(Constraints.NETWORK_TYPE_METERED, JobInfo.NETWORK_TYPE_METERED);
+    public void testConvert_requireBatteryNotLow() {
+        final boolean expectedRequireBatteryNotLow = true;
+        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+                .setRequiresBatteryNotLow(expectedRequireBatteryNotLow).build());
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        assertThat(jobInfo.isRequireBatteryNotLow(), is(expectedRequireBatteryNotLow));
     }
 
-    private void convertNetworkTypeHelper(@Constraints.NetworkType int constraintNetworkType,
-                                          int expectedJobInfoNetworkType) {
-        int convertedNetworkType = mConverter.convertNetworkType(constraintNetworkType);
-        assertThat(convertedNetworkType, is(expectedJobInfoNetworkType));
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testConvert_requireStorageNotLow() {
+        final boolean expectedRequireStorageNotLow = true;
+        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+                .setRequiresStorageNotLow(expectedRequireStorageNotLow).build());
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        assertThat(jobInfo.isRequireStorageNotLow(), is(expectedRequireStorageNotLow));
+    }
+
+    @Test
+    public void testConvert_networkTypeUnmeteredRequiresApi21() {
+        convertWithRequiredNetworkType(
+                Constraints.NETWORK_TYPE_UNMETERED, JobInfo.NETWORK_TYPE_UNMETERED, 21);
+    }
+
+    @Test
+    public void testConvert_networkTypeNotRoamingRequiresApi24() {
+        convertWithRequiredNetworkType(
+                Constraints.NETWORK_TYPE_NOT_ROAMING, JobInfo.NETWORK_TYPE_NOT_ROAMING, 24);
+    }
+
+    @Test
+    public void testConvert_networkTypeMeteredRequiresApi26() {
+        convertWithRequiredNetworkType(
+                Constraints.NETWORK_TYPE_METERED, JobInfo.NETWORK_TYPE_METERED, 26);
+    }
+
+    private void convertWithRequiredNetworkType(@Constraints.NetworkType int networkType,
+                                                int jobInfoNetworkType,
+                                                int minSdkVersion) {
+        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+                .setRequiredNetworkType(networkType).build());
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        if (Build.VERSION.SDK_INT >= minSdkVersion) {
+            assertThat(jobInfo.getNetworkType(), is(jobInfoNetworkType));
+        } else {
+            assertThat(jobInfo.getNetworkType(), is(JobInfo.NETWORK_TYPE_ANY));
+        }
+    }
+
+    @Test
+    public void testConvertNetworkType_none() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NONE),
+                is(JobInfo.NETWORK_TYPE_NONE));
+    }
+
+    @Test
+    public void testConvertNetworkType_connected() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_CONNECTED),
+                is(JobInfo.NETWORK_TYPE_ANY));
+    }
+
+    @Test
+    public void testConvertNetworkType_unmetered() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_UNMETERED),
+                is(JobInfo.NETWORK_TYPE_UNMETERED));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 23)
+    public void testConvertNetworkType_notRoaming_returnAnyBeforeApi24() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING),
+                is(JobInfo.NETWORK_TYPE_ANY));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testConvertNetworkType_notRoaming_returnsNotRoamingAfterApi24() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING),
+                is(JobInfo.NETWORK_TYPE_NOT_ROAMING));
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 25)
+    public void testConvertNetworkType_metered_returnsAnyBeforeApi26() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_METERED),
+                is(JobInfo.NETWORK_TYPE_ANY));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testConvertNetworkType_metered_returnsMeteredAfterApi26() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_METERED),
+                is(JobInfo.NETWORK_TYPE_METERED));
     }
 }
