@@ -318,6 +318,8 @@ public class MigrationTest {
                     + " (`id` INTEGER NOT NULL, `name` TEXT COLLATE NOCASE, PRIMARY KEY(`id`),"
                     + " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)"
                     + " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)");
+            database.execSQL("CREATE UNIQUE INDEX `index_entity1` ON "
+                    + MigrationDb.Entity1.TABLE_NAME + " (`name`)");
         }
     };
 
