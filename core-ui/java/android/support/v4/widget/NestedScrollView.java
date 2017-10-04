@@ -26,6 +26,8 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v4.view.AccessibilityDelegateCompat;
 import android.support.v4.view.InputDeviceCompat;
@@ -181,15 +183,16 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
     private OnScrollChangeListener mOnScrollChangeListener;
 
-    public NestedScrollView(Context context) {
+    public NestedScrollView(@NonNull Context context) {
         this(context, null);
     }
 
-    public NestedScrollView(Context context, AttributeSet attrs) {
+    public NestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public NestedScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public NestedScrollView(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initScrollView();
 
@@ -441,7 +444,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * @see android.view.View#getScrollX()
      * @see android.view.View#getScrollY()
      */
-    public void setOnScrollChangeListener(OnScrollChangeListener l) {
+    public void setOnScrollChangeListener(@Nullable OnScrollChangeListener l) {
         mOnScrollChangeListener = l;
     }
 
@@ -552,7 +555,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * @param event The key event to execute.
      * @return Return true if the event was handled, else false.
      */
-    public boolean executeKeyEvent(KeyEvent event) {
+    public boolean executeKeyEvent(@NonNull KeyEvent event) {
         mTempRect.setEmpty();
 
         if (!canScroll()) {

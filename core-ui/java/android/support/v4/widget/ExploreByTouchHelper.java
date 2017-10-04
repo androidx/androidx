@@ -129,7 +129,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *
      * @param host view whose virtual view hierarchy is exposed by this helper
      */
-    public ExploreByTouchHelper(View host) {
+    public ExploreByTouchHelper(@NonNull View host) {
         if (host == null) {
             throw new IllegalArgumentException("View may not be null");
         }
@@ -1107,7 +1107,8 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *            populate the event
      * @param event The event to populate
      */
-    protected void onPopulateEventForVirtualView(int virtualViewId, AccessibilityEvent event) {
+    protected void onPopulateEventForVirtualView(int virtualViewId,
+            @NonNull AccessibilityEvent event) {
         // Default implementation is no-op.
     }
 
@@ -1119,7 +1120,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *
      * @param event the event to populate with information about the host view
      */
-    protected void onPopulateEventForHost(AccessibilityEvent event) {
+    protected void onPopulateEventForHost(@NonNull AccessibilityEvent event) {
         // Default implementation is no-op.
     }
 
@@ -1187,7 +1188,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @param node The node to populate
      */
     protected abstract void onPopulateNodeForVirtualView(
-            int virtualViewId, AccessibilityNodeInfoCompat node);
+            int virtualViewId, @NonNull AccessibilityNodeInfoCompat node);
 
     /**
      * Populates an {@link AccessibilityNodeInfoCompat} with information
@@ -1197,7 +1198,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      *
      * @param node the node to populate with information about the host view
      */
-    protected void onPopulateNodeForHost(AccessibilityNodeInfoCompat node) {
+    protected void onPopulateNodeForHost(@NonNull AccessibilityNodeInfoCompat node) {
         // Default implementation is no-op.
     }
 
@@ -1225,7 +1226,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @return true if the action was performed
      */
     protected abstract boolean onPerformActionForVirtualView(
-            int virtualViewId, int action, Bundle arguments);
+            int virtualViewId, int action, @Nullable Bundle arguments);
 
     /**
      * Exposes a virtual view hierarchy to the accessibility framework.

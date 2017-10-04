@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.content.ContextCompat;
@@ -316,7 +317,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      *
      * @param context
      */
-    public SwipeRefreshLayout(Context context) {
+    public SwipeRefreshLayout(@NonNull Context context) {
         this(context, null);
     }
 
@@ -326,7 +327,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * @param context
      * @param attrs
      */
-    public SwipeRefreshLayout(Context context, AttributeSet attrs) {
+    public SwipeRefreshLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
@@ -387,7 +388,7 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * Set the listener to be notified when a refresh is triggered via the swipe
      * gesture.
      */
-    public void setOnRefreshListener(OnRefreshListener listener) {
+    public void setOnRefreshListener(@Nullable OnRefreshListener listener) {
         mListener = listener;
     }
 
@@ -1189,6 +1190,6 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
          *
          * @return Whether it is possible for the child view of parent layout to scroll up.
          */
-        boolean canChildScrollUp(SwipeRefreshLayout parent, @Nullable View child);
+        boolean canChildScrollUp(@NonNull SwipeRefreshLayout parent, @Nullable View child);
     }
 }

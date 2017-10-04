@@ -18,6 +18,8 @@
 package android.support.v4.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -167,7 +169,9 @@ public class ViewDragHelper {
          * @param dx Change in X position from the last call
          * @param dy Change in Y position from the last call
          */
-        public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {}
+        public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx,
+                int dy) {
+        }
 
         /**
          * Called when a child view is captured for dragging or settling. The ID of the pointer
@@ -178,7 +182,7 @@ public class ViewDragHelper {
          * @param capturedChild Child view that was captured
          * @param activePointerId Pointer id tracking the child capture
          */
-        public void onViewCaptured(View capturedChild, int activePointerId) {}
+        public void onViewCaptured(@NonNull View capturedChild, int activePointerId) {}
 
         /**
          * Called when the child view is no longer being actively dragged.
@@ -198,7 +202,7 @@ public class ViewDragHelper {
          * @param xvel X velocity of the pointer as it left the screen in pixels per second.
          * @param yvel Y velocity of the pointer as it left the screen in pixels per second.
          */
-        public void onViewReleased(View releasedChild, float xvel, float yvel) {}
+        public void onViewReleased(@NonNull View releasedChild, float xvel, float yvel) {}
 
         /**
          * Called when one of the subscribed edges in the parent view has been touched
@@ -256,7 +260,7 @@ public class ViewDragHelper {
          * @param child Child view to check
          * @return range of horizontal motion in pixels
          */
-        public int getViewHorizontalDragRange(View child) {
+        public int getViewHorizontalDragRange(@NonNull View child) {
             return 0;
         }
 
@@ -267,7 +271,7 @@ public class ViewDragHelper {
          * @param child Child view to check
          * @return range of vertical motion in pixels
          */
-        public int getViewVerticalDragRange(View child) {
+        public int getViewVerticalDragRange(@NonNull View child) {
             return 0;
         }
 
@@ -287,7 +291,7 @@ public class ViewDragHelper {
          * @param pointerId ID of the pointer attempting the capture
          * @return true if capture should be allowed, false otherwise
          */
-        public abstract boolean tryCaptureView(View child, int pointerId);
+        public abstract boolean tryCaptureView(@NonNull View child, int pointerId);
 
         /**
          * Restrict the motion of the dragged child view along the horizontal axis.
@@ -300,7 +304,7 @@ public class ViewDragHelper {
          * @param dx Proposed change in position for left
          * @return The new clamped position for left
          */
-        public int clampViewPositionHorizontal(View child, int left, int dx) {
+        public int clampViewPositionHorizontal(@NonNull View child, int left, int dx) {
             return 0;
         }
 
@@ -315,7 +319,7 @@ public class ViewDragHelper {
          * @param dy Proposed change in position for top
          * @return The new clamped position for top
          */
-        public int clampViewPositionVertical(View child, int top, int dy) {
+        public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
             return 0;
         }
     }
@@ -345,7 +349,7 @@ public class ViewDragHelper {
      * @param cb Callback to provide information and receive events
      * @return a new ViewDragHelper instance
      */
-    public static ViewDragHelper create(ViewGroup forParent, Callback cb) {
+    public static ViewDragHelper create(@NonNull ViewGroup forParent, @NonNull Callback cb) {
         return new ViewDragHelper(forParent.getContext(), forParent, cb);
     }
 
@@ -358,7 +362,8 @@ public class ViewDragHelper {
      * @param cb Callback to provide information and receive events
      * @return a new ViewDragHelper instance
      */
-    public static ViewDragHelper create(ViewGroup forParent, float sensitivity, Callback cb) {
+    public static ViewDragHelper create(@NonNull ViewGroup forParent, float sensitivity,
+            @NonNull Callback cb) {
         final ViewDragHelper helper = create(forParent, cb);
         helper.mTouchSlop = (int) (helper.mTouchSlop * (1 / sensitivity));
         return helper;
@@ -372,7 +377,8 @@ public class ViewDragHelper {
      * @param context Context to initialize config-dependent params from
      * @param forParent Parent view to monitor
      */
-    private ViewDragHelper(Context context, ViewGroup forParent, Callback cb) {
+    private ViewDragHelper(@NonNull Context context, @NonNull ViewGroup forParent,
+            @NonNull Callback cb) {
         if (forParent == null) {
             throw new IllegalArgumentException("Parent view may not be null");
         }
@@ -458,7 +464,7 @@ public class ViewDragHelper {
      * @param childView Child view to capture
      * @param activePointerId ID of the pointer that is dragging the captured child view
      */
-    public void captureChildView(View childView, int activePointerId) {
+    public void captureChildView(@NonNull View childView, int activePointerId) {
         if (childView.getParent() != mParentView) {
             throw new IllegalArgumentException("captureChildView: parameter must be a descendant "
                     + "of the ViewDragHelper's tracked parent view (" + mParentView + ")");
@@ -473,6 +479,7 @@ public class ViewDragHelper {
     /**
      * @return The currently captured view, or null if no view has been captured.
      */
+    @Nullable
     public View getCapturedView() {
         return mCapturedView;
     }
@@ -537,7 +544,7 @@ public class ViewDragHelper {
      * @param finalTop Final top position of child
      * @return true if animation should continue through {@link #continueSettling(boolean)} calls
      */
-    public boolean smoothSlideViewTo(View child, int finalLeft, int finalTop) {
+    public boolean smoothSlideViewTo(@NonNull View child, int finalLeft, int finalTop) {
         mCapturedView = child;
         mActivePointerId = INVALID_POINTER;
 
@@ -918,7 +925,7 @@ public class ViewDragHelper {
      * @param y Y coordinate of the active touch point
      * @return true if child views of v can be scrolled by delta of dx.
      */
-    protected boolean canScroll(View v, boolean checkV, int dx, int dy, int x, int y) {
+    protected boolean canScroll(@NonNull View v, boolean checkV, int dx, int dy, int x, int y) {
         if (v instanceof ViewGroup) {
             final ViewGroup group = (ViewGroup) v;
             final int scrollX = v.getScrollX();
@@ -948,7 +955,7 @@ public class ViewDragHelper {
      * @param ev MotionEvent provided to onInterceptTouchEvent
      * @return true if the parent view should return true from onInterceptTouchEvent
      */
-    public boolean shouldInterceptTouchEvent(MotionEvent ev) {
+    public boolean shouldInterceptTouchEvent(@NonNull MotionEvent ev) {
         final int action = ev.getActionMasked();
         final int actionIndex = ev.getActionIndex();
 
@@ -1082,7 +1089,7 @@ public class ViewDragHelper {
      *
      * @param ev The touch event received by the parent view
      */
-    public void processTouchEvent(MotionEvent ev) {
+    public void processTouchEvent(@NonNull MotionEvent ev) {
         final int action = ev.getActionMasked();
         final int actionIndex = ev.getActionIndex();
 
@@ -1453,7 +1460,7 @@ public class ViewDragHelper {
      * @param y Y position to test in the parent's coordinate system
      * @return true if the supplied view is under the given point, false otherwise
      */
-    public boolean isViewUnder(View view, int x, int y) {
+    public boolean isViewUnder(@Nullable View view, int x, int y) {
         if (view == null) {
             return false;
         }
@@ -1471,6 +1478,7 @@ public class ViewDragHelper {
      * @param y Y position to test in the parent's coordinate system
      * @return The topmost child view under (x, y) or null if none found.
      */
+    @Nullable
     public View findTopChildUnder(int x, int y) {
         final int childCount = mParentView.getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
