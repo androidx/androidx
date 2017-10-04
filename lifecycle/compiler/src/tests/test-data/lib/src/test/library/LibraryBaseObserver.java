@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package android.arch.lifecycle.model
+package test.library;
 
-import javax.lang.model.element.TypeElement
+import static android.arch.lifecycle.Lifecycle.Event.ON_START;
+import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
-data class LifecycleObserverInfo(
-        val type: TypeElement,
-        val methods: List<EventMethod>,
-        val hasAdapter: Boolean,
-        val parents: List<LifecycleObserverInfo> = listOf())
+import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.OnLifecycleEvent;
+
+public class LibraryBaseObserver implements LifecycleObserver {
+    @OnLifecycleEvent(ON_START)
+    public void doOnStart() {
+    }
+}
