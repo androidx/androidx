@@ -18,6 +18,7 @@ package android.support.v4.widget;
 
 import android.content.res.Resources;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -205,7 +206,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      *
      * @param target The view to automatically scroll.
      */
-    public AutoScrollHelper(View target) {
+    public AutoScrollHelper(@NonNull View target) {
         mTarget = target;
 
         final DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
@@ -289,6 +290,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      *            {@link #NO_MAX} to leave the relative value unconstrained.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setMaximumVelocity(float horizontalMax, float verticalMax) {
         mMaximumVelocity[HORIZONTAL] = horizontalMax / 1000f;
         mMaximumVelocity[VERTICAL] = verticalMax / 1000f;
@@ -307,6 +309,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      *            {@link #NO_MIN} to leave the relative value unconstrained.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setMinimumVelocity(float horizontalMin, float verticalMin) {
         mMinimumVelocity[HORIZONTAL] = horizontalMin / 1000f;
         mMinimumVelocity[VERTICAL] = verticalMin / 1000f;
@@ -328,6 +331,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      *            ignore.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setRelativeVelocity(float horizontal, float vertical) {
         mRelativeVelocity[HORIZONTAL] = horizontal / 1000f;
         mRelativeVelocity[VERTICAL] = vertical / 1000f;
@@ -349,6 +353,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * @param type The type of edge to use.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setEdgeType(int type) {
         mEdgeType = type;
         return this;
@@ -368,6 +373,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      *            maximum value.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setRelativeEdges(float horizontal, float vertical) {
         mRelativeEdges[HORIZONTAL] = horizontal;
         mRelativeEdges[VERTICAL] = vertical;
@@ -390,6 +396,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      *            value.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setMaximumEdges(float horizontalMax, float verticalMax) {
         mMaximumEdges[HORIZONTAL] = horizontalMax;
         mMaximumEdges[VERTICAL] = verticalMax;
@@ -407,6 +414,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * @param delayMillis The activation delay in milliseconds.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setActivationDelay(int delayMillis) {
         mActivationDelay = delayMillis;
         return this;
@@ -422,6 +430,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * @param durationMillis The ramp-up duration in milliseconds.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setRampUpDuration(int durationMillis) {
         mScroller.setRampUpDuration(durationMillis);
         return this;
@@ -437,6 +446,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
      * @param durationMillis The ramp-down duration in milliseconds.
      * @return The scroll helper, which may used to chain setter calls.
      */
+    @NonNull
     public AutoScrollHelper setRampDownDuration(int durationMillis) {
         mScroller.setRampDownDuration(durationMillis);
         return this;
