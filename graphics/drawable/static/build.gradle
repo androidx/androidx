@@ -14,10 +14,6 @@ android {
         generatedDensities = []
     }
 
-    sourceSets {
-        main.java.srcDir 'src'
-    }
-
     aaptOptions {
         additionalParameters "--no-version-vectors"
     }

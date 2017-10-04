@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0-alpha9">
+<issues format="4" by="lint 3.0.0-beta6">
 
     <issue
         id="WrongConstant"
@@ -7,8 +7,8 @@
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="129"
+            file="src/main/java/android/support/media/tv/BasePreviewProgram.java"
+            line="130"
             column="28"/>
     </issue>
 
@@ -18,8 +18,8 @@
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="139"
+            file="src/main/java/android/support/media/tv/BasePreviewProgram.java"
+            line="140"
             column="28"/>
     </issue>
 
@@ -29,8 +29,8 @@
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="149"
+            file="src/main/java/android/support/media/tv/BasePreviewProgram.java"
+            line="150"
             column="28"/>
     </issue>
 
@@ -40,8 +40,8 @@
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="167"
+            file="src/main/java/android/support/media/tv/BasePreviewProgram.java"
+            line="168"
             column="28"/>
     </issue>
 
@@ -51,8 +51,8 @@
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/media/tv/BasePreviewProgram.java"
-            line="218"
+            file="src/main/java/android/support/media/tv/BasePreviewProgram.java"
+            line="219"
             column="28"/>
     </issue>
 
@@ -62,7 +62,7 @@
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/media/tv/BaseProgram.java"
+            file="src/main/java/android/support/media/tv/BaseProgram.java"
             line="257"
             column="28"/>
     </issue>
@@ -73,7 +73,7 @@
         errorLine1="            mValues.put(Programs.COLUMN_BROADCAST_GENRE, Programs.Genres.encode(genres));"
         errorLine2="                                                                                ~~~~~~">
         <location
-            file="src/android/support/media/tv/Program.java"
+            file="src/main/java/android/support/media/tv/Program.java"
             line="286"
             column="81"/>
     </issue>
@@ -84,7 +84,7 @@
         errorLine1="        return i == null ? INVALID_INT_VALUE : i;"
         errorLine2="                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/android/support/media/tv/WatchNextProgram.java"
+            file="src/main/java/android/support/media/tv/WatchNextProgram.java"
             line="99"
             column="28"/>
     </issue>
