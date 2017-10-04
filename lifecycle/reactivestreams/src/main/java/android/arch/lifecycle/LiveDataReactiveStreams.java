@@ -17,6 +17,7 @@
 package android.arch.lifecycle;
 
 import android.arch.core.executor.ArchTaskExecutor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.reactivestreams.Publisher;
@@ -133,40 +134,101 @@ public final class LiveDataReactiveStreams {
 
     /**
      * Creates an Observable {@link LiveData} stream from a ReactiveStreams publisher.
+     *
+     * <p>
+     * When the LiveData becomes active, it subscribes to the emissions from the Publisher.
+     *
+     * <p>
+     * When the LiveData becomes inactive, the subscription is cleared.
+     * LiveData holds the last value emitted by the Publisher when the LiveData was active.
+     * <p>
+     * Therefore, in the case of a hot RxJava Observable, when a new LiveData {@link Observer} is
+     * added, it will automatically notify with the last value held in LiveData,
+     * which might not be the last value emitted by the Publisher.
+     *
+     * @param <T> The type of data hold by this instance.
      */
     public static <T> LiveData<T> fromPublisher(final Publisher<T> publisher) {
-        MutableLiveData<T> liveData = new MutableLiveData<>();
-        // Since we don't have a way to directly observe cancels, weakly hold the live data.
-        final WeakReference<MutableLiveData<T>> liveDataRef = new WeakReference<>(liveData);
-
-        publisher.subscribe(new Subscriber<T>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                // Don't worry about backpressure. If the stream is too noisy then backpressure can
-                // be handled upstream.
-                s.request(Long.MAX_VALUE);
-            }
-
-            @Override
-            public void onNext(final T t) {
-                final LiveData<T> liveData = liveDataRef.get();
-                if (liveData != null) {
-                    liveData.postValue(t);
-                }
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                // Errors should be handled upstream, so propagate as a crash.
-                throw new RuntimeException(t);
-            }
-
-            @Override
-            public void onComplete() {
-            }
-        });
-
-        return liveData;
+        return new PublisherLiveData<>(publisher);
     }
 
+    /**
+     * Defines a {@link LiveData} object that wraps a {@link Publisher}.
+     *
+     * <p>
+     * When the LiveData becomes active, it subscribes to the emissions from the Publisher.
+     *
+     * <p>
+     * When the LiveData becomes inactive, the subscription is cleared.
+     * LiveData holds the last value emitted by the Publisher when the LiveData was active.
+     * <p>
+     * Therefore, in the case of a hot RxJava Observable, when a new LiveData {@link Observer} is
+     * added, it will automatically notify with the last value held in LiveData,
+     * which might not be the last value emitted by the Publisher.
+     *
+     * @param <T> The type of data hold by this instance.
+     */
+    private static class PublisherLiveData<T> extends LiveData<T> {
+        private WeakReference<Subscription> mSubscriptionRef;
+        private final Publisher mPublisher;
+        private final Object mLock = new Object();
+
+        PublisherLiveData(@NonNull final Publisher publisher) {
+            mPublisher = publisher;
+        }
+
+        @Override
+        protected void onActive() {
+            super.onActive();
+
+            mPublisher.subscribe(new Subscriber<T>() {
+                @Override
+                public void onSubscribe(Subscription s) {
+                    // Don't worry about backpressure. If the stream is too noisy then
+                    // backpressure can be handled upstream.
+                    synchronized (mLock) {
+                        s.request(Long.MAX_VALUE);
+                        mSubscriptionRef = new WeakReference<>(s);
+                    }
+                }
+
+                @Override
+                public void onNext(final T t) {
+                    postValue(t);
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    synchronized (mLock) {
+                        mSubscriptionRef = null;
+                    }
+                    // Errors should be handled upstream, so propagate as a crash.
+                    throw new RuntimeException(t);
+                }
+
+                @Override
+                public void onComplete() {
+                    synchronized (mLock) {
+                        mSubscriptionRef = null;
+                    }
+                }
+            });
+
+        }
+
+        @Override
+        protected void onInactive() {
+            super.onInactive();
+            synchronized (mLock) {
+                WeakReference<Subscription> subscriptionRef = mSubscriptionRef;
+                if (subscriptionRef != null) {
+                    Subscription subscription = subscriptionRef.get();
+                    if (subscription != null) {
+                        subscription.cancel();
+                    }
+                    mSubscriptionRef = null;
+                }
+            }
+        }
+    }
 }
