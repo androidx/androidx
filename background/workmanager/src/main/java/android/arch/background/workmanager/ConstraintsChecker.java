@@ -69,7 +69,7 @@ public class ConstraintsChecker {
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(
                 Context.CONNECTIVITY_SERVICE);
         switch (networkType) {
-            case Constraints.NETWORK_TYPE_CONNECTED:
+            case Constraints.NETWORK_TYPE_ANY:
                 return isNetworkConnected(cm);
             case Constraints.NETWORK_TYPE_NOT_ROAMING:
                 return isNetworkConnected(cm) && !isNetworkRoaming(cm);

@@ -155,8 +155,8 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
-    public void testConvertNetworkType_connected() {
-        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_CONNECTED),
+    public void testConvertNetworkType_any() {
+        assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_ANY),
                 is(JobInfo.NETWORK_TYPE_ANY));
     }
 

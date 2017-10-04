@@ -28,17 +28,16 @@ import java.lang.annotation.Retention;
 
 public class Constraints {
     @Retention(SOURCE)
-    @IntDef({NETWORK_TYPE_CONNECTED, NETWORK_TYPE_METERED, NETWORK_TYPE_NONE,
-            NETWORK_TYPE_NOT_ROAMING, NETWORK_TYPE_UNMETERED})
+    @IntDef({NETWORK_TYPE_NONE, NETWORK_TYPE_ANY, NETWORK_TYPE_UNMETERED, NETWORK_TYPE_NOT_ROAMING,
+            NETWORK_TYPE_METERED})
     public @interface NetworkType {
     }
 
-    // TODO(xbhatnag): Merge with JobScheduler values.
     public static final int NETWORK_TYPE_NONE = 0;
-    public static final int NETWORK_TYPE_CONNECTED = 1;
+    public static final int NETWORK_TYPE_ANY = 1;
     public static final int NETWORK_TYPE_UNMETERED = 2;
-    public static final int NETWORK_TYPE_METERED = 3;
-    public static final int NETWORK_TYPE_NOT_ROAMING = 4;
+    public static final int NETWORK_TYPE_NOT_ROAMING = 3;
+    public static final int NETWORK_TYPE_METERED = 4;
 
     @NetworkType
     int mRequiredNetworkType;
