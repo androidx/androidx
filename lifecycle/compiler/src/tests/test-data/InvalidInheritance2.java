@@ -19,10 +19,10 @@ package foo;
 import static android.arch.lifecycle.Lifecycle.Event.ON_START;
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
-import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 
-interface Base {
+interface Base extends LifecycleObserver {
     @OnLifecycleEvent(ON_STOP)
     void foo();
 }
