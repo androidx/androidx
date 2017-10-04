@@ -26,6 +26,19 @@ dependencies {
 version = LibraryVersions.LIFECYCLES_EXT.toString()
 createKotlinCheckstyle(project)
 
+// we actually need to compile :lifecycle:common, but compileJava is easier
+task compileTestLibrarySource(type: JavaCompile, dependsOn: compileJava) {
+    source "src/tests/test-data/lib/src"
+    classpath = project.compileJava.classpath
+    destinationDir = new File(project.buildDir, 'test-data/lib/classes')
+}
+
+task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
+    from compileTestLibrarySource.destinationDir
+    archiveName = "test-library.jar"
+    destinationDir = file("src/tests/test-data/lib/")
+}
+
 supportLibrary {
     name 'Android Lifecycles Compiler'
     publish true

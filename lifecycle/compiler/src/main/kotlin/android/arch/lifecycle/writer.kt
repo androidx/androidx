@@ -18,6 +18,7 @@ package android.arch.lifecycle
 
 import android.arch.lifecycle.model.AdapterClass
 import android.arch.lifecycle.model.EventMethodCall
+import android.arch.lifecycle.model.getAdapterName
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -35,7 +36,6 @@ import javax.tools.StandardLocation
 fun writeModels(infos: List<AdapterClass>, processingEnv: ProcessingEnvironment) {
     infos.forEach({ writeAdapter(it, processingEnv) })
 }
-
 
 private val GENERATED_PACKAGE = "javax.annotation"
 private val GENERATED_NAME = "Generated"
@@ -63,9 +63,7 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
     val dispatchMethod = dispatchMethodBuilder.apply {
         adapter.calls
                 .groupBy { (eventMethod) -> eventMethod.onLifecycleEvent.value }
-                .forEach { entry ->
-                    val event = entry.key
-                    val calls = entry.value
+                .forEach { (event, calls) ->
                     if (event == Lifecycle.Event.ON_ANY) {
                         writeMethodCalls(eventParam, calls, ownerParam, receiverField)
                     } else {
@@ -184,12 +182,4 @@ private fun syntheticName(method: ExecutableElement) = "__synthetic_" + method.s
 
 private fun takeParams(count: Int, vararg params: Any) = params.take(count).toTypedArray()
 
-private fun generateParamString(count: Int) = (0..(count - 1)).joinToString(",") { N }
-
-private fun getAdapterName(type: TypeElement): String {
-    val packageElement = type.getPackage()
-    val qName = type.qualifiedName.toString()
-    val partialName = if (packageElement.isUnnamed) qName else qName.substring(
-            packageElement.qualifiedName.toString().length + 1)
-    return Lifecycling.getAdapterName(partialName)
-}
+private fun generateParamString(count: Int) = (0 until count).joinToString(",") { N }
