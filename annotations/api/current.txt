@@ -93,6 +93,9 @@ package android.support.annotation {
   public abstract class MenuRes implements java.lang.annotation.Annotation {
   }
 
+  public abstract class NavigationRes implements java.lang.annotation.Annotation {
+  }
+
   public abstract class NonNull implements java.lang.annotation.Annotation {
   }
 
