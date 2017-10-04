@@ -62,7 +62,7 @@ public final class WorkManager {
     WorkManager(Context context, boolean useInMemoryDatabase) {
         mContext = context.getApplicationContext();
         mWorkDatabase = WorkDatabase.create(mContext, useInMemoryDatabase);
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 23) {
             mScheduler = new SystemJobScheduler(mContext);
         }
         new ForegroundProcessor(mContext, mWorkDatabase, mScheduler, ProcessLifecycleOwner.get());

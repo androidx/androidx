@@ -25,7 +25,7 @@ import android.content.Context;
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
  */
-@TargetApi(21)
+@TargetApi(23)
 public class SystemJobScheduler implements Scheduler {
 
     private JobScheduler mJobScheduler;

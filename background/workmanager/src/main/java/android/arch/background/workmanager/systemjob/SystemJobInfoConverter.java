@@ -33,11 +33,11 @@ import android.util.Log;
 /**
  * Converts a {@link WorkSpec} into a JobInfo.
  */
-@RequiresApi(api = 21)
-public class SystemJobInfoConverter {
+@RequiresApi(api = 23)
+class SystemJobInfoConverter {
     private static final String TAG = "SystemJobInfoConverter";
-    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-    public static final String EXTRAS_WORK_SPEC_ID = "WORK_SPEC_ID";
+
+    static final String EXTRA_WORK_SPEC_ID = "EXTRA_WORK_SPEC_ID";
 
     private final ComponentName mWorkServiceComponent;
     private final SystemJobIdGenerator mJobIdGenerator;
@@ -47,12 +47,12 @@ public class SystemJobInfoConverter {
      *
      * @param context A non-null {@link Context}.
      */
-    public SystemJobInfoConverter(@NonNull Context context) {
+    SystemJobInfoConverter(@NonNull Context context) {
         this(context, new SystemJobIdGenerator(context));
     }
 
     @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-    public SystemJobInfoConverter(@NonNull Context context, SystemJobIdGenerator jobIdGenerator) {
+    SystemJobInfoConverter(@NonNull Context context, SystemJobIdGenerator jobIdGenerator) {
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
         mJobIdGenerator = jobIdGenerator;
@@ -64,27 +64,28 @@ public class SystemJobInfoConverter {
      * @param workSpec The {@link WorkSpec} to convert
      * @return The {@link JobInfo} representing the same information as the {@link WorkSpec}
      */
-    public JobInfo convert(WorkSpec workSpec) {
+    JobInfo convert(WorkSpec workSpec) {
         Constraints constraints = workSpec.getConstraints();
         int jobId = mJobIdGenerator.nextId();
-        int jobNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
+        // TODO(janclarin): Support newer required network types if unsupported by API version.
+        int jobInfoNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         PersistableBundle extras = new PersistableBundle();
-        extras.putString(EXTRAS_WORK_SPEC_ID, workSpec.getId());
+        extras.putString(EXTRA_WORK_SPEC_ID, workSpec.getId());
+        JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
+                .setMinimumLatency(constraints.getInitialDelay())
+                .setRequiredNetworkType(jobInfoNetworkType)
+                .setExtras(extras);
 
-        JobInfo.Builder builder =
-                new JobInfo.Builder(jobId, mWorkServiceComponent)
-                        .setMinimumLatency(constraints.getInitialDelay())
-                        .setExtras(extras)
-                        .setRequiredNetworkType(jobNetworkType)
-                        .setRequiresCharging(constraints.requiresCharging())
-                        .setRequiresDeviceIdle(constraints.requiresDeviceIdle());
+        // TODO(janclarin): Support requiresCharging/requiresDeviceIdle for versions older than 24.
+        if (Build.VERSION.SDK_INT >= 24) {
+            builder.setRequiresCharging(constraints.requiresCharging());
+            builder.setRequiresDeviceIdle(constraints.requiresDeviceIdle());
+        }
 
+        // TODO(janclarin): Support requires[Battery|Storage]NotLow for versions older than 26.
         if (Build.VERSION.SDK_INT >= 26) {
             builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());
             builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());
-        } else {
-            // TODO(janclarin): Create compat version of batteryNotLow/storageNotLow constraints.
-            Log.w(TAG, "Could not set requiresBatteryNowLow or requiresStorageNotLow constraints.");
         }
         return builder.build();
     }
@@ -94,10 +95,8 @@ public class SystemJobInfoConverter {
      *
      * @param networkType The {@link Constraints.NetworkType} network type
      * @return The {@link JobInfo} network type
-     * @throws IllegalArgumentException if we encounter an invalid value
      */
-    public int convertNetworkType(@Constraints.NetworkType int networkType)
-            throws IllegalArgumentException {
+    static int convertNetworkType(@Constraints.NetworkType int networkType) {
         switch(networkType) {
             case Constraints.NETWORK_TYPE_NONE:
                 return JobInfo.NETWORK_TYPE_NONE;
@@ -116,6 +115,7 @@ public class SystemJobInfoConverter {
                 }
                 break;
         }
-        throw new IllegalArgumentException("NetworkType of " + networkType + " is not supported.");
+        Log.d(TAG, "API version too low. Cannot convert network type value " + networkType);
+        return JobInfo.NETWORK_TYPE_ANY;
     }
 }
