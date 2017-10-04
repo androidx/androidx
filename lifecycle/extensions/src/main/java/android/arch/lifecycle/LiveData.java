@@ -354,7 +354,7 @@ public abstract class LiveData<T> {
         return mActiveCount > 0;
     }
 
-    class LifecycleBoundObserver implements LifecycleObserver {
+    class LifecycleBoundObserver implements GenericLifecycleObserver {
         public final LifecycleOwner owner;
         public final Observer<T> observer;
         public boolean active;
@@ -365,9 +365,8 @@ public abstract class LiveData<T> {
             this.observer = observer;
         }
 
-        @SuppressWarnings("unused")
-        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-        void onStateChange() {
+        @Override
+        public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
             if (owner.getLifecycle().getCurrentState() == DESTROYED) {
                 removeObserver(observer);
                 return;
