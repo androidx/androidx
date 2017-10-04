@@ -16,6 +16,7 @@
 
 package android.support.v7.util;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.widget.RecyclerView;
@@ -343,6 +344,72 @@ public class DiffUtil {
          */
         @Nullable
         public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+            return null;
+        }
+    }
+
+    /**
+     * Callback for calculating the diff between two non-null items in a list.
+     * <p>
+     * {@link Callback} serves two roles - list indexing, and item diffing. ItemCallback handles
+     * just the second of these, which allows separation of code that indexes into an array or List
+     * from the presentation-layer and content specific diffing code.
+     *
+     * @param <T> Type of items to compare.
+     */
+    public abstract static class ItemCallback<T> {
+        /**
+         * Called to check whether two objects represent the same item.
+         * <p>
+         * For example, if your items have unique ids, this method should check their id equality.
+         *
+         * @param oldItem The item in the old list.
+         * @param newItem The item in the new list.
+         * @return True if the two items represent the same object or false if they are different.
+         *
+         * @see Callback#areItemsTheSame(int, int)
+         */
+        public abstract boolean areItemsTheSame(@NonNull T oldItem, @NonNull T newItem);
+
+        /**
+         * Called to check whether two items have the same data.
+         * <p>
+         * This information is used to detect if the contents of an item have changed.
+         * <p>
+         * This method to check equality instead of {@link Object#equals(Object)} so that you can
+         * change its behavior depending on your UI.
+         * <p>
+         * For example, if you are using DiffUtil with a
+         * {@link android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}, you should
+         * return whether the items' visual representations are the same.
+         * <p>
+         * This method is called only if {@link #areItemsTheSame(T, T)} returns {@code true} for
+         * these items.
+         *
+         * @param oldItem The item in the old list.
+         * @param newItem The item in the new list.
+         * @return True if the contents of the items are the same or false if they are different.
+         *
+         * @see Callback#areContentsTheSame(int, int)
+         */
+        public abstract boolean areContentsTheSame(@NonNull T oldItem, @NonNull T newItem);
+
+        /**
+         * When {@link #areItemsTheSame(T, T)} returns {@code true} for two items and
+         * {@link #areContentsTheSame(T, T)} returns false for them, this method is called to
+         * get a payload about the change.
+         * <p>
+         * For example, if you are using DiffUtil with {@link RecyclerView}, you can return the
+         * particular field that changed in the item and your
+         * {@link android.support.v7.widget.RecyclerView.ItemAnimator ItemAnimator} can use that
+         * information to run the correct animation.
+         * <p>
+         * Default implementation returns {@code null}.
+         *
+         * @see Callback#getChangePayload(int, int)
+         */
+        @SuppressWarnings({"WeakerAccess", "unused"})
+        public Object getChangePayload(@NonNull T oldItem, @NonNull T newItem) {
             return null;
         }
     }
