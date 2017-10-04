@@ -30,7 +30,7 @@ import java.util.Map;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class Lifecycling {
+public class Lifecycling {
     private static Constructor<? extends GenericLifecycleObserver> sREFLECTIVE;
 
     static {
@@ -152,7 +152,10 @@ class Lifecycling {
         return klass != null && LifecycleObserver.class.isAssignableFrom(klass);
     }
 
-    static String getAdapterName(String className) {
+    /**
+     * Create a name for an adapter class.
+     */
+    public static String getAdapterName(String className) {
         return className.replace(".", "_") + "_LifecycleAdapter";
     }
 }

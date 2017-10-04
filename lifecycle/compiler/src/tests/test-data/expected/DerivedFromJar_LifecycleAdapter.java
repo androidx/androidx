@@ -16,19 +16,25 @@
 
 package foo;
 
-import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
-
-import android.arch.lifecycle.Lifecycle.Event;
-import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.OnLifecycleEvent;
+import java.lang.Override;
+import javax.annotation.Generated;
 
-class DifferentPackagesPreBase2 implements LifecycleObserver {
-    @OnLifecycleEvent(ON_STOP)
-    void onStop(LifecycleOwner provider){}
-}
+@Generated("android.arch.lifecycle.LifecycleProcessor")
+public class DerivedFromJar_LifecycleAdapter implements GenericLifecycleObserver {
+  final DerivedFromJar mReceiver;
 
-public class DifferentPackagesBase2 extends DifferentPackagesPreBase2 {
-    @OnLifecycleEvent(ON_STOP)
-    public void onStop(LifecycleOwner provider){}
+  DerivedFromJar_LifecycleAdapter(DerivedFromJar receiver) {
+    this.mReceiver = receiver;
+  }
+
+  @Override
+  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
+    if (event == Lifecycle.Event.ON_START) {
+      mReceiver.doOnStart();
+      mReceiver.doAnother();
+    }
+  }
 }
