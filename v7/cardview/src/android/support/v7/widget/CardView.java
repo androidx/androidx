@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.cardview.R;
 import android.util.AttributeSet;
@@ -106,17 +107,17 @@ public class CardView extends FrameLayout {
 
     final Rect mShadowBounds = new Rect();
 
-    public CardView(Context context) {
+    public CardView(@NonNull Context context) {
         super(context);
         initialize(context, null, 0);
     }
 
-    public CardView(Context context, AttributeSet attrs) {
+    public CardView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initialize(context, attrs, 0);
     }
 
-    public CardView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CardView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initialize(context, attrs, defStyleAttr);
     }
@@ -300,6 +301,7 @@ public class CardView extends FrameLayout {
      *
      * @return The background color state list of the CardView.
      */
+    @NonNull
     public ColorStateList getCardBackgroundColor() {
         return IMPL.getBackgroundColor(mCardViewDelegate);
     }
