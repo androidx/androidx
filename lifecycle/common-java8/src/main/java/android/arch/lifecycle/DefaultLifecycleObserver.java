@@ -16,6 +16,8 @@
 
 package android.arch.lifecycle;
 
+import android.support.annotation.NonNull;
+
 /**
  * Callback interface for listening to {@link LifecycleOwner} state changes.
  * <p>
@@ -33,7 +35,7 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      * @param owner the component, whose state was changed
      */
     @Override
-    default void onCreate(LifecycleOwner owner) {
+    default void onCreate(@NonNull LifecycleOwner owner) {
     }
 
     /**
@@ -44,7 +46,7 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      * @param owner the component, whose state was changed
      */
     @Override
-    default void onStart(LifecycleOwner owner) {
+    default void onStart(@NonNull LifecycleOwner owner) {
     }
 
     /**
@@ -56,7 +58,7 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      * @param owner the component, whose state was changed
      */
     @Override
-    default void onResume(LifecycleOwner owner) {
+    default void onResume(@NonNull LifecycleOwner owner) {
     }
 
     /**
@@ -68,7 +70,7 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      * @param owner the component, whose state was changed
      */
     @Override
-    default void onPause(LifecycleOwner owner) {
+    default void onPause(@NonNull LifecycleOwner owner) {
     }
 
     /**
@@ -80,7 +82,7 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      * @param owner the component, whose state was changed
      */
     @Override
-    default void onStop(LifecycleOwner owner) {
+    default void onStop(@NonNull LifecycleOwner owner) {
     }
 
     /**
@@ -92,7 +94,7 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      * @param owner the component, whose state was changed
      */
     @Override
-    default void onDestroy(LifecycleOwner owner) {
+    default void onDestroy(@NonNull LifecycleOwner owner) {
     }
 }
 
