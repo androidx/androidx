@@ -94,8 +94,9 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
      * Return a {@link LayoutInflater}.
      * See {@link Activity#getLayoutInflater()}.
      */
+    @NonNull
     public LayoutInflater onGetLayoutInflater() {
-        return (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        return LayoutInflater.from(mContext);
     }
 
     /**
