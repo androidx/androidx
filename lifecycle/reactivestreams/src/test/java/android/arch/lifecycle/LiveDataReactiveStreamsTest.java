@@ -140,6 +140,38 @@ public class LiveDataReactiveStreamsTest {
     }
 
     @Test
+    public void convertsFromPublisherAfterInactive() {
+        PublishProcessor<String> processor = PublishProcessor.create();
+        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
+
+        liveData.observe(mLifecycleOwner, mObserver);
+        processor.onNext("foo");
+        liveData.removeObserver(mObserver);
+        processor.onNext("bar");
+
+        liveData.observe(mLifecycleOwner, mObserver);
+        processor.onNext("baz");
+
+        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "foo", "baz")));
+    }
+
+    @Test
+    public void convertsFromPublisherManagesSubcriptions() {
+        PublishProcessor<String> processor = PublishProcessor.create();
+        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
+
+        assertThat(processor.hasSubscribers(), is(false));
+        liveData.observe(mLifecycleOwner, mObserver);
+
+        // once the live data is active, there's a subscriber
+        assertThat(processor.hasSubscribers(), is(true));
+
+        liveData.removeObserver(mObserver);
+        // once the live data is inactive, the subscriber is removed
+        assertThat(processor.hasSubscribers(), is(false));
+    }
+
+    @Test
     public void convertsFromAsyncPublisher() {
         Flowable<String> input = Flowable.just("foo")
                 .concatWith(Flowable.just("bar", "baz").observeOn(sBackgroundScheduler));
