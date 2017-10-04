@@ -20,6 +20,7 @@ import android.arch.background.workmanager.Worker;
 import android.arch.background.workmanager.model.Arguments;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -60,6 +61,7 @@ public class SleepyToastWorker extends Worker {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
+                Log.d("SleepyToast", message);
                 Toast.makeText(getAppContext(), message, Toast.LENGTH_SHORT).show();
             }
         });

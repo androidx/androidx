@@ -41,8 +41,10 @@ public abstract class Worker {
 
     /**
      * Override this method to do your actual background processing.
+     *
+     * @throws Exception An {@link Exception} if the work failed
      */
-    public abstract void doWork();
+    public abstract void doWork() throws Exception;
 
     private void internalInit(Context appContext, Arguments arguments) {
         mAppContext = appContext;

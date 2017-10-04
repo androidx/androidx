@@ -21,42 +21,68 @@ package android.arch.background.workmanager;
 
 public class WorkContinuation {
 
-    WorkManager mWorkManager;
-    String mPrerequisiteId;
+    private WorkManager mWorkManager;
+    private String[] mPrerequisiteIds;
 
-    WorkContinuation(WorkManager workManager, String prerequisiteId) {
+    WorkContinuation(WorkManager workManager, Work[] prerequisiteWork) {
         mWorkManager = workManager;
-        mPrerequisiteId = prerequisiteId;
+        mPrerequisiteIds = new String[prerequisiteWork.length];
+        for (int i = 0; i < prerequisiteWork.length; ++i) {
+            mPrerequisiteIds[i] = prerequisiteWork[i].getId();
+        }
     }
 
     /**
-     * Add new {@link Work} that depends on the previous one.
+     * Add new {@link Work} items that depend on the items added in the previous step.
      *
-     * @param work The {@link Work} to add
-     * @return A {@link WorkContinuation} that allows further chaining
+     * @param work One or more {@link Work} to enqueue
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input work
      */
-    public WorkContinuation then(Work work) {
-        return mWorkManager.enqueue(work, mPrerequisiteId);
+    public final WorkContinuation then(Work... work) {
+        return mWorkManager.enqueue(work, mPrerequisiteIds);
     }
 
     /**
-     * Add new {@link Work} that depends on the previous one.
+     * Add new {@link Work} items that depend on the items added in the previous step.
      *
-     * @param workBuilder The {@link Work.Builder} to add; internally {@code build} is called on it
-     * @return A {@link WorkContinuation} that allows further chaining
+     * @param workBuilders One or more {@link Work.Builder} to enqueue; internally {@code build} is
+     *                     called on each of them
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input workBuilders
      */
-    public WorkContinuation then(Work.Builder workBuilder) {
-        return mWorkManager.enqueue(workBuilder.build(), mPrerequisiteId);
+    public final WorkContinuation then(Work.Builder... workBuilders) {
+        return mWorkManager.enqueue(convertBuilderArrayToWorkArray(workBuilders), mPrerequisiteIds);
     }
 
     /**
-     * Add new {@link Work} that depends on the previous one.
+     * Add new {@link Work} items that depend on the items added in the previous step.
      *
-     * @param workerClass The {@link Worker} to enqueue; this is a convenience method that makes a
-     *                    {@link Work} object with default arguments using this Worker
-     * @return A {@link WorkContinuation} that allows further chaining
+     * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
+     *                      that makes a {@link Work} object with default arguments for each Worker
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input workerClasses
      */
-    public WorkContinuation then(Class<? extends Worker> workerClass) {
-        return mWorkManager.enqueue(new Work.Builder(workerClass).build(), mPrerequisiteId);
+    @SafeVarargs
+    public final WorkContinuation then(Class<? extends Worker>... workerClasses) {
+        return mWorkManager.enqueue(
+                convertWorkerClassArrayToWorkArray(workerClasses),
+                mPrerequisiteIds);
+    }
+
+    static Work[] convertBuilderArrayToWorkArray(Work.Builder[] builders) {
+        Work[] workArray = new Work[builders.length];
+        for (int i = 0; i < builders.length; ++i) {
+            workArray[i] = builders[i].build();
+        }
+        return workArray;
+    }
+
+    static Work[] convertWorkerClassArrayToWorkArray(Class<? extends Worker>[] workerClasses) {
+        Work[] workArray = new Work[workerClasses.length];
+        for (int i = 0; i < workerClasses.length; ++i) {
+            workArray[i] = new Work.Builder(workerClasses[i]).build();
+        }
+        return workArray;
     }
 }

@@ -87,40 +87,44 @@ public final class WorkManager {
     }
 
     /**
-     * Enqueues an item for background processing.
+     * Enqueues one or more items for background processing.
      *
-     * @param work The {@link Work} to enqueue
-     * @return A {@link WorkContinuation} that allows further chaining
+     * @param work One or more {@link Work} to enqueue
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input work
      */
-    public WorkContinuation enqueue(Work work) {
+    public WorkContinuation enqueue(Work... work) {
         return enqueue(work, null);
     }
 
     /**
-     * Enqueues an item for background processing.
+     * Enqueues one or more items for background processing.
      *
-     * @param workBuilder The {@link Work.Builder} to enqueue; internally {@code build} is called
-     *                    on it
-     * @return A {@link WorkContinuation} that allows further chaining
+     * @param workBuilders One or more {@link Work.Builder} to enqueue; internally {@code build} is
+     *                     called on each of them
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input workBuilders
      */
-    public WorkContinuation enqueue(Work.Builder workBuilder) {
-        return enqueue(workBuilder.build(), null);
+    public WorkContinuation enqueue(Work.Builder... workBuilders) {
+        return enqueue(WorkContinuation.convertBuilderArrayToWorkArray(workBuilders), null);
     }
 
     /**
-     * Enqueues an item for background processing.
+     * Enqueues one or more items for background processing.
      *
-     * @param workerClass The {@link Worker} to enqueue; this is a convenience method that makes a
-     *                    {@link Work} object with default arguments using this Worker
-     * @return A {@link WorkContinuation} that allows further chaining
+     * @param workerClasses One or more {@link Worker}s to enqueue; this is a convenience method
+     *                      that makes a {@link Work} object with default arguments for each Worker
+     * @return A {@link WorkContinuation} that allows further chaining, depending on all of the
+     *         input workerClasses
      */
-    public WorkContinuation enqueue(Class<? extends Worker> workerClass) {
-        return enqueue(new Work.Builder(workerClass).build(), null);
+    @SafeVarargs
+    public final WorkContinuation enqueue(Class<? extends Worker>... workerClasses) {
+        return enqueue(WorkContinuation.convertWorkerClassArrayToWorkArray(workerClasses), null);
     }
 
-    WorkContinuation enqueue(Work work, String prerequisiteId) {
-        WorkContinuation workContinuation = new WorkContinuation(this, work.getId());
-        mEnqueueExecutor.execute(new EnqueueRunnable(work, prerequisiteId));
+    WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
+        WorkContinuation workContinuation = new WorkContinuation(this, work);
+        mEnqueueExecutor.execute(new EnqueueRunnable(work, prerequisiteIds));
         return workContinuation;
     }
 
@@ -128,37 +132,41 @@ public final class WorkManager {
      * A Runnable to enqueue a {@link Work} in the database.
      */
     private class EnqueueRunnable implements Runnable {
-        private Work mWork;
-        private String mPrerequisiteId;
+        private Work[] mWorkArray;
+        private String[] mPrerequisiteIds;
 
-        EnqueueRunnable(Work work, String prerequisiteId) {
-            mWork = work;
-            mPrerequisiteId = prerequisiteId;
+        EnqueueRunnable(Work[] workArray, String[] prerequisiteIds) {
+            mWorkArray = workArray;
+            mPrerequisiteIds = prerequisiteIds;
         }
 
         @Override
         public void run() {
             mWorkDatabase.beginTransaction();
             try {
-                boolean hasPrerequisite = (mPrerequisiteId != null);
-                WorkSpec workSpec = mWork.getWorkSpec();
-                if (hasPrerequisite) {
-                    workSpec.setStatus(STATUS_BLOCKED);
-                }
-                mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
+                boolean hasPrerequisite = (mPrerequisiteIds != null && mPrerequisiteIds.length > 0);
+                for (Work work : mWorkArray) {
+                    WorkSpec workSpec = work.getWorkSpec();
+                    if (hasPrerequisite) {
+                        workSpec.setStatus(STATUS_BLOCKED);
+                    }
+                    mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
 
-                if (hasPrerequisite) {
-                    Dependency dep = new Dependency(mWork.getId(), mPrerequisiteId);
-                    mWorkDatabase.dependencyDao().insertDependency(dep);
+                    if (hasPrerequisite) {
+                        for (String prerequisiteId : mPrerequisiteIds) {
+                            Dependency dep = new Dependency(work.getId(), prerequisiteId);
+                            mWorkDatabase.dependencyDao().insertDependency(dep);
+                        }
+                    }
                 }
                 mWorkDatabase.setTransactionSuccessful();
 
                 // Schedule in the background if there are no prerequisites.  Foreground scheduling
                 // happens automatically because we instantiated ForegroundProcessor earlier.
                 // TODO(janclarin): Remove mScheduler != null check when Scheduler added for 23-.
-                if (mScheduler != null) {
-                    if (!hasPrerequisite) {
-                        mScheduler.schedule(workSpec);
+                if (mScheduler != null && !hasPrerequisite) {
+                    for (Work work : mWorkArray) {
+                        mScheduler.schedule(work.getWorkSpec());
                     }
                 }
             } finally {

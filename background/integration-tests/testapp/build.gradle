@@ -44,6 +44,7 @@ dependencies {
     compile project(':lifecycle:runtime')
     compile project(':lifecycle:common')
     compile project(':room:runtime')
+    annotationProcessor project(":room:compiler")
     compile 'com.android.support:multidex:1.0.1'
 
     compile libs.support.recyclerview, libs.support_exclude_config

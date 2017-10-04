@@ -19,9 +19,11 @@ package android.arch.background.workmanager;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.persistence.db.SupportSQLiteDatabase;
@@ -34,6 +36,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -68,9 +72,56 @@ public class WorkManagerTest {
             assertThat(mDatabase.workSpecDao().getWorkSpec(id), is(notNullValue()));
             assertThat(
                     "index " + i + " does not have expected number of dependencies!",
-                    mDatabase.dependencyDao().hasDependencies(id),
+                    mDatabase.dependencyDao().hasPrerequisites(id),
                     is(i > 0));
         }
+    }
+
+    @Test
+    public void testEnqueue_insertMultipleWork() throws InterruptedException {
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work3 = new Work.Builder(TestWorker.class).build();
+
+        mWorkManager.enqueue(work1, work2, work3);
+        Thread.sleep(5000L);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(work1.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work3.getId()), is(notNullValue()));
+    }
+
+    @Test
+    public void testEnqueue_insertWithDependencies() throws InterruptedException {
+        Work work1a = new Work.Builder(TestWorker.class).build();
+        Work work1b = new Work.Builder(TestWorker.class).build();
+        Work work2 = new Work.Builder(TestWorker.class).build();
+        Work work3a = new Work.Builder(TestWorker.class).build();
+        Work work3b = new Work.Builder(TestWorker.class).build();
+
+        mWorkManager.enqueue(work1a, work1b).then(work2).then(work3a, work3b);
+        Thread.sleep(5000L);
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(work1a.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work1b.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work2.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work3a.getId()), is(notNullValue()));
+        assertThat(workSpecDao.getWorkSpec(work3b.getId()), is(notNullValue()));
+
+        DependencyDao dependencyDao = mDatabase.dependencyDao();
+        assertThat(dependencyDao.hasPrerequisites(work1a.getId()), is(false));
+        assertThat(dependencyDao.hasPrerequisites(work1b.getId()), is(false));
+
+        List<String> prerequisites = dependencyDao.getPrerequisites(work2.getId());
+        assertThat(prerequisites, containsInAnyOrder(work1a.getId(), work1b.getId()));
+
+        prerequisites = dependencyDao.getPrerequisites(work3a.getId());
+        assertThat(prerequisites, containsInAnyOrder(work2.getId()));
+
+        prerequisites = dependencyDao.getPrerequisites(work3b.getId());
+        assertThat(prerequisites, containsInAnyOrder(work2.getId()));
     }
 
     @Test

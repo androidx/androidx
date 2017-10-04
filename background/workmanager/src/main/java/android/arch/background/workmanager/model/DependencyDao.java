@@ -59,7 +59,16 @@ public interface DependencyDao {
      * @return {@code true} if the {@link WorkSpec} is dependent on other {@link WorkSpec}s
      */
     @Query("SELECT COUNT(*) > 0 FROM dependency WHERE work_spec_id=:id")
-    boolean hasDependencies(String id);
+    boolean hasPrerequisites(String id);
+
+    /**
+     * Gets all the direct prerequisites for a particular {@link WorkSpec}.
+     *
+     * @param id The {@link WorkSpec} identifier
+     * @return A list of all prerequisites for {@code id}
+     */
+    @Query("SELECT prerequisite_id FROM dependency WHERE work_spec_id=:id")
+    List<String> getPrerequisites(String id);
 
     /**
      * Retrieves the IDs of all {@link WorkSpec} that

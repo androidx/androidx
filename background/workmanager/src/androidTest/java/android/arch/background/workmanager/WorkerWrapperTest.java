@@ -169,7 +169,7 @@ public class WorkerWrapperTest {
 
         assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(STATUS_ENQUEUED));
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_BLOCKED));
-        assertThat(mDependencyDao.hasDependencies(work.getId()), is(true));
+        assertThat(mDependencyDao.hasPrerequisites(work.getId()), is(true));
 
         new WorkerWrapper.Builder(mContext, mDatabase, prerequisiteWork.getId())
                 .withListener(mMockListener)
@@ -179,7 +179,7 @@ public class WorkerWrapperTest {
 
         assertThat(mWorkSpecDao.getWorkSpecStatus(prerequisiteWork.getId()), is(STATUS_SUCCEEDED));
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(STATUS_ENQUEUED));
-        assertThat(mDependencyDao.hasDependencies(work.getId()), is(false));
+        assertThat(mDependencyDao.hasPrerequisites(work.getId()), is(false));
 
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
         verify(mMockScheduler).schedule(captor.capture());
