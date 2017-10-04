@@ -23,9 +23,11 @@ import android.arch.persistence.room.integration.kotlintestapp.dao.DerivedDao
 import android.arch.persistence.room.integration.kotlintestapp.vo.Author
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookAuthor
+import android.arch.persistence.room.integration.kotlintestapp.vo.NoArgClass
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 
-@Database(entities = arrayOf(Book::class, Author::class, Publisher::class, BookAuthor::class),
+@Database(entities = arrayOf(Book::class, Author::class, Publisher::class, BookAuthor::class,
+        NoArgClass::class),
         version = 1)
 abstract class TestDatabase : RoomDatabase() {
 

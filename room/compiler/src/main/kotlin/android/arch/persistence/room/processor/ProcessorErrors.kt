@@ -460,6 +460,11 @@ object ProcessorErrors {
             unwanted constructors with @Ignore.
             """.trim()
 
+    val TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG = """
+            There are multiple good constructors and Room will pick the no-arg constructor.
+            You can use the @Ignore annotation to eliminate unwanted constructors.
+            """.trim()
+
     val PAGING_SPECIFY_DATA_SOURCE_TYPE = "For now, Room only supports TiledDataSource class."
 
     fun primaryKeyNull(field: String): String{
