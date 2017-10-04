@@ -132,7 +132,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
     /**
      * @param context application context
      */
-    public CircularProgressDrawable(Context context) {
+    public CircularProgressDrawable(@NonNull Context context) {
         mResources = Preconditions.checkNotNull(context).getResources();
 
         mRing = new Ring();
@@ -215,7 +215,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
      *
      * @param strokeCap stroke cap
      */
-    public void setStrokeCap(Paint.Cap strokeCap) {
+    public void setStrokeCap(@NonNull Paint.Cap strokeCap) {
         mRing.setStrokeCap(strokeCap);
         invalidateSelf();
     }
@@ -225,6 +225,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
      *
      * @return stroke cap
      */
+    @NonNull
     public Paint.Cap getStrokeCap() {
         return mRing.getStrokeCap();
     }
@@ -373,6 +374,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
      *
      * @return list of ARGB colors
      */
+    @NonNull
     public int[] getColorSchemeColors() {
         return mRing.getColors();
     }
@@ -383,7 +385,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
      *
      * @param colors list of ARGB colors to be used in the spinner
      */
-    public void setColorSchemeColors(int... colors) {
+    public void setColorSchemeColors(@NonNull int... colors) {
         mRing.setColors(colors);
         mRing.setColorIndex(0);
         invalidateSelf();

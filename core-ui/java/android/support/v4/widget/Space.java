@@ -19,6 +19,8 @@ package android.support.v4.widget;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -28,18 +30,18 @@ import android.view.View;
  */
 public class Space extends View {
 
-    public Space(Context context, AttributeSet attrs, int defStyle) {
+    public Space(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         if (getVisibility() == VISIBLE) {
             setVisibility(INVISIBLE);
         }
     }
 
-    public Space(Context context, AttributeSet attrs) {
+    public Space(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public Space(Context context) {
+    public Space(@NonNull Context context) {
         this(context, null);
     }
 

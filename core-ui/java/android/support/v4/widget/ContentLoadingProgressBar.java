@@ -17,6 +17,8 @@
 package android.support.v4.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -61,11 +63,11 @@ public class ContentLoadingProgressBar extends ProgressBar {
         }
     };
 
-    public ContentLoadingProgressBar(Context context) {
+    public ContentLoadingProgressBar(@NonNull Context context) {
         this(context, null);
     }
 
-    public ContentLoadingProgressBar(Context context, AttributeSet attrs) {
+    public ContentLoadingProgressBar(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs, 0);
     }
 
