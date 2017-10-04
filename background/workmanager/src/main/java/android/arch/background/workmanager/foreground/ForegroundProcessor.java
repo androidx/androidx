@@ -25,6 +25,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +40,7 @@ import java.util.concurrent.Future;
 
 public class ForegroundProcessor extends Processor
         implements Observer<List<String>>, LifecycleObserver {
-
+    private static final String TAG = "ForegroundProcessor";
     private LifecycleOwner mLifecycleOwner;
 
     public ForegroundProcessor(
@@ -74,6 +75,7 @@ public class ForegroundProcessor extends Processor
             return;
         }
 
+        Log.d(TAG, "Runnable work ids updated. Size : " + runnableWorkIds.size());
         for (String workId : runnableWorkIds) {
             if (!mEnqueuedWorkMap.containsKey(workId)) {
                 process(workId);
@@ -86,11 +88,15 @@ public class ForegroundProcessor extends Processor
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onLifecycleStop() {
+        Log.d(TAG, "onLifecycleStop");
         Iterator<Map.Entry<String, Future<?>>> it = mEnqueuedWorkMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Future<?>> entry = it.next();
             if (entry.getValue().cancel(false)) {
                 it.remove();
+                Log.d(TAG, "Canceled " + entry.getKey());
+            } else {
+                Log.d(TAG, "Cannot cancel " + entry.getKey());
             }
         }
     }

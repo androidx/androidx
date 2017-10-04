@@ -16,6 +16,7 @@
 package android.arch.background.workmanager;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ import java.util.concurrent.Future;
  */
 
 public abstract class Processor implements ExecutionListener {
-
+    private static final String TAG = "Processor";
     protected Context mAppContext;
     protected WorkDatabase mWorkDatabase;
 
@@ -73,6 +74,9 @@ public abstract class Processor implements ExecutionListener {
                     .build();
             Future<?> future = mExecutorService.submit(workWrapper);   // TODO(sumir): Delays
             mEnqueuedWorkMap.put(id, future);
+            Log.d(TAG, "Submitted " + id + " to ExecutorService");
+        } else {
+            Log.d(TAG, "Could not process " + id + ". Processor inactive.");
         }
     }
 
@@ -85,13 +89,19 @@ public abstract class Processor implements ExecutionListener {
      * @return {@code true} if the work was cancelled successfully.
      */
     public boolean cancel(String id, boolean mayInterruptIfRunning) {
+        Log.d(TAG, "Canceling " + id + "; mayInterruptIfRunning = " + mayInterruptIfRunning);
         Future<?> future = mEnqueuedWorkMap.get(id);
         if (future != null) {
             boolean cancelled = future.cancel(mayInterruptIfRunning);
             if (cancelled) {
                 mEnqueuedWorkMap.remove(id);
+                Log.d(TAG, "Future successfully canceled for " + id);
+            } else {
+                Log.d(TAG, "Future could not be canceled for " + id);
             }
             return cancelled;
+        } else {
+            Log.d(TAG, "Future not found for " + id);
         }
         return false;
     }
@@ -99,5 +109,6 @@ public abstract class Processor implements ExecutionListener {
     @Override
     public void onExecuted(String workSpecId, @WorkerWrapper.ExecutionResult int result) {
         mEnqueuedWorkMap.remove(workSpecId);
+        Log.d(TAG, workSpecId + " executed; result = " + result);
     }
 }
