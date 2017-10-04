@@ -167,7 +167,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 23)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
     public void testConvertNetworkType_notRoaming_returnAnyBeforeApi24() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING),
                 is(JobInfo.NETWORK_TYPE_ANY));
@@ -181,7 +181,7 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 25)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testConvertNetworkType_metered_returnsAnyBeforeApi26() {
         assertThat(SystemJobInfoConverter.convertNetworkType(Constraints.NETWORK_TYPE_METERED),
                 is(JobInfo.NETWORK_TYPE_ANY));
