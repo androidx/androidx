@@ -4,10 +4,11 @@ import static android.arch.lifecycle.Lifecycle.Event.ON_START;
 import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
 
 import android.arch.lifecycle.Lifecycle.Event;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
-public class Bar {
+public class Bar implements LifecycleObserver {
     @OnLifecycleEvent(ON_START)
     public void doOnStart() {
     }
@@ -20,17 +21,17 @@ public class Bar {
     public void doOnStop2Args(LifecycleOwner provider) {
     }
 
-    public static class Inner1 {
+    public static class Inner1 implements LifecycleObserver {
         @OnLifecycleEvent(ON_START)
         public void doOnStart() {
         }
 
-        public static class Inner2 {
+        public static class Inner2 implements LifecycleObserver {
             @OnLifecycleEvent(ON_START)
             public void doOnStart() {
             }
 
-            public static class Inner3 {
+            public static class Inner3 implements LifecycleObserver {
                 @OnLifecycleEvent(ON_START)
                 public void doOnStart() {
                 }

@@ -19,10 +19,13 @@ package android.arch.lifecycle
 import android.arch.lifecycle.utils.load
 import android.arch.lifecycle.utils.processClass
 import com.google.testing.compile.CompileTester
+import com.google.testing.compile.JavaSourcesSubject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import javax.tools.StandardLocation
+import java.io.File
+import java.net.URLClassLoader
 
 @RunWith(JUnit4::class)
 class ValidCasesTest {
@@ -111,5 +114,17 @@ class ValidCasesTest {
     private fun <T> CompileTester.GeneratedPredicateClause<T>.generatesProGuardRule(name: String):
             CompileTester.SuccessfulFileClause<T> {
         return generatesFileNamed(StandardLocation.CLASS_OUTPUT, "", "META-INF/proguard/$name")
+    }
+
+    @Test
+    fun testJar() {
+        val jarUrl = File("src/tests/test-data/lib/test-library.jar").toURI().toURL()
+        val classLoader = URLClassLoader(arrayOf(jarUrl), this.javaClass.classLoader)
+        JavaSourcesSubject.assertThat(load("foo.DerivedFromJar", ""))
+                .withClasspathFrom(classLoader)
+                .processedWith(LifecycleProcessor())
+                .compilesWithoutError().and()
+                .generatesSources(load("foo.DerivedFromJar_LifecycleAdapter", "expected")
+        )
     }
 }
