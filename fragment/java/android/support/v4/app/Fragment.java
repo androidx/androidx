@@ -463,6 +463,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Get the tag name of the fragment, if specified.
      */
+    @Nullable
     final public String getTag() {
         return mTag;
     }
@@ -474,7 +475,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>This method cannot be called if the fragment is added to a FragmentManager and
      * if {@link #isStateSaved()} would return true.</p>
      */
-    public void setArguments(Bundle args) {
+    public void setArguments(@Nullable Bundle args) {
         if (mIndex >= 0 && isStateSaved()) {
             throw new IllegalStateException("Fragment already active and state has been saved");
         }
@@ -485,6 +486,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Return the arguments supplied when the fragment was instantiated,
      * if any.
      */
+    @Nullable
     final public Bundle getArguments() {
         return mArguments;
     }
@@ -512,7 +514,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param state The state the fragment should be restored from.
      */
-    public void setInitialSavedState(SavedState state) {
+    public void setInitialSavedState(@Nullable SavedState state) {
         if (mIndex >= 0) {
             throw new IllegalStateException("Fragment already active");
         }
@@ -532,7 +534,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * are going to call back with {@link #onActivityResult(int, int, Intent)}.
      */
     @SuppressWarnings("ReferenceEquality")
-    public void setTargetFragment(Fragment fragment, int requestCode) {
+    public void setTargetFragment(@Nullable Fragment fragment, int requestCode) {
         // Don't allow a caller to set a target fragment in another FragmentManager,
         // but there's a snag: people do set target fragments before fragments get added.
         // We'll have the FragmentManager check that for validity when we move
@@ -558,6 +560,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Return the target fragment set by {@link #setTargetFragment}.
      */
+    @Nullable
     final public Fragment getTargetFragment() {
         return mTarget;
     }
@@ -572,6 +575,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Return the {@link Context} this fragment is currently associated with.
      */
+    @Nullable
     public Context getContext() {
         return mHost == null ? null : mHost.getContext();
     }
@@ -581,6 +585,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * May return {@code null} if the fragment is associated with a {@link Context}
      * instead.
      */
+    @Nullable
     final public FragmentActivity getActivity() {
         return mHost == null ? null : (FragmentActivity) mHost.getActivity();
     }
@@ -589,6 +594,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Return the host object of this fragment. May return {@code null} if the fragment
      * isn't currently being hosted.
      */
+    @Nullable
     final public Object getHost() {
         return mHost == null ? null : mHost.onGetHost();
     }
@@ -596,6 +602,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Return <code>getActivity().getResources()</code>.
      */
+    @NonNull
     final public Resources getResources() {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
@@ -609,6 +616,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param resId Resource id for the CharSequence text
      */
+    @NonNull
     public final CharSequence getText(@StringRes int resId) {
         return getResources().getText(resId);
     }
@@ -619,6 +627,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param resId Resource id for the string
      */
+    @NonNull
     public final String getString(@StringRes int resId) {
         return getResources().getString(resId);
     }
@@ -631,7 +640,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param resId Resource id for the format string
      * @param formatArgs The format arguments that will be used for substitution.
      */
-
+    @NonNull
     public final String getString(@StringRes int resId, Object... formatArgs) {
         return getResources().getString(resId, formatArgs);
     }
@@ -646,6 +655,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>If this Fragment is a child of another Fragment, the FragmentManager
      * returned here will be the parent's {@link #getChildFragmentManager()}.
      */
+    @Nullable
     final public FragmentManager getFragmentManager() {
         return mFragmentManager;
     }
@@ -654,6 +664,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Return a private FragmentManager for placing and managing Fragments
      * inside of this Fragment.
      */
+    @NonNull
     final public FragmentManager getChildFragmentManager() {
         if (mChildFragmentManager == null) {
             instantiateChildFragmentManager();
@@ -674,6 +685,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Return this fragment's child FragmentManager one has been previously created,
      * otherwise null.
      */
+    @Nullable
     FragmentManager peekChildFragmentManager() {
         return mChildFragmentManager;
     }
@@ -682,6 +694,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Returns the parent Fragment containing this Fragment.  If this Fragment
      * is attached directly to an Activity, returns null.
      */
+    @Nullable
     final public Fragment getParentFragment() {
         return mParentFragment;
     }
@@ -1768,7 +1781,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param transition The Transition to use to move Views into the initial Scene.
      */
-    public void setEnterTransition(Object transition) {
+    public void setEnterTransition(@Nullable Object transition) {
         ensureAnimationInfo().mEnterTransition = transition;
     }
 
@@ -1781,6 +1794,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @return the Transition to use to move Views into the initial Scene.
      */
+    @Nullable
     public Object getEnterTransition() {
         if (mAnimationInfo == null) {
             return null;
@@ -1802,7 +1816,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                   is preparing to close. <code>transition</code> must be an
      *                   android.transition.Transition.
      */
-    public void setReturnTransition(Object transition) {
+    public void setReturnTransition(@Nullable Object transition) {
         ensureAnimationInfo().mReturnTransition = transition;
     }
 
@@ -1818,6 +1832,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return the Transition to use to move Views out of the Scene when the Fragment
      *         is preparing to close.
      */
+    @Nullable
     public Object getReturnTransition() {
         if (mAnimationInfo == null) {
             return null;
@@ -1839,7 +1854,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                   is being closed not due to popping the back stack. <code>transition</code>
      *                   must be an android.transition.Transition.
      */
-    public void setExitTransition(Object transition) {
+    public void setExitTransition(@Nullable Object transition) {
         ensureAnimationInfo().mExitTransition = transition;
     }
 
@@ -1855,6 +1870,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return the Transition to use to move Views out of the Scene when the Fragment
      *         is being closed not due to popping the back stack.
      */
+    @Nullable
     public Object getExitTransition() {
         if (mAnimationInfo == null) {
             return null;
@@ -1875,7 +1891,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                   previously-started Activity. <code>transition</code>
      *                   must be an android.transition.Transition.
      */
-    public void setReenterTransition(Object transition) {
+    public void setReenterTransition(@Nullable Object transition) {
         ensureAnimationInfo().mReenterTransition = transition;
     }
 
@@ -1908,7 +1924,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param transition The Transition to use for shared elements transferred into the content
      *                   Scene.  <code>transition</code> must be an android.transition.Transition.
      */
-    public void setSharedElementEnterTransition(Object transition) {
+    public void setSharedElementEnterTransition(@Nullable Object transition) {
         ensureAnimationInfo().mSharedElementEnterTransition = transition;
     }
 
@@ -1921,6 +1937,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return The Transition to use for shared elements transferred into the content
      *                   Scene.
      */
+    @Nullable
     public Object getSharedElementEnterTransition() {
         if (mAnimationInfo == null) {
             return null;
@@ -1940,7 +1957,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param transition The Transition to use for shared elements transferred out of the content
      *                   Scene. <code>transition</code> must be an android.transition.Transition.
      */
-    public void setSharedElementReturnTransition(Object transition) {
+    public void setSharedElementReturnTransition(@Nullable Object transition) {
         ensureAnimationInfo().mSharedElementReturnTransition = transition;
     }
 
@@ -1956,6 +1973,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return The Transition to use for shared elements transferred out of the content
      *                   Scene.
      */
+    @Nullable
     public Object getSharedElementReturnTransition() {
         if (mAnimationInfo == null) {
             return null;
