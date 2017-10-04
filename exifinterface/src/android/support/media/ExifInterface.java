@@ -22,6 +22,7 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -3699,7 +3700,7 @@ public class ExifInterface {
     /**
      * Reads Exif tags from the specified image file.
      */
-    public ExifInterface(String filename) throws IOException {
+    public ExifInterface(@NonNull String filename) throws IOException {
         if (filename == null) {
             throw new IllegalArgumentException("filename cannot be null");
         }
@@ -3720,7 +3721,7 @@ public class ExifInterface {
      * should close the input stream after use. This constructor is not intended to be used with
      * an input stream that performs any networking operations.
      */
-    public ExifInterface(InputStream inputStream) throws IOException {
+    public ExifInterface(@NonNull InputStream inputStream) throws IOException {
         if (inputStream == null) {
             throw new IllegalArgumentException("inputStream cannot be null");
         }
@@ -3739,7 +3740,8 @@ public class ExifInterface {
      *
      * @param tag the name of the tag.
      */
-    private ExifAttribute getExifAttribute(String tag) {
+    @Nullable
+    private ExifAttribute getExifAttribute(@NonNull String tag) {
         if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
             if (DEBUG) {
                 Log.d(TAG, "getExifAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
@@ -3764,7 +3766,8 @@ public class ExifInterface {
      *
      * @param tag the name of the tag.
      */
-    public String getAttribute(String tag) {
+    @Nullable
+    public String getAttribute(@NonNull String tag) {
         ExifAttribute attribute = getExifAttribute(tag);
         if (attribute != null) {
             if (!sTagSetForCompatibility.contains(tag)) {
@@ -3804,7 +3807,7 @@ public class ExifInterface {
      * @param tag the name of the tag.
      * @param defaultValue the value to return if the tag is not available.
      */
-    public int getAttributeInt(String tag, int defaultValue) {
+    public int getAttributeInt(@NonNull String tag, int defaultValue) {
         ExifAttribute exifAttribute = getExifAttribute(tag);
         if (exifAttribute == null) {
             return defaultValue;
@@ -3825,7 +3828,7 @@ public class ExifInterface {
      * @param tag the name of the tag.
      * @param defaultValue the value to return if the tag is not available.
      */
-    public double getAttributeDouble(String tag, double defaultValue) {
+    public double getAttributeDouble(@NonNull String tag, double defaultValue) {
         ExifAttribute exifAttribute = getExifAttribute(tag);
         if (exifAttribute == null) {
             return defaultValue;
@@ -3844,7 +3847,7 @@ public class ExifInterface {
      * @param tag the name of the tag.
      * @param value the value of the tag.
      */
-    public void setAttribute(String tag, String value) {
+    public void setAttribute(@NonNull String tag, @Nullable String value) {
         if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
             if (DEBUG) {
                 Log.d(TAG, "setAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
@@ -4320,6 +4323,7 @@ public class ExifInterface {
      * The returned data can be decoded using
      * {@link android.graphics.BitmapFactory#decodeByteArray(byte[],int,int)}
      */
+    @Nullable
     public byte[] getThumbnail() {
         if (mThumbnailCompression == DATA_JPEG || mThumbnailCompression == DATA_JPEG_COMPRESSED) {
             return getThumbnailBytes();
@@ -4331,6 +4335,7 @@ public class ExifInterface {
      * Returns the thumbnail bytes inside the image file, regardless of the compression type of the
      * thumbnail image.
      */
+    @Nullable
     public byte[] getThumbnailBytes() {
         if (!mHasThumbnail) {
             return null;
@@ -4379,6 +4384,7 @@ public class ExifInterface {
      * Creates and returns a Bitmap object of the thumbnail image based on the byte array and the
      * thumbnail compression value, or {@code null} if the compression type is unsupported.
      */
+    @Nullable
     public Bitmap getThumbnailBitmap() {
         if (!mHasThumbnail) {
             return null;
@@ -4425,6 +4431,7 @@ public class ExifInterface {
      * @return two-element array, the offset in the first value, and length in
      *         the second, or {@code null} if no thumbnail was found.
      */
+    @Nullable
     public long[] getThumbnailRange() {
         if (!mHasThumbnail) {
             return null;
@@ -4462,6 +4469,7 @@ public class ExifInterface {
      * array where the first element is the latitude and the second element is the longitude.
      * Otherwise, it returns null.
      */
+    @Nullable
     public double[] getLatLong() {
         String latValue = getAttribute(TAG_GPS_LATITUDE);
         String latRef = getAttribute(TAG_GPS_LATITUDE_REF);
