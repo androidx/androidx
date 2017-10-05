@@ -33,6 +33,7 @@ package android.support.v4.app {
     method public static void requestPermissions(android.app.Activity, java.lang.String[], int);
     method public static void setEnterSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
     method public static void setExitSharedElementCallback(android.app.Activity, android.support.v4.app.SharedElementCallback);
+    method public static void setPermissionCompatDelegate(android.support.v4.app.ActivityCompat.PermissionCompatDelegate);
     method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, java.lang.String);
     method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle);
     method public static void startIntentSenderForResult(android.app.Activity, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) throws android.content.IntentSender.SendIntentException;
@@ -41,6 +42,11 @@ package android.support.v4.app {
 
   public static abstract interface ActivityCompat.OnRequestPermissionsResultCallback {
     method public abstract void onRequestPermissionsResult(int, java.lang.String[], int[]);
+  }
+
+  public static abstract interface ActivityCompat.PermissionCompatDelegate {
+    method public abstract boolean onActivityResult(android.app.Activity, int, int, android.content.Intent);
+    method public abstract boolean requestPermissions(android.app.Activity, java.lang.String[], int);
   }
 
   public final class ActivityManagerCompat {
