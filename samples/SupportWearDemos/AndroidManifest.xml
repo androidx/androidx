@@ -18,6 +18,9 @@
     package="com.example.android.support.wear" >
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <!-- Required for ambient mode support. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application android:icon="@drawable/app_sample_code" android:label="SupportWearDemos"
             android:theme="@android:style/Theme.DeviceDefault">
         <activity android:name=".app.SimpleWearableRecyclerViewDemo" />
@@ -25,12 +28,15 @@
         <activity android:name=".app.CircularProgressLayoutDemo" />
         <activity android:name=".app.RoundedDrawableDemo" />
         <activity android:name=".app.drawers.WearableDrawersDemo" android:exported="true" />
+        <activity android:name=".app.AmbientModeDemo" />
         <activity android:name=".app.MainDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <uses-library android:name="com.google.android.wearable" android:required="true" />
     </application>
 
 </manifest>
