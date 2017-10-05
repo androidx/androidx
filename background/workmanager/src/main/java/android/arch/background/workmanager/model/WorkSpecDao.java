@@ -89,14 +89,12 @@ public interface WorkSpecDao {
     int getWorkSpecStatus(String id);
 
     /**
-     * Retrieves work ids for items that are runnable (items that are {@code STATUS_ENQUEUED} and
-     * don't have dependencies).
+     * Retrieves work ids for items that have status {@code STATUS_ENQUEUED}.
      *
      * @return A {@link LiveData} list of work ids.
      */
-    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND id NOT IN "
-            + "(SELECT DISTINCT work_spec_id FROM dependency)")
-    LiveData<List<String>> getRunnableWorkIds();
+    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED)
+    LiveData<List<String>> getEnqueuedWorkIds();
 
     /**
      * Retrieves work ids for items that are no longer considered blocked (items that are currently
