@@ -16,14 +16,15 @@
 
 package bar;
 
-import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.GeneratedAdapter;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.MethodCallsLogger;
 import java.lang.Override;
 import javax.annotation.Generated;
 
 @Generated("android.arch.lifecycle.LifecycleProcessor")
-public class DifferentPackagesDerived2_LifecycleAdapter implements GenericLifecycleObserver {
+public class DifferentPackagesDerived2_LifecycleAdapter implements GeneratedAdapter {
   final DifferentPackagesDerived2 mReceiver;
 
   DifferentPackagesDerived2_LifecycleAdapter(DifferentPackagesDerived2 receiver) {
@@ -31,10 +32,20 @@ public class DifferentPackagesDerived2_LifecycleAdapter implements GenericLifecy
   }
 
   @Override
-  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
+  public void callMethods(LifecycleOwner owner, Lifecycle.Event event, boolean onAny,
+      MethodCallsLogger logger) {
+    boolean hasLogger = logger != null;
+    if (onAny) {
+      return;
+    }
     if (event == Lifecycle.Event.ON_STOP) {
-      mReceiver.onStop(owner);
-      mReceiver.onStop2(owner);
+      if (!hasLogger || logger.approveCall("onStop", 2)) {
+        mReceiver.onStop(owner);
+      }
+      if (!hasLogger || logger.approveCall("onStop2", 2)) {
+        mReceiver.onStop2(owner);
+      }
+      return;
     }
   }
 }
