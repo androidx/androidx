@@ -16,16 +16,19 @@
 
 package android.arch.lifecycle.observers;
 
-import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.GeneratedAdapter;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.MethodCallsLogger;
 
-public class Interface2_LifecycleAdapter implements GenericLifecycleObserver {
+public class Interface2_LifecycleAdapter implements GeneratedAdapter {
 
     public Interface2_LifecycleAdapter(Interface2 base) {
     }
 
     @Override
-    public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+    public void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,
+            MethodCallsLogger logger) {
+
     }
 }
