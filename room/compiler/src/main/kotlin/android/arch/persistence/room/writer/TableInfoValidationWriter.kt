@@ -75,9 +75,26 @@ class TableInfoValidationWriter(val entity : Entity) {
                         /*parent column names*/ refColumnNames)
             }
 
-            addStatement("final $T $L = new $T($S, $L, $L)",
+            val indicesSetVar = scope.getTmpVar("_indices$suffix")
+            val indicesType = ParameterizedTypeName.get(HashSet::class.typeName(),
+                    RoomTypeNames.TABLE_INFO_INDEX)
+            addStatement("final $T $L = new $T($L)", indicesType, indicesSetVar,
+                    indicesType, entity.indices.size)
+            entity.indices.forEach { index ->
+                val columnNames = index.fields
+                        .joinToString(",") { "\"${it.columnName}\"" }
+                addStatement("$L.add(new $T($S, $L, $T.asList($L)))",
+                        indicesSetVar,
+                        RoomTypeNames.TABLE_INFO_INDEX,
+                        index.name,
+                        index.unique,
+                        Arrays::class.typeName(),
+                        columnNames)
+            }
+
+            addStatement("final $T $L = new $T($S, $L, $L, $L)",
                     RoomTypeNames.TABLE_INFO, expectedInfoVar, RoomTypeNames.TABLE_INFO,
-                    entity.tableName, columnListVar, foreignKeySetVar)
+                    entity.tableName, columnListVar, foreignKeySetVar, indicesSetVar)
 
             val existingVar = scope.getTmpVar("_existing$suffix")
             addStatement("final $T $L = $T.read($N, $S)",

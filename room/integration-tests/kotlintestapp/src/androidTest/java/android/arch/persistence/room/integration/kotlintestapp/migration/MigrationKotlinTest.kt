@@ -290,6 +290,8 @@ class MigrationKotlinTest {
                     + " (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`),"
                     + " FOREIGN KEY(`name`) REFERENCES `Entity1`(`name`)"
                     + " ON UPDATE NO ACTION ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED)")
+            database.execSQL("CREATE UNIQUE INDEX `index_entity1` ON "
+                    + MigrationDbKotlin.Entity1.TABLE_NAME + " (`name`)")
         }
     }
 
