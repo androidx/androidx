@@ -115,25 +115,9 @@
             android:launchMode="singleTask"
             android:exported="true" />
 
-        <activity android:name="PlaybackOverlayActivity"
-            android:configChanges=
-                "screenSize|smallestScreenSize|screenLayout|orientation"
-            android:resizeableActivity="true"
-            android:supportsPictureInPicture="true"
-            android:launchMode="singleTask"
-            android:exported="true" />
-
-        <activity android:name="PlaybackOverlaySupportActivity"
-            android:configChanges=
-                "screenSize|smallestScreenSize|screenLayout|orientation"
-            android:resizeableActivity="true"
-            android:supportsPictureInPicture="true"
-            android:launchMode="singleTask"
-            android:exported="true" />
-
         <activity android:name="VerticalGridActivity"
-            android:theme="@style/Theme.Example.Leanback.VerticalGrid"
-            android:exported="true" />
+                  android:theme="@style/Theme.Example.Leanback.VerticalGrid"
+                  android:exported="true" />
 
         <activity android:name="VerticalGridSupportActivity"
             android:theme="@style/Theme.Example.Leanback.VerticalGrid"

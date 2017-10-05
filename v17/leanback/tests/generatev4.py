@@ -166,18 +166,3 @@ for line in file:
 file.close()
 outfile.close()
 
-####### generate glue support test #######
-
-print "copy PlaybackControlGlueTest to PlaybackControlSupportGlueTest"
-file = open('java/android/support/v17/leanback/app/PlaybackControlGlueTest.java', 'r')
-outfile = open('java/android/support/v17/leanback/app/PlaybackControlSupportGlueTest.java', 'w')
-outfile.write("// CHECKSTYLE:OFF Generated code\n")
-outfile.write("/* This file is auto-generated from PlaybackControlGlueTest.java.  DO NOT MODIFY. */\n\n")
-for line in file:
-    line = line.replace('PlaybackControlGlue', 'PlaybackControlSupportGlue')
-    line = line.replace('PlaybackOverlayFragment', 'PlaybackOverlaySupportFragment')
-    line = line.replace('PlaybackGlueHostOld', 'PlaybackSupportGlueHostOld')
-    outfile.write(line)
-file.close()
-outfile.close()
-
