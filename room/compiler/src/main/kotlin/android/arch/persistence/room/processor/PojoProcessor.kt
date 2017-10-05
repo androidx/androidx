@@ -16,10 +16,10 @@
 
 package android.arch.persistence.room.processor
 
-import android.arch.persistence.room.Relation
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.Relation
 import android.arch.persistence.room.ext.getAllFieldsIncludingPrivateSupers
 import android.arch.persistence.room.ext.getAnnotationValue
 import android.arch.persistence.room.ext.getAsString
@@ -35,17 +35,17 @@ import android.arch.persistence.room.processor.ProcessorErrors.POJO_FIELD_HAS_DU
 import android.arch.persistence.room.processor.cache.Cache
 import android.arch.persistence.room.vo.CallType
 import android.arch.persistence.room.vo.Constructor
-import android.arch.persistence.room.vo.Field
-import android.arch.persistence.room.vo.FieldGetter
 import android.arch.persistence.room.vo.EmbeddedField
 import android.arch.persistence.room.vo.Entity
+import android.arch.persistence.room.vo.Field
+import android.arch.persistence.room.vo.FieldGetter
 import android.arch.persistence.room.vo.FieldSetter
 import android.arch.persistence.room.vo.Pojo
+import android.arch.persistence.room.vo.Warning
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PROTECTED
@@ -276,14 +276,22 @@ class PojoProcessor(baseContext: Context,
             }
             context.logger.e(element, ProcessorErrors.MISSING_POJO_CONSTRUCTOR)
             return null
-        }
-        if (goodConstructors.size > 1) {
+        } else if (goodConstructors.size > 1) {
+            // if there is a no-arg constructor, pick it. Even though it is weird, easily happens
+            // with kotlin data classes.
+            val noArg = goodConstructors.firstOrNull { it.params.isEmpty() }
+            if (noArg != null) {
+                context.logger.w(Warning.DEFAULT_CONSTRUCTOR, element,
+                        ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG)
+                return noArg
+            }
             goodConstructors.forEach {
                 context.logger.e(it.element, ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS)
             }
             return null
+        } else {
+            return goodConstructors.first()
         }
-        return goodConstructors.first()
     }
 
     private fun processEmbeddedField(declaredType: DeclaredType?, variableElement: VariableElement)
