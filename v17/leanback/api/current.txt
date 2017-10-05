@@ -823,7 +823,7 @@ package android.support.v17.leanback.app {
     method public void setSearchQuery(java.lang.String, boolean);
     method public void setSearchQuery(android.content.Intent, boolean);
     method public void setSearchResultProvider(android.support.v17.leanback.app.SearchFragment.SearchResultProvider);
-    method public void setSpeechRecognitionCallback(android.support.v17.leanback.widget.SpeechRecognitionCallback);
+    method public deprecated void setSpeechRecognitionCallback(android.support.v17.leanback.widget.SpeechRecognitionCallback);
     method public void setTitle(java.lang.String);
     method public void startRecognition();
   }
@@ -853,7 +853,7 @@ package android.support.v17.leanback.app {
     method public void setSearchQuery(java.lang.String, boolean);
     method public void setSearchQuery(android.content.Intent, boolean);
     method public void setSearchResultProvider(android.support.v17.leanback.app.SearchSupportFragment.SearchResultProvider);
-    method public void setSpeechRecognitionCallback(android.support.v17.leanback.widget.SpeechRecognitionCallback);
+    method public deprecated void setSpeechRecognitionCallback(android.support.v17.leanback.widget.SpeechRecognitionCallback);
     method public void setTitle(java.lang.String);
     method public void startRecognition();
   }
@@ -2800,7 +2800,7 @@ package android.support.v17.leanback.widget {
     method public void setSearchAffordanceColorsInListening(android.support.v17.leanback.widget.SearchOrbView.Colors);
     method public void setSearchBarListener(android.support.v17.leanback.widget.SearchBar.SearchBarListener);
     method public void setSearchQuery(java.lang.String);
-    method public void setSpeechRecognitionCallback(android.support.v17.leanback.widget.SpeechRecognitionCallback);
+    method public deprecated void setSpeechRecognitionCallback(android.support.v17.leanback.widget.SpeechRecognitionCallback);
     method public void setSpeechRecognizer(android.speech.SpeechRecognizer);
     method public void setTitle(java.lang.String);
     method public void startRecognition();
@@ -2956,7 +2956,7 @@ package android.support.v17.leanback.widget {
     method public void showNotListening();
   }
 
-  public abstract interface SpeechRecognitionCallback {
+  public abstract deprecated interface SpeechRecognitionCallback {
     method public abstract void recognizeSpeech();
   }
 

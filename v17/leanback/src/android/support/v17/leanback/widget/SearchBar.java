@@ -495,7 +495,12 @@ public class SearchBar extends RelativeLayout {
 
     /**
      * Sets the speech recognition callback.
+     *
+     * @deprecated Launching voice recognition activity is no longer supported. App should declare
+     *             android.permission.RECORD_AUDIO in AndroidManifest file. See details in
+     *             {@link android.support.v17.leanback.app.SearchSupportFragment}.
      */
+    @Deprecated
     public void setSpeechRecognitionCallback(SpeechRecognitionCallback request) {
         mSpeechRecognitionCallback = request;
         if (mSpeechRecognitionCallback != null && mSpeechRecognizer != null) {
