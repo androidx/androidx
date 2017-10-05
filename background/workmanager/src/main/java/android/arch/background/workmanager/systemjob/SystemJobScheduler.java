@@ -21,13 +21,14 @@ import android.app.job.JobScheduler;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.Context;
+import android.util.Log;
 
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
  */
 @TargetApi(23)
 public class SystemJobScheduler implements Scheduler {
-
+    private static final String TAG = "SystemJobScheduler";
     private JobScheduler mJobScheduler;
     private SystemJobInfoConverter mSystemJobInfoConverter;
 
@@ -40,6 +41,7 @@ public class SystemJobScheduler implements Scheduler {
     public void schedule(WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
             JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec);
+            Log.d(TAG, "Scheduling work, ID: " + workSpec.getId() + " Job ID: " + jobInfo.getId());
             mJobScheduler.schedule(jobInfo);
         }
     }
