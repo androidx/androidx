@@ -20,6 +20,7 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.database.Cursor;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * A data class that holds the information about a table.
@@ -56,11 +58,70 @@ public class TableInfo {
 
     public final Set<ForeignKey> foreignKeys;
 
+    /**
+     * Sometimes, Index information is not available (older versions). If so, we skip their
+     * verification.
+     */
+    @Nullable
+    public final Set<Index> indices;
+
     @SuppressWarnings("unused")
-    public TableInfo(String name, Map<String, Column> columns, Set<ForeignKey> foreignKeys) {
+    public TableInfo(String name, Map<String, Column> columns, Set<ForeignKey> foreignKeys,
+            Set<Index> indices) {
         this.name = name;
         this.columns = Collections.unmodifiableMap(columns);
         this.foreignKeys = Collections.unmodifiableSet(foreignKeys);
+        this.indices = indices == null ? null : Collections.unmodifiableSet(indices);
+    }
+
+    /**
+     * For backward compatibility with dbs created with older versions.
+     */
+    @SuppressWarnings("unused")
+    public TableInfo(String name, Map<String, Column> columns, Set<ForeignKey> foreignKeys) {
+        this(name, columns, foreignKeys, Collections.<Index>emptySet());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TableInfo tableInfo = (TableInfo) o;
+
+        if (name != null ? !name.equals(tableInfo.name) : tableInfo.name != null) return false;
+        if (columns != null ? !columns.equals(tableInfo.columns) : tableInfo.columns != null) {
+            return false;
+        }
+        if (foreignKeys != null ? !foreignKeys.equals(tableInfo.foreignKeys)
+                : tableInfo.foreignKeys != null) {
+            return false;
+        }
+        if (indices == null || tableInfo.indices == null) {
+            // if one us is missing index information, seems like we couldn't acquire the
+            // information so we better skip.
+            return true;
+        }
+        return indices.equals(tableInfo.indices);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (columns != null ? columns.hashCode() : 0);
+        result = 31 * result + (foreignKeys != null ? foreignKeys.hashCode() : 0);
+        // skip index, it is not reliable for comparison.
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "TableInfo{"
+                + "name='" + name + '\''
+                + ", columns=" + columns
+                + ", foreignKeys=" + foreignKeys
+                + ", indices=" + indices
+                + '}';
     }
 
     /**
@@ -74,7 +135,8 @@ public class TableInfo {
     public static TableInfo read(SupportSQLiteDatabase database, String tableName) {
         Map<String, Column> columns = readColumns(database, tableName);
         Set<ForeignKey> foreignKeys = readForeignKeys(database, tableName);
-        return new TableInfo(tableName, columns, foreignKeys);
+        Set<Index> indices = readIndices(database, tableName);
+        return new TableInfo(tableName, columns, foreignKeys, indices);
     }
 
     private static Set<ForeignKey> readForeignKeys(SupportSQLiteDatabase database,
@@ -167,34 +229,74 @@ public class TableInfo {
         return columns;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        TableInfo tableInfo = (TableInfo) o;
-
-        if (!name.equals(tableInfo.name)) return false;
-        //noinspection SimplifiableIfStatement
-        if (!columns.equals(tableInfo.columns)) return false;
-        return foreignKeys.equals(tableInfo.foreignKeys);
+    /**
+     * @return null if we cannot read the indices due to older sqlite implementations.
+     */
+    @Nullable
+    private static Set<Index> readIndices(SupportSQLiteDatabase database, String tableName) {
+        Cursor cursor = database.query("PRAGMA index_list(`" + tableName + "`)");
+        try {
+            final int nameColumnIndex = cursor.getColumnIndex("name");
+            final int originColumnIndex = cursor.getColumnIndex("origin");
+            final int uniqueIndex = cursor.getColumnIndex("unique");
+            if (nameColumnIndex == -1 || originColumnIndex == -1 || uniqueIndex == -1) {
+                // we cannot read them so better not validate any index.
+                return null;
+            }
+            HashSet<Index> indices = new HashSet<>();
+            while (cursor.moveToNext()) {
+                String origin = cursor.getString(originColumnIndex);
+                if (!"c".equals(origin)) {
+                    // Ignore auto-created indices
+                    continue;
+                }
+                String name = cursor.getString(nameColumnIndex);
+                boolean unique = cursor.getInt(uniqueIndex) == 1;
+                Index index = readIndex(database, name, unique);
+                if (index == null) {
+                    // we cannot read it properly so better not read it
+                    return null;
+                }
+                indices.add(index);
+            }
+            return indices;
+        } finally {
+            cursor.close();
+        }
     }
 
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + columns.hashCode();
-        result = 31 * result + foreignKeys.hashCode();
-        return result;
-    }
+    /**
+     * @return null if we cannot read the index due to older sqlite implementations.
+     */
+    @Nullable
+    private static Index readIndex(SupportSQLiteDatabase database, String name, boolean unique) {
+        Cursor cursor = database.query("PRAGMA index_xinfo(`" + name + "`)");
+        try {
+            final int seqnoColumnIndex = cursor.getColumnIndex("seqno");
+            final int cidColumnIndex = cursor.getColumnIndex("cid");
+            final int nameColumnIndex = cursor.getColumnIndex("name");
+            if (seqnoColumnIndex == -1 || cidColumnIndex == -1 || nameColumnIndex == -1) {
+                // we cannot read them so better not validate any index.
+                return null;
+            }
+            final TreeMap<Integer, String> results = new TreeMap<>();
 
-    @Override
-    public String toString() {
-        return "TableInfo{"
-                + "name='" + name + '\''
-                + ", columns=" + columns
-                + ", foreignKeys=" + foreignKeys
-                + '}';
+            while (cursor.moveToNext()) {
+                int cid = cursor.getInt(cidColumnIndex);
+                if (cid < 0) {
+                    // Ignore SQLite row ID
+                    continue;
+                }
+                int seq = cursor.getInt(seqnoColumnIndex);
+                String columnName = cursor.getString(nameColumnIndex);
+                results.put(seq, columnName);
+            }
+            final List<String> columns = new ArrayList<>(results.size());
+            columns.addAll(results.values());
+            return new Index(name, unique, columns);
+        } finally {
+            cursor.close();
+        }
     }
 
     /**
@@ -377,6 +479,67 @@ public class TableInfo {
             } else {
                 return idCmp;
             }
+        }
+    }
+
+    /**
+     * Holds the information about an SQLite index
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class Index {
+        // should match the value in Index.kt
+        public static final String DEFAULT_PREFIX = "index_";
+        public final String name;
+        public final boolean unique;
+        public final List<String> columns;
+
+        public Index(String name, boolean unique, List<String> columns) {
+            this.name = name;
+            this.unique = unique;
+            this.columns = columns;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Index index = (Index) o;
+            if (unique != index.unique) {
+                return false;
+            }
+            if (!columns.equals(index.columns)) {
+                return false;
+            }
+            if (name.startsWith(Index.DEFAULT_PREFIX)) {
+                return index.name.startsWith(Index.DEFAULT_PREFIX);
+            } else {
+                return name.equals(index.name);
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            if (name.startsWith(DEFAULT_PREFIX)) {
+                result = DEFAULT_PREFIX.hashCode();
+            } else {
+                result = name.hashCode();
+            }
+            result = 31 * result + (unique ? 1 : 0);
+            result = 31 * result + columns.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Index{"
+                    + "name='" + name + '\''
+                    + ", unique=" + unique
+                    + ", columns=" + columns
+                    + '}';
         }
     }
 }
