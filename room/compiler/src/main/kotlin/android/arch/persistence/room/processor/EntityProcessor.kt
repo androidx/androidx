@@ -524,7 +524,7 @@ class EntityProcessor(baseContext: Context,
         }
 
         private fun createIndexName(columnNames: List<String>, tableName: String): String {
-            return "index_" + tableName + "_" + columnNames.joinToString("_")
+            return Index.DEFAULT_PREFIX + tableName + "_" + columnNames.joinToString("_")
         }
 
         private fun extractForeignKeys(annotation: AnnotationMirror): List<ForeignKeyInput> {
