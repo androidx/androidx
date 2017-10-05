@@ -37,11 +37,13 @@ class TiledDataSourceQueryResultBinder(val listAdapter : ListQueryResultAdapter?
     val itemTypeName : TypeName = listAdapter?.rowAdapter?.out?.typeName() ?: TypeName.OBJECT
     val typeName : ParameterizedTypeName = ParameterizedTypeName.get(
             RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName)
-    override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  dbField: FieldSpec,
+                                  inTransaction : Boolean,
                                   scope: CodeGenScope) {
         val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
-        val spec = TypeSpec.anonymousClassBuilder("$N, $L, $L",
-                dbField, roomSQLiteQueryVar, tableNamesList).apply {
+        val spec = TypeSpec.anonymousClassBuilder("$N, $L, $L, $L",
+                dbField, roomSQLiteQueryVar, inTransaction, tableNamesList).apply {
             superclass(typeName)
             addMethod(createConvertRowsMethod(scope))
         }.build()

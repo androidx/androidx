@@ -445,6 +445,55 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun query_detectTransaction_delete() {
+        singleQueryMethod(
+                """
+                @Query("delete from user where uid = :id")
+                abstract int deleteUser(String id);
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_update() {
+        singleQueryMethod(
+                """
+                @Query("UPDATE user set uid = :id + 1 where uid = :id")
+                abstract int incrementId(String id);
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_select() {
+        singleQueryMethod(
+                """
+                @Query("select * from user")
+                abstract int loadUsers();
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(false))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun query_detectTransaction_selectInTransaction() {
+        singleQueryMethod(
+                """
+                @Transaction
+                @Query("select * from user")
+                abstract int loadUsers();
+                """
+        ) { method, _ ->
+            assertThat(method.inTransaction, `is`(true))
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun skipVerification() {
         singleQueryMethod(
                 """

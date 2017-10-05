@@ -22,6 +22,7 @@ import android.arch.persistence.room.ext.N
 import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
 import android.arch.persistence.room.writer.DaoWriter
+import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import javax.lang.model.element.Modifier
 
@@ -42,9 +43,17 @@ abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?)
 
     protected fun createRunQueryAndReturnStatements(builder: MethodSpec.Builder,
                                                     roomSQLiteQueryVar: String,
+                                                    dbField: FieldSpec,
+                                                    inTransaction: Boolean,
                                                     scope: CodeGenScope) {
+        val transactionWrapper = if (inTransaction) {
+            builder.transactionWrapper(dbField)
+        } else {
+            null
+        }
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
+        transactionWrapper?.beginTransactionWithControlFlow()
         builder.apply {
             addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
                     DaoWriter.dbField, roomSQLiteQueryVar)
@@ -52,6 +61,7 @@ abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?)
                 val adapterScope = scope.fork()
                 adapter?.convert(outVar, cursorVar, adapterScope)
                 addCode(adapterScope.builder().build())
+                transactionWrapper?.commitTransaction()
                 addStatement("return $L", outVar)
             }
             nextControlFlow("finally").apply {
@@ -59,5 +69,6 @@ abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?)
             }
             endControlFlow()
         }
+        transactionWrapper?.endTransactionWithControlFlow()
     }
 }
