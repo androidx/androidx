@@ -62,6 +62,8 @@ public class MainDemoActivity extends Activity {
                 this, WearableDrawersDemo.class));
         contentMap.put("Rounded Drawable", new Intent(
                 this, RoundedDrawableDemo.class));
+        contentMap.put("Ambient Fragment", new Intent(
+                this, AmbientModeDemo.class));
 
         return contentMap;
     }

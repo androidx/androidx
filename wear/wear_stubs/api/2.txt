@@ -1,0 +1,75 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.android.wearable {
+
+  public final class WearableSharedLib {
+    method public static int version();
+  }
+
+}
+
+package com.google.android.wearable.compat {
+
+  public class WearableActivityController {
+    ctor public WearableActivityController(java.lang.String, android.app.Activity, com.google.android.wearable.compat.WearableActivityController.AmbientCallback);
+    method public void dump(java.lang.String, java.io.FileDescriptor, java.io.PrintWriter, java.lang.String[]);
+    method public final boolean isAmbient();
+    method public void onCreate();
+    method public void onDestroy();
+    method public void onPause();
+    method public void onResume();
+    method public void onStop();
+    method public final void setAmbientEnabled();
+    method public final void setAutoResumeEnabled(boolean);
+    field public static final java.lang.String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
+    field public static final java.lang.String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
+  }
+
+  public static abstract class WearableActivityController.AmbientCallback {
+    ctor public WearableActivityController.AmbientCallback();
+    method public void onEnterAmbient(android.os.Bundle);
+    method public void onExitAmbient();
+    method public void onUpdateAmbient();
+  }
+
+}
+
+package com.google.android.wearable.display {
+
+  public final class WearableDisplayHelper {
+    method public static final android.graphics.RectF getObstruction();
+  }
+
+}
+
+package com.google.android.wearable.input {
+
+  public class RotaryEncoderHelper {
+    method public static float getRotaryAxisValue(android.view.MotionEvent);
+    method public static float getScaledScrollFactor(android.content.Context);
+    method public static boolean isFromRotaryEncoder(android.view.MotionEvent);
+  }
+
+  public final class WearableInputDevice {
+    method public static final int[] getAvailableButtonKeyCodes(android.content.Context);
+    method public static final android.os.Bundle getButtonInfo(android.content.Context, int);
+    field public static final java.lang.String X_KEY = "x_key";
+    field public static final java.lang.String Y_KEY = "y_key";
+  }
+
+}
+
