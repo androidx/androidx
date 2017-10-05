@@ -121,10 +121,6 @@ public class MainActivity extends Activity {
                     R.string.playback_description);
             addAction(actions, PlaybackTransportControlSupportActivity.class,
                     R.string.playback_support, R.string.playback_support_description);
-            addAction(actions, PlaybackOverlayActivity.class, R.string.playbackoverlay,
-                    R.string.playbackoverlay_description);
-            addAction(actions, PlaybackOverlaySupportActivity.class,
-                    R.string.playbackoverlay_support, R.string.playbackoverlay_support_description);
             addAction(actions, VideoActivity.class, R.string.video_playback,
                     R.string.playback_description);
             addAction(actions, VideoSupportActivity.class, R.string.video_playback_support,
