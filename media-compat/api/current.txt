@@ -357,7 +357,6 @@ package android.support.v4.media.session {
     method public android.support.v4.media.session.MediaControllerCompat.TransportControls getTransportControls();
     method public boolean isCaptioningEnabled();
     method public boolean isSessionReady();
-    method public deprecated boolean isShuffleModeEnabled();
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback);
     method public void registerCallback(android.support.v4.media.session.MediaControllerCompat.Callback, android.os.Handler);
     method public void removeQueueItem(android.support.v4.media.MediaDescriptionCompat);
@@ -382,7 +381,6 @@ package android.support.v4.media.session {
     method public void onSessionDestroyed();
     method public void onSessionEvent(java.lang.String, android.os.Bundle);
     method public void onSessionReady();
-    method public deprecated void onShuffleModeChanged(boolean);
     method public void onShuffleModeChanged(int);
   }
 
@@ -416,7 +414,6 @@ package android.support.v4.media.session {
     method public abstract void setRating(android.support.v4.media.RatingCompat, android.os.Bundle);
     method public abstract void setRepeatMode(int);
     method public abstract void setShuffleMode(int);
-    method public abstract deprecated void setShuffleModeEnabled(boolean);
     method public abstract void skipToNext();
     method public abstract void skipToPrevious();
     method public abstract void skipToQueueItem(long);
@@ -454,7 +451,6 @@ package android.support.v4.media.session {
     method public void setRepeatMode(int);
     method public void setSessionActivity(android.app.PendingIntent);
     method public void setShuffleMode(int);
-    method public deprecated void setShuffleModeEnabled(boolean);
     field public static final java.lang.String ACTION_FLAG_AS_INAPPROPRIATE = "android.support.v4.media.session.action.FLAG_AS_INAPPROPRIATE";
     field public static final java.lang.String ACTION_FOLLOW = "android.support.v4.media.session.action.FOLLOW";
     field public static final java.lang.String ACTION_SKIP_AD = "android.support.v4.media.session.action.SKIP_AD";
@@ -495,7 +491,6 @@ package android.support.v4.media.session {
     method public void onSetRating(android.support.v4.media.RatingCompat, android.os.Bundle);
     method public void onSetRepeatMode(int);
     method public void onSetShuffleMode(int);
-    method public deprecated void onSetShuffleModeEnabled(boolean);
     method public void onSkipToNext();
     method public void onSkipToPrevious();
     method public void onSkipToQueueItem(long);
