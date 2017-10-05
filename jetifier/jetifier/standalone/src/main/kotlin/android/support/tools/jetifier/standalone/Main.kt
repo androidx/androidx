@@ -88,7 +88,7 @@ class Main {
         }
 
         val processor = Processor(config)
-        processor.transform(inputPath, outputPath)
+        processor.transform(listOf(inputPath), outputPath)
     }
 
     private fun addOption(name: String, description: String, isRequired: Boolean) {

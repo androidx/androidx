@@ -17,6 +17,8 @@
 package android.support.tools.jetifier.core.config
 
 import android.support.tools.jetifier.core.rules.RewriteRule
+import android.support.tools.jetifier.core.transform.pom.PomDependency
+import android.support.tools.jetifier.core.transform.pom.PomRewriteRule
 import com.google.gson.annotations.SerializedName
 import java.util.ArrayList
 
@@ -28,7 +30,10 @@ class ConfigJson(
         val restrictToPackages: ArrayList<String>,
 
         @SerializedName("rules")
-        val rules: ArrayList<RuleJson?>) {
+        val rules: ArrayList<RuleJson?>,
+
+        @SerializedName("pomRules")
+        val pomRules: ArrayList<PomRuleJson?>) {
 
     /** Creates instance of [Config] based on its internal data. */
     fun getConfig() : Config {
@@ -36,7 +41,14 @@ class ConfigJson(
                 .filterNotNull()
                 .map { it.getRule() }
 
-        return Config(restrictToPackages.filterNotNull().toList(), rulesResult.toList())
+        val pomsResult = pomRules
+                .filterNotNull()
+                .map { it.getRule() }
+
+        return Config(
+                restrictToPackages.filterNotNull().toList(),
+                rulesResult.toList(),
+                pomsResult.toList())
     }
 
     /**
@@ -61,5 +73,24 @@ class ConfigJson(
         }
 
     }
+
+    /**
+     * Rule that defines how to rewrite a dependency element in a POM file.
+     *
+     * Any dependency that is matched against [from] should be rewritten to list of the dependencies
+     * defined in [to].
+     */
+    data class PomRuleJson(
+            @SerializedName("from")
+            val from: PomDependency,
+            @SerializedName("to")
+            val to: ArrayList<PomDependency>)  {
+
+        /** Creates instance of [RewriteRule] based on its internal data. */
+        fun getRule() : PomRewriteRule {
+            return PomRewriteRule(from, to.filterNotNull())
+        }
+    }
+
 }
 

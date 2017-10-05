@@ -63,7 +63,7 @@ class CoreRemapperImpl(private val config: Config) : CoreRemapper {
 
         typesRewritesCache.put(type, type)
 
-        Log.i(tag, "No rule for: " + type)
+        Log.e(tag, "No rule for: " + type)
         return type
     }
 
@@ -87,7 +87,7 @@ class CoreRemapperImpl(private val config: Config) : CoreRemapper {
             return mappedFieldName
         }
 
-        Log.i(tag, "No rule for: %s", field)
+        Log.e(tag, "No rule for: %s", field)
         return field
     }
 

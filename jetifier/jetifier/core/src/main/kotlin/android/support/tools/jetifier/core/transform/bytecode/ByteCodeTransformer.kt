@@ -30,9 +30,7 @@ class ByteCodeTransformer internal constructor(config: Config) : Transformer {
     private val remapper: CoreRemapperImpl = CoreRemapperImpl(config)
 
 
-    override fun canTransform(file: ArchiveFile): Boolean {
-        return file.relativePath.endsWith(".class")
-    }
+    override fun canTransform(file: ArchiveFile) = file.isClassFile()
 
     override fun runTransform(file: ArchiveFile) {
         val reader = ClassReader(file.data)
