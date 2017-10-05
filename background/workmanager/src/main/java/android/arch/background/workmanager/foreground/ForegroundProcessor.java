@@ -51,7 +51,7 @@ public class ForegroundProcessor extends Processor
         super(appContext, workDatabase, scheduler);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
-        mWorkDatabase.workSpecDao().getRunnableWorkIds().observe(mLifecycleOwner, this);
+        mWorkDatabase.workSpecDao().getEnqueuedWorkIds().observe(mLifecycleOwner, this);
     }
 
     @Override
