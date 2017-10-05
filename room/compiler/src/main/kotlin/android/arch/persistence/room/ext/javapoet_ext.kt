@@ -78,6 +78,8 @@ object RoomTypeNames {
             ClassName.get("android.arch.persistence.room.util", "TableInfo.Column")
     val TABLE_INFO_FOREIGN_KEY : ClassName =
             ClassName.get("android.arch.persistence.room.util", "TableInfo.ForeignKey")
+    val TABLE_INFO_INDEX : ClassName =
+            ClassName.get("android.arch.persistence.room.util", "TableInfo.Index")
     val LIMIT_OFFSET_DATA_SOURCE : ClassName =
             ClassName.get("android.arch.persistence.room.paging", "LimitOffsetDataSource")
 }

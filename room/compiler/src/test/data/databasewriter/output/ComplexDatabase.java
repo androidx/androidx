@@ -11,6 +11,7 @@ import android.arch.persistence.room.RoomOpenHelper.Delegate;
 import android.arch.persistence.room.util.TableInfo;
 import android.arch.persistence.room.util.TableInfo.Column;
 import android.arch.persistence.room.util.TableInfo.ForeignKey;
+import android.arch.persistence.room.util.TableInfo.Index;
 import java.lang.IllegalStateException;
 import java.lang.Override;
 import java.lang.String;
@@ -59,7 +60,8 @@ public class ComplexDatabase_Impl extends ComplexDatabase {
                 _columnsUser.put("lastName", new TableInfo.Column("lastName", "TEXT", false, 0));
                 _columnsUser.put("ageColumn", new TableInfo.Column("ageColumn", "INTEGER", true, 0));
                 final HashSet<TableInfo.ForeignKey> _foreignKeysUser = new HashSet<TableInfo.ForeignKey>(0);
-                final TableInfo _infoUser = new TableInfo("User", _columnsUser, _foreignKeysUser);
+                final HashSet<TableInfo.Index> _indicesUser = new HashSet<TableInfo.Index>(0);
+                final TableInfo _infoUser = new TableInfo("User", _columnsUser, _foreignKeysUser, _indicesUser);
                 final TableInfo _existingUser = TableInfo.read(_db, "User");
                 if (! _infoUser.equals(_existingUser)) {
                     throw new IllegalStateException("Migration didn't properly handle User(foo.bar.User).\n"
