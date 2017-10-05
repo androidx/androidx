@@ -19,6 +19,12 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -100,6 +106,25 @@ public class FragmentReceiveResultTest {
         assertEquals(40, mFragment.mRequestCode);
         assertEquals(Activity.RESULT_CANCELED, mFragment.mResultCode);
         assertEquals("content 40", mFragment.mResultContent);
+    }
+
+    @Test
+    @SmallTest
+    public void testActivityResult_withDelegate() {
+        ActivityCompat.PermissionCompatDelegate
+                delegate = mock(ActivityCompat.PermissionCompatDelegate.class);
+
+        Intent data = new Intent();
+        ActivityCompat.setPermissionCompatDelegate(delegate);
+
+        mActivityRule.getActivity().onActivityResult(42, 43, data);
+
+        verify(delegate).onActivityResult(same(mActivityRule.getActivity()), eq(42), eq(43),
+                same(data));
+
+        ActivityCompat.setPermissionCompatDelegate(null);
+        mActivityRule.getActivity().onActivityResult(42, 43, data);
+        verifyNoMoreInteractions(delegate);
     }
 
     private TestFragment attachTestFragment() throws Throwable {
