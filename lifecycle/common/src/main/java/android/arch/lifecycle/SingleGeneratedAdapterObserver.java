@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package android.arch.lifecycle.observers;
+package android.arch.lifecycle;
 
-import android.arch.lifecycle.GeneratedAdapter;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.MethodCallsLogger;
+import android.support.annotation.RestrictTo;
 
-public class Base_LifecycleAdapter implements GeneratedAdapter {
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SingleGeneratedAdapterObserver implements GenericLifecycleObserver {
 
-    public Base_LifecycleAdapter(Base base) {
+    private final GeneratedAdapter mGeneratedAdapter;
+
+    SingleGeneratedAdapterObserver(GeneratedAdapter generatedAdapter) {
+        mGeneratedAdapter = generatedAdapter;
     }
 
     @Override
-    public void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,
-            MethodCallsLogger logger) {
-
+    public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+        mGeneratedAdapter.callMethods(source, event, false, null);
+        mGeneratedAdapter.callMethods(source, event, true, null);
     }
 }

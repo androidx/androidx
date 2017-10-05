@@ -16,15 +16,16 @@
 
 package bar;
 
-import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.GeneratedAdapter;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.MethodCallsLogger;
 import foo.DifferentPackagesBase1_LifecycleAdapter;
 import java.lang.Override;
 import javax.annotation.Generated;
 
 @Generated("android.arch.lifecycle.LifecycleProcessor")
-public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecycleObserver {
+public class DifferentPackagesDerived1_LifecycleAdapter implements GeneratedAdapter {
   final DifferentPackagesDerived1 mReceiver;
 
   DifferentPackagesDerived1_LifecycleAdapter(DifferentPackagesDerived1 receiver) {
@@ -32,10 +33,20 @@ public class DifferentPackagesDerived1_LifecycleAdapter implements GenericLifecy
   }
 
   @Override
-  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
+  public void callMethods(LifecycleOwner owner, Lifecycle.Event event, boolean onAny,
+      MethodCallsLogger logger) {
+    boolean hasLogger = logger != null;
+    if (onAny) {
+      return;
+    }
     if (event == Lifecycle.Event.ON_STOP) {
-      DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver,owner);
-      mReceiver.onStop2(owner);
+      if (!hasLogger || logger.approveCall("onStop", 2)) {
+        DifferentPackagesBase1_LifecycleAdapter.__synthetic_onStop(mReceiver,owner);
+      }
+      if (!hasLogger || logger.approveCall("onStop2", 2)) {
+        mReceiver.onStop2(owner);
+      }
+      return;
     }
   }
 }

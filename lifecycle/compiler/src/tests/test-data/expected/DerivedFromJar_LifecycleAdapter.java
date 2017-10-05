@@ -16,14 +16,15 @@
 
 package foo;
 
-import android.arch.lifecycle.GenericLifecycleObserver;
+import android.arch.lifecycle.GeneratedAdapter;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.MethodCallsLogger;
 import java.lang.Override;
 import javax.annotation.Generated;
 
 @Generated("android.arch.lifecycle.LifecycleProcessor")
-public class DerivedFromJar_LifecycleAdapter implements GenericLifecycleObserver {
+public class DerivedFromJar_LifecycleAdapter implements GeneratedAdapter {
   final DerivedFromJar mReceiver;
 
   DerivedFromJar_LifecycleAdapter(DerivedFromJar receiver) {
@@ -31,10 +32,20 @@ public class DerivedFromJar_LifecycleAdapter implements GenericLifecycleObserver
   }
 
   @Override
-  public void onStateChanged(LifecycleOwner owner, Lifecycle.Event event) {
+  public void callMethods(LifecycleOwner owner, Lifecycle.Event event, boolean onAny,
+      MethodCallsLogger logger) {
+    boolean hasLogger = logger != null;
+    if (onAny) {
+      return;
+    }
     if (event == Lifecycle.Event.ON_START) {
-      mReceiver.doOnStart();
-      mReceiver.doAnother();
+      if (!hasLogger || logger.approveCall("doOnStart", 1)) {
+        mReceiver.doOnStart();
+      }
+      if (!hasLogger || logger.approveCall("doAnother", 1)) {
+        mReceiver.doAnother();
+      }
+      return;
     }
   }
 }
