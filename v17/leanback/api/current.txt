@@ -658,53 +658,6 @@ package android.support.v17.leanback.app {
     method protected final void startEnterAnimation(boolean);
   }
 
-  public abstract deprecated class PlaybackControlGlue extends android.support.v17.leanback.media.PlaybackControlGlue {
-    ctor public PlaybackControlGlue(android.content.Context, int[]);
-    ctor public PlaybackControlGlue(android.content.Context, int[], int[]);
-    ctor public PlaybackControlGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[]);
-    ctor public PlaybackControlGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlayFragment, int[], int[]);
-    method public android.support.v17.leanback.widget.PlaybackControlsRowPresenter createControlsRowAndPresenter();
-    method protected android.support.v17.leanback.widget.SparseArrayObjectAdapter createPrimaryActionsAdapter(android.support.v17.leanback.widget.PresenterSelector);
-    method public android.support.v17.leanback.app.PlaybackOverlayFragment getFragment();
-    method public deprecated android.support.v17.leanback.widget.OnItemViewClickedListener getOnItemViewClickedListener();
-    method public final void next();
-    method protected void onRowChanged(android.support.v17.leanback.widget.PlaybackControlsRow);
-    method public final void pause();
-    method protected deprecated void pausePlayback();
-    method public final void play(int);
-    method public final void previous();
-    method public deprecated void setOnItemViewClickedListener(android.support.v17.leanback.widget.OnItemViewClickedListener);
-    method protected deprecated void skipToNext();
-    method protected deprecated void skipToPrevious();
-    method protected deprecated void startPlayback(int);
-  }
-
-  public static abstract deprecated interface PlaybackControlGlue.InputEventHandler {
-    method public abstract boolean handleInputEvent(android.view.InputEvent);
-  }
-
-  public abstract deprecated class PlaybackControlSupportGlue extends android.support.v17.leanback.app.PlaybackControlGlue {
-    ctor public PlaybackControlSupportGlue(android.content.Context, int[]);
-    ctor public PlaybackControlSupportGlue(android.content.Context, int[], int[]);
-    ctor public PlaybackControlSupportGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlaySupportFragment, int[]);
-    ctor public PlaybackControlSupportGlue(android.content.Context, android.support.v17.leanback.app.PlaybackOverlaySupportFragment, int[], int[]);
-    field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
-    field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
-    field public static final int ACTION_FAST_FORWARD = 128; // 0x80
-    field public static final int ACTION_PLAY_PAUSE = 64; // 0x40
-    field public static final int ACTION_REWIND = 32; // 0x20
-    field public static final int ACTION_SKIP_TO_NEXT = 256; // 0x100
-    field public static final int ACTION_SKIP_TO_PREVIOUS = 16; // 0x10
-    field public static final int PLAYBACK_SPEED_FAST_L0 = 10; // 0xa
-    field public static final int PLAYBACK_SPEED_FAST_L1 = 11; // 0xb
-    field public static final int PLAYBACK_SPEED_FAST_L2 = 12; // 0xc
-    field public static final int PLAYBACK_SPEED_FAST_L3 = 13; // 0xd
-    field public static final int PLAYBACK_SPEED_FAST_L4 = 14; // 0xe
-    field public static final int PLAYBACK_SPEED_INVALID = -1; // 0xffffffff
-    field public static final int PLAYBACK_SPEED_NORMAL = 1; // 0x1
-    field public static final int PLAYBACK_SPEED_PAUSED = 0; // 0x0
-  }
-
   public class PlaybackFragment extends android.app.Fragment {
     ctor public PlaybackFragment();
     method public deprecated void fadeOut();
@@ -744,62 +697,6 @@ package android.support.v17.leanback.app {
     ctor public PlaybackFragmentGlueHost(android.support.v17.leanback.app.PlaybackFragment);
     method public void fadeOut();
     method public void setPlaybackSeekUiClient(android.support.v17.leanback.widget.PlaybackSeekUi.Client);
-  }
-
-  public deprecated class PlaybackOverlayFragment extends android.support.v17.leanback.app.DetailsFragment {
-    ctor public PlaybackOverlayFragment();
-    method public void fadeOut();
-    method public int getBackgroundType();
-    method public final android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler getEventHandler();
-    method public android.support.v17.leanback.app.PlaybackOverlayFragment.OnFadeCompleteListener getFadeCompleteListener();
-    method public final deprecated android.support.v17.leanback.app.PlaybackOverlayFragment.InputEventHandler getInputEventHandler();
-    method public boolean isFadingEnabled();
-    method public void setBackgroundType(int);
-    method public final void setEventHandler(android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler);
-    method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackOverlayFragment.OnFadeCompleteListener);
-    method public void setFadingEnabled(boolean);
-    method public final deprecated void setInputEventHandler(android.support.v17.leanback.app.PlaybackOverlayFragment.InputEventHandler);
-    method public void tickle();
-    field public static final int BG_DARK = 1; // 0x1
-    field public static final int BG_LIGHT = 2; // 0x2
-    field public static final int BG_NONE = 0; // 0x0
-  }
-
-  public static abstract deprecated interface PlaybackOverlayFragment.InputEventHandler implements android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler {
-  }
-
-  public static class PlaybackOverlayFragment.OnFadeCompleteListener {
-    ctor public PlaybackOverlayFragment.OnFadeCompleteListener();
-    method public void onFadeInComplete();
-    method public void onFadeOutComplete();
-  }
-
-  public deprecated class PlaybackOverlaySupportFragment extends android.support.v17.leanback.app.DetailsSupportFragment {
-    ctor public PlaybackOverlaySupportFragment();
-    method public void fadeOut();
-    method public int getBackgroundType();
-    method public final android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler getEventHandler();
-    method public android.support.v17.leanback.app.PlaybackOverlaySupportFragment.OnFadeCompleteListener getFadeCompleteListener();
-    method public final deprecated android.support.v17.leanback.app.PlaybackOverlaySupportFragment.InputEventHandler getInputEventHandler();
-    method public boolean isFadingEnabled();
-    method public void setBackgroundType(int);
-    method public final void setEventHandler(android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler);
-    method public void setFadeCompleteListener(android.support.v17.leanback.app.PlaybackOverlaySupportFragment.OnFadeCompleteListener);
-    method public void setFadingEnabled(boolean);
-    method public final deprecated void setInputEventHandler(android.support.v17.leanback.app.PlaybackOverlaySupportFragment.InputEventHandler);
-    method public void tickle();
-    field public static final int BG_DARK = 1; // 0x1
-    field public static final int BG_LIGHT = 2; // 0x2
-    field public static final int BG_NONE = 0; // 0x0
-  }
-
-  public static abstract deprecated interface PlaybackOverlaySupportFragment.InputEventHandler implements android.support.v17.leanback.app.PlaybackControlGlue.InputEventHandler {
-  }
-
-  public static class PlaybackOverlaySupportFragment.OnFadeCompleteListener {
-    ctor public PlaybackOverlaySupportFragment.OnFadeCompleteListener();
-    method public void onFadeInComplete();
-    method public void onFadeOutComplete();
   }
 
   public class PlaybackSupportFragment extends android.support.v4.app.Fragment {
