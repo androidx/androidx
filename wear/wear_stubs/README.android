@@ -1,0 +1,10 @@
+# Wearable support system stubs from http://ab/4131273
+This library contains system stubs generated for the
+com.google.android.wearable.jar shared library. Classes in the 1st/3rd party
+accessible wearable support library are able to access these apis.
+
+See `vendor/google_clockwork/libs/wearable` in Android Git.
+
+Imports to this directory must always be done from the Android Build server.
+To test with local changes made in Android Git see the instructions at
+http://go/clockwork-dev/device-builds.
