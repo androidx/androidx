@@ -694,6 +694,21 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun constructor_multipleMatching_withNoArg() {
+        singleRun("""
+            String mName;
+            String mLastName;
+            public MyPojo() {
+            }
+            public MyPojo(String name, String lastName) {
+            }
+        """) { pojo ->
+            assertThat(pojo.constructor?.params?.size ?: -1, `is`(0))
+        }.compilesWithoutError().withWarningContaining(
+                ProcessorErrors.TOO_MANY_POJO_CONSTRUCTORS_CHOOSING_NO_ARG)
+    }
+
+    @Test
     fun recursion_1Level() {
         singleRun(
                 """
