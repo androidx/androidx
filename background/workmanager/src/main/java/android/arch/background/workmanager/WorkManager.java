@@ -59,9 +59,9 @@ public final class WorkManager {
     }
 
     @VisibleForTesting
-    WorkManager(Context context, boolean useInMemoryDatabase) {
+    WorkManager(Context context, boolean useTestDatabase) {
         mContext = context.getApplicationContext();
-        mWorkDatabase = WorkDatabase.create(mContext, useInMemoryDatabase);
+        mWorkDatabase = WorkDatabase.create(mContext, useTestDatabase);
         if (Build.VERSION.SDK_INT >= 23) {
             mScheduler = new SystemJobScheduler(mContext);
         }
