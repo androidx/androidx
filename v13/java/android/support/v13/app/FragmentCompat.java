@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
 
 import java.util.Arrays;
 
@@ -35,6 +36,38 @@ public class FragmentCompat {
         void setUserVisibleHint(Fragment f, boolean deferStart);
         void requestPermissions(Fragment fragment, String[] permissions, int requestCode);
         boolean shouldShowRequestPermissionRationale(Fragment fragment, String permission);
+    }
+
+    /**
+     * Customizable delegate that allows delegating permission related compatibility methods
+     * to a custom implementation.
+     *
+     * <p>
+     *     To delegate fragment compatibility methods to a custom class, implement this interface,
+     *     and call {@code FragmentCompat.setPermissionCompatDelegate(delegate);}. All future calls
+     *     to the compatibility methods in this class will first check whether the delegate can
+     *     handle the method call, and invoke the corresponding method if it can.
+     * </p>
+     */
+    public interface PermissionCompatDelegate {
+
+        /**
+         * Determines whether the delegate should handle
+         * {@link FragmentCompat#requestPermissions(Fragment, String[], int)}, and request
+         * permissions if applicable. If this method returns true, it means that permission
+         * request is successfully handled by the delegate, and platform should not perform any
+         * further requests for permission.
+         *
+         * @param fragment The target fragment.
+         * @param permissions The requested permissions.
+         * @param requestCode Application specific request code to match with a result
+         *    reported to {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult(
+         *    int, String[], int[])}.
+         *
+         * @return Whether the delegate has handled the permission request.
+         * @see FragmentCompat#requestPermissions(Fragment, String[], int)
+         */
+        boolean requestPermissions(Fragment fragment, String[] permissions, int requestCode);
     }
 
     static class FragmentCompatBaseImpl implements FragmentCompatImpl {
@@ -115,6 +148,26 @@ public class FragmentCompat {
         } else {
             IMPL = new FragmentCompatBaseImpl();
         }
+    }
+
+    private static PermissionCompatDelegate sDelegate;
+
+    /**
+     * Sets the permission delegate for {@code FragmentCompat}. Replaces the previously set
+     * delegate.
+     *
+     * @param delegate The delegate to be set. {@code null} to clear the set delegate.
+     */
+    public static void setPermissionCompatDelegate(PermissionCompatDelegate delegate) {
+        sDelegate = delegate;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static PermissionCompatDelegate getPermissionCompatDelegate() {
+        return sDelegate;
     }
 
     /**
@@ -212,6 +265,11 @@ public class FragmentCompat {
      */
     public static void requestPermissions(@NonNull Fragment fragment,
             @NonNull String[] permissions, int requestCode) {
+        if (sDelegate != null && sDelegate.requestPermissions(fragment, permissions, requestCode)) {
+            // Delegate has handled the request.
+            return;
+        }
+
         IMPL.requestPermissions(fragment, permissions, requestCode);
     }
 

@@ -153,6 +153,13 @@ public class FragmentActivity extends BaseFragmentActivityApi16 implements
             return;
         }
 
+        ActivityCompat.PermissionCompatDelegate delegate =
+                ActivityCompat.getPermissionCompatDelegate();
+        if (delegate != null && delegate.onActivityResult(this, requestCode, resultCode, data)) {
+            // Delegate has handled the activity result
+            return;
+        }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 
