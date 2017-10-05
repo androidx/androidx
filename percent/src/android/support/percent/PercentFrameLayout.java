@@ -126,6 +126,7 @@ import android.widget.FrameLayout;
  *         app:layout_constraintBottom_toBottomOf="@+id/bottom_guideline" /&gt
  *
  * &lt;/android.support.constraint.ConstraintLayout&gt
+ * </pre>
  */
 @Deprecated
 public class PercentFrameLayout extends FrameLayout {
