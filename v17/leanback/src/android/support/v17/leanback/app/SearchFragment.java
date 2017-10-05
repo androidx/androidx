@@ -55,12 +55,11 @@ import java.util.List;
  * into a {@link RowsFragment}, in the same way that they are in a {@link
  * BrowseFragment}.
  *
- * <p>If you do not supply a callback via
- * {@link #setSpeechRecognitionCallback(SpeechRecognitionCallback)}, an internal speech
- * recognizer will be used for which your application will need to declare
+ * <p>A SpeechRecognizer object will be created for which your application will need to declare
  * android.permission.RECORD_AUDIO in AndroidManifest file. If app's target version is >= 23 and
  * the device version is >= 23, a permission dialog will show first time using speech recognition.
  * 0 will be used as requestCode in requestPermissions() call.
+ * {@link #setSpeechRecognitionCallback(SpeechRecognitionCallback)} is deprecated.
  * </p>
  * <p>
  * Speech recognition is automatically started when fragment is created, but
@@ -579,8 +578,11 @@ public class SearchFragment extends Fragment {
 
     /**
      * Sets this callback to have the fragment pass speech recognition requests
-     * to the activity rather than using an internal recognizer.
+     * to the activity rather than using a SpeechRecognizer object.
+     * @deprecated Launching voice recognition activity is no longer supported. App should declare
+     *             android.permission.RECORD_AUDIO in AndroidManifest file.
      */
+    @Deprecated
     public void setSpeechRecognitionCallback(SpeechRecognitionCallback callback) {
         mSpeechRecognitionCallback = callback;
         if (mSearchBar != null) {
