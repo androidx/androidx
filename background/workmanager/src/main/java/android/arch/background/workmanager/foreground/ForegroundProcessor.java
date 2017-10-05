@@ -18,28 +18,29 @@ package android.arch.background.workmanager.foreground;
 import android.arch.background.workmanager.Processor;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@link Processor} that handles execution when the app is in the foreground.
  */
 
 public class ForegroundProcessor extends Processor
-        implements Observer<List<String>>, LifecycleObserver {
+        implements Observer<List<WorkSpec>>, LifecycleObserver {
     private static final String TAG = "ForegroundProcessor";
     private LifecycleOwner mLifecycleOwner;
 
@@ -51,11 +52,11 @@ public class ForegroundProcessor extends Processor
         super(appContext, workDatabase, scheduler);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
-        mWorkDatabase.workSpecDao().getEnqueuedWorkIds().observe(mLifecycleOwner, this);
+        mWorkDatabase.workSpecDao().getEnqueuedWorkSpecs().observe(mLifecycleOwner, this);
     }
 
     @Override
-    public ExecutorService createExecutorService() {
+    public ScheduledExecutorService createExecutorService() {
         // TODO(sumir): Be more intelligent about this.
         return Executors.newScheduledThreadPool(4);
     }
@@ -66,19 +67,15 @@ public class ForegroundProcessor extends Processor
     }
 
     @Override
-    public void onChanged(@Nullable List<String> runnableWorkIds) {
+    public void onChanged(@NonNull List<WorkSpec> workSpecs) {
         // TODO(sumir): Optimize this.  Also, do we need to worry about items *removed* from the
         // list or can we safely ignore them as we are doing right now?
         // Note that this query currently gets triggered when items are REMOVED from the runnable
         // status as well.
-        if (runnableWorkIds == null) {
-            return;
-        }
-
-        Log.d(TAG, "Runnable work ids updated. Size : " + runnableWorkIds.size());
-        for (String workId : runnableWorkIds) {
-            if (!mEnqueuedWorkMap.containsKey(workId)) {
-                process(workId);
+        Log.d(TAG, "Enqueued WorkSpecs updated. Size : " + workSpecs.size());
+        for (WorkSpec workSpec : workSpecs) {
+            if (!mEnqueuedWorkMap.containsKey(workSpec.getId())) {
+                process(workSpec.getId(), workSpec.getInitialDelay());
             }
         }
     }

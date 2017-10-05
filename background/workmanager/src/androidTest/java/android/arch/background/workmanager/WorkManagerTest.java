@@ -126,7 +126,6 @@ public class WorkManagerTest {
 
     @Test
     public void testEnqueue_insertWorkConstraints() throws InterruptedException {
-        final long expectedInitialDelay = 1000L;
         Work work0 = new Work.Builder(TestWorker.class)
                 .withConstraints(
                         new Constraints.Builder()
@@ -135,7 +134,6 @@ public class WorkManagerTest {
                                 .setRequiredNetworkType(Constraints.NETWORK_TYPE_METERED)
                                 .setRequiresBatteryNotLow(true)
                                 .setRequiresStorageNotLow(true)
-                                .setInitialDelay(expectedInitialDelay)
                                 .build())
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
@@ -151,7 +149,6 @@ public class WorkManagerTest {
         assertThat(constraints.requiresDeviceIdle(), is(true));
         assertThat(constraints.requiresBatteryNotLow(), is(true));
         assertThat(constraints.requiresStorageNotLow(), is(true));
-        assertThat(constraints.getInitialDelay(), is(expectedInitialDelay));
         assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_METERED));
 
         constraints = workSpec1.getConstraints();
@@ -160,8 +157,24 @@ public class WorkManagerTest {
         assertThat(constraints.requiresDeviceIdle(), is(false));
         assertThat(constraints.requiresBatteryNotLow(), is(false));
         assertThat(constraints.requiresStorageNotLow(), is(false));
-        assertThat(constraints.getInitialDelay(), is(0L));
         assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_NONE));
+    }
+
+    @Test
+    public void testEnqueue_insertWorkInitialDelay() throws InterruptedException {
+        final long expectedInitialDelay = 5000L;
+        Work work0 = new Work.Builder(TestWorker.class)
+                .withInitialDelay(expectedInitialDelay)
+                .build();
+        Work work1 = new Work.Builder(TestWorker.class).build();
+        mWorkManager.enqueue(work0).then(work1);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
+        WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
+
+        assertThat(workSpec0.getInitialDelay(), is(expectedInitialDelay));
+        assertThat(workSpec1.getInitialDelay(), is(0L));
     }
 
     @Test

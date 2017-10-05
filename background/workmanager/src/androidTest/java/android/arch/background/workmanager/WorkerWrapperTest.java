@@ -226,4 +226,18 @@ public class WorkerWrapperTest {
         verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
         assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_SUCCEEDED));
     }
+
+    @Test
+    public void testScheduler() throws InterruptedException {
+        Work work = new Work.Builder(TestWorker.class).build();
+        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        Scheduler mockScheduler = mock(Scheduler.class);
+
+        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withScheduler(mockScheduler)
+                .build()
+                .run();
+
+        verify(mockScheduler).schedule();
+    }
 }

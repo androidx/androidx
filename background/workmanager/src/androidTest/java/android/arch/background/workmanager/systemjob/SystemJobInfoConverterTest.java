@@ -71,8 +71,8 @@ public class SystemJobInfoConverterTest {
     @Test
     public void testConvert_initialDelay() {
         final long expectedInitialDelay = 12123L;
-        WorkSpec workSpec = createWorkSpecWithConstraints(
-                new Constraints.Builder().setInitialDelay(expectedInitialDelay).build());
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setInitialDelay(expectedInitialDelay);
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getMinLatencyMillis(), is(expectedInitialDelay));
     }

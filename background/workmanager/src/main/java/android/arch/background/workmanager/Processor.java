@@ -20,8 +20,9 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Processor can intelligently schedule and execute work on demand.
@@ -32,7 +33,7 @@ public abstract class Processor implements ExecutionListener {
     protected Context mAppContext;
     protected WorkDatabase mWorkDatabase;
 
-    protected ExecutorService mExecutorService;
+    protected ScheduledExecutorService mExecutorService;
     protected Map<String, Future<?>> mEnqueuedWorkMap;
 
     protected Scheduler mScheduler;
@@ -46,12 +47,12 @@ public abstract class Processor implements ExecutionListener {
     }
 
     /**
-     * Creates an {@link ExecutorService} appropriate for this Processor.  This will be called once
-     * in the constructor.
+     * Creates a {@link ScheduledExecutorService} appropriate for this Processor.  This will be
+     * called once in the constructor.
      *
-     * @return An {@link ExecutorService} for this Processor.
+     * @return A {@link ScheduledExecutorService} for this Processor.
      */
-    public abstract ExecutorService createExecutorService();
+    public abstract ScheduledExecutorService createExecutorService();
 
     /**
      * Checks if the Processor should be considered active when processing new jobs.  Some
@@ -64,15 +65,16 @@ public abstract class Processor implements ExecutionListener {
     /**
      * Processes a given unit of work in the background.
      *
-     * @param id The work id to execute.
+     * @param id    The work id to execute.
+     * @param delay The delay (in milliseconds) to execute this work with.
      */
-    public void process(String id) {
+    public void process(String id, long delay) {
         if (isActive()) {
             WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
                     .withListener(this)
                     .withScheduler(mScheduler)
                     .build();
-            Future<?> future = mExecutorService.submit(workWrapper);   // TODO(sumir): Delays
+            Future<?> future = mExecutorService.schedule(workWrapper, delay, TimeUnit.MILLISECONDS);
             mEnqueuedWorkMap.put(id, future);
             Log.d(TAG, "Submitted " + id + " to ExecutorService");
         } else {
