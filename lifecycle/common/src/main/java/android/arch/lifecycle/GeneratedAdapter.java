@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package android.arch.lifecycle.observers;
+package android.arch.lifecycle;
 
-import android.arch.lifecycle.GeneratedAdapter;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.MethodCallsLogger;
+import android.support.annotation.RestrictTo;
 
-public class Base_LifecycleAdapter implements GeneratedAdapter {
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface GeneratedAdapter {
 
-    public Base_LifecycleAdapter(Base base) {
-    }
-
-    @Override
-    public void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,
-            MethodCallsLogger logger) {
-
-    }
+    /**
+     * Called when a state transition event happens.
+     *
+     * @param source The source of the event
+     * @param event The event
+     * @param onAny approveCall onAny handlers
+     * @param logger if passed, used to track called methods and prevent calling the same method
+     *              twice
+     */
+    void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,
+            MethodCallsLogger logger);
 }
