@@ -116,7 +116,7 @@ public class DetailsFragment extends android.support.v17.leanback.app.DetailsFra
                     actions.clear(ACTION_RENT);
                     dor.setItem(mPhotoItem.getTitle() + "(Rented)");
                 } else if (action.getId() == ACTION_PLAY) {
-                    Intent intent = new Intent(context, PlaybackOverlayActivity.class);
+                    Intent intent = new Intent(context, PlaybackActivity.class);
                     getActivity().startActivity(intent);
                 }
             }

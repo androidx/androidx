@@ -32,7 +32,7 @@ import android.widget.LinearLayout;
 /**
  * A PlaybackControlsRowPresenter renders a {@link PlaybackControlsRow} to display a
  * series of playback control buttons. Typically this row will be the first row in a fragment
- * such as the {@link android.support.v17.leanback.app.PlaybackOverlayFragment}.
+ * such as the {@link android.support.v17.leanback.app.PlaybackFragment}.
  *
  * <p>The detailed description is rendered using a {@link Presenter} passed in
  * {@link #PlaybackControlsRowPresenter(Presenter)}.  Typically this will be an instance of
