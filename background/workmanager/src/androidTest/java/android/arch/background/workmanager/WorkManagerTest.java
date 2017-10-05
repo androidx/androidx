@@ -84,7 +84,7 @@ public class WorkManagerTest {
         Work work3 = new Work.Builder(TestWorker.class).build();
 
         mWorkManager.enqueue(work1, work2, work3);
-        Thread.sleep(5000L);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getId()), is(notNullValue()));
@@ -101,7 +101,7 @@ public class WorkManagerTest {
         Work work3b = new Work.Builder(TestWorker.class).build();
 
         mWorkManager.enqueue(work1a, work1b).then(work2).then(work3a, work3b);
-        Thread.sleep(5000L);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1a.getId()), is(notNullValue()));
