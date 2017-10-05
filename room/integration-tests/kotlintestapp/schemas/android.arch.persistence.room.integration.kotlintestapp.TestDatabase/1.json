@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7beb328c9cd44a7782dfaa18c30ecb83",
+    "identityHash": "933c7e2810b0f89ab84faa68bbea5852",
     "entities": [
       {
         "tableName": "Book",
@@ -161,11 +161,37 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "NoArgClass",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `class_name` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "class_name",
+            "columnName": "class_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7beb328c9cd44a7782dfaa18c30ecb83\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"933c7e2810b0f89ab84faa68bbea5852\")"
     ]
   }
 }
