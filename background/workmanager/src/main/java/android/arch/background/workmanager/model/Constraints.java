@@ -45,7 +45,6 @@ public class Constraints {
     boolean mRequiresDeviceIdle;
     boolean mRequiresBatteryNotLow;
     boolean mRequiresStorageNotLow;
-    long mInitialDelay;
 
     public Constraints() { // stub required for room
     }
@@ -56,7 +55,6 @@ public class Constraints {
         mRequiredNetworkType = builder.mRequiredNetworkType;
         mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
-        mInitialDelay = builder.mInitialDelay;
     }
 
     public int getRequiredNetworkType() {
@@ -111,14 +109,6 @@ public class Constraints {
         mRequiresStorageNotLow = requiresStorageNotLow;
     }
 
-    public long getInitialDelay() {
-        return mInitialDelay;
-    }
-
-    public void setInitialDelay(long initialDelay) {
-        mInitialDelay = initialDelay;
-    }
-
     /**
      * Builder for {@link Constraints} class.
      */
@@ -128,7 +118,6 @@ public class Constraints {
         private int mRequiredNetworkType = NETWORK_TYPE_NONE;
         private boolean mRequiresBatteryNotLow = false;
         private boolean mRequiresStorageNotLow = false;
-        private long mInitialDelay = 0L;
 
         /**
          * Specify whether device should be plugged in for {@link WorkSpec} to run.
@@ -188,18 +177,6 @@ public class Constraints {
          */
         public Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
             this.mRequiresStorageNotLow = requiresStorageNotLow;
-            return this;
-        }
-
-        /**
-         * Specify whether {@link WorkSpec} should run with an initial delay. Default is 0ms.
-         *
-         * @param duration initial delay before running WorkSpec (in milliseconds)
-         * @return current builder
-         */
-        public Builder setInitialDelay(long duration) {
-            // TODO(xbhatnag) : Does this affect rescheduled jobs?
-            this.mInitialDelay = duration;
             return this;
         }
 

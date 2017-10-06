@@ -18,17 +18,15 @@ package android.arch.background.workmanager.foreground;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
+import android.arch.background.workmanager.InfiniteTestWorker;
 import android.arch.background.workmanager.Scheduler;
-import android.arch.background.workmanager.TestWorker;
+import android.arch.background.workmanager.TestLifecycleOwner;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkSpecs;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LifecycleRegistry;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -39,34 +37,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ForegroundProcessorTest {
-
+    private static final long DEFAULT_SLEEP_TIME_MS = 1000L;
     private WorkDatabase mWorkDatabase;
-    private Scheduler mScheduler;
     private ForegroundProcessor mForegroundProcessor;
+    private TestLifecycleOwner mLifecycleOwner;
 
     @Before
     public void setUp() {
-        LifecycleOwner alwaysActiveLifecycleOwner = new LifecycleOwner() {
-
-            LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-
-            @Override
-            public Lifecycle getLifecycle() {
-                mLifecycleRegistry.markState(Lifecycle.State.STARTED);
-                return mLifecycleRegistry;
-            }
-        };
-
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
+        mLifecycleOwner = new TestLifecycleOwner();
         mWorkDatabase = WorkDatabase.create(appContext, true);
-        mScheduler = mock(Scheduler.class);
         mForegroundProcessor = new ForegroundProcessor(
                 appContext,
                 mWorkDatabase,
-                mScheduler,
-                alwaysActiveLifecycleOwner);
+                mock(Scheduler.class),
+                mLifecycleOwner);
     }
 
     @After
@@ -75,14 +63,25 @@ public class ForegroundProcessorTest {
     }
 
     @Test
-    @SmallTest
-    public void testSimpleWorker() throws InterruptedException {
-        WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
+    public void testIsActive_onStart_returnsTrue() {
+        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        assertThat(mForegroundProcessor.isActive(), is(true));
+    }
+
+    @Test
+    public void testIsActive_onStop_returnsFalse() {
+        assertThat(mForegroundProcessor.isActive(), is(true));
+        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        assertThat(mForegroundProcessor.isActive(), is(false));
+    }
+
+    @Test
+    public void testOnChanged() throws InterruptedException {
+        WorkSpec workSpec = WorkSpecs.getWorkSpec(InfiniteTestWorker.class);
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
-        mForegroundProcessor.process(workSpec.getId());
-        Thread.sleep(1000L);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
         assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(workSpec.getId()),
-                is(Work.STATUS_SUCCEEDED));
-        verify(mScheduler).schedule();
+                is(Work.STATUS_RUNNING));
     }
 }

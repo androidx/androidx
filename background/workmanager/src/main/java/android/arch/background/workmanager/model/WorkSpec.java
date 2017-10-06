@@ -48,6 +48,9 @@ public class WorkSpec {
     @Work.WorkStatus
     int mStatus = Work.STATUS_ENQUEUED;
 
+    @ColumnInfo(name = "initial_delay")
+    long mInitialDelay;
+
     @ColumnInfo(name = "worker_class_name")
     String mWorkerClassName;
 
@@ -149,5 +152,13 @@ public class WorkSpec {
 
     public void setBackoffDelayDuration(long backoffDelayDuration) {
         mBackoffDelayDuration = backoffDelayDuration;
+    }
+
+    public long getInitialDelay() {
+        return mInitialDelay;
+    }
+
+    public void setInitialDelay(long initialDelay) {
+        mInitialDelay = initialDelay;
     }
 }

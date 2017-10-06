@@ -89,12 +89,12 @@ public interface WorkSpecDao {
     int getWorkSpecStatus(String id);
 
     /**
-     * Retrieves work ids for items that have status {@code STATUS_ENQUEUED}.
+     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}.
      *
-     * @return A {@link LiveData} list of work ids.
+     * @return A {@link LiveData} list of {@link WorkSpec}s
      */
-    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED)
-    LiveData<List<String>> getEnqueuedWorkIds();
+    @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED)
+    LiveData<List<WorkSpec>> getEnqueuedWorkSpecs();
 
     /**
      * Retrieves work ids for items that are no longer considered blocked (items that are currently

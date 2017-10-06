@@ -22,8 +22,8 @@ import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkerWrapper;
 import android.content.Context;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A {@link Processor} that handles execution for work coming via
@@ -44,7 +44,7 @@ public class SystemJobProcessor extends Processor {
     }
 
     @Override
-    public ExecutorService createExecutorService() {
+    public ScheduledExecutorService createExecutorService() {
         // TODO(sumir): Be more intelligent about this.
         return Executors.newScheduledThreadPool(1);
     }

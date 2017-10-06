@@ -68,7 +68,7 @@ public class SystemJobProcessorTest {
     public void testSimpleWorker() throws InterruptedException {
         WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
-        mSystemJobProcessor.process(workSpec.getId());
+        mSystemJobProcessor.process(workSpec.getId(), 0L);
         Thread.sleep(1000L);
         verify(mMockListener).onExecuted(workSpec.getId(), WorkerWrapper.RESULT_SUCCEEDED);
         assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(workSpec.getId()),

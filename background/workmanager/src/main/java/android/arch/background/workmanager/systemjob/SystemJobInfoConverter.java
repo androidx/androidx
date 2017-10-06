@@ -72,7 +72,7 @@ class SystemJobInfoConverter {
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.getId());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
-                .setMinimumLatency(constraints.getInitialDelay())
+                .setMinimumLatency(workSpec.getInitialDelay())
                 .setRequiredNetworkType(jobInfoNetworkType)
                 .setExtras(extras);
 
