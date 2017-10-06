@@ -39,7 +39,6 @@ public class ProcessorTest {
     private static final long DEFAULT_DELAY_TIME_MS = 3000L;
     private WorkDatabase mWorkDatabase;
     private Processor mProcessor;
-    private boolean mIsProcessorActive = true;
 
     @Before
     public void setUp() {
@@ -49,13 +48,7 @@ public class ProcessorTest {
                 appContext,
                 mWorkDatabase,
                 mock(Scheduler.class),
-                Executors.newSingleThreadScheduledExecutor()) {
-
-            @Override
-            public boolean isActive() {
-                return mIsProcessorActive;
-            }
-        };
+                Executors.newSingleThreadScheduledExecutor()) { };
     }
 
     @After
@@ -87,16 +80,6 @@ public class ProcessorTest {
         assertThat(getWorkSpecStatus(work.getId()), is(Work.STATUS_ENQUEUED));
         Thread.sleep((DEFAULT_DELAY_TIME_MS / 2) + DEFAULT_SLEEP_TIME_MS);
         assertThat(getWorkSpecStatus(work.getId()), is(Work.STATUS_RUNNING));
-    }
-
-    @Test
-    public void testProcess_processorInactive() throws InterruptedException {
-        mIsProcessorActive = false;
-        Work work = new Work.Builder(InfiniteTestWorker.class).build();
-        mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
-        mProcessor.process(work.getId(), work.getWorkSpec().getInitialDelay());
-        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
-        assertThat(getWorkSpecStatus(work.getId()), is(Work.STATUS_ENQUEUED));
     }
 
     @Test

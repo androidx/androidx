@@ -38,14 +38,9 @@ public class SystemJobProcessor extends Processor {
             WorkDatabase workDatabase,
             Scheduler scheduler,
             ExecutionListener outerListener) {
-        // TODO(sumir): Be more intelligent about this.
+        // TODO(sumir): Be more intelligent about the executor.
         super(appContext, workDatabase, scheduler, Executors.newScheduledThreadPool(1));
         mOuterListener = outerListener;
-    }
-
-    @Override
-    public boolean isActive() {
-        return true;
     }
 
     @Override

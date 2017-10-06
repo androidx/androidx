@@ -72,9 +72,17 @@ public class ForegroundProcessor extends Processor
         mWorkDatabase.workSpecDao().getEnqueuedWorkSpecs().observe(mLifecycleOwner, this);
     }
 
-    @Override
-    public boolean isActive() {
+    private boolean isActive() {
         return mLifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
+    }
+
+    @Override
+    public void process(String id, long delay) {
+        if (isActive()) {
+            super.process(id, delay);
+        } else {
+            Log.d(TAG, "Inactive lifecycle; not processing " + id);
+        }
     }
 
     @Override

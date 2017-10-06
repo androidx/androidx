@@ -50,31 +50,19 @@ public abstract class Processor implements ExecutionListener {
     }
 
     /**
-     * Checks if the Processor should be considered active when processing new jobs.  Some
-     * Processors are always active; others depend on a particular Lifecycle.
-     *
-     * @return {@code true} if the Processor is active.
-     */
-    public abstract boolean isActive();
-
-    /**
      * Processes a given unit of work in the background.
      *
      * @param id    The work id to execute.
      * @param delay The delay (in milliseconds) to execute this work with.
      */
     public void process(String id, long delay) {
-        if (isActive()) {
-            WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
-                    .withListener(this)
-                    .withScheduler(mScheduler)
-                    .build();
-            Future<?> future = mExecutorService.schedule(workWrapper, delay, TimeUnit.MILLISECONDS);
-            mEnqueuedWorkMap.put(id, future);
-            Log.d(TAG, "Submitted " + id + " to ExecutorService");
-        } else {
-            Log.d(TAG, "Could not process " + id + ". Processor inactive.");
-        }
+        WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
+                .withListener(this)
+                .withScheduler(mScheduler)
+                .build();
+        Future<?> future = mExecutorService.schedule(workWrapper, delay, TimeUnit.MILLISECONDS);
+        mEnqueuedWorkMap.put(id, future);
+        Log.d(TAG, "Submitted " + id + " to ExecutorService");
     }
 
     /**

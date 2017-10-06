@@ -83,22 +83,6 @@ public class ForegroundProcessorTest {
     }
 
     @Test
-    public void testIsActive_onStart_returnsTrue() throws TimeoutException, InterruptedException {
-        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
-        drain();
-        assertThat(mForegroundProcessor.isActive(), is(true));
-    }
-
-    @Test
-    public void testIsActive_onStop_returnsFalse() throws TimeoutException, InterruptedException {
-        assertThat(mForegroundProcessor.isActive(), is(true));
-        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        drain();
-        assertThat(mForegroundProcessor.isActive(), is(false));
-    }
-
-    @Test
     public void testProcess_singleWorker() throws InterruptedException {
         WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
@@ -124,6 +108,19 @@ public class ForegroundProcessorTest {
         assertThat(workSpecDao.getWorkSpecStatus(prerequisite.getId()), is(STATUS_SUCCEEDED));
         drain();
         assertThat(workSpecDao.getWorkSpecStatus(workSpec.getId()), is(STATUS_SUCCEEDED));
+    }
+
+    @Test
+    public void testProcess_processorInactive() throws TimeoutException, InterruptedException {
+        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        drain();
+        WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
+        mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
+        mForegroundProcessor.process(workSpec.getId(), 0L);
+        drain();
+        assertThat(
+                mWorkDatabase.workSpecDao().getWorkSpecStatus(workSpec.getId()),
+                is(Work.STATUS_ENQUEUED));
     }
 
     private void drain() throws TimeoutException, InterruptedException {
