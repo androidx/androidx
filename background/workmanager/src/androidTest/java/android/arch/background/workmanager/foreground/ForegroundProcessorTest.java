@@ -34,7 +34,6 @@ import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -46,8 +45,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -67,20 +64,19 @@ public class ForegroundProcessorTest {
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mLifecycleOwner = new TestLifecycleOwner();
         mWorkDatabase = WorkDatabase.create(appContext, true);
-        mForegroundProcessor = new SynchronousForegroundProcessor(
+        mForegroundProcessor = new ForegroundProcessor(
                 appContext,
                 mWorkDatabase,
                 mock(Scheduler.class),
-                mLifecycleOwner);
+                mLifecycleOwner,
+                new SynchronousExecutorService());
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws TimeoutException, InterruptedException {
         mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         try {
             drain();
-        } catch (TimeoutException | InterruptedException e) {
-            // Do nothing
         } finally {
             mWorkDatabase.close();
         }
@@ -132,25 +128,5 @@ public class ForegroundProcessorTest {
 
     private void drain() throws TimeoutException, InterruptedException {
         mExecutorRule.drainTasks(1, TimeUnit.MINUTES);
-    }
-
-    /**
-     * A test {@link ForegroundProcessor} with a customized {@link ExecutorService}.
-     * TODO(sumir): Make the ExecutorService passed in.
-     */
-    private static class SynchronousForegroundProcessor extends ForegroundProcessor {
-
-        SynchronousForegroundProcessor(
-                Context appContext,
-                WorkDatabase workDatabase,
-                Scheduler scheduler,
-                LifecycleOwner lifecycleOwner) {
-            super(appContext, workDatabase, scheduler, lifecycleOwner);
-        }
-
-        @Override
-        public ScheduledExecutorService createExecutorService() {
-            return new SynchronousExecutorService();
-        }
     }
 }

@@ -33,26 +33,21 @@ public abstract class Processor implements ExecutionListener {
     protected Context mAppContext;
     protected WorkDatabase mWorkDatabase;
 
-    protected ScheduledExecutorService mExecutorService;
     protected Map<String, Future<?>> mEnqueuedWorkMap;
-
     protected Scheduler mScheduler;
+    protected ScheduledExecutorService mExecutorService;
 
-    public Processor(Context appContext, WorkDatabase workDatabase, Scheduler scheduler) {
+    protected Processor(
+            Context appContext,
+            WorkDatabase workDatabase,
+            Scheduler scheduler,
+            ScheduledExecutorService executorService) {
         mAppContext = appContext;
         mWorkDatabase = workDatabase;
         mEnqueuedWorkMap = new HashMap<>();
-        mExecutorService = createExecutorService();
         mScheduler = scheduler;
+        mExecutorService = executorService;
     }
-
-    /**
-     * Creates a {@link ScheduledExecutorService} appropriate for this Processor.  This will be
-     * called once in the constructor.
-     *
-     * @return A {@link ScheduledExecutorService} for this Processor.
-     */
-    public abstract ScheduledExecutorService createExecutorService();
 
     /**
      * Checks if the Processor should be considered active when processing new jobs.  Some

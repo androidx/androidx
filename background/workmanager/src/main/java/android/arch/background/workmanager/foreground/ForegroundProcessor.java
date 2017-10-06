@@ -25,7 +25,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.util.Iterator;
@@ -49,16 +49,27 @@ public class ForegroundProcessor extends Processor
             WorkDatabase workDatabase,
             Scheduler scheduler,
             LifecycleOwner lifecycleOwner) {
-        super(appContext, workDatabase, scheduler);
+        // TODO(sumir): Be more intelligent about the executor.
+        this(
+                appContext,
+                workDatabase,
+                scheduler,
+                lifecycleOwner,
+                Executors.newScheduledThreadPool(4));
+
+    }
+
+    @VisibleForTesting
+    ForegroundProcessor(
+            Context appContext,
+            WorkDatabase workDatabase,
+            Scheduler scheduler,
+            LifecycleOwner lifecycleOwner,
+            ScheduledExecutorService executorService) {
+        super(appContext, workDatabase, scheduler, executorService);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
         mWorkDatabase.workSpecDao().getEnqueuedWorkSpecs().observe(mLifecycleOwner, this);
-    }
-
-    @Override
-    public ScheduledExecutorService createExecutorService() {
-        // TODO(sumir): Be more intelligent about this.
-        return Executors.newScheduledThreadPool(4);
     }
 
     @Override
@@ -67,7 +78,7 @@ public class ForegroundProcessor extends Processor
     }
 
     @Override
-    public void onChanged(@NonNull List<WorkSpec> workSpecs) {
+    public void onChanged(List<WorkSpec> workSpecs) {
         // TODO(sumir): Optimize this.  Also, do we need to worry about items *removed* from the
         // list or can we safely ignore them as we are doing right now?
         // Note that this query currently gets triggered when items are REMOVED from the runnable

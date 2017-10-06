@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -46,11 +45,11 @@ public class ProcessorTest {
     public void setUp() {
         Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mWorkDatabase = WorkDatabase.create(appContext, true);
-        mProcessor = new Processor(appContext, mWorkDatabase, mock(Scheduler.class)) {
-            @Override
-            public ScheduledExecutorService createExecutorService() {
-                return Executors.newSingleThreadScheduledExecutor();
-            }
+        mProcessor = new Processor(
+                appContext,
+                mWorkDatabase,
+                mock(Scheduler.class),
+                Executors.newSingleThreadScheduledExecutor()) {
 
             @Override
             public boolean isActive() {
