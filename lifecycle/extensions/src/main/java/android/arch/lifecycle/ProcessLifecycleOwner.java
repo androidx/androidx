@@ -22,6 +22,7 @@ import android.arch.lifecycle.ReportFragment.ActivityInitializationListener;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 /**
@@ -171,6 +172,7 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         });
     }
 
+    @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mRegistry;

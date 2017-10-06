@@ -19,6 +19,7 @@ package android.arch.lifecycle;
 import static android.arch.lifecycle.HolderFragment.holderFragmentFor;
 
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
@@ -38,7 +39,7 @@ public class ViewModelStores {
      * @return a {@code ViewModelStore}
      */
     @MainThread
-    public static ViewModelStore of(FragmentActivity activity) {
+    public static ViewModelStore of(@NonNull FragmentActivity activity) {
         return holderFragmentFor(activity).getViewModelStore();
     }
 
@@ -49,7 +50,7 @@ public class ViewModelStores {
      * @return a {@code ViewModelStore}
      */
     @MainThread
-    public static ViewModelStore of(Fragment fragment) {
+    public static ViewModelStore of(@NonNull Fragment fragment) {
         return holderFragmentFor(fragment).getViewModelStore();
     }
 }
