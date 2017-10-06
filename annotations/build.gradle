@@ -1,9 +1,5 @@
 apply plugin: android.support.SupportJavaLibraryPlugin
 
-sourceSets {
-    main.java.srcDir 'src'
-}
-
 jar {
     from sourceSets.main.output
     // Strip out typedef classes. For Android libraries, this is done
