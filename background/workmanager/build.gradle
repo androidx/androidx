@@ -53,7 +53,8 @@ dependencies {
     // DexMaker has it"s own MockMaker
     androidTestImplementation libs.dexmaker_mockito, { exclude group: 'net.bytebuddy' }
     // DexMaker has it"s own MockMaker
-    testCompile libs.junit
+    testImplementation libs.junit
+    androidTestImplementation project(':arch:core-testing')
 }
 
 createAndroidCheckstyle(project)

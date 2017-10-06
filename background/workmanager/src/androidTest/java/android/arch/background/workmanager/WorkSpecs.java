@@ -31,7 +31,20 @@ public class WorkSpecs {
      * @return A {@link WorkSpec}
      */
     public static WorkSpec getWorkSpec(Class<? extends Worker> clazz) {
-        Work work = new Work.Builder(clazz).build();
+        return getWorkSpec(clazz, Work.STATUS_ENQUEUED);
+    }
+
+    /**
+     * Creates a {@link WorkSpec} from a {@link Worker} class for testing.  Used to overcome the
+     * fact that Work.getWorkSpec is not public (nor should it be).  This version also sets the
+     * initial status.
+     *
+     * @param clazz The {@link Worker} class
+     * @param status The initial {@link Work.WorkStatus}
+     * @return A {@link WorkSpec}
+     */
+    public static WorkSpec getWorkSpec(Class<? extends Worker> clazz, @Work.WorkStatus int status) {
+        Work work = new Work.Builder(clazz).withInitialStatus(status).build();
         return work.getWorkSpec();
     }
 
