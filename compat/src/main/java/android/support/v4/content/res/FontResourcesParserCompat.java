@@ -252,10 +252,19 @@ public class FontResourcesParserCompat {
             throws XmlPullParserException, IOException {
         AttributeSet attrs = Xml.asAttributeSet(parser);
         TypedArray array = resources.obtainAttributes(attrs, R.styleable.FontFamilyFont);
-        int weight = array.getInt(R.styleable.FontFamilyFont_fontWeight, NORMAL_WEIGHT);
-        boolean isItalic = ITALIC == array.getInt(R.styleable.FontFamilyFont_fontStyle, 0);
-        int resourceId = array.getResourceId(R.styleable.FontFamilyFont_font, 0);
-        String filename = array.getString(R.styleable.FontFamilyFont_font);
+        final int weightAttr = array.hasValue(R.styleable.FontFamilyFont_fontWeight)
+                ? R.styleable.FontFamilyFont_fontWeight
+                : R.styleable.FontFamilyFont_android_fontWeight;
+        int weight = array.getInt(weightAttr, NORMAL_WEIGHT);
+        final int styleAttr = array.hasValue(R.styleable.FontFamilyFont_fontStyle)
+                ? R.styleable.FontFamilyFont_fontStyle
+                : R.styleable.FontFamilyFont_android_fontStyle;
+        boolean isItalic = ITALIC == array.getInt(styleAttr, 0);
+        final int resourceAttr = array.hasValue(R.styleable.FontFamilyFont_font)
+                ? R.styleable.FontFamilyFont_font
+                : R.styleable.FontFamilyFont_android_font;
+        int resourceId = array.getResourceId(resourceAttr, 0);
+        String filename = array.getString(resourceAttr);
         array.recycle();
         while (parser.next() != XmlPullParser.END_TAG) {
             skip(parser);
