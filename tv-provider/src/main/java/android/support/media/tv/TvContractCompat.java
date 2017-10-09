@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -606,16 +605,6 @@ public final class TvContractCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     interface ProgramColumns {
-        /** @hide */
-        @IntDef({
-                REVIEW_RATING_STYLE_STARS,
-                REVIEW_RATING_STYLE_THUMBS_UP_DOWN,
-                REVIEW_RATING_STYLE_PERCENTAGE,
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        @interface ReviewRatingStyle {}
-
         /**
          * The review rating style for five star rating.
          *
@@ -934,27 +923,6 @@ public final class TvContractCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     public interface PreviewProgramColumns {
-
-        /** @hide */
-        @IntDef({
-                TYPE_MOVIE,
-                TYPE_TV_SERIES,
-                TYPE_TV_SEASON,
-                TYPE_TV_EPISODE,
-                TYPE_CLIP,
-                TYPE_EVENT,
-                TYPE_CHANNEL,
-                TYPE_TRACK,
-                TYPE_ALBUM,
-                TYPE_ARTIST,
-                TYPE_PLAYLIST,
-                TYPE_STATION,
-                TYPE_GAME
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface Type {}
-
         /**
          * The program type for movie.
          *
@@ -1046,19 +1014,6 @@ public final class TvContractCompat {
          */
         int TYPE_GAME = 12;
 
-        /** @hide */
-        @IntDef({
-                ASPECT_RATIO_16_9,
-                ASPECT_RATIO_3_2,
-                ASPECT_RATIO_4_3,
-                ASPECT_RATIO_1_1,
-                ASPECT_RATIO_2_3,
-                ASPECT_RATIO_MOVIE_POSTER,
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface AspectRatio {}
-
         /**
          * The aspect ratio for 16:9.
          *
@@ -1107,18 +1062,6 @@ public final class TvContractCompat {
          */
         int ASPECT_RATIO_MOVIE_POSTER = 5;
 
-        /** @hide */
-        @IntDef({
-                AVAILABILITY_AVAILABLE,
-                AVAILABILITY_FREE_WITH_SUBSCRIPTION,
-                AVAILABILITY_PAID_CONTENT,
-                AVAILABILITY_PURCHASED,
-                AVAILABILITY_FREE,
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface Availability {}
-
         /**
          * The availability for "available to this user".
          *
@@ -1154,20 +1097,6 @@ public final class TvContractCompat {
          * @see #COLUMN_AVAILABILITY
          */
         int AVAILABILITY_FREE = 4;
-
-        /** @hide */
-        @IntDef({
-                INTERACTION_TYPE_VIEWS,
-                INTERACTION_TYPE_LISTENS,
-                INTERACTION_TYPE_FOLLOWERS,
-                INTERACTION_TYPE_FANS,
-                INTERACTION_TYPE_LIKES,
-                INTERACTION_TYPE_THUMBS,
-                INTERACTION_TYPE_VIEWERS,
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface InteractionType {}
 
         /**
          * The interaction type for "views".
@@ -2894,17 +2823,6 @@ public final class TvContractCompat {
 
         /** The MIME type of a single preview TV program. */
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/watch_next_program";
-
-        /** @hide */
-        @IntDef({
-                WATCH_NEXT_TYPE_CONTINUE,
-                WATCH_NEXT_TYPE_NEXT,
-                WATCH_NEXT_TYPE_NEW,
-                WATCH_NEXT_TYPE_WATCHLIST,
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface WatchNextType {}
 
         /**
          * The watch next type for CONTINUE. Use this type when the user has already watched more
