@@ -14,12 +14,10 @@
  * limitations under the License
  */
 
-package android.support.v14.preference;
+package android.support.v7.preference;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -32,18 +30,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.XmlRes;
-import android.support.v4.content.res.TypedArrayUtils;
-import android.support.v7.preference.AndroidResources;
-import android.support.v7.preference.DialogPreference;
-import android.support.v7.preference.EditTextPreference;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceGroup;
-import android.support.v7.preference.PreferenceGroupAdapter;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.preference.PreferenceRecyclerViewAccessibilityDelegate;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.PreferenceViewHolder;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v7.preference.internal.AbstractMultiSelectListPreference;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -103,19 +92,19 @@ import android.view.ViewGroup;
  * <p>The following sample code shows a simple preference fragment that is
  * populated from a resource.  The resource it loads is:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/res/xml/preferences.xml preferences}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
  *
  * <p>The fragment implementation itself simply populates the preferences
  * when created.  Note that the preferences framework takes care of loading
  * the current values out of the app preferences and writing them when changed:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/com/example/android/supportpreference/FragmentSupportPreferences.java
- *      support_fragment}
+ * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/android/supportpreference/FragmentSupportPreferencesCompat.java
+ *      support_fragment_compat}
  *
  * @see Preference
  * @see PreferenceScreen
  */
-public abstract class PreferenceFragment extends Fragment implements
+public abstract class PreferenceFragmentCompat extends Fragment implements
         PreferenceManager.OnPreferenceTreeClickListener,
         PreferenceManager.OnDisplayPreferenceDialogListener,
         PreferenceManager.OnNavigateToScreenListener,
@@ -131,7 +120,7 @@ public abstract class PreferenceFragment extends Fragment implements
     private static final String PREFERENCES_TAG = "android:preferences";
 
     private static final String DIALOG_FRAGMENT_TAG =
-            "android.support.v14.preference.PreferenceFragment.DIALOG";
+            "android.support.v7.preference.PreferenceFragment.DIALOG";
 
     private PreferenceManager mPreferenceManager;
     private RecyclerView mList;
@@ -140,7 +129,7 @@ public abstract class PreferenceFragment extends Fragment implements
 
     private Context mStyledContext;
 
-    private int mLayoutResId = android.support.v7.preference.R.layout.preference_list_fragment;
+    private int mLayoutResId = R.layout.preference_list_fragment;
 
     private final DividerDecoration mDividerDecoration = new DividerDecoration();
 
@@ -181,7 +170,7 @@ public abstract class PreferenceFragment extends Fragment implements
          * @param pref The preference requesting the fragment.
          * @return true if the fragment creation has been handled
          */
-        boolean onPreferenceStartFragment(PreferenceFragment caller, Preference pref);
+        boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref);
     }
 
     /**
@@ -197,7 +186,7 @@ public abstract class PreferenceFragment extends Fragment implements
          * @param pref The preference screen to navigate to.
          * @return true if the screen navigation has been handled
          */
-        boolean onPreferenceStartScreen(PreferenceFragment caller, PreferenceScreen pref);
+        boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref);
     }
 
     public interface OnPreferenceDisplayDialogCallback {
@@ -208,15 +197,15 @@ public abstract class PreferenceFragment extends Fragment implements
          * @param pref The preference requesting the dialog.
          * @return true if the dialog creation has been handled.
          */
-        boolean onPreferenceDisplayDialog(@NonNull PreferenceFragment caller, Preference pref);
+        boolean onPreferenceDisplayDialog(@NonNull PreferenceFragmentCompat caller,
+                Preference pref);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(
-                android.support.v7.preference.R.attr.preferenceTheme, tv, true);
+        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
         final int theme = tv.resourceId;
         if (theme == 0) {
             throw new IllegalStateException("Must specify preferenceTheme in theme");
@@ -252,25 +241,25 @@ public abstract class PreferenceFragment extends Fragment implements
             Bundle savedInstanceState) {
 
         TypedArray a = mStyledContext.obtainStyledAttributes(null,
-                R.styleable.PreferenceFragment,
-                TypedArrayUtils.getAttr(mStyledContext,
-                        android.support.v7.preference.R.attr.preferenceFragmentStyle,
-                        AndroidResources.ANDROID_R_PREFERENCE_FRAGMENT_STYLE),
+                R.styleable.PreferenceFragmentCompat,
+                R.attr.preferenceFragmentCompatStyle,
                 0);
 
-        mLayoutResId = a.getResourceId(R.styleable.PreferenceFragment_android_layout, mLayoutResId);
+        mLayoutResId = a.getResourceId(R.styleable.PreferenceFragmentCompat_android_layout,
+                mLayoutResId);
 
-        final Drawable divider = a.getDrawable(R.styleable.PreferenceFragment_android_divider);
+        final Drawable divider = a.getDrawable(
+                R.styleable.PreferenceFragmentCompat_android_divider);
         final int dividerHeight = a.getDimensionPixelSize(
-                R.styleable.PreferenceFragment_android_dividerHeight, -1);
+                R.styleable.PreferenceFragmentCompat_android_dividerHeight, -1);
         final boolean allowDividerAfterLastItem = a.getBoolean(
-                R.styleable.PreferenceFragment_allowDividerAfterLastItem, true);
+                R.styleable.PreferenceFragmentCompat_allowDividerAfterLastItem, true);
+
         a.recycle();
 
         // Need to theme the inflater to pick up the preferenceFragmentListStyle
         final TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(
-                android.support.v7.preference.R.attr.preferenceTheme, tv, true);
+        getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
         final int theme = tv.resourceId;
 
         final Context themedContext = new ContextThemeWrapper(inflater.getContext(), theme);
@@ -314,7 +303,7 @@ public abstract class PreferenceFragment extends Fragment implements
      * height, you should also call {@link #setDividerHeight(int)}.
      *
      * @param divider the drawable to use
-     * @attr ref R.styleable#PreferenceFragment_android_divider
+     * @attr ref R.styleable#PreferenceFragmentCompat_android_divider
      */
     public void setDivider(Drawable divider) {
         mDividerDecoration.setDivider(divider);
@@ -325,14 +314,14 @@ public abstract class PreferenceFragment extends Fragment implements
      * this will override the intrinsic height as set by {@link #setDivider(Drawable)}
      *
      * @param height The new height of the divider in pixels.
-     * @attr ref R.styleable#PreferenceFragment_android_dividerHeight
+     * @attr ref R.styleable#PreferenceFragmentCompat_android_dividerHeight
      */
     public void setDividerHeight(int height) {
         mDividerDecoration.setDividerHeight(height);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         if (mHavePrefs) {
@@ -497,9 +486,9 @@ public abstract class PreferenceFragment extends Fragment implements
      * Called by
      * {@link android.support.v7.preference.PreferenceScreen#onClick()} in order to navigate to a
      * new screen of preferences. Calls
-     * {@link PreferenceFragment.OnPreferenceStartScreenCallback#onPreferenceStartScreen}
+     * {@link PreferenceFragmentCompat.OnPreferenceStartScreenCallback#onPreferenceStartScreen}
      * if the target fragment or containing activity implements
-     * {@link PreferenceFragment.OnPreferenceStartScreenCallback}.
+     * {@link PreferenceFragmentCompat.OnPreferenceStartScreenCallback}.
      * @param preferenceScreen The {@link android.support.v7.preference.PreferenceScreen} to
      *                         navigate to.
      */
@@ -589,8 +578,7 @@ public abstract class PreferenceFragment extends Fragment implements
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
         RecyclerView recyclerView = (RecyclerView) inflater
-                .inflate(android.support.v7.preference.R.layout.preference_recyclerview,
-                        parent, false);
+                .inflate(R.layout.preference_recyclerview, parent, false);
 
         recyclerView.setLayoutManager(onCreateLayoutManager());
         recyclerView.setAccessibilityDelegateCompat(
@@ -650,11 +638,11 @@ public abstract class PreferenceFragment extends Fragment implements
 
         final DialogFragment f;
         if (preference instanceof EditTextPreference) {
-            f = EditTextPreferenceDialogFragment.newInstance(preference.getKey());
+            f = EditTextPreferenceDialogFragmentCompat.newInstance(preference.getKey());
         } else if (preference instanceof ListPreference) {
-            f = ListPreferenceDialogFragment.newInstance(preference.getKey());
-        } else if (preference instanceof MultiSelectListPreference) {
-            f = MultiSelectListPreferenceDialogFragment.newInstance(preference.getKey());
+            f = ListPreferenceDialogFragmentCompat.newInstance(preference.getKey());
+        } else if (preference instanceof AbstractMultiSelectListPreference) {
+            f = MultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.getKey());
         } else {
             throw new IllegalArgumentException("Tried to display dialog for unknown " +
                     "preference type. Did you forget to override onDisplayPreferenceDialog()?");

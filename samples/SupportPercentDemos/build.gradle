@@ -12,12 +12,6 @@ android {
         targetSdkVersion project.ext.currentSdk
     }
 
-    sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['src']
-        main.res.srcDirs = ['res']
-    }
-
     lintOptions {
         abortOnError true
         check 'NewApi'
