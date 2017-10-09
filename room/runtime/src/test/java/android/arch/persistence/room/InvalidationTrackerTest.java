@@ -247,7 +247,7 @@ public class InvalidationTrackerTest {
         mTracker.mRefreshRunnable.run();
     }
 
-    @Test
+    // @Test - disabled due to flakiness b/65257997
     public void closedDbAfterOpen() throws InterruptedException {
         setVersions(3, 1);
         mTracker.addObserver(new LatchObserver(1, "a", "b"));
