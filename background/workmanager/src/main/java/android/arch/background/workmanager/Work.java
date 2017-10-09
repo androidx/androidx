@@ -59,6 +59,18 @@ public class Work {
      */
     public static final long MAX_BACKOFF_DURATION = 5 * 60 * 60 * 1000; // 5 hours.
 
+    /**
+     * The minimum interval duration for periodic {@link Work}, in milliseconds.
+     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#110}.
+     */
+    public static final long MIN_PERIODIC_INTERVAL_DURATION = 15 * 60 * 1000L; // 15 minutes.
+
+    /**
+     * The minimum flex duration for periodic {@link Work}, in milliseconds.
+     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#113}.
+     */
+    public static final long MIN_PERIODIC_FLEX_DURATION = 5 * 60 * 1000L; // 5 minutes.
+
     private WorkSpec mWorkSpec;
 
     private Work(WorkSpec workSpec) {
@@ -102,7 +114,7 @@ public class Work {
          * Add constraints to the {@link Work}.
          *
          * @param constraints The constraints for the {@link Work}
-         * @return current builder
+         * @return The current {@link Builder}.
          */
         public Builder withConstraints(@NonNull Constraints constraints) {
             mWorkSpec.setConstraints(constraints);
@@ -113,10 +125,10 @@ public class Work {
          * Change backoff policy and delay for the {@link Work}.
          * Default is {@value Work#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
          *
-         * @param backoffPolicy Backoff Policy to use for {@link Work}
+         * @param backoffPolicy        Backoff Policy to use for {@link Work}
          * @param backoffDelayDuration Time to wait before restarting {@link Worker}
          *                             (in milliseconds)
-         * @return current builder
+         * @return The current {@link Builder}.
          */
         public Builder withBackoffCriteria(@BackoffPolicy int backoffPolicy,
                                            long backoffDelayDuration) {
@@ -130,7 +142,7 @@ public class Work {
          * Add arguments to the {@link Work}.
          *
          * @param arguments key/value pairs that will be provided to the {@link Worker} class
-         * @return current builder
+         * @return The current {@link Builder}.
          */
         public Builder withArguments(Arguments arguments) {
             mWorkSpec.setArguments(arguments);
@@ -142,6 +154,7 @@ public class Work {
          * libraries who want to query for or cancel all of their own work.
          *
          * @param tag A tag for identifying the {@link Work} in queries.
+         * @return The current {@link Builder}.
          */
         public Builder withTag(String tag) {
             mWorkSpec.setTag(tag);
@@ -149,23 +162,82 @@ public class Work {
         }
 
         /**
-         * Specify whether {@link WorkSpec} should run with an initial delay. Default is 0ms.
+         * Specify whether {@link Work} should run with an initial delay. Default is 0ms.
+         *
+         * <p><strong>Note:</strong> An error will result when setting this function on a
+         * {@link Builder} with {@link Builder#setPeriodic(long)} or
+         * {@link Builder#setPeriodic(long, long)}.</p>
          *
          * @param duration initial delay before running WorkSpec (in milliseconds)
-         * @return current builder
+         * @return The current {@link Builder}.
          */
         public Builder withInitialDelay(long duration) {
-            // TODO(xbhatnag) : Does this affect rescheduled jobs?
             mWorkSpec.setInitialDelay(duration);
             return this;
         }
 
         /**
-         * Generates the {@link Work} from this builder
+         * Sets the {@link Work} to run periodically once every interval period. The {@link Work}
+         * is guaranteed to run exactly one time during this interval. The {@code intervalDuration}
+         * must be greater than or equal to {@link Work#MIN_PERIODIC_INTERVAL_DURATION}. It may run
+         * immediately, at the end of the period, or any time in between so long as the other
+         * conditions are satisfied at the time. The run time of the {@link Work} can be restricted
+         * to a flex period within an interval, see {@link Builder#setPeriodic(long, long)}.
+         *
+         * <p><strong>Note:</strong> An error will result when setting this function on a
+         * {@link Builder} with {@link Builder#withInitialDelay(long)}.</p>
+         *
+         * @param intervalDuration Duration in milliseconds for which {@link Work} will repeat.
+         * @return The current {@link Builder}.
+         */
+        public Builder setPeriodic(long intervalDuration) {
+            mWorkSpec.setPeriodic(intervalDuration);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Work} to run periodically once within the <strong>flex period</strong> of
+         * every interval period. See diagram below. The flex period begins at
+         * {@code intervalDuration - flexDuration} to the end of the interval.
+         * {@code intervalDuration} must be greater than or equal to
+         * {@link Work#MIN_PERIODIC_INTERVAL_DURATION} and {@code flexDuration} must be greater
+         * than or equal to {@link Work#MIN_PERIODIC_FLEX_DURATION}.
+         *
+         * <p><strong>Note:</strong> An error will result when setting this function on a
+         * {@link Builder} with {@link Builder#withInitialDelay(long)}.</p>
+         *
+         * <p><pre>
+         * [     before flex     |     flex     ][     before flex     |     flex     ]...
+         * [   cannot run work   | can run work ][   cannot run work   | can run work ]...
+         * \____________________________________/\____________________________________/...
+         *                interval 1                            interval 2             ...(repeat)
+         * </pre></p>
+         *
+         * @param intervalDuration Duration in milliseconds of the interval.
+         * @param flexDuration     Duration in millisecond for which {@link Work} will repeat from
+         *                         the end of the interval.
+         * @return The current {@link Builder}.
+         */
+        public Builder setPeriodic(long intervalDuration, long flexDuration) {
+            mWorkSpec.setPeriodic(intervalDuration, flexDuration);
+            return this;
+        }
+
+        /**
+         * Generates the {@link Work} from {@link Builder}.
          *
          * @return new {@link Work}
          */
         public Work build() {
+            if (mWorkSpec.isPeriodic()) {
+                // TODO(janclarin): Consider throwing exceptions for odd cases like interval < flex,
+                // if interval < MIN_INTERVAL_DURATION, or flex < MIN_FLEX_DURATION.
+                // Currently, JobInfo.Builder silently changes these values to make them function.
+                // This might throw exceptions that affect users at runtime.
+                if (mWorkSpec.hasInitialDelay()) {
+                    throw new IllegalArgumentException("Cannot set initial delay on periodic work");
+                }
+            }
             return new Work(mWorkSpec);
         }
     }

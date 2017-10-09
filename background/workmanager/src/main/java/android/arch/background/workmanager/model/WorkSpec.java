@@ -37,23 +37,21 @@ public class WorkSpec {
     @NonNull
     String mId;
 
-    // TODO(xbhatnag)
-    @ColumnInfo(name = "repeat_duration")
-    long mRepeatDuration;
-
-    // TODO(xbhatnag)
-    @ColumnInfo(name = "flex_duration")
-    long mFlexDuration;
-
     @ColumnInfo(name = "status")
     @Work.WorkStatus
     int mStatus = Work.STATUS_ENQUEUED;
 
+    @ColumnInfo(name = "worker_class_name")
+    String mWorkerClassName;
+
     @ColumnInfo(name = "initial_delay")
     long mInitialDelay;
 
-    @ColumnInfo(name = "worker_class_name")
-    String mWorkerClassName;
+    @ColumnInfo(name = "interval_duration")
+    long mIntervalDuration;
+
+    @ColumnInfo(name = "flex_duration")
+    long mFlexDuration;
 
     @Embedded
     Constraints mConstraints = new Constraints.Builder().build();
@@ -84,22 +82,6 @@ public class WorkSpec {
 
     public void setId(@NonNull String id) {
         mId = id;
-    }
-
-    public long getRepeatDuration() {
-        return mRepeatDuration;
-    }
-
-    public void setRepeatDuration(long repeatDuration) {
-        mRepeatDuration = repeatDuration;
-    }
-
-    public long getFlexDuration() {
-        return mFlexDuration;
-    }
-
-    public void setFlexDuration(long flexDuration) {
-        mFlexDuration = flexDuration;
     }
 
     public int getStatus() {
@@ -158,12 +140,45 @@ public class WorkSpec {
         mBackoffDelayDuration = backoffDelayDuration;
     }
 
+    public boolean hasInitialDelay() {
+        return mInitialDelay != 0L;
+    }
+
     public long getInitialDelay() {
         return mInitialDelay;
     }
 
     public void setInitialDelay(long initialDelay) {
         mInitialDelay = initialDelay;
+    }
+
+    public boolean isPeriodic() {
+        return mIntervalDuration != 0L;
+    }
+
+    public void setPeriodic(long intervalDuration) {
+        setPeriodic(intervalDuration, intervalDuration);
+    }
+
+    public void setPeriodic(long intervalDuration, long flexDuration) {
+        mIntervalDuration = intervalDuration;
+        mFlexDuration = flexDuration;
+    }
+
+    public long getIntervalDuration() {
+        return mIntervalDuration;
+    }
+
+    public void setIntervalDuration(long intervalDuration) {
+        mIntervalDuration = intervalDuration;
+    }
+
+    public long getFlexDuration() {
+        return mFlexDuration;
+    }
+
+    public void setFlexDuration(long flexDuration) {
+        mFlexDuration = flexDuration;
     }
 
     public void setRunAttemptCount(int runAttemptCount) {

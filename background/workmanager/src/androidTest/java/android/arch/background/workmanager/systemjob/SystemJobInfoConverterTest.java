@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.os.Build;
@@ -68,6 +69,18 @@ public class SystemJobInfoConverterTest {
         assertThat(jobInfo.getId(), is(expectedJobId));
     }
 
+    /**
+     * Due to b/6771687, calling {@link JobInfo.Builder#build} with no constraints throws an
+     * {@link IllegalArgumentException}. This is testing that {@link SystemJobInfoConverter#convert}
+     * sets some dummy constraint to toggle some internal boolean flags in {@link JobInfo.Builder}
+     * to allow {@link Work} with no constraints to be converted without affecting its runtime,
+     * e.g. calling builder.setMinLatencyMillis(0L).
+     */
+    @Test
+    public void testConvert_noConstraints_doesNotThrowException() {
+        mConverter.convert(new WorkSpec("id"));
+    }
+
     @Test
     public void testConvert_initialDelay() {
         final long expectedInitialDelay = 12123L;
@@ -75,6 +88,27 @@ public class SystemJobInfoConverterTest {
         workSpec.setInitialDelay(expectedInitialDelay);
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.getMinLatencyMillis(), is(expectedInitialDelay));
+    }
+
+    @Test
+    public void testConvert_periodicWithNoFlex() {
+        final long expectedIntervalDuration = Work.MIN_PERIODIC_INTERVAL_DURATION + 1232L;
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setPeriodic(expectedIntervalDuration);
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        assertThat(jobInfo.getIntervalMillis(), is(expectedIntervalDuration));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    public void testConvert_periodicWithFlex() {
+        final long expectedIntervalDuration = Work.MIN_PERIODIC_INTERVAL_DURATION + 1232L;
+        final long expectedFlexDuration = Work.MIN_PERIODIC_FLEX_DURATION + 112L;
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setPeriodic(expectedIntervalDuration, expectedFlexDuration);
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        assertThat(jobInfo.getIntervalMillis(), is(expectedIntervalDuration));
+        assertThat(jobInfo.getFlexMillis(), is(expectedFlexDuration));
     }
 
     @Test

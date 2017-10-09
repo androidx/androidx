@@ -79,7 +79,7 @@ public class ForegroundProcessor extends Processor
                 mLifecycleOwner,
                 this,
                 mWorkDatabase);
-        mWorkDatabase.workSpecDao().getEnqueuedWorkSpecs().observe(mLifecycleOwner, this);
+        mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs().observe(mLifecycleOwner, this);
     }
 
     private boolean isActive() {

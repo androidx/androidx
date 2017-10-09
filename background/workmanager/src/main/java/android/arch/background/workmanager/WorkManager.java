@@ -98,6 +98,7 @@ public final class WorkManager {
     }
 
     /**
+     * TODO(janclarin): Prevent chaining on periodic Work.
      * Enqueues one or more items for background processing.
      *
      * @param work One or more {@link Work} to enqueue

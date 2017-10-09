@@ -17,6 +17,9 @@
 package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Work.STATUS_FAILED;
+import static android.arch.background.workmanager.Work.STATUS_RUNNING;
+import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -79,7 +82,7 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        if (workSpec.getStatus() != Work.STATUS_ENQUEUED) {
+        if (workSpec.getStatus() != STATUS_ENQUEUED) {
             Log.d(TAG, "Status for " + mWorkSpecId + " is not enqueued; not doing any work");
             notifyListener(RESULT_NOT_ENQUEUED);
             return;
@@ -88,14 +91,14 @@ public class WorkerWrapper implements Runnable {
         Worker worker = Worker.fromWorkSpec(mAppContext, workSpec);
         if (worker == null) {
             Log.e(TAG, "Could not create Worker " + workSpec.getWorkerClassName());
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_FAILED);
             notifyListener(RESULT_PERMANENT_ERROR);
             return;
         }
 
         mWorkDatabase.beginTransaction();
         try {
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_RUNNING);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_RUNNING);
             workSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -116,7 +119,7 @@ public class WorkerWrapper implements Runnable {
             checkForInterruption();
 
             Log.d(TAG, "Work succeeded for " + mWorkSpecId);
-            setSuccessAndUpdateDependencies();
+            setSuccessAndUpdateDependencies(workSpec.isPeriodic());
             notifyListener(RESULT_SUCCEEDED);
         } catch (InterruptedException e) {
             // TODO(xbhatnag): Retry Policies
@@ -125,7 +128,7 @@ public class WorkerWrapper implements Runnable {
             notifyListener(RESULT_INTERRUPTED);
         } catch (Exception e) {
             Log.d(TAG, "Work failed for " + mWorkSpecId, e);
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_FAILED);
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_FAILED);
             notifyListener(RESULT_FAILED);
         }
     }
@@ -148,13 +151,18 @@ public class WorkerWrapper implements Runnable {
         });
     }
 
-    private void setSuccessAndUpdateDependencies() {
+    private void setSuccessAndUpdateDependencies(boolean isPeriodicWork) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         DependencyDao dependencyDao = mWorkDatabase.dependencyDao();
 
         mWorkDatabase.beginTransaction();
         try {
-            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
+            if (isPeriodicWork) { // For periodic jobs a success means to be set back to enqueued.
+                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
+                workSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
+            } else {
+                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_SUCCEEDED);
+            }
             dependencyDao.deleteDependenciesWithPrerequisite(mWorkSpecId);
             List<String> unblockedWorkIds = workSpecDao.getUnblockedWorkIds();
             int unblockedWorkCount = unblockedWorkIds.size();

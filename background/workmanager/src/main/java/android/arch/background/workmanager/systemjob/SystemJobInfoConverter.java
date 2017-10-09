@@ -72,9 +72,16 @@ class SystemJobInfoConverter {
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.getId());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
-                .setMinimumLatency(workSpec.getInitialDelay())
                 .setRequiredNetworkType(jobInfoNetworkType)
                 .setExtras(extras);
+
+        if (workSpec.isPeriodic()) {
+            builder = setBuilderPeriodic(builder, workSpec);
+        } else {
+            // Even if a Work has no constraints, setMinimumLatency(0) still needs to be called due
+            // to an issue in JobInfo.Builder#build and JobInfo with no constraints. See b/67716867.
+            builder.setMinimumLatency(workSpec.getInitialDelay());
+        }
 
         // TODO(janclarin): Support requiresCharging/requiresDeviceIdle for versions older than 24.
         if (Build.VERSION.SDK_INT >= 24) {
@@ -117,5 +124,19 @@ class SystemJobInfoConverter {
         }
         Log.d(TAG, "API version too low. Cannot convert network type value " + networkType);
         return JobInfo.NETWORK_TYPE_ANY;
+    }
+
+    private static JobInfo.Builder setBuilderPeriodic(JobInfo.Builder builder, WorkSpec workSpec) {
+        long intervalDuration = workSpec.getIntervalDuration();
+        long flexDuration = workSpec.getFlexDuration();
+
+        if (Build.VERSION.SDK_INT >= 24) {
+            builder.setPeriodic(intervalDuration, flexDuration);
+        } else {
+            // TODO(janclarin): Support flex for JobScheduler before API 24.
+            Log.d(TAG, "Flex duration is currently not supported before API 24. Ignoring.");
+            builder.setPeriodic(intervalDuration);
+        }
+        return builder;
     }
 }

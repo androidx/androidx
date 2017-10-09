@@ -66,7 +66,7 @@ public interface WorkSpecDao {
      * @return The number of rows that were updated (should be 0 or 1)
      */
     @Query("UPDATE workspec SET status=:status WHERE id=:id")
-    int setWorkSpecStatus(String id, int status);
+    int setWorkSpecStatus(String id, @Work.WorkStatus int status);
 
     /**
      * Increment run attempt count of a {@link WorkSpec}.
@@ -78,6 +78,15 @@ public interface WorkSpecDao {
     int incrementWorkSpecRunAttemptCount(String id);
 
     /**
+     * Reset run attempt count of a {@link WorkSpec}.
+     *
+     * @param id The identifier for the {@link WorkSpec}
+     * @return The number of rows that were updated (should be 0 or 1)
+     */
+    @Query("UPDATE workspec SET run_attempt_count=0 WHERE id=:id")
+    int resetWorkSpecRunAttemptCount(String id);
+
+    /**
      * Updates the status of multiple {@link WorkSpec}s.
      *
      * @param ids A list of identifiers for {@link WorkSpec}s
@@ -85,7 +94,7 @@ public interface WorkSpecDao {
      * @return The number of rows that were updated
      */
     @Query("UPDATE workspec SET status=:status WHERE id IN (:ids)")
-    int setWorkSpecStatus(List<String> ids, int status);
+    int setWorkSpecStatus(List<String> ids, @Work.WorkStatus int status);
 
     /**
      * Retrieves the status of a {@link WorkSpec}.
@@ -107,14 +116,15 @@ public interface WorkSpecDao {
     LiveData<Integer> getWorkSpecLiveDataStatus(String id);
 
     /**
-     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}.
+     * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}, have no constraints,
+     * and are not periodic.
      *
-     * @return A {@link LiveData} list of {@link WorkSpec}s
+     * @return A {@link LiveData} list of {@link WorkSpec}s.
      */
     @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND "
             + " requires_charging=0 AND requires_device_idle=0 AND requires_battery_not_low=0 AND "
-            + " requires_storage_not_low=0 AND required_network_type=0")
-    LiveData<List<WorkSpec>> getEnqueuedWorkSpecs();
+            + " requires_storage_not_low=0 AND required_network_type=0 AND interval_duration=0")
+    LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**
      * Retrieves work ids for items that are no longer considered blocked (items that are currently
