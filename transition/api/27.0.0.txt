@@ -1,0 +1,280 @@
+package android.support.transition {
+
+  public class ArcMotion extends android.support.transition.PathMotion {
+    ctor public ArcMotion();
+    ctor public ArcMotion(android.content.Context, android.util.AttributeSet);
+    method public float getMaximumAngle();
+    method public float getMinimumHorizontalAngle();
+    method public float getMinimumVerticalAngle();
+    method public android.graphics.Path getPath(float, float, float, float);
+    method public void setMaximumAngle(float);
+    method public void setMinimumHorizontalAngle(float);
+    method public void setMinimumVerticalAngle(float);
+  }
+
+  public class AutoTransition extends android.support.transition.TransitionSet {
+    ctor public AutoTransition();
+    ctor public AutoTransition(android.content.Context, android.util.AttributeSet);
+  }
+
+  public class ChangeBounds extends android.support.transition.Transition {
+    ctor public ChangeBounds();
+    ctor public ChangeBounds(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public boolean getResizeClip();
+    method public void setResizeClip(boolean);
+  }
+
+  public class ChangeClipBounds extends android.support.transition.Transition {
+    ctor public ChangeClipBounds();
+    ctor public ChangeClipBounds(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+  }
+
+  public class ChangeImageTransform extends android.support.transition.Transition {
+    ctor public ChangeImageTransform();
+    ctor public ChangeImageTransform(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+  }
+
+  public class ChangeScroll extends android.support.transition.Transition {
+    ctor public ChangeScroll();
+    ctor public ChangeScroll(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+  }
+
+  public class ChangeTransform extends android.support.transition.Transition {
+    ctor public ChangeTransform();
+    ctor public ChangeTransform(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public boolean getReparent();
+    method public boolean getReparentWithOverlay();
+    method public void setReparent(boolean);
+    method public void setReparentWithOverlay(boolean);
+  }
+
+  public class CircularPropagation extends android.support.transition.VisibilityPropagation {
+    ctor public CircularPropagation();
+    method public long getStartDelay(android.view.ViewGroup, android.support.transition.Transition, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public void setPropagationSpeed(float);
+  }
+
+  public class Explode extends android.support.transition.Visibility {
+    ctor public Explode();
+    ctor public Explode(android.content.Context, android.util.AttributeSet);
+  }
+
+  public class Fade extends android.support.transition.Visibility {
+    ctor public Fade(int);
+    ctor public Fade();
+    ctor public Fade(android.content.Context, android.util.AttributeSet);
+    field public static final int IN = 1; // 0x1
+    field public static final int OUT = 2; // 0x2
+  }
+
+  public abstract class PathMotion {
+    ctor public PathMotion();
+    ctor public PathMotion(android.content.Context, android.util.AttributeSet);
+    method public abstract android.graphics.Path getPath(float, float, float, float);
+  }
+
+  public class PatternPathMotion extends android.support.transition.PathMotion {
+    ctor public PatternPathMotion();
+    ctor public PatternPathMotion(android.content.Context, android.util.AttributeSet);
+    ctor public PatternPathMotion(android.graphics.Path);
+    method public android.graphics.Path getPath(float, float, float, float);
+    method public android.graphics.Path getPatternPath();
+    method public void setPatternPath(android.graphics.Path);
+  }
+
+  public class Scene {
+    ctor public Scene(android.view.ViewGroup);
+    ctor public Scene(android.view.ViewGroup, android.view.View);
+    method public void enter();
+    method public void exit();
+    method public static android.support.transition.Scene getSceneForLayout(android.view.ViewGroup, int, android.content.Context);
+    method public android.view.ViewGroup getSceneRoot();
+    method public void setEnterAction(java.lang.Runnable);
+    method public void setExitAction(java.lang.Runnable);
+  }
+
+  public class SidePropagation extends android.support.transition.VisibilityPropagation {
+    ctor public SidePropagation();
+    method public long getStartDelay(android.view.ViewGroup, android.support.transition.Transition, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public void setPropagationSpeed(float);
+    method public void setSide(int);
+  }
+
+  public class Slide extends android.support.transition.Visibility {
+    ctor public Slide();
+    ctor public Slide(int);
+    ctor public Slide(android.content.Context, android.util.AttributeSet);
+    method public int getSlideEdge();
+    method public void setSlideEdge(int);
+  }
+
+  public abstract class Transition {
+    ctor public Transition();
+    ctor public Transition(android.content.Context, android.util.AttributeSet);
+    method public android.support.transition.Transition addListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.Transition addTarget(android.view.View);
+    method public android.support.transition.Transition addTarget(int);
+    method public android.support.transition.Transition addTarget(java.lang.String);
+    method public android.support.transition.Transition addTarget(java.lang.Class);
+    method public abstract void captureEndValues(android.support.transition.TransitionValues);
+    method public abstract void captureStartValues(android.support.transition.TransitionValues);
+    method public android.support.transition.Transition clone();
+    method public android.animation.Animator createAnimator(android.view.ViewGroup, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public android.support.transition.Transition excludeChildren(android.view.View, boolean);
+    method public android.support.transition.Transition excludeChildren(int, boolean);
+    method public android.support.transition.Transition excludeChildren(java.lang.Class, boolean);
+    method public android.support.transition.Transition excludeTarget(android.view.View, boolean);
+    method public android.support.transition.Transition excludeTarget(int, boolean);
+    method public android.support.transition.Transition excludeTarget(java.lang.String, boolean);
+    method public android.support.transition.Transition excludeTarget(java.lang.Class, boolean);
+    method public long getDuration();
+    method public android.graphics.Rect getEpicenter();
+    method public android.support.transition.Transition.EpicenterCallback getEpicenterCallback();
+    method public android.animation.TimeInterpolator getInterpolator();
+    method public java.lang.String getName();
+    method public android.support.transition.PathMotion getPathMotion();
+    method public android.support.transition.TransitionPropagation getPropagation();
+    method public long getStartDelay();
+    method public java.util.List<java.lang.Integer> getTargetIds();
+    method public java.util.List<java.lang.String> getTargetNames();
+    method public java.util.List<java.lang.Class> getTargetTypes();
+    method public java.util.List<android.view.View> getTargets();
+    method public java.lang.String[] getTransitionProperties();
+    method public android.support.transition.TransitionValues getTransitionValues(android.view.View, boolean);
+    method public boolean isTransitionRequired(android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public android.support.transition.Transition removeListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.Transition removeTarget(android.view.View);
+    method public android.support.transition.Transition removeTarget(int);
+    method public android.support.transition.Transition removeTarget(java.lang.String);
+    method public android.support.transition.Transition removeTarget(java.lang.Class);
+    method public android.support.transition.Transition setDuration(long);
+    method public void setEpicenterCallback(android.support.transition.Transition.EpicenterCallback);
+    method public android.support.transition.Transition setInterpolator(android.animation.TimeInterpolator);
+    method public void setMatchOrder(int...);
+    method public void setPathMotion(android.support.transition.PathMotion);
+    method public void setPropagation(android.support.transition.TransitionPropagation);
+    method public android.support.transition.Transition setStartDelay(long);
+    field public static final int MATCH_ID = 3; // 0x3
+    field public static final int MATCH_INSTANCE = 1; // 0x1
+    field public static final int MATCH_ITEM_ID = 4; // 0x4
+    field public static final int MATCH_NAME = 2; // 0x2
+  }
+
+  public static abstract class Transition.EpicenterCallback {
+    ctor public Transition.EpicenterCallback();
+    method public abstract android.graphics.Rect onGetEpicenter(android.support.transition.Transition);
+  }
+
+  public static abstract interface Transition.TransitionListener {
+    method public abstract void onTransitionCancel(android.support.transition.Transition);
+    method public abstract void onTransitionEnd(android.support.transition.Transition);
+    method public abstract void onTransitionPause(android.support.transition.Transition);
+    method public abstract void onTransitionResume(android.support.transition.Transition);
+    method public abstract void onTransitionStart(android.support.transition.Transition);
+  }
+
+  public class TransitionInflater {
+    method public static android.support.transition.TransitionInflater from(android.content.Context);
+    method public android.support.transition.Transition inflateTransition(int);
+    method public android.support.transition.TransitionManager inflateTransitionManager(int, android.view.ViewGroup);
+  }
+
+  public class TransitionListenerAdapter implements android.support.transition.Transition.TransitionListener {
+    ctor public TransitionListenerAdapter();
+    method public void onTransitionCancel(android.support.transition.Transition);
+    method public void onTransitionEnd(android.support.transition.Transition);
+    method public void onTransitionPause(android.support.transition.Transition);
+    method public void onTransitionResume(android.support.transition.Transition);
+    method public void onTransitionStart(android.support.transition.Transition);
+  }
+
+  public class TransitionManager {
+    ctor public TransitionManager();
+    method public static void beginDelayedTransition(android.view.ViewGroup);
+    method public static void beginDelayedTransition(android.view.ViewGroup, android.support.transition.Transition);
+    method public static void endTransitions(android.view.ViewGroup);
+    method public static void go(android.support.transition.Scene);
+    method public static void go(android.support.transition.Scene, android.support.transition.Transition);
+    method public void setTransition(android.support.transition.Scene, android.support.transition.Transition);
+    method public void setTransition(android.support.transition.Scene, android.support.transition.Scene, android.support.transition.Transition);
+    method public void transitionTo(android.support.transition.Scene);
+  }
+
+  public abstract class TransitionPropagation {
+    ctor public TransitionPropagation();
+    method public abstract void captureValues(android.support.transition.TransitionValues);
+    method public abstract java.lang.String[] getPropagationProperties();
+    method public abstract long getStartDelay(android.view.ViewGroup, android.support.transition.Transition, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+  }
+
+  public class TransitionSet extends android.support.transition.Transition {
+    ctor public TransitionSet();
+    ctor public TransitionSet(android.content.Context, android.util.AttributeSet);
+    method public android.support.transition.TransitionSet addListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.TransitionSet addTarget(android.view.View);
+    method public android.support.transition.TransitionSet addTarget(int);
+    method public android.support.transition.TransitionSet addTarget(java.lang.String);
+    method public android.support.transition.TransitionSet addTarget(java.lang.Class);
+    method public android.support.transition.TransitionSet addTransition(android.support.transition.Transition);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public int getOrdering();
+    method public android.support.transition.Transition getTransitionAt(int);
+    method public int getTransitionCount();
+    method public android.support.transition.TransitionSet removeListener(android.support.transition.Transition.TransitionListener);
+    method public android.support.transition.TransitionSet removeTarget(int);
+    method public android.support.transition.TransitionSet removeTarget(android.view.View);
+    method public android.support.transition.TransitionSet removeTarget(java.lang.Class);
+    method public android.support.transition.TransitionSet removeTarget(java.lang.String);
+    method public android.support.transition.TransitionSet removeTransition(android.support.transition.Transition);
+    method public android.support.transition.TransitionSet setDuration(long);
+    method public android.support.transition.TransitionSet setInterpolator(android.animation.TimeInterpolator);
+    method public android.support.transition.TransitionSet setOrdering(int);
+    method public android.support.transition.TransitionSet setStartDelay(long);
+    field public static final int ORDERING_SEQUENTIAL = 1; // 0x1
+    field public static final int ORDERING_TOGETHER = 0; // 0x0
+  }
+
+  public class TransitionValues {
+    ctor public TransitionValues();
+    field public final java.util.Map<java.lang.String, java.lang.Object> values;
+    field public android.view.View view;
+  }
+
+  public abstract class Visibility extends android.support.transition.Transition {
+    ctor public Visibility();
+    ctor public Visibility(android.content.Context, android.util.AttributeSet);
+    method public void captureEndValues(android.support.transition.TransitionValues);
+    method public void captureStartValues(android.support.transition.TransitionValues);
+    method public int getMode();
+    method public boolean isVisible(android.support.transition.TransitionValues);
+    method public android.animation.Animator onAppear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
+    method public android.animation.Animator onAppear(android.view.ViewGroup, android.view.View, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public android.animation.Animator onDisappear(android.view.ViewGroup, android.support.transition.TransitionValues, int, android.support.transition.TransitionValues, int);
+    method public android.animation.Animator onDisappear(android.view.ViewGroup, android.view.View, android.support.transition.TransitionValues, android.support.transition.TransitionValues);
+    method public void setMode(int);
+    field public static final int MODE_IN = 1; // 0x1
+    field public static final int MODE_OUT = 2; // 0x2
+  }
+
+  public abstract class VisibilityPropagation extends android.support.transition.TransitionPropagation {
+    ctor public VisibilityPropagation();
+    method public void captureValues(android.support.transition.TransitionValues);
+    method public java.lang.String[] getPropagationProperties();
+    method public int getViewVisibility(android.support.transition.TransitionValues);
+    method public int getViewX(android.support.transition.TransitionValues);
+    method public int getViewY(android.support.transition.TransitionValues);
+  }
+
+}
+
