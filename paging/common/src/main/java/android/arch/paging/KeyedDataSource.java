@@ -55,7 +55,7 @@ import java.util.List;
  *     {@literal @}SuppressWarnings("FieldCanBeLocal")
  *     private final InvalidationTracker.Observer mObserver;
  *
- *     public OffsetUserQueryDataSource(MyDatabase db) {
+ *     public KeyedUserQueryDataSource(MyDatabase db) {
  *         mDb = db;
  *         mUserDao = db.getUserDao();
  *         mObserver = new InvalidationTracker.Observer("user") {
@@ -86,11 +86,15 @@ import java.util.List;
  *
  *     {@literal @}Override
  *     public List&lt;User> loadBefore({@literal @}NonNull String userName, int pageSize) {
+ *         // Return items adjacent to 'userName' in reverse order
+ *         // it's valid to return a different-sized list of items than pageSize, if it's easier
  *         return mUserDao.userNameLoadBefore(userName, pageSize);
  *     }
  *
  *     {@literal @}Override
  *     public List&lt;User> loadAfter({@literal @}Nullable String userName, int pageSize) {
+ *         // Return items adjacent to 'userName'
+ *         // it's valid to return a different-sized list of items than pageSize, if it's easier
  *         return mUserDao.userNameLoadAfter(userName, pageSize);
  *     }
  * }</pre>
@@ -283,10 +287,17 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
     public abstract List<Value> loadAfter(@NonNull Key currentEndKey, int pageSize);
 
     /**
-     * Load data before the currently loaded content, starting at the provided index.
+     * Load data before the currently loaded content, starting at the provided index,
+     * in reverse-display order.
      * <p>
      * It's valid to return a different list size than the page size, if it's easier for this data
      * source. It is generally safer to increase the number loaded than reduce.
+     * <p class="note"><strong>Note:</strong> Items returned from loadBefore <em>must</em> be in
+     * reverse order from how they will be presented in the list. The first item in the return list
+     * will be prepended immediately before the current beginning of the list. This is so that the
+     * KeyedDataSource may return a different number of items from the requested {@code pageSize} by
+     * shortening or lengthening the return list as it desires.
+     * <p>
      *
      * @param currentBeginKey Load items before this key.
      * @param pageSize         Suggested number of items to load.
