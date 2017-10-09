@@ -79,5 +79,10 @@
          common values are 400 for regular weight and 700 for bold weight. If unspecified, the value
          in the font's header tables will be used. -->
         <attr name="fontWeight" format="integer" />
+
+        <!-- References to the framework attrs -->
+        <attr name="android:fontStyle" />
+        <attr name="android:font" />
+        <attr name="android:fontWeight" />
     </declare-styleable>
 </resources>
