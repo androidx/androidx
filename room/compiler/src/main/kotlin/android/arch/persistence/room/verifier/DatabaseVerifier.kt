@@ -16,10 +16,11 @@
 
 package android.arch.persistence.room.verifier
 
-import columnInfo
 import android.arch.persistence.room.processor.Context
 import android.arch.persistence.room.vo.Entity
 import android.arch.persistence.room.vo.Warning
+import columnInfo
+import org.sqlite.JDBC
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
@@ -34,30 +35,49 @@ import javax.lang.model.element.Element
 class DatabaseVerifier private constructor(
         val connection : Connection, val context : Context, val entities : List<Entity>) {
     companion object {
+        private const val CONNECTION_URL = "jdbc:sqlite::memory:"
+
+        init {
+            // see: https://github.com/xerial/sqlite-jdbc/issues/97
+            val tmpDir = System.getProperty("java.io.tmpdir")
+            if (tmpDir != null) {
+                val outDir = File(tmpDir, "room-${UUID.randomUUID()}")
+                outDir.mkdirs()
+                outDir.deleteOnExit()
+                System.setProperty("org.sqlite.tmpdir", outDir.absolutePath)
+                // dummy call to trigger JDBC initialization so that we can unregister it
+                JDBC.isValidURL(CONNECTION_URL)
+                unregisterDrivers()
+            }
+        }
+
         /**
          * Tries to create a verifier but returns null if it cannot find the driver.
          */
         fun create(context: Context, element: Element, entities: List<Entity>) : DatabaseVerifier? {
             return try {
-                // see: https://github.com/xerial/sqlite-jdbc/issues/97
-                val tmpDir = System.getProperty("java.io.tmpdir")
-                if (tmpDir == null) {
-                    context.logger.w(Warning.MISSING_JAVA_TMP_DIR,
-                            element, DatabaseVerificaitonErrors.CANNOT_GET_TMP_JAVA_DIR)
-                    return null
-                }
-                val outDir = File(tmpDir, "room-${UUID.randomUUID()}")
-                outDir.mkdirs()
-                outDir.deleteOnExit()
-                System.setProperty("org.sqlite.tmpdir", outDir.absolutePath)
-                //force load:
-                Class.forName("org.sqlite.JDBC")
-                val connection = DriverManager.getConnection("jdbc:sqlite::memory:")
+                val connection = JDBC.createConnection(CONNECTION_URL, java.util.Properties())
                 DatabaseVerifier(connection, context, entities)
             } catch (ex : Exception) {
                 context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
                         DatabaseVerificaitonErrors.cannotCreateConnection(ex))
                 null
+            }
+        }
+
+        /**
+         * Unregisters the JDBC driver. If we don't do this, we'll leak the driver which leaks a
+         * whole class loader.
+         * see: https://github.com/xerial/sqlite-jdbc/issues/267
+         * see: https://issuetracker.google.com/issues/62473121
+         */
+        private fun unregisterDrivers() {
+            try {
+                DriverManager.getDriver(CONNECTION_URL)?.let {
+                    DriverManager.deregisterDriver(it)
+                }
+            } catch (t : Throwable) {
+                System.err.println("Room: cannot unregister driver ${t.message}")
             }
         }
     }
@@ -77,12 +97,13 @@ class DatabaseVerifier private constructor(
         }
     }
 
-    fun closeConnection() {
+    fun closeConnection(context: Context) {
         if (!connection.isClosed) {
             try {
                 connection.close()
             } catch (t : Throwable) {
                 //ignore.
+                context.logger.d("failed to close the database connection ${t.message}")
             }
         }
     }
