@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package android.arch.background.workmanager;
+package android.arch.background.workmanager.worker;
 
+import android.arch.background.workmanager.Worker;
 import android.util.Log;
 
 /**
- * Worker that immediately throws Unhandled Exception.
+ * Test Worker that loops until Thread is interrupted.
  */
 
-public class ExceptionTestWorker extends Worker {
+public class InfiniteTestWorker extends Worker {
+    private static final String TAG = "InfiniteTestWorker";
+
     @Override
-    public void doWork() {
-        Log.d("ExceptionTestWorker", "Throwing Exception");
-        throw new RuntimeException();
+    public void doWork() throws Exception {
+        while (true) {
+            if (Thread.currentThread().isInterrupted()) {
+                Log.e(TAG, "Interrupted");
+                return;
+            }
+        }
     }
 }

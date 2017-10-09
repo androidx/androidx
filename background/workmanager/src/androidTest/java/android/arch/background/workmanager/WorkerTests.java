@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.arch.background.workmanager.model.Arguments;
+import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;

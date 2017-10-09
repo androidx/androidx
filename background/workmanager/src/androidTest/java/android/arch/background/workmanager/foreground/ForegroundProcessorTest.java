@@ -24,7 +24,6 @@ import static org.mockito.Mockito.mock;
 
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.TestLifecycleOwner;
-import android.arch.background.workmanager.TestWorker;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.WorkSpecs;
@@ -32,6 +31,7 @@ import android.arch.background.workmanager.executors.SynchronousExecutorService;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;

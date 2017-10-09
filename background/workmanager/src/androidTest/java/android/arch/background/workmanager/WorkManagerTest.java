@@ -26,6 +26,7 @@ import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
+import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.support.test.InstrumentationRegistry;
