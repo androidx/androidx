@@ -68,7 +68,7 @@ public class WorkerWrapperTest {
 
     @After
     public void tearDown() {
-        //TODO(xbhatnag): Include any tear down needed here.
+        mDatabase.close();
     }
 
     @Test
