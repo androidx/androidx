@@ -81,7 +81,6 @@ class RoomProcessor : BasicAnnotationProcessor() {
                     }
                 }
             }
-            context.databaseVerifier?.closeConnection()
             return mutableSetOf()
         }
         override fun annotations(): MutableSet<out Class<out Annotation>> {
