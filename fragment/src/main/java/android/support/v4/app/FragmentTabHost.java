@@ -41,12 +41,12 @@ import java.util.ArrayList;
  *
  * <p>Here is a simple example of using a FragmentTabHost in an Activity:
  *
- * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentTabs.java
+ * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentTabs.java
  *      complete}
  *
  * <p>This can also be used inside of a fragment through fragment nesting:
  *
- * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/app/FragmentTabsFragmentSupport.java
+ * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentTabsFragmentSupport.java
  *      complete}
  */
 public class FragmentTabHost extends TabHost

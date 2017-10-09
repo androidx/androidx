@@ -84,7 +84,7 @@ import java.util.HashMap;
  *
  * <p>Here is an example implementation of this class:</p>
  *
- * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/app/SimpleJobIntentService.java
+ * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/SimpleJobIntentService.java
  *      complete}
  */
 public abstract class JobIntentService extends Service {
