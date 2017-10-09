@@ -14,6 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <!-- Keylines for content. -->
+    <dimen name="car_keyline_1">24dp</dimen>
+
+    <!-- Various text stylings. -->
+    <dimen name="car_title_size">26sp</dimen>
+    <dimen name="car_body1_size">32sp</dimen>
+    <dimen name="car_body2_size">26sp</dimen>
+
     <!-- The margin on both sides of the screen before the contents of the PagedListView. -->
     <dimen name="car_card_margin">96dp</dimen>
 
@@ -54,4 +62,43 @@ limitations under the License.
 
     <!-- The maximum the scrollbar thumb can grow to -->
     <dimen name="max_thumb_height">128dp</dimen>
+
+    <!-- Size of progress-bar in Drawer -->
+    <dimen name="car_drawer_progress_bar_size">48dp</dimen>
+
+    <!-- The ending margin of the drawer. Is is the amount that the navigation drawer does not
+       cover the screen. -->
+    <dimen name="car_drawer_margin_end">96dp</dimen>
+
+    <!-- Dimensions of the back arrow in the drawer. -->
+    <dimen name="car_arrow_size">96dp</dimen>
+    <dimen name="car_arrow_thickness">3dp</dimen>
+    <dimen name="car_arrow_shaft_length">34dp</dimen>
+    <dimen name="car_arrow_head_length">18dp</dimen>
+    <dimen name="car_menu_bar_spacing">6dp</dimen>
+    <dimen name="car_menu_bar_length">40dp</dimen>
+
+    <!-- The height of an individual item in the navigation drawer. -->
+    <dimen name="car_drawer_list_item_height">88dp</dimen>
+
+    <!-- The height of a small list item. -->
+    <dimen name="car_drawer_list_item_height_small">64dp</dimen>
+
+    <!-- The size of the starting icon. -->
+    <dimen name="car_drawer_list_item_icon_size">64dp</dimen>
+
+    <!-- The margin after the starting icon. -->
+    <dimen name="car_drawer_list_item_icon_end_margin">32dp</dimen>
+
+    <!-- The ending margin on a list view. -->
+    <dimen name="car_drawer_list_item_end_margin">32dp</dimen>
+
+    <!-- The size of the starting icon in a small list item.-->
+    <dimen name="car_drawer_list_item_small_icon_size">56dp</dimen>
+
+    <!-- The size of the ending icon in a list item. -->
+    <dimen name="car_drawer_list_item_end_icon_size">56dp</dimen>
+
+    <!-- The margin between text is lies on top of each other. -->
+    <dimen name="car_text_vertical_margin">2dp</dimen>
 </resources>

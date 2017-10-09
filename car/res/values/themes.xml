@@ -14,7 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <dimen name="car_keyline_1">32dp</dimen>
-    <dimen name="car_screen_margin_size">40dp</dimen>
-    <dimen name="car_screen_gutter_size">24dp</dimen>
+    <!-- A Theme that activities should use to have correct arrow styling. -->
+    <style name="CarDrawerActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+    </style>
+
+    <!-- The styling for the action bar. -->
+    <style name="CarToolbarTheme">
+        <item name="titleTextAppearance">@style/CarTitle.Light</item>
+        <item name="contentInsetStart">@dimen/car_keyline_1</item>
+        <item name="contentInsetEnd">@dimen/car_keyline_1</item>
+    </style>
 </resources>
