@@ -45,7 +45,7 @@ import android.util.SparseArray;
  * {@link WakefulBroadcastReceiver#startWakefulService startWakefulService()}
  * holds an extra identifying the wake lock.</p>
  *
- * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulReceiver.java
+ * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/content/SimpleWakefulReceiver.java
  *      complete}
  *
  * <p>The service (in this example, an {@link android.app.IntentService}) does
@@ -55,7 +55,7 @@ import android.util.SparseArray;
  * is the same intent that the {@link WakefulBroadcastReceiver} originally
  * passed in.</p>
  *
- * {@sample frameworks/support/samples/Support4Demos/src/com/example/android/supportv4/content/SimpleWakefulService.java
+ * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/content/SimpleWakefulService.java
  *      complete}
  *
  * @deprecated As of {@link android.os.Build.VERSION_CODES#O Android O}, background check
