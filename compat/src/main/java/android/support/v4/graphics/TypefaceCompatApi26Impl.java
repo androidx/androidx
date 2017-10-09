@@ -118,7 +118,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
      */
     private static boolean isFontFamilyPrivateAPIAvailable() {
         if (sAddFontFromAssetManager == null) {
-            Log.w(TAG, "Unable to collect necessary private methods."
+            Log.w(TAG, "Unable to collect necessary private methods. "
                     + "Fallback to legacy implementation.");
         }
         return sAddFontFromAssetManager != null;
