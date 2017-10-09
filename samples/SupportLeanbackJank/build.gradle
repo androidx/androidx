@@ -21,13 +21,6 @@ android {
         }
     }
 
-    sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['src']
-        main.aidl.srcDirs = ['src']
-        main.res.srcDirs = ['res']
-    }
-
     signingConfigs {
         debug {
             // Use a local debug keystore to avoid build server issues.
