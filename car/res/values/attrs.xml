@@ -27,9 +27,9 @@ limitations under the License.
         <attr name="fadeLastItem" format="boolean" />
         <!-- Set to true/false to offset rows as they slide off screen. Defaults to true -->
         <attr name="offsetRows" format="boolean" />
-        <!--  Whether or not there is a margin on the right that matches the width of the container
-              for the scrollbars. -->
-        <attr name="rightGutterEnabled" format="boolean" />
+        <!-- Whether or not to offset the list view by the width of scroll bar. Setting this to
+             true will ensure that any views within the list will not overlap the scroll bar. -->
+        <attr name="offsetScrollBar" format="boolean" />
         <!-- Whether to display the scrollbar or not. Defaults to true. -->
         <attr name="scrollBarEnabled" format="boolean" />
         <!-- Whether or not to show a diving line between each item of the list. -->
@@ -43,5 +43,28 @@ limitations under the License.
         <!-- A starting margin before the drawing of the dividing line. This margin will be an
              offset from the view specified by "alignDividerStartTo" if given. -->
         <attr name="dividerStartMargin" format="dimension" />
+        <!-- The width of the margin on the right side of the list -->
+        <attr name="listEndMargin" format="dimension" />
+    </declare-styleable>
+
+    <!-- The attributes for customizing the appearance of the hamburger and back arrow in the
+       drawer. -->
+    <declare-styleable name="DrawerArrowDrawable">
+        <!-- The color of the arrow. -->
+        <attr name="carArrowColor" format="color"/>
+        <!-- Whether the arrow will animate when switches directions. -->
+        <attr name="carArrowAnimate" format="boolean"/>
+        <!-- The size of the arrow's bounding box. -->
+        <attr name="carArrowSize" format="dimension"/>
+        <!-- The length of the top and bottom bars that merge to form the point of the arrow. -->
+        <attr name="carArrowHeadLength" format="dimension"/>
+        <!-- The length of arrow shaft. -->
+        <attr name="carArrowShaftLength" format="dimension"/>
+        <!-- The thickness of each of the bars that form the arrow. -->
+        <attr name="carArrowThickness" format="dimension"/>
+        <!-- The spacing between the menu bars (i.e. the "hamburger" icon). -->
+        <attr name="carMenuBarSpacing" format="dimension"/>
+        <!-- The size of the menu bars (i.e. the "hamburger" icon). -->
+        <attr name="carMenuBarThickness" format="dimension"/>
     </declare-styleable>
 </resources>

@@ -13,8 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<resources>
-    <dimen name="car_keyline_1">32dp</dimen>
-    <dimen name="car_screen_margin_size">40dp</dimen>
-    <dimen name="car_screen_gutter_size">24dp</dimen>
-</resources>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/app_header_height">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/car_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        style="@style/CarToolbarTheme" />
+</FrameLayout>

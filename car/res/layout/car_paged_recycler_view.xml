@@ -26,19 +26,11 @@
         android:paddingTop="@dimen/car_scroll_bar_padding"
         android:visibility="invisible" />
 
-    <FrameLayout
-        android:id="@+id/recycler_view_container"
+    <android.support.car.widget.CarRecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
         android:layout_marginStart="@dimen/car_paged_list_view_pagination_width"
-        android:clipChildren="false">
-
-        <android.support.car.widget.CarRecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
-            android:clipChildren="false" />
-    </FrameLayout>
-
+        android:clipChildren="false" />
 </merge>

@@ -28,4 +28,5 @@ supportLibrary {
     publish false
     inceptionYear '2017'
     description 'Android Car Support UI'
+    java8Library true
 }
