@@ -17,6 +17,7 @@
 package android.arch.persistence.room.migration;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
+import android.support.annotation.NonNull;
 
 /**
  * Base class for a database migration.
@@ -58,5 +59,5 @@ public abstract class Migration {
      *
      * @param database The database instance
      */
-    public abstract void migrate(SupportSQLiteDatabase database);
+    public abstract void migrate(@NonNull SupportSQLiteDatabase database);
 }
