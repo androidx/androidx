@@ -17,6 +17,7 @@
 package android.arch.persistence.room.util;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -24,10 +25,14 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
+ * @hide
+ *
  * String utilities for Room
  */
-@SuppressWarnings("WeakerAccess")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StringUtil {
+
+    @SuppressWarnings("unused")
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     /**
      * Returns a new StringBuilder to be used while producing SQL queries.
