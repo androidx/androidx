@@ -1,0 +1,54 @@
+package android.support.content {
+
+  public class ContentPager {
+    ctor public ContentPager(android.content.ContentResolver, android.support.content.ContentPager.QueryRunner);
+    ctor public ContentPager(android.content.ContentResolver, android.support.content.ContentPager.QueryRunner, int);
+    method public static android.os.Bundle createArgs(int, int);
+    method public android.support.content.Query query(android.net.Uri, java.lang.String[], android.os.Bundle, android.os.CancellationSignal, android.support.content.ContentPager.ContentCallback);
+    method public void reset();
+    field public static final int CURSOR_DISPOSITION_COPIED = 1; // 0x1
+    field public static final int CURSOR_DISPOSITION_PAGED = 2; // 0x2
+    field public static final int CURSOR_DISPOSITION_REPAGED = 3; // 0x3
+    field public static final int CURSOR_DISPOSITION_WRAPPED = 4; // 0x4
+    field public static final java.lang.String EXTRA_HONORED_ARGS = "android.content.extra.HONORED_ARGS";
+    field public static final java.lang.String EXTRA_REQUESTED_LIMIT = "android-support:extra-ignored-limit";
+    field public static final java.lang.String EXTRA_SUGGESTED_LIMIT = "android-support:extra-suggested-limit";
+    field public static final java.lang.String EXTRA_TOTAL_COUNT = "android.content.extra.TOTAL_COUNT";
+    field public static final java.lang.String QUERY_ARG_LIMIT = "android:query-arg-limit";
+    field public static final java.lang.String QUERY_ARG_OFFSET = "android:query-arg-offset";
+  }
+
+  public static abstract interface ContentPager.ContentCallback {
+    method public abstract void onCursorReady(android.support.content.Query, android.database.Cursor);
+  }
+
+  public static abstract class ContentPager.CursorDisposition implements java.lang.annotation.Annotation {
+  }
+
+  public static abstract interface ContentPager.QueryRunner {
+    method public abstract void cancel(android.support.content.Query);
+    method public abstract boolean isRunning(android.support.content.Query);
+    method public abstract void query(android.support.content.Query, android.support.content.ContentPager.QueryRunner.Callback);
+  }
+
+  public static abstract interface ContentPager.QueryRunner.Callback {
+    method public abstract void onQueryFinished(android.support.content.Query, android.database.Cursor);
+    method public abstract android.database.Cursor runQueryInBackground(android.support.content.Query);
+  }
+
+  public final class LoaderQueryRunner implements android.support.content.ContentPager.QueryRunner {
+    ctor public LoaderQueryRunner(android.content.Context, android.app.LoaderManager);
+    method public void cancel(android.support.content.Query);
+    method public boolean isRunning(android.support.content.Query);
+    method public void query(android.support.content.Query, android.support.content.ContentPager.QueryRunner.Callback);
+  }
+
+  public final class Query {
+    method public int getId();
+    method public int getLimit();
+    method public int getOffset();
+    method public android.net.Uri getUri();
+  }
+
+}
+
