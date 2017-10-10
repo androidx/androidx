@@ -18,6 +18,7 @@ package android.support.mediacompat.client.util;
 
 import static android.support.mediacompat.testlib.IntentConstants
         .ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD;
+import static android.support.mediacompat.testlib.IntentConstants.ACTION_CALL_MEDIA_SESSION_METHOD;
 import static android.support.mediacompat.testlib.IntentConstants.KEY_ARGUMENT;
 import static android.support.mediacompat.testlib.IntentConstants.KEY_METHOD_ID;
 
@@ -39,6 +40,15 @@ public class IntentUtil {
     public static void callMediaBrowserServiceMethod(int methodId, Object arg, Context context) {
         Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
+        context.sendBroadcast(intent);
+    }
+
+    public static void callMediaSessionMethod(int methodId, Object arg, Context context) {
+        Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
+        intent.setAction(ACTION_CALL_MEDIA_SESSION_METHOD);
         if (Build.VERSION.SDK_INT >= 16) {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }
