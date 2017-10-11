@@ -18,6 +18,7 @@ package android.support.tools.jetifier.core.transform.bytecode.asm
 
 import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
+import android.support.tools.jetifier.core.transform.bytecode.CoreRemapper
 import org.objectweb.asm.commons.Remapper
 
 /**

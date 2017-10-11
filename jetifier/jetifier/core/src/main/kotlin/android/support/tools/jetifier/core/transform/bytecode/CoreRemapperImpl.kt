@@ -16,82 +16,63 @@
 
 package android.support.tools.jetifier.core.transform.bytecode
 
-import android.support.tools.jetifier.core.config.Config
+import android.support.tools.jetifier.core.map.TypesMap
 import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType
-import android.support.tools.jetifier.core.rules.RewriteRule
-import android.support.tools.jetifier.core.transform.bytecode.asm.CoreRemapper
+import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.bytecode.asm.CustomClassRemapper
 import android.support.tools.jetifier.core.transform.bytecode.asm.CustomRemapper
 import android.support.tools.jetifier.core.utils.Log
 import org.objectweb.asm.ClassVisitor
-import java.util.regex.Pattern
 
 /**
- * Applies the given collection of [RewriteRule] during the remapping process. Uses caching also.
+ * Applies mappings defined in [TypesMap] during the remapping process.
  */
-class CoreRemapperImpl(private val config: Config) : CoreRemapper {
+class CoreRemapperImpl(private val context: TransformationContext) : CoreRemapper {
 
-    private val tag = "CoreRemapperImpl"
+    companion object {
+        const val TAG = "CoreRemapperImpl"
+    }
 
-    private val typesRewritesCache = hashMapOf<JavaType, JavaType>()
-    private val fieldsRewritesCache = hashMapOf<JavaField, JavaField>()
+    private val typesMap = context.config.typesMap
 
     fun createClassRemapper(visitor: ClassVisitor): CustomClassRemapper {
         return CustomClassRemapper(visitor, CustomRemapper(this))
     }
 
     override fun rewriteType(type: JavaType): JavaType {
-        if (!isTypeSupported(type)) {
+        val result = typesMap.types[type]
+
+        if (!context.isEligibleForRewrite(type)) {
             return type
         }
 
-        // Try cache
-        val cached = typesRewritesCache[type]
-        if (cached != null) {
-            return cached
+        if (result != null) {
+            Log.i(TAG, "  map: %s -> %s", type, result)
+            return result
         }
 
-        // Try to find a rule
-        for (rule in config.rewriteRules) {
-            val mappedTypeName = rule.apply(type) ?: continue
-            typesRewritesCache.put(type, mappedTypeName)
-
-            Log.i(tag, "  map: %s -> %s", type, mappedTypeName)
-            return mappedTypeName
-        }
-
-        typesRewritesCache.put(type, type)
-
-        Log.e(tag, "No rule for: " + type)
+        context.reportNoMappingFoundFailure()
+        Log.e(TAG, "No mapping for: " + type)
         return type
     }
 
     override fun rewriteField(field : JavaField): JavaField {
-        if (!isTypeSupported(field.owner)) {
+        val result = typesMap.fields[field]
+
+        if (!context.isEligibleForRewrite(field.owner)) {
             return field
         }
 
-        // Try cache
-        val cached = fieldsRewritesCache[field]
-        if (cached != null) {
-            return cached
+        if (result != null) {
+            Log.i(TAG, "  map: %s -> %s", field, result)
+            return result
         }
 
-        // Try to find a rule
-        for (rule in config.rewriteRules) {
-            val mappedFieldName = rule.apply(field) ?: continue
-            fieldsRewritesCache.put(field, mappedFieldName)
-
-            Log.i(tag, "  map: %s -> %s", field, mappedFieldName)
-            return mappedFieldName
-        }
-
-        Log.e(tag, "No rule for: %s", field)
+        context.reportNoMappingFoundFailure()
+        Log.e(TAG, "No mapping for: " + field)
         return field
     }
 
-    private fun isTypeSupported(type: JavaType) : Boolean {
-        return config.restrictToPackagePrefixes.any{ type.fullName.startsWith(it) }
-    }
 }
+

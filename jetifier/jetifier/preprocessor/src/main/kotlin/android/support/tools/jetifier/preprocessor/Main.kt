@@ -14,13 +14,15 @@
  * limitations under the License
  */
 
-package android.support.tools.jetifier.standalone
+package android.support.tools.jetifier.preprocessor
 
-import android.support.tools.jetifier.core.Processor
+import android.support.tools.jetifier.core.archive.Archive
 import android.support.tools.jetifier.core.config.Config
 import android.support.tools.jetifier.core.config.ConfigParser
+import android.support.tools.jetifier.core.map.LibraryMapGenerator
 import android.support.tools.jetifier.core.utils.Log
 import org.apache.commons.cli.*
+import java.nio.file.Path
 
 import java.nio.file.Paths
 
@@ -28,12 +30,12 @@ class Main {
 
     companion object {
         const val TAG = "Main"
-        const val TOOL_NAME = "standalone"
+        const val TOOL_NAME = "preprocessor"
 
         val OPTIONS = Options()
-        val OPTION_INPUT = createOption("i", "Input libraries paths", multiple = true)
-        val OPTION_OUTPUT = createOption("o", "Output config path")
-        val OPTION_CONFIG = createOption("c", "Input config path", isRequired = false)
+        val OPTION_INPUT_LIBS = createOption("i", "Input libraries paths", multiple = true)
+        val OPTION_INPUT_CONFIG = createOption("c", "Input config path")
+        val OPTION_OUTPUT_CONFIG = createOption("o", "Output config path")
         val OPTION_LOG_LEVEL = createOption("l", "Logging level. debug, verbose, default",
             isRequired = false)
 
@@ -60,25 +62,17 @@ class Main {
 
         Log.setLevel(cmd.getOptionValue(OPTION_LOG_LEVEL.opt))
 
-        val inputLibraries = cmd.getOptionValues(OPTION_INPUT.opt).map { Paths.get(it) }
-        val outputPath = Paths.get(cmd.getOptionValue(OPTION_OUTPUT.opt))
+        val inputLibraries = cmd.getOptionValues(OPTION_INPUT_LIBS.opt).map { Paths.get(it) }
+        val inputConfigPath = Paths.get(cmd.getOptionValue(OPTION_INPUT_CONFIG.opt))
+        val outputConfigPath = Paths.get(cmd.getOptionValue(OPTION_OUTPUT_CONFIG.opt))
 
-        val config : Config?
-        if (cmd.hasOption(OPTION_CONFIG.opt)) {
-            val configPath = Paths.get(cmd.getOptionValue(OPTION_CONFIG.opt))
-            config = ConfigParser.loadFromFile(configPath)
-        } else {
-            config = ConfigParser.loadDefaultConfig()
-        }
-
+        val config = ConfigParser.loadFromFile(inputConfigPath)
         if (config == null) {
-            Log.e(TAG, "Failed to load the config file")
             System.exit(1)
             return
         }
 
-        val processor = Processor(config)
-        processor.transform(inputLibraries, outputPath)
+        generateMapping(config, inputLibraries, outputConfigPath)
     }
 
     private fun parseCmdLine(args : Array<String>) : CommandLine? {
@@ -89,6 +83,18 @@ class Main {
             HelpFormatter().printHelp(TOOL_NAME, OPTIONS)
         }
         return null
+    }
+
+    private fun generateMapping(config: Config, inputLibraries: List<Path>, outputConfigPath: Path) {
+        val mapper = LibraryMapGenerator(config)
+        inputLibraries.forEach {
+            val library = Archive.Builder.extract(it)
+            mapper.scanLibrary(library)
+        }
+
+        val map = mapper.generateMap()
+        val newConfig = config.setNewMap(map)
+        ConfigParser.writeToFile(newConfig, outputConfigPath)
     }
 
 }

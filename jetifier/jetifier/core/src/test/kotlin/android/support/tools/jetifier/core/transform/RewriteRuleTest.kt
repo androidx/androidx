@@ -27,52 +27,52 @@ class RewriteRuleTest {
 
     @Test fun noRegEx_shouldRewrite() {
         RuleTester
-                .testThatRule("A/B", "A/C")
-                .rewritesType("A/B")
-                .into("A/C")
+            .testThatRule("A/B", "A/C")
+            .rewritesType("A/B")
+            .into("A/C")
     }
 
     @Test fun noRegEx_underscore_shouldRewrite() {
         RuleTester
-                .testThatRule("A/B_B", "A/C")
-                .rewritesType("A/B_B")
-                .into("A/C")
+            .testThatRule("A/B_B", "A/C")
+            .rewritesType("A/B_B")
+            .into("A/C")
     }
 
     @Test fun groupRegEx_shouldRewrite() {
         RuleTester
-                .testThatRule("A/B/(.*)", "A/{0}")
-                .rewritesType("A/B/C/D")
-                .into("A/C/D")
+            .testThatRule("A/B/(.*)", "A/{0}")
+            .rewritesType("A/B/C/D")
+            .into("A/C/D")
     }
 
     @Test fun groupRegEx__innerClass_shouldRewrite() {
         RuleTester
-                .testThatRule("A/B/(.*)", "A/{0}")
-                .rewritesType("A/B/C\$D")
-                .into("A/C\$D")
+            .testThatRule("A/B/(.*)", "A/{0}")
+            .rewritesType("A/B/C\$D")
+            .into("A/C\$D")
     }
 
     @Test fun fieldRule_noRegEx_shouldRewrite() {
         RuleTester
-                .testThatRule("A/B", "A/C")
-                .withFieldSelector("MyField")
-                .rewritesField("A/B", "MyField")
-                .into("A/C", "MyField")
+            .testThatRule("A/B", "A/C")
+            .withFieldSelector("MyField")
+            .rewritesField("A/B", "MyField")
+            .into("A/C", "MyField")
     }
 
     @Test fun fieldRule_innerClass_groupRegEx_shouldRewrite() {
         RuleTester
-                .testThatRule("A/B$(.*)", "A/C\${0}")
-                .rewritesType("A/B\$D")
-                .into("A/C\$D")
+            .testThatRule("A/B$(.*)", "A/C\${0}")
+            .rewritesType("A/B\$D")
+            .into("A/C\$D")
     }
 
     @Test fun noFieldRule_shouldRewriteEvenWithField() {
         RuleTester
-                .testThatRule("A/B", "A/C")
-                .rewritesField("A/B", "test")
-                .into("A/C", "test")
+            .testThatRule("A/B", "A/C")
+            .rewritesField("A/B", "test")
+            .into("A/C", "test")
     }
 
 

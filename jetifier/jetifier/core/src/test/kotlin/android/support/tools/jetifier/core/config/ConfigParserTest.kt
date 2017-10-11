@@ -43,11 +43,11 @@ class ConfigParserTest {
                 "            to: [\n" +
                 "                {groupId: \"g\", artifactId: \"a\", version: \"2.0\"} \n" +
                 "            ]\n" +
-                "        },\n" +
+                "        }\n" +
                 "    ]\n" +
                 "}"
 
-        val config = ConfigParser.parse(confStr)
+        val config = ConfigParser.parseFromString(confStr)
 
         Truth.assertThat(config).isNotNull()
         Truth.assertThat(config!!.restrictToPackagePrefixes[0]).isEqualTo("android/support/")

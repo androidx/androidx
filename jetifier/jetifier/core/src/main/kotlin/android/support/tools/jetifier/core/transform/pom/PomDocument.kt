@@ -40,7 +40,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
     val dependencies : MutableSet<PomDependency> = mutableSetOf()
     private val properties : MutableMap<String, String> = mutableMapOf()
     private var dependenciesGroup : Element? = null
-    var hasChanged : Boolean = false
+    private var hasChanged : Boolean = false
 
     private fun initialize() {
         val propertiesGroup = document.rootElement
@@ -70,12 +70,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
             return true
         }
 
-        var isValid = true
-        for (dependency in dependencies) {
-            isValid = isValid && rules.all { it.validateVersion(dependency) }
-        }
-
-        return isValid
+        return dependencies.all { dep -> rules.all { it.validateVersion(dep) } }
     }
 
     /**
@@ -118,7 +113,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
     /**
      * Saves any current pending changes back to the file if needed.
      */
-    fun saveBackToFile() {
+    fun saveBackToFileIfNeeded() {
         if (!hasChanged) {
             return
         }

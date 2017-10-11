@@ -20,6 +20,7 @@ import android.support.tools.jetifier.core.archive.Archive
 import android.support.tools.jetifier.core.archive.ArchiveFile
 import android.support.tools.jetifier.core.archive.ArchiveItemVisitor
 import android.support.tools.jetifier.core.config.Config
+import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.transform.bytecode.ByteCodeTransformer
 import android.support.tools.jetifier.core.transform.pom.PomDocument
@@ -36,12 +37,16 @@ import java.nio.file.Path
  */
 class Processor(private val config : Config) : ArchiveItemVisitor {
 
-    private val tag : String = "Processor"
+    companion object {
+        private const val TAG = "Processor"
+    }
+
+    private val context = TransformationContext(config)
 
     private val transformers = listOf(
             // Register your transformers here
-            ByteCodeTransformer(config),
-            XmlResourcesTransformer(config)
+            ByteCodeTransformer(context),
+            XmlResourcesTransformer(context)
     )
 
     /**
@@ -62,6 +67,11 @@ class Processor(private val config : Config) : ArchiveItemVisitor {
         // 3) Transform all the libraries
         libraries.forEach{ transformLibrary(it) }
 
+        if (context.wasErrorFound()) {
+            throw IllegalArgumentException("There were ${context.mappingNotFoundFailuresCount}" +
+                " errors found during the remapping. Check the logs for more details.")
+        }
+
         // TODO: Here we might need to modify the POM files if they point at a library that we have
         // just refactored.
 
@@ -78,7 +88,7 @@ class Processor(private val config : Config) : ArchiveItemVisitor {
         val libraries = mutableListOf<Archive>()
         for (libraryPath in inputLibraries) {
             if (!Files.isReadable(libraryPath)) {
-                Log.e(tag, "Cannot access the input file: '%s'", libraryPath)
+                Log.e(TAG, "Cannot access the input file: '%s'", libraryPath)
                 continue
             }
 
@@ -88,38 +98,27 @@ class Processor(private val config : Config) : ArchiveItemVisitor {
     }
 
     private fun scanPomFiles(libraries: List<Archive>) : List<PomDocument> {
-        val files = mutableListOf<PomDocument>()
-        var allPomsValid = true
+        val scanner = PomScanner(config)
 
-        for (library in libraries) {
-            val pomDocument = PomScanner.scanArchiveForPomFile(library)
-            if (pomDocument != null) {
-                pomDocument.logDocumentDetails()
-                allPomsValid = allPomsValid && pomDocument.validate(config.pomRewriteRules)
-                files.add(pomDocument)
-            }
-        }
-
-        if (!allPomsValid) {
+        libraries.forEach { scanner.scanArchiveForPomFile(it) }
+        if (scanner.wasErrorFound()) {
             throw IllegalArgumentException("At least one of the libraries depends on an older" +
-                    " version of support library. Check the logs for more details.")
+                " version of support library. Check the logs for more details.")
         }
 
-        return files
+        return scanner.pomFiles
     }
 
     private fun transformPomFiles(files: List<PomDocument>) {
-        for (pomFile in files) {
-            if (pomFile.hasChanged) {
-                pomFile.applyRules(config.pomRewriteRules)
-                pomFile.saveBackToFile()
-            }
+        files.forEach {
+            it.applyRules(config.pomRewriteRules)
+            it.saveBackToFileIfNeeded()
         }
     }
 
     private fun transformLibrary(archive: Archive) {
-        Log.i(tag, "Started new transformation")
-        Log.i(tag, "- Input file: %s", archive.relativePath)
+        Log.i(TAG, "Started new transformation")
+        Log.i(TAG, "- Input file: %s", archive.relativePath)
 
         archive.accept(this)
     }
@@ -132,11 +131,11 @@ class Processor(private val config : Config) : ArchiveItemVisitor {
         val transformer = transformers.firstOrNull { it.canTransform(archiveFile) }
 
         if (transformer == null) {
-            Log.i(tag, "[Skipped] %s", archiveFile.relativePath)
+            Log.i(TAG, "[Skipped] %s", archiveFile.relativePath)
             return
         }
 
-        Log.i(tag, "[Applied: %s] %s", transformer.javaClass.simpleName, archiveFile.relativePath)
+        Log.i(TAG, "[Applied: %s] %s", transformer.javaClass.simpleName, archiveFile.relativePath)
         transformer.runTransform(archiveFile)
     }
 
