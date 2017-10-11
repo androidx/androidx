@@ -19,6 +19,7 @@ package android.support.car.drawer;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.car.R;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -51,7 +52,7 @@ import android.view.ViewGroup;
  * derivative.
  */
 public abstract class CarDrawerActivity extends AppCompatActivity {
-    protected CarDrawerController mDrawerController;
+    private CarDrawerController mDrawerController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,18 @@ public abstract class CarDrawerActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+    }
+
+    /**
+     * Returns the {@link CarDrawerController} that is responsible for handling events relating
+     * to the drawer in this Activity.
+     *
+     * @return The {@link CarDrawerController} linked to this Activity. This value will be
+     * {@code null} if this method is called before {@code onCreate()} has been called.
+     */
+    @Nullable
+    protected CarDrawerController getDrawerController() {
+        return mDrawerController;
     }
 
     @Override
