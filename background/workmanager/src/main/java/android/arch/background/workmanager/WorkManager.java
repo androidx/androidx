@@ -18,6 +18,7 @@ package android.arch.background.workmanager;
 
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 
+import android.arch.background.workmanager.constraints.ConstraintsTracker;
 import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -42,6 +43,7 @@ public final class WorkManager {
     private WorkDatabase mWorkDatabase;
     private ExecutorService mEnqueueExecutor = Executors.newSingleThreadExecutor();
     private Scheduler mScheduler;
+    private ConstraintsTracker mConstraintsTracker;
 
     private static WorkManager sInstance = null;
 
@@ -65,6 +67,7 @@ public final class WorkManager {
         if (Build.VERSION.SDK_INT >= 23) {
             mScheduler = new SystemJobScheduler(mContext);
         }
+        mConstraintsTracker = new ConstraintsTracker(mContext);
         new ForegroundProcessor(mContext, mWorkDatabase, mScheduler, ProcessLifecycleOwner.get());
     }
 
@@ -84,6 +87,13 @@ public final class WorkManager {
      */
     public Scheduler getScheduler() {
         return mScheduler;
+    }
+
+    /**
+     * @return The {@link ConstraintsTracker} associated with this WorkManager.
+     */
+    public ConstraintsTracker getConstraintsTracker() {
+        return mConstraintsTracker;
     }
 
     /**
