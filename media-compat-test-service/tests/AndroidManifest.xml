@@ -20,6 +20,7 @@
         <receiver android:name="android.support.mediacompat.service.ServiceBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD"/>
+                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_SESSION_METHOD"/>
             </intent-filter>
         </receiver>
 

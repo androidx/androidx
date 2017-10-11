@@ -17,13 +17,18 @@
 package android.support.mediacompat.testlib;
 
 /**
- * Constants used for sending intent between client and service apks.
+ * Constants used for sending intent between client and service apps.
  */
 public class IntentConstants {
     public static final String ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD =
             "android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD";
     public static final String ACTION_CALL_MEDIA_SESSION_METHOD =
             "android.support.mediacompat.service.action.CALL_MEDIA_SESSION_METHOD";
+    public static final String ACTION_CALL_MEDIA_CONTROLLER_METHOD =
+            "android.support.mediacompat.client.action.CALL_MEDIA_CONTROLLER_METHOD";
+    public static final String ACTION_CALL_TRANSPORT_CONTROLS_METHOD =
+            "android.support.mediacompat.client.action.CALL_TRANSPORT_CONTROLS_METHOD";
     public static final String KEY_METHOD_ID = "method_id";
     public static final String KEY_ARGUMENT = "argument";
+    public static final String KEY_SESSION_TOKEN = "session_token";
 }

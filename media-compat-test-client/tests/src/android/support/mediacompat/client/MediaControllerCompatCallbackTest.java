@@ -17,7 +17,8 @@
 package android.support.mediacompat.client;
 
 import static android.media.AudioManager.STREAM_MUSIC;
-import static android.support.mediacompat.client.util.IntentUtil.callMediaSessionMethod;
+import static android.support.mediacompat.client.util.TestUtil.assertBundleEquals;
+import static android.support.mediacompat.client.util.TestUtil.callMediaSessionMethod;
 import static android.support.mediacompat.testlib.MediaSessionConstants.RELEASE;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SEND_SESSION_EVENT;
 import static android.support.mediacompat.testlib.MediaSessionConstants.SET_CAPTIONING_ENABLED;
@@ -526,18 +527,6 @@ public class MediaControllerCompatCallbackTest {
                 return RatingCompat.RATING_5_STARS == mController.getRatingType();
             }
         }.run();
-    }
-
-    private void assertBundleEquals(Bundle expected, Bundle observed) {
-        if (expected == null || observed == null) {
-            assertTrue(expected == observed);
-            return;
-        }
-
-        assertEquals(expected.size(), observed.size());
-        for (String key : expected.keySet()) {
-            assertEquals(expected.get(key), observed.get(key));
-        }
     }
 
     private void assertQueueEquals(List<QueueItem> expected, List<QueueItem> observed) {
