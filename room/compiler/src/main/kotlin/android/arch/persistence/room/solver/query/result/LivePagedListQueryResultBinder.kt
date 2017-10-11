@@ -31,14 +31,20 @@ class LivePagedListQueryResultBinder(
     : QueryResultBinder(tiledDataSourceQueryResultBinder.listAdapter) {
     @Suppress("HasPlatformType")
     val typeName = tiledDataSourceQueryResultBinder.itemTypeName
-    override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  dbField: FieldSpec,
+                                  inTransaction : Boolean,
                                   scope: CodeGenScope) {
         scope.builder().apply {
             val pagedListProvider = TypeSpec
                     .anonymousClassBuilder("").apply {
                 superclass(ParameterizedTypeName.get(PagingTypeNames.LIVE_PAGED_LIST_PROVIDER,
                         Integer::class.typeName(), typeName))
-                addMethod(createCreateDataSourceMethod(roomSQLiteQueryVar, dbField, scope))
+                addMethod(createCreateDataSourceMethod(
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        dbField = dbField,
+                        inTransaction = inTransaction,
+                        scope = scope))
             }.build()
             addStatement("return $L", pagedListProvider)
         }
@@ -46,14 +52,18 @@ class LivePagedListQueryResultBinder(
 
     private fun createCreateDataSourceMethod(roomSQLiteQueryVar: String,
                                              dbField: FieldSpec,
+                                             inTransaction : Boolean,
                                              scope: CodeGenScope): MethodSpec
             = MethodSpec.methodBuilder("createDataSource").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PROTECTED)
         returns(tiledDataSourceQueryResultBinder.typeName)
         val countedBinderScope = scope.fork()
-        tiledDataSourceQueryResultBinder.convertAndReturn(roomSQLiteQueryVar, dbField,
-                countedBinderScope)
+        tiledDataSourceQueryResultBinder.convertAndReturn(
+                roomSQLiteQueryVar = roomSQLiteQueryVar,
+                dbField = dbField,
+                inTransaction = inTransaction,
+                scope = countedBinderScope)
         addCode(countedBinderScope.builder().build())
     }.build()
 }

@@ -192,6 +192,81 @@ class DaoProcessorTest(val enableVerification : Boolean) {
         }.compilesWithoutError()
     }
 
+    @Test
+    fun query_warnIfTransactionIsMissingForRelation() {
+        if (!enableVerification) {
+            return
+        }
+        singleDao(
+                """
+                @Dao interface MyDao {
+                    static class Merged extends User {
+                       @Relation(parentColumn = "name", entityColumn = "lastName",
+                                 entity = User.class)
+                       java.util.List<User> users;
+                    }
+                    @Query("select * from user")
+                    abstract java.util.List<Merged> loadUsers();
+                }
+                """
+        ) { dao, _ ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            assertThat(dao.queryMethods.first().inTransaction, `is`(false))
+        }.compilesWithoutError()
+                .withWarningContaining(ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
+    }
+
+    @Test
+    fun query_dontWarnIfTransactionIsMissingForRelation_suppressed() {
+        if (!enableVerification) {
+            return
+        }
+        singleDao(
+                """
+                @Dao interface MyDao {
+                    static class Merged extends User {
+                       @Relation(parentColumn = "name", entityColumn = "lastName",
+                                 entity = User.class)
+                       java.util.List<User> users;
+                    }
+                    @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
+                    @Query("select * from user")
+                    abstract java.util.List<Merged> loadUsers();
+                }
+                """
+        ) { dao, _ ->
+            assertThat(dao.queryMethods.size, `is`(1))
+            assertThat(dao.queryMethods.first().inTransaction, `is`(false))
+        }.compilesWithoutError()
+                .withWarningCount(0)
+    }
+
+    @Test
+    fun query_dontWarnIfTransactionNotIsMissingForRelation() {
+        if (!enableVerification) {
+            return
+        }
+        singleDao(
+                """
+                @Dao interface MyDao {
+                    static class Merged extends User {
+                       @Relation(parentColumn = "name", entityColumn = "lastName",
+                                 entity = User.class)
+                       java.util.List<User> users;
+                    }
+                    @Transaction
+                    @Query("select * from user")
+                    abstract java.util.List<Merged> loadUsers();
+                }
+                """
+        ) { dao, _ ->
+            // test sanity
+            assertThat(dao.queryMethods.size, `is`(1))
+            assertThat(dao.queryMethods.first().inTransaction, `is`(true))
+        }.compilesWithoutError()
+                .withWarningCount(0)
+    }
+
     fun singleDao(vararg inputs: String, handler: (Dao, TestInvocation) -> Unit):
             CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -200,7 +275,12 @@ class DaoProcessorTest(val enableVerification : Boolean) {
                 ), COMMON.USER))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(android.arch.persistence.room.Dao::class,
-                                android.arch.persistence.room.Entity::class)
+                                android.arch.persistence.room.Entity::class,
+                                android.arch.persistence.room.Relation::class,
+                                android.arch.persistence.room.Transaction::class,
+                                android.arch.persistence.room.ColumnInfo::class,
+                                android.arch.persistence.room.PrimaryKey::class,
+                                android.arch.persistence.room.Query::class)
                         .nextRunHandler { invocation ->
                             val dao = invocation.roundEnv
                                     .getElementsAnnotatedWith(

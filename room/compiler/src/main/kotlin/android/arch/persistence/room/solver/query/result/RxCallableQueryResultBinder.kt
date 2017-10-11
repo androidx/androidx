@@ -38,28 +38,42 @@ import javax.lang.model.type.TypeMirror
  */
 class RxCallableQueryResultBinder(val rxType: RxType,
                                   val typeArg: TypeMirror,
-                                  val instantBinder : InstantQueryResultBinder,
-                                  adapter: QueryResultAdapter?) : QueryResultBinder(adapter) {
-    override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
+                                  adapter: QueryResultAdapter?)
+    : QueryResultBinder(adapter) {
+    override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  dbField: FieldSpec,
+                                  inTransaction : Boolean,
                                   scope: CodeGenScope) {
         val callable = TypeSpec.anonymousClassBuilder("").apply {
             val typeName = typeArg.typeName()
             superclass(ParameterizedTypeName.get(java.util.concurrent.Callable::class.typeName(),
                     typeName))
-            addMethod(createCallMethod(roomSQLiteQueryVar, dbField, scope))
+            addMethod(createCallMethod(
+                    roomSQLiteQueryVar = roomSQLiteQueryVar,
+                    dbField = dbField,
+                    inTransaction = inTransaction,
+                    scope = scope))
         }.build()
         scope.builder().apply {
             addStatement("return $T.fromCallable($L)", rxType.className, callable)
         }
     }
 
-    fun createCallMethod(roomSQLiteQueryVar: String, dbField: FieldSpec,
+    fun createCallMethod(roomSQLiteQueryVar: String,
+                         dbField: FieldSpec,
+                         inTransaction: Boolean,
                          scope: CodeGenScope): MethodSpec {
         val adapterScope = scope.fork()
         return MethodSpec.methodBuilder("call").apply {
             returns(typeArg.typeName())
             addException(Exception::class.typeName())
             addModifiers(Modifier.PUBLIC)
+            val transactionWrapper = if (inTransaction) {
+                transactionWrapper(dbField)
+            } else {
+                null
+            }
+            transactionWrapper?.beginTransactionWithControlFlow()
             val outVar = scope.getTmpVar("_result")
             val cursorVar = scope.getTmpVar("_cursor")
             addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, cursorVar,
@@ -76,6 +90,7 @@ class RxCallableQueryResultBinder(val rxType: RxType,
                     }
                     endControlFlow()
                 }
+                transactionWrapper?.commitTransaction()
                 addStatement("return $L", outVar)
             }
             nextControlFlow("finally").apply {
@@ -83,10 +98,11 @@ class RxCallableQueryResultBinder(val rxType: RxType,
                 addStatement("$L.release()", roomSQLiteQueryVar)
             }
             endControlFlow()
+            transactionWrapper?.endTransactionWithControlFlow()
         }.build()
     }
 
-    enum class RxType(val className : ClassName, val canBeNull : Boolean) {
+    enum class RxType(val className: ClassName, val canBeNull: Boolean) {
         SINGLE(RxJava2TypeNames.SINGLE, canBeNull = false),
         MAYBE(RxJava2TypeNames.MAYBE, canBeNull = true);
     }
