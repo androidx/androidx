@@ -14,23 +14,23 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-       android:layout_width="match_parent"
-       android:layout_height="match_parent">
-
-    <android.support.car.widget.PagedScrollBarView
-        android:id="@+id/paged_scroll_view"
-        android:layout_width="@dimen/car_paged_list_view_pagination_width"
-        android:layout_height="match_parent"
-        android:paddingBottom="@dimen/car_scroll_bar_padding"
-        android:paddingTop="@dimen/car_scroll_bar_padding"
-        android:visibility="invisible" />
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <android.support.car.widget.CarRecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Putting this as the last child so that it can intercept any touch events on the
+         scroll buttons. -->
+    <android.support.car.widget.PagedScrollBarView
+        android:id="@+id/paged_scroll_view"
+        android:layout_width="@dimen/car_screen_margin_size"
         android:layout_height="match_parent"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginStart="@dimen/car_paged_list_view_pagination_width"
-        android:clipChildren="false" />
-</merge>
+        android:paddingBottom="@dimen/car_scroll_bar_padding"
+        android:paddingTop="@dimen/car_scroll_bar_padding"
+        android:visibility="invisible" />
+</FrameLayout>
