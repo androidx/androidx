@@ -18,6 +18,7 @@ package android.support.v4.media;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.media.Rating;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -326,25 +327,25 @@ public final class RatingCompat implements Parcelable {
      */
     public static RatingCompat fromRating(Object ratingObj) {
         if (ratingObj != null && Build.VERSION.SDK_INT >= 19) {
-            final int ratingStyle = RatingCompatKitkat.getRatingStyle(ratingObj);
+            final int ratingStyle = ((Rating) ratingObj).getRatingStyle();
             final RatingCompat rating;
-            if (RatingCompatKitkat.isRated(ratingObj)) {
+            if (((Rating) ratingObj).isRated()) {
                 switch (ratingStyle) {
                     case RATING_HEART:
-                        rating = newHeartRating(RatingCompatKitkat.hasHeart(ratingObj));
+                        rating = newHeartRating(((Rating) ratingObj).hasHeart());
                         break;
                     case RATING_THUMB_UP_DOWN:
-                        rating = newThumbRating(RatingCompatKitkat.isThumbUp(ratingObj));
+                        rating = newThumbRating(((Rating) ratingObj).isThumbUp());
                         break;
                     case RATING_3_STARS:
                     case RATING_4_STARS:
                     case RATING_5_STARS:
                         rating = newStarRating(ratingStyle,
-                                RatingCompatKitkat.getStarRating(ratingObj));
+                                ((Rating) ratingObj).getStarRating());
                         break;
                     case RATING_PERCENTAGE:
                         rating = newPercentageRating(
-                                RatingCompatKitkat.getPercentRating(ratingObj));
+                                ((Rating) ratingObj).getPercentRating());
                         break;
                     default:
                         return null;
@@ -372,25 +373,25 @@ public final class RatingCompat implements Parcelable {
             if (isRated()) {
                 switch (mRatingStyle) {
                     case RATING_HEART:
-                        mRatingObj = RatingCompatKitkat.newHeartRating(hasHeart());
+                        mRatingObj = Rating.newHeartRating(hasHeart());
                         break;
                     case RATING_THUMB_UP_DOWN:
-                        mRatingObj = RatingCompatKitkat.newThumbRating(isThumbUp());
+                        mRatingObj = Rating.newThumbRating(isThumbUp());
                         break;
                     case RATING_3_STARS:
                     case RATING_4_STARS:
                     case RATING_5_STARS:
-                        mRatingObj = RatingCompatKitkat.newStarRating(mRatingStyle,
+                        mRatingObj = Rating.newStarRating(mRatingStyle,
                                 getStarRating());
                         break;
                     case RATING_PERCENTAGE:
-                        mRatingObj = RatingCompatKitkat.newPercentageRating(getPercentRating());
+                        mRatingObj = Rating.newPercentageRating(getPercentRating());
                         break;
                     default:
                         return null;
                 }
             } else {
-                mRatingObj = RatingCompatKitkat.newUnratedRating(mRatingStyle);
+                mRatingObj = Rating.newUnratedRating(mRatingStyle);
             }
         }
         return mRatingObj;
