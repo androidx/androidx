@@ -23,7 +23,7 @@ import android.content.Context;
 /**
  * A test database.
  */
-@Database(entities = {WordCount.class}, version = 1)
+@Database(entities = {WordCount.class, Image.class}, version = 1)
 public abstract class TestDatabase extends RoomDatabase {
 
     private static TestDatabase sInstance;
@@ -37,10 +37,7 @@ public abstract class TestDatabase extends RoomDatabase {
     public static TestDatabase getInstance(Context context) {
         if (sInstance == null) {
             sInstance = Room.databaseBuilder(
-                    context.getApplicationContext(),
-                    TestDatabase.class,
-                    "testdb")
-                    .build();
+                    context.getApplicationContext(), TestDatabase.class, "testdb").build();
         }
         return sInstance;
     }
@@ -51,4 +48,11 @@ public abstract class TestDatabase extends RoomDatabase {
      * @return The Data Access Object for the wordcount table
      */
     public abstract WordCountDao getWordCountDao();
+
+    /**
+     * Gets the Data Access Object for the image table.
+     *
+     * @return The Data Access Object for the image table
+     */
+    public abstract ImageDao getImageDao();
 }
