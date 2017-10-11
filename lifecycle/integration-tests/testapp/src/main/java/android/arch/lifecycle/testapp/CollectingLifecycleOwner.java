@@ -16,14 +16,21 @@
 
 package android.arch.lifecycle.testapp;
 
-/**
- * Observer that can be set on {@link LifecycleObservableActivity} or
- * {@link LifecycleObservableFragment}  so that tests can be notified when certain events occur.
- */
-public interface OnSaveInstanceStateListener {
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.support.v4.util.Pair;
 
+import java.util.List;
+
+/**
+ * For activities that collect their events.
+ */
+public interface CollectingLifecycleOwner extends LifecycleOwner {
     /**
-     * Called in onSaveInstanceState() after super.onSaveInstanceState().
+     * Return a copy of currently collected events
+     *
+     * @return The list of collected events.
+     * @throws InterruptedException
      */
-    void onSaveInstanceState();
+    List<Pair<TestEvent, Lifecycle.Event>> copyCollectedEvents();
 }
