@@ -18,8 +18,6 @@ android {
 
     sourceSets {
         main.java.srcDirs = [
-                'jellybean-mr2',
-                'kitkat',
                 'api21',
                 'api22',
                 'api23',
