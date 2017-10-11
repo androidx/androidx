@@ -17,8 +17,9 @@
 package android.support.tools.jetifier.core.transform.resource
 
 import android.support.tools.jetifier.core.archive.ArchiveFile
-import android.support.tools.jetifier.core.config.Config
+import android.support.tools.jetifier.core.map.TypesMap
 import android.support.tools.jetifier.core.rules.JavaTypeXmlRef
+import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
 import android.support.tools.jetifier.core.utils.Log
 import java.nio.charset.Charset
@@ -27,12 +28,13 @@ import java.util.regex.Pattern
 import javax.xml.stream.XMLInputFactory
 
 /**
- * Transformer for resource XML files.
+ * Transformer for XML resource files.
  *
  * Searches for any java type reference that is pointing to the support library and rewrites it
- * using the available [RewriteRule]s.
+ * using the available mappings from [TypesMap].
  */
-class XmlResourcesTransformer internal constructor(private val config: Config) : Transformer {
+class XmlResourcesTransformer internal constructor(private val context: TransformationContext)
+        : Transformer {
 
     companion object {
         const val TAG = "XmlResourcesTransformer"
@@ -50,20 +52,12 @@ class XmlResourcesTransformer internal constructor(private val config: Config) :
      * Note that this can also rewrite commented blocks of XML. But on a library level we don't care
      * much about comments.
      */
-    private val patterns : List<Pattern>
+    private val patterns = listOf(
+        Pattern.compile("</?([a-zA-Z0-9.]+)"),
+        Pattern.compile("<view[^>]*class=\"([a-zA-Z0-9.\$_]+)\"[^>]*>")
+    )
 
-    init {
-        val patterns = mutableListOf<Pattern>()
-        config.restrictToPackagePrefixes.forEach {
-            val prefix = it.replace("/", ".")
-            patterns.add(Pattern.compile("</?($prefix[a-zA-Z0-9.]+)"))
-            patterns.add(Pattern.compile("<view[^>]*class=\"($prefix[a-zA-Z0-9.\$_]+)\"[^>]*>"))
-        }
-        this.patterns = patterns.toList()
-    }
-
-    private val typesRewritesCache = hashMapOf<JavaTypeXmlRef, JavaTypeXmlRef?>()
-
+    private val typesMap = context.config.typesMap
 
     override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()
 
@@ -76,19 +70,16 @@ class XmlResourcesTransformer internal constructor(private val config: Config) :
 
         val charset = getCharset(data)
         val sb = StringBuilder(data.toString(charset))
-
         for (pattern in patterns) {
             var matcher = pattern.matcher(sb)
             while (matcher.find()) {
-                val typeToReplace = matcher.group(PATTERN_TYPE_GROUP)
-                val result = rewriteType(JavaTypeXmlRef(typeToReplace))
-                if (result == null) {
-                    Log.e(TAG, "Failed to rewrite XML reference: '%s'", typeToReplace)
+                val typeToReplace = JavaTypeXmlRef(matcher.group(PATTERN_TYPE_GROUP))
+                val result = rewriteType(typeToReplace)
+                if (result == typeToReplace) {
                     continue
                 }
-
                 sb.replace(matcher.start(PATTERN_TYPE_GROUP), matcher.end(PATTERN_TYPE_GROUP),
-                        result.fullName)
+                    result.fullName)
                 changesDone = true
                 matcher = pattern.matcher(sb)
             }
@@ -116,22 +107,20 @@ class XmlResourcesTransformer internal constructor(private val config: Config) :
         }
     }
 
-    fun rewriteType(type: JavaTypeXmlRef): JavaTypeXmlRef? {
-        // Try cache
-        val cached = typesRewritesCache[type]
-        if (cached != null) {
-            return cached
+    fun rewriteType(type: JavaTypeXmlRef): JavaTypeXmlRef {
+        val javaType = type.toJavaType()
+        if (!context.isEligibleForRewrite(javaType)) {
+            return type
         }
 
-        // Try to find a rule
-        for (rule in config.rewriteRules) {
-            val mappedType = rule.apply(type.toJavaType()) ?: continue
-            val xmlResult = JavaTypeXmlRef(mappedType)
-            typesRewritesCache.put(type, xmlResult)
-            return xmlResult
+        val result = typesMap.types[javaType]
+        if (result != null) {
+            Log.i(TAG, "  map: %s -> %s", type, result)
+            return JavaTypeXmlRef(result)
         }
 
-        typesRewritesCache.put(type, null)
-        return null
+        context.reportNoMappingFoundFailure()
+        Log.e(TAG, "No mapping for: " + type)
+        return type
     }
 }
