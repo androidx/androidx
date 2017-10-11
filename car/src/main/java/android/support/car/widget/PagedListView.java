@@ -162,7 +162,7 @@ public class PagedListView extends FrameLayout {
         if (offsetScrollBar) {
             MarginLayoutParams params = (MarginLayoutParams) mRecyclerView.getLayoutParams();
             params.setMarginStart(getResources().getDimensionPixelSize(
-                    R.dimen.car_paged_list_view_pagination_width));
+                    R.dimen.car_screen_margin_size));
             params.setMarginEnd(
                     a.getDimensionPixelSize(R.styleable.PagedListView_listEndMargin, 0));
             mRecyclerView.setLayoutParams(params);
