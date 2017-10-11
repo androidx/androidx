@@ -16,19 +16,34 @@
 
 package android.arch.persistence.room.solver.query.result
 
+import android.arch.persistence.room.ext.AndroidTypeNames
 import android.arch.persistence.room.ext.L
 import android.arch.persistence.room.ext.N
+import android.arch.persistence.room.ext.T
 import android.arch.persistence.room.solver.CodeGenScope
 import android.arch.persistence.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 
 class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
-    override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  dbField: FieldSpec,
+                                  inTransaction : Boolean,
                                   scope: CodeGenScope) {
-        scope.builder().apply {
-            addStatement("return $N.query($L)", DaoWriter.dbField, roomSQLiteQueryVar)
+        val builder = scope.builder()
+        val transactionWrapper = if (inTransaction) {
+            builder.transactionWrapper(dbField)
+        } else {
+            null
         }
+        transactionWrapper?.beginTransactionWithControlFlow()
+        val resultName = scope.getTmpVar("_tmpResult")
+        builder.addStatement("final $T $L = $N.query($L)", AndroidTypeNames.CURSOR, resultName,
+                dbField, roomSQLiteQueryVar)
+        transactionWrapper?.commitTransaction()
+        builder.addStatement("return $L", resultName)
+        transactionWrapper?.endTransactionWithControlFlow()
     }
+
     companion object {
         private val NO_OP_RESULT_ADAPTER = object : QueryResultAdapter(null) {
             override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {

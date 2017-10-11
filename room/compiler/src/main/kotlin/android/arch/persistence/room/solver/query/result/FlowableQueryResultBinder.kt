@@ -37,7 +37,9 @@ import javax.lang.model.type.TypeMirror
 class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: Set<String>,
                                 adapter: QueryResultAdapter?)
     : BaseObservableQueryResultBinder(adapter) {
-    override fun convertAndReturn(roomSQLiteQueryVar: String, dbField: FieldSpec,
+    override fun convertAndReturn(roomSQLiteQueryVar: String,
+                                  dbField: FieldSpec,
+                                  inTransaction : Boolean,
                                   scope: CodeGenScope) {
         val callableImpl = TypeSpec.anonymousClassBuilder("").apply {
             val typeName = typeArg.typeName()
@@ -47,7 +49,11 @@ class FlowableQueryResultBinder(val typeArg: TypeMirror, val queryTableNames: Se
                 returns(typeName)
                 addException(Exception::class.typeName())
                 addModifiers(Modifier.PUBLIC)
-                createRunQueryAndReturnStatements(this, roomSQLiteQueryVar, scope)
+                createRunQueryAndReturnStatements(builder = this,
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        inTransaction = inTransaction,
+                        dbField = dbField,
+                        scope = scope)
             }.build())
             addMethod(createFinalizeMethod(roomSQLiteQueryVar))
         }.build()

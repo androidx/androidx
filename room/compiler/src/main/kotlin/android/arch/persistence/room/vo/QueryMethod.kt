@@ -29,6 +29,7 @@ import javax.lang.model.type.TypeMirror
  */
 data class QueryMethod(val element: ExecutableElement, val query: ParsedQuery, val name: String,
                        val returnType: TypeMirror, val parameters: List<QueryParameter>,
+                       val inTransaction : Boolean,
                        val queryResultBinder : QueryResultBinder) {
     val sectionToParamMapping by lazy {
         query.bindSections.map {
