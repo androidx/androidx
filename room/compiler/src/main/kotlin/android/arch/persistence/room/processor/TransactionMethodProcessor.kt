@@ -20,9 +20,9 @@ import android.arch.persistence.room.ext.hasAnyOf
 import android.arch.persistence.room.vo.TransactionMethod
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
-import javax.lang.model.type.DeclaredType
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
+import javax.lang.model.type.DeclaredType
 
 class TransactionMethodProcessor(baseContext: Context,
                                  val containing: DeclaredType,
@@ -31,7 +31,6 @@ class TransactionMethodProcessor(baseContext: Context,
     val context = baseContext.fork(executableElement)
 
     fun process(): TransactionMethod {
-        // TODO: Remove abstract check
         context.checker.check(!executableElement.hasAnyOf(PRIVATE, FINAL, ABSTRACT),
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 

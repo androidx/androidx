@@ -445,7 +445,11 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         val sqlVar = scope.getTmpVar("_sql")
         val roomSQLiteQueryVar = scope.getTmpVar("_statement")
         queryWriter.prepareReadAndBind(sqlVar, roomSQLiteQueryVar, scope)
-        method.queryResultBinder.convertAndReturn(roomSQLiteQueryVar, dbField, scope)
+        method.queryResultBinder.convertAndReturn(
+                roomSQLiteQueryVar = roomSQLiteQueryVar,
+                dbField = dbField,
+                inTransaction = method.inTransaction,
+                scope = scope)
         return scope.builder().build()
     }
 

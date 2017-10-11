@@ -37,6 +37,8 @@ object ProcessorErrors {
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
     val INVALID_INSERTION_METHOD_RETURN_TYPE = "Methods annotated with @Insert can return either" +
             " void, long, Long, long[], Long[] or List<Long>."
+    val TRANSACTION_REFERENCE_DOCS = "https://developer.android.com/reference/android/arch/" +
+            "persistence/room/Transaction.html"
 
     fun insertionMethodReturnTypeMismatch(definedReturn : TypeName,
                                           expectedReturnTypes : List<TypeName>) : String {
@@ -122,7 +124,13 @@ object ProcessorErrors {
             " @Update but does not have any parameters to update."
 
     val TRANSACTION_METHOD_MODIFIERS = "Method annotated with @Transaction must not be " +
-            "private, final, or abstract."
+            "private, final, or abstract. It can be abstract only if the method is also" +
+            " annotated with @Query."
+
+    val TRANSACTION_MISSING_ON_RELATION = "The return value includes a Pojo with a @Relation." +
+            " It is usually desired to annotate this method with @Transaction to avoid" +
+            " possibility of inconsistent results between the Pojo and its relations. See " +
+            TRANSACTION_REFERENCE_DOCS + " for details."
 
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
             "annotated with @Entity or a collection/array of it."
