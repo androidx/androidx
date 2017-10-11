@@ -16,7 +16,7 @@
 
 package android.arch.lifecycle;
 
-import android.media.PlaybackParams;
+import android.app.PictureInPictureParams;
 import android.os.Build;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 public class MissingClassTest {
     public static class ObserverWithMissingClasses {
         @SuppressWarnings("unused")
-        public void newApiMethod(PlaybackParams params) {}
+        public void newApiMethod(PictureInPictureParams params) {}
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         public void onResume() {}
