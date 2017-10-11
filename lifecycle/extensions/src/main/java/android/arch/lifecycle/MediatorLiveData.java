@@ -24,11 +24,43 @@ import android.support.annotation.Nullable;
 import java.util.Map;
 
 /**
- * {@link LiveData} subclass which may observer other {@code LiveData} objects and react on
+ * {@link LiveData} subclass which may observe other {@code LiveData} objects and react on
  * {@code OnChanged} events from them.
  * <p>
  * This class correctly propagates its active/inactive states down to source {@code LiveData}
  * objects.
+ * <p>
+ * Consider the following scenario: we have 2 instances of {@code LiveData}, let's name them
+ * {@code liveData1} and {@code liveData2}, and we want to merge their emissions in one object:
+ * {@code liveDataMerger}. Then, {@code liveData1} and {@code liveData2} will become sources for
+ * the {@code MediatorLiveData liveDataMerger} and every time {@code onChanged} callback
+ * is called for either of them, we set a new value in {@code liveDataMerger}.
+ *
+ * <pre>
+ * LiveData<Integer> liveData1 = ...;
+ * LiveData<Integer> liveData2 = ...;
+ *
+ * MediatorLiveData<Integer> liveDataMerger = new MediatorLiveData<>();
+ * liveDataMerger.addSource(liveData1, value -> liveDataMerger.setValue(value));
+ * liveDataMerger.addSource(liveData2, value -> liveDataMerger.setValue(value));
+ * </pre>
+ * <p>
+ * Let's consider that we only want 10 values emitted by {@code liveData1}, to be
+ * merged in the {@code liveDataMerger}. Then, after 10 values, we can stop listening to {@code
+ * liveData1} and remove it as a source.
+ * <pre>
+ * liveDataMerger.addSource(liveData1, new Observer<Integer>() {
+ *      private int count = 1;
+ *
+ *      {@literal @}Override public void onChanged(@Nullable Integer s) {
+ *          count++;
+ *          liveDataMerger.setValue(s);
+ *          if (count > 10) {
+ *              liveDataMerger.removeSource(liveData1);
+ *          }
+ *      }
+ * });
+ * </pre>
  *
  * @param <T> The type of data hold by this instance
  */
