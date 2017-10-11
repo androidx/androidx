@@ -38,8 +38,7 @@ sealed class RxCallableQueryResultBinderProvider(val context: Context,
     override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
-        return RxCallableQueryResultBinder(rxType,
-                typeArg, InstantQueryResultBinder(adapter), adapter)
+        return RxCallableQueryResultBinder(rxType, typeArg, adapter)
     }
 
     override fun matches(declared: DeclaredType): Boolean =

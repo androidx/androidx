@@ -110,9 +110,10 @@ class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: 
                     executableElement = it).process()
         } ?: emptyList()
 
-        val transactionMethods = allMembers.filter {
-            it.hasAnnotation(Transaction::class)
-                    && it.kind == ElementKind.METHOD
+        val transactionMethods = allMembers.filter { member ->
+            member.hasAnnotation(Transaction::class)
+                    && member.kind == ElementKind.METHOD
+                    && PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
             // TODO: Exclude abstract methods and let @Query handle that case
         }.map {
             TransactionMethodProcessor(
@@ -161,5 +162,4 @@ class DaoProcessor(baseContext : Context, val element: TypeElement, val dbType: 
                     element.toString(), dbType.toString()))
         }
     }
-
 }

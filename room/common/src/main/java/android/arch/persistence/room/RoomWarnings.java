@@ -125,4 +125,12 @@ public class RoomWarnings {
      * annotation.
      */
     public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
+
+    /**
+     * Reported when a @Query method returns a Pojo that has relations but the method is not
+     * annotated with @Transaction. Relations are run as separate queries and if the query is not
+     * run inside a transaction, it might return inconsistent results from the database.
+     */
+    public static final String RELATION_QUERY_WITHOUT_TRANSACTION =
+            "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
 }
