@@ -87,13 +87,5 @@ public class MainActivity extends AppCompatActivity {
                         mResultsView.setText(stringBuilder.toString());
                     }
                 });
-
-        /*WorkManager workManager = WorkManager.getInstance(this);
-        workManager.enqueue(TestWorker.class);
-        workManager
-                .enqueue(SleepyToastWorker.createWithArgs(1000L, "First worker"))
-                .then(SleepyToastWorker.createWithArgs(2000L, "Second worker"));*/
-
-
     }
 }

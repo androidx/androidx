@@ -93,7 +93,9 @@ public interface WorkSpecDao {
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s
      */
-    @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED)
+    @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND "
+            + " mRequiresCharging=0 AND mRequiresDeviceIdle=0 AND mRequiresBatteryNotLow=0 AND "
+            + " mRequiresStorageNotLow=0 AND mRequiredNetworkType=0")
     LiveData<List<WorkSpec>> getEnqueuedWorkSpecs();
 
     /**
