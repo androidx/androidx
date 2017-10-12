@@ -17,7 +17,6 @@
 <resources>
 
     <style name="Theme.MediaRouter" parent="ThemeOverlay.AppCompat.Dark">
-        <item name="android:backgroundDimEnabled">true</item>
         <item name="windowNoTitle">true</item>
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.MediaRouteButton</item>
 
@@ -39,7 +38,6 @@
     </style>
 
     <style name="Theme.MediaRouter.Light" parent="ThemeOverlay.AppCompat.Light">
-        <item name="android:backgroundDimEnabled">true</item>
         <item name="windowNoTitle">true</item>
         <item name="mediaRouteButtonStyle">@style/Widget.MediaRouter.Light.MediaRouteButton</item>
 
