@@ -92,10 +92,8 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     }
 
     public MediaRouteChooserDialog(Context context, int theme) {
-        // If we pass theme ID of 0 to AppCompatDialog, it will apply dialogTheme on the context,
-        // which may override our style settings. Passes our uppermost theme ID to prevent this.
-        super(MediaRouterThemeHelper.createThemedContext(context, theme),
-                theme == 0 ? MediaRouterThemeHelper.createThemeForDialog(context, theme) : theme);
+        super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, false),
+                MediaRouterThemeHelper.createThemedDialogStyle(context));
         context = getContext();
 
         mRouter = MediaRouter.getInstance(context);
