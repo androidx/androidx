@@ -15,20 +15,88 @@
  */
 package android.arch.background.workmanager.constraints;
 
+import android.util.Log;
+
 /**
  * An object specifying the current state of system constraints.
  */
 
 public class ConstraintsState {
 
-    boolean mIsCharging;
-    boolean mIsBatteryNotLow;
+    private static final String TAG = "ConstraintsState";
+
+    private Listener mListener;
+
+    private boolean mPerformingInitialUpdates;
+    private boolean mShouldNotifyAfterInitialUpdates;
+
+    private Boolean mIsCharging;
+    private Boolean mIsBatteryNotLow;
+
+    public ConstraintsState(Listener listener) {
+        mListener = listener;
+    }
+
+    void setCharging(boolean charging) {
+        if (mIsCharging != charging) {
+            mIsCharging = charging;
+            tryNotifyListener();
+        }
+    }
 
     public boolean isCharging() {
         return mIsCharging;
     }
 
+    void setBatteryNotLow(boolean batteryNotLow) {
+        if (mIsBatteryNotLow != batteryNotLow) {
+            mIsBatteryNotLow = batteryNotLow;
+            tryNotifyListener();
+        }
+    }
+
     public boolean isBatteryNotLow() {
         return mIsBatteryNotLow;
+    }
+
+    void startPerformingBatchUpdates() {
+        if (mPerformingInitialUpdates) {
+            Log.d(TAG, "Already performing batch updates");
+            return;
+        }
+
+        mPerformingInitialUpdates = true;
+        mShouldNotifyAfterInitialUpdates = false;
+    }
+
+    void stopPerformingBatchUpdates() {
+        if (!mPerformingInitialUpdates) {
+            Log.d(TAG, "Already not performing batch updates");
+            return;
+        }
+
+        mPerformingInitialUpdates = false;
+        if (mShouldNotifyAfterInitialUpdates) {
+            tryNotifyListener();
+        }
+    }
+
+    void tryNotifyListener() {
+        if (mPerformingInitialUpdates) {
+            mShouldNotifyAfterInitialUpdates = true;
+        } else {
+            mListener.onConstraintsUpdated(this);
+        }
+    }
+
+    /**
+     * A listener that is invoked as each constraint is updated.
+     */
+    public interface Listener {
+
+        /**
+         * @param constraintsState The {@link ConstraintsState} that was updated
+         */
+        void onConstraintsUpdated(ConstraintsState constraintsState);
     }
 }

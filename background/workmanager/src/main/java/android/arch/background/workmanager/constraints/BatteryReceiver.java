@@ -28,14 +28,13 @@ import android.os.Build;
 
 public class BatteryReceiver extends BaseConstraintsReceiver {
 
-    public BatteryReceiver(Context context, ConstraintsTracker constraintsTracker) {
-        super(context, constraintsTracker);
+
+    public BatteryReceiver(Context context) {
+        super(context);
     }
 
     @Override
-    public void startTracking() {
-        setupInitialState();
-
+    public IntentFilter getIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
         if (Build.VERSION.SDK_INT >= 23) {
             intentFilter.addAction(BatteryManager.ACTION_CHARGING);
@@ -45,12 +44,7 @@ public class BatteryReceiver extends BaseConstraintsReceiver {
         }
         intentFilter.addAction(Intent.ACTION_BATTERY_OKAY);
         intentFilter.addAction(Intent.ACTION_BATTERY_LOW);
-        mAppContext.registerReceiver(this, intentFilter);
-    }
-
-    @Override
-    public void stopTracking() {
-        mAppContext.unregisterReceiver(this);
+        return intentFilter;
     }
 
     @Override
@@ -61,56 +55,83 @@ public class BatteryReceiver extends BaseConstraintsReceiver {
 
         switch (intent.getAction()) {
             case BatteryManager.ACTION_CHARGING:
-                mConstraintsTracker.setIsCharging(true);
+                for (ConstraintsState state : mConstraintsStateList) {
+                    state.setCharging(true);
+                }
                 break;
 
             case BatteryManager.ACTION_DISCHARGING:
-                mConstraintsTracker.setIsCharging(false);
+                for (ConstraintsState state : mConstraintsStateList) {
+                    state.setCharging(false);
+                }
                 break;
 
             case Intent.ACTION_BATTERY_CHANGED: {
-                int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-                boolean charging;
-                if (Build.VERSION.SDK_INT >= 23) {
-                    charging = (status == BatteryManager.BATTERY_STATUS_CHARGING
-                            || status == BatteryManager.BATTERY_STATUS_FULL);
-                } else {
-                    int chargePlug = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-                    charging = (chargePlug != 0);
+                boolean charging = isBatteryChangedIntentCharging(intent);
+                for (ConstraintsState state : mConstraintsStateList) {
+                    state.setCharging(charging);
                 }
-                mConstraintsTracker.setIsCharging(charging);
                 break;
             }
 
             case Intent.ACTION_BATTERY_OKAY:
-                mConstraintsTracker.setIsBatteryNotLow(true);
+                for (ConstraintsState state : mConstraintsStateList) {
+                    state.setBatteryNotLow(true);
+                }
                 break;
 
             case Intent.ACTION_BATTERY_LOW:
-                mConstraintsTracker.setIsBatteryNotLow(false);
+                for (ConstraintsState state : mConstraintsStateList) {
+                    state.setBatteryNotLow(false);
+                }
                 break;
         }
     }
 
-    /**
-     * Setup initial state.  Because we have multiple sticky actions on the final filter, we
-     * do not know which Intent we will get back.  To get around this, we'll manually fire each
-     * one to setup the initial state.
-     */
-    private void setupInitialState() {
+    @Override
+    public void setUpInitialState(ConstraintsState state) {
+        state.startPerformingBatchUpdates();
+
         {
             // {@link ACTION_CHARGING} {@link ACTION_DISCHARGING} are not sticky broadcasts, so we
             // use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-            onReceive(mAppContext, mAppContext.registerReceiver(null, intentFilter));
+
+            Intent intent = mAppContext.registerReceiver(null, intentFilter);
+            state.setCharging(isBatteryChangedIntentCharging(intent));
         }
 
         {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(Intent.ACTION_BATTERY_OKAY);
             intentFilter.addAction(Intent.ACTION_BATTERY_LOW);
-            onReceive(mAppContext, mAppContext.registerReceiver(null, intentFilter));
+
+            Intent intent = mAppContext.registerReceiver(null, intentFilter);
+            switch (intent.getAction()) {
+                case Intent.ACTION_BATTERY_OKAY:
+                    state.setBatteryNotLow(true);
+                    break;
+
+                case Intent.ACTION_BATTERY_LOW:
+                    state.setBatteryNotLow(false);
+                    break;
+            }
         }
+
+        state.stopPerformingBatchUpdates();
+    }
+
+    private boolean isBatteryChangedIntentCharging(Intent intent) {
+        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean charging;
+        if (Build.VERSION.SDK_INT >= 23) {
+            charging = (status == BatteryManager.BATTERY_STATUS_CHARGING
+                    || status == BatteryManager.BATTERY_STATUS_FULL);
+        } else {
+            int chargePlug = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+            charging = (chargePlug != 0);
+        }
+        return charging;
     }
 }

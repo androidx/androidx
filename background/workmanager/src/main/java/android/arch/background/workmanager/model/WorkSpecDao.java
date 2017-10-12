@@ -112,8 +112,8 @@ public interface WorkSpecDao {
      * @return A {@link LiveData} list of {@link WorkSpec}s
      */
     @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND "
-            + " mRequiresCharging=0 AND mRequiresDeviceIdle=0 AND mRequiresBatteryNotLow=0 AND "
-            + " mRequiresStorageNotLow=0 AND mRequiredNetworkType=0")
+            + " requires_charging=0 AND requires_device_idle=0 AND requires_battery_not_low=0 AND "
+            + " requires_storage_not_low=0 AND required_network_type=0")
     LiveData<List<WorkSpec>> getEnqueuedWorkSpecs();
 
     /**
@@ -125,4 +125,12 @@ public interface WorkSpecDao {
     @Query("SELECT id FROM workspec WHERE status=" + STATUS_BLOCKED + " AND id NOT IN "
             + "(SELECT DISTINCT work_spec_id FROM dependency)")
     List<String> getUnblockedWorkIds();
+
+    /**
+     * Determines if there are enqueued work items with battery constraints.
+     * @return {@code true} if such work items exist
+     */
+    @Query("SELECT COUNT(*) > 0 FROM workspec WHERE status=" + STATUS_ENQUEUED
+            + " AND (requires_battery_not_low = 1 OR requires_charging = 1)")
+    LiveData<Boolean> doesExistEnqueuedWorkSpecWithBatteryConstraint();
 }

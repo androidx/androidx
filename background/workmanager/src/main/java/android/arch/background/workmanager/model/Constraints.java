@@ -18,6 +18,7 @@ package android.arch.background.workmanager.model;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
@@ -40,10 +41,19 @@ public class Constraints {
     public static final int NETWORK_TYPE_METERED = 4;
 
     @NetworkType
+    @ColumnInfo(name = "required_network_type")
     int mRequiredNetworkType;
+
+    @ColumnInfo(name = "requires_charging")
     boolean mRequiresCharging;
+
+    @ColumnInfo(name = "requires_device_idle")
     boolean mRequiresDeviceIdle;
+
+    @ColumnInfo(name = "requires_battery_not_low")
     boolean mRequiresBatteryNotLow;
+
+    @ColumnInfo(name = "requires_storage_not_low")
     boolean mRequiresStorageNotLow;
 
     public Constraints() { // stub required for room

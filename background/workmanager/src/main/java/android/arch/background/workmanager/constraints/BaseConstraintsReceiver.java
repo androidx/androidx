@@ -17,6 +17,10 @@ package android.arch.background.workmanager.constraints;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A base {@link BroadcastReceiver} for monitoring constraints changes.
@@ -25,20 +29,55 @@ import android.content.Context;
 public abstract class BaseConstraintsReceiver extends BroadcastReceiver {
 
     protected Context mAppContext;
-    protected ConstraintsTracker mConstraintsTracker;
+    protected List<ConstraintsState> mConstraintsStateList = new ArrayList<>();
 
-    public BaseConstraintsReceiver(Context context, ConstraintsTracker constraintsTracker) {
+    public BaseConstraintsReceiver(Context context) {
         mAppContext = context.getApplicationContext();
-        mConstraintsTracker = constraintsTracker;
     }
 
     /**
      * Start tracking the constraints specified by this receiver.
+     *
+     * @param constraintsState The target {@link ConstraintsState} to update
      */
-    public abstract void startTracking();
+    public void startTracking(ConstraintsState constraintsState) {
+        mConstraintsStateList.add(constraintsState);
+        setUpInitialState(constraintsState);
+
+        if (mConstraintsStateList.size() == 1) {
+            registerReceiver();
+        }
+    }
 
     /**
-     * Stop tracking the constraints specified by this receiver.
+     * Stop tracking the constraints specified by this receiver for the given
+     * {@link ConstraintsState}.
+     *
+     * @param constraintsState The {@link ConstraintsState} to unregister
      */
-    public abstract void stopTracking();
+    public void stopTracking(ConstraintsState constraintsState) {
+        if (mConstraintsStateList.remove(constraintsState) && mConstraintsStateList.isEmpty()) {
+            unregisterReceiver();
+        }
+    }
+
+    /**
+     * Set up the given {@link ConstraintsState} with the initial state.
+     *
+     * @param constraintsState The {@link ConstraintsState} to update
+     */
+    public abstract void setUpInitialState(ConstraintsState constraintsState);
+
+    /**
+     * @return The {@link IntentFilter} associated with this receiver.
+     */
+    public abstract IntentFilter getIntentFilter();
+
+    void registerReceiver() {
+        mAppContext.registerReceiver(this, getIntentFilter());
+    }
+
+    void unregisterReceiver() {
+        mAppContext.unregisterReceiver(this);
+    }
 }

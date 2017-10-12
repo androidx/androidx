@@ -15,6 +15,8 @@
  */
 package android.arch.background.workmanager.constraints;
 
+import android.arch.background.workmanager.WorkDatabase;
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 
 /**
@@ -23,31 +25,33 @@ import android.content.Context;
 
 public class ConstraintsTracker {
 
-    private Context mAppContext;
-    private final ConstraintsState mConstraintsState = new ConstraintsState();
+    private LifecycleOwner mLifecycleOwner;
+    private ConstraintsState mConstraintsState;
 
-    private BatteryReceiver mBatteryReceiver;
+    private ConstraintController mBatteryController;
 
-    public ConstraintsTracker(Context context) {
-        mAppContext = context.getApplicationContext();
-        mBatteryReceiver = new BatteryReceiver(mAppContext, this);
+    public ConstraintsTracker(
+            Context context,
+            LifecycleOwner lifecycleOwner,
+            ConstraintsState.Listener constraintsStateListener,
+            WorkDatabase workDatabase) {
+        Context appContext = context.getApplicationContext();
+        mLifecycleOwner = lifecycleOwner;
+        mConstraintsState = new ConstraintsState(constraintsStateListener);
+
+        ConstraintsReceivers constraintsReceivers = ConstraintsReceivers.getInstance(appContext);
+
+        mBatteryController = new ConstraintController(
+                workDatabase.workSpecDao().doesExistEnqueuedWorkSpecWithBatteryConstraint(),
+                mLifecycleOwner,
+                constraintsReceivers.getBatteryReceiver(),
+                mConstraintsState);
     }
 
     /**
-     * @param charging {@code true} if the device is charging
+     * Shuts down this {@link ConstraintsTracker} and removes all internal observation.
      */
-    public void setIsCharging(boolean charging) {
-        synchronized (mConstraintsState) {
-            mConstraintsState.mIsCharging = charging;
-        }
-    }
-
-    /**
-     * @param batteryNotLow {@code true} if the device battery is not considered low
-     */
-    public void setIsBatteryNotLow(boolean batteryNotLow) {
-        synchronized (mConstraintsState) {
-            mConstraintsState.mIsBatteryNotLow = batteryNotLow;
-        }
+    public void shutdown() {
+        mBatteryController.shutdown();
     }
 }

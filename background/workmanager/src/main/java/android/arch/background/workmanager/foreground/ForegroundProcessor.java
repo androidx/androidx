@@ -18,6 +18,8 @@ package android.arch.background.workmanager.foreground;
 import android.arch.background.workmanager.Processor;
 import android.arch.background.workmanager.Scheduler;
 import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.constraints.ConstraintsState;
+import android.arch.background.workmanager.constraints.ConstraintsTracker;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
@@ -40,9 +42,12 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 
 public class ForegroundProcessor extends Processor
-        implements Observer<List<WorkSpec>>, LifecycleObserver {
+        implements Observer<List<WorkSpec>>, LifecycleObserver, ConstraintsState.Listener {
+
     private static final String TAG = "ForegroundProcessor";
+
     private LifecycleOwner mLifecycleOwner;
+    private ConstraintsTracker mConstraintsTracker;
 
     public ForegroundProcessor(
             Context appContext,
@@ -69,6 +74,11 @@ public class ForegroundProcessor extends Processor
         super(appContext, workDatabase, scheduler, executorService);
         mLifecycleOwner = lifecycleOwner;
         mLifecycleOwner.getLifecycle().addObserver(this);
+        mConstraintsTracker = new ConstraintsTracker(
+                mAppContext,
+                mLifecycleOwner,
+                this,
+                mWorkDatabase);
         mWorkDatabase.workSpecDao().getEnqueuedWorkSpecs().observe(mLifecycleOwner, this);
     }
 
@@ -115,5 +125,10 @@ public class ForegroundProcessor extends Processor
                 Log.d(TAG, "Cannot cancel " + entry.getKey());
             }
         }
+    }
+
+    @Override
+    public void onConstraintsUpdated(ConstraintsState constraintsState) {
+        // TODO(sumir).
     }
 }
