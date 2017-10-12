@@ -55,6 +55,13 @@ package android.support.v7.util {
     method public void dispatchUpdatesTo(android.support.v7.util.ListUpdateCallback);
   }
 
+  public static abstract class DiffUtil.ItemCallback<T> {
+    ctor public DiffUtil.ItemCallback();
+    method public abstract boolean areContentsTheSame(T, T);
+    method public abstract boolean areItemsTheSame(T, T);
+    method public java.lang.Object getChangePayload(T, T);
+  }
+
   public abstract interface ListUpdateCallback {
     method public abstract void onChanged(int, int, java.lang.Object);
     method public abstract void onInserted(int, int);
