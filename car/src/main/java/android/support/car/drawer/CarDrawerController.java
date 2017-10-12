@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.car.R;
 import android.support.car.widget.PagedListView;
 import android.support.v4.widget.DrawerLayout;
@@ -94,8 +95,15 @@ public class CarDrawerController {
      * Sets the {@link CarDrawerAdapter} that will function as the root adapter. The contents of
      * this root adapter are shown when the drawer is first opened. It is also the top-most level of
      * navigation in the drawer.
+     *
+     * @param rootAdapter The adapter that will act as the root. If this value is {@code null}, then
+     *                    this method will do nothing.
      */
-    public void setRootAdapter(CarDrawerAdapter rootAdapter) {
+    public void setRootAdapter(@Nullable CarDrawerAdapter rootAdapter) {
+        if (rootAdapter == null) {
+            return;
+        }
+
         mAdapterStack.push(rootAdapter);
         setToolbarTitleFrom(rootAdapter);
         mDrawerList.setAdapter(rootAdapter);
