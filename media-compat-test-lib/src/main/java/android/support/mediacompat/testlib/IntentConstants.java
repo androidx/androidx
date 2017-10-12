@@ -22,6 +22,8 @@ package android.support.mediacompat.testlib;
 public class IntentConstants {
     public static final String ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD =
             "android.support.mediacompat.service.action.CALL_MEDIA_BROWSER_SERVICE_METHOD";
+    public static final String ACTION_CALL_MEDIA_SESSION_METHOD =
+            "android.support.mediacompat.service.action.CALL_MEDIA_SESSION_METHOD";
     public static final String KEY_METHOD_ID = "method_id";
     public static final String KEY_ARGUMENT = "argument";
 }
