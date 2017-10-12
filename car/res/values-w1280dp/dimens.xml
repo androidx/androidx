@@ -14,6 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <dimen name="car_keyline_1">32dp</dimen>
-    <dimen name="car_screen_gutter_size">24dp</dimen>
+    <dimen name="car_screen_margin_size">148dp</dimen>
+    <dimen name="car_scroll_bar_button_size">76dp</dimen>
 </resources>
