@@ -121,6 +121,21 @@
         <activity
             android:name="android.support.v7.app.AppCompatVectorDrawableIntegrationActivity"/>
 
+        <activity
+            android:name="android.support.v7.app.AppCompatInflaterDefaultActivity"/>
+
+        <activity
+            android:name="android.support.v7.app.AppCompatInflaterBadClassNameActivity"
+            android:theme="@style/Theme.CustomInflaterBadClassName"/>
+
+        <activity
+            android:name="android.support.v7.app.AppCompatInflaterNullActivity"
+            android:theme="@style/Theme.CustomInflaterNull"/>
+
+        <activity
+            android:name="android.support.v7.app.AppCompatInflaterCustomActivity"
+            android:theme="@style/Theme.CustomInflater"/>
+
     </application>
 
 </manifest>
