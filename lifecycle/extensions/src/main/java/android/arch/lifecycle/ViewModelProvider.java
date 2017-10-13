@@ -43,7 +43,8 @@ public class ViewModelProvider {
          * @param <T>        The type parameter for the ViewModel.
          * @return a newly created ViewModel
          */
-        <T extends ViewModel> T create(Class<T> modelClass);
+        @NonNull
+        <T extends ViewModel> T create(@NonNull Class<T> modelClass);
     }
 
     private final Factory mFactory;
@@ -70,7 +71,7 @@ public class ViewModelProvider {
      * @param factory factory a {@code Factory} which will be used to instantiate
      *                new {@code ViewModels}
      */
-    public ViewModelProvider(ViewModelStore store, Factory factory) {
+    public ViewModelProvider(@NonNull ViewModelStore store, @NonNull Factory factory) {
         mFactory = factory;
         this.mViewModelStore = store;
     }
@@ -88,7 +89,8 @@ public class ViewModelProvider {
      * @param <T>        The type parameter for the ViewModel.
      * @return A ViewModel that is an instance of the given type {@code T}.
      */
-    public <T extends ViewModel> T get(Class<T> modelClass) {
+    @NonNull
+    public <T extends ViewModel> T get(@NonNull Class<T> modelClass) {
         String canonicalName = modelClass.getCanonicalName();
         if (canonicalName == null) {
             throw new IllegalArgumentException("Local and anonymous classes can not be ViewModels");
@@ -136,8 +138,9 @@ public class ViewModelProvider {
      */
     public static class NewInstanceFactory implements Factory {
 
+        @NonNull
         @Override
-        public <T extends ViewModel> T create(Class<T> modelClass) {
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             //noinspection TryWithIdenticalCatches
             try {
                 return modelClass.newInstance();
