@@ -19,6 +19,7 @@ package android.arch.lifecycle;
 import android.arch.core.internal.SafeIterableMap;
 import android.support.annotation.CallSuper;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Map;
@@ -81,7 +82,7 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
      * @param <S>       The type of data hold by {@code source} LiveData
      */
     @MainThread
-    public <S> void addSource(LiveData<S> source, Observer<S> onChanged) {
+    public <S> void addSource(@NonNull LiveData<S> source, @NonNull Observer<S> onChanged) {
         Source<S> e = new Source<>(source, onChanged);
         Source<?> existing = mSources.putIfAbsent(source, e);
         if (existing != null && existing.mObserver != onChanged) {
@@ -103,7 +104,7 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
      * @param <S>      the type of data hold by {@code source} LiveData
      */
     @MainThread
-    public <S> void removeSource(LiveData<S> toRemote) {
+    public <S> void removeSource(@NonNull LiveData<S> toRemote) {
         Source<?> source = mSources.remove(toRemote);
         if (source != null) {
             source.unplug();
