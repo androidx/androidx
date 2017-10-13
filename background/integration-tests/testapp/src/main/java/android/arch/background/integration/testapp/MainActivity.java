@@ -18,6 +18,7 @@ package android.arch.background.integration.testapp;
 
 import android.arch.background.integration.testapp.db.TestDatabase;
 import android.arch.background.integration.testapp.db.WordCount;
+import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.WorkManager;
 import android.arch.lifecycle.Observer;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.List;
@@ -35,7 +37,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private Button mAnalyzeButton;
+    private ProgressBar mProgressBar;
     private TextView mResultsView;
+
+    final StringBuilder mStringBuilder = new StringBuilder();
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -46,26 +51,13 @@ public class MainActivity extends AppCompatActivity {
         mAnalyzeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance(MainActivity.this)
-                        .enqueue(TextStartupWorker.class)
-                        .then(
-                                TextMappingWorker.create("advs.txt", "advs_out.txt"),
-                                TextMappingWorker.create("case.txt", "case_out.txt"),
-                                TextMappingWorker.create("lstb.txt", "lstb_out.txt"),
-                                TextMappingWorker.create("mems.txt", "mems_out.txt"),
-                                TextMappingWorker.create("retn.txt", "retn_out.txt"))
-                        .then(TextReducingWorker.create(
-                                "advs_out.txt",
-                                "case_out.txt",
-                                "lstb_out.txt",
-                                "mems_out.txt",
-                                "retn_out.txt"));
+                enqueueWork();
             }
         });
 
+        mProgressBar = findViewById(R.id.progress);
         mResultsView = findViewById(R.id.results);
 
-        final StringBuilder stringBuilder = new StringBuilder();
         TestDatabase.getInstance(this).getWordCountDao().getWordCounts().observe(
                 this,
                 new Observer<List<WordCount>>() {
@@ -74,18 +66,57 @@ public class MainActivity extends AppCompatActivity {
                         if (wordCounts == null) {
                             return;
                         }
-
-                        // TODO: not efficient, this should be part of its own LiveData thing.
-                        stringBuilder.setLength(0);
-                        for (WordCount wc : wordCounts) {
-                            stringBuilder
-                                    .append(wc.mWord)
-                                    .append(" ")
-                                    .append(wc.mCount)
-                                    .append("\n");
-                        }
-                        mResultsView.setText(stringBuilder.toString());
+                        mResultsView.setText(getWordCountsString(wordCounts));
                     }
                 });
+    }
+
+    private void enqueueWork() {
+        WorkManager workManager = WorkManager.getInstance(MainActivity.this);
+
+        Work textReducingWork = TextReducingWorker.create(
+                "advs_out.txt",
+                "case_out.txt",
+                "lstb_out.txt",
+                "mems_out.txt",
+                "retn_out.txt")
+                .build();
+
+        workManager
+                .enqueue(TextStartupWorker.class)
+                .then(
+                        TextMappingWorker.create("advs.txt", "advs_out.txt"),
+                        TextMappingWorker.create("case.txt", "case_out.txt"),
+                        TextMappingWorker.create("lstb.txt", "lstb_out.txt"),
+                        TextMappingWorker.create("mems.txt", "mems_out.txt"),
+                        TextMappingWorker.create("retn.txt", "retn_out.txt"))
+                .then(textReducingWork);
+
+        workManager.getWorkStatus(textReducingWork.getId()).observe(
+                this,
+                new Observer<Integer>() {
+                    @Override
+                    public void onChanged(@Nullable Integer status) {
+                        boolean loading = (status == null)
+                                || (status != Work.STATUS_SUCCEEDED
+                                && status != Work.STATUS_FAILED);
+                        mProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+                        mResultsView.setVisibility(loading ? View.GONE : View.VISIBLE);
+                    }
+                }
+        );
+    }
+
+    private String getWordCountsString(List<WordCount> wordCounts) {
+        // TODO: not efficient, this should be part of its own LiveData thing.
+        mStringBuilder.setLength(0);
+        for (WordCount wc : wordCounts) {
+            mStringBuilder
+                    .append(wc.mWord)
+                    .append(" ")
+                    .append(wc.mCount)
+                    .append("\n");
+        }
+        return mStringBuilder.toString();
     }
 }

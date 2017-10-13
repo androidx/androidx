@@ -98,6 +98,15 @@ public interface WorkSpecDao {
     int getWorkSpecStatus(String id);
 
     /**
+     * Retrieves a {@link LiveData} status of a {@link WorkSpec}
+     *
+     * @param id The identifier for the {@link WorkSpec}
+     * @return The {@link LiveData} status of the {@link WorkSpec}
+     */
+    @Query("SELECT status FROM workspec WHERE id=:id")
+    LiveData<Integer> getWorkSpecLiveDataStatus(String id);
+
+    /**
      * Retrieves {@link WorkSpec}s that have status {@code STATUS_ENQUEUED}.
      *
      * @return A {@link LiveData} list of {@link WorkSpec}s

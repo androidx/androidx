@@ -31,10 +31,22 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/analyze">
 
-        <TextView
-            android:id="@+id/results"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </FrameLayout>
 
     </ScrollView>
 
