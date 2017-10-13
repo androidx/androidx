@@ -69,6 +69,15 @@ public interface WorkSpecDao {
     int setWorkSpecStatus(String id, int status);
 
     /**
+     * Increment run attempt count of a {@link WorkSpec}.
+     *
+     * @param id The identifier for the {@link WorkSpec}
+     * @return The number of rows that were updated (should be 0 or 1)
+     */
+    @Query("UPDATE workspec SET run_attempt_count=run_attempt_count+1 WHERE id=:id")
+    int incrementWorkSpecRunAttemptCount(String id);
+
+    /**
      * Updates the status of multiple {@link WorkSpec}s.
      *
      * @param ids A list of identifiers for {@link WorkSpec}s

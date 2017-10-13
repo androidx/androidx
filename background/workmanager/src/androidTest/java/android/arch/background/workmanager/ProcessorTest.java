@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
-import android.arch.background.workmanager.worker.InfiniteTestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -33,11 +32,8 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executors;
 
-@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ProcessorTest {
-    private static final long DEFAULT_SLEEP_TIME_MS = 1000L;
-    private static final long DEFAULT_DELAY_TIME_MS = 3000L;
     private WorkDatabase mWorkDatabase;
     private Processor mProcessor;
 
@@ -49,7 +45,8 @@ public class ProcessorTest {
                 appContext,
                 mWorkDatabase,
                 mock(Scheduler.class),
-                Executors.newSingleThreadScheduledExecutor()) { };
+                Executors.newSingleThreadScheduledExecutor()) {
+        };
     }
 
     @After
@@ -57,33 +54,20 @@ public class ProcessorTest {
         mWorkDatabase.close();
     }
 
-    private int getWorkSpecStatus(String id) {
-        return mWorkDatabase.workSpecDao().getWorkSpecStatus(id);
-    }
-
+    /* TODO(xbhatnag): Solve race condition without thread sleeps or drain
     @Test
+    @SmallTest
     public void testProcess_noWorkInitialDelay() throws InterruptedException {
         Work work = new Work.Builder(InfiniteTestWorker.class).build();
         mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
-        mProcessor.process(work.getId(), work.getWorkSpec().getInitialDelay());
-        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
-        assertThat(getWorkSpecStatus(work.getId()), is(Work.STATUS_RUNNING));
-    }
+        mProcessor.process(work.getId(), work.getWorkSpec().calculateDelay());
+        // Race condition here
+        assertThat(mWorkDatabase.workSpecDao().getWorkSpecStatus(work.getId()),
+                is(Work.STATUS_RUNNING));
+    } */
 
     @Test
-    public void testProcess_withWorkInitialDelay() throws InterruptedException {
-        Work work = new Work.Builder(InfiniteTestWorker.class)
-                .withInitialDelay(DEFAULT_DELAY_TIME_MS)
-                .build();
-        mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
-        mProcessor.process(work.getId(), work.getWorkSpec().getInitialDelay());
-        Thread.sleep(DEFAULT_DELAY_TIME_MS / 2);
-        assertThat(getWorkSpecStatus(work.getId()), is(Work.STATUS_ENQUEUED));
-        Thread.sleep((DEFAULT_DELAY_TIME_MS / 2) + DEFAULT_SLEEP_TIME_MS);
-        assertThat(getWorkSpecStatus(work.getId()), is(Work.STATUS_RUNNING));
-    }
-
-    @Test
+    @SmallTest
     public void testCancel_invalidWorkId() {
         String id = "INVALID_WORK_ID";
         assertThat(mProcessor.cancel(id, true), is(false));

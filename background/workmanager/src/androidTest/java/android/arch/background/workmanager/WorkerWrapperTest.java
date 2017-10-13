@@ -37,6 +37,7 @@ import android.arch.background.workmanager.worker.SleepTestWorker;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -49,7 +50,6 @@ import org.mockito.ArgumentCaptor;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
 public class WorkerWrapperTest {
     private static final long LISTENER_SLEEP_DURATION = 2000;
     private WorkDatabase mDatabase;
@@ -75,6 +75,7 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @LargeTest
     public void testSuccess() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
@@ -88,6 +89,33 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @SmallTest
+    public void testRunAttemptCountIncremented_successfulExecution() {
+        Work work = new Work.Builder(TestWorker.class).build();
+        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withListener(mMockListener)
+                .build()
+                .run();
+        WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getId());
+        assertThat(latestWorkSpec.getRunAttemptCount(), is(1));
+    }
+
+    @Test
+    @SmallTest
+    public void testRunAttemptCountIncremented_failedExecution() {
+        Work work = new Work.Builder(ExceptionTestWorker.class).build();
+        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
+        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
+                .withListener(mMockListener)
+                .build()
+                .run();
+        WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getId());
+        assertThat(latestWorkSpec.getRunAttemptCount(), is(1));
+    }
+
+    @Test
+    @LargeTest
     public void testPermanentErrorWithInvalidWorkSpecId() throws InterruptedException {
         final String invalidWorkSpecId = "INVALID_ID";
         new WorkerWrapper.Builder(mContext, mDatabase, invalidWorkSpecId)
@@ -100,6 +128,7 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @LargeTest
     public void testNotEnqueued() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
         work.getWorkSpec().setStatus(Work.STATUS_RUNNING);
@@ -114,6 +143,7 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @LargeTest
     public void testPermanentErrorWithInvalidWorkerClass() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
         work.getWorkSpec().setWorkerClassName("INVALID_CLASS_NAME");
@@ -128,6 +158,7 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @LargeTest
     public void testFailed() throws InterruptedException {
         Work work = new Work.Builder(ExceptionTestWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
@@ -141,6 +172,7 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @LargeTest
     public void testRunning() throws InterruptedException {
         Work work = new Work.Builder(SleepTestWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
@@ -155,7 +187,8 @@ public class WorkerWrapperTest {
     }
 
     @Test
-    public void testDependencies() throws InterruptedException {
+    @SmallTest
+    public void testDependencies() {
         Work prerequisiteWork = new Work.Builder(TestWorker.class).build();
         Work work = new Work.Builder(TestWorker.class).withInitialStatus(STATUS_BLOCKED).build();
         Dependency dependency = new Dependency(work.getId(), prerequisiteWork.getId());
@@ -190,6 +223,7 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @LargeTest
     public void testConstraints() throws InterruptedException {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(Constraints.NETWORK_TYPE_ANY)
@@ -231,6 +265,7 @@ public class WorkerWrapperTest {
     }
 
     @Test
+    @SmallTest
     public void testScheduler() throws InterruptedException {
         Work work = new Work.Builder(TestWorker.class).build();
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());

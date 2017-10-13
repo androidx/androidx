@@ -93,7 +93,14 @@ public class WorkerWrapper implements Runnable {
             return;
         }
 
-        workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_RUNNING);
+        mWorkDatabase.beginTransaction();
+        try {
+            workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_RUNNING);
+            workSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);
+            mWorkDatabase.setTransactionSuccessful();
+        } finally {
+            mWorkDatabase.endTransaction();
+        }
 
         try {
             checkForInterruption();

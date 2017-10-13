@@ -30,6 +30,7 @@ import android.support.annotation.NonNull;
 @Entity
 @TypeConverters(Arguments.class)
 public class WorkSpec {
+    private static final String TAG = "WorkSpec";
 
     @ColumnInfo(name = "id")
     @PrimaryKey
@@ -60,6 +61,9 @@ public class WorkSpec {
     Arguments mArguments = new Arguments();
 
     String mTag;
+
+    @ColumnInfo(name = "run_attempt_count")
+    int mRunAttemptCount;
 
     // TODO(sumir): Should Backoff be disabled by default?
     @ColumnInfo(name = "backoff_policy")
@@ -160,5 +164,44 @@ public class WorkSpec {
 
     public void setInitialDelay(long initialDelay) {
         mInitialDelay = initialDelay;
+    }
+
+    public void setRunAttemptCount(int runAttemptCount) {
+        this.mRunAttemptCount = runAttemptCount;
+    }
+
+    public int getRunAttemptCount() {
+        return mRunAttemptCount;
+    }
+
+    /**
+     * Calculates delay with which this Work item should be executed.
+     *
+     * if the run attempt count is 0, the initial delay is returned.
+     *
+     * if Backoff Policy is set to {@link Work#BACKOFF_POLICY_EXPONENTIAL}, then delay
+     * increases at an exponential rate with respect to the run attempt count and is capped at
+     * {@link Work#MAX_BACKOFF_DURATION}
+     *
+     * if Backoff Policy is set to {@link Work#BACKOFF_POLICY_LINEAR}, then delay
+     * increases at an linear rate with respect to the run attempt count and is capped at
+     * {@link Work#MAX_BACKOFF_DURATION}
+     *
+     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
+     *
+     * @return non-negative delay to execute this item with (in milliseconds)
+     */
+    public long calculateDelay() {
+        if (mRunAttemptCount <= 0) {
+            return mInitialDelay;
+        }
+        long delay;
+        if (mBackoffPolicy == Work.BACKOFF_POLICY_LINEAR) {
+            delay = mBackoffDelayDuration * mRunAttemptCount;
+        } else {
+            // default to exponential backoff policy
+            delay = (long) Math.scalb(mBackoffDelayDuration, mRunAttemptCount - 1);
+        }
+        return Math.min(Work.MAX_BACKOFF_DURATION, delay);
     }
 }

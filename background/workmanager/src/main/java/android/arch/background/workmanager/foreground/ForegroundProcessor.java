@@ -94,7 +94,7 @@ public class ForegroundProcessor extends Processor
         Log.d(TAG, "Enqueued WorkSpecs updated. Size : " + workSpecs.size());
         for (WorkSpec workSpec : workSpecs) {
             if (!mEnqueuedWorkMap.containsKey(workSpec.getId())) {
-                process(workSpec.getId(), workSpec.getInitialDelay());
+                process(workSpec.getId(), workSpec.calculateDelay());
             }
         }
     }

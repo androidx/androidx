@@ -54,6 +54,11 @@ public class Work {
     public static final int BACKOFF_POLICY_LINEAR = 1;
     public static final long DEFAULT_BACKOFF_DELAY_DURATION = 30000L;
 
+    /**
+     * {@see https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/job/JobInfo.java#82}
+     */
+    public static final long MAX_BACKOFF_DURATION = 5 * 60 * 60 * 1000; // 5 hours.
+
     private WorkSpec mWorkSpec;
 
     private Work(WorkSpec workSpec) {
@@ -84,6 +89,12 @@ public class Work {
         @VisibleForTesting
         Builder withInitialStatus(@WorkStatus int status) {
             mWorkSpec.setStatus(status);
+            return this;
+        }
+
+        @VisibleForTesting
+        Builder withInitialRunAttemptCount(int runAttemptCount) {
+            mWorkSpec.setRunAttemptCount(runAttemptCount);
             return this;
         }
 
