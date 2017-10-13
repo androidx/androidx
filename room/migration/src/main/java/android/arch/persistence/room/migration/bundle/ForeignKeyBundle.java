@@ -16,13 +16,18 @@
 
 package android.arch.persistence.room.migration.bundle;
 
+import android.support.annotation.RestrictTo;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
 /**
  * Holds the information about a foreign key reference.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ForeignKeyBundle {
     @SerializedName("table")
     private String mTable;
