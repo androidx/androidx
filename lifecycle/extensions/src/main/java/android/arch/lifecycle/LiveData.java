@@ -23,6 +23,7 @@ import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.internal.SafeIterableMap;
 import android.arch.lifecycle.Lifecycle.State;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Iterator;
@@ -182,7 +183,7 @@ public abstract class LiveData<T> {
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observe(LifecycleOwner owner, Observer<T> observer) {
+    public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<T> observer) {
         if (owner.getLifecycle().getCurrentState() == DESTROYED) {
             // ignore
             return;
@@ -214,7 +215,7 @@ public abstract class LiveData<T> {
      * @param observer The observer that will receive the events
      */
     @MainThread
-    public void observeForever(Observer<T> observer) {
+    public void observeForever(@NonNull Observer<T> observer) {
         observe(ALWAYS_ON, observer);
     }
 
@@ -224,7 +225,7 @@ public abstract class LiveData<T> {
      * @param observer The Observer to receive events.
      */
     @MainThread
-    public void removeObserver(final Observer<T> observer) {
+    public void removeObserver(@NonNull final Observer<T> observer) {
         assertMainThread("removeObserver");
         LifecycleBoundObserver removed = mObservers.remove(observer);
         if (removed == null) {
@@ -240,7 +241,7 @@ public abstract class LiveData<T> {
      * @param owner The {@code LifecycleOwner} scope for the observers to be removed.
      */
     @MainThread
-    public void removeObservers(final LifecycleOwner owner) {
+    public void removeObservers(@NonNull final LifecycleOwner owner) {
         assertMainThread("removeObservers");
         for (Map.Entry<Observer<T>, LifecycleBoundObserver> entry : mObservers) {
             if (entry.getValue().owner == owner) {

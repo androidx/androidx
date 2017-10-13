@@ -16,6 +16,8 @@
 
 package android.arch.lifecycle;
 
+import android.support.annotation.NonNull;
+
 /**
  * A scope that owns {@link ViewModelStore}.
  * <p>
@@ -30,5 +32,6 @@ public interface ViewModelStoreOwner {
      *
      * @return a {@code ViewModelStore}
      */
+    @NonNull
     ViewModelStore getViewModelStore();
 }
