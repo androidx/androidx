@@ -64,6 +64,7 @@ import android.graphics.Color;
 import android.support.coreui.test.R;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.EspressoKey;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.v4.BaseInstrumentationTestCase;
@@ -1075,6 +1076,7 @@ public abstract class BaseViewPagerTest<T extends Activity> extends BaseInstrume
         verifyScrollCallbacksToLowerPage(wrap(swipeRight()), 0);
     }
 
+    @FlakyTest(bugId = 38260187)
     @Test
     @LargeTest
     public void testKeyboardNavigation() {
