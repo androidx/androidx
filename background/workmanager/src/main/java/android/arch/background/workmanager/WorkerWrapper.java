@@ -157,7 +157,10 @@ public class WorkerWrapper implements Runnable {
             workSpecDao.setWorkSpecStatus(mWorkSpecId, Work.STATUS_SUCCEEDED);
             dependencyDao.deleteDependenciesWithPrerequisite(mWorkSpecId);
             List<String> unblockedWorkIds = workSpecDao.getUnblockedWorkIds();
-            if (unblockedWorkIds.size() > 0) {
+            int unblockedWorkCount = unblockedWorkIds.size();
+            if (unblockedWorkCount > 0) {
+                Log.d(TAG, "Setting status to enqueued for " + unblockedWorkCount + " Works "
+                        + "that were dependent on Work ID " + mWorkSpecId);
                 workSpecDao.setWorkSpecStatus(unblockedWorkIds, Work.STATUS_ENQUEUED);
             }
             mWorkDatabase.setTransactionSuccessful();
