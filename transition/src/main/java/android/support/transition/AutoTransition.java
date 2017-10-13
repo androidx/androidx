@@ -45,9 +45,9 @@ public class AutoTransition extends TransitionSet {
 
     private void init() {
         setOrdering(ORDERING_SEQUENTIAL);
-        addTransition(new Fade(Fade.OUT)).
-                addTransition(new ChangeBounds()).
-                addTransition(new Fade(Fade.IN));
+        addTransition(new Fade(Fade.OUT))
+                .addTransition(new ChangeBounds())
+                .addTransition(new Fade(Fade.IN));
     }
 
 }
