@@ -23,6 +23,7 @@ import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.systemjob.SystemJobScheduler;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.os.Build;
@@ -94,6 +95,16 @@ public final class WorkManager {
      */
     public ConstraintsTracker getConstraintsTracker() {
         return mConstraintsTracker;
+    }
+
+    /**
+     * Gets the {@link Work.WorkStatus} for a given work id.
+     *
+     * @param id The id of the {@link Work}.
+     * @return A {@link LiveData} of the status.
+     */
+    public LiveData<Integer> getWorkStatus(String id) {
+        return mWorkDatabase.workSpecDao().getWorkSpecLiveDataStatus(id);
     }
 
     /**
