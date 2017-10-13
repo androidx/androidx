@@ -31,6 +31,14 @@
         <activity
             android:name=".HelpActivity"
             android:label="@string/help"/>
+
+        <receiver android:name=".DeepLinkAppWidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/deep_link_appwidget_info" />
+        </receiver>
     </application>
 
 </manifest>
