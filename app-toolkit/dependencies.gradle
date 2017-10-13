@@ -22,7 +22,6 @@ if (hasProperty("libs")) {
     ffLibs = libs
 }
 def ffVersions = [:]
-ffVersions.kotlin = "1.1.3"
 ffVersions.auto_common = "0.6"
 ffVersions.javapoet = "1.8.0"
 ffVersions.compile_testing = "0.11"
@@ -40,10 +39,6 @@ ffVersions.gson = "2.8.0"
 ffVersions.guava = "21.0"
 ffVersions.jsr250 = "1.2"
 
-ffLibs.kotlin = [
-        stdlib : "org.jetbrains.kotlin:kotlin-stdlib:$ffVersions.kotlin",
-        gradle_plugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$ffVersions.kotlin"
-]
 ffLibs.auto_common = "com.google.auto:auto-common:$ffVersions.auto_common"
 ffLibs.apache = [
     commons : [
