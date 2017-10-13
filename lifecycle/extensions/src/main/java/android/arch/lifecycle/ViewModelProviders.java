@@ -139,8 +139,9 @@ public class ViewModelProviders {
             mApplication = application;
         }
 
+        @NonNull
         @Override
-        public <T extends ViewModel> T create(Class<T> modelClass) {
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             if (AndroidViewModel.class.isAssignableFrom(modelClass)) {
                 //noinspection TryWithIdenticalCatches
                 try {
