@@ -97,7 +97,7 @@ public class LifecycleRegistry extends Lifecycle {
      * @param state new state
      */
     @SuppressWarnings("WeakerAccess")
-    public void markState(State state) {
+    public void markState(@NonNull State state) {
         mState = state;
     }
 
@@ -109,7 +109,7 @@ public class LifecycleRegistry extends Lifecycle {
      *
      * @param event The event that was received
      */
-    public void handleLifecycleEvent(Lifecycle.Event event) {
+    public void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
         mState = getStateAfter(event);
         if (mHandlingEvent || mAddingObserverCounter != 0) {
             mNewEventOccurred = true;
@@ -140,7 +140,7 @@ public class LifecycleRegistry extends Lifecycle {
     }
 
     @Override
-    public void addObserver(LifecycleObserver observer) {
+    public void addObserver(@NonNull LifecycleObserver observer) {
         State initialState = mState == DESTROYED ? DESTROYED : INITIALIZED;
         ObserverWithState statefulObserver = new ObserverWithState(observer, initialState);
         ObserverWithState previous = mObserverMap.putIfAbsent(observer, statefulObserver);
@@ -178,7 +178,7 @@ public class LifecycleRegistry extends Lifecycle {
     }
 
     @Override
-    public void removeObserver(LifecycleObserver observer) {
+    public void removeObserver(@NonNull LifecycleObserver observer) {
         // we consciously decided not to send destruction events here in opposition to addObserver.
         // Our reasons for that:
         // 1. These events haven't yet happened at all. In contrast to events in addObservers, that

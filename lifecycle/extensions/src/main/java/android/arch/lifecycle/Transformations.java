@@ -18,6 +18,7 @@ package android.arch.lifecycle;
 
 import android.arch.core.util.Function;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
@@ -60,7 +61,8 @@ public class Transformations {
      * @return a LiveData which emits resulting values
      */
     @MainThread
-    public static <X, Y> LiveData<Y> map(LiveData<X> source, final Function<X, Y> func) {
+    public static <X, Y> LiveData<Y> map(@NonNull LiveData<X> source,
+            @NonNull final Function<X, Y> func) {
         final MediatorLiveData<Y> result = new MediatorLiveData<>();
         result.addSource(source, new Observer<X>() {
             @Override
@@ -120,8 +122,8 @@ public class Transformations {
      * @param <Y>     a type of resulting LiveData
      */
     @MainThread
-    public static <X, Y> LiveData<Y> switchMap(LiveData<X> trigger,
-            final Function<X, LiveData<Y>> func) {
+    public static <X, Y> LiveData<Y> switchMap(@NonNull LiveData<X> trigger,
+            @NonNull final Function<X, LiveData<Y>> func) {
         final MediatorLiveData<Y> result = new MediatorLiveData<>();
         result.addSource(trigger, new Observer<X>() {
             LiveData<Y> mSource;
