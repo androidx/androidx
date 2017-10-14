@@ -1387,6 +1387,68 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testScrollAndStuck() throws Throwable {
+        // see b/67370222 fastRelayout() may be stuck.
+        final int numItems = 19;
+        final int[] itemsLength = new int[numItems];
+        for (int i = 0; i < numItems; i++) {
+            itemsLength[i] = 288;
+        }
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, itemsLength);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+
+        // set left right padding to 112, space between items to be 16.
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams lp = mGridView.getLayoutParams();
+                lp.width = 1920;
+                mGridView.setLayoutParams(lp);
+                mGridView.setPadding(112, mGridView.getPaddingTop(), 112,
+                        mGridView.getPaddingBottom());
+                mGridView.setItemSpacing(16);
+            }
+        });
+        waitOneUiCycle();
+
+        int scrollPos = 0;
+        while (true) {
+            final View view = mGridView.getChildAt(mGridView.getChildCount() - 1);
+            final int pos = mGridView.getChildViewHolder(view).getAdapterPosition();
+            if (scrollPos != pos) {
+                scrollPos = pos;
+                mActivityTestRule.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mGridView.smoothScrollToPosition(pos);
+                    }
+                });
+            }
+            // wait until we see 2nd from last:
+            if (pos >= 17) {
+                if (pos == 17) {
+                    // great we can test fastRelayout() bug.
+                    Thread.sleep(50);
+                    mActivityTestRule.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            view.requestLayout();
+                        }
+                    });
+                }
+                break;
+            }
+            Thread.sleep(16);
+        }
+        waitForScrollIdle();
+    }
+
+    @Test
     public void testSwapAfterScroll() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
