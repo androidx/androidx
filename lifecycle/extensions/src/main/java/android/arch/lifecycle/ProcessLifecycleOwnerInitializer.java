@@ -29,10 +29,9 @@ import android.support.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LifecycleRuntimeTrojanProvider extends ContentProvider {
+public class ProcessLifecycleOwnerInitializer extends ContentProvider {
     @Override
     public boolean onCreate() {
-        LifecycleDispatcher.init(getContext());
         ProcessLifecycleOwner.init(getContext());
         return true;
     }
