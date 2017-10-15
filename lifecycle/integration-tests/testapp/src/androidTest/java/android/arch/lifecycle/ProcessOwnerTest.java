@@ -31,6 +31,7 @@ import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.testapp.NavigationDialogActivity;
 import android.arch.lifecycle.testapp.NavigationTestActivityFirst;
 import android.arch.lifecycle.testapp.NavigationTestActivitySecond;
+import android.arch.lifecycle.testapp.NonSupportActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
@@ -90,6 +91,22 @@ public class ProcessOwnerTest {
         firstActivity.startActivity(intent);
 
         FragmentActivity secondActivity = (FragmentActivity) monitor.waitForActivity();
+        assertThat("Failed to navigate", secondActivity, notNullValue());
+        checkProcessObserverSilent(secondActivity);
+    }
+
+    @Test
+    public void testNavigationToNonSupport() throws Throwable {
+        FragmentActivity firstActivity = setupObserverOnResume();
+        Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
+                NonSupportActivity.class.getCanonicalName(), null, false);
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        instrumentation.addMonitor(monitor);
+
+        Intent intent = new Intent(firstActivity, NonSupportActivity.class);
+        firstActivity.finish();
+        firstActivity.startActivity(intent);
+        NonSupportActivity secondActivity = (NonSupportActivity) monitor.waitForActivity();
         assertThat("Failed to navigate", secondActivity, notNullValue());
         checkProcessObserverSilent(secondActivity);
     }
@@ -160,6 +177,13 @@ public class ProcessOwnerTest {
 
     private void checkProcessObserverSilent(FragmentActivity activity) throws Throwable {
         waitTillResumed(activity, activityTestRule);
+        assertThat(mObserver.mChangedState, is(false));
+        activityTestRule.runOnUiThread(() ->
+                ProcessLifecycleOwner.get().getLifecycle().removeObserver(mObserver));
+    }
+
+    private void checkProcessObserverSilent(NonSupportActivity activity) throws Throwable {
+        assertThat(activity.awaitResumedState(), is(true));
         assertThat(mObserver.mChangedState, is(false));
         activityTestRule.runOnUiThread(() ->
                 ProcessLifecycleOwner.get().getLifecycle().removeObserver(mObserver));
