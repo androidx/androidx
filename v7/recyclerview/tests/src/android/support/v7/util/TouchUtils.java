@@ -154,6 +154,18 @@ public class TouchUtils {
         inst.waitForIdleSync();
     }
 
+    public static void scrollView(int axis, int axisValue, int inputDevice, View v) {
+        MotionEvent.PointerProperties[] pointerProperties = { new MotionEvent.PointerProperties() };
+        MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+        coords.setAxisValue(axis, axisValue);
+        MotionEvent.PointerCoords[] pointerCoords = { coords };
+        MotionEvent e = MotionEvent.obtain(
+                0, System.currentTimeMillis(), MotionEvent.ACTION_SCROLL,
+                1, pointerProperties, pointerCoords, 0, 0, 1, 1, 0, 0, inputDevice, 0);
+        v.onGenericMotionEvent(e);
+        e.recycle();
+    }
+
     public static void dragViewToTop(Instrumentation inst, View v) {
         dragViewToTop(inst, v, calculateStepsForDistance(v.getTop()));
     }

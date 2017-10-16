@@ -312,6 +312,7 @@ package android.support.v7.widget {
     method public android.support.v7.widget.RecyclerView.ViewHolder getChildViewHolder(android.view.View);
     method public android.support.v7.widget.RecyclerViewAccessibilityDelegate getCompatAccessibilityDelegate();
     method public void getDecoratedBoundsWithMargins(android.view.View, android.graphics.Rect);
+    method public android.support.v7.widget.RecyclerView.EdgeEffectFactory getEdgeEffectFactory();
     method public android.support.v7.widget.RecyclerView.ItemAnimator getItemAnimator();
     method public android.support.v7.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
     method public int getItemDecorationCount();
@@ -346,6 +347,7 @@ package android.support.v7.widget {
     method public void setAccessibilityDelegateCompat(android.support.v7.widget.RecyclerViewAccessibilityDelegate);
     method public void setAdapter(android.support.v7.widget.RecyclerView.Adapter);
     method public void setChildDrawingOrderCallback(android.support.v7.widget.RecyclerView.ChildDrawingOrderCallback);
+    method public void setEdgeEffectFactory(android.support.v7.widget.RecyclerView.EdgeEffectFactory);
     method public void setHasFixedSize(boolean);
     method public void setItemAnimator(android.support.v7.widget.RecyclerView.ItemAnimator);
     method public void setItemViewCacheSize(int);
@@ -422,6 +424,18 @@ package android.support.v7.widget {
 
   public static abstract interface RecyclerView.ChildDrawingOrderCallback {
     method public abstract int onGetChildDrawingOrder(int, int);
+  }
+
+  public static class RecyclerView.EdgeEffectFactory {
+    ctor public RecyclerView.EdgeEffectFactory();
+    method protected android.widget.EdgeEffect createEdgeEffect(android.support.v7.widget.RecyclerView, int);
+    field public static final int DIRECTION_BOTTOM = 3; // 0x3
+    field public static final int DIRECTION_LEFT = 0; // 0x0
+    field public static final int DIRECTION_RIGHT = 2; // 0x2
+    field public static final int DIRECTION_TOP = 1; // 0x1
+  }
+
+  public static abstract class RecyclerView.EdgeEffectFactory.EdgeDirection implements java.lang.annotation.Annotation {
   }
 
   public static abstract class RecyclerView.ItemAnimator {
