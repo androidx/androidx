@@ -137,10 +137,11 @@ public interface WorkSpecDao {
     List<String> getUnblockedWorkIds();
 
     /**
-     * Determines if there are enqueued work items with battery constraints.
-     * @return {@code true} if such work items exist
+     * Returns ids for work items that have a battery constraint.
+     *
+     * @return A list of {@link WorkSpec} ids that have a battery constraint.
      */
-    @Query("SELECT COUNT(*) > 0 FROM workspec WHERE status=" + STATUS_ENQUEUED
+    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED
             + " AND (requires_battery_not_low = 1 OR requires_charging = 1)")
-    LiveData<Boolean> doesExistEnqueuedWorkSpecWithBatteryConstraint();
+    LiveData<List<String>> getEnqueuedWorkSpecIdsWithBatteryConstraint();
 }
