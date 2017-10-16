@@ -152,4 +152,13 @@ public interface WorkSpecDao {
     @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED
             + " AND requires_battery_not_low=1")
     LiveData<List<String>> getEnqueuedWorkSpecIdsWithBatteryNotLowConstraint();
+
+    /**
+     * Returns ids for work items that have a storage not low constraint.
+     *
+     * @return A list of {@link WorkSpec} ids that have a storage not low constraint.
+     */
+    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED
+            + " AND requires_storage_not_low=1")
+    LiveData<List<String>> getEnqueuedWorkSpecIdsWithStorageNotLowConstraint();
 }

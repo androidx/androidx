@@ -32,6 +32,7 @@ public class ConstraintsTracker {
 
     private ConstraintController mBatteryChargingController;
     private ConstraintController mBatteryNotLowController;
+    private ConstraintController mStorageNotLowController;
 
     public ConstraintsTracker(
             Context context,
@@ -55,6 +56,12 @@ public class ConstraintsTracker {
                 mLifecycleOwner,
                 constraintsReceivers.getBatteryNotLowReceiver(),
                 mConstraintsState);
+
+        mStorageNotLowController = new ConstraintController(
+                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithStorageNotLowConstraint(),
+                mLifecycleOwner,
+                constraintsReceivers.getStorageNotLowReceiver(),
+                mConstraintsState);
     }
 
     /**
@@ -63,5 +70,6 @@ public class ConstraintsTracker {
     public void shutdown() {
         mBatteryChargingController.shutdown();
         mBatteryNotLowController.shutdown();
+        mStorageNotLowController.shutdown();
     }
 }

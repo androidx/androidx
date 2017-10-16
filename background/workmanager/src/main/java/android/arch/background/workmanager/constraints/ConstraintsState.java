@@ -32,6 +32,7 @@ public class ConstraintsState {
 
     private Boolean mIsCharging;
     private Boolean mIsBatteryNotLow;
+    private Boolean mIsStorageNotLow;
 
     public ConstraintsState(Listener listener) {
         mListener = listener;
@@ -67,6 +68,22 @@ public class ConstraintsState {
 
     public boolean isBatteryNotLow() {
         return mIsBatteryNotLow;
+    }
+
+    /**
+     * Sets the device storage status of this {@link ConstraintsState}.
+     *
+     * @param storageNotLow {@code true} if device storage is not low
+     */
+    public void setStorageNotLow(boolean storageNotLow) {
+        if (mIsStorageNotLow != storageNotLow) {
+            mIsStorageNotLow = storageNotLow;
+            tryNotifyListener();
+        }
+    }
+
+    public boolean isStorageNotLow() {
+        return mIsStorageNotLow;
     }
 
     /**

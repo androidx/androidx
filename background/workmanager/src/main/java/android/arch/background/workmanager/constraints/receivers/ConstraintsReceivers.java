@@ -41,11 +41,13 @@ public class ConstraintsReceivers {
 
     private BatteryChargingReceiver mBatteryChargingReceiver;
     private BatteryNotLowReceiver mBatteryNotLowReceiver;
+    private StorageNotLowReceiver mStorageNotLowReceiver;
 
     private ConstraintsReceivers(Context context) {
         Context appContext = context.getApplicationContext();
         mBatteryChargingReceiver = new BatteryChargingReceiver(appContext);
         mBatteryNotLowReceiver = new BatteryNotLowReceiver(appContext);
+        mStorageNotLowReceiver = new StorageNotLowReceiver(appContext);
     }
 
     /**
@@ -64,5 +66,14 @@ public class ConstraintsReceivers {
      */
     public BaseConstraintsReceiver getBatteryNotLowReceiver() {
         return mBatteryNotLowReceiver;
+    }
+
+    /**
+     * Gets the receiver used to track if device storage is okay or low.
+     *
+     * @return The receiver used to track if device storage is okay or low.
+     */
+    public BaseConstraintsReceiver getStorageNotLowReceiver() {
+        return mStorageNotLowReceiver;
     }
 }
