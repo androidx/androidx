@@ -2240,10 +2240,24 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             focusToViewInLayout(hadFocus, scrollToFocus, -deltaPrimary, -deltaSecondary);
             appendVisibleItems();
             prependVisibleItems();
-            removeInvisibleViewsAtFront();
-            removeInvisibleViewsAtEnd();
+            // b/67370222: do not removeInvisibleViewsAtFront/End() in the loop, otherwise
+            // loop may bounce between scroll forward and scroll backward forever. Example:
+            // Assuming there are 19 items, child#18 and child#19 are both in RV, we are
+            // trying to focus to child#18 and there are 200px remaining scroll distance.
+            //   1  focusToViewInLayout() tries scroll forward 50 px to align focused child#18 on
+            //      right edge, but there to compensate remaining scroll 200px, also scroll
+            //      backward 200px, 150px pushes last child#19 out side of right edge.
+            //   2  removeInvisibleViewsAtEnd() remove last child#19, updateScrollLimits()
+            //      invalidates scroll max
+            //   3  In next iteration, when scroll max/min is unknown, focusToViewInLayout() will
+            //      align focused child#18 at center of screen.
+            //   4  Because #18 is aligned at center, appendVisibleItems() will fill child#19 to
+            //      the right.
+            //   5  (back to 1 and loop forever)
         } while (mGrid.getFirstVisibleIndex() != oldFirstVisible
                 || mGrid.getLastVisibleIndex() != oldLastVisible);
+        removeInvisibleViewsAtFront();
+        removeInvisibleViewsAtEnd();
 
         if (state.willRunPredictiveAnimations()) {
             fillScrapViewsInPostLayout();
