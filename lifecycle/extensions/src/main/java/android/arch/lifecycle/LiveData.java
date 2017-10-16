@@ -54,7 +54,7 @@ import java.util.Map;
  * but can also be used for sharing data between different modules in your application
  * in a decoupled fashion.
  *
- * @param <T> The type of data hold by this instance
+ * @param <T> The type of data held by this instance
  * @see ViewModel
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
@@ -120,6 +120,7 @@ public abstract class LiveData<T> {
         // the observer moved to an active state, if we've not received that event, we better not
         // notify for a more predictable notification order.
         if (!isActiveState(observer.owner.getLifecycle().getCurrentState())) {
+            observer.activeStateChanged(false);
             return;
         }
         if (observer.lastVersion >= mVersion) {
