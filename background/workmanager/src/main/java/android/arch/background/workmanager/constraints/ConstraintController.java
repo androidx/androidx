@@ -20,19 +20,21 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.support.annotation.Nullable;
 
+import java.util.List;
+
 /**
  * A controller for a particular constraint.
  */
 
 public class ConstraintController {
 
-    private LiveData<Boolean> mConstraintLiveData;
+    private LiveData<List<String>> mConstraintLiveData;
     private BaseConstraintsReceiver mReceiver;
     private ConstraintsState mConstraintsState;
-    private Observer<Boolean> mConstraintObserver;
+    private Observer<List<String>> mConstraintObserver;
 
     public ConstraintController(
-            LiveData<Boolean> constraintLiveData,
+            LiveData<List<String>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
             final BaseConstraintsReceiver receiver,
             final ConstraintsState constraintsState) {
@@ -40,10 +42,10 @@ public class ConstraintController {
         mConstraintLiveData = constraintLiveData;
         mReceiver = receiver;
         mConstraintsState = constraintsState;
-        mConstraintObserver = new Observer<Boolean>() {
+        mConstraintObserver = new Observer<List<String>>() {
             @Override
-            public void onChanged(@Nullable Boolean constraintExists) {
-                if (constraintExists != null && constraintExists) {
+            public void onChanged(@Nullable List<String> matchingWorkSpecIds) {
+                if (matchingWorkSpecIds != null && matchingWorkSpecIds.size() > 0) {
                     receiver.startTracking(constraintsState);
                 } else {
                     receiver.stopTracking(constraintsState);

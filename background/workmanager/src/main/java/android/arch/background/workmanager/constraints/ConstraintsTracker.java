@@ -42,7 +42,7 @@ public class ConstraintsTracker {
         ConstraintsReceivers constraintsReceivers = ConstraintsReceivers.getInstance(appContext);
 
         mBatteryController = new ConstraintController(
-                workDatabase.workSpecDao().doesExistEnqueuedWorkSpecWithBatteryConstraint(),
+                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryConstraint(),
                 mLifecycleOwner,
                 constraintsReceivers.getBatteryReceiver(),
                 mConstraintsState);
