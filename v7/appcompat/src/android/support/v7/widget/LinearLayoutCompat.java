@@ -1054,8 +1054,7 @@ public class LinearLayoutCompat extends ViewGroup {
 
             final int margin = lp.topMargin + lp.bottomMargin;
             final int childHeight = child.getMeasuredHeight() + margin;
-            childState = ViewUtils.combineMeasuredStates(childState,
-                    child.getMeasuredState());
+            childState = View.combineMeasuredStates(childState, child.getMeasuredState());
 
             if (baselineAligned) {
                 final int childBaseline = child.getBaseline();

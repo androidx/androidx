@@ -128,6 +128,15 @@ public class GuidedStepSupportFragmentTestBase {
         return activityTestRule.launchActivity(intent);
     }
 
+    public GuidedStepSupportFragmentTestActivity launchTestActivity(String firstTestName,
+            boolean addAsRoot, int layoutDirection) {
+        Intent intent = new Intent();
+        intent.putExtra(GuidedStepSupportFragmentTestActivity.EXTRA_TEST_NAME, firstTestName);
+        intent.putExtra(GuidedStepSupportFragmentTestActivity.EXTRA_ADD_AS_ROOT, addAsRoot);
+        intent.putExtra(GuidedStepSupportFragmentTestActivity.EXTRA_LAYOUT_DIRECTION, layoutDirection);
+        return activityTestRule.launchActivity(intent);
+    }
+
     public GuidedStepTestSupportFragment.Provider mockProvider(String testName) {
         GuidedStepTestSupportFragment.Provider test = mock(GuidedStepTestSupportFragment.Provider.class);
         when(test.getActivity()).thenCallRealMethod();

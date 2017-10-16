@@ -167,6 +167,7 @@ class MediaSessionCompatApi21 {
         void onStop();
         void onSeekTo(long position);
         void onSetRating(Object ratingObject);
+        void onSetRating(Object ratingObject, Bundle extras);
         void onCustomAction(String action, Bundle extras);
     }
 

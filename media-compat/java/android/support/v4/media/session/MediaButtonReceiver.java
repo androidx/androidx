@@ -24,11 +24,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.session.PlaybackStateCompat.MediaKeyAction;
-import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -284,7 +284,7 @@ public class MediaButtonReceiver extends BroadcastReceiver {
     }
 
     private static void startForegroundService(Context context, Intent intent) {
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             context.startForegroundService(intent);
         } else {
             context.startService(intent);

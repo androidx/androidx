@@ -17,24 +17,31 @@
 
 package android.support.v4.app;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import java.lang.reflect.Method;
 
 /**
  * This class provides a handy way to tie together the functionality of
@@ -107,71 +114,11 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         void setActionBarDescription(@StringRes int contentDescRes);
     }
 
-    private interface ActionBarDrawerToggleImpl {
-        Drawable getThemeUpIndicator(Activity activity);
-        Object setActionBarUpIndicator(Object info, Activity activity,
-                Drawable themeImage, int contentDescRes);
-        Object setActionBarDescription(Object info, Activity activity, int contentDescRes);
-    }
+    private static final String TAG = "ActionBarDrawerToggle";
 
-    @RequiresApi(11)
-    private static class ActionBarDrawerToggleImplIcs implements ActionBarDrawerToggleImpl {
-        ActionBarDrawerToggleImplIcs() {
-        }
-
-        @Override
-        public Drawable getThemeUpIndicator(Activity activity) {
-            return ActionBarDrawerToggleIcs.getThemeUpIndicator(activity);
-        }
-
-        @Override
-        public Object setActionBarUpIndicator(Object info, Activity activity,
-                Drawable themeImage, int contentDescRes) {
-            return ActionBarDrawerToggleIcs.setActionBarUpIndicator(info, activity,
-                    themeImage, contentDescRes);
-        }
-
-        @Override
-        public Object setActionBarDescription(Object info, Activity activity, int contentDescRes) {
-            return ActionBarDrawerToggleIcs.setActionBarDescription(info, activity,
-                    contentDescRes);
-        }
-    }
-
-    @RequiresApi(18)
-    private static class ActionBarDrawerToggleImplJellybeanMR2
-            implements ActionBarDrawerToggleImpl {
-        ActionBarDrawerToggleImplJellybeanMR2() {
-        }
-
-        @Override
-        public Drawable getThemeUpIndicator(Activity activity) {
-            return ActionBarDrawerToggleJellybeanMR2.getThemeUpIndicator(activity);
-        }
-
-        @Override
-        public Object setActionBarUpIndicator(Object info, Activity activity,
-                Drawable themeImage, int contentDescRes) {
-            return ActionBarDrawerToggleJellybeanMR2.setActionBarUpIndicator(info, activity,
-                    themeImage, contentDescRes);
-        }
-
-        @Override
-        public Object setActionBarDescription(Object info, Activity activity, int contentDescRes) {
-            return ActionBarDrawerToggleJellybeanMR2.setActionBarDescription(info, activity,
-                    contentDescRes);
-        }
-    }
-
-    private static final ActionBarDrawerToggleImpl IMPL;
-
-    static {
-        if (Build.VERSION.SDK_INT >= 18) {
-            IMPL = new ActionBarDrawerToggleImplJellybeanMR2();
-        } else {
-            IMPL = new ActionBarDrawerToggleImplIcs();
-        }
-    }
+    private static final int[] THEME_ATTRS = new int[] {
+            android.R.attr.homeAsUpIndicator
+    };
 
     /** Fraction of its total width by which to offset the toggle drawable. */
     private static final float TOGGLE_DRAWABLE_OFFSET = 1 / 3f;
@@ -192,7 +139,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     private final int mOpenDrawerContentDescRes;
     private final int mCloseDrawerContentDescRes;
 
-    private Object mSetIndicatorInfo;
+    private SetIndicatorInfo mSetIndicatorInfo;
 
     /**
      * Construct a new ActionBarDrawerToggle.
@@ -463,29 +410,133 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
     public void onDrawerStateChanged(int newState) {
     }
 
-    Drawable getThemeUpIndicator() {
+    private Drawable getThemeUpIndicator() {
         if (mActivityImpl != null) {
             return mActivityImpl.getThemeUpIndicator();
         }
-        return IMPL.getThemeUpIndicator(mActivity);
+        if (Build.VERSION.SDK_INT >= 18) {
+            final ActionBar actionBar = mActivity.getActionBar();
+            final Context context;
+            if (actionBar != null) {
+                context = actionBar.getThemedContext();
+            } else {
+                context = mActivity;
+            }
+
+            final TypedArray a = context.obtainStyledAttributes(null, THEME_ATTRS,
+                    android.R.attr.actionBarStyle, 0);
+            final Drawable result = a.getDrawable(0);
+            a.recycle();
+            return result;
+        } else {
+            final TypedArray a = mActivity.obtainStyledAttributes(THEME_ATTRS);
+            final Drawable result = a.getDrawable(0);
+            a.recycle();
+            return result;
+        }
     }
 
-    void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes) {
+    private void setActionBarUpIndicator(Drawable upDrawable, int contentDescRes) {
         if (mActivityImpl != null) {
             mActivityImpl.setActionBarUpIndicator(upDrawable, contentDescRes);
             return;
         }
-        mSetIndicatorInfo = IMPL
-                .setActionBarUpIndicator(mSetIndicatorInfo, mActivity, upDrawable, contentDescRes);
+        if (Build.VERSION.SDK_INT >= 18) {
+            final ActionBar actionBar = mActivity.getActionBar();
+            if (actionBar != null) {
+                actionBar.setHomeAsUpIndicator(upDrawable);
+                actionBar.setHomeActionContentDescription(contentDescRes);
+            }
+        } else {
+            if (mSetIndicatorInfo == null) {
+                mSetIndicatorInfo = new SetIndicatorInfo(mActivity);
+            }
+            if (mSetIndicatorInfo.mSetHomeAsUpIndicator != null) {
+                try {
+                    final ActionBar actionBar = mActivity.getActionBar();
+                    mSetIndicatorInfo.mSetHomeAsUpIndicator.invoke(actionBar, upDrawable);
+                    mSetIndicatorInfo.mSetHomeActionContentDescription.invoke(
+                            actionBar, contentDescRes);
+                } catch (Exception e) {
+                    Log.w(TAG, "Couldn't set home-as-up indicator via JB-MR2 API", e);
+                }
+            } else if (mSetIndicatorInfo.mUpIndicatorView != null) {
+                mSetIndicatorInfo.mUpIndicatorView.setImageDrawable(upDrawable);
+            } else {
+                Log.w(TAG, "Couldn't set home-as-up indicator");
+            }
+        }
     }
 
-    void setActionBarDescription(int contentDescRes) {
+    private void setActionBarDescription(int contentDescRes) {
         if (mActivityImpl != null) {
             mActivityImpl.setActionBarDescription(contentDescRes);
             return;
         }
-        mSetIndicatorInfo = IMPL
-                .setActionBarDescription(mSetIndicatorInfo, mActivity, contentDescRes);
+        if (Build.VERSION.SDK_INT >= 18) {
+            final ActionBar actionBar = mActivity.getActionBar();
+            if (actionBar != null) {
+                actionBar.setHomeActionContentDescription(contentDescRes);
+            }
+        } else {
+            if (mSetIndicatorInfo == null) {
+                mSetIndicatorInfo = new SetIndicatorInfo(mActivity);
+            }
+            if (mSetIndicatorInfo.mSetHomeAsUpIndicator != null) {
+                try {
+                    final ActionBar actionBar = mActivity.getActionBar();
+                    mSetIndicatorInfo.mSetHomeActionContentDescription.invoke(
+                            actionBar, contentDescRes);
+                    // For API 19 and earlier, we need to manually force the
+                    // action bar to generate a new content description.
+                    actionBar.setSubtitle(actionBar.getSubtitle());
+                } catch (Exception e) {
+                    Log.w(TAG, "Couldn't set content description via JB-MR2 API", e);
+                }
+            }
+        }
+    }
+
+    private static class SetIndicatorInfo {
+        Method mSetHomeAsUpIndicator;
+        Method mSetHomeActionContentDescription;
+        ImageView mUpIndicatorView;
+
+        SetIndicatorInfo(Activity activity) {
+            try {
+                mSetHomeAsUpIndicator = ActionBar.class.getDeclaredMethod("setHomeAsUpIndicator",
+                        Drawable.class);
+                mSetHomeActionContentDescription = ActionBar.class.getDeclaredMethod(
+                        "setHomeActionContentDescription", Integer.TYPE);
+
+                // If we got the method we won't need the stuff below.
+                return;
+            } catch (NoSuchMethodException e) {
+                // Oh well. We'll use the other mechanism below instead.
+            }
+
+            final View home = activity.findViewById(android.R.id.home);
+            if (home == null) {
+                // Action bar doesn't have a known configuration, an OEM messed with things.
+                return;
+            }
+
+            final ViewGroup parent = (ViewGroup) home.getParent();
+            final int childCount = parent.getChildCount();
+            if (childCount != 2) {
+                // No idea which one will be the right one, an OEM messed with things.
+                return;
+            }
+
+            final View first = parent.getChildAt(0);
+            final View second = parent.getChildAt(1);
+            final View up = first.getId() == android.R.id.home ? second : first;
+
+            if (up instanceof ImageView) {
+                // Jackpot! (Probably...)
+                mUpIndicatorView = (ImageView) up;
+            }
+        }
     }
 
     private class SlideDrawable extends InsetDrawable implements Drawable.Callback {
@@ -526,7 +577,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         }
 
         @Override
-        public void draw(Canvas canvas) {
+        public void draw(@NonNull Canvas canvas) {
             copyBounds(mTmpRect);
             canvas.save();
 

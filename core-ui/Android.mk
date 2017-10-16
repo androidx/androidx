@@ -26,11 +26,7 @@ include $(CLEAR_VARS)
 LOCAL_USE_AAPT2 := true
 LOCAL_MODULE := android-support-core-ui
 LOCAL_SDK_VERSION := $(SUPPORT_CURRENT_SDK_VERSION)
-LOCAL_SRC_FILES := \
-    $(call all-java-files-under,ics) \
-    $(call all-java-files-under,jellybean-mr2) \
-    $(call all-java-files-under,api21) \
-    $(call all-java-files-under,java)
+LOCAL_SRC_FILES := $(call all-java-files-under,java)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 LOCAL_SHARED_ANDROID_LIBRARIES := \
     android-support-compat \

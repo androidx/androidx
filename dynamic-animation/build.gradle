@@ -2,17 +2,16 @@ apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'support-dynamic-animation'
 
 dependencies {
-    compile project(':support-core-utils')
+    api project(':support-core-utils')
 
-    androidTestCompile (libs.test_runner) {
+    androidTestImplementation (libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile (libs.espresso_core) {
+    androidTestImplementation (libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile libs.mockito_core
-    androidTestCompile libs.dexmaker
-    androidTestCompile libs.dexmaker_mockito
+    androidTestImplementation libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
 }
 
 android {

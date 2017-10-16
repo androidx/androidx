@@ -99,7 +99,7 @@ public class PlaybackOverlaySupportFragment extends DetailsSupportFragment {
         }
     }
 
-    static final String TAG = "PlaybackOverlaySupportFragment";
+    static final String TAG = "PlaybackOF";
     static final boolean DEBUG = false;
     private static final int ANIMATION_MULTIPLIER = 1;
 

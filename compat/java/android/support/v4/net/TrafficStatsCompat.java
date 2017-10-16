@@ -16,18 +16,17 @@
 
 package android.support.v4.net;
 
-import android.support.annotation.RequiresApi;
 import android.net.TrafficStats;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.RequiresApi;
 
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * Helper for accessing features in {@link TrafficStats} introduced after API level 14
- * in a backwards compatible fashion.
+ * Helper for accessing features in {@link TrafficStats}.
  */
 public final class TrafficStatsCompat {
     static class TrafficStatsCompatBaseImpl {

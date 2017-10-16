@@ -62,7 +62,7 @@ import android.widget.FrameLayout;
  */
 public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
-    static final String TAG = "FullWidthDetailsOverviewRowPresenter";
+    static final String TAG = "FullWidthDetailsRP";
     static final boolean DEBUG = false;
 
     private static Rect sTmpRect = new Rect();

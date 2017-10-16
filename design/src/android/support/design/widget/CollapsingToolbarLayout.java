@@ -17,7 +17,6 @@
 package android.support.design.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.v4.utils.ObjectUtils.objectEquals;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -41,6 +40,7 @@ import android.support.design.R;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.math.MathUtils;
+import android.support.v4.util.ObjectsCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -270,7 +270,7 @@ public class CollapsingToolbarLayout extends FrameLayout {
         }
 
         // If our insets have changed, keep them and invalidate the scroll ranges...
-        if (!objectEquals(mLastInsets, newInsets)) {
+        if (!ObjectsCompat.equals(mLastInsets, newInsets)) {
             mLastInsets = newInsets;
             requestLayout();
         }

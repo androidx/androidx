@@ -26,8 +26,7 @@ import android.view.WindowManager;
 import java.util.WeakHashMap;
 
 /**
- * Helper for accessing features in {@link android.hardware.display.DisplayManager}
- * in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.hardware.display.DisplayManager}.
  */
 public abstract class DisplayManagerCompat {
     private static final WeakHashMap<Context, DisplayManagerCompat> sInstances =

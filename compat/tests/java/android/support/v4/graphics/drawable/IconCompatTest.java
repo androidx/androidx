@@ -34,7 +34,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.os.BuildCompat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,7 +104,7 @@ public class IconCompatTest {
         bitmap.eraseColor(Color.GREEN);
         IconCompat compat = IconCompat.createWithAdaptiveBitmap(bitmap);
         Drawable d = compat.toIcon().loadDrawable(InstrumentationRegistry.getContext());
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             assertTrue(d instanceof AdaptiveIconDrawable);
         } else {
             assertTrue(d instanceof BitmapDrawable);

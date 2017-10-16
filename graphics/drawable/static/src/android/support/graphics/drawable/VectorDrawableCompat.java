@@ -16,6 +16,7 @@ package android.support.graphics.drawable;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -554,7 +555,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         }
 
         try {
-            final XmlPullParser parser = res.getXml(resId);
+            @SuppressLint("ResourceType") final XmlPullParser parser = res.getXml(resId);
             final AttributeSet attrs = Xml.asAttributeSet(parser);
             int type;
             while ((type = parser.next()) != XmlPullParser.START_TAG &&

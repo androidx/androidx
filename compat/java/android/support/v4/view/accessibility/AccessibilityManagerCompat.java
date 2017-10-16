@@ -25,7 +25,7 @@ import android.view.accessibility.AccessibilityManager;
 import java.util.List;
 
 /**
- * Helper for accessing features in {@link AccessibilityManager} in a backwards compatible fashion.
+ * Helper for accessing features in {@link AccessibilityManager}.
  */
 public final class AccessibilityManagerCompat {
     /**

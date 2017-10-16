@@ -28,7 +28,6 @@ import android.support.v4.view.ViewCompat.FocusDirection;
 import android.support.v4.view.ViewCompat.FocusRealDirection;
 import android.support.v4.view.ViewParentCompat;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
-import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeProviderCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -177,8 +176,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @return Whether the hover event was handled.
      */
     public final boolean dispatchHoverEvent(@NonNull MotionEvent event) {
-        if (!mManager.isEnabled()
-                || !AccessibilityManagerCompat.isTouchExplorationEnabled(mManager)) {
+        if (!mManager.isEnabled() || !mManager.isTouchExplorationEnabled()) {
             return false;
         }
 
@@ -650,7 +648,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      */
     private AccessibilityEvent createEventForHost(int eventType) {
         final AccessibilityEvent event = AccessibilityEvent.obtain(eventType);
-        ViewCompat.onInitializeAccessibilityEvent(mHost, event);
+        mHost.onInitializeAccessibilityEvent(event);
         return event;
     }
 
@@ -941,7 +939,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         ViewParent viewParent = mHost.getParent();
         while (viewParent instanceof View) {
             final View view = (View) viewParent;
-            if ((ViewCompat.getAlpha(view) <= 0) || (view.getVisibility() != View.VISIBLE)) {
+            if ((view.getAlpha() <= 0) || (view.getVisibility() != View.VISIBLE)) {
                 return false;
             }
             viewParent = view.getParent();
@@ -964,8 +962,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @return whether this virtual view actually took accessibility focus
      */
     private boolean requestAccessibilityFocus(int virtualViewId) {
-        if (!mManager.isEnabled()
-                || !AccessibilityManagerCompat.isTouchExplorationEnabled(mManager)) {
+        if (!mManager.isEnabled() || !mManager.isTouchExplorationEnabled()) {
             return false;
         }
         // TODO: Check virtual view visibility.

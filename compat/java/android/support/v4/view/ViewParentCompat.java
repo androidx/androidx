@@ -27,8 +27,7 @@ import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
 /**
- * Helper for accessing features in {@link ViewParent}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link ViewParent}.
  */
 public final class ViewParentCompat {
 

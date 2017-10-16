@@ -115,19 +115,19 @@ public class MediaSessionCompat {
     public @interface SessionFlags {}
 
     /**
-     * Set this flag on the session to indicate that it can handle media button
+     * Sets this flag on the session to indicate that it can handle media button
      * events.
      */
     public static final int FLAG_HANDLES_MEDIA_BUTTONS = 1 << 0;
 
     /**
-     * Set this flag on the session to indicate that it handles transport
+     * Sets this flag on the session to indicate that it handles transport
      * control commands through its {@link Callback}.
      */
     public static final int FLAG_HANDLES_TRANSPORT_CONTROLS = 1 << 1;
 
     /**
-     * Set this flag on the session to indicate that it handles queue
+     * Sets this flag on the session to indicate that it handles queue
      * management commands through its {@link Callback}.
      */
     public static final int FLAG_HANDLES_QUEUE_COMMANDS = 1 << 2;
@@ -149,83 +149,71 @@ public class MediaSessionCompat {
 
     /**
      * Predefined custom action to follow an artist, album, or playlist. The extra bundle must have
-     * {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the follow action. The
+     * {@link #ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the follow action. The
      * bundle can also have an optional string argument,
-     * {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to follow (e.g., the
+     * {@link #ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to follow (e.g., the
      * name of the artist to follow). If this argument is omitted, the currently playing media will
      * be the target of the action. Thus, the session must perform the follow action with the
      * current metadata. If there's no specified attribute in the current metadata, the controller
      * must not omit this argument.
      *
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE_VALUE
      * @see Callback#onCustomAction
      */
     public static final String ACTION_FOLLOW = "android.support.v4.media.session.action.FOLLOW";
 
     /**
      * Predefined custom action to unfollow an artist, album, or playlist. The extra bundle must
-     * have {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the unfollow action.
+     * have {@link #ARGUMENT_MEDIA_ATTRIBUTE} to indicate the type of the unfollow action.
      * The bundle can also have an optional string argument,
-     * {@link #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to unfollow (e.g., the
+     * {@link #ARGUMENT_MEDIA_ATTRIBUTE_VALUE}, to specify the target to unfollow (e.g., the
      * name of the artist to unfollow). If this argument is omitted, the currently playing media
      * will be the target of the action. Thus, the session must perform the unfollow action with the
      * current metadata. If there's no specified attribute in the current metadata, the controller
      * must not omit this argument.
      *
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE
-     * @see #ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE
+     * @see #ARGUMENT_MEDIA_ATTRIBUTE_VALUE
      * @see Callback#onCustomAction
      */
     public static final String ACTION_UNFOLLOW = "android.support.v4.media.session.action.UNFOLLOW";
 
     /**
-     * Argument for use with {@link #ACTION_FOLLOW} and {@link #ACTION_UNFOLLOW} indicating the
-     * media attribute of the follow/unfollow action. It should be one of the following:
+     * Argument to indicate the media attribute. It should be one of the following:
      * <ul>
      * <li>{@link #MEDIA_ATTRIBUTE_ARTIST}</li>
      * <li>{@link #MEDIA_ATTRIBUTE_PLAYLIST}</li>
      * <li>{@link #MEDIA_ATTRIBUTE_ALBUM}</li>
      * </ul>
-     *
-     * @see #ACTION_FOLLOW
-     * @see #ACTION_UNFOLLOW
      */
-    public static final String ACTION_ARGUMENT_MEDIA_ATTRIBUTE =
-            "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE";
+    public static final String ARGUMENT_MEDIA_ATTRIBUTE =
+            "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE";
 
     /**
-     * String argument for use with {@link #ACTION_FOLLOW} and {@link #ACTION_UNFOLLOW} indicating
-     * the value of the media attribute of the follow/unfollow action (e.g., the name of the artist
-     * to follow).
-     *
-     * @see #ACTION_FOLLOW
-     * @see #ACTION_UNFOLLOW
+     * String argument to indicate the value of the media attribute (e.g., the name of the artist).
      */
-    public static final String ACTION_ARGUMENT_MEDIA_ATTRIBUTE_VALUE =
-            "android.support.v4.media.session.action.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
+    public static final String ARGUMENT_MEDIA_ATTRIBUTE_VALUE =
+            "android.support.v4.media.session.ARGUMENT_MEDIA_ATTRIBUTE_VALUE";
 
     /**
-     * The media attribute of the follow action which indicates that the target of the action is an
-     * artist.
+     * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the artist.
      *
-     * @see ACTION_ARGUMENT_MEDIA_ATTRIBUTE
+     * @see ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ARTIST = 0;
 
     /**
-     * The media attribute of the follow action which indicates that the target of the action is an
-     * album.
+     * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the album.
      *
-     * @see ACTION_ARGUMENT_MEDIA_ATTRIBUTE
+     * @see ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_ALBUM = 1;
 
     /**
-     * The media attribute of the follow action which indicates that the target of the action is a
-     * playlist.
+     * The value of {@link #ARGUMENT_MEDIA_ATTRIBUTE} indicating the playlist.
      *
-     * @see ACTION_ARGUMENT_MEDIA_ATTRIBUTE
+     * @see ARGUMENT_MEDIA_ATTRIBUTE
      */
     public static final int MEDIA_ATTRIBUTE_PLAYLIST = 2;
 
@@ -283,6 +271,12 @@ public class MediaSessionCompat {
             "android.support.v4.media.session.action.SET_SHUFFLE_MODE";
 
     /**
+     * Custom action to invoke setRating() with extra fields.
+     */
+    static final String ACTION_SET_RATING =
+            "android.support.v4.media.session.action.SET_RATING";
+
+    /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
      */
     static final String ACTION_ARGUMENT_MEDIA_ID =
@@ -300,6 +294,12 @@ public class MediaSessionCompat {
      */
     static final String ACTION_ARGUMENT_URI =
             "android.support.v4.media.session.action.ARGUMENT_URI";
+
+    /**
+     * Argument for use with {@link #ACTION_SET_RATING} indicating the rate to be set.
+     */
+    static final String ACTION_ARGUMENT_RATING =
+            "android.support.v4.media.session.action.ARGUMENT_RATING";
 
     /**
      * Argument for use with various actions indicating extra bundle.
@@ -435,7 +435,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Add a callback to receive updates on for the MediaSession. This includes
+     * Adds a callback to receive updates on for the MediaSession. This includes
      * media button and volume events. The caller's thread will be used to post
      * events.
      *
@@ -446,7 +446,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the callback to receive updates for the MediaSession. This includes
+     * Sets the callback to receive updates for the MediaSession. This includes
      * media button and volume events. Set the callback to null to stop
      * receiving events.
      *
@@ -458,7 +458,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set an intent for launching UI for this Session. This can be used as a
+     * Sets an intent for launching UI for this Session. This can be used as a
      * quick link to an ongoing media screen. The intent should be for an
      * activity that may be started using
      * {@link Activity#startActivity(Intent)}.
@@ -470,7 +470,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set a pending intent for your media button receiver to allow restarting
+     * Sets a pending intent for your media button receiver to allow restarting
      * playback after the session has been stopped. If your app is started in
      * this way an {@link Intent#ACTION_MEDIA_BUTTON} intent will be sent via
      * the pending intent.
@@ -487,7 +487,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set any flags for the session.
+     * Sets any flags for the session.
      *
      * @param flags The flags to set for this session.
      */
@@ -496,7 +496,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the stream this session is playing on. This will affect the system's
+     * Sets the stream this session is playing on. This will affect the system's
      * volume handling for this session. If {@link #setPlaybackToRemote} was
      * previously called it will stop receiving volume commands and the system
      * will begin sending volume changes to the appropriate stream.
@@ -510,7 +510,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Configure this session to use remote volume handling. This must be called
+     * Configures this session to use remote volume handling. This must be called
      * to receive volume button events, otherwise the system will adjust the
      * current stream volume for this session. If {@link #setPlaybackToLocal}
      * was previously called that stream will stop receiving volume changes for
@@ -532,7 +532,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set if this session is currently active and ready to receive commands. If
+     * Sets if this session is currently active and ready to receive commands. If
      * set to false your session's controller may not be discoverable. You must
      * set the session to active before it can start receiving media button
      * events or transport commands.
@@ -552,7 +552,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Get the current active state of this session.
+     * Gets the current active state of this session.
      *
      * @return True if the session is active, false otherwise.
      */
@@ -561,7 +561,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Send a proprietary event to all MediaControllers listening to this
+     * Sends a proprietary event to all MediaControllers listening to this
      * Session. It's up to the Controller/Session owner to determine the meaning
      * of any events.
      *
@@ -585,7 +585,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Retrieve a token object that can be used by apps to create a
+     * Retrieves a token object that can be used by apps to create a
      * {@link MediaControllerCompat} for interacting with this session. The
      * owner of the session is responsible for deciding how to distribute these
      * tokens.
@@ -603,7 +603,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Get a controller for this session. This is a convenience method to avoid
+     * Gets a controller for this session. This is a convenience method to avoid
      * having to cache your own controller in process.
      *
      * @return A controller for this session.
@@ -613,7 +613,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Update the current playback state.
+     * Updates the current playback state.
      *
      * @param state The current state of playback
      */
@@ -622,7 +622,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Update the current metadata. New metadata can be created using
+     * Updates the current metadata. New metadata can be created using
      * {@link android.support.v4.media.MediaMetadataCompat.Builder}. This operation may take time
      * proportional to the size of the bitmap to replace large bitmaps with a scaled down copy.
      *
@@ -634,7 +634,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Update the list of items in the play queue. It is an ordered list and
+     * Updates the list of items in the play queue. It is an ordered list and
      * should contain the current item, and previous or upcoming items if they
      * exist. Specify null if there is no current play queue.
      * <p>
@@ -649,7 +649,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the title of the play queue. The UI should display this title along
+     * Sets the title of the play queue. The UI should display this title along
      * with the play queue itself. e.g. "Play Queue", "Now Playing", or an album
      * name.
      *
@@ -660,7 +660,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the style of rating used by this session. Apps trying to set the
+     * Sets the style of rating used by this session. Apps trying to set the
      * rating should use this style. Must be one of the following:
      * <ul>
      * <li>{@link RatingCompat#RATING_NONE}</li>
@@ -677,7 +677,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Enable/disable captioning for this session.
+     * Enables/disables captioning for this session.
      *
      * @param enabled {@code true} to enable captioning, {@code false} to disable.
      */
@@ -686,7 +686,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the repeat mode for this session.
+     * Sets the repeat mode for this session.
      * <p>
      * Note that if this method is not called before, {@link MediaControllerCompat#getRepeatMode}
      * will return {@link PlaybackStateCompat#REPEAT_MODE_NONE}.
@@ -702,7 +702,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the shuffle mode for this session.
+     * Sets the shuffle mode for this session.
      * <p>
      * Note that if this method is not called before,
      * {@link MediaControllerCompat#isShuffleModeEnabled} will return {@code false}.
@@ -716,7 +716,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set the shuffle mode for this session.
+     * Sets the shuffle mode for this session.
      * <p>
      * Note that if this method is not called before, {@link MediaControllerCompat#getShuffleMode}
      * will return {@link PlaybackStateCompat#SHUFFLE_MODE_NONE}.
@@ -731,7 +731,7 @@ public class MediaSessionCompat {
     }
 
     /**
-     * Set some extras that can be associated with the
+     * Sets some extras that can be associated with the
      * {@link MediaSessionCompat}. No assumptions should be made as to how a
      * {@link MediaControllerCompat} will handle these extras. Keys should be
      * fully qualified (e.g. com.example.MY_EXTRA) to avoid conflicts.
@@ -867,7 +867,7 @@ public class MediaSessionCompat {
         final Object mCallbackObj;
         private WeakReference<MediaSessionImpl> mSessionImpl;
         private CallbackHandler mCallbackHandler = null;
-        private boolean mMediaPlayPauseKeyHandled;
+        private boolean mMediaPlayPauseKeyPending;
 
         public Callback() {
             if (android.os.Build.VERSION.SDK_INT >= 24) {
@@ -924,42 +924,45 @@ public class MediaSessionCompat {
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                 case KeyEvent.KEYCODE_HEADSETHOOK:
                     if (keyEvent.getRepeatCount() > 0) {
+                        // Consider long-press as a single tap.
+                        handleMediaPlayPauseKeySingleTapIfPending();
+                    } else if (mMediaPlayPauseKeyPending) {
                         mCallbackHandler.removeMessages(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
-                        if (keyEvent.getRepeatCount() == 1) {
-                            handleMediaPlayPauseKeySingleTapIfUnhandled();
-                        }
-                    } else if (mCallbackHandler.hasMessages(
-                            CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT)) {
-                        mCallbackHandler.removeMessages(
-                                CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
+                        mMediaPlayPauseKeyPending = false;
                         PlaybackStateCompat state = impl.getPlaybackState();
                         long validActions = state == null ? 0 : state.getActions();
                         // Consider double tap as the next.
                         if ((validActions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
                             onSkipToNext();
                         }
-                        mMediaPlayPauseKeyHandled = true;
                     } else {
-                        mMediaPlayPauseKeyHandled = false;
+                        mMediaPlayPauseKeyPending = true;
                         mCallbackHandler.sendEmptyMessageDelayed(
                                 CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT,
                                 ViewConfiguration.getDoubleTapTimeout());
                     }
                     return true;
+                default:
+                    // If another key is pressed within double tap timeout, consider the pending
+                    // pending play/pause as a single tap to handle media keys in order.
+                    handleMediaPlayPauseKeySingleTapIfPending();
+                    break;
             }
             return false;
         }
 
-        private void handleMediaPlayPauseKeySingleTapIfUnhandled() {
-            if (mMediaPlayPauseKeyHandled) {
+        private void handleMediaPlayPauseKeySingleTapIfPending() {
+            if (!mMediaPlayPauseKeyPending) {
                 return;
             }
+            mMediaPlayPauseKeyPending = false;
+            mCallbackHandler.removeMessages(
+                    CallbackHandler.MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT);
             MediaSessionImpl impl = mSessionImpl.get();
             if (impl == null) {
                 return;
             }
-            mMediaPlayPauseKeyHandled = true;
             PlaybackStateCompat state = impl.getPlaybackState();
             long validActions = state == null ? 0 : state.getActions();
             boolean isPlaying = state != null
@@ -976,21 +979,16 @@ public class MediaSessionCompat {
         }
 
         /**
-         * Override to handle requests to prepare playback. During the preparation, a session
-         * should not hold audio focus in order to allow other session play seamlessly.
-         * The state of playback should be updated to {@link PlaybackStateCompat#STATE_PAUSED}
-         * after the preparation is done.
+         * Override to handle requests to prepare playback. Override {@link #onPlay} to handle
+         * requests for starting playback.
          */
         public void onPrepare() {
         }
 
         /**
          * Override to handle requests to prepare for playing a specific mediaId that was provided
-         * by your app. During the preparation, a session should not hold audio focus in order to
-         * allow other session play seamlessly. The state of playback should be updated to
-         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done. The playback
-         * of the prepared content should start in the implementation of {@link #onPlay}. Override
-         * {@link #onPlayFromMediaId} to handle requests for starting playback without preparation.
+         * by your app. Override {@link #onPlayFromMediaId} to handle requests for starting
+         * playback.
          */
         public void onPrepareFromMediaId(String mediaId, Bundle extras) {
         }
@@ -998,24 +996,17 @@ public class MediaSessionCompat {
         /**
          * Override to handle requests to prepare playback from a search query. An
          * empty query indicates that the app may prepare any music. The
-         * implementation should attempt to make a smart choice about what to
-         * play. During the preparation, a session should not hold audio focus in order to allow
-         * other session play seamlessly. The state of playback should be updated to
-         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done.
-         * The playback of the prepared content should start in the implementation of
-         * {@link #onPlay}. Override {@link #onPlayFromSearch} to handle requests for
-         * starting playback without preparation.
+         * implementation should attempt to make a smart choice about what to play.
+         * Override {@link #onPlayFromSearch} to handle requests
+         * for starting playback.
          */
         public void onPrepareFromSearch(String query, Bundle extras) {
         }
 
         /**
          * Override to handle requests to prepare a specific media item represented by a URI.
-         * During the preparation, a session should not hold audio focus in order to allow other
-         * session play seamlessly. The state of playback should be updated to
-         * {@link PlaybackStateCompat#STATE_PAUSED} after the preparation is done. The playback of
-         * the prepared content should start in the implementation of {@link #onPlay}. Override
-         * {@link #onPlayFromUri} to handle requests for starting playback without preparation.
+         * Override {@link #onPlayFromUri} to handle requests
+         * for starting playback.
          */
         public void onPrepareFromUri(Uri uri, Bundle extras) {
         }
@@ -1102,9 +1093,18 @@ public class MediaSessionCompat {
         /**
          * Override to handle the item being rated.
          *
-         * @param rating
+         * @param rating The rating being set.
          */
         public void onSetRating(RatingCompat rating) {
+        }
+
+        /**
+         * Override to handle the item being rated.
+         *
+         * @param rating The rating being set.
+         * @param extras The extras can include information about the media item being rated.
+         */
+        public void onSetRating(RatingCompat rating, Bundle extras) {
         }
 
         /**
@@ -1230,7 +1230,7 @@ public class MediaSessionCompat {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MSG_MEDIA_PLAY_PAUSE_KEY_DOUBLE_TAP_TIMEOUT) {
-                    handleMediaPlayPauseKeySingleTapIfUnhandled();
+                    handleMediaPlayPauseKeySingleTapIfPending();
                 }
             }
         }
@@ -1356,6 +1356,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void onSetRating(Object ratingObj, Bundle extras) {
+                Callback.this.onSetRating(RatingCompat.fromRating(ratingObj), extras);
+            }
+
+            @Override
             public void onCustomAction(String action, Bundle extras) {
                 if (action.equals(ACTION_PLAY_FROM_URI)) {
                     Uri uri = extras.getParcelable(ACTION_ARGUMENT_URI);
@@ -1387,6 +1392,11 @@ public class MediaSessionCompat {
                 } else if (action.equals(ACTION_SET_SHUFFLE_MODE)) {
                     int shuffleMode = extras.getInt(ACTION_ARGUMENT_SHUFFLE_MODE);
                     Callback.this.onSetShuffleMode(shuffleMode);
+                } else if (action.equals(ACTION_SET_RATING)) {
+                    extras.setClassLoader(RatingCompat.class.getClassLoader());
+                    RatingCompat rating = extras.getParcelable(ACTION_ARGUMENT_RATING);
+                    Bundle bundle = extras.getBundle(ACTION_ARGUMENT_EXTRAS);
+                    Callback.this.onSetRating(rating, bundle);
                 } else {
                     Callback.this.onCustomAction(action, extras);
                 }
@@ -1585,7 +1595,7 @@ public class MediaSessionCompat {
         private Object mItem;
 
         /**
-         * Create a new {@link MediaSessionCompat.QueueItem}.
+         * Creates a new {@link MediaSessionCompat.QueueItem}.
          *
          * @param description The {@link MediaDescriptionCompat} for this item.
          * @param id An identifier for this item. It must be unique within the
@@ -1613,14 +1623,14 @@ public class MediaSessionCompat {
         }
 
         /**
-         * Get the description for this item.
+         * Gets the description for this item.
          */
         public MediaDescriptionCompat getDescription() {
             return mDescription;
         }
 
         /**
-         * Get the queue id for this item.
+         * Gets the queue id for this item.
          */
         public long getQueueId() {
             return mId;
@@ -1638,7 +1648,7 @@ public class MediaSessionCompat {
         }
 
         /**
-         * Get the underlying
+         * Gets the underlying
          * {@link android.media.session.MediaSession.QueueItem}.
          * <p>
          * On builds before {@link android.os.Build.VERSION_CODES#LOLLIPOP} null
@@ -2670,6 +2680,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void rateWithExtras(RatingCompat rating, Bundle extras) throws RemoteException {
+                postToHandler(MessageHandler.MSG_RATE_EXTRA, rating, extras);
+            }
+
+            @Override
             public void setCaptioningEnabled(boolean enabled) throws RemoteException {
                 postToHandler(MessageHandler.MSG_SET_CAPTIONING_ENABLED, enabled);
             }
@@ -2817,6 +2832,7 @@ public class MediaSessionCompat {
             private static final int MSG_REWIND = 17;
             private static final int MSG_SEEK_TO = 18;
             private static final int MSG_RATE = 19;
+            private static final int MSG_RATE_EXTRA = 31;
             private static final int MSG_CUSTOM_ACTION = 20;
             private static final int MSG_MEDIA_BUTTON = 21;
             private static final int MSG_SET_VOLUME = 22;
@@ -2925,6 +2941,9 @@ public class MediaSessionCompat {
                         break;
                     case MSG_RATE:
                         cb.onSetRating((RatingCompat) msg.obj);
+                        break;
+                    case MSG_RATE_EXTRA:
+                        cb.onSetRating((RatingCompat) msg.obj, msg.getData());
                         break;
                     case MSG_CUSTOM_ACTION:
                         cb.onCustomAction((String) msg.obj, msg.getData());
@@ -3159,11 +3178,13 @@ public class MediaSessionCompat {
                         metadata.getLong(MediaMetadataCompat.METADATA_KEY_YEAR));
             }
             if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_RATING)) {
-                editor.putObject(MediaMetadataEditor.RATING_KEY_BY_OTHERS,
+                // Do not remove casting here. Without this, a crash will happen in API 19.
+                ((MediaMetadataEditor) editor).putObject(MediaMetadataEditor.RATING_KEY_BY_OTHERS,
                         metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_RATING));
             }
             if (metadata.containsKey(MediaMetadataCompat.METADATA_KEY_USER_RATING)) {
-                editor.putObject(MediaMetadataEditor.RATING_KEY_BY_USER,
+                // Do not remove casting here. Without this, a crash will happen in API 19.
+                ((MediaMetadataEditor) editor).putObject(MediaMetadataEditor.RATING_KEY_BY_USER,
                         metadata.getParcelable(MediaMetadataCompat.METADATA_KEY_USER_RATING));
             }
             return editor;
@@ -3581,6 +3602,12 @@ public class MediaSessionCompat {
 
             @Override
             public void rate(RatingCompat rating) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void rateWithExtras(RatingCompat rating, Bundle extras) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
             }

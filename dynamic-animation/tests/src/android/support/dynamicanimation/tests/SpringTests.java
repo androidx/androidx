@@ -641,8 +641,6 @@ public class SpringTests {
             }
         });
 
-        View mockView = mock(View.class);
-
         final SpringAnimation[] anims = new SpringAnimation[properties.length];
         final DynamicAnimation.OnAnimationUpdateListener[] mockListeners =
                 new DynamicAnimation.OnAnimationUpdateListener[properties.length];

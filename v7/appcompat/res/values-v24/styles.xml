@@ -15,7 +15,6 @@
   -->
 
 <resources>
-
     <!-- Use platform styles, Media is dark again -->
     <style name="TextAppearance.AppCompat.Notification.Media" />
 
@@ -24,5 +23,4 @@
     <style name="TextAppearance.AppCompat.Notification.Time.Media" />
 
     <style name="TextAppearance.AppCompat.Notification.Title.Media" />
-
 </resources>

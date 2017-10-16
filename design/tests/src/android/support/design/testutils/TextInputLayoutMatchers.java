@@ -16,8 +16,11 @@
 
 package android.support.design.testutils;
 
+import android.support.design.R;
+import android.support.design.widget.CheckableImageButton;
 import android.support.design.widget.TextInputLayout;
 import android.text.TextUtils;
+import android.view.View;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -29,7 +32,7 @@ public class TextInputLayoutMatchers {
      * Returns a matcher that matches TextInputLayouts with non-empty content descriptions for
      * the password toggle.
      */
-    public static Matcher hasPasswordToggleContentDescription() {
+    public static Matcher passwordToggleHasContentDescription() {
         return new TypeSafeMatcher<TextInputLayout>() {
             @Override
             public void describeTo(Description description) {
@@ -39,9 +42,53 @@ public class TextInputLayoutMatchers {
 
             @Override
             protected boolean matchesSafely(TextInputLayout item) {
-                return !TextUtils.isEmpty(item.getPasswordVisibilityToggleContentDescription());
+                // Reach in and find the password toggle since we don't have a public API
+                // to get a reference to it
+                View passwordToggle = item.findViewById(R.id.text_input_password_toggle);
+                return !TextUtils.isEmpty(item.getPasswordVisibilityToggleContentDescription())
+                    && !TextUtils.isEmpty(passwordToggle.getContentDescription());
             }
         };
     }
 
+    /**
+     * Returns a matcher that matches TextInputLayouts with non-displayed password toggles
+     */
+    public static Matcher doesNotShowPasswordToggle() {
+        return new TypeSafeMatcher<TextInputLayout>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("TextInputLayout shows password toggle.");
+            }
+
+            @Override
+            protected boolean matchesSafely(TextInputLayout item) {
+                // Reach in and find the password toggle since we don't have a public API
+                // to get a reference to it
+                View passwordToggle = item.findViewById(R.id.text_input_password_toggle);
+                return passwordToggle.getVisibility() != View.VISIBLE;
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches TextInputLayouts with non-displayed password toggles
+     */
+    public static Matcher passwordToggleIsNotChecked() {
+        return new TypeSafeMatcher<TextInputLayout>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("TextInputLayout has checked password toggle.");
+            }
+
+            @Override
+            protected boolean matchesSafely(TextInputLayout item) {
+                // Reach in and find the password toggle since we don't have a public API
+                // to get a reference to it
+                CheckableImageButton passwordToggle = (CheckableImageButton) item.findViewById(
+                        R.id.text_input_password_toggle);
+                return !passwordToggle.isChecked();
+            }
+        };
+    }
 }

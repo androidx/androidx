@@ -18,4 +18,5 @@
 <!-- Definitions of attributes to be exposed as public -->
 <resources>
     <public type="attr" name="maxEmojiCount"/>
+    <public type="attr" name="emojiReplaceStrategy"/>
 </resources>

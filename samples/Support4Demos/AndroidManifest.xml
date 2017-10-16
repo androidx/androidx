@@ -26,8 +26,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="22" />
-
     <!-- The smallest screen this app works on is a phone.  The app will
          scale its UI to larger screens but doesn't make good use of them
          so allow the compatibility mode button to be shown (mostly because
@@ -51,7 +49,7 @@
         <activity android:name=".app.SendResult"
                 android:theme="@style/ThemeDialogWhenLarge">
         </activity>
-        
+
         <!-- Fragment Support Samples -->
 
         <activity android:name=".app.FragmentAlertDialogSupport"
@@ -144,7 +142,7 @@
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        
+
         <activity android:name=".app.FragmentRetainInstanceSupport"
                 android:label="@string/fragment_retain_instance_support">
             <intent-filter>
@@ -216,7 +214,7 @@
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        
+
         <activity android:name=".app.LoaderCustomSupport"
                 android:label="@string/loader_custom_support">
             <intent-filter>

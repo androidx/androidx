@@ -25,4 +25,9 @@
         <item name="android:background">@drawable/lb_action_bg</item>
     </style>
 
+    <style name="Widget.Leanback.OnboardingStartButtonStyleBase">
+        <item name="android:elevation">1.5dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
 </resources>

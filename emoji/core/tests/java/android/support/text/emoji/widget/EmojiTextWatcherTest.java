@@ -18,6 +18,7 @@ package android.support.text.emoji.widget;
 
 import static android.support.text.emoji.util.EmojiMatcher.sameCharSequence;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -60,7 +61,7 @@ public class EmojiTextWatcherTest {
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 
         verify(mEmojiCompat, times(1)).process(sameCharSequence(testString), eq(0), eq(1),
-                eq(Integer.MAX_VALUE));
+                eq(Integer.MAX_VALUE), anyInt());
         verify(mEmojiCompat, times(0)).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
 
@@ -71,7 +72,8 @@ public class EmojiTextWatcherTest {
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 
-        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt());
+        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
+                anyInt());
         verify(mEmojiCompat, times(1)).registerInitCallback(any(EmojiCompat.InitCallback.class));
     }
 
@@ -82,7 +84,28 @@ public class EmojiTextWatcherTest {
 
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
 
-        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt());
+        verify(mEmojiCompat, times(0)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
+                anyInt());
         verify(mEmojiCompat, times(0)).registerInitCallback(any(EmojiCompat.InitCallback.class));
+    }
+
+    @Test
+    public void testSetEmojiReplaceStrategy() {
+        final Spannable testString = new SpannableString("abc");
+        when(mEmojiCompat.getLoadState()).thenReturn(EmojiCompat.LOAD_STATE_SUCCEEDED);
+
+        assertEquals(EmojiCompat.REPLACE_STRATEGY_DEFAULT, mTextWatcher.getEmojiReplaceStrategy());
+
+        mTextWatcher.onTextChanged(testString, 0, 0, 1);
+
+        verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
+                eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT));
+
+        mTextWatcher.setEmojiReplaceStrategy(EmojiCompat.REPLACE_STRATEGY_ALL);
+
+        mTextWatcher.onTextChanged(testString, 0, 0, 1);
+
+        verify(mEmojiCompat, times(1)).process(any(Spannable.class), anyInt(), anyInt(), anyInt(),
+                eq(EmojiCompat.REPLACE_STRATEGY_ALL));
     }
 }

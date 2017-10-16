@@ -30,8 +30,7 @@ import android.text.TextUtils;
 import java.util.Arrays;
 
 /**
- * Helper for accessing features in {@link android.content.pm.ShortcutInfo}
- * introduced after API level 25 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.content.pm.ShortcutInfo}.
  */
 public class ShortcutInfoCompat {
 

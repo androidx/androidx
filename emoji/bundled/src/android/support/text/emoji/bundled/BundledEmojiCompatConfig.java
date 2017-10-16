@@ -43,7 +43,7 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
         super(new BundledMetadataLoader(context));
     }
 
-    private static class BundledMetadataLoader implements EmojiCompat.MetadataLoader {
+    private static class BundledMetadataLoader implements EmojiCompat.MetadataRepoLoader {
         private final Context mContext;
 
         private BundledMetadataLoader(@NonNull Context context) {
@@ -52,7 +52,7 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
 
         @Override
         @RequiresApi(19)
-        public void load(@NonNull EmojiCompat.LoaderCallback loaderCallback) {
+        public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "loaderCallback cannot be null");
             final InitRunnable runnable = new InitRunnable(mContext, loaderCallback);
             final Thread thread = new Thread(runnable);
@@ -64,11 +64,11 @@ public class BundledEmojiCompatConfig extends EmojiCompat.Config {
     @RequiresApi(19)
     private static class InitRunnable implements Runnable {
         private static final String FONT_NAME = "NotoColorEmojiCompat.ttf";
-        private final EmojiCompat.LoaderCallback mLoaderCallback;
+        private final EmojiCompat.MetadataRepoLoaderCallback mLoaderCallback;
         private final Context mContext;
 
         private InitRunnable(final Context context,
-                final EmojiCompat.LoaderCallback loaderCallback) {
+                final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             mContext = context;
             mLoaderCallback = loaderCallback;
         }

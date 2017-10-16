@@ -325,6 +325,36 @@ public class BaseGridLayoutManagerTest extends BaseRecyclerViewInstrumentationTe
         }
     }
 
+    class GridEditTextAdapter extends EditTextAdapter {
+
+        Set<Integer> mFullSpanItems = new HashSet<Integer>();
+        int mSpanPerItem = 1;
+
+        GridEditTextAdapter(int count) {
+            this(count, 1);
+        }
+
+        GridEditTextAdapter(int count, int spanPerItem) {
+            super(count);
+            mSpanPerItem = spanPerItem;
+        }
+
+        void setFullSpan(int... items) {
+            for (int i : items) {
+                mFullSpanItems.add(i);
+            }
+        }
+
+        void assignSpanSizeLookup(final GridLayoutManager glm) {
+            glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    return mFullSpanItems.contains(position) ? glm.getSpanCount() : mSpanPerItem;
+                }
+            });
+        }
+    }
+
     class GridTestAdapter extends TestAdapter {
 
         Set<Integer> mFullSpanItems = new HashSet<Integer>();

@@ -20,9 +20,12 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.media.tv.TvContentRating;  // For javadoc gen of super class
 import android.os.Build;
 import android.support.annotation.RestrictTo;
 import android.support.media.tv.TvContractCompat.PreviewPrograms;
+import android.support.media.tv.TvContractCompat.Programs;  // For javadoc gen of super class
+import android.support.media.tv.TvContractCompat.Programs.Genres;  // For javadoc gen of super class
 
 /**
  * A convenience class to access {@link PreviewPrograms} entries in the system content

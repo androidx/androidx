@@ -28,8 +28,7 @@ import android.view.View;
 import java.lang.reflect.Field;
 
 /**
- * Helper for accessing features in {@link LayoutInflater}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link LayoutInflater}.
  */
 public final class LayoutInflaterCompat {
     private static final String TAG = "LayoutInflaterCompatHC";

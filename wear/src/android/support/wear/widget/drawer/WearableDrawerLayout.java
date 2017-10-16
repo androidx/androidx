@@ -60,8 +60,7 @@ import android.widget.FrameLayout;
  *
  * <pre>
  * &lt;android.support.wear.widget.drawer.WearableDrawerLayout [...]&gt;
- *     &lt;FrameLayout
- *         android:id=”@+id/content” /&gt;
+ *     &lt;FrameLayout android:id=”@+id/content” /&gt;
  *
  *     &lt;android.support.wear.widget.drawer.WearableNavigationDrawerView
  *         android:layout_width=”match_parent”
@@ -76,25 +75,25 @@ import android.widget.FrameLayout;
  * <p>To use custom content in a drawer, place {@link WearableDrawerView} in a WearableDrawerLayout
  * and specify the layout_gravity to pick the drawer location (the following example is for a top
  * drawer). <b>Note:</b> You must either call {@link WearableDrawerView#setDrawerContent} and pass
- * in your drawer content view, or specify it in the {@code app:drawer_content} XML attribute.
+ * in your drawer content view, or specify it in the {@code app:drawerContent} XML attribute.
  *
  * <pre>
  * &lt;android.support.wear.widget.drawer.WearableDrawerLayout [...]&gt;
  *     &lt;FrameLayout
+ *         android:id=”@+id/content”
  *         android:layout_width=”match_parent”
- *         android:layout_height=”match_parent”
- *         android:id=”@+id/content” /&gt;
+ *         android:layout_height=”match_parent” /&gt;
  *
  *     &lt;android.support.wear.widget.drawer.WearableDrawerView
  *         android:layout_width=”match_parent”
  *         android:layout_height=”match_parent”
  *         android:layout_gravity=”top”
- *         app:drawer_content="@+id/top_drawer_content" &gt;
+ *         app:drawerContent="@+id/top_drawer_content" &gt;
  *
  *         &lt;FrameLayout
+ *             android:id=”@id/top_drawer_content”
  *             android:layout_width=”match_parent”
- *             android:layout_height=”match_parent”
- *             android:id=”@id/top_drawer_content” /&gt;
+ *             android:layout_height=”match_parent” /&gt;
  *
  *     &lt;/android.support.wear.widget.drawer.WearableDrawerView&gt;
  * &lt;/android.support.wear.widget.drawer.WearableDrawerLayout&gt;</pre>

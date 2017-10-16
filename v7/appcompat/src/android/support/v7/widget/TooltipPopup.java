@@ -97,10 +97,6 @@ class TooltipPopup {
         return mContentView.getParent() != null;
     }
 
-    void updateContent(CharSequence tooltipText) {
-        mMessageView.setText(tooltipText);
-    }
-
     private void computePosition(View anchorView, int anchorX, int anchorY, boolean fromTouch,
             WindowManager.LayoutParams outParams) {
         final int tooltipPreciseAnchorThreshold = mContext.getResources().getDimensionPixelOffset(

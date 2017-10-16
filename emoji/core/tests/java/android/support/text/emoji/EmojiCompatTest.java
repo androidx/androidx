@@ -643,6 +643,21 @@ public class EmojiCompatTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 18)
+    public void testGetAssetSignature() {
+        final String signature = EmojiCompat.get().getAssetSignature();
+        assertTrue(signature.isEmpty());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testGetAssetSignature_api19() {
+        final String signature = EmojiCompat.get().getAssetSignature();
+        assertNotNull(signature);
+        assertFalse(signature.isEmpty());
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 19)
     public void testUpdateEditorInfoAttrs_setsKeysIfInitialized() {
         final EditorInfo editorInfo = new EditorInfo();
@@ -680,8 +695,8 @@ public class EmojiCompatTest {
         verifyNoMoreInteractions(inputConnection);
 
         // try backwards delete 1 character
-        assertFalse(
-                EmojiCompat.handleDeleteSurroundingText(inputConnection, editable, 1, 0, false));
+        assertFalse(EmojiCompat.handleDeleteSurroundingText(inputConnection, editable,
+                1 /*beforeLength*/, 0 /*afterLength*/, false /*inCodePoints*/));
     }
 
     @Test

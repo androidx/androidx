@@ -1,0 +1,118 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// If you change this file, you should also change the settings gradle inside
+// the sub project.
+
+def inAppToolkitProject = rootProject.name == "app-toolkit"
+def supportRoot
+if (inAppToolkitProject) {
+    supportRoot = new File(rootProject.projectDir, "..").getCanonicalFile()
+} else {
+    supportRoot = rootProject.projectDir
+}
+
+println "support root:${supportRoot}"
+
+include ':arch:runtime'
+project(':arch:runtime').projectDir = new File(supportRoot, "app-toolkit/runtime")
+
+include ':arch:common'
+project(':arch:common').projectDir = new File(supportRoot, "app-toolkit/common")
+
+include ':paging:common'
+project(':paging:common').projectDir = new File(supportRoot, "paging/common")
+
+include ":paging:runtime"
+project(':paging:runtime').projectDir = new File(supportRoot, "paging/runtime")
+
+include ':paging:integration-tests:testapp'
+project(':paging:integration-tests:testapp').projectDir = new File(supportRoot, "paging/integration-tests/testapp")
+
+include ':arch:core-testing'
+project(':arch:core-testing').projectDir = new File(supportRoot, "app-toolkit/core-testing")
+
+include ':lifecycle:extensions'
+project(':lifecycle:extensions').projectDir = new File(supportRoot, "lifecycle/extensions")
+
+include ':lifecycle:reactivestreams'
+project(':lifecycle:reactivestreams').projectDir = new File(supportRoot, "lifecycle/reactivestreams")
+
+include ':lifecycle:runtime'
+project(':lifecycle:runtime').projectDir = new File(supportRoot, "lifecycle/runtime")
+
+include ':lifecycle:common'
+project(':lifecycle:common').projectDir = new File(supportRoot, "lifecycle/common")
+
+include ':lifecycle:compiler'
+project(':lifecycle:compiler').projectDir = new File(supportRoot, "lifecycle/compiler")
+
+include ':lifecycle:integration-tests:testapp'
+project(':lifecycle:integration-tests:testapp').projectDir = new File(supportRoot, "lifecycle/integration-tests/testapp")
+
+include ':room:common'
+project(':room:common').projectDir = new File(supportRoot, "room/common")
+
+include ':room:runtime'
+project(':room:runtime').projectDir = new File(supportRoot, "room/runtime")
+
+include ':room:compiler'
+project(':room:compiler').projectDir = new File(supportRoot, "room/compiler")
+
+include ':room:migration'
+project(':room:migration').projectDir = new File(supportRoot, "room/migration")
+
+include ':room:db'
+project(':room:db').projectDir = new File(supportRoot, "room/db")
+
+include ":room:db-impl"
+project(':room:db-impl').projectDir = new File(supportRoot, "room/db-impl")
+
+include ":room:testing"
+project(':room:testing').projectDir = new File(supportRoot, "room/testing")
+
+include ":room:rxjava2"
+project(':room:rxjava2').projectDir = new File(supportRoot, "room/rxjava2")
+
+include ':room:integration-tests:testapp'
+project(':room:integration-tests:testapp').projectDir = new File(supportRoot, "room/integration-tests/testapp")
+
+include ':room:integration-tests:kotlintestapp'
+project(':room:integration-tests:kotlintestapp').projectDir = new File(supportRoot, "room/integration-tests/kotlintestapp")
+
+/////////////////////////////
+//
+// SupportLib
+//
+/////////////////////////////
+if (inAppToolkitProject && System.getenv("USE_SUPPORT_LIB_SOURCE")) {
+    apply from: "${supportRoot.absolutePath}/app-toolkit/settings_support_lib.gradle"
+}
+
+/////////////////////////////
+//
+// External
+//
+/////////////////////////////
+if (inAppToolkitProject) {
+    File externalRoot = new File(supportRoot, '../../external')
+
+    include ':doclava'
+    project(':doclava').projectDir = new File(externalRoot, 'doclava')
+
+    include ':jdiff'
+    project(':jdiff').projectDir = new File(externalRoot, 'jdiff')
+}

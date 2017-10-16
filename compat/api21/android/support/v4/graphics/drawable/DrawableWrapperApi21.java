@@ -16,6 +16,8 @@
 
 package android.support.v4.graphics.drawable;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Outline;
@@ -25,20 +27,29 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.RestrictTo;
+import android.util.Log;
+
+import java.lang.reflect.Method;
 
 @RequiresApi(21)
 class DrawableWrapperApi21 extends DrawableWrapperApi19 {
+    private static final String TAG = "DrawableWrapperApi21";
+    private static Method sIsProjectedDrawableMethod;
 
     DrawableWrapperApi21(Drawable drawable) {
         super(drawable);
+        findAndCacheIsProjectedDrawableMethod();
     }
 
     DrawableWrapperApi21(DrawableWrapperState state, Resources resources) {
         super(state, resources);
+        findAndCacheIsProjectedDrawableMethod();
     }
 
     @Override
@@ -103,9 +114,27 @@ class DrawableWrapperApi21 extends DrawableWrapperApi19 {
     protected boolean isCompatTintEnabled() {
         if (Build.VERSION.SDK_INT == 21) {
             final Drawable drawable = mDrawable;
-            return drawable instanceof GradientDrawable || drawable instanceof DrawableContainer
-                    || drawable instanceof InsetDrawable;
+            return drawable instanceof GradientDrawable
+                    || drawable instanceof DrawableContainer
+                    || drawable instanceof InsetDrawable
+                    || drawable instanceof RippleDrawable;
         }
+        return false;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean isProjected() {
+        if (mDrawable != null && sIsProjectedDrawableMethod != null) {
+            try {
+                return (Boolean) sIsProjectedDrawableMethod.invoke(mDrawable);
+            } catch (Exception ex) {
+                Log.w(TAG, "Error calling Drawable#isProjected() method", ex);
+            }
+        }
+
         return false;
     }
 
@@ -124,6 +153,16 @@ class DrawableWrapperApi21 extends DrawableWrapperApi19 {
         @Override
         public Drawable newDrawable(@Nullable Resources res) {
             return new DrawableWrapperApi21(this, res);
+        }
+    }
+
+    private void findAndCacheIsProjectedDrawableMethod() {
+        if (sIsProjectedDrawableMethod == null) {
+            try {
+                sIsProjectedDrawableMethod = Drawable.class.getDeclaredMethod("isProjected");
+            } catch (Exception ex) {
+                Log.w(TAG, "Failed to retrieve Drawable#isProjected() method", ex);
+            }
         }
     }
 }

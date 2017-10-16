@@ -144,6 +144,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
     boolean mViewsCreated;
     private int mAlignedTop = ALIGN_TOP_NOT_SET;
     boolean mAfterEntranceTransition = true;
+    boolean mFreezeRows;
 
     BaseOnItemViewSelectedListener mOnItemViewSelectedListener;
     BaseOnItemViewClickedListener mOnItemViewClickedListener;
@@ -370,6 +371,10 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
             RowPresenter rowPresenter = (RowPresenter) vh.getPresenter();
             RowPresenter.ViewHolder rowVh = rowPresenter.getRowViewHolder(vh.getViewHolder());
             rowPresenter.setEntranceTransitionState(rowVh, mAfterEntranceTransition);
+
+            // freeze the rows attached after RowsSupportFragment#freezeRows() is called
+            rowPresenter.freeze(rowVh, mFreezeRows);
+
             if (mExternalAdapterListener != null) {
                 mExternalAdapterListener.onAttachedToWindow(vh);
             }
@@ -453,6 +458,7 @@ public class RowsSupportFragment extends BaseRowSupportFragment implements
     }
 
     private void freezeRows(boolean freeze) {
+        mFreezeRows = freeze;
         VerticalGridView verticalView = getVerticalGridView();
         if (verticalView != null) {
             final int count = verticalView.getChildCount();

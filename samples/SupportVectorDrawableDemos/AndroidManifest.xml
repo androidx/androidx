@@ -16,9 +16,6 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.support.vectordrawable" >
-
-    <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="23"/>
-
     <application android:icon="@drawable/app_sample_code" android:label="SupportVectorDrawableDemos" >
         <activity android:name="com.example.android.support.vectordrawable.app.SupportVectorDrawableDemos">
             <intent-filter>

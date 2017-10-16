@@ -196,6 +196,9 @@ public class CardView extends FrameLayout {
                     widthMeasureSpec = MeasureSpec.makeMeasureSpec(Math.max(minWidth,
                             MeasureSpec.getSize(widthMeasureSpec)), widthMode);
                     break;
+                case MeasureSpec.UNSPECIFIED:
+                    // Do nothing
+                    break;
             }
 
             final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -205,6 +208,9 @@ public class CardView extends FrameLayout {
                     final int minHeight = (int) Math.ceil(IMPL.getMinHeight(mCardViewDelegate));
                     heightMeasureSpec = MeasureSpec.makeMeasureSpec(Math.max(minHeight,
                             MeasureSpec.getSize(heightMeasureSpec)), heightMode);
+                    break;
+                case MeasureSpec.UNSPECIFIED:
+                    // Do nothing
                     break;
             }
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);

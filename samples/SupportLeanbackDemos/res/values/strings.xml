@@ -79,6 +79,8 @@
     <string name="onboarding">Onboarding</string>
     <string name="onboarding_description">Show onboarding activity.</string>
     <string name="onboarding_support">Onboarding(support version)</string>
+    <string name="video_play_with_detail_card">A video play activity with detail card</string>
+    <string name="video_play_with_detail_card_description">A video play activity with detail card</string>
 
     <!-- Strings related to guided sequence activity -->
     <string name="guidedstep_first_title">First</string>

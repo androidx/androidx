@@ -15,15 +15,10 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
           package="android.support.animation.test">
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="23"/>
     <application android:supportsRtl="true">
-        <uses-library android:name="android.test.runner"/>
-
         <activity android:name="android.support.dynamicanimation.tests.AnimationActivity"/>
     </application>
 </manifest>

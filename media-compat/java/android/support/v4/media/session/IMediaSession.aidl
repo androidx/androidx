@@ -80,6 +80,7 @@ interface IMediaSession {
     void rewind() = 22;
     void seekTo(long pos) = 23;
     void rate(in RatingCompat rating) = 24;
+    void rateWithExtras(in RatingCompat rating, in Bundle extras) = 50;
     void setCaptioningEnabled(boolean enabled) = 45;
     void setRepeatMode(int repeatMode) = 38;
     void setShuffleModeEnabledDeprecated(boolean shuffleMode) = 39;

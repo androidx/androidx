@@ -15,8 +15,6 @@
  */
 package android.support.v7.media;
 
-import static android.support.v4.utils.ObjectUtils.objectEquals;
-
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,6 +22,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.util.ObjectsCompat;
 import android.util.Log;
 
 /**
@@ -204,7 +203,7 @@ public class RemotePlaybackClient {
      * @param sessionId The new session id, or null if none.
      */
     public void setSessionId(String sessionId) {
-        if (!objectEquals(mSessionId, sessionId)) {
+        if (!ObjectsCompat.equals(mSessionId, sessionId)) {
             if (DEBUG) {
                 Log.d(TAG, "Session id is now: " + sessionId);
             }

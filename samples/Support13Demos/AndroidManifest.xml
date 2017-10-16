@@ -24,8 +24,6 @@
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <uses-sdk android:minSdkVersion="14" />
-
     <!-- The smallest screen this app works on is a phone.  The app will
          scale its UI to larger screens but doesn't make good use of them
          so allow the compatibility mode button to be shown (mostly because

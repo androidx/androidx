@@ -39,12 +39,11 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
- * Helper for accessing features in {@link android.graphics.drawable.Drawable}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link android.graphics.drawable.Drawable}.
  */
 public final class DrawableCompat {
     /**
-     * Interface implementation that doesn't use anything about v4 APIs.
+     * Interface implementation that doesn't use anything about platform-specific APIs.
      */
     static class DrawableCompatBaseImpl {
         public void jumpToCurrentState(Drawable drawable) {

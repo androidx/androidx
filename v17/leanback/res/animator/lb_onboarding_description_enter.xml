@@ -21,13 +21,11 @@
         android:valueFrom="0.0"
         android:valueTo="1.0"
         android:duration="533"
-        android:startOffset="@integer/lb_onboarding_header_description_delay"
-        android:interpolator="@android:interpolator/fast_out_slow_in" />
+        android:startOffset="@integer/lb_onboarding_header_description_delay" />
     <objectAnimator
         android:propertyName="translationY"
         android:valueFrom="60dp"
         android:valueTo="0dp"
         android:duration="533"
-        android:startOffset="@integer/lb_onboarding_header_description_delay"
-        android:interpolator="@android:interpolator/fast_out_slow_in" />
+        android:startOffset="@integer/lb_onboarding_header_description_delay" />
 </set>

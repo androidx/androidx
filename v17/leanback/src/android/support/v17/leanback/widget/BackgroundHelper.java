@@ -19,6 +19,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.view.View;
 
@@ -47,6 +48,7 @@ public final class BackgroundHelper {
         }
     }
 
+    @RequiresApi(19)
     private static final class BackgroundHelperKitkatImpl implements BackgroundHelperVersionImpl {
         BackgroundHelperKitkatImpl() {
         }

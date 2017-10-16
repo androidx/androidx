@@ -16,13 +16,14 @@
 
 package android.support.v7.app;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Window;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -46,12 +47,12 @@ public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarA
         Toolbar toolbar = mActivityTestRule.getActivity().getToolbar();
         assertFalse(toolbar.isOverflowMenuShowing());
 
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        getInstrumentation().waitForIdleSync();
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertTrue(toolbar.isOverflowMenuShowing());
 
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        getInstrumentation().waitForIdleSync();
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertFalse(toolbar.isOverflowMenuShowing());
     }
 
@@ -70,7 +71,7 @@ public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarA
                 mActivityTestRule.getActivity().openOptionsMenu();
             }
         });
-        getInstrumentation().waitForIdleSync();
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertTrue(toolbar.isOverflowMenuShowing());
 
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -79,7 +80,7 @@ public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarA
                 mActivityTestRule.getActivity().closeOptionsMenu();
             }
         });
-        getInstrumentation().waitForIdleSync();
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         assertFalse(toolbar.isOverflowMenuShowing());
     }
 }

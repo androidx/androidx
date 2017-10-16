@@ -35,7 +35,7 @@ class LeanbackTransitionHelperKitKat {
         SlideKitkat slide = new SlideKitkat();
         slide.setSlideEdge(Gravity.TOP);
         slide.setInterpolator(AnimationUtils.loadInterpolator(context,
-                R.animator.lb_decelerator_4));
+                R.anim.lb_decelerator_4));
         slide.addTarget(R.id.browse_title_group);
         return slide;
     }

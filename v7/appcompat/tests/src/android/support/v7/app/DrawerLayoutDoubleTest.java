@@ -28,6 +28,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.appcompat.test.R;
@@ -35,10 +37,16 @@ import android.support.v7.custom.CustomDrawerLayout;
 import android.view.View;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class DrawerLayoutDoubleTest
-        extends BaseInstrumentationTestCase<DrawerLayoutDoubleActivity> {
+@RunWith(AndroidJUnit4.class)
+public class DrawerLayoutDoubleTest {
+    @Rule
+    public final ActivityTestRule<DrawerLayoutDoubleActivity> mActivityTestRule =
+            new ActivityTestRule<>(DrawerLayoutDoubleActivity.class);
+
     private CustomDrawerLayout mDrawerLayout;
 
     private View mStartDrawer;
@@ -46,10 +54,6 @@ public class DrawerLayoutDoubleTest
     private View mEndDrawer;
 
     private View mContentView;
-
-    public DrawerLayoutDoubleTest() {
-        super(DrawerLayoutDoubleActivity.class);
-    }
 
     @Before
     public void setUp() {

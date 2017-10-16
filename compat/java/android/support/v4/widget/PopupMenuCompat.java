@@ -21,7 +21,7 @@ import android.view.View.OnTouchListener;
 import android.widget.PopupMenu;
 
 /**
- * Helper for accessing features in {@link PopupMenu} in a backwards compatible fashion.
+ * Helper for accessing features in {@link PopupMenu}.
  */
 public final class PopupMenuCompat {
     private PopupMenuCompat() {

@@ -30,8 +30,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Instrumentation;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
@@ -41,15 +45,29 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
-        extends BaseInstrumentationTestCase<A> {
+@RunWith(AndroidJUnit4.class)
+public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
+    @Rule
+    public final ActivityTestRule<A> mActivityTestRule;
+
+    private Instrumentation mInstrumentation;
+    private A mActivity;
 
     protected BaseKeyEventsTestCase(Class<A> activityClass) {
-        super(activityClass);
+        mActivityTestRule = new ActivityTestRule<>(activityClass);
+    }
+
+    @Before
+    public void setup() {
+        mInstrumentation = InstrumentationRegistry.getInstrumentation();
+        mActivity = mActivityTestRule.getActivity();
     }
 
     @Test
@@ -57,10 +75,10 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     public void testBackDismissesActionMode() {
         final AtomicBoolean destroyed = new AtomicBoolean();
 
-        getActivity().runOnUiThread(new Runnable() {
+        mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getActivity().startSupportActionMode(new ActionMode.Callback() {
+                mActivity.startSupportActionMode(new ActionMode.Callback() {
                     @Override
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                         mode.getMenuInflater().inflate(R.menu.sample_actions, menu);
@@ -85,11 +103,11 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
             }
         });
 
-        getInstrumentation().waitForIdleSync();
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.waitForIdleSync();
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        mInstrumentation.waitForIdleSync();
 
-        assertFalse("Activity was not finished", getActivity().isFinishing());
+        assertFalse("Activity was not finished", mActivity.isFinishing());
         assertTrue("ActionMode was destroyed", destroyed.get());
     }
 
@@ -103,14 +121,14 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
                 .check(matches(isDisplayed()));
 
         // Let things settle
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.waitForIdleSync();
         // Now send a back event to collapse the custom action view
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        mInstrumentation.waitForIdleSync();
 
         // Check that the Activity is still running
-        assertFalse(getActivity().isFinishing());
-        assertFalse(getActivity().isDestroyed());
+        assertFalse(mActivity.isFinishing());
+        assertFalse(mActivity.isDestroyed());
         // ... and that our action view is not attached
         onView(withClassName(Matchers.is(CustomCollapsibleView.class.getName())))
                 .check(doesNotExist());
@@ -119,24 +137,24 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     @Test
     @SmallTest
     public void testMenuPressInvokesPanelCallbacks() throws InterruptedException {
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        getInstrumentation().waitForIdleSync();
-        assertTrue("onMenuOpened called", getActivity().wasOnMenuOpenedCalled());
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        mInstrumentation.waitForIdleSync();
+        assertTrue("onMenuOpened called", mActivity.wasOnMenuOpenedCalled());
 
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        getInstrumentation().waitForIdleSync();
-        assertTrue("onPanelClosed called", getActivity().wasOnPanelClosedCalled());
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        mInstrumentation.waitForIdleSync();
+        assertTrue("onPanelClosed called", mActivity.wasOnPanelClosedCalled());
     }
 
     @Test
     @SmallTest
     public void testBackPressWithMenuInvokesOnPanelClosed() throws InterruptedException {
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        mInstrumentation.waitForIdleSync();
 
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        getInstrumentation().waitForIdleSync();
-        assertTrue("onPanelClosed called", getActivity().wasOnPanelClosedCalled());
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        mInstrumentation.waitForIdleSync();
+        assertTrue("onPanelClosed called", mActivity.wasOnPanelClosedCalled());
     }
 
     @Test
@@ -144,25 +162,25 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     public void testBackPressWithEmptyMenuFinishesActivity() throws InterruptedException {
         repopulateWithEmptyMenu();
 
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        mInstrumentation.waitForIdleSync();
 
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        assertTrue(getActivity().isFinishing());
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        assertTrue(mActivity.isFinishing());
     }
 
     @Test
     @SmallTest
     public void testDelKeyEventReachesActivity() {
         // First send the event
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
+        mInstrumentation.waitForIdleSync();
 
-        KeyEvent downEvent = getActivity().getInvokedKeyDownEvent();
+        KeyEvent downEvent = mActivity.getInvokedKeyDownEvent();
         assertNotNull("onKeyDown called", downEvent);
         assertEquals("onKeyDown event matches", KeyEvent.KEYCODE_DEL, downEvent.getKeyCode());
 
-        KeyEvent upEvent = getActivity().getInvokedKeyUpEvent();
+        KeyEvent upEvent = mActivity.getInvokedKeyUpEvent();
         assertNotNull("onKeyUp called", upEvent);
         assertEquals("onKeyUp event matches", KeyEvent.KEYCODE_DEL, upEvent.getKeyCode());
     }
@@ -170,14 +188,14 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
     @Test
     @SmallTest
     public void testMenuKeyEventReachesActivity() throws InterruptedException {
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-        getInstrumentation().waitForIdleSync();
+        mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
+        mInstrumentation.waitForIdleSync();
 
-        KeyEvent downEvent = getActivity().getInvokedKeyDownEvent();
+        KeyEvent downEvent = mActivity.getInvokedKeyDownEvent();
         assertNotNull("onKeyDown called", downEvent);
         assertEquals("onKeyDown event matches", KeyEvent.KEYCODE_MENU, downEvent.getKeyCode());
 
-        KeyEvent upEvent = getActivity().getInvokedKeyUpEvent();
+        KeyEvent upEvent = mActivity.getInvokedKeyUpEvent();
         assertNotNull("onKeyUp called", upEvent);
         assertEquals("onKeyDown event matches", KeyEvent.KEYCODE_MENU, upEvent.getKeyCode());
     }
@@ -193,7 +211,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
                 .check(matches(isDisplayed()))
                 .check(matches(withContentDescription((String) null)));
 
-        Menu menu = getActivity().getMenu();
+        Menu menu = mActivity.getMenu();
         final MenuItem alphaItem = menu.findItem(R.id.action_alpha_shortcut);
         assertNotNull(alphaItem);
 
@@ -201,9 +219,9 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
             @Override
             public void run() {
                 MenuItemCompat.setContentDescription(alphaItem,
-                        getActivity().getString(R.string.alpha_menu_description));
+                        mActivity.getString(R.string.alpha_menu_description));
                 MenuItemCompat.setTooltipText(alphaItem,
-                        getActivity().getString(R.string.alpha_menu_tooltip));
+                        mActivity.getString(R.string.alpha_menu_tooltip));
             }
         });
 
@@ -214,9 +232,9 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity>
 
     private void repopulateWithEmptyMenu() throws InterruptedException {
         int count = 0;
-        getActivity().setShouldPopulateOptionsMenu(false);
+        mActivity.setShouldPopulateOptionsMenu(false);
         while (count++ < 10) {
-            Menu menu = getActivity().getMenu();
+            Menu menu = mActivity.getMenu();
             if (menu == null || menu.size() != 0) {
                 Thread.sleep(100);
             } else {

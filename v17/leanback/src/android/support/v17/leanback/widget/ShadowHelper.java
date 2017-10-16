@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 
 
@@ -64,6 +65,7 @@ final class ShadowHelper {
     /**
      * Implementation used on api 21 (and above).
      */
+    @RequiresApi(21)
     private static final class ShadowHelperApi21Impl implements ShadowHelperVersionImpl {
         ShadowHelperApi21Impl() {
         }

@@ -15,6 +15,7 @@
  */
 package android.support.v7.widget;
 
+import android.support.v7.appcompat.test.R;
 import android.support.v7.testutils.BaseTestActivity;
 
 /**
@@ -24,6 +25,6 @@ import android.support.v7.testutils.BaseTestActivity;
 public class AppCompatTextViewAutoSizeActivity extends BaseTestActivity {
     @Override
     protected int getContentViewLayoutResId() {
-        return android.support.v7.appcompat.test.R.layout.appcompat_textview_autosize_activity;
+        return R.layout.appcompat_textview_autosize_activity;
     }
 }

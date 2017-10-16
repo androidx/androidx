@@ -44,7 +44,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -135,7 +134,7 @@ public class DragStartHelperTest {
                 action, buttonState, anchor, offsetX, offsetY));
     }
 
-    static class TouchPositionMatcher extends ArgumentMatcher<Point> {
+    static class TouchPositionMatcher implements ArgumentMatcher<Point> {
 
         private final Point mExpectedPosition;
 
@@ -148,13 +147,13 @@ public class DragStartHelperTest {
         }
 
         @Override
-        public boolean matches(Object actual) {
+        public boolean matches(Point actual) {
             return mExpectedPosition.equals(actual);
         }
 
         @Override
-        public void describeTo(Description description) {
-            description.appendText("TouchPositionMatcher: " + mExpectedPosition);
+        public String toString() {
+            return "TouchPositionMatcher: " + mExpectedPosition;
         }
     }
 

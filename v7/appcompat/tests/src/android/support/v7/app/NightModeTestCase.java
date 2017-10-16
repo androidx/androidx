@@ -28,22 +28,27 @@ import static org.junit.Assert.assertFalse;
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.SdkSuppress;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.test.R;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 14)
-public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActivity> {
+@RunWith(AndroidJUnit4.class)
+public class NightModeTestCase {
+    @Rule
+    public final ActivityTestRule<NightModeActivity> mActivityTestRule;
 
     private static final String STRING_DAY = "DAY";
     private static final String STRING_NIGHT = "NIGHT";
 
     public NightModeTestCase() {
-        super(NightModeActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(NightModeActivity.class);
     }
 
     @Before
@@ -116,7 +121,7 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
         });
 
         // Now wait for the recreate
-        getInstrumentation().waitForIdleSync();
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         // Now check that the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
@@ -128,7 +133,7 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
         final FakeTwilightManager twilightManager = new FakeTwilightManager();
         TwilightManager.setInstance(twilightManager);
 
-        final NightModeActivity activity = getActivity();
+        final NightModeActivity activity = mActivityTestRule.getActivity();
 
         // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
         setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
@@ -138,7 +143,8 @@ public class NightModeTestCase extends BaseInstrumentationTestCase<NightModeActi
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final Instrumentation instrumentation = getInstrumentation();
+                final Instrumentation instrumentation =
+                        InstrumentationRegistry.getInstrumentation();
                 // Now fool the Activity into thinking that it has gone into the background
                 instrumentation.callActivityOnPause(activity);
                 instrumentation.callActivityOnStop(activity);

@@ -23,7 +23,7 @@ import android.support.annotation.RestrictTo;
 import java.util.Locale;
 
 /**
- * Helper to deal with new {@link Locale} APIs in a backwards compatible fashion.
+ * Helper to deal with new {@link Locale} APIs.
  *
  * @hide
  */
@@ -62,7 +62,7 @@ final class LocaleHelper {
         StringBuilder buf = new StringBuilder();
         buf.append(locale.getLanguage());
         final String country = locale.getCountry();
-        if (country != null && !country.equals("")) {
+        if (country != null && !country.isEmpty()) {
             buf.append("-");
             buf.append(locale.getCountry());
         }

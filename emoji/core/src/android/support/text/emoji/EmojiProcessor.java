@@ -56,7 +56,7 @@ final class EmojiProcessor {
      */
     @IntDef({ACTION_ADVANCE_BOTH, ACTION_ADVANCE_END, ACTION_FLUSH})
     @Retention(RetentionPolicy.SOURCE)
-    @interface Action {
+    private @interface Action {
     }
 
     /**
@@ -74,12 +74,6 @@ final class EmojiProcessor {
      * pointer in CharSequence and reset the start to be the end.
      */
     private static final int ACTION_FLUSH = 3;
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
 
     /**
      * Factory used to create EmojiSpans.
@@ -190,7 +184,7 @@ final class EmojiProcessor {
 
             // calculate max number of emojis that can be added. since getSpans call is a relatively
             // expensive operation, do it only when maxEmojiCount is not unlimited.
-            if (maxEmojiCount != EMOJI_COUNT_UNLIMITED && spannable != null) {
+            if (maxEmojiCount != EmojiCompat.EMOJI_COUNT_UNLIMITED && spannable != null) {
                 maxEmojiCount -= spannable.getSpans(0, spannable.length(), EmojiSpan.class).length;
             }
             // add new ones
@@ -344,6 +338,7 @@ final class EmojiProcessor {
     static boolean handleDeleteSurroundingText(@NonNull final InputConnection inputConnection,
             @NonNull final Editable editable, @IntRange(from = 0) final int beforeLength,
             @IntRange(from = 0) final int afterLength, final boolean inCodePoints) {
+        //noinspection ConstantConditions
         if (editable == null || inputConnection == null) {
             return false;
         }

@@ -54,7 +54,7 @@
                     android:id="@+id/lb_search_text_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|end"
+                    android:layout_gravity="center_vertical|start"
                     android:layout_marginStart="@dimen/lb_search_bar_edit_text_margin_start"
                     android:layout_centerVertical="true"
                     android:cursorVisible="true"

@@ -35,6 +35,8 @@ init.setupRepoOutAndBuildNumber()
 
 init.configureSubProjects()
 
+init.configureBuildOnServer()
+
 init.setupRelease()
 
 init.enableDoclavaAndJDiff(this)

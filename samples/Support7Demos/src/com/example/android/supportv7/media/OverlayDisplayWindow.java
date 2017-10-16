@@ -126,8 +126,15 @@ public abstract class OverlayDisplayWindow {
 
                 Display display = mWindowManager.getDefaultDisplay();
 
-                WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                        WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                WindowManager.LayoutParams params;
+                if (Build.VERSION.SDK_INT >= 26) {
+                    // TYPE_SYSTEM_ALERT is deprecated in android O.
+                    params = new WindowManager.LayoutParams(
+                            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+                } else {
+                    params = new WindowManager.LayoutParams(
+                            WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                }
                 params.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                         | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -298,8 +305,14 @@ public abstract class OverlayDisplayWindow {
                     R.id.overlay_display_window_title);
             mNameTextView.setText(mName);
 
-            mWindowParams = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+            if (Build.VERSION.SDK_INT >= 26) {
+                // TYPE_SYSTEM_ALERT is deprecated in android O.
+                mWindowParams = new WindowManager.LayoutParams(
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+            } else {
+                mWindowParams = new WindowManager.LayoutParams(
+                        WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+            }
             mWindowParams.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                     | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
                     | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE

@@ -19,6 +19,7 @@ package android.support.v7.view.menu;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -28,7 +29,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v4.internal.view.SupportMenu;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.appcompat.R;
@@ -406,7 +406,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
 
             final int parentOffsetLeft;
             final int parentOffsetTop;
-            if (BuildCompat.isAtLeastO()) {
+            if (Build.VERSION.SDK_INT >= 26) {
                 // Anchor the submenu directly to the parent menu item view. This allows for
                 // accurate submenu positioning when the parent menu is being moved.
                 popupWindow.setAnchorView(parentView);

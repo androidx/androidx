@@ -32,6 +32,7 @@ import android.support.media.tv.TvContractCompat.Programs.Genres.Genre;
 /**
  * Base class for derived classes that want to have common fields for programs defined in
  * {@link TvContractCompat}.
+ * @hide
  */
 public abstract class BaseProgram {
     /**

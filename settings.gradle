@@ -94,9 +94,6 @@ project(':support-wear').projectDir = new File(rootDir, 'wear')
 include ':support-tv-provider'
 project(':support-tv-provider').projectDir = new File(rootDir, 'tv-provider')
 
-include ':support-instantvideo'
-project(':support-instantvideo').projectDir = new File(rootDir, 'instantvideo')
-
 include ':support-emoji'
 project(':support-emoji').projectDir = new File(rootDir, 'emoji/core')
 

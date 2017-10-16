@@ -143,54 +143,55 @@ public class CircledImageView extends View {
             mDrawable = mDrawable.mutate();
         }
 
-        mCircleColor = a.getColorStateList(R.styleable.CircledImageView_circle_color);
+        mCircleColor = a.getColorStateList(R.styleable.CircledImageView_background_color);
         if (mCircleColor == null) {
             mCircleColor = ColorStateList.valueOf(android.R.color.darker_gray);
         }
 
-        mCircleRadius = a.getDimension(R.styleable.CircledImageView_circle_radius, 0);
+        mCircleRadius = a.getDimension(R.styleable.CircledImageView_background_radius, 0);
         mInitialCircleRadius = mCircleRadius;
-        mCircleRadiusPressed =
-                a.getDimension(R.styleable.CircledImageView_circle_radius_pressed, mCircleRadius);
+        mCircleRadiusPressed = a.getDimension(
+                R.styleable.CircledImageView_background_radius_pressed, mCircleRadius);
         mCircleBorderColor = a
-                .getColor(R.styleable.CircledImageView_circle_border_color, Color.BLACK);
+                .getColor(R.styleable.CircledImageView_background_border_color, Color.BLACK);
         mCircleBorderCap =
-                Paint.Cap.values()[a.getInt(R.styleable.CircledImageView_circle_border_cap, 0)];
-        mCircleBorderWidth = a.getDimension(R.styleable.CircledImageView_circle_border_width, 0);
+                Paint.Cap.values()[a.getInt(R.styleable.CircledImageView_background_border_cap, 0)];
+        mCircleBorderWidth = a.getDimension(
+                R.styleable.CircledImageView_background_border_width, 0);
 
         if (mCircleBorderWidth > 0) {
             // The border arc is drawn from the middle of the arc - take that into account.
             mRadiusInset += mCircleBorderWidth / 2;
         }
 
-        float circlePadding = a.getDimension(R.styleable.CircledImageView_circle_padding, 0);
+        float circlePadding = a.getDimension(R.styleable.CircledImageView_img_padding, 0);
         if (circlePadding > 0) {
             mRadiusInset += circlePadding;
         }
 
         mImageCirclePercentage = a
-                .getFloat(R.styleable.CircledImageView_image_circle_percentage, 0f);
+                .getFloat(R.styleable.CircledImageView_img_circle_percentage, 0f);
 
         mImageHorizontalOffcenterPercentage =
-                a.getFloat(R.styleable.CircledImageView_image_horizontal_offcenter_percentage, 0f);
+                a.getFloat(R.styleable.CircledImageView_img_horizontal_offset_percentage, 0f);
 
-        if (a.hasValue(R.styleable.CircledImageView_image_tint)) {
-            mImageTint = a.getColor(R.styleable.CircledImageView_image_tint, 0);
+        if (a.hasValue(R.styleable.CircledImageView_img_tint)) {
+            mImageTint = a.getColor(R.styleable.CircledImageView_img_tint, 0);
         }
 
-        if (a.hasValue(R.styleable.CircledImageView_square_dimen)) {
-            mSquareDimen = a.getInt(R.styleable.CircledImageView_square_dimen, SQUARE_DIMEN_NONE);
+        if (a.hasValue(R.styleable.CircledImageView_clip_dimen)) {
+            mSquareDimen = a.getInt(R.styleable.CircledImageView_clip_dimen, SQUARE_DIMEN_NONE);
         }
 
         mCircleRadiusPercent =
-                a.getFraction(R.styleable.CircledImageView_circle_radius_percent, 1, 1, 0f);
+                a.getFraction(R.styleable.CircledImageView_background_radius_percent, 1, 1, 0f);
 
         mCircleRadiusPressedPercent =
                 a.getFraction(
-                        R.styleable.CircledImageView_circle_radius_pressed_percent, 1, 1,
+                        R.styleable.CircledImageView_background_radius_pressed_percent, 1, 1,
                         mCircleRadiusPercent);
 
-        float shadowWidth = a.getDimension(R.styleable.CircledImageView_shadow_width, 0);
+        float shadowWidth = a.getDimension(R.styleable.CircledImageView_background_shadow_width, 0);
 
         a.recycle();
 

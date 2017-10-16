@@ -69,7 +69,10 @@ public class DetailsPresenterSelectionActivity extends Activity {
                 .build());
     }
 
-    private static class SetupFragment extends GuidedStepFragment {
+    /**
+     * Fragment hosted in DetailsPresenterSelectionActivity.
+     */
+    public static class SetupFragment extends GuidedStepFragment {
 
         @Override
         public Guidance onCreateGuidance(Bundle savedInstanceState) {

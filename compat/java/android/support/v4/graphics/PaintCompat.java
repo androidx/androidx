@@ -21,7 +21,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 
 /**
- * Helper for accessing features in {@link Paint} in a backwards compatible fashion.
+ * Helper for accessing features in {@link Paint}.
  */
 public final class PaintCompat {
 

@@ -17,7 +17,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-wear')
+    implementation project(':support-wear')
 }
 
 android {
@@ -45,6 +45,7 @@ android {
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
+        check 'NewApi'
     }
 
     compileOptions {

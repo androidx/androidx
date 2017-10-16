@@ -22,7 +22,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityRecord;
 
 /**
- * Helper for accessing features in {@link AccessibilityEvent} in a backwards compatible fashion.
+ * Helper for accessing features in {@link AccessibilityEvent}.
  */
 public final class AccessibilityEventCompat {
 

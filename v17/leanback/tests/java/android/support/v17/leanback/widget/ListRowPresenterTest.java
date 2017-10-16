@@ -47,12 +47,24 @@ public class ListRowPresenterTest {
     static int sFocusedZ;
 
     static class DummyPresenter extends Presenter {
+        int mWidth;
+        int mHeight;
+
+        DummyPresenter() {
+            this(100, 100);
+        }
+
+        DummyPresenter(int width, int height) {
+            mWidth = width;
+            mHeight = height;
+        }
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent) {
             View view = new View(parent.getContext());
             view.setFocusable(true);
             view.setId(R.id.lb_action_button);
-            view.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
+            view.setLayoutParams(new ViewGroup.LayoutParams(mWidth, mHeight));
             return new Presenter.ViewHolder(view);
         }
 
@@ -130,6 +142,32 @@ public class ListRowPresenterTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void measureWithScrapViewHeight() {
+        final ArrayObjectAdapter arrayAdapter = new ArrayObjectAdapter(
+                new DummyPresenter(100, 213));
+        arrayAdapter.add("abc");
+        mListRowPresenter = new ListRowPresenter();
+        mRow = new ListRow(arrayAdapter);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                final ViewGroup parent = new FrameLayout(mContext);
+                Presenter.ViewHolder containerVh = mListRowPresenter.onCreateViewHolder(parent);
+                parent.addView(containerVh.view, 1000, ViewGroup.LayoutParams.WRAP_CONTENT);
+                mListVh = (ListRowPresenter.ViewHolder) mListRowPresenter.getRowViewHolder(
+                        containerVh);
+                mListRowPresenter.onBindViewHolder(mListVh, mRow);
+                mListVh.view.measure(
+                        View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.AT_MOST),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            }
+        });
+        // measure hight should equals item height plus top and bottom paddings
+        assertEquals(213 + mListVh.view.getPaddingTop() + mListVh.view.getPaddingBottom(),
+                mListVh.view.getMeasuredHeight());
     }
 
     public void defaultListRowOverlayColor(ListRowPresenter listRowPresenter) {

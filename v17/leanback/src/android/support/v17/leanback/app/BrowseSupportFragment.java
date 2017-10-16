@@ -1029,7 +1029,8 @@ public class BrowseSupportFragment extends BaseSupportFragment {
                         ? mHeadersSupportFragment.getVerticalGridView() : mMainFragment.getView();
             }
 
-            boolean isRtl = ViewCompat.getLayoutDirection(focused) == View.LAYOUT_DIRECTION_RTL;
+            boolean isRtl = ViewCompat.getLayoutDirection(focused)
+                    == ViewCompat.LAYOUT_DIRECTION_RTL;
             int towardStart = isRtl ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
             int towardEnd = isRtl ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
             if (mCanShowHeaders && direction == towardStart) {

@@ -2,19 +2,18 @@ apply plugin: android.support.SupportLibraryPlugin
 archivesBaseName = 'support-media-compat'
 
 dependencies {
-    compile project(':support-annotations')
-    compile project(':support-compat')
+    api project(':support-annotations')
+    api project(':support-compat')
 
-    androidTestCompile(libs.test_runner) {
+    androidTestImplementation(libs.test_runner) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile(libs.espresso_core) {
+    androidTestImplementation(libs.espresso_core) {
         exclude module: 'support-annotations'
     }
-    androidTestCompile(libs.mockito_core)
-    androidTestCompile(libs.dexmaker)
-    androidTestCompile(libs.dexmaker_mockito)
-    androidTestCompile project(':support-testutils')
+    androidTestImplementation libs.mockito_core
+    androidTestImplementation libs.dexmaker_mockito
+    androidTestImplementation project(':support-testutils')
 }
 
 android {
@@ -33,6 +32,7 @@ android {
                 'java'
         ]
         main.aidl.srcDirs = ['java']
+        main.res.srcDirs 'res', 'res-public'
     }
 
     buildTypes.all {

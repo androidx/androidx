@@ -22,7 +22,7 @@ import android.view.View.OnTouchListener;
 import android.widget.ListPopupWindow;
 
 /**
- * Helper for accessing features in {@link ListPopupWindow} in a backwards compatible fashion.
+ * Helper for accessing features in {@link ListPopupWindow}.
  */
 public final class ListPopupWindowCompat {
     private ListPopupWindowCompat() {

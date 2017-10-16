@@ -25,7 +25,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 
 /**
- * Abstract class that drawables supporting animations and callbacks should extend in support lib.
+ * Interface that drawables supporting animations and callbacks should extend in support lib.
  */
 public interface Animatable2Compat extends Animatable {
 
@@ -51,7 +51,7 @@ public interface Animatable2Compat extends Animatable {
     void clearAnimationCallbacks();
 
     /**
-     * Animation callback interface. Used to notify animation events.
+     * Abstract class for animation callback. Used to notify animation events.
      */
     abstract class AnimationCallback {
         /**

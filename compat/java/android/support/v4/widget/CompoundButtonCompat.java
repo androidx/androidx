@@ -16,13 +16,13 @@
 
 package android.support.v4.widget;
 
-import android.support.annotation.RequiresApi;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 import android.widget.CompoundButton;
@@ -30,8 +30,7 @@ import android.widget.CompoundButton;
 import java.lang.reflect.Field;
 
 /**
- * Helper for accessing {@link android.widget.CompoundButton} methods introduced after
- * API level 4 in a backwards compatible fashion.
+ * Helper for accessing {@link android.widget.CompoundButton}.
  */
 public final class CompoundButtonCompat {
 

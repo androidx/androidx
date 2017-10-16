@@ -17,6 +17,7 @@
 package android.support.v4.util;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -337,7 +338,7 @@ public class LruCache<K, V> {
     @Override public synchronized final String toString() {
         int accesses = hitCount + missCount;
         int hitPercent = accesses != 0 ? (100 * hitCount / accesses) : 0;
-        return String.format("LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]",
+        return String.format(Locale.US, "LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]",
                 maxSize, hitCount, missCount, hitPercent);
     }
 }

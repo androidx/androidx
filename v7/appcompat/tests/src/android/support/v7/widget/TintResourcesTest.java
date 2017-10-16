@@ -22,26 +22,31 @@ import static org.junit.Assert.assertTrue;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.support.test.filters.SmallTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.BaseInstrumentationTestCase;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 @SmallTest
-public class TintResourcesTest extends BaseInstrumentationTestCase<AppCompatActivity> {
-
-    public TintResourcesTest() {
-        super(AppCompatActivity.class);
-    }
+@RunWith(AndroidJUnit4.class)
+public class TintResourcesTest {
+    @Rule
+    public final ActivityTestRule<AppCompatActivity> mActivityTestRule =
+            new ActivityTestRule<>(AppCompatActivity.class);
 
     @Test
     public void testTintResourcesDelegateBackToOriginalResources() {
-        final TestResources testResources = new TestResources(getActivity().getResources());
+        final TestResources testResources =
+                new TestResources(mActivityTestRule.getActivity().getResources());
         // First make sure that the flag is false
         assertFalse(testResources.wasGetDrawableCalled());
 
         // Now wrap in a TintResources instance and get a Drawable
-        final Resources tintResources = new TintResources(getActivity(), testResources);
+        final Resources tintResources =
+                new TintResources(mActivityTestRule.getActivity(), testResources);
         tintResources.getDrawable(android.R.drawable.ic_delete);
 
         // ...and assert that the flag was flipped

@@ -21,9 +21,9 @@ ext {
 }
 
 dependencies {
-    compile project(':support-emoji')
-    compile project(':support-emoji-bundled')
-    compile project(':support-emoji-appcompat')
+    implementation project(':support-emoji')
+    implementation project(':support-emoji-bundled')
+    implementation project(':support-emoji-appcompat')
 }
 
 android {
@@ -31,6 +31,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
+        targetSdkVersion project.ext.currentSdk
     }
 
     sourceSets {
@@ -38,6 +39,11 @@ android {
         main.java.srcDirs = ['src']
         main.res.srcDirs = ['res']
         main.assets.srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
+    }
+
+    lintOptions {
+        abortOnError true
+        check 'NewApi'
     }
 
     signingConfigs {

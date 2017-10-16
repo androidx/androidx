@@ -15,20 +15,20 @@
 -->
 <resources>
 
-    <style name="PageIndicatorViewStyle">
-        <item name="pageIndicatorDotSpacing">7.8dp</item>
-        <item name="pageIndicatorDotRadius">2.1dp</item>
-        <item name="pageIndicatorDotRadiusSelected">3.1dp</item>
-        <item name="pageIndicatorDotColor">?android:attr/colorForeground</item>
-        <item name="pageIndicatorDotColorSelected">?android:attr/colorForeground</item>
-        <item name="pageIndicatorDotFadeOutDelay">1000</item>
-        <item name="pageIndicatorDotFadeOutDuration">250</item>
-        <item name="pageIndicatorDotFadeInDuration">100</item>
-        <item name="pageIndicatorDotFadeWhenIdle">true</item>
-        <item name="pageIndicatorDotShadowColor">#66000000</item>
-        <item name="pageIndicatorDotShadowRadius">1dp</item>
-        <item name="pageIndicatorDotShadowDx">0.5dp</item>
-        <item name="pageIndicatorDotShadowDy">0.5dp</item>
+    <style name="WsPageIndicatorViewStyle">
+        <item name="wsPageIndicatorDotSpacing">7.8dp</item>
+        <item name="wsPageIndicatorDotRadius">2.1dp</item>
+        <item name="wsPageIndicatorDotRadiusSelected">3.1dp</item>
+        <item name="wsPageIndicatorDotColor">?android:attr/colorForeground</item>
+        <item name="wsPageIndicatorDotColorSelected">?android:attr/colorForeground</item>
+        <item name="wsPageIndicatorDotFadeOutDelay">1000</item>
+        <item name="wsPageIndicatorDotFadeOutDuration">250</item>
+        <item name="wsPageIndicatorDotFadeInDuration">100</item>
+        <item name="wsPageIndicatorDotFadeWhenIdle">true</item>
+        <item name="wsPageIndicatorDotShadowColor">#66000000</item>
+        <item name="wsPageIndicatorDotShadowRadius">1dp</item>
+        <item name="wsPageIndicatorDotShadowDx">0.5dp</item>
+        <item name="wsPageIndicatorDotShadowDy">0.5dp</item>
     </style>
 
 </resources>

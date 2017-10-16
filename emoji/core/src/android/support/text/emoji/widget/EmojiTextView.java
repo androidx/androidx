@@ -28,6 +28,11 @@ import android.widget.TextView;
  */
 public class EmojiTextView extends TextView {
     private EmojiTextViewHelper mEmojiTextViewHelper;
+
+    /**
+     * Prevent calling {@link #init()} multiple times in case super() constructors
+     * call other constructors.
+     */
     private boolean mInitialized;
 
     public EmojiTextView(Context context) {

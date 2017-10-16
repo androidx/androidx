@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Helper for accessing features in PopupWindow in a backwards compatible fashion.
+ * Helper for accessing features in {@link PopupWindow}.
  */
 public final class PopupWindowCompat {
 

@@ -24,7 +24,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.filters.LargeTest;
-import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.preference.AndroidResources;
 import android.support.v7.preference.Preference;
@@ -40,7 +39,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class PreferenceIconSpaceTest {
 
     private Preference mPreference;

@@ -21,10 +21,6 @@
              and non-checked / non-checkable indicates
              that media is playing to the local device only. -->
         <attr name="externalRouteEnabledDrawable" format="reference" />
-        <!-- This drawable is a static version of the above animation drawable.
-             In order to speed up inflation, the static drawable is loaded first and
-             the animation drawable will be loaded in a worker thread separately. -->
-        <attr name="externalRouteEnabledDrawableStatic" format="reference" />
         <!-- Tint to apply to the media route button -->
         <attr name="mediaRouteButtonTint" format="color" />
 

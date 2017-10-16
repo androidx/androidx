@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':support-design')
+    implementation project(':support-design')
 }
 
 android {
@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
+        targetSdkVersion project.ext.currentSdk
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -28,6 +29,7 @@ android {
 
     lintOptions {
         abortOnError true
+        check 'NewApi'
     }
 
     compileOptions {

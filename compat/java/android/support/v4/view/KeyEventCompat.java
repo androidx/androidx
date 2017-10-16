@@ -20,8 +20,7 @@ import android.view.KeyEvent;
 import android.view.View;
 
 /**
- * Helper for accessing features in {@link KeyEvent} introduced after
- * API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link KeyEvent}.
  *
  * @deprecated Use {@link KeyEvent} directly.
  */

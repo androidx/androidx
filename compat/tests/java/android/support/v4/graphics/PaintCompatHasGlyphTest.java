@@ -47,6 +47,7 @@ public class PaintCompatHasGlyphTest {
                 {"\t\t\t", false},  // more white space
                 {"☺", SDK_INT >= 16}, // glyph added in API 16
                 {"\uD83D\uDC66\uD83C\uDFFF", SDK_INT >= 24}, // glyph added in API 24
+                {"\uD83C\uDDEF\uD83C\uDDF5", SDK_INT >= 20}, // Japan flag emoji, added in API 20
         });
     }
 

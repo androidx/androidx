@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
-    compile project(path: ':support-emoji')
+    api project(':support-emoji')
 }
 
 supportLibrary {

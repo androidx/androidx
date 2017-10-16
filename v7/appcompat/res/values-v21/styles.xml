@@ -18,16 +18,16 @@
 
     <!-- Use platform styles -->
     <style name="TextAppearance.AppCompat.Notification.Info"
-        parent="@android:style/TextAppearance.Material.Notification.Info"/>
+           parent="@android:style/TextAppearance.Material.Notification.Info"/>
 
     <style name="TextAppearance.AppCompat.Notification.Time"
-        parent="@android:style/TextAppearance.Material.Notification.Time"/>
+           parent="@android:style/TextAppearance.Material.Notification.Time"/>
 
     <style name="TextAppearance.AppCompat.Notification.Title"
-        parent="@android:style/TextAppearance.Material.Notification.Title"/>
+           parent="@android:style/TextAppearance.Material.Notification.Title"/>
 
     <style name="TextAppearance.AppCompat.Notification"
-        parent="@android:style/TextAppearance.Material.Notification"/>
+           parent="@android:style/TextAppearance.Material.Notification"/>
 
     <style name="TextAppearance.AppCompat.Notification.Media" >
         <item name="android:textColor">@color/secondary_text_default_material_dark</item>
@@ -44,15 +44,4 @@
     <style name="TextAppearance.AppCompat.Notification.Time.Media">
         <item name="android:textColor">@color/secondary_text_default_material_dark</item>
     </style>
-
-    <style name="Widget.AppCompat.NotificationActionText" parent="">
-        <item name="android:textAppearance">?android:attr/textAppearanceButton</item>
-        <item name="android:textColor">@color/secondary_text_default_material_light</item>
-        <item name="android:textSize">@dimen/notification_action_text_size</item>
-    </style>
-
-    <style name="Widget.AppCompat.NotificationActionContainer" parent="">
-        <item name="android:background">@drawable/notification_action_background</item>
-    </style>
-
 </resources>

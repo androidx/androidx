@@ -252,6 +252,112 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
+    public void setAdapterNotifyItemRangeInsertedCrashTest() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final TestLayoutManager lm = new LayoutAllLayoutManager(true);
+        lm.setSupportsPredictive(true);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        lm.expectLayouts(1);
+        setAdapter(new TestAdapter(1));
+        lm.waitForLayout(2);
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final TestAdapter adapter2 = new TestAdapter(0);
+                rv.setAdapter(adapter2);
+                adapter2.addItems(0, 1, "1");
+                adapter2.notifyItemRangeInserted(0, 1);
+            }
+        });
+        lm.waitForLayout(2);
+    }
+
+    @Test
+    public void swapAdapterNotifyItemRangeInsertedCrashTest() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final TestLayoutManager lm = new LayoutAllLayoutManager(true);
+        lm.setSupportsPredictive(true);
+        rv.setLayoutManager(lm);
+        setRecyclerView(rv);
+        lm.expectLayouts(1);
+        setAdapter(new TestAdapter(1));
+        lm.waitForLayout(2);
+        lm.expectLayouts(1);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final TestAdapter adapter2 = new TestAdapter(0);
+                rv.swapAdapter(adapter2, true);
+                adapter2.addItems(0, 1, "1");
+                adapter2.notifyItemRangeInserted(0, 1);
+            }
+        });
+        lm.waitForLayout(2);
+    }
+
+    @Test
+    public void predictiveMeasuredCrashTest() throws Throwable {
+        final RecyclerView rv = new RecyclerView(getActivity());
+        final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true) {
+            @Override
+            public void onAttachedToWindow(RecyclerView view) {
+                super.onAttachedToWindow(view);
+                assertThat(view.mLayout, is((RecyclerView.LayoutManager) this));
+            }
+
+            @Override
+            public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
+                super.onDetachedFromWindow(view, recycler);
+                assertThat(view.mLayout, is((RecyclerView.LayoutManager) this));
+            }
+
+            @Override
+            public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state,
+                    int widthSpec,
+                    int heightSpec) {
+                if (state.getItemCount() > 0) {
+                    // A typical LayoutManager will use a child view to measure the size.
+                    View v = recycler.getViewForPosition(0);
+                }
+                super.onMeasure(recycler, state, widthSpec, heightSpec);
+            }
+        };
+        lm.setSupportsPredictive(true);
+        lm.setAutoMeasureEnabled(false);
+        rv.setHasFixedSize(false);
+        final TestAdapter adapter = new TestAdapter(0);
+        rv.setAdapter(adapter);
+        rv.setLayoutManager(lm);
+        lm.expectLayouts(1);
+        setRecyclerView(rv);
+        lm.waitForLayout(2);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup parent = (ViewGroup) rv.getParent();
+                parent.removeView(rv);
+                // setting RV as child of LinearLayout using MATCH_PARENT will cause
+                // RV.onMeasure() being called twice before layout(). This may cause crash.
+                LinearLayout linearLayout = new LinearLayout(parent.getContext());
+                linearLayout.setOrientation(LinearLayout.VERTICAL);
+                parent.addView(linearLayout,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                linearLayout.addView(rv, ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            }
+        });
+
+        lm.expectLayouts(1);
+        adapter.addAndNotify(1);
+        lm.waitForLayout(2);
+        checkForMainThreadException();
+    }
+
+    @Test
     public void detachRvAndLayoutManagerProperly() throws Throwable {
         final RecyclerView rv = new RecyclerView(getActivity());
         final LayoutAllLayoutManager lm = new LayoutAllLayoutManager(true) {

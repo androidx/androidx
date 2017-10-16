@@ -96,28 +96,30 @@ public class PageIndicatorView extends View implements OnPageChangeListener {
                 getContext()
                         .obtainStyledAttributes(
                                 attrs, R.styleable.PageIndicatorView, defStyleAttr,
-                                R.style.PageIndicatorViewStyle);
+                                R.style.WsPageIndicatorViewStyle);
 
-        mDotSpacing =
-                a.getDimensionPixelOffset(R.styleable.PageIndicatorView_pageIndicatorDotSpacing, 0);
-        mDotRadius = a.getDimension(R.styleable.PageIndicatorView_pageIndicatorDotRadius, 0);
+        mDotSpacing = a.getDimensionPixelOffset(
+                R.styleable.PageIndicatorView_wsPageIndicatorDotSpacing, 0);
+        mDotRadius = a.getDimension(R.styleable.PageIndicatorView_wsPageIndicatorDotRadius, 0);
         mDotRadiusSelected =
-                a.getDimension(R.styleable.PageIndicatorView_pageIndicatorDotRadiusSelected, 0);
-        mDotColor = a.getColor(R.styleable.PageIndicatorView_pageIndicatorDotColor, 0);
+                a.getDimension(R.styleable.PageIndicatorView_wsPageIndicatorDotRadiusSelected, 0);
+        mDotColor = a.getColor(R.styleable.PageIndicatorView_wsPageIndicatorDotColor, 0);
         mDotColorSelected = a
-                .getColor(R.styleable.PageIndicatorView_pageIndicatorDotColorSelected, 0);
-        mDotFadeOutDelay = a.getInt(R.styleable.PageIndicatorView_pageIndicatorDotFadeOutDelay, 0);
+                .getColor(R.styleable.PageIndicatorView_wsPageIndicatorDotColorSelected, 0);
+        mDotFadeOutDelay =
+                a.getInt(R.styleable.PageIndicatorView_wsPageIndicatorDotFadeOutDelay, 0);
         mDotFadeOutDuration =
-                a.getInt(R.styleable.PageIndicatorView_pageIndicatorDotFadeOutDuration, 0);
-        mDotFadeInDuration = a
-                .getInt(R.styleable.PageIndicatorView_pageIndicatorDotFadeInDuration, 0);
+                a.getInt(R.styleable.PageIndicatorView_wsPageIndicatorDotFadeOutDuration, 0);
+        mDotFadeInDuration =
+                a.getInt(R.styleable.PageIndicatorView_wsPageIndicatorDotFadeInDuration, 0);
         mDotFadeWhenIdle =
-                a.getBoolean(R.styleable.PageIndicatorView_pageIndicatorDotFadeWhenIdle, false);
-        mDotShadowDx = a.getDimension(R.styleable.PageIndicatorView_pageIndicatorDotShadowDx, 0);
-        mDotShadowDy = a.getDimension(R.styleable.PageIndicatorView_pageIndicatorDotShadowDy, 0);
+                a.getBoolean(R.styleable.PageIndicatorView_wsPageIndicatorDotFadeWhenIdle, false);
+        mDotShadowDx = a.getDimension(R.styleable.PageIndicatorView_wsPageIndicatorDotShadowDx, 0);
+        mDotShadowDy = a.getDimension(R.styleable.PageIndicatorView_wsPageIndicatorDotShadowDy, 0);
         mDotShadowRadius =
-                a.getDimension(R.styleable.PageIndicatorView_pageIndicatorDotShadowRadius, 0);
-        mDotShadowColor = a.getColor(R.styleable.PageIndicatorView_pageIndicatorDotShadowColor, 0);
+                a.getDimension(R.styleable.PageIndicatorView_wsPageIndicatorDotShadowRadius, 0);
+        mDotShadowColor =
+                a.getColor(R.styleable.PageIndicatorView_wsPageIndicatorDotShadowColor, 0);
         a.recycle();
 
         mDotPaint = new Paint(Paint.ANTI_ALIAS_FLAG);

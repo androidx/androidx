@@ -17,6 +17,7 @@ import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 import android.view.Gravity;
 import android.view.View;
@@ -427,6 +428,7 @@ public final class TransitionHelper {
     /**
      * Implementation used on KitKat (and above).
      */
+    @RequiresApi(19)
     static class TransitionHelperKitkatImpl extends TransitionHelperStubImpl {
 
         @Override
@@ -566,6 +568,7 @@ public final class TransitionHelper {
         }
     }
 
+    @RequiresApi(21)
     static final class TransitionHelperApi21Impl extends TransitionHelperKitkatImpl {
 
         @Override

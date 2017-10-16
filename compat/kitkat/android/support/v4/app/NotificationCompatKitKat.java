@@ -81,18 +81,18 @@ class NotificationCompatKitKat {
                         people.toArray(new String[people.size()]));
             }
             if (localOnly) {
-                mExtras.putBoolean(NotificationCompatJellybean.EXTRA_LOCAL_ONLY, true);
+                mExtras.putBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY, true);
             }
             if (groupKey != null) {
-                mExtras.putString(NotificationCompatJellybean.EXTRA_GROUP_KEY, groupKey);
+                mExtras.putString(NotificationCompatExtras.EXTRA_GROUP_KEY, groupKey);
                 if (groupSummary) {
-                    mExtras.putBoolean(NotificationCompatJellybean.EXTRA_GROUP_SUMMARY, true);
+                    mExtras.putBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY, true);
                 } else {
-                    mExtras.putBoolean(NotificationCompatJellybean.EXTRA_USE_SIDE_CHANNEL, true);
+                    mExtras.putBoolean(NotificationManagerCompat.EXTRA_USE_SIDE_CHANNEL, true);
                 }
             }
             if (sortKey != null) {
-                mExtras.putString(NotificationCompatJellybean.EXTRA_SORT_KEY, sortKey);
+                mExtras.putString(NotificationCompatExtras.EXTRA_SORT_KEY, sortKey);
             }
             mContentView = contentView;
             mBigContentView = bigContentView;
@@ -115,7 +115,7 @@ class NotificationCompatKitKat {
             if (actionExtrasMap != null) {
                 // Add the action extras sparse array if any action was added with extras.
                 mExtras.putSparseParcelableArray(
-                        NotificationCompatJellybean.EXTRA_ACTION_EXTRAS, actionExtrasMap);
+                        NotificationCompatExtras.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
             b.setExtras(mExtras);
             Notification notification = b.build();
@@ -135,7 +135,7 @@ class NotificationCompatKitKat {
         Notification.Action action = notif.actions[actionIndex];
         Bundle actionExtras = null;
         SparseArray<Bundle> actionExtrasMap = notif.extras.getSparseParcelableArray(
-                NotificationCompatJellybean.EXTRA_ACTION_EXTRAS);
+                NotificationCompatExtras.EXTRA_ACTION_EXTRAS);
         if (actionExtrasMap != null) {
             actionExtras = actionExtrasMap.get(actionIndex);
         }

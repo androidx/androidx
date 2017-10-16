@@ -15,13 +15,8 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
           package="android.support.graphics.drawable.animated.test">
-    <uses-sdk
-            android:minSdkVersion="14"
-            android:targetSdkVersion="23"
-            tools:overrideLibrary="android.support.test, android.app, android.support.test.rule,
-                    android.support.test.espresso, android.support.test.espresso.idling" />
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application>

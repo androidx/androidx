@@ -61,7 +61,7 @@ import android.widget.ImageView;
 @Deprecated
 public class DetailsOverviewRowPresenter extends RowPresenter {
 
-    static final String TAG = "DetailsOverviewRowPresenter";
+    static final String TAG = "DetailsOverviewRowP";
     static final boolean DEBUG = false;
 
     private static final int MORE_ACTIONS_FADE_MS = 100;

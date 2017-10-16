@@ -751,19 +751,20 @@
         <item name="arrowBgColor">@color/lb_page_indicator_arrow_background</item>
     </style>
 
+    <style name="Widget.Leanback.OnboardingStartButtonStyleBase">
+    </style>
+
     <!-- Style for the start button in OnboardingFragment. -->
-    <style name="Widget.Leanback.OnboardingStartButtonStyle">
+    <style name="Widget.Leanback.OnboardingStartButtonStyle" parent="Widget.Leanback.OnboardingStartButtonStyleBase">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">36dp</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:layout_marginBottom">4dp</item>
         <item name="android:background">@drawable/lb_onboarding_start_button_background</item>
-        <item name="android:elevation">1.5dp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingEnd">24dp</item>
         <item name="android:paddingStart">24dp</item>
-        <item name="android:stateListAnimator">@null</item>
         <item name="android:text">@string/lb_onboarding_get_started</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">#014269</item>

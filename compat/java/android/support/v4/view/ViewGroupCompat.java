@@ -25,8 +25,7 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
 /**
- * Helper for accessing features in {@link ViewGroup}
- * introduced after API level 4 in a backwards compatible fashion.
+ * Helper for accessing features in {@link ViewGroup}.
  */
 public final class ViewGroupCompat {
 

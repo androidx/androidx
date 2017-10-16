@@ -30,13 +30,12 @@ import java.util.List;
  * </p>
  */
 public final class MediaRouteProviderDescriptor {
-    static final String KEY_ROUTES = "routes";
+    private static final String KEY_ROUTES = "routes";
 
-    final Bundle mBundle;
-    List<MediaRouteDescriptor> mRoutes;
+    private final Bundle mBundle;
+    private List<MediaRouteDescriptor> mRoutes;
 
-    MediaRouteProviderDescriptor(Bundle bundle,
-            List<MediaRouteDescriptor> routes) {
+    private MediaRouteProviderDescriptor(Bundle bundle, List<MediaRouteDescriptor> routes) {
         mBundle = bundle;
         mRoutes = routes;
     }
@@ -49,7 +48,7 @@ public final class MediaRouteProviderDescriptor {
         return mRoutes;
     }
 
-    void ensureRoutes() {
+    private void ensureRoutes() {
         if (mRoutes == null) {
             ArrayList<Bundle> routeBundles = mBundle.<Bundle>getParcelableArrayList(KEY_ROUTES);
             if (routeBundles == null || routeBundles.isEmpty()) {
@@ -174,6 +173,19 @@ public final class MediaRouteProviderDescriptor {
                 for (MediaRouteDescriptor route : routes) {
                     addRoute(route);
                 }
+            }
+            return this;
+        }
+
+        /**
+         * Sets the list of routes.
+         */
+        Builder setRoutes(Collection<MediaRouteDescriptor> routes) {
+            if (routes == null || routes.isEmpty()) {
+                mRoutes = null;
+                mBundle.remove(KEY_ROUTES);
+            } else {
+                mRoutes = new ArrayList<>(routes);
             }
             return this;
         }

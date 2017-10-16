@@ -24,7 +24,6 @@
         <item name="defaultBrandColor">@color/lb_default_brand_color</item>
         <item name="defaultBrandColorDark">@color/lb_default_brand_color_dark</item>
 
-        <item name="android:windowOverscan">true</item>
         <item name="guidedStepTheme">@style/Theme.Leanback.GuidedStep</item>
     </style>
 
@@ -103,16 +102,6 @@
 
         <item name="defaultSectionHeaderColor">?attr/defaultSearchColor</item>
 
-        <!-- android:windowSharedElementEnterTransition is kept for backward compatibility for apps still refer
-        to Theme.Leanback, app should use Theme.Leanback.Details instead -->
-        <item name="android:windowSharedElementEnterTransition">@transition/lb_shared_element_enter_transition</item>
-        <!-- android:windowSharedElementReturnTransition is kept for backward compatibility for apps still refer
-        to Theme.Leanback, app should use Theme.Leanback.Details instead -->
-        <item name="android:windowSharedElementReturnTransition">@transition/lb_shared_element_return_transition</item>
-        <item name="android:windowEnterTransition">@transition/lb_enter_transition</item>
-        <item name="android:windowReturnTransition">@transition/lb_return_transition</item>
-        <item name="android:windowTransitionBackgroundFadeDuration">350</item>
-
         <item name="overlayDimMaskColor">@color/lb_view_dim_mask_color</item>
         <item name="overlayDimActiveLevel">@fraction/lb_view_active_level</item>
         <item name="overlayDimDimmedLevel">@fraction/lb_view_dimmed_level</item>
@@ -120,26 +109,16 @@
     </style>
 
     <style name="Theme.Leanback.Browse" parent="Theme.Leanback">
-        <item name="android:windowEnterTransition">@transition/lb_browse_enter_transition</item>
-        <item name="android:windowReturnTransition">@transition/lb_browse_return_transition</item>
     </style>
 
     <style name="Theme.Leanback.VerticalGrid" parent="Theme.Leanback">
-        <item name="android:windowEnterTransition">@transition/lb_vertical_grid_enter_transition</item>
-        <item name="android:windowReturnTransition">@transition/lb_vertical_grid_return_transition</item>
     </style>
 
     <style name="Theme.Leanback.Details" parent="Theme.Leanback">
-        <item name="android:windowEnterTransition">@transition/lb_details_enter_transition</item>
-        <item name="android:windowReturnTransition">@transition/lb_details_return_transition</item>
-        <item name="android:windowSharedElementEnterTransition">@transition/lb_shared_element_enter_transition</item>
-        <item name="android:windowSharedElementReturnTransition">@transition/lb_shared_element_return_transition</item>
     </style>
 
     <!-- Theme for the details without shared element transition -->
     <style name="Theme.Leanback.Details.NoSharedElementTransition">
-        <item name="android:windowSharedElementEnterTransition">@null</item>
-        <item name="android:windowSharedElementReturnTransition">@null</item>
     </style>
 
     <style name="Theme.Leanback.GuidedStepBase" parent="Theme.LeanbackBase">
@@ -150,7 +129,6 @@
         <item name="guidedStepThemeFlag">true</item>
         <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight</item>
 
-        <item name="android:windowEnterTransition">@transition/lb_guidedstep_activity_enter</item>
 
         <!-- background applied to each GuidedStepFragment by default-->
         <item name="guidedStepBackground">?android:attr/colorBackground</item>
@@ -158,7 +136,6 @@
              But We still need a dumb background to keep the temporary translucent state last
              as long as the background view fade-in transition -->
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowTransitionBackgroundFadeDuration">@integer/lb_guidedstep_activity_background_fade_duration_ms</item>
 
         <item name="guidedStepImeAppearingAnimation">@animator/lb_guidedstep_slide_up</item>
         <item name="guidedStepImeDisappearingAnimation">@animator/lb_guidedstep_slide_down</item>
@@ -198,8 +175,10 @@
         <item name="guidedStepKeyline">@string/lb_guidedstep_keyline</item>
     </style>
 
-    <style name="Theme.Leanback.GuidedStep.Half" parent="Theme.Leanback.GuidedStep">
-      <item name="android:windowEnterTransition">@transition/lb_guidedstep_activity_enter_bottom</item>
+    <style name="Theme.Leanback.GuidedStep.HalfBase" parent="Theme.Leanback.GuidedStep">
+    </style>
+
+    <style name="Theme.Leanback.GuidedStep.Half" parent="Theme.Leanback.GuidedStep.HalfBase">
       <item name="guidedStepHeightWeight">@string/lb_guidedstep_height_weight_translucent</item>
       <item name="android:windowIsTranslucent">true</item>
       <item name="android:windowBackground">@android:color/transparent</item>

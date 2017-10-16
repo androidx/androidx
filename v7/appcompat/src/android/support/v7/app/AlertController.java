@@ -736,11 +736,11 @@ class AlertController {
     static void manageScrollIndicators(View v, View upIndicator, View downIndicator) {
         if (upIndicator != null) {
             upIndicator.setVisibility(
-                    ViewCompat.canScrollVertically(v, -1) ? View.VISIBLE : View.INVISIBLE);
+                    v.canScrollVertically(-1) ? View.VISIBLE : View.INVISIBLE);
         }
         if (downIndicator != null) {
             downIndicator.setVisibility(
-                    ViewCompat.canScrollVertically(v, 1) ? View.VISIBLE : View.INVISIBLE);
+                    v.canScrollVertically(1) ? View.VISIBLE : View.INVISIBLE);
         }
     }
 

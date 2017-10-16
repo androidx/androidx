@@ -254,27 +254,49 @@ class WindowAlignment {
                 }
             }
             if (!isMaxUnknown && !isMinUnknown) {
-                if (!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0
-                        : (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0) {
-                    if (!mReversedFlow ? isPreferKeylineOverLowEdge()
-                            : isPreferKeylineOverHighEdge()) {
-                        // if we prefer key line, might align max child to key line for minScroll
-                        mMinScroll = Math.min(mMinScroll,
-                                calculateScrollToKeyLine(maxChildViewCenter, keyLine));
-                    } else {
-                        // don't over scroll max
-                        mMaxScroll = Math.max(mMinScroll, mMaxScroll);
+                if (!mReversedFlow) {
+                    if ((mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0) {
+                        if (isPreferKeylineOverLowEdge()) {
+                            // if we prefer key line, might align max child to key line for
+                            // minScroll
+                            mMinScroll = Math.min(mMinScroll,
+                                    calculateScrollToKeyLine(maxChildViewCenter, keyLine));
+                        } else {
+                            // don't over scroll max
+                            mMaxScroll = Math.max(mMinScroll, mMaxScroll);
+                        }
+                    } else if ((mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0) {
+                        if (isPreferKeylineOverHighEdge()) {
+                            // if we prefer key line, might align min child to key line for
+                            // maxScroll
+                            mMaxScroll = Math.max(mMaxScroll,
+                                    calculateScrollToKeyLine(minChildViewCenter, keyLine));
+                        } else {
+                            // don't over scroll min
+                            mMinScroll = Math.min(mMinScroll, mMaxScroll);
+                        }
                     }
-                } else if (!mReversedFlow ? (mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0
-                        : (mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0) {
-                    if (!mReversedFlow ? isPreferKeylineOverHighEdge()
-                            : isPreferKeylineOverLowEdge()) {
-                        // if we prefer key line, might align min child to key line for maxScroll
-                        mMaxScroll = Math.max(mMaxScroll,
-                                calculateScrollToKeyLine(minChildViewCenter, keyLine));
-                    } else {
-                        // don't over scroll min
-                        mMinScroll = Math.min(mMinScroll, mMaxScroll);
+                } else {
+                    if ((mWindowAlignment & WINDOW_ALIGN_LOW_EDGE) != 0) {
+                        if (isPreferKeylineOverLowEdge()) {
+                            // if we prefer key line, might align min child to key line for
+                            // maxScroll
+                            mMaxScroll = Math.max(mMaxScroll,
+                                    calculateScrollToKeyLine(minChildViewCenter, keyLine));
+                        } else {
+                            // don't over scroll min
+                            mMinScroll = Math.min(mMinScroll, mMaxScroll);
+                        }
+                    } else if ((mWindowAlignment & WINDOW_ALIGN_HIGH_EDGE) != 0) {
+                        if (isPreferKeylineOverHighEdge()) {
+                            // if we prefer key line, might align max child to key line for
+                            // minScroll
+                            mMinScroll = Math.min(mMinScroll,
+                                    calculateScrollToKeyLine(maxChildViewCenter, keyLine));
+                        } else {
+                            // don't over scroll max
+                            mMaxScroll = Math.max(mMinScroll, mMaxScroll);
+                        }
                     }
                 }
             }

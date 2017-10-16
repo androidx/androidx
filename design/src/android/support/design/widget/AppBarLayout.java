@@ -17,7 +17,6 @@
 package android.support.design.widget;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static android.support.v4.utils.ObjectUtils.objectEquals;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -34,7 +33,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.support.design.R;
 import android.support.v4.math.MathUtils;
-import android.support.v4.os.BuildCompat;
+import android.support.v4.util.ObjectsCompat;
 import android.support.v4.view.AbsSavedState;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -179,7 +178,7 @@ public class AppBarLayout extends LinearLayout {
             ViewUtilsLollipop.setDefaultAppBarLayoutStateListAnimator(
                     this, a.getDimensionPixelSize(R.styleable.AppBarLayout_elevation, 0));
         }
-        if (BuildCompat.isAtLeastO()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             // In O+, we have these values set in the style. Since there is no defStyleAttr for
             // AppBarLayout at the AppCompat level, check for these attributes here.
             if (a.hasValue(R.styleable.AppBarLayout_android_keyboardNavigationCluster)) {
@@ -603,7 +602,7 @@ public class AppBarLayout extends LinearLayout {
         }
 
         // If our insets have changed, keep them and invalidate the scroll ranges...
-        if (!objectEquals(mLastInsets, newInsets)) {
+        if (!ObjectsCompat.equals(mLastInsets, newInsets)) {
             mLastInsets = newInsets;
             invalidateScrollRanges();
         }
@@ -1085,7 +1084,7 @@ public class AppBarLayout extends LinearLayout {
                 // If we have a reference to a scrolling view, check it
                 final View scrollingView = mLastNestedScrollingChildRef.get();
                 return scrollingView != null && scrollingView.isShown()
-                        && !ViewCompat.canScrollVertically(scrollingView, -1);
+                        && !scrollingView.canScrollVertically(-1);
             } else {
                 // Otherwise we assume that the scrolling view hasn't been scrolled and can drag.
                 return true;

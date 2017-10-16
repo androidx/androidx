@@ -37,6 +37,8 @@ import android.support.v17.leanback.media.PlayerAdapter;
 import android.support.v17.leanback.widget.PlaybackSeekDataProvider.ResultCallback;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewParent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +67,24 @@ public class PlaybackTransportRowPresenterTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mGlue = new PlaybackTransportControlGlue(mContext, mImpl);
+                mGlue = new PlaybackTransportControlGlue(mContext, mImpl) {
+                    @Override
+                    protected void onCreatePrimaryActions(ArrayObjectAdapter
+                            primaryActionsAdapter) {
+                        super.onCreatePrimaryActions(primaryActionsAdapter);
+                        primaryActionsAdapter.add(
+                                new PlaybackControlsRow.ClosedCaptioningAction(mContext));
+                    }
+
+                    @Override
+                    protected void onCreateSecondaryActions(ArrayObjectAdapter
+                            secondaryActionsAdapter) {
+                        secondaryActionsAdapter.add(
+                                new PlaybackControlsRow.HighQualityAction(mContext));
+                        secondaryActionsAdapter.add(
+                                new PlaybackControlsRow.PictureInPictureAction(mContext));
+                    }
+                };
                 mGlue.setHost(mHost);
 
             }
@@ -193,6 +212,107 @@ public class PlaybackTransportRowPresenterTest {
         assertEquals("xyz", mDescriptionViewHolder.mTitle.getText());
         assertEquals("zyx", mDescriptionViewHolder.mSubtitle.getText());
         assertSame(art, mViewHolder.mImageView.getDrawable());
+    }
+
+    static boolean isDescendant(View view, View descendant) {
+        while (descendant != view) {
+            ViewParent p = descendant.getParent();
+            if (!(p instanceof View)) {
+                return false;
+            }
+            descendant = (View) p;
+        }
+        return true;
+    }
+
+    @Test
+    public void navigateRightInPrimary() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mControlsVh.mControlBar.getChildAt(0).requestFocus();
+            }
+        });
+        View view = mViewHolder.view.findFocus();
+        assertTrue(isDescendant(mViewHolder.mControlsVh.mControlBar.getChildAt(0), view));
+        assertTrue(isDescendant(mViewHolder.mControlsVh.mControlBar.getChildAt(1),
+                view.focusSearch(View.FOCUS_RIGHT)));
+    }
+
+    @Test
+    public void navigateRightInSecondary() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mSecondaryControlsVh.mControlBar.getChildAt(0).requestFocus();
+            }
+        });
+        View view = mViewHolder.view.findFocus();
+        assertTrue(isDescendant(mViewHolder.mSecondaryControlsVh.mControlBar.getChildAt(0), view));
+        assertTrue(isDescendant(mViewHolder.mSecondaryControlsVh.mControlBar.getChildAt(1),
+                view.focusSearch(View.FOCUS_RIGHT)));
+    }
+
+    @Test
+    public void navigatePrimaryDownToProgress() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mControlsVh.mControlBar.getChildAt(0).requestFocus();
+            }
+        });
+        View view = mViewHolder.view.findFocus();
+        assertTrue(isDescendant(mViewHolder.mControlsVh.mControlBar.getChildAt(0), view));
+        assertSame(mViewHolder.mProgressBar, view.focusSearch(View.FOCUS_DOWN));
+    }
+
+    @Test
+    public void navigateProgressUpToPrimary() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mProgressBar.requestFocus();
+            }
+        });
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mProgressBar.focusSearch(View.FOCUS_UP).requestFocus();
+            }
+        });
+        View view = mViewHolder.view.findFocus();
+        assertTrue(isDescendant(mViewHolder.mControlsVh.mControlBar.getChildAt(0), view));
+    }
+
+    @Test
+    public void navigateProgressDownToSecondary() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mProgressBar.requestFocus();
+            }
+        });
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mProgressBar.focusSearch(View.FOCUS_DOWN).requestFocus();
+            }
+        });
+        View view = mViewHolder.view.findFocus();
+        assertTrue(isDescendant(mViewHolder.mSecondaryControlsVh.mControlBar.getChildAt(0), view));
+    }
+
+    @Test
+    public void navigateSecondaryUpToProgress() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mViewHolder.mSecondaryControlsVh.mControlBar.getChildAt(0).requestFocus();
+            }
+        });
+        View view = mViewHolder.view.findFocus();
+        assertTrue(isDescendant(mViewHolder.mSecondaryControlsVh.mControlBar.getChildAt(0), view));
+        assertSame(mViewHolder.mProgressBar, view.focusSearch(View.FOCUS_UP));
     }
 
     @Test

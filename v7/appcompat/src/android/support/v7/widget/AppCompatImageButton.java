@@ -37,7 +37,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 /**
- * A {@link ImageButton} which supports compatible features on older version of the platform,
+ * A {@link ImageButton} which supports compatible features on older versions of the platform,
  * including:
  * <ul>
  *     <li>Allows dynamic tint of its background via the background tint methods in
@@ -50,8 +50,10 @@ import android.widget.ImageView;
  *     {@link R.attr#tintMode}.</li>
  * </ul>
  *
- * <p>This will automatically be used when you use {@link android.widget.ImageButton} in your
- * layouts. You should only need to manually use this class when writing custom views.</p>
+ * <p>This will automatically be used when you use {@link ImageButton} in your layouts
+ * and the top-level activity / dialog is provided by
+ * <a href="{@docRoot}topic/libraries/support-library/packages.html#v7-appcompat">appcompat</a>.
+ * You should only need to manually use this class when writing custom views.</p>
  */
 public class AppCompatImageButton extends ImageButton implements TintableBackgroundView,
         TintableImageSourceView {

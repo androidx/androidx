@@ -14,5 +14,5 @@
      limitations under the License.
 -->
 <resources>
-    <item name="wearable_support_navigation_drawer_view_pager" type="id" />
+    <item name="ws_navigation_drawer_view_pager" type="id" />
 </resources>

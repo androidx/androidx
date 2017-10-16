@@ -25,37 +25,35 @@ public final class NotificationCompatExtras {
      * the {@link android.app.Notification#FLAG_LOCAL_ONLY} field before it was available.
      * If possible, use {@link NotificationCompat#getLocalOnly} to access this field.
      */
-    public static final String EXTRA_LOCAL_ONLY = NotificationCompatJellybean.EXTRA_LOCAL_ONLY;
+    public static final String EXTRA_LOCAL_ONLY = "android.support.localOnly";
 
     /**
      * Extras key used internally by {@link NotificationCompat} to store the value set
      * by {@link android.app.Notification.Builder#setGroup} before it was available.
      * If possible, use {@link NotificationCompat#getGroup} to access this value.
      */
-    public static final String EXTRA_GROUP_KEY = NotificationCompatJellybean.EXTRA_GROUP_KEY;
+    public static final String EXTRA_GROUP_KEY = "android.support.groupKey";
 
     /**
      * Extras key used internally by {@link NotificationCompat} to store the value set
      * by {@link android.app.Notification.Builder#setGroupSummary} before it was available.
      * If possible, use {@link NotificationCompat#isGroupSummary} to access this value.
      */
-    public static final String EXTRA_GROUP_SUMMARY =
-            NotificationCompatJellybean.EXTRA_GROUP_SUMMARY;
+    public static final String EXTRA_GROUP_SUMMARY = "android.support.isGroupSummary";
 
     /**
      * Extras key used internally by {@link NotificationCompat} to store the value set
      * by {@link android.app.Notification.Builder#setSortKey} before it was available.
      * If possible, use {@link NotificationCompat#getSortKey} to access this value.
      */
-    public static final String EXTRA_SORT_KEY = NotificationCompatJellybean.EXTRA_SORT_KEY;
+    public static final String EXTRA_SORT_KEY = "android.support.sortKey";
 
     /**
      * Extras key used internally by {@link NotificationCompat} to store the value of
      * the {@link android.app.Notification.Action#extras} field before it was available.
      * If possible, use {@link NotificationCompat#getAction} to access this field.
      */
-    public static final String EXTRA_ACTION_EXTRAS =
-            NotificationCompatJellybean.EXTRA_ACTION_EXTRAS;
+    public static final String EXTRA_ACTION_EXTRAS = "android.support.actionExtras";
 
     /**
      * Extras key used internally by {@link NotificationCompat} to store the value of
@@ -63,8 +61,7 @@ public final class NotificationCompatExtras {
      * was available.
      * If possible, use {@link NotificationCompat.Action#getRemoteInputs} to access this field.
      */
-    public static final String EXTRA_REMOTE_INPUTS =
-            NotificationCompatJellybean.EXTRA_REMOTE_INPUTS;
+    public static final String EXTRA_REMOTE_INPUTS = "android.support.remoteInputs";
 
     private NotificationCompatExtras() {}
 }
