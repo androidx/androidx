@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints;
+package android.arch.background.workmanager.constraints.receivers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
-import android.arch.background.workmanager.constraints.receivers.BaseConstraintsReceiver;
+import android.arch.background.workmanager.constraints.ConstraintsState;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;

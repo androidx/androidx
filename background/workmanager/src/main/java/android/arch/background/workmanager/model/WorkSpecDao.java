@@ -137,11 +137,19 @@ public interface WorkSpecDao {
     List<String> getUnblockedWorkIds();
 
     /**
-     * Returns ids for work items that have a battery constraint.
+     * Returns ids for work items that have a battery charging constraint.
      *
-     * @return A list of {@link WorkSpec} ids that have a battery constraint.
+     * @return A list of {@link WorkSpec} ids that have a battery charging constraint.
+     */
+    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND requires_charging=1")
+    LiveData<List<String>> getEnqueuedWorkSpecIdsWithBatteryChargingConstraint();
+
+    /**
+     * Returns ids for work items that have a battery not low constraint.
+     *
+     * @return A list of {@link WorkSpec} ids that have a battery not low constraint.
      */
     @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED
-            + " AND (requires_battery_not_low = 1 OR requires_charging = 1)")
-    LiveData<List<String>> getEnqueuedWorkSpecIdsWithBatteryConstraint();
+            + " AND requires_battery_not_low=1")
+    LiveData<List<String>> getEnqueuedWorkSpecIdsWithBatteryNotLowConstraint();
 }

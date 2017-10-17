@@ -39,17 +39,30 @@ public class ConstraintsReceivers {
         return sInstance;
     }
 
-    private BatteryReceiver mBatteryReceiver;
+    private BatteryChargingReceiver mBatteryChargingReceiver;
+    private BatteryNotLowReceiver mBatteryNotLowReceiver;
 
     private ConstraintsReceivers(Context context) {
         Context appContext = context.getApplicationContext();
-        mBatteryReceiver = new BatteryReceiver(appContext);
+        mBatteryChargingReceiver = new BatteryChargingReceiver(appContext);
+        mBatteryNotLowReceiver = new BatteryNotLowReceiver(appContext);
     }
 
     /**
-     * @return The receiver used to track battery state.
+     * Gets the receiver used to track the battery charging status.
+     *
+     * @return The receiver used to track battery charging status
      */
-    public BaseConstraintsReceiver getBatteryReceiver() {
-        return mBatteryReceiver;
+    public BaseConstraintsReceiver getBatteryChargingReceiver() {
+        return mBatteryChargingReceiver;
+    }
+
+    /**
+     * Gets the receiver used to track if the battery is okay or low.
+     *
+     * @return The receiver used to track if the battery is okay or low
+     */
+    public BaseConstraintsReceiver getBatteryNotLowReceiver() {
+        return mBatteryNotLowReceiver;
     }
 }

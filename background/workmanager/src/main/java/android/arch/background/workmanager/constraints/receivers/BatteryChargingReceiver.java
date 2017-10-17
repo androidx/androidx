@@ -24,14 +24,24 @@ import android.os.BatteryManager;
 import android.os.Build;
 
 /**
- * A {@link BroadcastReceiver} for battery level and power.
+ * A {@link BroadcastReceiver} for battery charging status.
  */
 
-public class BatteryReceiver extends BaseConstraintsReceiver {
+public class BatteryChargingReceiver extends BaseConstraintsReceiver {
 
-
-    public BatteryReceiver(Context context) {
+    public BatteryChargingReceiver(Context context) {
         super(context);
+    }
+
+    @Override
+    public void setUpInitialState(ConstraintsState state) {
+        // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so we
+        // use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+
+        Intent intent = mAppContext.registerReceiver(null, intentFilter);
+        state.setCharging(isBatteryChangedIntentCharging(intent));
     }
 
     @Override
@@ -43,8 +53,6 @@ public class BatteryReceiver extends BaseConstraintsReceiver {
         } else {
             intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         }
-        intentFilter.addAction(Intent.ACTION_BATTERY_OKAY);
-        intentFilter.addAction(Intent.ACTION_BATTERY_LOW);
         return intentFilter;
     }
 
@@ -74,53 +82,7 @@ public class BatteryReceiver extends BaseConstraintsReceiver {
                 }
                 break;
             }
-
-            case Intent.ACTION_BATTERY_OKAY:
-                for (ConstraintsState state : mConstraintsStateList) {
-                    state.setBatteryNotLow(true);
-                }
-                break;
-
-            case Intent.ACTION_BATTERY_LOW:
-                for (ConstraintsState state : mConstraintsStateList) {
-                    state.setBatteryNotLow(false);
-                }
-                break;
         }
-    }
-
-    @Override
-    public void setUpInitialState(ConstraintsState state) {
-        state.startPerformingBatchUpdates();
-
-        {
-            // {@link ACTION_CHARGING} {@link ACTION_DISCHARGING} are not sticky broadcasts, so we
-            // use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-
-            Intent intent = mAppContext.registerReceiver(null, intentFilter);
-            state.setCharging(isBatteryChangedIntentCharging(intent));
-        }
-
-        {
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(Intent.ACTION_BATTERY_OKAY);
-            intentFilter.addAction(Intent.ACTION_BATTERY_LOW);
-
-            Intent intent = mAppContext.registerReceiver(null, intentFilter);
-            switch (intent.getAction()) {
-                case Intent.ACTION_BATTERY_OKAY:
-                    state.setBatteryNotLow(true);
-                    break;
-
-                case Intent.ACTION_BATTERY_LOW:
-                    state.setBatteryNotLow(false);
-                    break;
-            }
-        }
-
-        state.stopPerformingBatchUpdates();
     }
 
     private boolean isBatteryChangedIntentCharging(Intent intent) {
