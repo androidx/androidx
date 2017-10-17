@@ -27,25 +27,35 @@ import android.content.IntentFilter;
 
 public class BatteryNotLowReceiver extends BaseConstraintsReceiver {
 
+    private Boolean mIsBatteryNotLow;
+
     public BatteryNotLowReceiver(Context context) {
         super(context);
     }
 
     @Override
-    public void setUpInitialState(ConstraintsState constraintsState) {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_BATTERY_OKAY);
-        intentFilter.addAction(Intent.ACTION_BATTERY_LOW);
+    public void setUpInitialState(ConstraintsState state) {
+        if (mIsBatteryNotLow == null) {
+            Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
 
-        Intent intent = mAppContext.registerReceiver(null, intentFilter);
-        switch (intent.getAction()) {
-            case Intent.ACTION_BATTERY_OKAY:
-                constraintsState.setBatteryNotLow(true);
-                break;
+            switch (intent.getAction()) {
+                case Intent.ACTION_BATTERY_OKAY:
+                    mIsBatteryNotLow = true;
+                    break;
 
-            case Intent.ACTION_BATTERY_LOW:
-                constraintsState.setBatteryNotLow(false);
-                break;
+                case Intent.ACTION_BATTERY_LOW:
+                    mIsBatteryNotLow = false;
+                    break;
+            }
+
+            if (mIsBatteryNotLow != null) {
+                state.setBatteryNotLow(mIsBatteryNotLow);
+            }
+        } else {
+            state.setBatteryNotLow(mIsBatteryNotLow);
         }
     }
 
@@ -65,16 +75,21 @@ public class BatteryNotLowReceiver extends BaseConstraintsReceiver {
 
         switch (intent.getAction()) {
             case Intent.ACTION_BATTERY_OKAY:
-                for (ConstraintsState state : mConstraintsStateList) {
-                    state.setBatteryNotLow(true);
-                }
+                setIsBatteryNotLowAndNotify(true);
                 break;
 
             case Intent.ACTION_BATTERY_LOW:
-                for (ConstraintsState state : mConstraintsStateList) {
-                    state.setBatteryNotLow(false);
-                }
+                setIsBatteryNotLowAndNotify(false);
                 break;
+        }
+    }
+
+    private void setIsBatteryNotLowAndNotify(boolean isBatteryNotLow) {
+        if (mIsBatteryNotLow != isBatteryNotLow) {
+            mIsBatteryNotLow = isBatteryNotLow;
+            for (ConstraintsState state : mConstraintsStateList) {
+                state.setBatteryNotLow(mIsBatteryNotLow);
+            }
         }
     }
 }
