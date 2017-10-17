@@ -30,7 +30,8 @@ public class ConstraintsTracker {
     private LifecycleOwner mLifecycleOwner;
     private ConstraintsState mConstraintsState;
 
-    private ConstraintController mBatteryController;
+    private ConstraintController mBatteryChargingController;
+    private ConstraintController mBatteryNotLowController;
 
     public ConstraintsTracker(
             Context context,
@@ -43,10 +44,16 @@ public class ConstraintsTracker {
 
         ConstraintsReceivers constraintsReceivers = ConstraintsReceivers.getInstance(appContext);
 
-        mBatteryController = new ConstraintController(
-                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryConstraint(),
+        mBatteryChargingController = new ConstraintController(
+                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryChargingConstraint(),
                 mLifecycleOwner,
-                constraintsReceivers.getBatteryReceiver(),
+                constraintsReceivers.getBatteryChargingReceiver(),
+                mConstraintsState);
+
+        mBatteryNotLowController = new ConstraintController(
+                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryNotLowConstraint(),
+                mLifecycleOwner,
+                constraintsReceivers.getBatteryNotLowReceiver(),
                 mConstraintsState);
     }
 
@@ -54,6 +61,7 @@ public class ConstraintsTracker {
      * Shuts down this {@link ConstraintsTracker} and removes all internal observation.
      */
     public void shutdown() {
-        mBatteryController.shutdown();
+        mBatteryChargingController.shutdown();
+        mBatteryNotLowController.shutdown();
     }
 }
