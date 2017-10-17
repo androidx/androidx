@@ -21,6 +21,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -287,6 +288,64 @@ public class PagedListAdapterHelperTest {
         verifyNoMoreInteractions(callback);
         assertNotNull(helper.getCurrentList());
         assertFalse(helper.getCurrentList().isImmutable());
+    }
+
+    @Test
+    public void itemCountUpdatedBeforeListUpdateCallbacks() {
+        // verify that itemCount is updated in the helper before dispatching ListUpdateCallbacks
+
+        final int[] expectedCount = new int[] { 0 };
+        // provides access to helper, which must be constructed after callback
+        final PagedListAdapterHelper[] helperAccessor = new PagedListAdapterHelper[] { null };
+
+        ListUpdateCallback callback = new ListUpdateCallback() {
+            @Override
+            public void onInserted(int position, int count) {
+                assertEquals(expectedCount[0], helperAccessor[0].getItemCount());
+            }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                assertEquals(expectedCount[0], helperAccessor[0].getItemCount());
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                fail("not expected");
+            }
+
+            @Override
+            public void onChanged(int position, int count, Object payload) {
+                fail("not expected");
+            }
+        };
+
+        PagedListAdapterHelper<String> helper = createHelper(callback, STRING_DIFF_CALLBACK);
+        helperAccessor[0] = helper;
+
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setPageSize(20)
+                .build();
+
+
+        // in the fast-add case...
+        expectedCount[0] = 5;
+        assertEquals(0, helper.getItemCount());
+        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 5), 0));
+        assertEquals(5, helper.getItemCount());
+
+        // in the slow, diff on BG thread case...
+        expectedCount[0] = 10;
+        assertEquals(5, helper.getItemCount());
+        helper.setList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 10), 0));
+        drain();
+        assertEquals(10, helper.getItemCount());
+
+        // and in the fast-remove case
+        expectedCount[0] = 0;
+        assertEquals(10, helper.getItemCount());
+        helper.setList(null);
+        assertEquals(0, helper.getItemCount());
     }
 
     private void drainExceptDiffThread() {
