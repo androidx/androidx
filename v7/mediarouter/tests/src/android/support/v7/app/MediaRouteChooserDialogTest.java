@@ -16,7 +16,6 @@
 
 package android.support.v7.app;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -66,7 +65,7 @@ public class MediaRouteChooserDialogTest {
         // No base theme, with a customized theme (has window title)
         dialog = new MediaRouteChooserDialog(context, R.style.HasWindowTitle);
         typedArray = dialog.getContext().obtainStyledAttributes(R.styleable.AppCompatTheme);
-        assertFalse(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
+        assertTrue(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
         typedArray.recycle();
 
         // With base theme (has window title), no customized theme
@@ -79,7 +78,7 @@ public class MediaRouteChooserDialogTest {
         // With base theme and a customized theme (both has window title)
         dialog = new MediaRouteChooserDialog(context, R.style.HasWindowTitle);
         typedArray = dialog.getContext().obtainStyledAttributes(R.styleable.AppCompatTheme);
-        assertFalse(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
+        assertTrue(typedArray.getBoolean(R.styleable.AppCompatTheme_windowNoTitle, false));
         typedArray.recycle();
 
         context.setTheme(0);
