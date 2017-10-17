@@ -205,18 +205,18 @@ public class QueryTransactionTest {
         LiveData<PagedList<Entity1>> pagedList = mDao.pagedList().create(null, 10);
         observeForever(pagedList);
         drain();
-        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 1 : 0));
+        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 0 : 0));
 
         mDao.insert(new Entity1(1, "foo"));
         drain();
         //noinspection ConstantConditions
         assertThat(pagedList.getValue().size(), is(1));
-        assertTransactionCount(pagedList.getValue(), mUseTransactionDao ? 3 : 1);
+        assertTransactionCount(pagedList.getValue(), mUseTransactionDao ? 2 : 1);
 
         mDao.insert(new Entity1(2, "bar"));
         drain();
         assertThat(pagedList.getValue().size(), is(2));
-        assertTransactionCount(pagedList.getValue(), mUseTransactionDao ? 5 : 2);
+        assertTransactionCount(pagedList.getValue(), mUseTransactionDao ? 4 : 2);
     }
 
     @Test

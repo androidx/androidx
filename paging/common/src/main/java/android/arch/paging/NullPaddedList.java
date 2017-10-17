@@ -16,11 +16,9 @@
 
 package android.arch.paging;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
-import java.util.ArrayList;
+import java.util.AbstractList;
 import java.util.List;
 
 /**
@@ -31,18 +29,11 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class NullPaddedList<Type> extends PagedList<Type> {
+public class NullPaddedList<Type> extends AbstractList<Type> {
     List<Type> mList;
-    int mTrailingNullCount;
-    int mLeadingNullCount;
-    int mPositionOffset;
-
-    // track the items prepended/appended since the PagedList was initialized
-    int mNumberPrepended;
-    int mNumberAppended;
-
-    NullPaddedList() {
-    }
+    private int mTrailingNullCount;
+    private int mLeadingNullCount;
+    private int mPositionOffset;
 
     @Override
     public String toString() {
@@ -91,20 +82,6 @@ public class NullPaddedList<Type> extends PagedList<Type> {
         mPositionOffset = positionOffset;
     }
 
-    /**
-     * Create a copy of the passed NullPaddedList.
-     *
-     * @param other Other list to copy.
-     */
-    NullPaddedList(NullPaddedList<Type> other) {
-        mLeadingNullCount = other.getLeadingNullCount();
-        mList = other.isImmutable() ? other.mList : new ArrayList<>(other.mList);
-        mTrailingNullCount = other.getTrailingNullCount();
-
-        mNumberPrepended = other.getNumberPrepended();
-        mNumberAppended = other.getNumberAppended();
-    }
-
     // --------------- PagedList API ---------------
 
     @Override
@@ -124,46 +101,12 @@ public class NullPaddedList<Type> extends PagedList<Type> {
     }
 
     @Override
-    public void loadAround(int index) {
-        // do nothing - immutable, so no fetching will be done
-    }
-
-    @Override
     public final int size() {
         return getLoadedCount() + getLeadingNullCount() + getTrailingNullCount();
     }
 
-    public boolean isImmutable() {
-        return true;
-    }
-
-    @Override
-    public PagedList<Type> snapshot() {
-        if (isImmutable()) {
-            return this;
-        }
-        return new NullPaddedList<>(this);
-    }
-
-    @Override
-    boolean isContiguous() {
-        return true;
-    }
-
-    @Override
-    public void addWeakCallback(@Nullable PagedList<Type> previousSnapshot,
-            @NonNull Callback callback) {
-        // no op, immutable
-    }
-
-    @Override
-    public void removeWeakCallback(Callback callback) {
-        // no op, immutable
-    }
-
     // --------------- Contiguous API ---------------
 
-    @Override
     public int getPositionOffset() {
         return mPositionOffset;
     }
@@ -193,13 +136,5 @@ public class NullPaddedList<Type> extends PagedList<Type> {
      */
     public int getTrailingNullCount() {
         return mTrailingNullCount;
-    }
-
-    int getNumberPrepended() {
-        return mNumberPrepended;
-    }
-
-    int getNumberAppended() {
-        return mNumberAppended;
     }
 }

@@ -86,6 +86,7 @@ public class RoomPagedListActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         PagedList<Customer> list = mAdapter.getCurrentList();
         if (list == null) {
             // Can't find anything to restore
