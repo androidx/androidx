@@ -14,33 +14,55 @@
  * limitations under the License
  */
 
-package android.support.tools.jetifier.core.transform.bytecode
+package android.support.tools.jetifier.core.map
 
+import android.support.tools.jetifier.core.archive.Archive
 import android.support.tools.jetifier.core.archive.ArchiveFile
+import android.support.tools.jetifier.core.archive.ArchiveItemVisitor
 import android.support.tools.jetifier.core.config.Config
-import android.support.tools.jetifier.core.transform.TransformationContext
 import android.support.tools.jetifier.core.transform.Transformer
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 
 /**
- * The [Transformer] responsible for java byte code refactoring.
+ * Scans a library java files using [MapGeneratorRemapper] to create [TypesMap].
  */
-class ByteCodeTransformer internal constructor(context: TransformationContext) : Transformer {
+class LibraryMapGenerator constructor(config: Config) : ArchiveItemVisitor {
 
-    private val remapper: CoreRemapperImpl = CoreRemapperImpl(context)
+    val remapper = MapGeneratorRemapper(config)
 
+    /**
+     * Scans the given [library] to extend the types map meta-data. The final map can be retrieved
+     * using [generateMap].
+     */
+    fun scanLibrary(library: Archive) {
+        library.accept(this)
+    }
 
-    override fun canTransform(file: ArchiveFile) = file.isClassFile()
+    /**
+     * Creates the [TypesMap] based on the meta-data aggregated via previous [scanFile] calls
+     */
+    fun generateMap() : TypesMap {
+        return remapper.createTypesMap()
+    }
 
-    override fun runTransform(file: ArchiveFile) {
+    override fun visit(archive: Archive) {
+        archive.files.forEach{ it.accept(this) }
+    }
+
+    override fun visit(archiveFile: ArchiveFile) {
+        if (archiveFile.isClassFile()) {
+            scanFile(archiveFile)
+        }
+    }
+
+    private fun scanFile(file: ArchiveFile) {
         val reader = ClassReader(file.data)
         val writer = ClassWriter(0 /* flags */)
 
         val visitor = remapper.createClassRemapper(writer)
 
         reader.accept(visitor, 0 /* flags */)
-
-        file.data = writer.toByteArray()
     }
+
 }

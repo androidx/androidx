@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-package android.support.tools.jetifier.core.transform.bytecode.asm
+package android.support.tools.jetifier.core.transform.bytecode
 
 import android.support.tools.jetifier.core.rules.JavaField
 import android.support.tools.jetifier.core.rules.JavaType

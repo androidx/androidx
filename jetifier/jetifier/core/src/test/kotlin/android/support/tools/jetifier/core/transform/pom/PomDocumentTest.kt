@@ -389,7 +389,7 @@ class PomDocumentTest {
         val file = ArchiveFile(Paths.get("pom.xml"), given.toByteArray())
         val pomDocument = PomDocument.loadFrom(file)
         pomDocument.applyRules(rules)
-        pomDocument.saveBackToFile()
+        pomDocument.saveBackToFileIfNeeded()
         var strResult = file.data.toString(StandardCharsets.UTF_8)
 
         // Remove spaces in front of '<' and the back of '>'

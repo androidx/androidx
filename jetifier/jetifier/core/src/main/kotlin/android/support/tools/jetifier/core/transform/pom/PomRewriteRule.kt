@@ -17,6 +17,7 @@
 package android.support.tools.jetifier.core.transform.pom
 
 import android.support.tools.jetifier.core.utils.Log
+import com.google.gson.annotations.SerializedName
 
 /**
  * Rule that defines how to rewrite a dependency element in a POM file.
@@ -77,4 +78,26 @@ data class PomRewriteRule(val from: PomDependency, val to: List<PomDependency>) 
     fun matches(input: PomDependency) : Boolean {
         return input.artifactId == from.artifactId && input.groupId == from.groupId
     }
+
+    /** Returns JSON data model of this class */
+    fun toJson() : PomRewriteRule.JsonData {
+        return PomRewriteRule.JsonData(from, to)
+    }
+
+
+    /**
+     * JSON data model for [PomRewriteRule].
+     */
+    data class JsonData(
+            @SerializedName("from")
+            val from: PomDependency,
+            @SerializedName("to")
+            val to: List<PomDependency>)  {
+
+        /** Creates instance of [PomRewriteRule] */
+        fun toRule() : PomRewriteRule {
+            return PomRewriteRule(from, to.filterNotNull())
+        }
+    }
+
 }

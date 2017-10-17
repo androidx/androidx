@@ -14,9 +14,13 @@
  * limitations under the License
  */
 
-rootProject.name = 'jetifier'
-include 'core'
-include 'gradle-plugin'
-include 'standalone'
-include 'preprocessor'
+version '1.0'
 
+apply plugin: "application"
+
+mainClassName = "android.support.tools.jetifier.preprocessor.MainKt"
+
+dependencies {
+    compile project(':core')
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
+}

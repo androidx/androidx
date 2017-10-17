@@ -23,22 +23,22 @@ class PomRewriteRuleTest {
 
     @Test fun versions_nullInRule_match() {
         testVersionsMatch(
-                ruleVersion = null,
-                pomVersion = "27.0.0"
+            ruleVersion = null,
+            pomVersion = "27.0.0"
         )
     }
 
     @Test fun versions_nullInPom_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = null
+            ruleVersion = "27.0.0",
+            pomVersion = null
         )
     }
 
     @Test fun versions_nullBoth_match() {
         testVersionsMatch(
-                ruleVersion = null,
-                pomVersion = null
+            ruleVersion = null,
+            pomVersion = null
         )
     }
 
@@ -51,71 +51,71 @@ class PomRewriteRuleTest {
 
     @Test fun versions_same_strict_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "[27.0.0]"
+            ruleVersion = "27.0.0",
+            pomVersion = "[27.0.0]"
         )
     }
 
     @Test fun versions_different_noMatch() {
         testVersionsDoNotMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "26.0.0"
+            ruleVersion = "27.0.0",
+            pomVersion = "26.0.0"
         )
     }
 
     @Test fun versions_release_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "release"
+            ruleVersion = "27.0.0",
+            pomVersion = "release"
         )
     }
 
     @Test fun versions_latest_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "latest"
+            ruleVersion = "27.0.0",
+            pomVersion = "latest"
         )
     }
 
     @Test fun versions_range_rightOpen_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "(26.0.0,]"
+            ruleVersion = "27.0.0",
+            pomVersion = "(26.0.0,]"
         )
     }
 
     @Test fun versions_range_rightOpen2_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "(26.0.0,)"
+            ruleVersion = "27.0.0",
+            pomVersion = "(26.0.0,)"
         )
     }
 
     @Test fun versions_range_inclusive_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "[21.0.0,27.0.0]"
+            ruleVersion = "27.0.0",
+            pomVersion = "[21.0.0,27.0.0]"
         )
     }
 
     @Test fun versions_range_inclusive_noMatch() {
         testVersionsDoNotMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "[21.0.0,26.0.0]"
+            ruleVersion = "27.0.0",
+            pomVersion = "[21.0.0,26.0.0]"
         )
     }
 
     @Test fun versions_range_exclusive_noMatch() {
         testVersionsDoNotMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "[21.0.0,27.0.0)"
+            ruleVersion = "27.0.0",
+            pomVersion = "[21.0.0,27.0.0)"
         )
     }
 
     @Test fun versions_exclusionRange_match() {
         testVersionsMatch(
-                ruleVersion = "27.0.0",
-                pomVersion = "(,26.0.0),(26.0.0,)"
+            ruleVersion = "27.0.0",
+            pomVersion = "(,26.0.0),(26.0.0,)"
         )
     }
 
@@ -136,5 +136,5 @@ class PomRewriteRuleTest {
 
         Truth.assertThat(rule.validateVersion(pom)).isFalse()
     }
-}
 
+}

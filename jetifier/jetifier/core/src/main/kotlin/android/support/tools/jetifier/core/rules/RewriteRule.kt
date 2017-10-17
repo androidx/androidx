@@ -16,10 +16,13 @@
 
 package android.support.tools.jetifier.core.rules
 
+import com.google.gson.annotations.SerializedName
 import java.util.regex.Pattern
 
 /**
  * Rule that rewrites a Java type or field based on the given arguments.
+ *
+ * Used in the preprocessor when generating [TypesMap].
  *
  * @param from Regular expression where packages are separated via '/' and inner class separator
  * is "$". Used to match the input type.
@@ -29,9 +32,12 @@ import java.util.regex.Pattern
  * type is matched (using 'from') and the field is matched (or the list of fields selectors is
  * empty) the field's type gets rewritten according to the 'to' parameter.
  */
-class RewriteRule(from: String, to: String, fieldSelectors: List<String> = emptyList()) {
+class RewriteRule(
+        private val from: String,
+        private val to: String,
+        private val fieldSelectors: List<String> = emptyList()) {
 
-    // Escape '$' so we don't conflict with regular expression symbols.
+    // We escape '$' so we don't conflict with regular expression symbols.
     private val inputPattern = Pattern.compile("^${from.replace("$", "\\$")}$")
     private val outputPattern = to.replace("$", "\$")
 
@@ -79,9 +85,34 @@ class RewriteRule(from: String, to: String, fieldSelectors: List<String> = empty
     }
 
     override fun toString() : String {
-        // TODO: Improve
         return "$inputPattern -> $outputPattern " + fields.joinToString { it.toString() }
     }
+
+    /** Returns JSON data model of this class */
+    fun toJson() : JsonData {
+        return JsonData(from, to, fieldSelectors)
+    }
+
+
+    /**
+     * JSON data model for [RewriteRule].
+     */
+    data class JsonData(
+            @SerializedName("from")
+            val from: String,
+
+            @SerializedName("to")
+            val to: String,
+
+            @SerializedName("fieldSelectors")
+            val fieldSelectors: List<String>? = null)  {
+
+        /** Creates instance of [RewriteRule] */
+        fun toRule() : RewriteRule {
+            return RewriteRule(from, to, fieldSelectors.orEmpty())
+        }
+    }
+
 }
 
 

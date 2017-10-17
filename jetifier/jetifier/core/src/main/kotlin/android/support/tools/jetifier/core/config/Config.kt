@@ -18,20 +18,68 @@ package android.support.tools.jetifier.core.config
 
 import android.support.tools.jetifier.core.rules.RewriteRule
 import android.support.tools.jetifier.core.transform.pom.PomRewriteRule
+import android.support.tools.jetifier.core.map.TypesMap
+import com.google.gson.annotations.SerializedName
 
 /**
  * The main and only one configuration that is used by the tool and all its transformers.
  *
- * [restrictToPackagePrefixes] Package prefixes that limit the scope of the rewriting.
- * [rewriteRules] List of rules that are applied on the byte code to rewrite it.
+ * [restrictToPackagePrefixes] Package prefixes that limit the scope of the rewriting
+ * [rewriteRules] Rules to scan support libraries to generate [TypesMap]
+ * [pomRewriteRules] Rules to rewrite POM files
+ * [typesMap] Map of all java types and fields to be used to rewrite libraries.
  */
 data class Config(
         val restrictToPackagePrefixes: List<String>,
         val rewriteRules: List<RewriteRule>,
-        val pomRewriteRules: List<PomRewriteRule>) {
+        val pomRewriteRules: List<PomRewriteRule>,
+        val typesMap: TypesMap) {
 
     companion object {
         /** Path to the default config file located within the jar file. */
         const val DEFAULT_CONFIG_RES_PATH = "/default.config"
     }
+
+    fun setNewMap(mappings: TypesMap) : Config {
+        return Config(restrictToPackagePrefixes, rewriteRules, pomRewriteRules, mappings)
+    }
+
+    /** Returns JSON data model of this class */
+    fun toJson() : JsonData {
+        return JsonData(
+            restrictToPackagePrefixes,
+            rewriteRules.map { it.toJson() }.toList(),
+            pomRewriteRules.map { it.toJson() }.toList(),
+            typesMap.toJson()
+        )
+    }
+
+
+    /**
+     * JSON data model for [Config].
+     */
+    data class JsonData(
+            @SerializedName("restrictToPackagePrefixes")
+            val restrictToPackages: List<String?>,
+
+            @SerializedName("rules")
+            val rules: List<RewriteRule.JsonData?>,
+
+            @SerializedName("pomRules")
+            val pomRules: List<PomRewriteRule.JsonData?>,
+
+            @SerializedName("map")
+            val mappings: TypesMap.JsonData? = null) {
+
+        /** Creates instance of [Config] */
+        fun toConfig() : Config {
+            return Config(
+                restrictToPackages.filterNotNull(),
+                rules.filterNotNull().map { it.toRule() },
+                pomRules.filterNotNull().map { it.toRule() },
+                mappings?.toMappings() ?: TypesMap.EMPTY
+            )
+        }
+    }
+
 }
