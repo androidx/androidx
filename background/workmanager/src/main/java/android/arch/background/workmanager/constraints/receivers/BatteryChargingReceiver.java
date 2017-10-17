@@ -29,19 +29,28 @@ import android.os.Build;
 
 public class BatteryChargingReceiver extends BaseConstraintsReceiver {
 
+    private Boolean mIsCharging;
+
     public BatteryChargingReceiver(Context context) {
         super(context);
     }
 
     @Override
     public void setUpInitialState(ConstraintsState state) {
-        // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so we
-        // use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        if (mIsCharging == null) {
+            // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
+            // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
 
-        Intent intent = mAppContext.registerReceiver(null, intentFilter);
-        state.setCharging(isBatteryChangedIntentCharging(intent));
+            Intent intent = mAppContext.registerReceiver(null, intentFilter);
+            if (intent != null) {
+                mIsCharging = isBatteryChangedIntentCharging(intent);
+                state.setCharging(mIsCharging);
+            }
+        } else {
+            state.setCharging(mIsCharging);
+        }
     }
 
     @Override
@@ -64,23 +73,25 @@ public class BatteryChargingReceiver extends BaseConstraintsReceiver {
 
         switch (intent.getAction()) {
             case BatteryManager.ACTION_CHARGING:
-                for (ConstraintsState state : mConstraintsStateList) {
-                    state.setCharging(true);
-                }
+                setIsChargingAndNotify(true);
                 break;
 
             case BatteryManager.ACTION_DISCHARGING:
-                for (ConstraintsState state : mConstraintsStateList) {
-                    state.setCharging(false);
-                }
+                setIsChargingAndNotify(false);
                 break;
 
             case Intent.ACTION_BATTERY_CHANGED: {
-                boolean charging = isBatteryChangedIntentCharging(intent);
-                for (ConstraintsState state : mConstraintsStateList) {
-                    state.setCharging(charging);
-                }
+                setIsChargingAndNotify(isBatteryChangedIntentCharging(intent));
                 break;
+            }
+        }
+    }
+
+    private void setIsChargingAndNotify(boolean isCharging) {
+        if (mIsCharging != isCharging) {
+            mIsCharging = isCharging;
+            for (ConstraintsState state : mConstraintsStateList) {
+                state.setCharging(mIsCharging);
             }
         }
     }
