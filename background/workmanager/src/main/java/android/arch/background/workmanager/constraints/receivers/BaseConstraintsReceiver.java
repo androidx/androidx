@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints;
+package android.arch.background.workmanager.constraints.receivers;
 
+import android.arch.background.workmanager.constraints.ConstraintsState;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
@@ -73,11 +74,17 @@ public abstract class BaseConstraintsReceiver extends BroadcastReceiver {
      */
     public abstract IntentFilter getIntentFilter();
 
-    void registerReceiver() {
+    /**
+     * Registers this {@link BroadcastReceiver} with the application context.
+     */
+    public void registerReceiver() {
         mAppContext.registerReceiver(this, getIntentFilter());
     }
 
-    void unregisterReceiver() {
+    /**
+     * Unregisters this {@link BroadcastReceiver} with the application context.
+     */
+    public void unregisterReceiver() {
         mAppContext.unregisterReceiver(this);
     }
 }
