@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints;
+package android.arch.background.workmanager.constraints.controllers;
 
+import android.arch.background.workmanager.constraints.ConstraintsState;
+import android.arch.background.workmanager.constraints.receivers.BaseConstraintsReceiver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;

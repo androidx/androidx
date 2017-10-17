@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
+import android.arch.background.workmanager.constraints.receivers.BaseConstraintsReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;

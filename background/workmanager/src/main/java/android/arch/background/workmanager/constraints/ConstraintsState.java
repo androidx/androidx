@@ -37,7 +37,12 @@ public class ConstraintsState {
         mListener = listener;
     }
 
-    void setCharging(boolean charging) {
+    /**
+     * Sets the charging status of this {@link ConstraintsState}.
+     *
+     * @param charging {@code true} if the device is charging
+     */
+    public void setCharging(boolean charging) {
         if (mIsCharging != charging) {
             mIsCharging = charging;
             tryNotifyListener();
@@ -48,7 +53,12 @@ public class ConstraintsState {
         return mIsCharging;
     }
 
-    void setBatteryNotLow(boolean batteryNotLow) {
+    /**
+     * Sets the battery status of this {@link ConstraintsState}.
+     *
+     * @param batteryNotLow {@code true} if the battery is not low
+     */
+    public void setBatteryNotLow(boolean batteryNotLow) {
         if (mIsBatteryNotLow != batteryNotLow) {
             mIsBatteryNotLow = batteryNotLow;
             tryNotifyListener();
@@ -59,7 +69,12 @@ public class ConstraintsState {
         return mIsBatteryNotLow;
     }
 
-    void startPerformingBatchUpdates() {
+    /**
+     * Signals this object should start performing batch updates.
+     *
+     * During batch updates, no listeners are notified until the end.
+     */
+    public void startPerformingBatchUpdates() {
         if (mPerformingInitialUpdates) {
             Log.d(TAG, "Already performing batch updates");
             return;
@@ -69,7 +84,12 @@ public class ConstraintsState {
         mShouldNotifyAfterInitialUpdates = false;
     }
 
-    void stopPerformingBatchUpdates() {
+    /**
+     * Signals this object should stop performing batch updates.
+     *
+     * If any changes were made during the update, listeners are notified at the end of this method.
+     */
+    public void stopPerformingBatchUpdates() {
         if (!mPerformingInitialUpdates) {
             Log.d(TAG, "Already not performing batch updates");
             return;
