@@ -118,6 +118,8 @@ import android.support.v7.widget.RecyclerView;
  * @param <T> Type of the PagedLists this helper will receive.
  */
 public class PagedListAdapterHelper<T> {
+    // updateCallback notifications must only be notified *after* new data and item count are stored
+    // this ensures Adapter#notifyItemRangeInserted etc are accessing the new data
     private final ListUpdateCallback mUpdateCallback;
     private final ListAdapterConfig<T> mConfig;
 
@@ -236,21 +238,25 @@ public class PagedListAdapterHelper<T> {
         final int runGeneration = ++mMaxScheduledGeneration;
 
         if (pagedList == null) {
-            mUpdateCallback.onRemoved(0, getItemCount());
+            int removedCount = getItemCount();
             if (mPagedList != null) {
                 mPagedList.removeWeakCallback(mPagedListCallback);
                 mPagedList = null;
             } else if (mSnapshot != null) {
                 mSnapshot = null;
             }
+            // dispatch update callback after updating mPagedList/mSnapshot
+            mUpdateCallback.onRemoved(0, removedCount);
             return;
         }
 
         if (mPagedList == null && mSnapshot == null) {
             // fast simple first insert
-            mUpdateCallback.onInserted(0, pagedList.size());
             mPagedList = pagedList;
             pagedList.addWeakCallback(null, mPagedListCallback);
+
+            // dispatch update callback after updating mPagedList/mSnapshot
+            mUpdateCallback.onInserted(0, pagedList.size());
             return;
         }
 
@@ -296,10 +302,14 @@ public class PagedListAdapterHelper<T> {
             throw new IllegalStateException("must be in snapshot state to apply diff");
         }
 
-        PagedStorageDiffHelper.dispatchDiff(mUpdateCallback,
-                mSnapshot.mStorage, newList.mStorage, diffResult);
+        PagedList<T> previousSnapshot = mSnapshot;
         mPagedList = newList;
         mSnapshot = null;
+
+        // dispatch update callback after updating mPagedList/mSnapshot
+        PagedStorageDiffHelper.dispatchDiff(mUpdateCallback,
+                previousSnapshot.mStorage, newList.mStorage, diffResult);
+
         newList.addWeakCallback(diffSnapshot, mPagedListCallback);
     }
 
