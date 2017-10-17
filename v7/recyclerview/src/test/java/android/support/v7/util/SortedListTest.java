@@ -16,6 +16,7 @@
 
 package android.support.v7.util;
 
+import android.support.annotation.Nullable;
 import android.support.test.filters.SmallTest;
 
 import junit.framework.TestCase;
@@ -41,6 +42,8 @@ public class SortedListTest extends TestCase {
     List<Pair> mRemovals = new ArrayList<Pair>();
     List<Pair> mMoves = new ArrayList<Pair>();
     List<Pair> mUpdates = new ArrayList<Pair>();
+    private boolean mPayloadChanges = false;
+    List<PayloadChange> mPayloadUpdates = new ArrayList<>();
     private SortedList.Callback<Item> mCallback;
     InsertedCallback<Item> mInsertedCallback;
     ChangedCallback<Item> mChangedCallback;
@@ -97,6 +100,15 @@ public class SortedListTest extends TestCase {
             }
 
             @Override
+            public void onChanged(int position, int count, Object payload) {
+                if (mPayloadChanges) {
+                    mPayloadUpdates.add(new PayloadChange(position, count, payload));
+                } else {
+                    onChanged(position, count);
+                }
+            }
+
+            @Override
             public boolean areContentsTheSame(Item oldItem, Item newItem) {
                 return oldItem.cmpField == newItem.cmpField && oldItem.data == newItem.data;
             }
@@ -104,6 +116,15 @@ public class SortedListTest extends TestCase {
             @Override
             public boolean areItemsTheSame(Item item1, Item item2) {
                 return item1.id == item2.id;
+            }
+
+            @Nullable
+            @Override
+            public Object getChangePayload(Item item1, Item item2) {
+                if (mPayloadChanges) {
+                    return item2.data;
+                }
+                return null;
             }
         };
         mInsertedCallback = null;
@@ -705,6 +726,76 @@ public class SortedListTest extends TestCase {
         assertTrue(mAdditions.contains(new Pair(0, 6)));
     }
 
+    @Test
+    public void testAddExistingItemCallsChangeWithPayload() {
+        mList.addAll(
+                new Item(1, 10),
+                new Item(2, 20),
+                new Item(3, 30)
+        );
+        mPayloadChanges = true;
+
+        // add an item with the same id but a new data field i.e. send an update
+        final Item twoUpdate = new Item(2, 20);
+        twoUpdate.data = 1337;
+        mList.add(twoUpdate);
+        assertEquals(1, mPayloadUpdates.size());
+        final PayloadChange update = mPayloadUpdates.get(0);
+        assertEquals(1, update.position);
+        assertEquals(1, update.count);
+        assertEquals(1337, update.payload);
+        assertEquals(3, size());
+    }
+
+    @Test
+    public void testUpdateItemCallsChangeWithPayload() {
+        mList.addAll(
+                new Item(1, 10),
+                new Item(2, 20),
+                new Item(3, 30)
+        );
+        mPayloadChanges = true;
+
+        // add an item with the same id but a new data field i.e. send an update
+        final Item twoUpdate = new Item(2, 20);
+        twoUpdate.data = 1337;
+        mList.updateItemAt(1, twoUpdate);
+        assertEquals(1, mPayloadUpdates.size());
+        final PayloadChange update = mPayloadUpdates.get(0);
+        assertEquals(1, update.position);
+        assertEquals(1, update.count);
+        assertEquals(1337, update.payload);
+        assertEquals(3, size());
+        assertEquals(1337, mList.get(1).data);
+    }
+
+    @Test
+    public void testAddMultipleExistingItemCallsChangeWithPayload() {
+        mList.addAll(
+                new Item(1, 10),
+                new Item(2, 20),
+                new Item(3, 30)
+        );
+        mPayloadChanges = true;
+
+        // add two items with the same ids but a new data fields i.e. send two updates
+        final Item twoUpdate = new Item(2, 20);
+        twoUpdate.data = 222;
+        final Item threeUpdate = new Item(3, 30);
+        threeUpdate.data = 333;
+        mList.addAll(twoUpdate, threeUpdate);
+        assertEquals(2, mPayloadUpdates.size());
+        final PayloadChange update1 = mPayloadUpdates.get(0);
+        assertEquals(1, update1.position);
+        assertEquals(1, update1.count);
+        assertEquals(222, update1.payload);
+        final PayloadChange update2 = mPayloadUpdates.get(1);
+        assertEquals(2, update2.position);
+        assertEquals(1, update2.count);
+        assertEquals(333, update2.payload);
+        assertEquals(3, size());
+    }
+
     private int size() {
         return mList.size();
     }
@@ -818,6 +909,39 @@ public class SortedListTest extends TestCase {
         public int hashCode() {
             int result = first;
             result = 31 * result + second;
+            return result;
+        }
+    }
+
+    private static final class PayloadChange {
+        public final int position;
+        public final int count;
+        public final Object payload;
+
+        PayloadChange(int position, int count, Object payload) {
+            this.position = position;
+            this.count = count;
+            this.payload = payload;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            PayloadChange payloadChange = (PayloadChange) o;
+
+            if (position != payloadChange.position) return false;
+            if (count != payloadChange.count) return false;
+            return payload != null ? payload.equals(payloadChange.payload)
+                    : payloadChange.payload == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = position;
+            result = 31 * result + count;
+            result = 31 * result + (payload != null ? payload.hashCode() : 0);
             return result;
         }
     }

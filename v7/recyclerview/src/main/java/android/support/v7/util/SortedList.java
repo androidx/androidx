@@ -16,6 +16,8 @@
 
 package android.support.v7.util;
 
+import android.support.annotation.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
@@ -315,7 +317,8 @@ public class SortedList<T> {
                 newDataStart++;
                 mOldDataStart++;
                 if (!mCallback.areContentsTheSame(oldItem, newItem)) {
-                    mCallback.onChanged(mMergedSize - 1, 1);
+                    mCallback.onChanged(mMergedSize - 1, 1,
+                            mCallback.getChangePayload(oldItem, newItem));
                 }
             } else {
                 // Old item is lower than or equal to (but not the same as the new). Output it.
@@ -401,7 +404,7 @@ public class SortedList<T> {
                     return index;
                 } else {
                     mData[index] = item;
-                    mCallback.onChanged(index, 1);
+                    mCallback.onChanged(index, 1, mCallback.getChangePayload(existing, item));
                     return index;
                 }
             }
@@ -488,13 +491,13 @@ public class SortedList<T> {
             if (cmp == 0) {
                 mData[index] = item;
                 if (contentsChanged) {
-                    mCallback.onChanged(index, 1);
+                    mCallback.onChanged(index, 1, mCallback.getChangePayload(existing, item));
                 }
                 return;
             }
         }
         if (contentsChanged) {
-            mCallback.onChanged(index, 1);
+            mCallback.onChanged(index, 1, mCallback.getChangePayload(existing, item));
         }
         // TODO this done in 1 pass to avoid shifting twice.
         removeItemAtIndex(index, false);
@@ -741,6 +744,28 @@ public class SortedList<T> {
          * @return True if the two items represent the same object or false if they are different.
          */
         abstract public boolean areItemsTheSame(T2 item1, T2 item2);
+
+        /**
+         * When {@link #areItemsTheSame(T2, T2)} returns {@code true} for two items and
+         * {@link #areContentsTheSame(T2, T2)} returns false for them, {@link Callback} calls this
+         * method to get a payload about the change.
+         * <p>
+         * For example, if you are using {@link Callback} with
+         * {@link android.support.v7.widget.RecyclerView}, you can return the particular field that
+         * changed in the item and your
+         * {@link android.support.v7.widget.RecyclerView.ItemAnimator ItemAnimator} can use that
+         * information to run the correct animation.
+         * <p>
+         * Default implementation returns {@code null}.
+         *
+         * @param item1 The first item to check.
+         * @param item2 The second item to check.
+         * @return A payload object that represents the changes between the two items.
+         */
+        @Nullable
+        public Object getChangePayload(T2 item1, T2 item2) {
+            return null;
+        }
     }
 
     /**
@@ -801,6 +826,11 @@ public class SortedList<T> {
         }
 
         @Override
+        public void onChanged(int position, int count, Object payload) {
+            mBatchingListUpdateCallback.onChanged(position, count, payload);
+        }
+
+        @Override
         public boolean areContentsTheSame(T2 oldItem, T2 newItem) {
             return mWrappedCallback.areContentsTheSame(oldItem, newItem);
         }
@@ -808,6 +838,12 @@ public class SortedList<T> {
         @Override
         public boolean areItemsTheSame(T2 item1, T2 item2) {
             return mWrappedCallback.areItemsTheSame(item1, item2);
+        }
+
+        @Nullable
+        @Override
+        public Object getChangePayload(T2 item1, T2 item2) {
+            return mWrappedCallback.getChangePayload(item1, item2);
         }
 
         /**
