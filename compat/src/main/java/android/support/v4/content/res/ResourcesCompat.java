@@ -307,11 +307,11 @@ public final class ResourcesCompat {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static Typeface getFont(@NonNull Context context, @FontRes int id, TypedValue value,
-            int style) throws NotFoundException {
+            int style, @Nullable FontCallback fontCallback) throws NotFoundException {
         if (context.isRestricted()) {
             return null;
         }
-        return loadFont(context, id, value, style, null /* callback */, null /* handler */,
+        return loadFont(context, id, value, style, fontCallback, null /* handler */,
                 true /* isXmlRequest */);
     }
 
