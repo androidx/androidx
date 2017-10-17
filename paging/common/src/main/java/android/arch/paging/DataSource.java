@@ -17,6 +17,7 @@
 package android.arch.paging;
 
 import android.support.annotation.AnyThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -58,15 +59,6 @@ public abstract class DataSource<Key, Value> {
      */
     @SuppressWarnings("WeakerAccess")
     public static int COUNT_UNDEFINED = -1;
-
-    /**
-     * Number of items that this DataSource can provide in total, or {@link #COUNT_UNDEFINED}.
-     *
-     * @return number of items that this DataSource can provide in total, or
-     * {@link #COUNT_UNDEFINED} if expensive or undesired to compute.
-     */
-    @WorkerThread
-    public abstract int countItems();
 
     /**
      * Returns true if the data source guaranteed to produce a contiguous set of items,
@@ -111,7 +103,7 @@ public abstract class DataSource<Key, Value> {
      */
     @AnyThread
     @SuppressWarnings("WeakerAccess")
-    public void addInvalidatedCallback(InvalidatedCallback onInvalidatedCallback) {
+    public void addInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
         mOnInvalidatedCallbacks.add(onInvalidatedCallback);
     }
 
@@ -122,7 +114,7 @@ public abstract class DataSource<Key, Value> {
      */
     @AnyThread
     @SuppressWarnings("WeakerAccess")
-    public void removeInvalidatedCallback(InvalidatedCallback onInvalidatedCallback) {
+    public void removeInvalidatedCallback(@NonNull InvalidatedCallback onInvalidatedCallback) {
         mOnInvalidatedCallbacks.remove(onInvalidatedCallback);
     }
 

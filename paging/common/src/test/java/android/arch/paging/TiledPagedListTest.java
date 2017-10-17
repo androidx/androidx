@@ -78,75 +78,107 @@ public class TiledPagedListTest {
         }
     }
 
-    private void verifyRange(PageArrayList<Item> list, Integer... loadedPages) {
+    private void verifyRange(List<Item> list, Integer... loadedPages) {
         List<Integer> loadedPageList = Arrays.asList(loadedPages);
         assertEquals(ITEMS.size(), list.size());
         for (int i = 0; i < list.size(); i++) {
             if (loadedPageList.contains(i / PAGE_SIZE)) {
-                assertSame(ITEMS.get(i), list.get(i));
+                assertSame("Index " + i, ITEMS.get(i), list.get(i));
             } else {
-                assertEquals(null, list.get(i));
+                assertEquals("Index " + i, null, list.get(i));
             }
         }
     }
-    private TiledPagedList<Item> createTiledPagedList(int loadPosition) {
-        return createTiledPagedList(loadPosition, PAGE_SIZE);
+    private TiledPagedList<Item> createTiledPagedList(int loadPosition, int initPages) {
+        return createTiledPagedList(loadPosition, initPages, PAGE_SIZE);
     }
 
-    private TiledPagedList<Item> createTiledPagedList(int loadPosition, int prefetchDistance) {
+    private TiledPagedList<Item> createTiledPagedList(int loadPosition, int initPages,
+            int prefetchDistance) {
         TestTiledSource source = new TestTiledSource();
         return new TiledPagedList<>(
                 source, mMainThread, mBackgroundThread,
                 new PagedList.Config.Builder()
                         .setPageSize(PAGE_SIZE)
+                        .setInitialLoadSizeHint(PAGE_SIZE * initPages)
                         .setPrefetchDistance(prefetchDistance)
                         .build(),
                 loadPosition);
     }
 
     @Test
-    public void initialLoad() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(0);
-        verifyRange(pagedList, 0);
+    public void computeFirstLoadPosition_zero() {
+        assertEquals(0, TiledPagedList.computeFirstLoadPosition(0, 30, 10, 100));
+    }
+
+    @Test
+    public void computeFirstLoadPosition_requestedPositionIncluded() {
+        assertEquals(0, TiledPagedList.computeFirstLoadPosition(10, 10, 10, 100));
+    }
+
+    @Test
+    public void computeFirstLoadPosition_endAdjusted() {
+        assertEquals(70, TiledPagedList.computeFirstLoadPosition(99, 30, 10, 100));
+    }
+
+    @Test
+    public void initialLoad_onePage() {
+        TiledPagedList<Item> pagedList = createTiledPagedList(0, 1);
+        verifyRange(pagedList, 0, 1);
+    }
+
+    @Test
+    public void initialLoad_onePageOffset() {
+        TiledPagedList<Item> pagedList = createTiledPagedList(10, 1);
+        verifyRange(pagedList, 0, 1);
+    }
+
+    @Test
+    public void initialLoad_full() {
+        TiledPagedList<Item> pagedList = createTiledPagedList(0, 100);
+        verifyRange(pagedList, 0, 1, 2, 3, 4);
     }
 
     @Test
     public void initialLoad_end() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(44);
+        TiledPagedList<Item> pagedList = createTiledPagedList(44, 2);
         verifyRange(pagedList, 3, 4);
     }
 
     @Test
     public void initialLoad_multiple() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(9);
+        TiledPagedList<Item> pagedList = createTiledPagedList(9, 2);
         verifyRange(pagedList, 0, 1);
     }
 
     @Test
     public void initialLoad_offset() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(41);
+        TiledPagedList<Item> pagedList = createTiledPagedList(41, 2);
         verifyRange(pagedList, 3, 4);
     }
 
     @Test
     public void append() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(0);
+        TiledPagedList<Item> pagedList = createTiledPagedList(0, 1);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
-        verifyRange(pagedList, 0);
+        verifyRange(pagedList, 0, 1);
         verifyZeroInteractions(callback);
 
-        pagedList.loadAround(5);
-        drain();
+        pagedList.loadAround(15);
 
         verifyRange(pagedList, 0, 1);
-        verify(callback).onChanged(10, 10);
+
+        drain();
+
+        verifyRange(pagedList, 0, 1, 2);
+        verify(callback).onChanged(20, 10);
         verifyNoMoreInteractions(callback);
     }
 
     @Test
     public void prepend() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(44);
+        TiledPagedList<Item> pagedList = createTiledPagedList(44, 2);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
         verifyRange(pagedList, 3, 4);
@@ -162,16 +194,16 @@ public class TiledPagedListTest {
 
     @Test
     public void loadWithGap() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(0);
+        TiledPagedList<Item> pagedList = createTiledPagedList(0, 1);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
-        verifyRange(pagedList, 0);
+        verifyRange(pagedList, 0, 1);
         verifyZeroInteractions(callback);
 
         pagedList.loadAround(44);
         drain();
 
-        verifyRange(pagedList, 0, 3, 4);
+        verifyRange(pagedList, 0, 1, 3, 4);
         verify(callback).onChanged(30, 10);
         verify(callback).onChanged(40, 5);
         verifyNoMoreInteractions(callback);
@@ -179,58 +211,56 @@ public class TiledPagedListTest {
 
     @Test
     public void tinyPrefetchTest() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(0, 1);
+        TiledPagedList<Item> pagedList = createTiledPagedList(0, 1, 1);
         PagedList.Callback callback = mock(PagedList.Callback.class);
         pagedList.addWeakCallback(null, callback);
-        verifyRange(pagedList, 0); // just 4 loaded
+        verifyRange(pagedList, 0, 1);
         verifyZeroInteractions(callback);
 
-        pagedList.loadAround(23);
+        pagedList.loadAround(33);
         drain();
 
-        verifyRange(pagedList, 0, 2);
-        verify(callback).onChanged(20, 10);
+        verifyRange(pagedList, 0, 1, 3);
+        verify(callback).onChanged(30, 10);
         verifyNoMoreInteractions(callback);
 
         pagedList.loadAround(44);
         drain();
 
-        verifyRange(pagedList, 0, 2, 4);
+        verifyRange(pagedList, 0, 1, 3, 4);
         verify(callback).onChanged(40, 5);
         verifyNoMoreInteractions(callback);
     }
 
     @Test
     public void appendCallbackAddedLate() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(0, 0);
-        verifyRange(pagedList, 0);
-
-        pagedList.loadAround(15);
-        drain();
+        TiledPagedList<Item> pagedList = createTiledPagedList(0, 1, 0);
         verifyRange(pagedList, 0, 1);
 
-        // snapshot at 20 items
-        PageArrayList<Item> snapshot = (PageArrayList<Item>) pagedList.snapshot();
-        verifyRange(snapshot, 0, 1);
-
-
         pagedList.loadAround(25);
-        pagedList.loadAround(35);
         drain();
-        verifyRange(pagedList, 0, 1, 2, 3);
-        verifyRange(snapshot, 0, 1);
+        verifyRange(pagedList, 0, 1, 2);
+
+        // snapshot at 30 items
+        List<Item> snapshot = pagedList.snapshot();
+        verifyRange(snapshot, 0, 1, 2);
+
+        pagedList.loadAround(35);
+        pagedList.loadAround(44);
+        drain();
+        verifyRange(pagedList, 0, 1, 2, 3, 4);
+        verifyRange(snapshot, 0, 1, 2);
 
         PagedList.Callback callback = mock(
                 PagedList.Callback.class);
         pagedList.addWeakCallback(snapshot, callback);
-        verify(callback).onChanged(20, 20);
+        verify(callback).onChanged(30, 20);
         verifyNoMoreInteractions(callback);
     }
 
-
     @Test
     public void prependCallbackAddedLate() {
-        TiledPagedList<Item> pagedList = createTiledPagedList(44, 0);
+        TiledPagedList<Item> pagedList = createTiledPagedList(44, 2, 0);
         verifyRange(pagedList, 3, 4);
 
         pagedList.loadAround(25);
@@ -238,9 +268,8 @@ public class TiledPagedListTest {
         verifyRange(pagedList, 2, 3, 4);
 
         // snapshot at 30 items
-        PageArrayList<Item> snapshot = (PageArrayList<Item>) pagedList.snapshot();
+        List<Item> snapshot = pagedList.snapshot();
         verifyRange(snapshot, 2, 3, 4);
-
 
         pagedList.loadAround(15);
         pagedList.loadAround(5);
@@ -272,10 +301,11 @@ public class TiledPagedListTest {
 
         assertTrue(pagedList.isContiguous());
 
-        ContiguousPagedList<Item> contiguousPagedList = (ContiguousPagedList<Item>) pagedList;
-        assertEquals(0, contiguousPagedList.getLeadingNullCount());
-        assertEquals(PAGE_SIZE, contiguousPagedList.mList.size());
-        assertEquals(0, contiguousPagedList.getTrailingNullCount());
+        ContiguousPagedList<Integer, Item> contiguousPagedList =
+                (ContiguousPagedList<Integer, Item>) pagedList;
+        assertEquals(0, contiguousPagedList.mStorage.getLeadingNullCount());
+        assertEquals(PAGE_SIZE, contiguousPagedList.mStorage.getStorageCount());
+        assertEquals(0, contiguousPagedList.mStorage.getTrailingNullCount());
     }
 
     private void drain() {

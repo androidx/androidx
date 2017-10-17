@@ -166,17 +166,13 @@ public class QueryDataSourceTest extends TestDatabaseTest {
 
         p = dataSource.loadBefore(15, list.get(0), 10);
         assertNotNull(p);
-        for (User u : p) {
-            list.add(0, u);
-        }
+        list.addAll(0, p);
 
         assertArrayEquals(Arrays.copyOfRange(expected, 5, 35), list.toArray());
 
         p = dataSource.loadBefore(5, list.get(0), 10);
         assertNotNull(p);
-        for (User u : p) {
-            list.add(0, u);
-        }
+        list.addAll(0, p);
 
         assertArrayEquals(Arrays.copyOfRange(expected, 0, 35), list.toArray());
     }

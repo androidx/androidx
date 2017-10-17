@@ -19,6 +19,7 @@ package android.arch.paging;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -92,7 +93,6 @@ public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
      * @return Number of items this DataSource can provide. Must be <code>0</code> or greater.
      */
     @WorkerThread
-    @Override
     public abstract int countItems();
 
     @Override
@@ -118,7 +118,61 @@ public abstract class TiledDataSource<Type> extends DataSource<Integer, Type> {
     @WorkerThread
     public abstract List<Type> loadRange(int startPosition, int count);
 
-    final List<Type> loadRangeWrapper(int startPosition, int count) {
+    /**
+     * blocking, and splits pages
+     */
+    void loadRangeInitial(int startPosition, int count, int pageSize, int itemCount,
+            PageResult.Receiver<Integer, Type> receiver) {
+
+        if (itemCount == 0) {
+            // no data to load, just immediately return empty
+            receiver.onPageResult(new PageResult<>(
+                    PageResult.INIT, new Page<Integer, Type>(Collections.<Type>emptyList()),
+                    0, 0, startPosition));
+            return;
+        }
+
+
+        List<Type> list = loadRangeWrapper(startPosition, count);
+
+        count = Math.min(count, itemCount - startPosition);
+
+        if (list == null) {
+            // invalid data, pass to receiver
+            receiver.onPageResult(new PageResult<Integer, Type>(
+                    PageResult.INIT, null, 0, 0, startPosition));
+            return;
+        }
+
+        if (list.size() != count) {
+            throw new IllegalStateException("Invalid list, requested size: " + count
+                    + ", returned size: " + list.size());
+        }
+
+        // emit the results as multiple pages
+        int pageCount = (count + (pageSize - 1)) / pageSize;
+        for (int i = 0; i < pageCount; i++) {
+            int beginInclusive = i * pageSize;
+            int endExclusive = Math.min(count, (i + 1) * pageSize);
+
+            Page<Integer, Type> page = new Page<>(list.subList(beginInclusive, endExclusive));
+
+            int leadingNulls = startPosition + beginInclusive;
+            int trailingNulls = itemCount - leadingNulls - page.items.size();
+            receiver.onPageResult(new PageResult<>(
+                    PageResult.INIT, page, leadingNulls, trailingNulls, 0));
+        }
+    }
+
+    void loadRange(int startPosition, int count, PageResult.Receiver<Integer, Type> receiver) {
+        List<Type> list = loadRangeWrapper(startPosition, count);
+
+        Page<Integer, Type> page = list != null ? new Page<Integer, Type>(list) : null;
+        receiver.postOnPageResult(new PageResult<>(
+                PageResult.TILE, page, startPosition, 0, 0));
+    }
+
+    private List<Type> loadRangeWrapper(int startPosition, int count) {
         if (isInvalid()) {
             return null;
         }
