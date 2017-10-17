@@ -566,6 +566,25 @@ public class LifecycleRegistryTest {
         verify(observer).onCreate();
     }
 
+    private static void forceGc() {
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
+    }
+
+    @Test
+    public void goneLifecycleOwner() {
+        fullyInitializeRegistry();
+        mLifecycleOwner = null;
+        forceGc();
+        TestObserver observer = mock(TestObserver.class);
+        mRegistry.addObserver(observer);
+        verify(observer, never()).onCreate();
+        verify(observer, never()).onStart();
+        verify(observer, never()).onResume();
+    }
+
     private void dispatchEvent(Lifecycle.Event event) {
         when(mLifecycle.getCurrentState()).thenReturn(LifecycleRegistry.getStateAfter(event));
         mRegistry.handleLifecycleEvent(event);
