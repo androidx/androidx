@@ -16,10 +16,60 @@
 
 package android.arch.paging;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Arrays;
 
-public class StringPagedList extends NullPaddedList<String> {
-    public StringPagedList(int leadingNulls, int trailingNulls, String... items) {
-        super(leadingNulls, Arrays.asList(items), trailingNulls);
+public class StringPagedList extends PagedList<String> implements PagedStorage.Callback {
+    StringPagedList(int leadingNulls, int trailingNulls, String... items) {
+        super(new PagedStorage<Integer, String>(),
+                null, null, null);
+        PagedStorage<Integer, String> keyedStorage = (PagedStorage<Integer, String>) mStorage;
+        keyedStorage.init(leadingNulls,
+                new Page<Integer, String>(null, Arrays.asList(items), null),
+                trailingNulls,
+                0,
+                this);
+    }
+
+    @Override
+    boolean isContiguous() {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public Object getLastKey() {
+        return null;
+    }
+
+    @Override
+    protected void dispatchUpdatesSinceSnapshot(@NonNull PagedList<String> storageSnapshot,
+            @NonNull Callback callback) {
+    }
+
+    @Override
+    protected void loadAroundInternal(int index) {
+    }
+
+    @Override
+    public void onInitialized(int count) {
+    }
+
+    @Override
+    public void onPagePrepended(int leadingNulls, int changed, int added) {
+    }
+
+    @Override
+    public void onPageAppended(int endPosition, int changed, int added) {
+    }
+
+    @Override
+    public void onPagePlaceholderInserted(int pageIndex) {
+    }
+
+    @Override
+    public void onPageInserted(int start, int count) {
     }
 }

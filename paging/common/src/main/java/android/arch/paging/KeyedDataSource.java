@@ -103,10 +103,6 @@ import java.util.List;
  * @param <Value> Type of items being loaded by the DataSource.
  */
 public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
-    @Override
-    public final int countItems() {
-        return 0; // method not called, can't be overridden
-    }
 
     @Nullable
     @Override
@@ -118,7 +114,14 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
     @Override
     List<Value> loadBeforeImpl(
             int currentBeginIndex, @NonNull Value currentBeginItem, int pageSize) {
-        return loadBefore(getKey(currentBeginItem), pageSize);
+        List<Value> list = loadBefore(getKey(currentBeginItem), pageSize);
+
+        if (list != null && list.size() > 1) {
+            // TODO: move out of keyed entirely, into the DB DataSource.
+            list = new ArrayList<>(list);
+            Collections.reverse(list);
+        }
+        return list;
     }
 
     @Nullable
@@ -191,6 +194,8 @@ public abstract class KeyedDataSource<Key, Value> extends ContiguousDataSource<K
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WorkerThread
+    @Override
     public NullPaddedList<Value> loadInitial(
             @Nullable Key key, int initialLoadSize, boolean enablePlaceholders) {
         if (isInvalid()) {
