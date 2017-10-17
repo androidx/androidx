@@ -16,101 +16,136 @@
 
 package android.arch.paging;
 
+import android.support.annotation.AnyThread;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ContiguousPagedList<T> extends NullPaddedList<T> {
-
-    private final ContiguousDataSource<?, T> mDataSource;
-    private final Executor mMainThreadExecutor;
-    private final Executor mBackgroundThreadExecutor;
-    private final Config mConfig;
-
+class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Callback {
+    private final ContiguousDataSource<K, V> mDataSource;
     private boolean mPrependWorkerRunning = false;
     private boolean mAppendWorkerRunning = false;
 
     private int mPrependItemsRequested = 0;
     private int mAppendItemsRequested = 0;
 
-    private int mLastLoad = 0;
-    private T mLastItem = null;
+    @SuppressWarnings("unchecked")
+    private final PagedStorage<K, V> mKeyedStorage = (PagedStorage<K, V>) mStorage;
 
-    private AtomicBoolean mDetached = new AtomicBoolean(false);
+    private final PageResult.Receiver<K, V> mReceiver = new PageResult.Receiver<K, V>() {
+        @AnyThread
+        @Override
+        public void postOnPageResult(@NonNull final PageResult<K, V> pageResult) {
+            // NOTE: if we're already on main thread, this can delay page receive by a frame
+            mMainThreadExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    onPageResult(pageResult);
+                }
+            });
+        }
 
-    private ArrayList<WeakReference<Callback>> mCallbacks = new ArrayList<>();
+        @MainThread
+        @Override
+        public void onPageResult(@NonNull PageResult<K, V> pageResult) {
+            if (pageResult.page == null) {
+                detach();
+                return;
+            }
 
-    @WorkerThread
-    <K> ContiguousPagedList(@NonNull ContiguousDataSource<K, T> dataSource,
+            if (isDetached()) {
+                // No op, have detached
+                return;
+            }
+
+            Page<K, V> page = pageResult.page;
+            if (pageResult.type == PageResult.INIT) {
+                mKeyedStorage.init(pageResult.leadingNulls, page, pageResult.trailingNulls,
+                        pageResult.positionOffset, ContiguousPagedList.this);
+                notifyInserted(0, mKeyedStorage.size());
+            } else if (pageResult.type == PageResult.APPEND) {
+                mKeyedStorage.appendPage(page, ContiguousPagedList.this);
+            } else if (pageResult.type == PageResult.PREPEND) {
+                mKeyedStorage.prependPage(page, ContiguousPagedList.this);
+            }
+        }
+    };
+
+    ContiguousPagedList(
+            @NonNull ContiguousDataSource<K, V> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
-            Config config,
-            @Nullable K key) {
-        super();
-
+            @NonNull Config config,
+            final @Nullable K key) {
+        super(new PagedStorage<K, V>(), mainThreadExecutor, backgroundThreadExecutor, config);
         mDataSource = dataSource;
-        mMainThreadExecutor = mainThreadExecutor;
-        mBackgroundThreadExecutor = backgroundThreadExecutor;
-        mConfig = config;
-        NullPaddedList<T> initialState = dataSource.loadInitial(
-                key, config.mInitialLoadSizeHint, config.mEnablePlaceholders);
 
-        if (initialState != null) {
-            mPositionOffset = initialState.getPositionOffset();
+        // blocking init just triggers the initial load on the construction thread -
+        // Could still be posted with callback, if desired.
+        mDataSource.loadInitial(key,
+                mConfig.mInitialLoadSizeHint,
+                mConfig.mEnablePlaceholders,
+                mReceiver);
+    }
 
-            mLeadingNullCount = initialState.getLeadingNullCount();
-            mList = new ArrayList<>(initialState.mList);
-            mTrailingNullCount = initialState.getTrailingNullCount();
+    @MainThread
+    @Override
+    void dispatchUpdatesSinceSnapshot(
+            @NonNull PagedList<V> pagedListSnapshot, @NonNull Callback callback) {
 
-            if (initialState.getLeadingNullCount() == 0
-                    && initialState.getTrailingNullCount() == 0
-                    && config.mPrefetchDistance < 1) {
-                throw new IllegalArgumentException("Null padding is required to support the 0"
-                        + " prefetch case - require either null items or prefetching to fetch"
-                        + " beyond initial load.");
-            }
+        final PagedStorage<?, V> snapshot = pagedListSnapshot.mStorage;
 
-            if (initialState.size() != 0) {
-                mLastLoad = mLeadingNullCount + mList.size() / 2;
-                mLastItem = mList.get(mList.size() / 2);
-            }
-        } else {
-            mList = new ArrayList<>();
-            detach();
+        final int newlyAppended = mStorage.getNumberAppended() - snapshot.getNumberAppended();
+        final int newlyPrepended = mStorage.getNumberPrepended() - snapshot.getNumberPrepended();
+
+        final int previousTrailing = snapshot.getTrailingNullCount();
+        final int previousLeading = snapshot.getLeadingNullCount();
+
+        // Validate that the snapshot looks like a previous version of this list - if it's not,
+        // we can't be sure we'll dispatch callbacks safely
+        if (newlyAppended < 0
+                || newlyPrepended < 0
+                || mStorage.getTrailingNullCount() != Math.max(previousTrailing - newlyAppended, 0)
+                || mStorage.getLeadingNullCount() != Math.max(previousLeading - newlyPrepended, 0)
+                || (mStorage.getStorageCount()
+                        != snapshot.getStorageCount() + newlyAppended + newlyPrepended)) {
+            throw new IllegalArgumentException("Invalid snapshot provided - doesn't appear"
+                    + " to be a snapshot of this PagedList");
         }
-        if (mList.size() == 0) {
-            // Empty initial state, so don't try and fetch data.
-            mPrependWorkerRunning = true;
-            mAppendWorkerRunning = true;
+
+        if (newlyAppended != 0) {
+            final int changedCount = Math.min(previousTrailing, newlyAppended);
+            final int addedCount = newlyAppended - changedCount;
+
+            final int endPosition = snapshot.getLeadingNullCount() + snapshot.getStorageCount();
+            if (changedCount != 0) {
+                callback.onChanged(endPosition, changedCount);
+            }
+            if (addedCount != 0) {
+                callback.onInserted(endPosition + changedCount, addedCount);
+            }
+        }
+        if (newlyPrepended != 0) {
+            final int changedCount = Math.min(previousLeading, newlyPrepended);
+            final int addedCount = newlyPrepended - changedCount;
+
+            if (changedCount != 0) {
+                callback.onChanged(previousLeading, changedCount);
+            }
+            if (addedCount != 0) {
+                callback.onInserted(0, addedCount);
+            }
         }
     }
 
+    @MainThread
     @Override
-    public T get(int index) {
-        T item = super.get(index);
-        if (item != null) {
-            mLastItem = item;
-        }
-        return item;
-    }
-
-    @Override
-    public void loadAround(int index) {
-        mLastLoad = index + mPositionOffset;
-
-        int prependItems = mConfig.mPrefetchDistance - (index - mLeadingNullCount);
-        int appendItems = index + mConfig.mPrefetchDistance - (mLeadingNullCount + mList.size());
+    protected void loadAroundInternal(int index) {
+        int prependItems = mConfig.mPrefetchDistance - (index - mStorage.getLeadingNullCount());
+        int appendItems = index + mConfig.mPrefetchDistance
+                - (mStorage.getLeadingNullCount() + mStorage.getStorageCount());
 
         mPrependItemsRequested = Math.max(prependItems, mPrependItemsRequested);
         if (mPrependItemsRequested > 0) {
@@ -123,21 +158,6 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
     }
 
-    @Override
-    public int getLoadedCount() {
-        return mList.size();
-    }
-
-    @Override
-    public int getLeadingNullCount() {
-        return mLeadingNullCount;
-    }
-
-    @Override
-    public int getTrailingNullCount() {
-        return mTrailingNullCount;
-    }
-
     @MainThread
     private void schedulePrepend() {
         if (mPrependWorkerRunning) {
@@ -145,29 +165,17 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
         mPrependWorkerRunning = true;
 
-        final int position = mLeadingNullCount + mPositionOffset;
-        final T item = mList.get(0);
+        final int position = mStorage.getLeadingNullCount() + mStorage.getPositionOffset();
+
+        // safe to access first item here - mStorage can't be empty if we're prepending
+        final V item = mStorage.getFirstContiguousItem();
         mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                if (mDetached.get()) {
+                if (isDetached()) {
                     return;
                 }
-
-                final List<T> data = mDataSource.loadBefore(position, item, mConfig.mPageSize);
-                if (data != null) {
-                    mMainThreadExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mDetached.get()) {
-                                return;
-                            }
-                            prependImpl(data);
-                        }
-                    });
-                } else {
-                    detach();
-                }
+                mDataSource.loadBefore(position, item, mConfig.mPageSize, mReceiver);
             }
         });
     }
@@ -179,56 +187,44 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
         mAppendWorkerRunning = true;
 
-        final int position = mLeadingNullCount + mList.size() - 1 + mPositionOffset;
-        final T item = mList.get(mList.size() - 1);
+        final int position = mStorage.getLeadingNullCount()
+                + mStorage.getStorageCount() - 1 + mStorage.getPositionOffset();
+
+        // safe to access first item here - mStorage can't be empty if we're appending
+        final V item = mStorage.getLastContiguousItem();
         mBackgroundThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                if (mDetached.get()) {
+                if (isDetached()) {
                     return;
                 }
-
-                final List<T> data = mDataSource.loadAfter(position, item, mConfig.mPageSize);
-                if (data != null) {
-                    mMainThreadExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mDetached.get()) {
-                                return;
-                            }
-                            appendImpl(data);
-                        }
-                    });
-                } else {
-                    detach();
-                }
+                mDataSource.loadAfter(position, item, mConfig.mPageSize, mReceiver);
             }
         });
     }
 
+    @Override
+    boolean isContiguous() {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public Object getLastKey() {
+        return mDataSource.getKey(mLastLoad, mLastItem);
+    }
+
     @MainThread
-    private void prependImpl(List<T> before) {
-        final int count = before.size();
-        if (count == 0) {
-            // Nothing returned from source, stop loading in this direction
-            return;
-        }
+    @Override
+    public void onInitialized(int count) {
+        notifyInserted(0, count);
+    }
 
-        Collections.reverse(before);
-        mList.addAll(0, before);
-
-        final int changedCount = Math.min(mLeadingNullCount, count);
-        final int addedCount = count - changedCount;
-
-        if (changedCount != 0) {
-            mLeadingNullCount -= changedCount;
-        }
-        mPositionOffset -= addedCount;
-        mNumberPrepended += count;
-
-
-        // only try to post more work after fully prepended (with offsets / null counts updated)
-        mPrependItemsRequested -= count;
+    @MainThread
+    @Override
+    public void onPagePrepended(int leadingNulls, int changedCount, int addedCount) {
+        // consider whether to post more work, now that a page is fully prepended
+        mPrependItemsRequested = mPrependItemsRequested - changedCount - addedCount;
         mPrependWorkerRunning = false;
         if (mPrependItemsRequested > 0) {
             // not done prepending, keep going
@@ -236,39 +232,16 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
 
         // finally dispatch callbacks, after prepend may have already been scheduled
-        for (WeakReference<Callback> weakRef : mCallbacks) {
-            Callback callback = weakRef.get();
-            if (callback != null) {
-                if (changedCount != 0) {
-                    callback.onChanged(mLeadingNullCount, changedCount);
-                }
-                if (addedCount != 0) {
-                    callback.onInserted(0, addedCount);
-                }
-            }
-        }
+        notifyChanged(leadingNulls, changedCount);
+        notifyInserted(0, addedCount);
     }
 
     @MainThread
-    private void appendImpl(List<T> after) {
-        final int count = after.size();
-        if (count == 0) {
-            // Nothing returned from source, stop loading in this direction
-            return;
-        }
+    @Override
+    public void onPageAppended(int endPosition, int changedCount, int addedCount) {
+        // consider whether to post more work, now that a page is fully appended
 
-        mList.addAll(after);
-
-        final int changedCount = Math.min(mTrailingNullCount, count);
-        final int addedCount = count - changedCount;
-
-        if (changedCount != 0) {
-            mTrailingNullCount -= changedCount;
-        }
-        mNumberAppended += count;
-
-        // only try to post more work after fully appended (with null counts updated)
-        mAppendItemsRequested -= count;
+        mAppendItemsRequested = mAppendItemsRequested - changedCount - addedCount;
         mAppendWorkerRunning = false;
         if (mAppendItemsRequested > 0) {
             // not done appending, keep going
@@ -276,100 +249,19 @@ class ContiguousPagedList<T> extends NullPaddedList<T> {
         }
 
         // finally dispatch callbacks, after append may have already been scheduled
-        for (WeakReference<Callback> weakRef : mCallbacks) {
-            Callback callback = weakRef.get();
-            if (callback != null) {
-                final int endPosition = mLeadingNullCount + mList.size() - count;
-                if (changedCount != 0) {
-                    callback.onChanged(endPosition, changedCount);
-                }
-                if (addedCount != 0) {
-                    callback.onInserted(endPosition + changedCount, addedCount);
-                }
-            }
-        }
+        notifyChanged(endPosition, changedCount);
+        notifyInserted(endPosition + changedCount, addedCount);
     }
 
+    @MainThread
     @Override
-    public boolean isImmutable() {
-        // TODO: return true if had nulls, and now getLoadedCount() == size(). Is that safe?
-        // Currently we don't prevent DataSources from returning more items than their null counts
-        return isDetached();
+    public void onPagePlaceholderInserted(int pageIndex) {
+        throw new IllegalStateException("Tiled callback on ContiguousPagedList");
     }
 
+    @MainThread
     @Override
-    public void addWeakCallback(@Nullable PagedList<T> previousSnapshot,
-            @NonNull Callback callback) {
-        NullPaddedList<T> snapshot = (NullPaddedList<T>) previousSnapshot;
-        if (snapshot != this && snapshot != null) {
-            final int newlyAppended = mNumberAppended - snapshot.getNumberAppended();
-            final int newlyPrepended = mNumberPrepended - snapshot.getNumberPrepended();
-
-            final int previousTrailing = snapshot.getTrailingNullCount();
-            final int previousLeading = snapshot.getLeadingNullCount();
-
-            // Validate that the snapshot looks like a previous version of this list - if it's not,
-            // we can't be sure we'll dispatch callbacks safely
-            if (newlyAppended < 0
-                    || newlyPrepended < 0
-                    || mTrailingNullCount != Math.max(previousTrailing - newlyAppended, 0)
-                    || mLeadingNullCount != Math.max(previousLeading - newlyPrepended, 0)
-                    || snapshot.getLoadedCount() + newlyAppended + newlyPrepended != mList.size()) {
-                throw new IllegalArgumentException("Invalid snapshot provided - doesn't appear"
-                        + " to be a snapshot of this list");
-            }
-
-            if (newlyAppended != 0) {
-                final int changedCount = Math.min(previousTrailing, newlyAppended);
-                final int addedCount = newlyAppended - changedCount;
-
-                final int endPosition =
-                        snapshot.getLeadingNullCount() + snapshot.getLoadedCount();
-                if (changedCount != 0) {
-                    callback.onChanged(endPosition, changedCount);
-                }
-                if (addedCount != 0) {
-                    callback.onInserted(endPosition + changedCount, addedCount);
-                }
-            }
-            if (newlyPrepended != 0) {
-                final int changedCount = Math.min(previousLeading, newlyPrepended);
-                final int addedCount = newlyPrepended - changedCount;
-
-                if (changedCount != 0) {
-                    callback.onChanged(previousLeading, changedCount);
-                }
-                if (addedCount != 0) {
-                    callback.onInserted(0, addedCount);
-                }
-            }
-        }
-        mCallbacks.add(new WeakReference<>(callback));
-    }
-
-    @Override
-    public void removeWeakCallback(@NonNull Callback callback) {
-        for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-            Callback currentCallback = mCallbacks.get(i).get();
-            if (currentCallback == null || currentCallback == callback) {
-                mCallbacks.remove(i);
-            }
-        }
-    }
-
-    @Override
-    public boolean isDetached() {
-        return mDetached.get();
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    public void detach() {
-        mDetached.set(true);
-    }
-
-    @Nullable
-    @Override
-    public Object getLastKey() {
-        return mDataSource.getKey(mLastLoad, mLastItem);
+    public void onPageInserted(int start, int count) {
+        throw new IllegalStateException("Tiled callback on ContiguousPagedList");
     }
 }

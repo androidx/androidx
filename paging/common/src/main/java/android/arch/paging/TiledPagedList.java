@@ -16,219 +16,173 @@
 
 package android.arch.paging;
 
+import android.support.annotation.AnyThread;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
-import java.lang.ref.WeakReference;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TiledPagedList<T> extends PageArrayList<T> {
+class TiledPagedList<T> extends PagedList<T>
+        implements PagedStorage.Callback {
 
     private final TiledDataSource<T> mDataSource;
-    private final Executor mMainThreadExecutor;
-    private final Executor mBackgroundThreadExecutor;
-    private final Config mConfig;
 
-    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-    private final List<T> mLoadingPlaceholder = new AbstractList<T>() {
+    @SuppressWarnings("unchecked")
+    private final PagedStorage<Integer, T> mKeyedStorage = (PagedStorage<Integer, T>) mStorage;
+
+    private final PageResult.Receiver<Integer, T> mReceiver =
+            new PageResult.Receiver<Integer, T>() {
+        @AnyThread
         @Override
-        public T get(int i) {
-            return null;
+        public void postOnPageResult(@NonNull final PageResult<Integer, T> pageResult) {
+            // NOTE: if we're already on main thread, this can delay page receive by a frame
+            mMainThreadExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    onPageResult(pageResult);
+                }
+            });
         }
 
+        @MainThread
         @Override
-        public int size() {
-            return 0;
+        public void onPageResult(@NonNull PageResult<Integer, T> pageResult) {
+            if (pageResult.page == null) {
+                detach();
+                return;
+            }
+
+            if (isDetached()) {
+                // No op, have detached
+                return;
+            }
+
+            if (mStorage.getPageCount() == 0) {
+                mKeyedStorage.init(
+                        pageResult.leadingNulls, pageResult.page, pageResult.trailingNulls,
+                        pageResult.positionOffset, TiledPagedList.this);
+            } else {
+                mKeyedStorage.insertPage(pageResult.leadingNulls, pageResult.page,
+                        TiledPagedList.this);
+            }
         }
     };
-
-    private int mLastLoad = -1;
-
-    private AtomicBoolean mDetached = new AtomicBoolean(false);
-
-    private ArrayList<WeakReference<Callback>> mCallbacks = new ArrayList<>();
 
     @WorkerThread
     TiledPagedList(@NonNull TiledDataSource<T> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
-            Config config,
+            @NonNull Config config,
             int position) {
-        super(config.mPageSize, dataSource.countItems());
-
+        super(new PagedStorage<Integer, T>(),
+                mainThreadExecutor, backgroundThreadExecutor, config);
         mDataSource = dataSource;
-        mMainThreadExecutor = mainThreadExecutor;
-        mBackgroundThreadExecutor = backgroundThreadExecutor;
-        mConfig = config;
 
-        position = Math.min(Math.max(0, position), mCount);
+        final int pageSize = mConfig.mPageSize;
 
-        int firstPage = position / mPageSize;
-        List<T> firstPageData = dataSource.loadRangeWrapper(firstPage * mPageSize, mPageSize);
-        if (firstPageData != null) {
-            mPageIndexOffset = firstPage;
-            mPages.add(firstPageData);
-            mLastLoad = position;
-        } else {
-            detach();
-            return;
-        }
+        final int itemCount = mDataSource.countItems();
+        final int firstLoadSize = Math.min(itemCount,
+                (Math.max(mConfig.mInitialLoadSizeHint / pageSize, 2)) * pageSize);
+        final int firstLoadPosition = computeFirstLoadPosition(
+                position, firstLoadSize, pageSize, itemCount);
 
-        int secondPage = (position % mPageSize < mPageSize / 2) ? firstPage - 1 : firstPage + 1;
-        if (secondPage < 0 || secondPage > mMaxPageCount) {
-            // no second page to load
-            return;
-        }
-        List<T> secondPageData = dataSource.loadRangeWrapper(secondPage * mPageSize, mPageSize);
-        if (secondPageData != null) {
-            boolean before = secondPage < firstPage;
-            mPages.add(before ? 0 : 1, secondPageData);
-            if (before) {
-                mPageIndexOffset--;
-            }
-            return;
-        }
-        detach();
+        mDataSource.loadRangeInitial(firstLoadPosition, firstLoadSize, pageSize,
+                itemCount, mReceiver);
+    }
+
+    static int computeFirstLoadPosition(int position, int firstLoadSize, int pageSize, int size) {
+        int idealStart = position - firstLoadSize / 2;
+
+        int roundedPageStart = Math.round(idealStart / pageSize) * pageSize;
+
+        // minimum start position is 0
+        roundedPageStart = Math.max(0, roundedPageStart);
+
+        // maximum start pos is that which will encompass end of list
+        int maximumLoadPage = ((size - firstLoadSize + pageSize - 1) / pageSize) * pageSize;
+        roundedPageStart = Math.min(maximumLoadPage, roundedPageStart);
+
+        return roundedPageStart;
     }
 
     @Override
-    public void loadAround(int index) {
-        mLastLoad = index;
-
-        int minimumPage = Math.max((index - mConfig.mPrefetchDistance) / mPageSize, 0);
-        int maximumPage = Math.min((index + mConfig.mPrefetchDistance) / mPageSize,
-                mMaxPageCount - 1);
-
-        if (minimumPage < mPageIndexOffset) {
-            for (int i = 0; i < mPageIndexOffset - minimumPage; i++) {
-                mPages.add(0, null);
-            }
-            mPageIndexOffset = minimumPage;
-        }
-        if (maximumPage >= mPageIndexOffset + mPages.size()) {
-            for (int i = mPages.size(); i <= maximumPage - mPageIndexOffset; i++) {
-                mPages.add(mPages.size(), null);
-            }
-        }
-        for (int i = minimumPage; i <= maximumPage; i++) {
-            scheduleLoadPage(i);
-        }
-    }
-
-    private void scheduleLoadPage(final int pageIndex) {
-        final int localPageIndex = pageIndex - mPageIndexOffset;
-
-        if (mPages.get(localPageIndex) != null) {
-            // page is present in list, and non-null - don't need to load
-            return;
-        }
-        mPages.set(localPageIndex, mLoadingPlaceholder);
-
-        mBackgroundThreadExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (mDetached.get()) {
-                    return;
-                }
-                final List<T> data = mDataSource.loadRangeWrapper(
-                        pageIndex * mPageSize, mPageSize);
-                if (data != null) {
-                    mMainThreadExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mDetached.get()) {
-                                return;
-                            }
-                            loadPageImpl(pageIndex, data);
-                        }
-                    });
-                } else {
-                    detach();
-                }
-            }
-        });
-
-    }
-
-    private void loadPageImpl(int pageIndex, List<T> data) {
-        int localPageIndex = pageIndex - mPageIndexOffset;
-
-        if (mPages.get(localPageIndex) != mLoadingPlaceholder) {
-            throw new IllegalStateException("Data inserted before requested.");
-        }
-        mPages.set(localPageIndex, data);
-        for (WeakReference<Callback> weakRef : mCallbacks) {
-            Callback callback = weakRef.get();
-            if (callback != null) {
-                callback.onChanged(pageIndex * mPageSize, data.size());
-            }
-        }
-    }
-
-    @Override
-    public boolean isImmutable() {
-        // TODO: consider counting loaded pages, return true if mLoadedPages == mMaxPageCount
-        // Note: could at some point want to support growing past max count, or grow dynamically
-        return isDetached();
-    }
-
-    @Override
-    public void addWeakCallback(@Nullable PagedList<T> previousSnapshot,
-            @NonNull Callback callback) {
-        PageArrayList<T> snapshot = (PageArrayList<T>) previousSnapshot;
-        if (snapshot != this && snapshot != null) {
-            // loop through each page and signal the callback for any pages that are present now,
-            // but not in the snapshot.
-            for (int i = 0; i < mPages.size(); i++) {
-                int pageIndex = i + mPageIndexOffset;
-                int pageCount = 0;
-                // count number of consecutive pages that were added since the snapshot...
-                while (pageCount < mPages.size()
-                        && hasPage(pageIndex + pageCount)
-                        && !snapshot.hasPage(pageIndex + pageCount)) {
-                    pageCount++;
-                }
-                // and signal them all at once to the callback
-                if (pageCount > 0) {
-                    callback.onChanged(pageIndex * mPageSize, mPageSize * pageCount);
-                    i += pageCount - 1;
-                }
-            }
-        }
-        mCallbacks.add(new WeakReference<>(callback));
-    }
-
-    @Override
-    public void removeWeakCallback(@NonNull Callback callback) {
-        for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-            Callback currentCallback = mCallbacks.get(i).get();
-            if (currentCallback == null || currentCallback == callback) {
-                mCallbacks.remove(i);
-            }
-        }
-    }
-
-    @Override
-    public boolean isDetached() {
-        return mDetached.get();
-    }
-
-    @Override
-    public void detach() {
-        mDetached.set(true);
+    boolean isContiguous() {
+        return false;
     }
 
     @Nullable
     @Override
     public Object getLastKey() {
         return mLastLoad;
+    }
+
+    @Override
+    protected void dispatchUpdatesSinceSnapshot(@NonNull PagedList<T> pagedListSnapshot,
+            @NonNull Callback callback) {
+        //noinspection UnnecessaryLocalVariable
+        final PagedStorage<?, T> snapshot = pagedListSnapshot.mStorage;
+
+        // loop through each page and signal the callback for any pages that are present now,
+        // but not in the snapshot.
+        final int pageSize = mConfig.mPageSize;
+        final int leadingNullPages = mStorage.getLeadingNullCount() / pageSize;
+        final int pageCount = mStorage.getPageCount();
+        for (int i = 0; i < pageCount; i++) {
+            int pageIndex = i + leadingNullPages;
+            int updatedPages = 0;
+            // count number of consecutive pages that were added since the snapshot...
+            while (updatedPages < mStorage.getPageCount()
+                    && mStorage.hasPage(pageSize, pageIndex + updatedPages)
+                    && !snapshot.hasPage(pageSize, pageIndex + updatedPages)) {
+                updatedPages++;
+            }
+            // and signal them all at once to the callback
+            if (updatedPages > 0) {
+                callback.onChanged(pageIndex * pageSize, pageSize * updatedPages);
+                i += updatedPages - 1;
+            }
+        }
+    }
+
+    @Override
+    protected void loadAroundInternal(int index) {
+        mStorage.allocatePlaceholders(index, mConfig.mPrefetchDistance, mConfig.mPageSize, this);
+    }
+
+    @Override
+    public void onInitialized(int count) {
+        notifyInserted(0, count);
+    }
+
+    @Override
+    public void onPagePrepended(int leadingNulls, int changed, int added) {
+        throw new IllegalStateException("Contiguous callback on TiledPagedList");
+    }
+
+    @Override
+    public void onPageAppended(int endPosition, int changed, int added) {
+        throw new IllegalStateException("Contiguous callback on TiledPagedList");
+    }
+
+    @Override
+    public void onPagePlaceholderInserted(final int pageIndex) {
+        // placeholder means initialize a load
+        mBackgroundThreadExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (isDetached()) {
+                    return;
+                }
+                final int pageSize = mConfig.mPageSize;
+                mDataSource.loadRange(pageIndex * pageSize, pageSize, mReceiver);
+            }
+        });
+    }
+
+    @Override
+    public void onPageInserted(int start, int count) {
+        notifyChanged(start, count);
     }
 }

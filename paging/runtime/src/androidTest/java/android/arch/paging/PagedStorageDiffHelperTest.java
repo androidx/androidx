@@ -16,6 +16,9 @@
 
 package android.arch.paging;
 
+import static junit.framework.Assert.assertEquals;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -29,11 +32,12 @@ import android.support.v7.util.ListUpdateCallback;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
+
+import java.util.Arrays;
 
 @SmallTest
 @RunWith(JUnit4.class)
-public class ContiguousDiffHelperTest {
+public class PagedStorageDiffHelperTest {
     private interface CallbackValidator {
         void validate(ListUpdateCallback callback);
     }
@@ -51,13 +55,18 @@ public class ContiguousDiffHelperTest {
         }
     };
 
-    private void validateTwoListDiff(StringPagedList oldList, StringPagedList newList,
-            CallbackValidator callbackValidator) {
-        DiffUtil.DiffResult diffResult = ContiguousDiffHelper.computeDiff(oldList, newList,
-                DIFF_CALLBACK, false);
+    public static Page<Integer, String> createPage(String... items) {
+        return new Page<>(Arrays.asList(items));
+    }
 
-        ListUpdateCallback listUpdateCallback = Mockito.mock(ListUpdateCallback.class);
-        ContiguousDiffHelper.dispatchDiff(listUpdateCallback, oldList, newList, diffResult);
+    private static void validateTwoListDiff(PagedStorage<?, String> oldList,
+            PagedStorage<?, String> newList,
+            CallbackValidator callbackValidator) {
+        DiffUtil.DiffResult diffResult = PagedStorageDiffHelper.computeDiff(
+                oldList, newList, DIFF_CALLBACK);
+
+        ListUpdateCallback listUpdateCallback = mock(ListUpdateCallback.class);
+        PagedStorageDiffHelper.dispatchDiff(listUpdateCallback, oldList, newList, diffResult);
 
         callbackValidator.validate(listUpdateCallback);
     }
@@ -65,8 +74,35 @@ public class ContiguousDiffHelperTest {
     @Test
     public void sameListNoUpdates() {
         validateTwoListDiff(
-                new StringPagedList(5, 5, "a", "b", "c"),
-                new StringPagedList(5, 5, "a", "b", "c"),
+                new PagedStorage<>(5, createPage("a", "b", "c"), 5),
+                new PagedStorage<>(5, createPage("a", "b", "c"), 5),
+                new CallbackValidator() {
+                    @Override
+                    public void validate(ListUpdateCallback callback) {
+                        verifyZeroInteractions(callback);
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void sameListNoUpdatesPlaceholder() {
+        PagedStorage<Integer, String> storageNoPlaceholder =
+                new PagedStorage<>(0, createPage("a", "b", "c"), 10);
+
+        PagedStorage<Integer, String> storageWithPlaceholder =
+                new PagedStorage<>(0, createPage("a", "b", "c"), 10);
+        storageWithPlaceholder.allocatePlaceholders(3, 0, 3,
+                /* ignored */ mock(PagedStorage.Callback.class));
+
+        // even though one has placeholders, and null counts are different...
+        assertEquals(10, storageNoPlaceholder.getTrailingNullCount());
+        assertEquals(7, storageWithPlaceholder.getTrailingNullCount());
+
+        // ... should be no interactions, since content still same
+        validateTwoListDiff(
+                storageNoPlaceholder,
+                storageWithPlaceholder,
                 new CallbackValidator() {
                     @Override
                     public void validate(ListUpdateCallback callback) {
@@ -79,8 +115,8 @@ public class ContiguousDiffHelperTest {
     @Test
     public void appendFill() {
         validateTwoListDiff(
-                new StringPagedList(5, 5, "a", "b"),
-                new StringPagedList(5, 4, "a", "b", "c"),
+                new PagedStorage<>(5, createPage("a", "b"), 5),
+                new PagedStorage<>(5, createPage("a", "b", "c"), 4),
                 new CallbackValidator() {
                     @Override
                     public void validate(ListUpdateCallback callback) {
@@ -96,8 +132,8 @@ public class ContiguousDiffHelperTest {
     @Test
     public void prependFill() {
         validateTwoListDiff(
-                new StringPagedList(5, 5, "b", "c"),
-                new StringPagedList(4, 5, "a", "b", "c"),
+                new PagedStorage<>(5, createPage("b", "c"), 5),
+                new PagedStorage<>(4, createPage("a", "b", "c"), 5),
                 new CallbackValidator() {
                     @Override
                     public void validate(ListUpdateCallback callback) {
@@ -113,8 +149,8 @@ public class ContiguousDiffHelperTest {
     @Test
     public void change() {
         validateTwoListDiff(
-                new StringPagedList(5, 5, "a1", "b1", "c1"),
-                new StringPagedList(5, 5, "a2", "b1", "c2"),
+                new PagedStorage<>(5, createPage("a1", "b1", "c1"), 5),
+                new PagedStorage<>(5, createPage("a2", "b1", "c2"), 5),
                 new CallbackValidator() {
                     @Override
                     public void validate(ListUpdateCallback callback) {
@@ -125,4 +161,5 @@ public class ContiguousDiffHelperTest {
                 }
         );
     }
+
 }
