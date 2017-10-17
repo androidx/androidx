@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints.receivers;
+package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,12 +30,12 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class StorageNotLowReceiverTest {
-    private StorageNotLowReceiver mReceiver;
+public class StorageNotLowTrackerTest {
+    private StorageNotLowTracker mReceiver;
 
     @Before
     public void setUp() {
-        mReceiver = new StorageNotLowReceiver(InstrumentationRegistry.getTargetContext());
+        mReceiver = new StorageNotLowTracker(InstrumentationRegistry.getTargetContext());
     }
 
     @Test

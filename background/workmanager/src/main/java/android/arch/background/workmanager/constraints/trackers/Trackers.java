@@ -13,41 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints.receivers;
+package android.arch.background.workmanager.constraints.trackers;
 
 import android.content.Context;
 
 /**
- * A singleton class that holds all the {@link BaseConstraintsReceiver}s and can track when to
+ * A singleton class that holds all the {@link ConstraintTracker}s and can track when to
  * register and unregister them.
  */
 
-public class ConstraintsReceivers {
+public class Trackers {
 
-    private static ConstraintsReceivers sInstance;
+    private static Trackers sInstance;
 
     /**
-     * Gets the singleton instance of {@link ConstraintsReceivers}.
+     * Gets the singleton instance of {@link Trackers}.
      *
      * @param context The initializing context (we only use the application context)
-     * @return The singleton instance of {@link ConstraintsReceivers}.
+     * @return The singleton instance of {@link Trackers}.
      */
-    public static synchronized ConstraintsReceivers getInstance(Context context) {
+    public static synchronized Trackers getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new ConstraintsReceivers(context);
+            sInstance = new Trackers(context);
         }
         return sInstance;
     }
 
-    private BatteryChargingReceiver mBatteryChargingReceiver;
-    private BatteryNotLowReceiver mBatteryNotLowReceiver;
-    private StorageNotLowReceiver mStorageNotLowReceiver;
+    private BatteryChargingTracker mBatteryChargingReceiver;
+    private BatteryNotLowTracker mBatteryNotLowReceiver;
+    private StorageNotLowTracker mStorageNotLowTracker;
 
-    private ConstraintsReceivers(Context context) {
+    private Trackers(Context context) {
         Context appContext = context.getApplicationContext();
-        mBatteryChargingReceiver = new BatteryChargingReceiver(appContext);
-        mBatteryNotLowReceiver = new BatteryNotLowReceiver(appContext);
-        mStorageNotLowReceiver = new StorageNotLowReceiver(appContext);
+        mBatteryChargingReceiver = new BatteryChargingTracker(appContext);
+        mBatteryNotLowReceiver = new BatteryNotLowTracker(appContext);
+        mStorageNotLowTracker = new StorageNotLowTracker(appContext);
     }
 
     /**
@@ -55,7 +55,7 @@ public class ConstraintsReceivers {
      *
      * @return The receiver used to track battery charging status
      */
-    public BaseConstraintsReceiver getBatteryChargingReceiver() {
+    public ConstraintTracker getBatteryChargingReceiver() {
         return mBatteryChargingReceiver;
     }
 
@@ -64,7 +64,7 @@ public class ConstraintsReceivers {
      *
      * @return The receiver used to track if the battery is okay or low
      */
-    public BaseConstraintsReceiver getBatteryNotLowReceiver() {
+    public ConstraintTracker getBatteryNotLowReceiver() {
         return mBatteryNotLowReceiver;
     }
 
@@ -73,7 +73,7 @@ public class ConstraintsReceivers {
      *
      * @return The receiver used to track if device storage is okay or low.
      */
-    public BaseConstraintsReceiver getStorageNotLowReceiver() {
-        return mStorageNotLowReceiver;
+    public ConstraintTracker getStorageNotLowTracker() {
+        return mStorageNotLowTracker;
     }
 }

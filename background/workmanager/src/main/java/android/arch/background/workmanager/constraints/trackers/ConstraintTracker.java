@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints.receivers;
+package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.ConstraintsState;
 import android.content.BroadcastReceiver;
@@ -27,12 +27,12 @@ import java.util.List;
  * A base {@link BroadcastReceiver} for monitoring constraints changes.
  */
 
-public abstract class BaseConstraintsReceiver extends BroadcastReceiver {
+public abstract class ConstraintTracker extends BroadcastReceiver {
 
     protected Context mAppContext;
     protected List<ConstraintsState> mConstraintsStateList = new ArrayList<>();
 
-    public BaseConstraintsReceiver(Context context) {
+    public ConstraintTracker(Context context) {
         mAppContext = context.getApplicationContext();
     }
 

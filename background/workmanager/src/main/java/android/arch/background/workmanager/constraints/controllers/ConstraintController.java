@@ -16,7 +16,7 @@
 package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.constraints.ConstraintsState;
-import android.arch.background.workmanager.constraints.receivers.BaseConstraintsReceiver;
+import android.arch.background.workmanager.constraints.trackers.ConstraintTracker;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
@@ -31,26 +31,26 @@ import java.util.List;
 public class ConstraintController {
 
     private LiveData<List<String>> mConstraintLiveData;
-    private BaseConstraintsReceiver mReceiver;
+    private ConstraintTracker mTracker;
     private ConstraintsState mConstraintsState;
     private Observer<List<String>> mConstraintObserver;
 
     public ConstraintController(
             LiveData<List<String>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
-            final BaseConstraintsReceiver receiver,
+            final ConstraintTracker tracker,
             final ConstraintsState constraintsState) {
 
         mConstraintLiveData = constraintLiveData;
-        mReceiver = receiver;
+        mTracker = tracker;
         mConstraintsState = constraintsState;
         mConstraintObserver = new Observer<List<String>>() {
             @Override
             public void onChanged(@Nullable List<String> matchingWorkSpecIds) {
                 if (matchingWorkSpecIds != null && matchingWorkSpecIds.size() > 0) {
-                    receiver.startTracking(constraintsState);
+                    tracker.startTracking(constraintsState);
                 } else {
-                    receiver.stopTracking(constraintsState);
+                    tracker.stopTracking(constraintsState);
                 }
             }
         };
@@ -59,10 +59,10 @@ public class ConstraintController {
     }
 
     /**
-     * Removes the {@link Observer} and stops tracking on the {@link BaseConstraintsReceiver}.
+     * Removes the {@link Observer} and stops tracking on the {@link ConstraintTracker}.
      */
     public void shutdown() {
         mConstraintLiveData.removeObserver(mConstraintObserver);
-        mReceiver.stopTracking(mConstraintsState);
+        mTracker.stopTracking(mConstraintsState);
     }
 }

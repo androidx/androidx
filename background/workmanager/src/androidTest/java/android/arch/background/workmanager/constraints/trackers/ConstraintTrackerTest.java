@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints.receivers;
+package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -34,13 +34,13 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class BaseConstraintsReceiverTest {
+public class ConstraintTrackerTest {
 
-    private TestBaseConstraintsReceiver mReceiver;
+    private TestConstraintTracker mReceiver;
 
     @Before
     public void setUp() {
-        mReceiver = new TestBaseConstraintsReceiver(InstrumentationRegistry.getTargetContext());
+        mReceiver = new TestConstraintTracker(InstrumentationRegistry.getTargetContext());
     }
 
     @After
@@ -86,14 +86,14 @@ public class BaseConstraintsReceiverTest {
         assertThat(mReceiver.mUnregisterCount, is(1));
     }
 
-    private static class TestBaseConstraintsReceiver extends BaseConstraintsReceiver {
+    private static class TestConstraintTracker extends ConstraintTracker {
 
         private boolean mSetupInitialState;
         private boolean mRegistered;
         private int mRegisterCount;
         private int mUnregisterCount;
 
-        TestBaseConstraintsReceiver(Context context) {
+        TestConstraintTracker(Context context) {
             super(context);
         }
 

@@ -17,7 +17,7 @@ package android.arch.background.workmanager.constraints;
 
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.controllers.ConstraintController;
-import android.arch.background.workmanager.constraints.receivers.ConstraintsReceivers;
+import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 
@@ -43,24 +43,24 @@ public class ConstraintsTracker {
         mLifecycleOwner = lifecycleOwner;
         mConstraintsState = new ConstraintsState(constraintsStateListener);
 
-        ConstraintsReceivers constraintsReceivers = ConstraintsReceivers.getInstance(appContext);
+        Trackers trackers = Trackers.getInstance(appContext);
 
         mBatteryChargingController = new ConstraintController(
                 workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryChargingConstraint(),
                 mLifecycleOwner,
-                constraintsReceivers.getBatteryChargingReceiver(),
+                trackers.getBatteryChargingReceiver(),
                 mConstraintsState);
 
         mBatteryNotLowController = new ConstraintController(
                 workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryNotLowConstraint(),
                 mLifecycleOwner,
-                constraintsReceivers.getBatteryNotLowReceiver(),
+                trackers.getBatteryNotLowReceiver(),
                 mConstraintsState);
 
         mStorageNotLowController = new ConstraintController(
                 workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithStorageNotLowConstraint(),
                 mLifecycleOwner,
-                constraintsReceivers.getStorageNotLowReceiver(),
+                trackers.getStorageNotLowTracker(),
                 mConstraintsState);
     }
 

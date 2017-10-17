@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.arch.background.workmanager.constraints.receivers;
+package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.ConstraintsState;
 import android.content.BroadcastReceiver;
@@ -27,11 +27,11 @@ import android.os.Build;
  * A {@link BroadcastReceiver} for battery charging status.
  */
 
-public class BatteryChargingReceiver extends BaseConstraintsReceiver {
+public class BatteryChargingTracker extends ConstraintTracker {
 
     private Boolean mIsCharging;
 
-    public BatteryChargingReceiver(Context context) {
+    public BatteryChargingTracker(Context context) {
         super(context);
     }
 
