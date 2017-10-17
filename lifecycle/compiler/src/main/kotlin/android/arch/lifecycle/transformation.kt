@@ -78,18 +78,34 @@ fun flattenObservers(processingEnv: ProcessingEnvironment,
     return flattened.values.toList()
 }
 
+private fun needsSyntheticAccess(type: TypeElement, eventMethod: EventMethod): Boolean {
+    val executable = eventMethod.method
+    return type.getPackageQName() != eventMethod.packageName()
+            && (executable.isPackagePrivate() || executable.isProtected())
+}
+
 fun transformToOutput(processingEnv: ProcessingEnvironment,
                       world: Map<TypeElement, LifecycleObserverInfo>): List<AdapterClass> {
     val flatObservers = flattenObservers(processingEnv, world)
     val syntheticMethods = HashMultimap.create<TypeElement, EventMethodCall>()
-    flatObservers.filterNot(LifecycleObserverInfo::hasAdapter)
     val adapterCalls = flatObservers
-            .filterNot(LifecycleObserverInfo::hasAdapter)
+            // filter out everything that arrived from jars
+            .filter { (type) -> type in world }
+            // filter out if it needs synthetic access and we can't generate adapter for it
+            .filterNot { (type, methods) ->
+                methods.any { eventMethod ->
+                    val cantGenerate = needsSyntheticAccess(type, eventMethod)
+                            && (eventMethod.type !in world)
+                    if (cantGenerate) {
+                        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING,
+                                ErrorMessages.failedToGenerateAdapter(type, eventMethod))
+                    }
+                    cantGenerate
+                }
+            }
             .map { (type, methods) ->
                 val calls = methods.map { eventMethod ->
-                    val executable = eventMethod.method
-                    if (type.getPackageQName() != eventMethod.packageName()
-                            && (executable.isPackagePrivate() || executable.isProtected())) {
+                    if (needsSyntheticAccess(type, eventMethod)) {
                         EventMethodCall(eventMethod, eventMethod.type)
                     } else {
                         EventMethodCall(eventMethod)
@@ -101,9 +117,10 @@ fun transformToOutput(processingEnv: ProcessingEnvironment,
                 type to calls
             }.toMap()
 
-    return adapterCalls.map { (type, calls) ->
-        val methods = syntheticMethods.get(type) ?: setOf()
-        val synthetic = methods.map { eventMethod -> eventMethod!!.method.method }.toSet()
-        AdapterClass(type, calls, synthetic)
-    }
+    return adapterCalls
+            .map { (type, calls) ->
+                val methods = syntheticMethods.get(type) ?: emptySet()
+                val synthetic = methods.map { eventMethod -> eventMethod!!.method.method }.toSet()
+                AdapterClass(type, calls, synthetic)
+            }
 }
