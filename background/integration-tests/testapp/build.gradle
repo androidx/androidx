@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile project(':arch:runtime')
     compile project(':arch:common')
     compile project(':background:workmanager')
@@ -49,6 +50,7 @@ dependencies {
 
     compile libs.support.recyclerview, libs.support_exclude_config
     compile libs.support.app_compat, libs.support_exclude_config
+    compile libs.support.design, libs.support_exclude_config
 }
 
 createAndroidCheckstyle(project)
