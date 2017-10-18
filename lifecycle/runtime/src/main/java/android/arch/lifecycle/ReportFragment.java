@@ -28,7 +28,6 @@ import android.support.annotation.RestrictTo;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ReportFragment extends Fragment {
-
     private static final String REPORT_FRAGMENT_TAG = "android.arch.lifecycle"
             + ".LifecycleDispatcher.report_fragment_tag";
 

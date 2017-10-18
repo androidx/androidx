@@ -15,12 +15,6 @@
 
     <application android:allowBackup="true" android:label="Test App" android:supportsRtl="true"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,MissingApplicationIcon">
-        <activity android:name="android.arch.lifecycle.testapp.LifecycleObservableActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <activity android:name="android.arch.lifecycle.testapp.LifecycleTestActivity">
             <intent-filter>
@@ -28,13 +22,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="android.arch.lifecycle.testapp.FullLifecycleTestActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name="android.arch.lifecycle.testapp.SupportLifecycleRegistryActivity">
+        <activity android:name="android.arch.lifecycle.testapp.CollectingSupportActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
