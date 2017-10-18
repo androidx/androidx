@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.controllers;
 
-import android.arch.background.workmanager.constraints.ConstraintsState;
+import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.arch.background.workmanager.constraints.trackers.ConstraintTracker;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
@@ -26,31 +26,33 @@ import java.util.List;
 
 /**
  * A controller for a particular constraint.
+ *
+ * @param <T> A specific type of {@link ConstraintListener} associated with this controller
  */
 
-public class ConstraintController {
+public class ConstraintController<T extends ConstraintListener> {
 
     private LiveData<List<String>> mConstraintLiveData;
-    private ConstraintTracker mTracker;
-    private ConstraintsState mConstraintsState;
+    private ConstraintTracker<T> mTracker;
+    private T mListener;
     private Observer<List<String>> mConstraintObserver;
 
     public ConstraintController(
             LiveData<List<String>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
-            final ConstraintTracker tracker,
-            final ConstraintsState constraintsState) {
+            ConstraintTracker<T> tracker,
+            T listener) {
 
         mConstraintLiveData = constraintLiveData;
         mTracker = tracker;
-        mConstraintsState = constraintsState;
+        mListener = listener;
         mConstraintObserver = new Observer<List<String>>() {
             @Override
             public void onChanged(@Nullable List<String> matchingWorkSpecIds) {
                 if (matchingWorkSpecIds != null && matchingWorkSpecIds.size() > 0) {
-                    tracker.startTracking(constraintsState);
+                    mTracker.addListener(mListener);
                 } else {
-                    tracker.stopTracking(constraintsState);
+                    mTracker.removeListener(mListener);
                 }
             }
         };
@@ -63,6 +65,6 @@ public class ConstraintController {
      */
     public void shutdown() {
         mConstraintLiveData.removeObserver(mConstraintObserver);
-        mTracker.stopTracking(mConstraintsState);
+        mTracker.removeListener(mListener);
     }
 }

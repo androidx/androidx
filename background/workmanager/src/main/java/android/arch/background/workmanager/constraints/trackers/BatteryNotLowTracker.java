@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.ConstraintsState;
+import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +25,7 @@ import android.content.IntentFilter;
  * A {@link BroadcastReceiver} for battery okay or low broadcasts.
  */
 
-public class BatteryNotLowTracker extends ConstraintTracker {
+public class BatteryNotLowTracker extends ConstraintTracker<BatteryNotLowListener> {
 
     private Boolean mIsBatteryNotLow;
 
@@ -34,7 +34,7 @@ public class BatteryNotLowTracker extends ConstraintTracker {
     }
 
     @Override
-    public void setUpInitialState(ConstraintsState state) {
+    public void setUpInitialState(BatteryNotLowListener listener) {
         if (mIsBatteryNotLow == null) {
             Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
             if (intent == null || intent.getAction() == null) {
@@ -53,7 +53,7 @@ public class BatteryNotLowTracker extends ConstraintTracker {
         }
 
         if (mIsBatteryNotLow != null) {
-            state.setBatteryNotLow(mIsBatteryNotLow);
+            listener.setBatteryNotLow(mIsBatteryNotLow);
         }
     }
 
@@ -85,8 +85,8 @@ public class BatteryNotLowTracker extends ConstraintTracker {
     private void setIsBatteryNotLowAndNotify(boolean isBatteryNotLow) {
         if (mIsBatteryNotLow != isBatteryNotLow) {
             mIsBatteryNotLow = isBatteryNotLow;
-            for (ConstraintsState state : mConstraintsStateList) {
-                state.setBatteryNotLow(mIsBatteryNotLow);
+            for (BatteryNotLowListener listener : mListeners) {
+                listener.setBatteryNotLow(mIsBatteryNotLow);
             }
         }
     }
