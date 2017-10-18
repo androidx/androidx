@@ -18,6 +18,8 @@
           package="android.arch.background.workmanager">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application>
         <meta-data android:name="android.arch.background.workmanager.VERSION"
                    android:value="${version}" />

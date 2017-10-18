@@ -69,6 +69,12 @@ public class SystemJobInfoConverterTest {
         assertThat(jobInfo.getId(), is(expectedJobId));
     }
 
+    @Test
+    public void testConvert_setPersistedByDefault() {
+        JobInfo jobInfo = mConverter.convert(new WorkSpec("id"));
+        assertThat(jobInfo.isPersisted(), is(true));
+    }
+
     /**
      * Due to b/6771687, calling {@link JobInfo.Builder#build} with no constraints throws an
      * {@link IllegalArgumentException}. This is testing that {@link SystemJobInfoConverter#convert}
