@@ -16,48 +16,43 @@
 
 package android.arch.lifecycle;
 
-import static android.arch.lifecycle.Lifecycle.Event.ON_CREATE;
-import static android.arch.lifecycle.Lifecycle.Event.ON_DESTROY;
-import static android.arch.lifecycle.Lifecycle.Event.ON_PAUSE;
-import static android.arch.lifecycle.Lifecycle.Event.ON_RESUME;
-import static android.arch.lifecycle.Lifecycle.Event.ON_START;
-import static android.arch.lifecycle.Lifecycle.Event.ON_STOP;
-import static android.arch.lifecycle.testapp.TestEvent.ACTIVITY_CALLBACK;
-import static android.arch.lifecycle.testapp.TestEvent.LIFECYCLE_EVENT;
+import static android.arch.lifecycle.TestUtils.OrderedTuples.CREATE;
+import static android.arch.lifecycle.TestUtils.OrderedTuples.DESTROY;
+import static android.arch.lifecycle.TestUtils.OrderedTuples.PAUSE;
+import static android.arch.lifecycle.TestUtils.OrderedTuples.RESUME;
+import static android.arch.lifecycle.TestUtils.OrderedTuples.START;
+import static android.arch.lifecycle.TestUtils.OrderedTuples.STOP;
+import static android.arch.lifecycle.TestUtils.flatMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import android.app.Activity;
 import android.arch.lifecycle.Lifecycle.Event;
-import android.arch.lifecycle.testapp.CollectingActivity;
+import android.arch.lifecycle.testapp.CollectingLifecycleOwner;
+import android.arch.lifecycle.testapp.CollectingSupportActivity;
 import android.arch.lifecycle.testapp.FrameworkLifecycleRegistryActivity;
-import android.arch.lifecycle.testapp.FullLifecycleTestActivity;
-import android.arch.lifecycle.testapp.SupportLifecycleRegistryActivity;
 import android.arch.lifecycle.testapp.TestEvent;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SmallTest
 @RunWith(Parameterized.class)
 public class ActivityFullLifecycleTest {
     @Rule
-    public ActivityTestRule activityTestRule =
-            new ActivityTestRule<>(FullLifecycleTestActivity.class);
+    public final ActivityTestRule<? extends CollectingLifecycleOwner> activityTestRule;
 
     @Parameterized.Parameters
     public static Class[] params() {
-        return new Class[]{FullLifecycleTestActivity.class,
-                SupportLifecycleRegistryActivity.class,
+        return new Class[]{CollectingSupportActivity.class,
                 FrameworkLifecycleRegistryActivity.class};
     }
 
@@ -68,28 +63,13 @@ public class ActivityFullLifecycleTest {
 
 
     @Test
-    public void testFullLifecycle() throws InterruptedException {
-        Activity activity = activityTestRule.getActivity();
-        List<Pair<TestEvent, Event>> results = ((CollectingActivity) activity)
-                .waitForCollectedEvents();
+    public void testFullLifecycle() throws Throwable {
+        CollectingLifecycleOwner owner = activityTestRule.getActivity();
+        TestUtils.waitTillResumed(owner, activityTestRule);
+        activityTestRule.finishActivity();
 
-        Event[] expectedEvents =
-                new Event[]{ON_CREATE, ON_START, ON_RESUME, ON_PAUSE, ON_STOP, ON_DESTROY};
-
-        List<Pair<TestEvent, Event>> expected = new ArrayList<>();
-        boolean beforeResume = true;
-        for (Event i : expectedEvents) {
-            if (beforeResume) {
-                expected.add(new Pair<>(ACTIVITY_CALLBACK, i));
-                expected.add(new Pair<>(LIFECYCLE_EVENT, i));
-            } else {
-                expected.add(new Pair<>(LIFECYCLE_EVENT, i));
-                expected.add(new Pair<>(ACTIVITY_CALLBACK, i));
-            }
-            if (i == ON_RESUME) {
-                beforeResume = false;
-            }
-        }
-        assertThat(results, is(expected));
+        TestUtils.waitTillDestroyed(owner, activityTestRule);
+        List<Pair<TestEvent, Event>> results = owner.copyCollectedEvents();
+        assertThat(results, is(flatMap(CREATE, START, RESUME, PAUSE, STOP, DESTROY)));
     }
 }
