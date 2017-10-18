@@ -30,29 +30,52 @@ import java.util.List;
  * @param <T> A specific type of {@link ConstraintListener} associated with this controller
  */
 
-public class ConstraintController<T extends ConstraintListener> {
+public abstract class ConstraintController<T extends ConstraintListener> {
+
+    /**
+     * An listener for when a constraint changes.
+     */
+    public interface OnConstraintUpdatedListener {
+
+        /**
+         * Called when a constraint is met.
+         *
+         * @param workSpecIds The list of work ids that may have become eligible to run
+         */
+        void onConstraintMet(List<String> workSpecIds);
+
+        /**
+         * Called when a constraint is not met.
+         *
+         * @param workSpecIds The list of work ids that have become ineligible to run
+         */
+        void onConstraintNotMet(List<String> workSpecIds);
+    }
 
     private LiveData<List<String>> mConstraintLiveData;
     private ConstraintTracker<T> mTracker;
-    private T mListener;
     private Observer<List<String>> mConstraintObserver;
+    private OnConstraintUpdatedListener mOnConstraintUpdatedListener;
+    private List<String> mMatchingWorkSpecIds;
 
     public ConstraintController(
             LiveData<List<String>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
             ConstraintTracker<T> tracker,
-            T listener) {
+            OnConstraintUpdatedListener onConstraintUpdatedListener) {
 
         mConstraintLiveData = constraintLiveData;
         mTracker = tracker;
-        mListener = listener;
+        mOnConstraintUpdatedListener = onConstraintUpdatedListener;
+
         mConstraintObserver = new Observer<List<String>>() {
             @Override
             public void onChanged(@Nullable List<String> matchingWorkSpecIds) {
+                mMatchingWorkSpecIds = matchingWorkSpecIds;
                 if (matchingWorkSpecIds != null && matchingWorkSpecIds.size() > 0) {
-                    mTracker.addListener(mListener);
+                    mTracker.addListener(getListener());
                 } else {
-                    mTracker.removeListener(mListener);
+                    mTracker.removeListener(getListener());
                 }
             }
         };
@@ -65,6 +88,39 @@ public class ConstraintController<T extends ConstraintListener> {
      */
     public void shutdown() {
         mConstraintLiveData.removeObserver(mConstraintObserver);
-        mTracker.removeListener(mListener);
+        mTracker.removeListener(getListener());
     }
+
+    /**
+     * Determines if a particular {@link android.arch.background.workmanager.model.WorkSpec} is
+     * considered constrained.  A constrained WorkSpec is one that is known to this controller and
+     * the constraint for this controller is not met.  Note that if this controller has not yet
+     * received a list of matching WorkSpec ids, *everything* is considered constrained.
+     *
+     * @param id The WorkSpec id
+     * @return {@code true} if the WorkSpec is considered constrained
+     */
+    public boolean isWorkSpecConstrained(String id) {
+        if (mMatchingWorkSpecIds == null) {
+            return true;
+        } else if (mMatchingWorkSpecIds.contains(id)) {
+            return isConstrained();
+        }
+        return false;
+    }
+
+    protected void updateListener() {
+        if (mMatchingWorkSpecIds == null || mMatchingWorkSpecIds.isEmpty()) {
+            return;
+        }
+        if (isConstrained()) {
+            mOnConstraintUpdatedListener.onConstraintNotMet(mMatchingWorkSpecIds);
+        } else {
+            mOnConstraintUpdatedListener.onConstraintMet(mMatchingWorkSpecIds);
+        }
+    }
+
+    abstract T getListener();
+
+    abstract boolean isConstrained();
 }

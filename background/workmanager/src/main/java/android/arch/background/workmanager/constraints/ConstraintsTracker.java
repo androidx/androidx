@@ -16,28 +16,29 @@
 package android.arch.background.workmanager.constraints;
 
 import android.arch.background.workmanager.WorkDatabase;
+import android.arch.background.workmanager.constraints.controllers.BatteryChargingController;
+import android.arch.background.workmanager.constraints.controllers.BatteryNotLowController;
 import android.arch.background.workmanager.constraints.controllers.ConstraintController;
-import android.arch.background.workmanager.constraints.listeners.BatteryChargingListener;
-import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
-import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
-import android.arch.background.workmanager.constraints.trackers.Trackers;
+import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class to track the current status of various constraints.
  */
 
-public class ConstraintsTracker implements
-        BatteryChargingListener,
-        BatteryNotLowListener,
-        StorageNotLowListener {
+public class ConstraintsTracker implements ConstraintController.OnConstraintUpdatedListener {
 
     private LifecycleOwner mLifecycleOwner;
 
     private ConstraintController mBatteryChargingController;
     private ConstraintController mBatteryNotLowController;
     private ConstraintController mStorageNotLowController;
+
+    private List<ConstraintController> mConstraintControllers = new ArrayList<>();
 
     public ConstraintsTracker(
             Context context,
@@ -46,48 +47,58 @@ public class ConstraintsTracker implements
         Context appContext = context.getApplicationContext();
         mLifecycleOwner = lifecycleOwner;
 
-        Trackers trackers = Trackers.getInstance(appContext);
+        mConstraintControllers.add(
+                new BatteryChargingController(
+                        appContext,
+                        workDatabase,
+                        mLifecycleOwner,
+                        this));
 
-        mBatteryChargingController = new ConstraintController<>(
-                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryChargingConstraint(),
-                mLifecycleOwner,
-                trackers.getBatteryChargingReceiver(),
-                this);
+        mConstraintControllers.add(
+                new BatteryNotLowController(
+                        appContext,
+                        workDatabase,
+                        mLifecycleOwner,
+                        this));
 
-        mBatteryNotLowController = new ConstraintController<>(
-                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryNotLowConstraint(),
-                mLifecycleOwner,
-                trackers.getBatteryNotLowReceiver(),
-                this);
-
-        mStorageNotLowController = new ConstraintController<>(
-                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithStorageNotLowConstraint(),
-                mLifecycleOwner,
-                trackers.getStorageNotLowTracker(),
-                this);
+        mConstraintControllers.add(
+                new StorageNotLowController(
+                        appContext,
+                        workDatabase,
+                        mLifecycleOwner,
+                        this));
     }
 
     /**
      * Shuts down this {@link ConstraintsTracker} and removes all internal observation.
      */
     public void shutdown() {
-        mBatteryChargingController.shutdown();
-        mBatteryNotLowController.shutdown();
-        mStorageNotLowController.shutdown();
+        for (ConstraintController constraintController : mConstraintControllers) {
+            constraintController.shutdown();
+        }
     }
 
     @Override
-    public void setBatteryNotLow(boolean isBatteryNotLow) {
+    public void onConstraintMet(List<String> workSpecIds) {
+        for (String id : workSpecIds) {
+            boolean workSpecIdConstrained = false;
+            for (ConstraintController constraintController : mConstraintControllers) {
+                if (constraintController.isWorkSpecConstrained(id)) {
+                    workSpecIdConstrained = true;
+                    break;
+                }
+            }
 
+            if (!workSpecIdConstrained) {
+                // TODO(sumir): signal this should be processed.
+            }
+        }
     }
 
     @Override
-    public void setStorageNotLow(boolean isStorageNotLow) {
-
-    }
-
-    @Override
-    public void setBatteryCharging(boolean isBatteryCharging) {
-
+    public void onConstraintNotMet(List<String> workSpecIds) {
+        for (String id : workSpecIds) {
+            // TODO(sumir): signal this should be cancelled.
+        }
     }
 }
