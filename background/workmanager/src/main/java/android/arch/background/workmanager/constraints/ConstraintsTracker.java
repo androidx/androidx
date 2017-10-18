@@ -17,6 +17,9 @@ package android.arch.background.workmanager.constraints;
 
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.controllers.ConstraintController;
+import android.arch.background.workmanager.constraints.listeners.BatteryChargingListener;
+import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
+import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
 import android.arch.background.workmanager.constraints.trackers.Trackers;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
@@ -25,10 +28,12 @@ import android.content.Context;
  * A class to track the current status of various constraints.
  */
 
-public class ConstraintsTracker {
+public class ConstraintsTracker implements
+        BatteryChargingListener,
+        BatteryNotLowListener,
+        StorageNotLowListener {
 
     private LifecycleOwner mLifecycleOwner;
-    private ConstraintsState mConstraintsState;
 
     private ConstraintController mBatteryChargingController;
     private ConstraintController mBatteryNotLowController;
@@ -37,31 +42,29 @@ public class ConstraintsTracker {
     public ConstraintsTracker(
             Context context,
             LifecycleOwner lifecycleOwner,
-            ConstraintsState.Listener constraintsStateListener,
             WorkDatabase workDatabase) {
         Context appContext = context.getApplicationContext();
         mLifecycleOwner = lifecycleOwner;
-        mConstraintsState = new ConstraintsState(constraintsStateListener);
 
         Trackers trackers = Trackers.getInstance(appContext);
 
-        mBatteryChargingController = new ConstraintController(
+        mBatteryChargingController = new ConstraintController<>(
                 workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryChargingConstraint(),
                 mLifecycleOwner,
                 trackers.getBatteryChargingReceiver(),
-                mConstraintsState);
+                this);
 
-        mBatteryNotLowController = new ConstraintController(
+        mBatteryNotLowController = new ConstraintController<>(
                 workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryNotLowConstraint(),
                 mLifecycleOwner,
                 trackers.getBatteryNotLowReceiver(),
-                mConstraintsState);
+                this);
 
-        mStorageNotLowController = new ConstraintController(
+        mStorageNotLowController = new ConstraintController<>(
                 workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithStorageNotLowConstraint(),
                 mLifecycleOwner,
                 trackers.getStorageNotLowTracker(),
-                mConstraintsState);
+                this);
     }
 
     /**
@@ -71,5 +74,20 @@ public class ConstraintsTracker {
         mBatteryChargingController.shutdown();
         mBatteryNotLowController.shutdown();
         mStorageNotLowController.shutdown();
+    }
+
+    @Override
+    public void setBatteryNotLow(boolean isBatteryNotLow) {
+
+    }
+
+    @Override
+    public void setStorageNotLow(boolean isStorageNotLow) {
+
+    }
+
+    @Override
+    public void setBatteryCharging(boolean isBatteryCharging) {
+
     }
 }

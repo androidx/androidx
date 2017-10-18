@@ -19,7 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
-import android.arch.background.workmanager.constraints.ConstraintsState;
+import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -36,17 +36,17 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ConstraintTrackerTest {
 
-    private TestConstraintTracker mReceiver;
+    private TestConstraintTracker mTracker;
 
     @Before
     public void setUp() {
-        mReceiver = new TestConstraintTracker(InstrumentationRegistry.getTargetContext());
+        mTracker = new TestConstraintTracker(InstrumentationRegistry.getTargetContext());
     }
 
     @After
     public void tearDown() {
         try {
-            mReceiver.unregisterReceiver();
+            mTracker.unregisterReceiver();
         } catch (IllegalArgumentException e) {
             // Ignore any exceptions if the receiver isn't registered.
         }
@@ -54,39 +54,40 @@ public class ConstraintTrackerTest {
 
     @Test
     public void testStartTracking_setsInitialState() {
-        ConstraintsState constraintsState = mock(ConstraintsState.class);
-        mReceiver.startTracking(constraintsState);
-        assertThat(mReceiver.mSetupInitialState, is(true));
+        ConstraintListener constraintListener = mock(ConstraintListener.class);
+        mTracker.addListener(constraintListener);
+        assertThat(mTracker.mSetupInitialState, is(true));
     }
 
     @Test
     public void testTracking_registersOnSizeEqualsOne() {
-        ConstraintsState constraintsState1 = mock(ConstraintsState.class);
-        mReceiver.startTracking(constraintsState1);
-        assertThat(mReceiver.mRegistered, is(true));
-        assertThat(mReceiver.mRegisterCount, is(1));
-        ConstraintsState constraintsState2 = mock(ConstraintsState.class);
-        mReceiver.startTracking(constraintsState2);
-        assertThat(mReceiver.mRegistered, is(true));
-        assertThat(mReceiver.mRegisterCount, is(1));
+        ConstraintListener constraintListener1 = mock(ConstraintListener.class);
+        mTracker.addListener(constraintListener1);
+        assertThat(mTracker.mRegistered, is(true));
+        assertThat(mTracker.mRegisterCount, is(1));
+
+        ConstraintListener constraintListener2 = mock(ConstraintListener.class);
+        mTracker.addListener(constraintListener2);
+        assertThat(mTracker.mRegistered, is(true));
+        assertThat(mTracker.mRegisterCount, is(1));
     }
 
     @Test
     public void testTracking_unregistersOnSizeEqualsZero() {
-        ConstraintsState constraintsState1 = mock(ConstraintsState.class);
-        mReceiver.startTracking(constraintsState1);
-        ConstraintsState constraintsState2 = mock(ConstraintsState.class);
-        mReceiver.startTracking(constraintsState2);
+        ConstraintListener constraintListener1 = mock(ConstraintListener.class);
+        mTracker.addListener(constraintListener1);
+        ConstraintListener constraintListener2 = mock(ConstraintListener.class);
+        mTracker.addListener(constraintListener2);
 
-        mReceiver.stopTracking(constraintsState1);
-        assertThat(mReceiver.mRegistered, is(true));
-        assertThat(mReceiver.mUnregisterCount, is(0));
-        mReceiver.stopTracking(constraintsState2);
-        assertThat(mReceiver.mRegistered, is(false));
-        assertThat(mReceiver.mUnregisterCount, is(1));
+        mTracker.removeListener(constraintListener1);
+        assertThat(mTracker.mRegistered, is(true));
+        assertThat(mTracker.mUnregisterCount, is(0));
+        mTracker.removeListener(constraintListener2);
+        assertThat(mTracker.mRegistered, is(false));
+        assertThat(mTracker.mUnregisterCount, is(1));
     }
 
-    private static class TestConstraintTracker extends ConstraintTracker {
+    private static class TestConstraintTracker extends ConstraintTracker<ConstraintListener> {
 
         private boolean mSetupInitialState;
         private boolean mRegistered;
@@ -98,7 +99,7 @@ public class ConstraintTrackerTest {
         }
 
         @Override
-        public void setUpInitialState(ConstraintsState constraintsState) {
+        public void setUpInitialState(ConstraintListener constraintListener) {
             mSetupInitialState = true;
         }
 

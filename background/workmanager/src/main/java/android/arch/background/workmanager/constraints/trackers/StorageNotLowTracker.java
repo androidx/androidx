@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.ConstraintsState;
+import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +25,7 @@ import android.content.IntentFilter;
  * A {@link BroadcastReceiver} for storage level.
  */
 
-public class StorageNotLowTracker extends ConstraintTracker {
+public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListener> {
 
     private Boolean mIsStorageNotLow;
 
@@ -34,7 +34,7 @@ public class StorageNotLowTracker extends ConstraintTracker {
     }
 
     @Override
-    public void setUpInitialState(ConstraintsState state) {
+    public void setUpInitialState(StorageNotLowListener listener) {
         if (mIsStorageNotLow == null) {
             Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
             if (intent == null || intent.getAction() == null) {
@@ -52,7 +52,7 @@ public class StorageNotLowTracker extends ConstraintTracker {
         }
 
         if (mIsStorageNotLow != null) {
-            state.setStorageNotLow(mIsStorageNotLow);
+            listener.setStorageNotLow(mIsStorageNotLow);
         }
     }
 
@@ -86,8 +86,8 @@ public class StorageNotLowTracker extends ConstraintTracker {
     private void setIsStorageNotLowAndNotify(boolean isStorageNotLow) {
         if (mIsStorageNotLow != isStorageNotLow) {
             mIsStorageNotLow = isStorageNotLow;
-            for (ConstraintsState state : mConstraintsStateList) {
-                state.setStorageNotLow(mIsStorageNotLow);
+            for (StorageNotLowListener listener : mListeners) {
+                listener.setStorageNotLow(mIsStorageNotLow);
             }
         }
     }

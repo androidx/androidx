@@ -55,7 +55,7 @@ public class Trackers {
      *
      * @return The receiver used to track battery charging status
      */
-    public ConstraintTracker getBatteryChargingReceiver() {
+    public BatteryChargingTracker getBatteryChargingReceiver() {
         return mBatteryChargingReceiver;
     }
 
@@ -64,7 +64,7 @@ public class Trackers {
      *
      * @return The receiver used to track if the battery is okay or low
      */
-    public ConstraintTracker getBatteryNotLowReceiver() {
+    public BatteryNotLowTracker getBatteryNotLowReceiver() {
         return mBatteryNotLowReceiver;
     }
 
@@ -73,7 +73,7 @@ public class Trackers {
      *
      * @return The receiver used to track if device storage is okay or low.
      */
-    public ConstraintTracker getStorageNotLowTracker() {
+    public StorageNotLowTracker getStorageNotLowTracker() {
         return mStorageNotLowTracker;
     }
 }

@@ -15,7 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
-import android.arch.background.workmanager.constraints.ConstraintsState;
+import android.arch.background.workmanager.constraints.listeners.BatteryChargingListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +27,7 @@ import android.os.Build;
  * A {@link BroadcastReceiver} for battery charging status.
  */
 
-public class BatteryChargingTracker extends ConstraintTracker {
+public class BatteryChargingTracker extends ConstraintTracker<BatteryChargingListener> {
 
     private Boolean mIsCharging;
 
@@ -36,7 +36,7 @@ public class BatteryChargingTracker extends ConstraintTracker {
     }
 
     @Override
-    public void setUpInitialState(ConstraintsState state) {
+    public void setUpInitialState(BatteryChargingListener listener) {
         if (mIsCharging == null) {
             // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
             // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
@@ -46,10 +46,10 @@ public class BatteryChargingTracker extends ConstraintTracker {
             Intent intent = mAppContext.registerReceiver(null, intentFilter);
             if (intent != null) {
                 mIsCharging = isBatteryChangedIntentCharging(intent);
-                state.setCharging(mIsCharging);
+                listener.setBatteryCharging(mIsCharging);
             }
         } else {
-            state.setCharging(mIsCharging);
+            listener.setBatteryCharging(mIsCharging);
         }
     }
 
@@ -90,8 +90,8 @@ public class BatteryChargingTracker extends ConstraintTracker {
     private void setIsChargingAndNotify(boolean isCharging) {
         if (mIsCharging != isCharging) {
             mIsCharging = isCharging;
-            for (ConstraintsState state : mConstraintsStateList) {
-                state.setCharging(mIsCharging);
+            for (BatteryChargingListener listener : mListeners) {
+                listener.setBatteryCharging(mIsCharging);
             }
         }
     }
