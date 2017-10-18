@@ -80,11 +80,11 @@ class TiledPagedList<T> extends PagedList<T>
                 mainThreadExecutor, backgroundThreadExecutor, config);
         mDataSource = dataSource;
 
-        final int pageSize = mConfig.mPageSize;
+        final int pageSize = mConfig.pageSize;
 
         final int itemCount = mDataSource.countItems();
         final int firstLoadSize = Math.min(itemCount,
-                (Math.max(mConfig.mInitialLoadSizeHint / pageSize, 2)) * pageSize);
+                (Math.max(mConfig.initialLoadSizeHint / pageSize, 2)) * pageSize);
         final int firstLoadPosition = computeFirstLoadPosition(
                 position, firstLoadSize, pageSize, itemCount);
 
@@ -126,7 +126,7 @@ class TiledPagedList<T> extends PagedList<T>
 
         // loop through each page and signal the callback for any pages that are present now,
         // but not in the snapshot.
-        final int pageSize = mConfig.mPageSize;
+        final int pageSize = mConfig.pageSize;
         final int leadingNullPages = mStorage.getLeadingNullCount() / pageSize;
         final int pageCount = mStorage.getPageCount();
         for (int i = 0; i < pageCount; i++) {
@@ -148,7 +148,7 @@ class TiledPagedList<T> extends PagedList<T>
 
     @Override
     protected void loadAroundInternal(int index) {
-        mStorage.allocatePlaceholders(index, mConfig.mPrefetchDistance, mConfig.mPageSize, this);
+        mStorage.allocatePlaceholders(index, mConfig.prefetchDistance, mConfig.pageSize, this);
     }
 
     @Override
@@ -175,7 +175,7 @@ class TiledPagedList<T> extends PagedList<T>
                 if (isDetached()) {
                     return;
                 }
-                final int pageSize = mConfig.mPageSize;
+                final int pageSize = mConfig.pageSize;
                 mDataSource.loadRange(pageIndex * pageSize, pageSize, mReceiver);
             }
         });
