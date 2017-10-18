@@ -19,6 +19,7 @@ package android.arch.lifecycle
 import android.arch.lifecycle.model.AdapterClass
 import android.arch.lifecycle.model.EventMethod
 import android.arch.lifecycle.model.EventMethodCall
+import android.arch.lifecycle.model.InputModel
 import android.arch.lifecycle.model.LifecycleObserverInfo
 import com.google.common.collect.HashMultimap
 import javax.annotation.processing.ProcessingEnvironment
@@ -70,8 +71,7 @@ fun flattenObservers(processingEnv: ProcessingEnvironment,
                 }
 
         flattened[observer] = LifecycleObserverInfo(observer.type,
-                mergeAndVerifyMethods(processingEnv, observer.type, observer.methods, methods),
-                observer.hasAdapter)
+                mergeAndVerifyMethods(processingEnv, observer.type, observer.methods, methods))
     }
 
     world.values.forEach(::traverse)
@@ -84,23 +84,40 @@ private fun needsSyntheticAccess(type: TypeElement, eventMethod: EventMethod): B
             && (executable.isPackagePrivate() || executable.isProtected())
 }
 
+private fun validateMethod(processingEnv: ProcessingEnvironment,
+                           world: InputModel, type: TypeElement,
+                           eventMethod: EventMethod): Boolean {
+    if (!needsSyntheticAccess(type, eventMethod)) {
+        // no synthetic calls - no problems
+        return true
+    }
+
+    if (world.isRootType(eventMethod.type)) {
+        // we will generate adapters for them, so we can generate all accessors
+        return true
+    }
+
+    if (world.hasSyntheticAccessorFor(eventMethod)) {
+        // previously generated adapter already has synthetic
+        return true
+    }
+
+    processingEnv.messager.printMessage(Diagnostic.Kind.WARNING,
+            ErrorMessages.failedToGenerateAdapter(type, eventMethod), type)
+    return false
+}
+
 fun transformToOutput(processingEnv: ProcessingEnvironment,
-                      world: Map<TypeElement, LifecycleObserverInfo>): List<AdapterClass> {
-    val flatObservers = flattenObservers(processingEnv, world)
+                      world: InputModel): List<AdapterClass> {
+    val flatObservers = flattenObservers(processingEnv, world.observersInfo)
     val syntheticMethods = HashMultimap.create<TypeElement, EventMethodCall>()
     val adapterCalls = flatObservers
             // filter out everything that arrived from jars
-            .filter { (type) -> type in world }
-            // filter out if it needs synthetic access and we can't generate adapter for it
-            .filterNot { (type, methods) ->
-                methods.any { eventMethod ->
-                    val cantGenerate = needsSyntheticAccess(type, eventMethod)
-                            && (eventMethod.type !in world)
-                    if (cantGenerate) {
-                        processingEnv.messager.printMessage(Diagnostic.Kind.WARNING,
-                                ErrorMessages.failedToGenerateAdapter(type, eventMethod))
-                    }
-                    cantGenerate
+            .filter { (type) -> world.isRootType(type) }
+            // filter out if it needs SYNTHETIC access and we can't generate adapter for it
+            .filter { (type, methods) ->
+                methods.all { eventMethod ->
+                    validateMethod(processingEnv, world, type, eventMethod)
                 }
             }
             .map { (type, methods) ->
