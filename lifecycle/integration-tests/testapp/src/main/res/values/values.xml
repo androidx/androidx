@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/activityFrameLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+
+<resources>
+    <item name="child_fragment_container" type="id"/>
+</resources>

@@ -585,30 +585,26 @@ public class LiveDataTest {
 
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
 
-        // Marking state as CREATED should not call onInactive.
+        // Marking state as CREATED should call onInactive.
         reset(mActiveObserversChanged);
         mRegistry.markState(Lifecycle.State.CREATED);
-        verify(mActiveObserversChanged, never()).onCall(anyBoolean());
+        verify(mActiveObserversChanged).onCall(false);
+        reset(mActiveObserversChanged);
 
         // Setting a new value should trigger LiveData to realize the Lifecycle it is observing
         // is in a state where the LiveData should be inactive, so the LiveData will call onInactive
         // and the Observer shouldn't be affected.
         mLiveData.setValue("1");
-        verify(mActiveObserversChanged).onCall(false);
-        verify(observer, never()).onChanged(anyString());
 
-        // Sanity check.  Because we've only marked the state as CREATED, the LifecycleRegistry
-        // was internally never moved away from the StartedState, and thus sending the ON_START
-        // event again will have no affect on the LiveData.
-        reset(mActiveObserversChanged);
-        reset(observer);
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
+        // state is already CREATED so should not call again
         verify(mActiveObserversChanged, never()).onCall(anyBoolean());
         verify(observer, never()).onChanged(anyString());
 
-        // If the lifecycle moves back to a started/resumed state, the LiveData should again be made
-        // active, and therefore the observer should have been called with the new data.
-        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+        // Sanity check.  Because we've only marked the state as CREATED, sending ON_START
+        // should re-dispatch events.
+        reset(mActiveObserversChanged);
+        reset(observer);
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
         verify(mActiveObserversChanged).onCall(true);
         verify(observer).onChanged("1");
     }
@@ -645,19 +641,19 @@ public class LiveDataTest {
         verify(observer1, never()).onChanged(anyString());
         verify(observer2).onChanged("1");
 
-        // Now we set the other Lifecycle to be inactive, but the LiveData will still be active
-        // until it's value is updated.
+        // Now we set the other Lifecycle to be inactive, live data should become inactive.
         reset(observer1);
         reset(observer2);
         mRegistry2.markState(Lifecycle.State.CREATED);
-        verify(mActiveObserversChanged, never()).onCall(anyBoolean());
+        verify(mActiveObserversChanged).onCall(false);
         verify(observer1, never()).onChanged(anyString());
         verify(observer2, never()).onChanged(anyString());
 
-        // Now we post another value, because both lifecycles are in the Created state, the LiveData
-        // will be made inactive, and neither of the observers will be called.
+        // Now we post another value, because both lifecycles are in the Created state, live data
+        // will not dispatch any values
+        reset(mActiveObserversChanged);
         mLiveData.setValue("2");
-        verify(mActiveObserversChanged).onCall(false);
+        verify(mActiveObserversChanged, never()).onCall(anyBoolean());
         verify(observer1, never()).onChanged(anyString());
         verify(observer2, never()).onChanged(anyString());
 
@@ -665,6 +661,7 @@ public class LiveDataTest {
         // be made active and it's associated Observer will be called with the new value, but the
         // Observer associated with the Lifecycle that is still in the Created state won't be
         // called.
+        reset(mActiveObserversChanged);
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
         verify(mActiveObserversChanged).onCall(true);
         verify(observer1).onChanged("2");
