@@ -28,7 +28,7 @@ import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
 import java.util.List;
 

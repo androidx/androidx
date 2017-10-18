@@ -13,75 +13,86 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package android.arch.lifecycle.testapp;
 
 import static android.arch.lifecycle.testapp.TestEvent.OWNER_CALLBACK;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.arch.lifecycle.LifecycleRegistryOwner;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
- * LifecycleRegistryOwner that extends framework activity.
+ * A support fragment that collects all of its events.
  */
-@SuppressWarnings("deprecation")
-public class FrameworkLifecycleRegistryActivity extends Activity implements
-        LifecycleRegistryOwner, CollectingLifecycleOwner {
-    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-
-    @NonNull
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return mLifecycleRegistry;
-    }
-
-    private List<Pair<TestEvent, Lifecycle.Event>> mCollectedEvents = new ArrayList<>();
+@SuppressLint("ValidFragment")
+public class CollectingSupportFragment extends Fragment implements CollectingLifecycleOwner {
+    private final List<Pair<TestEvent, Lifecycle.Event>> mCollectedEvents =
+            new ArrayList<>();
     private TestObserver mTestObserver = new TestObserver(mCollectedEvents);
-    private CountDownLatch mLatch = new CountDownLatch(1);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCollectedEvents.add(new Pair<>(OWNER_CALLBACK, Lifecycle.Event.ON_CREATE));
         getLifecycle().addObserver(mTestObserver);
     }
 
+    @Nullable
     @Override
-    protected void onStart() {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        //noinspection ConstantConditions
+        FrameLayout layout = new FrameLayout(container.getContext());
+        layout.setId(R.id.child_fragment_container);
+        return layout;
+    }
+
+    /**
+     * Runs a replace fragment transaction with 'fragment' on this Fragment.
+     */
+    public void replaceFragment(Fragment fragment) {
+        getChildFragmentManager()
+                .beginTransaction()
+                .add(R.id.child_fragment_container, fragment)
+                .commitNow();
+    }
+
+    @Override
+    public void onStart() {
         super.onStart();
         mCollectedEvents.add(new Pair<>(OWNER_CALLBACK, Lifecycle.Event.ON_START));
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         mCollectedEvents.add(new Pair<>(OWNER_CALLBACK, Lifecycle.Event.ON_RESUME));
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         mCollectedEvents.add(new Pair<>(OWNER_CALLBACK, Lifecycle.Event.ON_DESTROY));
-        mLatch.countDown();
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         mCollectedEvents.add(new Pair<>(OWNER_CALLBACK, Lifecycle.Event.ON_STOP));
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         mCollectedEvents.add(new Pair<>(OWNER_CALLBACK, Lifecycle.Event.ON_PAUSE));
     }
