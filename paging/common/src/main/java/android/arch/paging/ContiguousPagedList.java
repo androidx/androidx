@@ -85,8 +85,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
         // blocking init just triggers the initial load on the construction thread -
         // Could still be posted with callback, if desired.
         mDataSource.loadInitial(key,
-                mConfig.mInitialLoadSizeHint,
-                mConfig.mEnablePlaceholders,
+                mConfig.initialLoadSizeHint,
+                mConfig.enablePlaceholders,
                 mReceiver);
     }
 
@@ -143,8 +143,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     @MainThread
     @Override
     protected void loadAroundInternal(int index) {
-        int prependItems = mConfig.mPrefetchDistance - (index - mStorage.getLeadingNullCount());
-        int appendItems = index + mConfig.mPrefetchDistance
+        int prependItems = mConfig.prefetchDistance - (index - mStorage.getLeadingNullCount());
+        int appendItems = index + mConfig.prefetchDistance
                 - (mStorage.getLeadingNullCount() + mStorage.getStorageCount());
 
         mPrependItemsRequested = Math.max(prependItems, mPrependItemsRequested);
@@ -175,7 +175,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 if (isDetached()) {
                     return;
                 }
-                mDataSource.loadBefore(position, item, mConfig.mPageSize, mReceiver);
+                mDataSource.loadBefore(position, item, mConfig.pageSize, mReceiver);
             }
         });
     }
@@ -198,7 +198,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 if (isDetached()) {
                     return;
                 }
-                mDataSource.loadAfter(position, item, mConfig.mPageSize, mReceiver);
+                mDataSource.loadAfter(position, item, mConfig.pageSize, mReceiver);
             }
         });
     }
