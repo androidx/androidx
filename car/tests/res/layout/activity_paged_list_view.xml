@@ -14,12 +14,19 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="android.support.car.widget.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/frame_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <application android:supportsRtl="true">
-        <activity android:name="android.support.car.widget.ColumnCardViewTestActivity"/>
-        <activity android:name="android.support.car.widget.PagedListViewTestActivity"/>
-    </application>
-</manifest>
+    <android.support.car.widget.PagedListView
+        android:id="@+id/paged_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:showPagedListViewDivider="false"
+        app:offsetScrollBar="true"
+    />
+
+</FrameLayout>
