@@ -21,7 +21,6 @@ package android.support.wear.ambient {
 
   public final class AmbientMode.AmbientController {
     method public boolean isAmbient();
-    method public void setAutoResumeEnabled(boolean);
   }
 
 }
