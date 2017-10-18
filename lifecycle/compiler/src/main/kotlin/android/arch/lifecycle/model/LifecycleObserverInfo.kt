@@ -21,5 +21,4 @@ import javax.lang.model.element.TypeElement
 data class LifecycleObserverInfo(
         val type: TypeElement,
         val methods: List<EventMethod>,
-        val hasAdapter: Boolean,
         val parents: List<LifecycleObserverInfo> = listOf())
