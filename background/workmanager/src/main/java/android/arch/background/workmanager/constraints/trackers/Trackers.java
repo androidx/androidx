@@ -39,39 +39,39 @@ public class Trackers {
         return sInstance;
     }
 
-    private BatteryChargingTracker mBatteryChargingReceiver;
-    private BatteryNotLowTracker mBatteryNotLowReceiver;
+    private BatteryChargingTracker mBatteryChargingTracker;
+    private BatteryNotLowTracker mBatteryNotLowTracker;
     private StorageNotLowTracker mStorageNotLowTracker;
 
     private Trackers(Context context) {
         Context appContext = context.getApplicationContext();
-        mBatteryChargingReceiver = new BatteryChargingTracker(appContext);
-        mBatteryNotLowReceiver = new BatteryNotLowTracker(appContext);
+        mBatteryChargingTracker = new BatteryChargingTracker(appContext);
+        mBatteryNotLowTracker = new BatteryNotLowTracker(appContext);
         mStorageNotLowTracker = new StorageNotLowTracker(appContext);
     }
 
     /**
-     * Gets the receiver used to track the battery charging status.
+     * Gets the tracker used to track the battery charging status.
      *
-     * @return The receiver used to track battery charging status
+     * @return The tracker used to track battery charging status
      */
-    public BatteryChargingTracker getBatteryChargingReceiver() {
-        return mBatteryChargingReceiver;
+    public BatteryChargingTracker getBatteryChargingTracker() {
+        return mBatteryChargingTracker;
     }
 
     /**
-     * Gets the receiver used to track if the battery is okay or low.
+     * Gets the tracker used to track if the battery is okay or low.
      *
-     * @return The receiver used to track if the battery is okay or low
+     * @return The tracker used to track if the battery is okay or low
      */
-    public BatteryNotLowTracker getBatteryNotLowReceiver() {
-        return mBatteryNotLowReceiver;
+    public BatteryNotLowTracker getBatteryNotLowTracker() {
+        return mBatteryNotLowTracker;
     }
 
     /**
-     * Gets the receiver used to track if device storage is okay or low.
+     * Gets the tracker used to track if device storage is okay or low.
      *
-     * @return The receiver used to track if device storage is okay or low.
+     * @return The tracker used to track if device storage is okay or low.
      */
     public StorageNotLowTracker getStorageNotLowTracker() {
         return mStorageNotLowTracker;
