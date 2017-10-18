@@ -23,9 +23,10 @@ import com.google.testing.compile.JavaSourcesSubject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import javax.tools.StandardLocation
 import java.io.File
+import java.lang.Exception
 import java.net.URLClassLoader
+import javax.tools.StandardLocation
 
 @RunWith(JUnit4::class)
 class ValidCasesTest {
@@ -72,7 +73,7 @@ class ValidCasesTest {
     }
 
     @Test
-    fun testInterface1(){
+    fun testInterface1() {
         processClass("foo.InterfaceOk1").compilesWithoutError()
     }
 
@@ -118,13 +119,37 @@ class ValidCasesTest {
 
     @Test
     fun testJar() {
-        val jarUrl = File("src/tests/test-data/lib/test-library.jar").toURI().toURL()
-        val classLoader = URLClassLoader(arrayOf(jarUrl), this.javaClass.classLoader)
         JavaSourcesSubject.assertThat(load("foo.DerivedFromJar", ""))
-                .withClasspathFrom(classLoader)
+                .withClasspathFrom(libraryClassLoader())
                 .processedWith(LifecycleProcessor())
                 .compilesWithoutError().and()
-                .generatesSources(load("foo.DerivedFromJar_LifecycleAdapter", "expected")
-        )
+                .generatesSources(load("foo.DerivedFromJar_LifecycleAdapter", "expected"))
+    }
+
+    @Test
+    fun testExtendFromJarFailToGenerateAdapter() {
+        val compileTester = JavaSourcesSubject.assertThat(load("foo.DerivedFromJar1", ""))
+                .withClasspathFrom(libraryClassLoader())
+                .processedWith(LifecycleProcessor())
+                .compilesWithoutError()
+        compileTester.withWarningContaining("Failed to generate an Adapter for")
+        doesntGenerateClass(compileTester, "test.library", "ObserverNoAdapter_LifecycleAdapter")
+        doesntGenerateClass(compileTester, "foo", "DerivedFromJar1_LifecycleAdapter")
+    }
+
+    // compile-testing has fancy, but not always convenient API
+    private fun doesntGenerateClass(compile: CompileTester.SuccessfulCompilationClause,
+                                    packageName: String, className: String) {
+        try {
+            compile.and().generatesFileNamed(StandardLocation.CLASS_OUTPUT,
+                    packageName, "$className.class")
+            throw Exception("$packageName.$className shouldn't be generated")
+        } catch (e: AssertionError) {
+        }
+    }
+
+    private fun libraryClassLoader(): URLClassLoader {
+        val jarUrl = File("src/tests/test-data/lib/test-library.jar").toURI().toURL()
+        return URLClassLoader(arrayOf(jarUrl), this.javaClass.classLoader)
     }
 }

@@ -39,17 +39,22 @@ fun collectAndVerifyInput(processingEnv: ProcessingEnvironment,
                           roundEnv: RoundEnvironment): Map<TypeElement, LifecycleObserverInfo> {
     val validator = Validator(processingEnv)
     val worldCollector = ObserversCollector(processingEnv)
-    roundEnv.getElementsAnnotatedWith(OnLifecycleEvent::class.java).forEach { elem ->
+    val roots = roundEnv.getElementsAnnotatedWith(OnLifecycleEvent::class.java).map { elem ->
         if (elem.kind != ElementKind.METHOD) {
             validator.printErrorMessage(ErrorMessages.INVALID_ANNOTATED_ELEMENT, elem)
+            null
         } else {
             val enclosingElement = elem.enclosingElement
             if (validator.validateClass(enclosingElement)) {
-                worldCollector.collect(MoreElements.asType(enclosingElement))
+                MoreElements.asType(enclosingElement)
+            } else {
+                null
             }
         }
-    }
-    return worldCollector.observers
+    }.filterNotNull().toSet()
+    roots.forEach { worldCollector.collect(it) }
+    // filter out everything that arrived from jars
+    return worldCollector.observers.filterKeys { k -> k in roots }
 }
 
 class ObserversCollector(processingEnv: ProcessingEnvironment) {
