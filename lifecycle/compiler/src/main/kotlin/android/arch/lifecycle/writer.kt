@@ -193,8 +193,6 @@ private fun MethodSpec.Builder.writeMethodCalls(calls: List<EventMethodCall>,
     addStatement("return")
 }
 
-private fun syntheticName(method: ExecutableElement) = "__synthetic_" + method.simpleName
-
 private fun takeParams(count: Int, vararg params: Any) = params.take(count).toTypedArray()
 
 private fun generateParamString(count: Int) = (0 until count).joinToString(",") { N }
