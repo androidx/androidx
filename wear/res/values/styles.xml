@@ -39,9 +39,9 @@
     </style>
     <style name="Widget.Wear.RoundSwitch"
             parent="@android:style/Widget.Material.CompoundButton.Switch">
-        <item name="android:layout_width">@dimen/switch_size</item>
-        <item name="android:layout_height">@dimen/switch_size</item>
-        <item name="android:switchMinWidth">@dimen/switch_size</item>
+        <item name="android:layout_width">@dimen/ws_switch_size</item>
+        <item name="android:layout_height">@dimen/ws_switch_size</item>
+        <item name="android:switchMinWidth">@dimen/ws_switch_size</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:thumb">@drawable/watch_switch_thumb_material_anim</item>
         <item name="android:thumbTint">@color/watch_switch_thumb_color_material</item>
