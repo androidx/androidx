@@ -55,6 +55,7 @@ dependencies {
     // DexMaker has it"s own MockMaker
     testImplementation libs.junit
     androidTestImplementation project(':arch:core-testing')
+    compile libs.firebase_jobdispatcher
 }
 
 createAndroidCheckstyle(project)
