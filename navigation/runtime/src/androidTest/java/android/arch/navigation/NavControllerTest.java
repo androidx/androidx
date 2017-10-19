@@ -409,7 +409,8 @@ public class NavControllerTest {
         Uri deepLinkUri = Uri.parse("http://www.example.com/" + TEST_ARG_VALUE);
         Intent intent = new Intent(Intent.ACTION_VIEW, deepLinkUri)
                 .setComponent(new ComponentName(mInstrumentation.getContext(),
-                        NavigationActivity.class));
+                        NavigationActivity.class))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         NavigationActivity activity = launchActivity(intent);
         NavController navController = activity.getNavController();
         navController.setGraph(R.xml.nav_deep_link);
