@@ -61,6 +61,8 @@ class SystemJobInfoConverter {
     /**
      * Converts a {@link WorkSpec} into a {@link JobInfo}.
      *
+     * Note: All {@link JobInfo} are set to persist on reboot.
+     *
      * @param workSpec The {@link WorkSpec} to convert
      * @return The {@link JobInfo} representing the same information as the {@link WorkSpec}
      */
@@ -72,6 +74,7 @@ class SystemJobInfoConverter {
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.getId());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
+                .setPersisted(true)
                 .setRequiredNetworkType(jobInfoNetworkType)
                 .setExtras(extras);
 
