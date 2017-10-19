@@ -157,7 +157,6 @@ public class ProcessLifecycleOwner implements LifecycleOwner {
         app.registerActivityLifecycleCallbacks(new EmptyActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                ReportFragment.injectIfNeededIn(activity);
                 ReportFragment.get(activity).setProcessListener(mInitializationListener);
             }
 
