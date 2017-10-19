@@ -264,14 +264,12 @@ class KeyedDataSourceTest {
         private val ITEM_COMPARATOR = compareBy<Item>( {it.name} ).thenByDescending( {it.id} )
         private val KEY_COMPARATOR = compareBy<Key>( {it.name} ).thenByDescending( {it.id} )
 
-        private val ITEMS_BY_NAME_ID = List(size = 100, init = {
-            val names = Array(size = 10, init = {
-                "f" + ('a' + it)
-            })
+        private val ITEMS_BY_NAME_ID = List(100) {
+            val names = Array(10) { "f" + ('a' + it) }
             Item(names[it % 10],
                  it,
                  Math.random() * 1000,
                  (Math.random() * 200).toInt().toString() + " fake st.")
-        }).sortedWith(ITEM_COMPARATOR)
+        }.sortedWith(ITEM_COMPARATOR)
     }
 }
