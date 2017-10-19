@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package android.arch.paging;
+package android.arch.paging
 
-import android.support.annotation.NonNull;
+import java.util.LinkedList
+import java.util.concurrent.Executor
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.Executor;
+class TestExecutor : Executor {
+    private val mTasks = LinkedList<Runnable>()
 
-public class TestExecutor implements Executor {
-    private Queue<Runnable> mTasks = new LinkedList<>();
-
-    @Override
-    public void execute(@NonNull Runnable command) {
-        mTasks.add(command);
+    override fun execute(command: Runnable) {
+        mTasks.add(command)
     }
 
-    public boolean executeAll() {
-        boolean consumed = !mTasks.isEmpty();
-        Runnable task;
-        while ((task = mTasks.poll()) != null) {
-            task.run();
+    fun executeAll(): Boolean {
+        val consumed = !mTasks.isEmpty()
+
+        var task = mTasks.poll()
+        while (task != null) {
+            task.run()
+            task = mTasks.poll()
         }
-        return consumed;
+        return consumed
     }
 }
