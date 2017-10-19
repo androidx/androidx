@@ -16,5 +16,12 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.mediacompat.client.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+    <application android:supportsRtl="true">
+        <receiver android:name="android.support.mediacompat.client.ClientBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.support.mediacompat.service.action.CALL_MEDIA_CONTROLLER_METHOD"/>
+                <action android:name="android.support.mediacompat.service.action.CALL_TRANSPORT_CONTROLS_METHOD"/>
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

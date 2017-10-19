@@ -16,6 +16,7 @@
 
 package android.support.mediacompat.client;
 
+import static android.support.mediacompat.client.util.TestUtil.callMediaBrowserServiceMethod;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.CUSTOM_ACTION;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.CUSTOM_ACTION_FOR_ERROR;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.CUSTOM_ACTION_SEND_ERROR;
@@ -60,7 +61,6 @@ import android.content.ComponentName;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.mediacompat.client.util.IntentUtil;
 import android.support.test.filters.MediumTest;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -270,7 +270,7 @@ public class MediaBrowserCompatTest {
 
             // Test MediaBrowserServiceCompat.notifyChildrenChanged()
             mSubscriptionCallback.reset();
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
             mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mSubscriptionCallback.mChildrenLoadedCount > 0);
         }
@@ -281,7 +281,7 @@ public class MediaBrowserCompatTest {
 
         // After unsubscribing, make StubMediaBrowserServiceCompat notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -323,7 +323,7 @@ public class MediaBrowserCompatTest {
 
             // Test MediaBrowserServiceCompat.notifyChildrenChanged()
             mSubscriptionCallback.reset();
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
             mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mSubscriptionCallback.mChildrenLoadedWithOptionCount > 0);
         }
@@ -334,7 +334,7 @@ public class MediaBrowserCompatTest {
 
         // After unsubscribing, make StubMediaBrowserServiceCompat notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -355,7 +355,7 @@ public class MediaBrowserCompatTest {
             assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
 
             callMediaBrowserServiceMethod(
-                    SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED);
+                    SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED, getContext());
             mSubscriptionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mSubscriptionCallback.mChildrenLoadedCount > 0);
         }
@@ -427,7 +427,7 @@ public class MediaBrowserCompatTest {
 
         // After unsubscribing, make StubMediaBrowserServiceCompat notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -476,7 +476,7 @@ public class MediaBrowserCompatTest {
                     subscriptionCallbacks.get(orderOfRemovingCallbacks[i]));
 
             // Make StubMediaBrowserServiceCompat notify that the children are changed.
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT);
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
             try {
                 Thread.sleep(SLEEP_MS);
             } catch (InterruptedException e) {
@@ -520,7 +520,7 @@ public class MediaBrowserCompatTest {
             assertNull(mItemCallback.mLastMediaItem);
 
             mItemCallback.reset();
-            callMediaBrowserServiceMethod(SEND_DELAYED_ITEM_LOADED, new Bundle());
+            callMediaBrowserServiceMethod(SEND_DELAYED_ITEM_LOADED, new Bundle(), getContext());
             mItemCallback.mWaitLock.wait(TIME_OUT_MS);
             assertNotNull(mItemCallback.mLastMediaItem);
             assertEquals(MEDIA_ID_CHILDREN_DELAYED, mItemCallback.mLastMediaItem.getMediaId());
@@ -607,7 +607,7 @@ public class MediaBrowserCompatTest {
             mCustomActionCallback.reset();
             Bundle data1 = new Bundle();
             data1.putString(TEST_KEY_2, TEST_VALUE_2);
-            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_PROGRESS_UPDATE, data1);
+            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_PROGRESS_UPDATE, data1, getContext());
             mCustomActionCallback.mWaitLock.wait(TIME_OUT_MS);
 
             assertTrue(mCustomActionCallback.mOnProgressUpdateCalled);
@@ -620,7 +620,7 @@ public class MediaBrowserCompatTest {
             mCustomActionCallback.reset();
             Bundle data2 = new Bundle();
             data2.putString(TEST_KEY_3, TEST_VALUE_3);
-            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_PROGRESS_UPDATE, data2);
+            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_PROGRESS_UPDATE, data2, getContext());
             mCustomActionCallback.mWaitLock.wait(TIME_OUT_MS);
 
             assertTrue(mCustomActionCallback.mOnProgressUpdateCalled);
@@ -633,7 +633,7 @@ public class MediaBrowserCompatTest {
             Bundle resultData = new Bundle();
             resultData.putString(TEST_KEY_4, TEST_VALUE_4);
             mCustomActionCallback.reset();
-            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_RESULT, resultData);
+            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_RESULT, resultData, getContext());
             mCustomActionCallback.mWaitLock.wait(TIME_OUT_MS);
 
             assertTrue(mCustomActionCallback.mOnResultCalled);
@@ -662,7 +662,7 @@ public class MediaBrowserCompatTest {
             Bundle progressUpdateData = new Bundle();
             progressUpdateData.putString(TEST_KEY_2, TEST_VALUE_2);
             callMediaBrowserServiceMethod(
-                    CUSTOM_ACTION_SEND_PROGRESS_UPDATE, progressUpdateData);
+                    CUSTOM_ACTION_SEND_PROGRESS_UPDATE, progressUpdateData, getContext());
             mCustomActionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCustomActionCallback.mOnProgressUpdateCalled);
             assertEquals(CUSTOM_ACTION, mCustomActionCallback.mAction);
@@ -674,7 +674,7 @@ public class MediaBrowserCompatTest {
             mCustomActionCallback.reset();
             Bundle errorData = new Bundle();
             errorData.putString(TEST_KEY_3, TEST_VALUE_3);
-            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_ERROR, errorData);
+            callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_ERROR, errorData, getContext());
             mCustomActionCallback.mWaitLock.wait(TIME_OUT_MS);
             assertTrue(mCustomActionCallback.mOnErrorCalled);
             assertEquals(CUSTOM_ACTION, mCustomActionCallback.mAction);
@@ -695,8 +695,9 @@ public class MediaBrowserCompatTest {
         mMediaBrowser.sendCustomAction(CUSTOM_ACTION, customActionExtras, null);
 
         // These calls should not make any exceptions.
-        callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_PROGRESS_UPDATE, new Bundle());
-        callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_RESULT, new Bundle());
+        callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_PROGRESS_UPDATE, new Bundle(),
+                getContext());
+        callMediaBrowserServiceMethod(CUSTOM_ACTION_SEND_RESULT, new Bundle(), getContext());
         Thread.sleep(WAIT_TIME_FOR_NO_RESPONSE_MS);
     }
 
@@ -739,7 +740,7 @@ public class MediaBrowserCompatTest {
             callback.mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
             assertEquals(0, callback.mConnectedCount);
 
-            callMediaBrowserServiceMethod(SET_SESSION_TOKEN, new Bundle());
+            callMediaBrowserServiceMethod(SET_SESSION_TOKEN, new Bundle(), getContext());
             callback.mWaitLock.wait(TIME_OUT_MS);
             assertEquals(1, callback.mConnectedCount);
 
@@ -757,10 +758,6 @@ public class MediaBrowserCompatTest {
                 fail("Browser failed to connect!");
             }
         }
-    }
-
-    private void callMediaBrowserServiceMethod(int methodId, Object arg) {
-        IntentUtil.callMediaBrowserServiceMethod(methodId, arg, getContext());
     }
 
     private void resetCallbacks() {
