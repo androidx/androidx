@@ -19,6 +19,7 @@ package android.arch.background.workmanager;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.support.test.filters.SmallTest;
 
@@ -69,6 +70,26 @@ public class WorkTest {
         mThrown.expect(IllegalArgumentException.class);
         mBuilder.withInitialDelay(123L)
                 .setPeriodic(Work.MIN_PERIODIC_INTERVAL_DURATION)
+                .build();
+    }
+
+    @Test
+    public void testBuild_setBackoffCriteria_exceedMaxRetryDuration() {
+        final long backoffDuration = Work.MAX_BACKOFF_DURATION + 123L;
+        Work work = mBuilder
+                .withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, backoffDuration)
+                .build();
+        assertThat(work.getWorkSpec().getBackoffDelayDuration(), is(Work.MAX_BACKOFF_DURATION));
+    }
+
+    @Test
+    public void testBuild_backoffAndIdleMode_throwsIllegalArgumentException() {
+        mThrown.expect(IllegalArgumentException.class);
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresDeviceIdle(true)
+                .build();
+        mBuilder.withBackoffCriteria(Work.BACKOFF_POLICY_EXPONENTIAL, 123L)
+                .withConstraints(constraints)
                 .build();
     }
 }

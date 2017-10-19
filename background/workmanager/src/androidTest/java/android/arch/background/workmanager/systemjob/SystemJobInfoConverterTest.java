@@ -88,6 +88,17 @@ public class SystemJobInfoConverterTest {
     }
 
     @Test
+    public void testConvert_retryPolicy() {
+        long expectedBackoffDelayDuration = 50000;
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setBackoffDelayDuration(expectedBackoffDelayDuration);
+        workSpec.setBackoffPolicy(Work.BACKOFF_POLICY_LINEAR);
+        JobInfo jobInfo = mConverter.convert(workSpec);
+        assertThat(jobInfo.getInitialBackoffMillis(), is(expectedBackoffDelayDuration));
+        assertThat(jobInfo.getBackoffPolicy(), is(JobInfo.BACKOFF_POLICY_LINEAR));
+    }
+
+    @Test
     public void testConvert_initialDelay() {
         final long expectedInitialDelay = 12123L;
         WorkSpec workSpec = new WorkSpec("id");

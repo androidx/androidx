@@ -19,6 +19,7 @@ package android.arch.background.workmanager.systemjob;
 import static android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.ComponentName;
@@ -77,6 +78,13 @@ class SystemJobInfoConverter {
                 .setPersisted(true)
                 .setRequiredNetworkType(jobInfoNetworkType)
                 .setExtras(extras);
+
+        if (!constraints.requiresDeviceIdle()) {
+            // Device Idle and Backoff Criteria cannot be set together
+            int backoffPolicy = workSpec.getBackoffPolicy() == Work.BACKOFF_POLICY_LINEAR
+                    ? JobInfo.BACKOFF_POLICY_LINEAR : JobInfo.BACKOFF_POLICY_EXPONENTIAL;
+            builder.setBackoffCriteria(workSpec.getBackoffDelayDuration(), backoffPolicy);
+        }
 
         if (workSpec.isPeriodic()) {
             builder = setBuilderPeriodic(builder, workSpec);

@@ -24,6 +24,7 @@ import android.arch.background.workmanager.model.WorkSpec;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import java.lang.annotation.Retention;
 import java.util.UUID;
@@ -71,6 +72,8 @@ public class Work {
      */
     public static final long MIN_PERIODIC_FLEX_DURATION = 5 * 60 * 1000L; // 5 minutes.
 
+    private static final String TAG = "Work";
+
     private WorkSpec mWorkSpec;
 
     private Work(WorkSpec workSpec) {
@@ -93,6 +96,7 @@ public class Work {
      */
     public static class Builder {
         private WorkSpec mWorkSpec = new WorkSpec(UUID.randomUUID().toString());
+        private boolean mBackoffCriteriaSet = false;
 
         public Builder(Class<? extends Worker> workerClass) {
             mWorkSpec.setWorkerClassName(workerClass.getName());
@@ -124,6 +128,7 @@ public class Work {
         /**
          * Change backoff policy and delay for the {@link Work}.
          * Default is {@value Work#BACKOFF_POLICY_EXPONENTIAL} and 30 seconds.
+         * Maximum backoff delay duration is {@value #MAX_BACKOFF_DURATION}.
          *
          * @param backoffPolicy        Backoff Policy to use for {@link Work}
          * @param backoffDelayDuration Time to wait before restarting {@link Worker}
@@ -132,7 +137,12 @@ public class Work {
          */
         public Builder withBackoffCriteria(@BackoffPolicy int backoffPolicy,
                                            long backoffDelayDuration) {
-            // TODO(xbhatnag): Enforce restrictions on backoff delay. 30 seconds?
+            // TODO(xbhatnag): Enforce minimum backoff delay to 10 seconds
+            mBackoffCriteriaSet = true;
+            if (backoffDelayDuration > MAX_BACKOFF_DURATION) {
+                Log.w(TAG, "Backoff delay duration exceeds maximum value");
+                backoffDelayDuration = MAX_BACKOFF_DURATION;
+            }
             mWorkSpec.setBackoffPolicy(backoffPolicy);
             mWorkSpec.setBackoffDelayDuration(backoffDelayDuration);
             return this;
@@ -237,6 +247,11 @@ public class Work {
                 if (mWorkSpec.hasInitialDelay()) {
                     throw new IllegalArgumentException("Cannot set initial delay on periodic work");
                 }
+            }
+
+            if (mBackoffCriteriaSet && mWorkSpec.getConstraints().requiresDeviceIdle()) {
+                throw new IllegalArgumentException(
+                        "Cannot set backoff criteria on an idle mode job");
             }
             return new Work(mWorkSpec);
         }
