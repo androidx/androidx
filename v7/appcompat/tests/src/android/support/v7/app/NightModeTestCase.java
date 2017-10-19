@@ -23,12 +23,15 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v7.app.NightModeActivity.TOP_ACTIVITY;
 import static android.support.v7.testutils.TestUtilsMatchers.isBackground;
 
+import static org.junit.Assert.assertTrue;
+
 import android.app.Instrumentation;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.testutils.AppCompatActivityUtils;
+import android.support.testutils.RecreatedAppCompatActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.appcompat.test.R;
 
@@ -36,6 +39,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -103,13 +109,13 @@ public class NightModeTestCase {
         // Verify that we're currently in day mode
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
 
-        // Now set MODE_NIGHT_AUTO so that we will change to night mode automatically
+        // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
         final NightModeActivity newActivity =
                 setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
         final AppCompatDelegateImplV14 newDelegate =
                 (AppCompatDelegateImplV14) newActivity.getDelegate();
 
-        // Now update the fake twilight manager to be in night and trigger a fake 'time' change
+        // Update the fake twilight manager to be in night and trigger a fake 'time' change
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -118,10 +124,12 @@ public class NightModeTestCase {
             }
         });
 
-        // At this point recreate has been completed
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        RecreatedAppCompatActivity.sResumed = new CountDownLatch(1);
+        assertTrue(RecreatedAppCompatActivity.sResumed.await(1, TimeUnit.SECONDS));
+        // At this point recreate that has been triggered by dispatchTimeChanged call
+        // has completed
 
-        // Now check that the text has changed, signifying that night resources are being used
+        // Check that the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
     }
 
