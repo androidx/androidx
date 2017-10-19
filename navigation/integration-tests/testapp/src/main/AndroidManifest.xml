@@ -27,6 +27,16 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Handle the 'More information' link on www.example.com -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="www.iana.org"/>
+                <data android:pathPrefix="/domains/"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".HelpActivity"

@@ -456,10 +456,28 @@ public class NavController {
             bundle = new Bundle();
         }
         bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
-        if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
+        int flags = intent.getFlags();
+        if ((flags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0
+                && (flags & Intent.FLAG_ACTIVITY_CLEAR_TASK) == 0) {
+            // Someone called us with NEW_TASK, but we don't know what state our whole
+            // task stack is in, so we need to manually restart the whole stack to
+            // ensure we're in a predictably good state.
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            TaskStackBuilder taskStackBuilder = TaskStackBuilder
+                    .create(mContext)
+                    .addNextIntentWithParentStack(intent);
+            taskStackBuilder.startActivities();
+            if (mActivity != null) {
+                mActivity.finish();
+            }
+            return true;
+        }
+        if ((flags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
             // Start with a cleared task starting at our root when we're on our own task
-            mGraph.navigate(bundle, new NavOptions.Builder()
-                    .setClearTask(true).setEnterAnim(0).setExitAnim(0).build());
+            if (!mBackStack.isEmpty()) {
+                navigate(mGraph.getStartDestination(), bundle, new NavOptions.Builder()
+                        .setClearTask(true).setEnterAnim(0).setExitAnim(0).build());
+            }
             while (mBackStack.size() < deepLink.length) {
                 int destinationId = deepLink[mBackStack.size()];
                 NavDestination node = findDestination(destinationId);
@@ -586,7 +604,9 @@ public class NavController {
         }
         if (navOptions != null) {
             if (navOptions.shouldClearTask()) {
+                // Start with a clean slate
                 popBackStack(0, true);
+                mBackStack.clear();
             } else if (navOptions.getPopUpTo() != 0) {
                 popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             }
