@@ -32,6 +32,7 @@ import android.support.annotation.RestrictTo;
 public class ProcessLifecycleOwnerInitializer extends ContentProvider {
     @Override
     public boolean onCreate() {
+        LifecycleDispatcher.init(getContext());
         ProcessLifecycleOwner.init(getContext());
         return true;
     }
