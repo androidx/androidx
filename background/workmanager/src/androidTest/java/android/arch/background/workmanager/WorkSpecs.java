@@ -15,6 +15,7 @@
  */
 package android.arch.background.workmanager;
 
+import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 
 /**
@@ -45,6 +46,20 @@ public class WorkSpecs {
      */
     public static WorkSpec getWorkSpec(Class<? extends Worker> clazz, @Work.WorkStatus int status) {
         Work work = new Work.Builder(clazz).withInitialStatus(status).build();
+        return work.getWorkSpec();
+    }
+
+    /**
+     * Creates a {@link WorkSpec} from a {@link Worker} class for testing.  Used to overcome the
+     * fact that Work.getWorkSpec is not public (nor should it be).  This version also sets the
+     * {@link Constraints}.
+     *
+     * @param clazz The {@link Worker} class
+     * @param constraints The {@link Constraints} to set
+     * @return A {@link WorkSpec}
+     */
+    public static WorkSpec getWorkSpec(Class<? extends Worker> clazz, Constraints constraints) {
+        Work work = new Work.Builder(clazz).withConstraints(constraints).build();
         return work.getWorkSpec();
     }
 
