@@ -16,32 +16,106 @@
 
 package android.arch.background.workmanager.firebase;
 
+import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.util.Log;
 
+import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
-import com.firebase.jobdispatcher.Trigger;
+import com.firebase.jobdispatcher.RetryStrategy;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Converts a {@link WorkSpec} into a {@link Job}.
  */
 
 class FirebaseJobConverter {
+    private static final String TAG = "FirebaseJobConverter";
     private FirebaseJobDispatcher mDispatcher;
 
     FirebaseJobConverter(FirebaseJobDispatcher dispatcher) {
         mDispatcher = dispatcher;
     }
 
-    // TODO(xbhatnag): Add constraints, initial delay, retry logic and periodic
+    // TODO(xbhatnag): Add initial delay and periodic
     Job convert(WorkSpec workSpec) {
         return mDispatcher.newJobBuilder()
                 .setService(FirebaseJobService.class)
                 .setTag(workSpec.getId())
                 .setLifetime(Lifetime.FOREVER)
                 .setReplaceCurrent(true)
-                .setTrigger(Trigger.NOW)
+                .setRetryStrategy(createRetryStrategy(workSpec))
+                .setConstraints(getConstraints(workSpec))
                 .build();
+    }
+
+    private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
+        int policy = workSpec.getBackoffPolicy() == Work.BACKOFF_POLICY_LINEAR
+                ? RetryStrategy.RETRY_POLICY_LINEAR : RetryStrategy.RETRY_POLICY_EXPONENTIAL;
+        int initialBackoff = (int) TimeUnit.SECONDS
+                .convert(workSpec.getBackoffDelayDuration(), TimeUnit.MILLISECONDS);
+        int maxBackoff = (int) TimeUnit.SECONDS
+                .convert(Work.MAX_BACKOFF_DURATION, TimeUnit.MILLISECONDS);
+        return mDispatcher.newRetryStrategy(policy, initialBackoff, maxBackoff);
+    }
+
+    private int[] getConstraints(WorkSpec workSpec) {
+        // TODO(xbhatnag): Do not ignore constraints. Consider fallback to AlarmManager?
+        Constraints constraints = workSpec.getConstraints();
+        List<Integer> mConstraints = new ArrayList<>();
+
+        if (constraints.requiresDeviceIdle()) {
+            mConstraints.add(Constraint.DEVICE_IDLE);
+        }
+
+        if (constraints.requiresCharging()) {
+            mConstraints.add(Constraint.DEVICE_CHARGING);
+        }
+
+        if (constraints.requiresBatteryNotLow()) {
+            Log.w(TAG, "Battery Not Low is not a supported constraint "
+                    + "with FirebaseJobDisaptcher");
+        }
+
+        if (constraints.requiresStorageNotLow()) {
+            Log.w(TAG, "Storage Not Low is not a supported constraint "
+                    + "with FirebaseJobDisaptcher");
+        }
+
+        switch (constraints.getRequiredNetworkType()) {
+            case Constraints.NETWORK_TYPE_METERED:
+                Log.w(TAG, "Metered Network is not a supported constraint with "
+                        + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
+                mConstraints.add(Constraint.ON_ANY_NETWORK);
+                break;
+            case Constraints.NETWORK_TYPE_NOT_ROAMING:
+                Log.w(TAG, "Not Roaming Network is not a supported constraint with "
+                        + "FirebaseJobDispatcher. Falling back to Any Network constraint.");
+                mConstraints.add(Constraint.ON_ANY_NETWORK);
+                break;
+            case Constraints.NETWORK_TYPE_ANY:
+                mConstraints.add(Constraint.ON_ANY_NETWORK);
+                break;
+            case Constraints.NETWORK_TYPE_UNMETERED:
+                mConstraints.add(Constraint.ON_UNMETERED_NETWORK);
+                break;
+        }
+
+        return toIntArray(mConstraints);
+    }
+
+    private int[] toIntArray(List<Integer> integers) {
+        int size = integers.size();
+        int[] array = new int[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = integers.get(i);
+        }
+        return array;
     }
 }

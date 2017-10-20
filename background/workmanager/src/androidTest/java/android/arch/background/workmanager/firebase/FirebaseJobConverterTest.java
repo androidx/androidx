@@ -16,22 +16,31 @@
 
 package android.arch.background.workmanager.firebase;
 
+import static android.arch.background.workmanager.WorkSpecs.getWorkSpec;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.worker.TestWorker;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class FirebaseJobConverterTest {
@@ -53,5 +62,85 @@ public class FirebaseJobConverterTest {
         assertThat(job.getTag(), is(expectedWorkSpecId));
         assertThat(job.getLifetime(), is(Lifetime.FOREVER));
         assertThat(job.getService(), is(FirebaseJobService.class.getName()));
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_backoffPolicy() {
+        long givenBackoffDelayDuration = 50000L;
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setBackoffDelayDuration(givenBackoffDelayDuration);
+        workSpec.setBackoffPolicy(Work.BACKOFF_POLICY_LINEAR);
+        Job job = mConverter.convert(workSpec);
+
+        int expectedBackoffDelayDuration = (int) TimeUnit.SECONDS
+                .convert(givenBackoffDelayDuration, TimeUnit.MILLISECONDS);
+        assertThat(job.getRetryStrategy().getInitialBackoff(), is(expectedBackoffDelayDuration));
+        assertThat(job.getRetryStrategy().getPolicy(), is(RetryStrategy.RETRY_POLICY_LINEAR));
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_requiresCharging() {
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .setRequiresCharging(true).build());
+        Job job = mConverter.convert(workSpec);
+        assertHasIntInArray(job.getConstraints(), Constraint.DEVICE_CHARGING);
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_requiresDeviceIdle() {
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .setRequiresDeviceIdle(true).build());
+        Job job = mConverter.convert(workSpec);
+        assertHasIntInArray(job.getConstraints(), Constraint.DEVICE_IDLE);
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_requiresNetworkAny() {
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .setRequiredNetworkType(Constraints.NETWORK_TYPE_ANY).build());
+        Job job = mConverter.convert(workSpec);
+        assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_requiresNetworkMetered_unsupported() {
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .setRequiredNetworkType(Constraints.NETWORK_TYPE_METERED).build());
+        Job job = mConverter.convert(workSpec);
+        assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_requiresNetworkNotRoaming_unsupported() {
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .setRequiredNetworkType(Constraints.NETWORK_TYPE_NOT_ROAMING).build());
+        Job job = mConverter.convert(workSpec);
+        assertHasIntInArray(job.getConstraints(), Constraint.ON_ANY_NETWORK);
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_requiresNetworkUnmetered() {
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
+                .setRequiredNetworkType(Constraints.NETWORK_TYPE_UNMETERED).build());
+        Job job = mConverter.convert(workSpec);
+        assertHasIntInArray(job.getConstraints(), Constraint.ON_UNMETERED_NETWORK);
+    }
+
+    private void assertHasIntInArray(int[] array, int expectedItem) {
+        boolean found = false;
+        for (int item : array) {
+            if (item == expectedItem) {
+                found = true;
+                break;
+            }
+        }
+        assertThat(found, is(true));
     }
 }

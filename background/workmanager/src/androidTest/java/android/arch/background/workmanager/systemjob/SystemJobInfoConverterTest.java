@@ -16,6 +16,8 @@
 
 package android.arch.background.workmanager.systemjob;
 
+import static android.arch.background.workmanager.WorkSpecs.getWorkSpec;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,6 +27,7 @@ import android.app.job.JobInfo;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
+import android.arch.background.workmanager.worker.TestWorker;
 import android.os.Build;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
@@ -48,12 +51,6 @@ public class SystemJobInfoConverterTest {
         mConverter = new SystemJobInfoConverter(
                 InstrumentationRegistry.getTargetContext(),
                 mMockJobIdGenerator);
-    }
-
-    private WorkSpec createWorkSpecWithConstraints(Constraints constraints) {
-        WorkSpec workSpec = new WorkSpec("id");
-        workSpec.setConstraints(constraints);
-        return workSpec;
     }
 
     @Test
@@ -132,7 +129,7 @@ public class SystemJobInfoConverterTest {
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireCharging() {
         final boolean expectedRequireCharging = true;
-        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
                 .setRequiresCharging(expectedRequireCharging).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireCharging(), is(expectedRequireCharging));
@@ -142,7 +139,7 @@ public class SystemJobInfoConverterTest {
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_requireDeviceIdle() {
         final boolean expectedRequireDeviceIdle = true;
-        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
                 .setRequiresDeviceIdle(expectedRequireDeviceIdle).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireDeviceIdle(), is(expectedRequireDeviceIdle));
@@ -152,7 +149,7 @@ public class SystemJobInfoConverterTest {
     @SdkSuppress(minSdkVersion = 26)
     public void testConvert_requireBatteryNotLow() {
         final boolean expectedRequireBatteryNotLow = true;
-        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
                 .setRequiresBatteryNotLow(expectedRequireBatteryNotLow).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireBatteryNotLow(), is(expectedRequireBatteryNotLow));
@@ -162,7 +159,7 @@ public class SystemJobInfoConverterTest {
     @SdkSuppress(minSdkVersion = 26)
     public void testConvert_requireStorageNotLow() {
         final boolean expectedRequireStorageNotLow = true;
-        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
                 .setRequiresStorageNotLow(expectedRequireStorageNotLow).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         assertThat(jobInfo.isRequireStorageNotLow(), is(expectedRequireStorageNotLow));
@@ -189,7 +186,7 @@ public class SystemJobInfoConverterTest {
     private void convertWithRequiredNetworkType(@Constraints.NetworkType int networkType,
                                                 int jobInfoNetworkType,
                                                 int minSdkVersion) {
-        WorkSpec workSpec = createWorkSpecWithConstraints(new Constraints.Builder()
+        WorkSpec workSpec = getWorkSpec(TestWorker.class, new Constraints.Builder()
                 .setRequiredNetworkType(networkType).build());
         JobInfo jobInfo = mConverter.convert(workSpec);
         if (Build.VERSION.SDK_INT >= minSdkVersion) {
