@@ -15,6 +15,7 @@
  */
 package android.arch.background.workmanager.constraints.trackers;
 
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
+import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.test.InstrumentationRegistry;
@@ -36,28 +37,28 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class StorageNotLowTrackerTest {
+public class BatteryNotLowTrackerTest {
 
-    private StorageNotLowTracker mTracker;
-    private StorageNotLowListener mListener;
+    private BatteryNotLowTracker mTracker;
+    private BatteryNotLowListener mListener;
 
     @Before
     public void setUp() {
-        mTracker = new StorageNotLowTracker(InstrumentationRegistry.getTargetContext());
-        mListener = mock(StorageNotLowListener.class);
+        mTracker = new BatteryNotLowTracker(InstrumentationRegistry.getTargetContext());
+        mListener = mock(BatteryNotLowListener.class);
         mTracker.mListeners.add(mListener);  // Add it silently so no broadcasts trigger.
     }
 
     @After
-    public void shutDown() {
+    public void tearDown() {
         mTracker.mListeners.remove(mListener);
     }
 
     @Test
     public void testGetIntentFilter() {
         IntentFilter intentFilter = mTracker.getIntentFilter();
-        assertThat(intentFilter.hasAction(Intent.ACTION_DEVICE_STORAGE_OK), is(true));
-        assertThat(intentFilter.hasAction(Intent.ACTION_DEVICE_STORAGE_LOW), is(true));
+        assertThat(intentFilter.hasAction(Intent.ACTION_BATTERY_OKAY), is(true));
+        assertThat(intentFilter.hasAction(Intent.ACTION_BATTERY_LOW), is(true));
         assertThat(intentFilter.countActions(), is(2));
     }
 
@@ -66,18 +67,18 @@ public class StorageNotLowTrackerTest {
         mTracker.onReceive(
                 InstrumentationRegistry.getTargetContext(),
                 null);
-        verify(mListener, never()).setStorageNotLow(anyBoolean());
+        verify(mListener, never()).setBatteryNotLow(anyBoolean());
     }
 
     @Test
     public void testOnReceive_notifiesListeners() {
         mTracker.onReceive(
                 InstrumentationRegistry.getTargetContext(),
-                new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
-        verify(mListener).setStorageNotLow(true);
+                new Intent(Intent.ACTION_BATTERY_OKAY));
+        verify(mListener).setBatteryNotLow(true);
         mTracker.onReceive(
                 InstrumentationRegistry.getTargetContext(),
-                new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
-        verify(mListener).setStorageNotLow(false);
+                new Intent(Intent.ACTION_BATTERY_LOW));
+        verify(mListener).setBatteryNotLow(false);
     }
 }
