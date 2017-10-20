@@ -32,6 +32,7 @@ import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.worker.TestWorker;
+import android.arch.core.executor.ArchTaskExecutor;
 import android.arch.core.executor.testing.CountingTaskExecutorRule;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
@@ -74,7 +75,7 @@ public class ForegroundProcessorTest {
 
     @After
     public void tearDown() throws TimeoutException, InterruptedException {
-        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        postLifecycleStopOnMainThread();
         try {
             drain();
         } finally {
@@ -112,7 +113,7 @@ public class ForegroundProcessorTest {
 
     @Test
     public void testProcess_processorInactive() throws TimeoutException, InterruptedException {
-        mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+        postLifecycleStopOnMainThread();
         drain();
         WorkSpec workSpec = WorkSpecs.getWorkSpec(TestWorker.class);
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
@@ -121,6 +122,15 @@ public class ForegroundProcessorTest {
         assertThat(
                 mWorkDatabase.workSpecDao().getWorkSpecStatus(workSpec.getId()),
                 is(Work.STATUS_ENQUEUED));
+    }
+
+    private void postLifecycleStopOnMainThread() {
+        ArchTaskExecutor.getInstance().postToMainThread(new Runnable() {
+            @Override
+            public void run() {
+                mLifecycleOwner.mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+            }
+        });
     }
 
     private void drain() throws TimeoutException, InterruptedException {
