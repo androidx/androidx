@@ -525,8 +525,8 @@
     <style name="Base.AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat" />
 
     <style name="Base.Animation.AppCompat.Tooltip" parent="android:Animation">
-        <item name="android:windowEnterAnimation">@anim/tooltip_enter</item>
-        <item name="android:windowExitAnimation">@anim/tooltip_exit</item>
+        <item name="android:windowEnterAnimation">@anim/abc_tooltip_enter</item>
+        <item name="android:windowExitAnimation">@anim/abc_tooltip_exit</item>
     </style>
 
 </resources>

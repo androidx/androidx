@@ -56,7 +56,7 @@ class TooltipPopup {
     TooltipPopup(Context context) {
         mContext = context;
 
-        mContentView = LayoutInflater.from(mContext).inflate(R.layout.tooltip, null);
+        mContentView = LayoutInflater.from(mContext).inflate(R.layout.abc_tooltip, null);
         mMessageView = (TextView) mContentView.findViewById(R.id.message);
 
         mLayoutParams.setTitle(getClass().getSimpleName());
