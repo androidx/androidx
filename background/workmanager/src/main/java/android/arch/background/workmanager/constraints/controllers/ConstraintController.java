@@ -17,10 +17,14 @@ package android.arch.background.workmanager.constraints.controllers;
 
 import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.arch.background.workmanager.constraints.trackers.ConstraintTracker;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.List;
 
@@ -30,7 +34,8 @@ import java.util.List;
  * @param <T> A specific type of {@link ConstraintListener} associated with this controller
  */
 
-public abstract class ConstraintController<T extends ConstraintListener> {
+public abstract class ConstraintController<T extends ConstraintListener>
+        implements LifecycleObserver {
 
     /**
      * An listener for when a constraint changes.
@@ -52,19 +57,23 @@ public abstract class ConstraintController<T extends ConstraintListener> {
         void onConstraintNotMet(List<String> workSpecIds);
     }
 
+    private static final String TAG = "ConstraintCtrlr";
+
     private LiveData<List<String>> mConstraintLiveData;
+    private LifecycleOwner mLifecycleOwner;
     private ConstraintTracker<T> mTracker;
     private Observer<List<String>> mConstraintObserver;
     private OnConstraintUpdatedListener mOnConstraintUpdatedListener;
     private List<String> mMatchingWorkSpecIds;
 
-    public ConstraintController(
+    ConstraintController(
             LiveData<List<String>> constraintLiveData,
             LifecycleOwner lifecycleOwner,
             ConstraintTracker<T> tracker,
             OnConstraintUpdatedListener onConstraintUpdatedListener) {
 
         mConstraintLiveData = constraintLiveData;
+        mLifecycleOwner = lifecycleOwner;
         mTracker = tracker;
         mOnConstraintUpdatedListener = onConstraintUpdatedListener;
 
@@ -80,12 +89,21 @@ public abstract class ConstraintController<T extends ConstraintListener> {
             }
         };
 
-        mConstraintLiveData.observe(lifecycleOwner, mConstraintObserver);
+        mLifecycleOwner.getLifecycle().addObserver(this);
+    }
+
+    /**
+     * Registers the {@link Observer}.
+     */
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onLifecycleStart() {
+        mConstraintLiveData.observe(mLifecycleOwner, mConstraintObserver);
     }
 
     /**
      * Removes the {@link Observer} and stops tracking on the {@link ConstraintTracker}.
      */
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void shutdown() {
         mConstraintLiveData.removeObserver(mConstraintObserver);
         mTracker.removeListener(getListener());
@@ -102,6 +120,7 @@ public abstract class ConstraintController<T extends ConstraintListener> {
      */
     public boolean isWorkSpecConstrained(String id) {
         if (mMatchingWorkSpecIds == null) {
+            Log.d(TAG, "null matching workspecs for " + getClass().getName());
             return true;
         } else if (mMatchingWorkSpecIds.contains(id)) {
             return isConstrained();

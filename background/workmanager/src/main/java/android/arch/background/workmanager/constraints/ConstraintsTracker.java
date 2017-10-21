@@ -15,6 +15,7 @@
  */
 package android.arch.background.workmanager.constraints;
 
+import android.arch.background.workmanager.Processor;
 import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.controllers.BatteryChargingController;
 import android.arch.background.workmanager.constraints.controllers.BatteryNotLowController;
@@ -32,50 +33,37 @@ import java.util.List;
 
 public class ConstraintsTracker implements ConstraintController.OnConstraintUpdatedListener {
 
-    private LifecycleOwner mLifecycleOwner;
-
-    private ConstraintController mBatteryChargingController;
-    private ConstraintController mBatteryNotLowController;
-    private ConstraintController mStorageNotLowController;
-
+    private Processor mProcessor;
     private List<ConstraintController> mConstraintControllers = new ArrayList<>();
 
     public ConstraintsTracker(
             Context context,
             LifecycleOwner lifecycleOwner,
-            WorkDatabase workDatabase) {
+            WorkDatabase workDatabase,
+            Processor processor) {
         Context appContext = context.getApplicationContext();
-        mLifecycleOwner = lifecycleOwner;
+        mProcessor = processor;
 
         mConstraintControllers.add(
                 new BatteryChargingController(
                         appContext,
                         workDatabase,
-                        mLifecycleOwner,
+                        lifecycleOwner,
                         this));
 
         mConstraintControllers.add(
                 new BatteryNotLowController(
                         appContext,
                         workDatabase,
-                        mLifecycleOwner,
+                        lifecycleOwner,
                         this));
 
         mConstraintControllers.add(
                 new StorageNotLowController(
                         appContext,
                         workDatabase,
-                        mLifecycleOwner,
+                        lifecycleOwner,
                         this));
-    }
-
-    /**
-     * Shuts down this {@link ConstraintsTracker} and removes all internal observation.
-     */
-    public void shutdown() {
-        for (ConstraintController constraintController : mConstraintControllers) {
-            constraintController.shutdown();
-        }
     }
 
     @Override
@@ -90,7 +78,8 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
             }
 
             if (!workSpecIdConstrained) {
-                // TODO(sumir): signal this should be processed.
+                // TODO(sumir): Figure out what we want to do about constrained jobs with delays.
+                mProcessor.process(id, 0L);
             }
         }
     }
@@ -98,7 +87,7 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
     @Override
     public void onConstraintNotMet(List<String> workSpecIds) {
         for (String id : workSpecIds) {
-            // TODO(sumir): signal this should be cancelled.
+            mProcessor.cancel(id, true);
         }
     }
 }

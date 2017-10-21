@@ -76,7 +76,8 @@ public class ForegroundProcessor extends Processor
         mConstraintsTracker = new ConstraintsTracker(
                 mAppContext,
                 mLifecycleOwner,
-                mWorkDatabase);
+                mWorkDatabase,
+                this);
         mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs().observe(mLifecycleOwner, this);
     }
 
