@@ -219,4 +219,50 @@ public class WorkSpec {
         }
         return Math.min(Work.MAX_BACKOFF_DURATION, delay);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        WorkSpec other = (WorkSpec) o;
+        return mId.equals(other.mId)
+                && mStatus == other.mStatus
+                && mInitialDelay == other.mInitialDelay
+                && mIntervalDuration == other.mIntervalDuration
+                && mFlexDuration == other.mFlexDuration
+                && mRunAttemptCount == other.mRunAttemptCount
+                && mBackoffPolicy == other.mBackoffPolicy
+                && mBackoffDelayDuration == other.mBackoffDelayDuration
+                && (mWorkerClassName != null
+                        ? mWorkerClassName.equals(other.mWorkerClassName)
+                        : other.mWorkerClassName == null)
+                && (mConstraints != null
+                        ? mConstraints.equals(other.mConstraints)
+                        : other.mConstraints == null)
+                && (mArguments != null
+                        ? mArguments.equals(other.mArguments)
+                        : other.mArguments == null)
+                && (mTag != null ? mTag.equals(other.mTag) : other.mTag == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mId.hashCode();
+        result = 31 * result + mStatus;
+        result = 31 * result + (mWorkerClassName != null ? mWorkerClassName.hashCode() : 0);
+        result = 31 * result + (int) (mInitialDelay ^ (mInitialDelay >>> 32));
+        result = 31 * result + (int) (mIntervalDuration ^ (mIntervalDuration >>> 32));
+        result = 31 * result + (int) (mFlexDuration ^ (mFlexDuration >>> 32));
+        result = 31 * result + (mConstraints != null ? mConstraints.hashCode() : 0);
+        result = 31 * result + (mArguments != null ? mArguments.hashCode() : 0);
+        result = 31 * result + (mTag != null ? mTag.hashCode() : 0);
+        result = 31 * result + mRunAttemptCount;
+        result = 31 * result + mBackoffPolicy;
+        result = 31 * result + (int) (mBackoffDelayDuration ^ (mBackoffDelayDuration >>> 32));
+        return result;
+    }
 }

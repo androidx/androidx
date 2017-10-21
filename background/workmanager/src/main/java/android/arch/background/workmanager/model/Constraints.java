@@ -119,6 +119,32 @@ public class Constraints {
         mRequiresStorageNotLow = requiresStorageNotLow;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Constraints other = (Constraints) o;
+        return mRequiredNetworkType == other.mRequiredNetworkType
+                && mRequiresCharging == other.mRequiresCharging
+                && mRequiresDeviceIdle == other.mRequiresDeviceIdle
+                && mRequiresBatteryNotLow == other.mRequiresBatteryNotLow
+                && mRequiresStorageNotLow == other.mRequiresStorageNotLow;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mRequiredNetworkType;
+        result = 31 * result + (mRequiresCharging ? 1 : 0);
+        result = 31 * result + (mRequiresDeviceIdle ? 1 : 0);
+        result = 31 * result + (mRequiresBatteryNotLow ? 1 : 0);
+        result = 31 * result + (mRequiresStorageNotLow ? 1 : 0);
+        return result;
+    }
+
     /**
      * Builder for {@link Constraints} class.
      */

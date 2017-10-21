@@ -400,4 +400,21 @@ public final class Arguments {
         }
         return new Arguments(map);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Arguments other = (Arguments) o;
+        return mValues.equals(other.mValues);
+    }
+
+    @Override
+    public int hashCode() {
+        return mValues.hashCode();
+    }
 }
