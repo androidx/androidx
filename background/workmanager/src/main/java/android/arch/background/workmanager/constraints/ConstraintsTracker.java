@@ -20,9 +20,14 @@ import android.arch.background.workmanager.WorkDatabase;
 import android.arch.background.workmanager.constraints.controllers.BatteryChargingController;
 import android.arch.background.workmanager.constraints.controllers.BatteryNotLowController;
 import android.arch.background.workmanager.constraints.controllers.ConstraintController;
+import android.arch.background.workmanager.constraints.controllers.NetworkStateAnyController;
+import android.arch.background.workmanager.constraints.controllers.NetworkStateMeteredController;
+import android.arch.background.workmanager.constraints.controllers.NetworkStateNotRoamingController;
+import android.arch.background.workmanager.constraints.controllers.NetworkStateUnmeteredController;
 import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -67,20 +72,54 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
                         workDatabase,
                         lifecycleOwner,
                         this));
+
+        // TODO(janclarin): Remove check when network state trackers are added for 24-.
+        if (Build.VERSION.SDK_INT >= 24) {
+            mConstraintControllers.add(
+                    new NetworkStateAnyController(
+                            appContext,
+                            workDatabase,
+                            lifecycleOwner,
+                            this));
+
+            mConstraintControllers.add(
+                    new NetworkStateMeteredController(
+                            appContext,
+                            workDatabase,
+                            lifecycleOwner,
+                            this));
+
+            mConstraintControllers.add(
+                    new NetworkStateNotRoamingController(
+                            appContext,
+                            workDatabase,
+                            lifecycleOwner,
+                            this));
+
+            mConstraintControllers.add(
+                    new NetworkStateUnmeteredController(
+                            appContext,
+                            workDatabase,
+                            lifecycleOwner,
+                            this));
+        }
+    }
+
+    private boolean areAllConstraintsMet(String workSpecId) {
+        for (ConstraintController constraintController : mConstraintControllers) {
+            if (constraintController.isWorkSpecConstrained(workSpecId)) {
+                Log.d(TAG, "Work " + workSpecId + " constrained by "
+                        + constraintController.getClass().getSimpleName());
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public void onConstraintMet(List<String> workSpecIds) {
         for (String id : workSpecIds) {
-            boolean workSpecIdConstrained = false;
-            for (ConstraintController constraintController : mConstraintControllers) {
-                if (constraintController.isWorkSpecConstrained(id)) {
-                    workSpecIdConstrained = true;
-                    break;
-                }
-            }
-
-            if (!workSpecIdConstrained) {
+            if (areAllConstraintsMet(id)) {
                 Log.d(TAG, "Constraints met for " + id + "; trying to process");
                 // TODO(sumir): Figure out what we want to do about constrained jobs with delays.
                 mProcessor.process(id, 0L);
