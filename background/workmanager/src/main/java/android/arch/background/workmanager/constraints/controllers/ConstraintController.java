@@ -87,6 +87,7 @@ public abstract class ConstraintController<T extends ConstraintListener>
                 mMatchingWorkSpecIds = matchingWorkSpecIds;
                 if (matchingWorkSpecIds != null && matchingWorkSpecIds.size() > 0) {
                     mTracker.addListener(getListener());
+                    updateListener();
                 } else {
                     mTracker.removeListener(getListener());
                 }

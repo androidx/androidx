@@ -56,6 +56,12 @@ public abstract class Processor implements ExecutionListener {
      * @param delay The delay (in milliseconds) to execute this work with.
      */
     public void process(String id, long delay) {
+        // Work may get triggered multiple times if they have passing constraints and new work with
+        // those constraints are added.
+        if (mEnqueuedWorkMap.containsKey(id)) {
+            return;
+        }
+
         WorkerWrapper workWrapper = new WorkerWrapper.Builder(mAppContext, mWorkDatabase, id)
                 .withListener(this)
                 .withScheduler(mScheduler)

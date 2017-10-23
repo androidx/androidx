@@ -17,9 +17,11 @@
 package android.arch.background.workmanager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
+import android.arch.background.workmanager.worker.InfiniteTestWorker;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
@@ -31,6 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RunWith(AndroidJUnit4.class)
 public class ProcessorTest {
@@ -52,6 +55,7 @@ public class ProcessorTest {
     @After
     public void tearDown() {
         mWorkDatabase.close();
+        mProcessor = null;
     }
 
     /* TODO(xbhatnag): Solve race condition without thread sleeps or drain
@@ -72,5 +76,19 @@ public class ProcessorTest {
         String id = "INVALID_WORK_ID";
         assertThat(mProcessor.cancel(id, true), is(false));
         assertThat(mProcessor.cancel(id, false), is(false));
+    }
+
+    @Test
+    @SmallTest
+    public void testProcess_doesNotProcessTwice() {
+        Work work = new Work.Builder(InfiniteTestWorker.class).build();
+        String id = work.getId();
+        mWorkDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
+        mProcessor.process(id, 0);
+        assertThat(mProcessor.mEnqueuedWorkMap, hasKey(id));
+        Future future = mProcessor.mEnqueuedWorkMap.get(id);
+        mProcessor.process(id, 0);
+        assertThat(mProcessor.mEnqueuedWorkMap, hasKey(id));
+        assertThat(mProcessor.mEnqueuedWorkMap.get(id), is(future));
     }
 }

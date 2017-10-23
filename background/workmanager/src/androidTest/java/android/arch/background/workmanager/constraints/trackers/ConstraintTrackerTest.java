@@ -16,6 +16,7 @@
 package android.arch.background.workmanager.constraints.trackers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
@@ -85,6 +86,16 @@ public class ConstraintTrackerTest {
         mTracker.removeListener(constraintListener2);
         assertThat(mTracker.mRegistered, is(false));
         assertThat(mTracker.mUnregisterCount, is(1));
+    }
+
+    @Test
+    public void testTracking_doesNotAddListenerTwice() {
+        ConstraintListener constraintListener = mock(ConstraintListener.class);
+        for (int i = 0; i < 2; ++i) {
+            mTracker.addListener(constraintListener);
+            assertThat(mTracker.mListeners.size(), is(1));
+            assertThat(mTracker.mListeners, contains(constraintListener));
+        }
     }
 
     private static class TestConstraintTracker extends ConstraintTracker<ConstraintListener> {

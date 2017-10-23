@@ -21,8 +21,8 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * A base {@link BroadcastReceiver} for monitoring constraints changes.
@@ -35,7 +35,7 @@ public abstract class ConstraintTracker<T extends ConstraintListener> extends Br
     private static final String TAG = "ConstraintTracker";
 
     protected Context mAppContext;
-    protected List<T> mListeners = new ArrayList<>();
+    protected Set<T> mListeners = new LinkedHashSet<>();
 
     public ConstraintTracker(Context context) {
         mAppContext = context.getApplicationContext();
@@ -47,11 +47,12 @@ public abstract class ConstraintTracker<T extends ConstraintListener> extends Br
      * @param listener The target listener to register
      */
     public void addListener(T listener) {
-        mListeners.add(listener);
-        setUpInitialState(listener);
+        if (mListeners.add(listener)) {
+            setUpInitialState(listener);
 
-        if (mListeners.size() == 1) {
-            registerReceiver();
+            if (mListeners.size() == 1) {
+                registerReceiver();
+            }
         }
     }
 
