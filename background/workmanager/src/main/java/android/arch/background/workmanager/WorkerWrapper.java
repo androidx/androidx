@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.lang.annotation.Retention;
@@ -60,7 +59,6 @@ public class WorkerWrapper implements Runnable {
     private WorkDatabase mWorkDatabase;
     private String mWorkSpecId;
     private ExecutionListener mListener;
-    private ConstraintsChecker mConstraintsChecker;
     private Scheduler mScheduler;
 
     private WorkerWrapper(Builder builder) {
@@ -68,7 +66,6 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase = builder.mWorkDatabase;
         mWorkSpecId = builder.mWorkSpecId;
         mListener = builder.mListener;
-        mConstraintsChecker = builder.mConstraintsChecker;
         mScheduler = builder.mScheduler;
     }
 
@@ -107,14 +104,6 @@ public class WorkerWrapper implements Runnable {
 
         try {
             checkForInterruption();
-            if (mConstraintsChecker != null
-                    && !mConstraintsChecker.areAllConstraintsMet(workSpec)) {
-                // TODO(xbhatnag): Retry Policies
-                Log.d(TAG, "Constraints not satisfied. Retrying");
-                workSpecDao.setWorkSpecStatus(mWorkSpecId, STATUS_ENQUEUED);
-                notifyListener(RESULT_RESCHEDULED);
-                return;
-            }
             worker.doWork();
             checkForInterruption();
 
@@ -190,7 +179,6 @@ public class WorkerWrapper implements Runnable {
         private WorkDatabase mWorkDatabase;
         private String mWorkSpecId;
         private ExecutionListener mListener;
-        private ConstraintsChecker mConstraintsChecker;
         private Scheduler mScheduler;
 
         Builder(@NonNull Context context,
@@ -208,17 +196,6 @@ public class WorkerWrapper implements Runnable {
 
         Builder withScheduler(Scheduler scheduler) {
             mScheduler = scheduler;
-            return this;
-        }
-
-        Builder verifyAllConstraints() {
-            mConstraintsChecker = new ConstraintsChecker(mAppContext);
-            return this;
-        }
-
-        @VisibleForTesting
-        Builder verifyAllConstraints(ConstraintsChecker constraintsChecker) {
-            mConstraintsChecker = constraintsChecker;
             return this;
         }
 

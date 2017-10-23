@@ -22,12 +22,9 @@ import static android.arch.background.workmanager.Work.STATUS_SUCCEEDED;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -236,48 +233,6 @@ public class WorkerWrapperTest {
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
         verify(mMockScheduler).schedule(captor.capture());
         assertThat(captor.getValue().getId(), is(work.getId()));
-    }
-
-    @Test
-    @LargeTest
-    public void testConstraints() throws InterruptedException {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(Constraints.NETWORK_TYPE_ANY)
-                .setRequiresBatteryNotLow(true)
-                .setRequiresCharging(true)
-                .setRequiresDeviceIdle(true)
-                .setRequiresStorageNotLow(true)
-                .build();
-
-        Work work = new Work.Builder(TestWorker.class)
-                .withConstraints(constraints)
-                .build();
-        mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
-
-        ConstraintsChecker mockChecker = mock(ConstraintsChecker.class);
-        doReturn(false).when(mockChecker).areAllConstraintsMet(any(WorkSpec.class));
-
-        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
-                .withListener(mMockListener)
-                .verifyAllConstraints(mockChecker)
-                .build()
-                .run();
-
-        Thread.sleep(LISTENER_SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_RESCHEDULED);
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_ENQUEUED));
-
-        doReturn(true).when(mockChecker).areAllConstraintsMet(any(WorkSpec.class));
-
-        new WorkerWrapper.Builder(mContext, mDatabase, work.getId())
-                .withListener(mMockListener)
-                .verifyAllConstraints(mockChecker)
-                .build()
-                .run();
-
-        Thread.sleep(LISTENER_SLEEP_DURATION);
-        verify(mMockListener).onExecuted(work.getId(), WorkerWrapper.RESULT_SUCCEEDED);
-        assertThat(mWorkSpecDao.getWorkSpecStatus(work.getId()), is(Work.STATUS_SUCCEEDED));
     }
 
     @Test
