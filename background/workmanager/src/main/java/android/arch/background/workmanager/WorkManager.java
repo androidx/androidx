@@ -134,6 +134,18 @@ public final class WorkManager {
         return enqueue(WorkContinuation.convertWorkerClassArrayToWorkArray(workerClasses), null);
     }
 
+    /**
+     * Clears all work regardless of the current state.
+     */
+    public void clearAllWork() {
+        mEnqueueExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mWorkDatabase.workSpecDao().clearAll();
+            }
+        });
+    }
+
     WorkContinuation enqueue(Work[] work, String[] prerequisiteIds) {
         WorkContinuation workContinuation = new WorkContinuation(this, work);
         mEnqueueExecutor.execute(new EnqueueRunnable(work, prerequisiteIds));

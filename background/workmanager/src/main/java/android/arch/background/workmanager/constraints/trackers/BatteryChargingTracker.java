@@ -23,12 +23,15 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 /**
  * A {@link BroadcastReceiver} for battery charging status.
  */
 
 public class BatteryChargingTracker extends ConstraintTracker<BatteryChargingListener> {
+
+    private static final String TAG = "BatteryChrgTracker";
 
     @VisibleForTesting
     Boolean mIsCharging;
@@ -48,6 +51,7 @@ public class BatteryChargingTracker extends ConstraintTracker<BatteryChargingLis
             Intent intent = mAppContext.registerReceiver(null, intentFilter);
             if (intent != null) {
                 mIsCharging = isBatteryChangedIntentCharging(intent);
+                Log.d(TAG, "Setting initial mIsCharging to " + mIsCharging);
                 listener.setBatteryCharging(mIsCharging);
             }
         } else {
@@ -73,6 +77,8 @@ public class BatteryChargingTracker extends ConstraintTracker<BatteryChargingLis
             return;
         }
 
+        Log.d(TAG, "Received " + intent.getAction());
+
         switch (intent.getAction()) {
             case BatteryManager.ACTION_CHARGING:
                 setIsChargingAndNotify(true);
@@ -91,6 +97,7 @@ public class BatteryChargingTracker extends ConstraintTracker<BatteryChargingLis
 
     private void setIsChargingAndNotify(boolean isCharging) {
         if (mIsCharging == null || mIsCharging != isCharging) {
+            Log.d(TAG, "Setting mIsCharging to " + isCharging);
             mIsCharging = isCharging;
             for (BatteryChargingListener listener : mListeners) {
                 listener.setBatteryCharging(mIsCharging);

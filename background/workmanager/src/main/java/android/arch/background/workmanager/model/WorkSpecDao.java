@@ -18,6 +18,7 @@ package android.arch.background.workmanager.model;
 
 import static android.arch.background.workmanager.Work.STATUS_BLOCKED;
 import static android.arch.background.workmanager.Work.STATUS_ENQUEUED;
+import static android.arch.background.workmanager.Work.STATUS_RUNNING;
 import static android.arch.persistence.room.OnConflictStrategy.FAIL;
 
 import android.arch.background.workmanager.Work;
@@ -141,24 +142,31 @@ public interface WorkSpecDao {
      *
      * @return A list of {@link WorkSpec} ids that have a battery charging constraint.
      */
-    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND requires_charging=1")
-    LiveData<List<String>> getEnqueuedWorkSpecIdsWithBatteryChargingConstraint();
+    @Query("SELECT id FROM workspec WHERE (status=" + STATUS_ENQUEUED
+            + " OR status=" + STATUS_RUNNING + ") AND requires_charging=1")
+    LiveData<List<String>> getEnqueuedOrRunningWorkSpecIdsWithBatteryChargingConstraint();
 
     /**
      * Returns ids for work items that have a battery not low constraint.
      *
      * @return A list of {@link WorkSpec} ids that have a battery not low constraint.
      */
-    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED
-            + " AND requires_battery_not_low=1")
-    LiveData<List<String>> getEnqueuedWorkSpecIdsWithBatteryNotLowConstraint();
+    @Query("SELECT id FROM workspec WHERE (status=" + STATUS_ENQUEUED
+            + " OR status=" + STATUS_RUNNING + ") AND requires_battery_not_low=1")
+    LiveData<List<String>> getEnqueuedOrRunningWorkSpecIdsWithBatteryNotLowConstraint();
 
     /**
      * Returns ids for work items that have a storage not low constraint.
      *
      * @return A list of {@link WorkSpec} ids that have a storage not low constraint.
      */
-    @Query("SELECT id FROM workspec WHERE status=" + STATUS_ENQUEUED
-            + " AND requires_storage_not_low=1")
-    LiveData<List<String>> getEnqueuedWorkSpecIdsWithStorageNotLowConstraint();
+    @Query("SELECT id FROM workspec WHERE (status=" + STATUS_ENQUEUED
+            + " OR status=" + STATUS_RUNNING + ") AND requires_storage_not_low=1")
+    LiveData<List<String>> getEnqueuedOrRunningWorkSpecIdsWithStorageNotLowConstraint();
+
+    /**
+     * Clears all work.
+     */
+    @Query("DELETE FROM workspec")
+    void clearAll();
 }

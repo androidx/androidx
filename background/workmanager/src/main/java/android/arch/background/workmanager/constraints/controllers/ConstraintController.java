@@ -80,6 +80,10 @@ public abstract class ConstraintController<T extends ConstraintListener>
         mConstraintObserver = new Observer<List<String>>() {
             @Override
             public void onChanged(@Nullable List<String> matchingWorkSpecIds) {
+                Log.d(
+                        TAG,
+                        ConstraintController.this.getClass().getSimpleName() + ": "
+                                + matchingWorkSpecIds);
                 mMatchingWorkSpecIds = matchingWorkSpecIds;
                 if (matchingWorkSpecIds != null && matchingWorkSpecIds.size() > 0) {
                     mTracker.addListener(getListener());
@@ -120,7 +124,7 @@ public abstract class ConstraintController<T extends ConstraintListener>
      */
     public boolean isWorkSpecConstrained(String id) {
         if (mMatchingWorkSpecIds == null) {
-            Log.d(TAG, "null matching workspecs for " + getClass().getName());
+            Log.d(TAG, getClass().getSimpleName() + ": null matching workspecs");
             return true;
         } else if (mMatchingWorkSpecIds.contains(id)) {
             return isConstrained();
@@ -130,8 +134,11 @@ public abstract class ConstraintController<T extends ConstraintListener>
 
     protected void updateListener() {
         if (mMatchingWorkSpecIds == null || mMatchingWorkSpecIds.isEmpty()) {
+            Log.d(TAG, getClass().getSimpleName() + ": updateListener - no workspecs!");
             return;
         }
+
+        Log.d(TAG, getClass().getSimpleName() + ": updateListener");
         if (isConstrained()) {
             mOnConstraintUpdatedListener.onConstraintNotMet(mMatchingWorkSpecIds);
         } else {

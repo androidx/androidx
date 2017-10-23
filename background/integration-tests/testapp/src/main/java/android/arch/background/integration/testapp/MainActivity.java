@@ -18,6 +18,9 @@ package android.arch.background.integration.testapp;
 
 import android.arch.background.integration.testapp.imageprocessing.ImageProcessingActivity;
 import android.arch.background.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
+import android.arch.background.workmanager.Work;
+import android.arch.background.workmanager.WorkManager;
+import android.arch.background.workmanager.model.Constraints;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +35,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        findViewById(R.id.clear_all).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance(MainActivity.this).clearAllWork();
+            }
+        });
+
+        findViewById(R.id.enqueue_infinite_work).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance(MainActivity.this).enqueue(
+                        new Work.Builder(InfiniteWorker.class)
+                                .withConstraints(
+                                        new Constraints.Builder()
+                                                .setRequiresCharging(true).build()));
+            }
+        });
 
         findViewById(R.id.sherlock_holmes).setOnClickListener(new View.OnClickListener() {
             @Override

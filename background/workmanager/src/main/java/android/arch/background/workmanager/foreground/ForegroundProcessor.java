@@ -87,6 +87,7 @@ public class ForegroundProcessor extends Processor
 
     @Override
     public void process(String id, long delay) {
+        Log.d(TAG, "Trying to process " + id + " with delay " + delay);
         if (isActive()) {
             super.process(id, delay);
         } else {

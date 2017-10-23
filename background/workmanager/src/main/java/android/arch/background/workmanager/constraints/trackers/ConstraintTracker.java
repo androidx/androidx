@@ -19,6 +19,7 @@ import android.arch.background.workmanager.constraints.listeners.ConstraintListe
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.List;
  */
 
 public abstract class ConstraintTracker<T extends ConstraintListener> extends BroadcastReceiver {
+
+    private static final String TAG = "ConstraintTracker";
 
     protected Context mAppContext;
     protected List<T> mListeners = new ArrayList<>();
@@ -79,6 +82,7 @@ public abstract class ConstraintTracker<T extends ConstraintListener> extends Br
      * Registers this {@link BroadcastReceiver} with the application context.
      */
     public void registerReceiver() {
+        Log.d(TAG, getClass().getName() + ": registering receiver");
         mAppContext.registerReceiver(this, getIntentFilter());
     }
 
@@ -86,6 +90,7 @@ public abstract class ConstraintTracker<T extends ConstraintListener> extends Br
      * Unregisters this {@link BroadcastReceiver} with the application context.
      */
     public void unregisterReceiver() {
+        Log.d(TAG, getClass().getName() + ": unregistering receiver");
         mAppContext.unregisterReceiver(this);
     }
 }

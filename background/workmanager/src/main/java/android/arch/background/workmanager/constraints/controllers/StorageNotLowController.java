@@ -42,7 +42,8 @@ public class StorageNotLowController extends ConstraintController<StorageNotLowL
             LifecycleOwner lifecycleOwner,
             OnConstraintUpdatedListener onConstraintUpdatedListener) {
         super(
-                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithStorageNotLowConstraint(),
+                workDatabase.workSpecDao()
+                        .getEnqueuedOrRunningWorkSpecIdsWithStorageNotLowConstraint(),
                 lifecycleOwner,
                 Trackers.getInstance(context).getStorageNotLowTracker(),
                 onConstraintUpdatedListener);

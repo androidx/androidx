@@ -42,7 +42,8 @@ public class BatteryChargingController extends ConstraintController<BatteryCharg
             LifecycleOwner lifecycleOwner,
             OnConstraintUpdatedListener onConstraintUpdatedListener) {
         super(
-                workDatabase.workSpecDao().getEnqueuedWorkSpecIdsWithBatteryChargingConstraint(),
+                workDatabase.workSpecDao()
+                        .getEnqueuedOrRunningWorkSpecIdsWithBatteryChargingConstraint(),
                 lifecycleOwner,
                 Trackers.getInstance(context).getBatteryChargingTracker(),
                 onConstraintUpdatedListener);

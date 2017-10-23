@@ -23,6 +23,7 @@ import android.arch.background.workmanager.constraints.controllers.ConstraintCon
 import android.arch.background.workmanager.constraints.controllers.StorageNotLowController;
 import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.List;
  */
 
 public class ConstraintsTracker implements ConstraintController.OnConstraintUpdatedListener {
+
+    private static final String TAG = "ConstraintsTracker";
 
     private Processor mProcessor;
     private List<ConstraintController> mConstraintControllers = new ArrayList<>();
@@ -78,6 +81,7 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
             }
 
             if (!workSpecIdConstrained) {
+                Log.d(TAG, "Constraints met for " + id + "; trying to process");
                 // TODO(sumir): Figure out what we want to do about constrained jobs with delays.
                 mProcessor.process(id, 0L);
             }
@@ -87,6 +91,7 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
     @Override
     public void onConstraintNotMet(List<String> workSpecIds) {
         for (String id : workSpecIds) {
+            Log.d(TAG, "Constraints not met for " + id + "; trying to cancel");
             mProcessor.cancel(id, true);
         }
     }
