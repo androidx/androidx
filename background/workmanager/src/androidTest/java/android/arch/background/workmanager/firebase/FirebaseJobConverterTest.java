@@ -33,8 +33,10 @@ import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.JobTrigger;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +64,9 @@ public class FirebaseJobConverterTest {
         assertThat(job.getTag(), is(expectedWorkSpecId));
         assertThat(job.getLifetime(), is(Lifetime.FOREVER));
         assertThat(job.getService(), is(FirebaseJobService.class.getName()));
+
+        JobTrigger.ImmediateTrigger trigger = (JobTrigger.ImmediateTrigger) job.getTrigger();
+        assertThat(trigger, is(Trigger.NOW));
     }
 
     @Test
@@ -77,6 +82,22 @@ public class FirebaseJobConverterTest {
                 .convert(givenBackoffDelayDuration, TimeUnit.MILLISECONDS);
         assertThat(job.getRetryStrategy().getInitialBackoff(), is(expectedBackoffDelayDuration));
         assertThat(job.getRetryStrategy().getPolicy(), is(RetryStrategy.RETRY_POLICY_LINEAR));
+    }
+
+    @Test
+    @SmallTest
+    public void testConvert_initialDelay() {
+        long givenInitialDelayDuration = 50000L;
+        WorkSpec workSpec = new WorkSpec("id");
+        workSpec.setInitialDelay(givenInitialDelayDuration);
+        Job job = mConverter.convert(workSpec);
+        int expectedInitialDelayDuration = (int) TimeUnit.SECONDS
+                .convert(givenInitialDelayDuration, TimeUnit.MILLISECONDS);
+
+        JobTrigger.ExecutionWindowTrigger trigger =
+                (JobTrigger.ExecutionWindowTrigger) job.getTrigger();
+        assertThat(trigger.getWindowStart(), is(expectedInitialDelayDuration));
+        assertThat(trigger.getWindowEnd(), is(expectedInitialDelayDuration));
     }
 
     @Test

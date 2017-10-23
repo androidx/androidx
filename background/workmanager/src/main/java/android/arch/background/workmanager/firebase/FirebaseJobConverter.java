@@ -24,8 +24,10 @@ import android.util.Log;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
 import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.JobTrigger;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +54,20 @@ class FirebaseJobConverter {
                 .setReplaceCurrent(true)
                 .setRetryStrategy(createRetryStrategy(workSpec))
                 .setConstraints(getConstraints(workSpec))
+                .setTrigger(createTrigger(workSpec))
                 .build();
+    }
+
+    private JobTrigger createTrigger(WorkSpec workSpec) {
+        int initialDelay = (int) TimeUnit.SECONDS
+                .convert(workSpec.getInitialDelay(), TimeUnit.MILLISECONDS);
+        if (initialDelay > 0) {
+            // This is a workaround for Firebase/GCM not supporting initial delay.
+            // Execution is not guaranteed at initialDelay.
+            return Trigger.executionWindow(initialDelay, initialDelay);
+        } else {
+            return Trigger.NOW;
+        }
     }
 
     private RetryStrategy createRetryStrategy(WorkSpec workSpec) {
