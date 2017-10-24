@@ -41,20 +41,24 @@ public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListene
     @Override
     public void setUpInitialState(StorageNotLowListener listener) {
         if (mIsStorageNotLow == null) {
+
             Intent intent = mAppContext.registerReceiver(null, getIntentFilter());
             if (intent == null || intent.getAction() == null) {
-                return;
-            }
+                // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
+                // storage is available again.  ACTION_DEVICE_STORAGE_OK is not sticky.  So if we
+                // don't receive anything here, we can assume that the storage state is okay.
+                mIsStorageNotLow = true;
+            } else {
+                switch (intent.getAction()) {
+                    case Intent.ACTION_DEVICE_STORAGE_OK:
+                        mIsStorageNotLow = true;
+                        break;
 
-            switch (intent.getAction()) {
-                case Intent.ACTION_DEVICE_STORAGE_OK:
-                    mIsStorageNotLow = true;
-                    break;
-                case Intent.ACTION_DEVICE_STORAGE_LOW:
-                    mIsStorageNotLow = false;
-                    break;
+                    case Intent.ACTION_DEVICE_STORAGE_LOW:
+                        mIsStorageNotLow = false;
+                        break;
+                }
             }
-
             Log.d(TAG, "Setting initial mIsStorageNotLow to " + mIsStorageNotLow);
         }
 
@@ -86,6 +90,7 @@ public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListene
             case Intent.ACTION_DEVICE_STORAGE_OK:
                 setIsStorageNotLowAndNotify(true);
                 break;
+
             case Intent.ACTION_DEVICE_STORAGE_LOW:
                 setIsStorageNotLowAndNotify(false);
                 break;
