@@ -17,7 +17,6 @@
 package android.arch.paging;
 
 import android.support.annotation.AnyThread;
-import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
@@ -46,7 +45,9 @@ class TiledPagedList<T> extends PagedList<T>
             });
         }
 
-        @MainThread
+        // Creation thread for initial synchronous load, otherwise main thread
+        // Safe to access main thread only state - no other thread has reference during construction
+        @AnyThread
         @Override
         public void onPageResult(@NonNull PageResult<Integer, T> pageResult) {
             if (pageResult.page == null) {
@@ -67,6 +68,13 @@ class TiledPagedList<T> extends PagedList<T>
                 mKeyedStorage.insertPage(pageResult.leadingNulls, pageResult.page,
                         TiledPagedList.this);
             }
+
+            if (mBoundaryCallback != null) {
+                boolean deferEmpty = mStorage.size() == 0;
+                boolean deferBegin = !deferEmpty && pageResult.leadingNulls == 0;
+                boolean deferEnd = !deferEmpty && pageResult.trailingNulls == 0;
+                deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd);
+            }
         }
     };
 
@@ -74,15 +82,17 @@ class TiledPagedList<T> extends PagedList<T>
     TiledPagedList(@NonNull TiledDataSource<T> dataSource,
             @NonNull Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
+            @Nullable BoundaryCallback<T> boundaryCallback,
             @NonNull Config config,
             int position) {
-        super(new PagedStorage<Integer, T>(),
-                mainThreadExecutor, backgroundThreadExecutor, config);
+        super(new PagedStorage<Integer, T>(), mainThreadExecutor, backgroundThreadExecutor,
+                boundaryCallback, config);
         mDataSource = dataSource;
 
         final int pageSize = mConfig.pageSize;
 
         final int itemCount = mDataSource.countItems();
+
         final int firstLoadSize = Math.min(itemCount,
                 (Math.max(mConfig.initialLoadSizeHint / pageSize, 2)) * pageSize);
         final int firstLoadPosition = computeFirstLoadPosition(

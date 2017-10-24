@@ -15,6 +15,7 @@
  */
 package android.arch.persistence.room.integration.testapp.database;
 
+import android.arch.paging.DataSource;
 import android.arch.paging.KeyedDataSource;
 import android.arch.persistence.room.InvalidationTracker;
 import android.support.annotation.NonNull;
@@ -32,10 +33,19 @@ public class LastNameAscCustomerDataSource extends KeyedDataSource<String, Custo
     private final InvalidationTracker.Observer mObserver;
     private SampleDatabase mDb;
 
+    public static Factory<String, Customer> factory(final SampleDatabase db) {
+        return new Factory<String, Customer>() {
+            @Override
+            public DataSource<String, Customer> create() {
+                return new LastNameAscCustomerDataSource(db);
+            }
+        };
+    }
+
     /**
      * Create a DataSource from the customer table of the given database
      */
-    public LastNameAscCustomerDataSource(SampleDatabase db) {
+    private LastNameAscCustomerDataSource(SampleDatabase db) {
         mDb = db;
         mCustomerDao = db.getCustomerDao();
         mObserver = new InvalidationTracker.Observer("customer") {
