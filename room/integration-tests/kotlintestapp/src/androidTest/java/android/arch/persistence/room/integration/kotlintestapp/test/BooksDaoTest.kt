@@ -21,6 +21,7 @@ import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
 import android.database.sqlite.SQLiteConstraintException
+import android.support.test.filters.SmallTest
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -30,6 +31,7 @@ import org.junit.Test
 import java.util.Date
 import kotlin.collections.ArrayList
 
+@SmallTest
 class BooksDaoTest : TestDatabaseTest() {
 
     @Test
