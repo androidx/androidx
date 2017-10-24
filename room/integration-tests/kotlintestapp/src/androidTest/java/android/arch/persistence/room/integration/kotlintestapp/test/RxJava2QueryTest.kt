@@ -18,8 +18,10 @@ package android.arch.persistence.room.integration.kotlintestapp.test
 
 import android.arch.persistence.room.EmptyResultSetException
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
+import android.support.test.filters.SmallTest
 import org.junit.Test
 
+@SmallTest
 class RxJava2QueryTest : TestDatabaseTest() {
 
     @Test
