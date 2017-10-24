@@ -31,6 +31,38 @@ limitations under the License.
         <item name="android:textColor">@color/car_title_light</item>
     </style>
 
+    <!-- The styling for the main headline text. The color of this text changes based on the
+         day/night mode. -->
+    <style name="CarHeadline1" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline1_size</item>
+        <item name="android:textColor">@color/car_headline1</item>
+    </style>
+
+    <!-- The styling for a sub-headline text. The color of this text changes based on the
+         day/night mode. -->
+    <style name="CarHeadline2" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline2_size</item>
+        <item name="android:textColor">@color/car_headline2</item>
+    </style>
+
+    <!-- The styling for a smaller alternate headline text. The color of this text changes based on
+         the day/night mode. -->
+    <style name="CarHeadline3" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline3_size</item>
+        <item name="android:textColor">@color/car_headline3</item>
+    </style>
+
+    <!-- The styling for the smallest headline text. The color of this text changes based on the
+         day/night mode. -->
+    <style name="CarHeadline4" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_headline4_size</item>
+        <item name="android:textColor">@color/car_headline4</item>
+    </style>
+
     <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
     <style name="CarBody1" >
         <item name="android:textStyle">normal</item>
@@ -44,6 +76,22 @@ limitations under the License.
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body2_size</item>
         <item name="android:textColor">@color/car_body2</item>
+    </style>
+
+    <!-- A smaller styling for body text. The color of this text changes based on the day/night
+         mode. -->
+    <style name="CarBody3" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body3_size</item>
+        <item name="android:textColor">@color/car_body3</item>
+    </style>
+
+    <!-- The smallest styling for body text. The color of this text changes based on the day/night
+         mode. -->
+    <style name="CarBody4" >
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">@dimen/car_body4_size</item>
+        <item name="android:textColor">@color/car_body4</item>
     </style>
 
     <!-- The style for the menu bar (i.e. hamburger) and back arrow in the navigation drawer. -->

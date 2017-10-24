@@ -19,7 +19,9 @@
          http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
     <color name="car_grey_50">#fffafafa</color>
     <color name="car_grey_100">#fff5f5f5</color>
+    <color name="car_grey_300">#ffe0e0e0</color>
     <color name="car_grey_500">#ff9e9e9e</color>
+    <color name="car_grey_800">#ff424242</color>
     <color name="car_grey_900">#ff212121</color>
 
     <!-- Car specific colors that are not from the color palette. -->
@@ -32,13 +34,37 @@
     <color name="car_title_dark">@color/car_grey_900</color>
     <color name="car_title">@color/car_title_dark</color>
 
+    <color name="car_headline1_light">@color/car_grey_100</color>
+    <color name="car_headline1_dark">@color/car_grey_800</color>
+    <color name="car_headline1">@color/car_headline1_dark</color>
+
+    <color name="car_headline2_light">@color/car_grey_100</color>
+    <color name="car_headline2_dark">@color/car_grey_900</color>
+    <color name="car_headline2">@color/car_headline2_dark</color>
+
+    <color name="car_headline3_light">@android:color/white</color>
+    <color name="car_headline3_dark">@color/car_grey_900</color>
+    <color name="car_headline3">@color/car_headline3_dark</color>
+
+    <color name="car_headline4_light">@android:color/white</color>
+    <color name="car_headline4_dark">@android:color/black</color>
+    <color name="car_headline4">@color/car_headline4_dark</color>
+
     <color name="car_body1_light">@color/car_grey_100</color>
     <color name="car_body1_dark">@color/car_grey_900</color>
     <color name="car_body1">@color/car_body1_dark</color>
 
-    <color name="car_body2_light">@color/car_grey_500</color>
+    <color name="car_body2_light">@color/car_grey_300</color>
     <color name="car_body2_dark">@color/car_grey_650</color>
     <color name="car_body2">@color/car_body2_dark</color>
+
+    <color name="car_body3_light">@android:color/white</color>
+    <color name="car_body3_dark">@android:color/black</color>
+    <color name="car_body3">@color/car_body3_dark</color>
+
+    <color name="car_body4_light">@android:color/white</color>
+    <color name="car_body4_dark">@android:color/black</color>
+    <color name="car_body4">@color/car_body4_dark</color>
 
     <!-- The tinting colors to create a light- and dark-colored icon respectively. -->
     <color name="car_tint_light">@color/car_grey_50</color>
