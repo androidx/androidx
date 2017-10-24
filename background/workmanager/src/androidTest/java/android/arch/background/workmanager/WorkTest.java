@@ -48,32 +48,6 @@ public class WorkTest {
     }
 
     @Test
-    public void testBuild_setPeriodic_onlyIntervalDuration() {
-        final long expectedIntervalDuration = Work.MIN_PERIODIC_INTERVAL_DURATION + 123L;
-        Work work = mBuilder.setPeriodic(expectedIntervalDuration).build();
-        assertThat(work.getWorkSpec().getIntervalDuration(), is(expectedIntervalDuration));
-    }
-
-    @Test
-    public void testBuild_setPeriodic_intervalAndFlexDurations() {
-        final long expectedIntervalDuration = Work.MIN_PERIODIC_INTERVAL_DURATION + 123L;
-        final long expectedFlexDuration = Work.MIN_PERIODIC_FLEX_DURATION + 321L;
-        Work work = mBuilder
-                .setPeriodic(expectedIntervalDuration, expectedFlexDuration)
-                .build();
-        assertThat(work.getWorkSpec().getIntervalDuration(), is(expectedIntervalDuration));
-        assertThat(work.getWorkSpec().getFlexDuration(), is(expectedFlexDuration));
-    }
-
-    @Test
-    public void testBuild_periodicAndInitialDelay_throwsIllegalArgumentException() {
-        mThrown.expect(IllegalArgumentException.class);
-        mBuilder.withInitialDelay(123L)
-                .setPeriodic(Work.MIN_PERIODIC_INTERVAL_DURATION)
-                .build();
-    }
-
-    @Test
     public void testBuild_setBackoffCriteria_exceedMaxRetryDuration() {
         final long backoffDuration = Work.MAX_BACKOFF_DURATION + 123L;
         Work work = mBuilder

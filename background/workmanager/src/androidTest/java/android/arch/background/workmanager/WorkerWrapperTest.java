@@ -114,8 +114,9 @@ public class WorkerWrapperTest {
     @Test
     @SmallTest
     public void testRunAttemptCountIncremented_periodic_failedExecution() {
-        Work work = new Work.Builder(ExceptionTestWorker.class)
-                .setPeriodic(Work.MIN_PERIODIC_INTERVAL_DURATION)
+        PeriodicWork work = new PeriodicWork.Builder(
+                ExceptionTestWorker.class,
+                PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION)
                 .build();
 
         mWorkSpecDao.insertWorkSpec(work.getWorkSpec());
@@ -238,8 +239,9 @@ public class WorkerWrapperTest {
     @Test
     @LargeTest
     public void testPeriodicWork() throws InterruptedException {
-        Work periodicWork = new Work.Builder(TestWorker.class)
-                .setPeriodic(Work.MIN_PERIODIC_INTERVAL_DURATION)
+        PeriodicWork periodicWork = new PeriodicWork.Builder(
+                TestWorker.class,
+                PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION)
                 .build();
 
         final String periodicWorkId = periodicWork.getId();

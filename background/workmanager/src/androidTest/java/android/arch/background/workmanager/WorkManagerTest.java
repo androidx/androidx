@@ -227,6 +227,22 @@ public class WorkManagerTest {
     }
 
     @Test
+    public void testEnqueue_insertPeriodicWork() throws InterruptedException {
+        PeriodicWork periodicWork =
+                new PeriodicWork.Builder(
+                        TestWorker.class,
+                        PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION)
+                        .build();
+        mWorkManager.enqueue(periodicWork);
+        Thread.sleep(DEFAULT_SLEEP_TIME_MS);
+
+        WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getId());
+        assertThat(workSpec.isPeriodic(), is(true));
+        assertThat(workSpec.getIntervalDuration(), is(PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION));
+        assertThat(workSpec.getFlexDuration(), is(0L));
+    }
+
+    @Test
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 

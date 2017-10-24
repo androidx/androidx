@@ -22,6 +22,7 @@ import android.arch.background.workmanager.foreground.ForegroundProcessor;
 import android.arch.background.workmanager.model.Dependency;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.systemjob.SystemJobScheduler;
+import android.arch.background.workmanager.utils.BaseWorkHelper;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
@@ -88,7 +89,7 @@ public final class WorkManager {
     }
 
     /**
-     * Gets the {@link Work.WorkStatus} for a given work id.
+     * Gets the {@link BaseWork.WorkStatus} for a given work id.
      *
      * @param id The id of the {@link Work}.
      * @return A {@link LiveData} of the status.
@@ -98,7 +99,6 @@ public final class WorkManager {
     }
 
     /**
-     * TODO(janclarin): Prevent chaining on periodic Work.
      * Enqueues one or more items for background processing.
      *
      * @param work One or more {@link Work} to enqueue
@@ -118,7 +118,7 @@ public final class WorkManager {
      *         input workBuilders
      */
     public WorkContinuation enqueue(Work.Builder... workBuilders) {
-        return enqueue(WorkContinuation.convertBuilderArrayToWorkArray(workBuilders), null);
+        return enqueue(BaseWorkHelper.convertBuilderArrayToWorkArray(workBuilders), null);
     }
 
     /**
@@ -131,7 +131,29 @@ public final class WorkManager {
      */
     @SafeVarargs
     public final WorkContinuation enqueue(Class<? extends Worker>... workerClasses) {
-        return enqueue(WorkContinuation.convertWorkerClassArrayToWorkArray(workerClasses), null);
+        return enqueue(BaseWorkHelper.convertWorkerClassArrayToWorkArray(workerClasses), null);
+    }
+
+    /**
+     * Enqueues one or more periodic work items for background processing.
+     *
+     * @param periodicWork One or more {@link PeriodicWork} to enqueue
+     */
+    public void enqueue(PeriodicWork... periodicWork) {
+        mEnqueueExecutor.execute(new EnqueueRunnable(periodicWork, null));
+    }
+
+    /**
+     * Enqueues one or more periodic work items for background processing.
+     *
+     * @param periodicWorkBuilders One or more {@link PeriodicWork.Builder} to enqueue; internally
+     *                             {@code build} is called on each of them
+     */
+    public void enqueue(PeriodicWork.Builder... periodicWorkBuilders) {
+        mEnqueueExecutor.execute(
+                new EnqueueRunnable(
+                        BaseWorkHelper.convertBuilderArrayToPeriodicWorkArray(periodicWorkBuilders),
+                        null));
     }
 
     /**
@@ -156,10 +178,10 @@ public final class WorkManager {
      * A Runnable to enqueue a {@link Work} in the database.
      */
     private class EnqueueRunnable implements Runnable {
-        private Work[] mWorkArray;
+        private BaseWork[] mWorkArray;
         private String[] mPrerequisiteIds;
 
-        EnqueueRunnable(Work[] workArray, String[] prerequisiteIds) {
+        EnqueueRunnable(BaseWork[] workArray, String[] prerequisiteIds) {
             mWorkArray = workArray;
             mPrerequisiteIds = prerequisiteIds;
         }
@@ -169,7 +191,7 @@ public final class WorkManager {
             mWorkDatabase.beginTransaction();
             try {
                 boolean hasPrerequisite = (mPrerequisiteIds != null && mPrerequisiteIds.length > 0);
-                for (Work work : mWorkArray) {
+                for (BaseWork work : mWorkArray) {
                     WorkSpec workSpec = work.getWorkSpec();
                     if (hasPrerequisite) {
                         workSpec.setStatus(STATUS_BLOCKED);
@@ -189,7 +211,7 @@ public final class WorkManager {
                 // happens automatically because we instantiated ForegroundProcessor earlier.
                 // TODO(janclarin): Remove mScheduler != null check when Scheduler added for 23-.
                 if (mScheduler != null && !hasPrerequisite) {
-                    for (Work work : mWorkArray) {
+                    for (BaseWork work : mWorkArray) {
                         mScheduler.schedule(work.getWorkSpec());
                     }
                 }

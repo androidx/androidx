@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
+import android.arch.background.workmanager.PeriodicWork;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
@@ -42,6 +43,11 @@ import org.junit.runner.RunWith;
 @SdkSuppress(minSdkVersion = 23)
 @SmallTest
 public class SystemJobInfoConverterTest {
+
+    private static final long TEST_INTERVAL_DURATION =
+            PeriodicWork.MIN_PERIODIC_INTERVAL_DURATION + 1232L;
+    private static final long TEST_FLEX_DURATION = PeriodicWork.MIN_PERIODIC_FLEX_DURATION + 112L;
+
     private SystemJobIdGenerator mMockJobIdGenerator;
     private SystemJobInfoConverter mConverter;
 
@@ -106,23 +112,20 @@ public class SystemJobInfoConverterTest {
 
     @Test
     public void testConvert_periodicWithNoFlex() {
-        final long expectedIntervalDuration = Work.MIN_PERIODIC_INTERVAL_DURATION + 1232L;
         WorkSpec workSpec = new WorkSpec("id");
-        workSpec.setPeriodic(expectedIntervalDuration);
+        workSpec.setPeriodic(TEST_INTERVAL_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec);
-        assertThat(jobInfo.getIntervalMillis(), is(expectedIntervalDuration));
+        assertThat(jobInfo.getIntervalMillis(), is(TEST_INTERVAL_DURATION));
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testConvert_periodicWithFlex() {
-        final long expectedIntervalDuration = Work.MIN_PERIODIC_INTERVAL_DURATION + 1232L;
-        final long expectedFlexDuration = Work.MIN_PERIODIC_FLEX_DURATION + 112L;
         WorkSpec workSpec = new WorkSpec("id");
-        workSpec.setPeriodic(expectedIntervalDuration, expectedFlexDuration);
+        workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec);
-        assertThat(jobInfo.getIntervalMillis(), is(expectedIntervalDuration));
-        assertThat(jobInfo.getFlexMillis(), is(expectedFlexDuration));
+        assertThat(jobInfo.getIntervalMillis(), is(TEST_INTERVAL_DURATION));
+        assertThat(jobInfo.getFlexMillis(), is(TEST_FLEX_DURATION));
     }
 
     @Test
