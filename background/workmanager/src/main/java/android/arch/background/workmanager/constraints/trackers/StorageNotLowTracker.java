@@ -21,12 +21,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 /**
  * A {@link BroadcastReceiver} for storage level.
  */
 
 public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListener> {
+
+    private static final String TAG = "StorageNotLowTracker";
 
     @VisibleForTesting
     Boolean mIsStorageNotLow;
@@ -51,6 +54,8 @@ public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListene
                     mIsStorageNotLow = false;
                     break;
             }
+
+            Log.d(TAG, "Setting initial mIsStorageNotLow to " + mIsStorageNotLow);
         }
 
         if (mIsStorageNotLow != null) {
@@ -75,6 +80,8 @@ public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListene
             return; // Should never happen since the IntentFilter was configured.
         }
 
+        Log.d(TAG, "Received " + intent.getAction());
+
         switch (intent.getAction()) {
             case Intent.ACTION_DEVICE_STORAGE_OK:
                 setIsStorageNotLowAndNotify(true);
@@ -87,6 +94,7 @@ public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListene
 
     private void setIsStorageNotLowAndNotify(boolean isStorageNotLow) {
         if (mIsStorageNotLow == null || mIsStorageNotLow != isStorageNotLow) {
+            Log.d(TAG, "Setting mIsStorageNotLow to " + isStorageNotLow);
             mIsStorageNotLow = isStorageNotLow;
             for (StorageNotLowListener listener : mListeners) {
                 listener.setStorageNotLow(mIsStorageNotLow);

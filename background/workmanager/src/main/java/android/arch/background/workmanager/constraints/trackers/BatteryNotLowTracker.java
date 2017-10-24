@@ -21,12 +21,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 /**
  * A {@link BroadcastReceiver} for battery okay or low broadcasts.
  */
 
 public class BatteryNotLowTracker extends ConstraintTracker<BatteryNotLowListener> {
+
+    private static final String TAG = "BatteryNotLowTracker";
 
     @VisibleForTesting
     Boolean mIsBatteryNotLow;
@@ -52,6 +55,8 @@ public class BatteryNotLowTracker extends ConstraintTracker<BatteryNotLowListene
                     mIsBatteryNotLow = false;
                     break;
             }
+
+            Log.d(TAG, "Setting initial mIsBatteryNotLow to " + mIsBatteryNotLow);
         }
 
         if (mIsBatteryNotLow != null) {
@@ -73,6 +78,8 @@ public class BatteryNotLowTracker extends ConstraintTracker<BatteryNotLowListene
             return;
         }
 
+        Log.d(TAG, "Received " + intent.getAction());
+
         switch (intent.getAction()) {
             case Intent.ACTION_BATTERY_OKAY:
                 setIsBatteryNotLowAndNotify(true);
@@ -86,6 +93,7 @@ public class BatteryNotLowTracker extends ConstraintTracker<BatteryNotLowListene
 
     private void setIsBatteryNotLowAndNotify(boolean isBatteryNotLow) {
         if (mIsBatteryNotLow == null || mIsBatteryNotLow != isBatteryNotLow) {
+            Log.d(TAG, "Setting mIsBatteryNotLow to " + isBatteryNotLow);
             mIsBatteryNotLow = isBatteryNotLow;
             for (BatteryNotLowListener listener : mListeners) {
                 listener.setBatteryNotLow(mIsBatteryNotLow);
