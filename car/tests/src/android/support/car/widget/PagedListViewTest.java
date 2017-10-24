@@ -35,9 +35,12 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.support.car.test.R;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.espresso.IdlingRegistry;
 import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.filters.SmallTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -45,6 +48,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.junit.After;
@@ -73,11 +77,13 @@ public final class PagedListViewTest {
     public ActivityTestRule<PagedListViewTestActivity> mActivityRule =
             new ActivityTestRule<>(PagedListViewTestActivity.class);
 
+    private PagedListViewTestActivity mActivity;
     private PagedListView mPagedListView;
 
     @Before
     public void setUp() {
-        mPagedListView = mActivityRule.getActivity().findViewById(R.id.paged_list_view);
+        mActivity = mActivityRule.getActivity();
+        mPagedListView = mActivity.findViewById(R.id.paged_list_view);
     }
 
     @After
@@ -297,6 +303,28 @@ public final class PagedListViewTest {
         for (int i = 0; i < itemCount - 1; i++) {
             assertThat(views[i + 1].getTop() - views[i].getBottom(), is(equalTo(0)));
         }
+    }
+
+    @Test
+    @UiThreadTest
+    public void testSetScrollBarButtonIcons() throws Throwable {
+        // Set up a pagedListView with a large item count to ensure the scroll bar buttons are
+        // always showing.
+        setUpPagedListView(100 /* itemCount */);
+
+        Drawable upDrawable = mActivity.getDrawable(R.drawable.ic_thumb_up);
+        mPagedListView.setUpButtonIcon(upDrawable);
+
+        ImageView upButton = mPagedListView.findViewById(R.id.page_up);
+        ViewMatchers.assertThat(upButton.getDrawable().getConstantState(),
+                is(equalTo(upDrawable.getConstantState())));
+
+        Drawable downDrawable = mActivity.getDrawable(R.drawable.ic_thumb_down);
+        mPagedListView.setDownButtonIcon(downDrawable);
+
+        ImageView downButton = mPagedListView.findViewById(R.id.page_down);
+        ViewMatchers.assertThat(downButton.getDrawable().getConstantState(),
+                is(equalTo(downDrawable.getConstantState())));
     }
 
     private static String itemText(int index) {

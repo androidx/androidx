@@ -18,6 +18,7 @@ package android.support.car.widget;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.car.R;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
@@ -96,6 +97,16 @@ public class PagedScrollBarView extends FrameLayout
     public boolean onLongClick(View v) {
         dispatchPageClick(v);
         return true;
+    }
+
+    /** Sets the icon to be used for the up button. */
+    public void setUpButtonIcon(Drawable icon) {
+        mUpButton.setImageDrawable(icon);
+    }
+
+    /** Sets the icon to be used for the down button. */
+    public void setDownButtonIcon(Drawable icon) {
+        mDownButton.setImageDrawable(icon);
     }
 
     /**
