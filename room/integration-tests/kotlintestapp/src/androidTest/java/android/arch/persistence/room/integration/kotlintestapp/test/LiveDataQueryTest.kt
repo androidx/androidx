@@ -19,11 +19,12 @@ package android.arch.persistence.room.integration.kotlintestapp.test
 import android.arch.persistence.room.integration.kotlintestapp.vo.Book
 import android.arch.persistence.room.integration.kotlintestapp.vo.BookWithPublisher
 import android.arch.persistence.room.integration.kotlintestapp.vo.Publisher
+import android.support.test.filters.SmallTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 
-
+@SmallTest
 class LiveDataQueryTest : TestDatabaseTest() {
 
     @Test
