@@ -63,20 +63,20 @@ public class BatteryNotLowTrackerTest {
     }
 
     @Test
-    public void testOnReceive_nullIntent_doesNotNotifyListeners() {
-        mTracker.onReceive(
+    public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
-                null);
+                new Intent("INVALID"));
         verify(mListener, never()).setBatteryNotLow(anyBoolean());
     }
 
     @Test
-    public void testOnReceive_notifiesListeners() {
-        mTracker.onReceive(
+    public void testOnBroadcastReceive_notifiesListeners() {
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent(Intent.ACTION_BATTERY_OKAY));
         verify(mListener).setBatteryNotLow(true);
-        mTracker.onReceive(
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent(Intent.ACTION_BATTERY_LOW));
         verify(mListener).setBatteryNotLow(false);

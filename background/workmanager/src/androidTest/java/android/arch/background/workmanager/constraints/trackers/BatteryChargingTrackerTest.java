@@ -68,21 +68,21 @@ public class BatteryChargingTrackerTest {
     }
 
     @Test
-    public void testOnReceive_nullIntent_doesNotNotifyListeners() {
-        mTracker.onReceive(
+    public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
-                null);
+                new Intent("INVALID"));
         verify(mListener, never()).setBatteryCharging(anyBoolean());
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 22)
-    public void testOnReceive_notifiesListeners_beforeApi23() {
-        mTracker.onReceive(
+    public void testOnBroadcastReceive_notifiesListeners_beforeApi23() {
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent(true));
         verify(mListener).setBatteryCharging(true);
-        mTracker.onReceive(
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent(false));
         verify(mListener).setBatteryCharging(false);
@@ -90,12 +90,12 @@ public class BatteryChargingTrackerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 23)
-    public void testOnReceive_notifiesListeners_afterApi23() {
-        mTracker.onReceive(
+    public void testOnBroadcastReceive_notifiesListeners_afterApi23() {
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent_afterApi23(true));
         verify(mListener).setBatteryCharging(true);
-        mTracker.onReceive(
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 createBatteryChangedIntent_afterApi23(false));
         verify(mListener).setBatteryCharging(false);

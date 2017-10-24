@@ -18,8 +18,7 @@ package android.arch.background.workmanager.constraints.trackers;
 import android.content.Context;
 
 /**
- * A singleton class that holds all the {@link ConstraintTracker}s and can track when to
- * register and unregister them.
+ * A singleton class to hold an instance of each {@link ConstraintTracker}.
  */
 
 public class Trackers {

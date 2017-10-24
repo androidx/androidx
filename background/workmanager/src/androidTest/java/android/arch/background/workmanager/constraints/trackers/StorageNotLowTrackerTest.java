@@ -62,20 +62,20 @@ public class StorageNotLowTrackerTest {
     }
 
     @Test
-    public void testOnReceive_nullIntent_doesNotNotifyListeners() {
-        mTracker.onReceive(
+    public void testOnBroadcastReceive_invalidIntentAction_doesNotNotifyListeners() {
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
-                null);
+                new Intent("INVALID"));
         verify(mListener, never()).setStorageNotLow(anyBoolean());
     }
 
     @Test
-    public void testOnReceive_notifiesListeners() {
-        mTracker.onReceive(
+    public void testOnBroadcastReceive_notifiesListeners() {
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent(Intent.ACTION_DEVICE_STORAGE_OK));
         verify(mListener).setStorageNotLow(true);
-        mTracker.onReceive(
+        mTracker.onBroadcastReceive(
                 InstrumentationRegistry.getTargetContext(),
                 new Intent(Intent.ACTION_DEVICE_STORAGE_LOW));
         verify(mListener).setStorageNotLow(false);
