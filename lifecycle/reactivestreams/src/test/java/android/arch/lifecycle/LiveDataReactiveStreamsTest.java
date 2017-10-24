@@ -16,6 +16,9 @@
 
 package android.arch.lifecycle;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -34,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
@@ -115,6 +119,41 @@ public class LiveDataReactiveStreamsTest {
     }
 
     @Test
+    public void convertsFromPublisherSubscribeWithDelay() {
+        PublishProcessor<String> processor = PublishProcessor.create();
+        processor.delaySubscription(100, TimeUnit.SECONDS, sBackgroundScheduler);
+        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
+
+        liveData.observe(mLifecycleOwner, mObserver);
+
+        processor.onNext("foo");
+        liveData.removeObserver(mObserver);
+        sBackgroundScheduler.triggerActions();
+        liveData.observe(mLifecycleOwner, mObserver);
+
+        processor.onNext("bar");
+        processor.onNext("baz");
+
+        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "foo", "bar", "baz")));
+    }
+
+    @Test
+    public void convertsFromPublisherThrowsException() {
+        PublishProcessor<String> processor = PublishProcessor.create();
+        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
+
+        liveData.observe(mLifecycleOwner, mObserver);
+
+        IllegalStateException exception = new IllegalStateException("test exception");
+        try {
+            processor.onError(exception);
+            fail("Runtime Exception expected");
+        } catch (RuntimeException ex) {
+            assertEquals(ex.getCause(), exception);
+        }
+    }
+
+    @Test
     public void convertsFromPublisherWithMultipleObservers() {
         final List<String> output2 = new ArrayList<>();
         PublishProcessor<String> processor = PublishProcessor.create();
@@ -125,7 +164,7 @@ public class LiveDataReactiveStreamsTest {
         processor.onNext("foo");
         processor.onNext("bar");
 
-        // The second mObserver should only get the newest value and any later values.
+        // The second observer should only get the newest value and any later values.
         liveData.observe(mLifecycleOwner, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
@@ -136,6 +175,32 @@ public class LiveDataReactiveStreamsTest {
         processor.onNext("baz");
 
         assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar", "baz")));
+        assertThat(output2, is(Arrays.asList("bar", "baz")));
+    }
+
+    @Test
+    public void convertsFromPublisherWithMultipleObserversAfterInactive() {
+        final List<String> output2 = new ArrayList<>();
+        PublishProcessor<String> processor = PublishProcessor.create();
+        LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
+
+        liveData.observe(mLifecycleOwner, mObserver);
+
+        processor.onNext("foo");
+        processor.onNext("bar");
+
+        // The second observer should only get the newest value and any later values.
+        liveData.observe(mLifecycleOwner, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                output2.add(s);
+            }
+        });
+
+        liveData.removeObserver(mObserver);
+        processor.onNext("baz");
+
+        assertThat(mLiveDataOutput, is(Arrays.asList("foo", "bar")));
         assertThat(output2, is(Arrays.asList("bar", "baz")));
     }
 
@@ -156,7 +221,7 @@ public class LiveDataReactiveStreamsTest {
     }
 
     @Test
-    public void convertsFromPublisherManagesSubcriptions() {
+    public void convertsFromPublisherManagesSubscriptions() {
         PublishProcessor<String> processor = PublishProcessor.create();
         LiveData<String> liveData = LiveDataReactiveStreams.fromPublisher(processor);
 
@@ -198,7 +263,7 @@ public class LiveDataReactiveStreamsTest {
 
         assertThat(
                 mOutputProcessor.getValues(new String[]{}),
-                is(new String[] {"foo", "bar", "baz"}));
+                is(new String[]{"foo", "bar", "baz"}));
     }
 
     @Test
@@ -263,10 +328,10 @@ public class LiveDataReactiveStreamsTest {
         final Subscription subscription = subscriptionSubject.blockingSingle();
 
         subscription.request(1);
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[] {}));
+        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{}));
 
         liveData.setValue("foo");
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[] {"foo"}));
+        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{"foo"}));
 
         subscription.request(2);
         liveData.setValue("baz");
@@ -274,7 +339,7 @@ public class LiveDataReactiveStreamsTest {
 
         assertThat(
                 mOutputProcessor.getValues(new String[]{}),
-                is(new String[] {"foo", "baz", "fizz"}));
+                is(new String[]{"foo", "baz", "fizz"}));
 
         // 'nyan' will be dropped as there is nothing currently requesting a stream.
         liveData.setValue("nyan");
@@ -282,13 +347,13 @@ public class LiveDataReactiveStreamsTest {
 
         assertThat(
                 mOutputProcessor.getValues(new String[]{}),
-                is(new String[] {"foo", "baz", "fizz"}));
+                is(new String[]{"foo", "baz", "fizz"}));
 
         // When a new request comes in, the latest value will be pushed.
         subscription.request(1);
         assertThat(
                 mOutputProcessor.getValues(new String[]{}),
-                is(new String[] {"foo", "baz", "fizz", "cat"}));
+                is(new String[]{"foo", "baz", "fizz", "cat"}));
     }
 
     @Test
@@ -301,17 +366,17 @@ public class LiveDataReactiveStreamsTest {
 
         liveData.setValue("foo");
 
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[] {}));
+        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{}));
         sBackgroundScheduler.triggerActions();
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[] {"foo"}));
+        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{"foo"}));
 
         liveData.setValue("bar");
         liveData.setValue("baz");
 
-        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[] {"foo"}));
+        assertThat(mOutputProcessor.getValues(new String[]{}), is(new String[]{"foo"}));
         sBackgroundScheduler.triggerActions();
         assertThat(mOutputProcessor.getValues(
                 new String[]{}),
-                is(new String[] {"foo", "bar", "baz"}));
+                is(new String[]{"foo", "bar", "baz"}));
     }
 }
