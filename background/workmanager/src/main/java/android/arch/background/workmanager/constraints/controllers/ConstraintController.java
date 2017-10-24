@@ -126,14 +126,12 @@ public abstract class ConstraintController<T extends ConstraintListener>
         if (mMatchingWorkSpecIds == null) {
             Log.d(TAG, getClass().getSimpleName() + ": null matching workspecs");
             return true;
-        } else if (mMatchingWorkSpecIds.contains(id)) {
-            return isConstrained();
         }
-        return false;
+        return isConstrained() && mMatchingWorkSpecIds.contains(id);
     }
 
     protected void updateListener() {
-        if (mMatchingWorkSpecIds == null || mMatchingWorkSpecIds.isEmpty()) {
+        if (mMatchingWorkSpecIds == null) {
             Log.d(TAG, getClass().getSimpleName() + ": updateListener - no workspecs!");
             return;
         }
