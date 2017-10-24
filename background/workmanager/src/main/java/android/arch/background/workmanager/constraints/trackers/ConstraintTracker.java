@@ -16,42 +16,39 @@
 package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.IntentFilter;
-import android.util.Log;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * A base {@link BroadcastReceiver} for monitoring constraints changes.
+ * A base for tracking constraints and notifying listeners of changes.
  *
  * @param <T> A specific type of {@link ConstraintListener} associated with this tracker
  */
 
-public abstract class ConstraintTracker<T extends ConstraintListener> extends BroadcastReceiver {
+public abstract class ConstraintTracker<T extends ConstraintListener> {
 
     private static final String TAG = "ConstraintTracker";
 
     protected Context mAppContext;
     protected Set<T> mListeners = new LinkedHashSet<>();
 
-    public ConstraintTracker(Context context) {
+    ConstraintTracker(Context context) {
         mAppContext = context.getApplicationContext();
     }
 
     /**
      * Add the given listener for tracking.
      *
-     * @param listener The target listener to register
+     * @param listener The target listener to startTracking
      */
     public void addListener(T listener) {
         if (mListeners.add(listener)) {
             setUpInitialState(listener);
 
             if (mListeners.size() == 1) {
-                registerReceiver();
+                startTracking();
             }
         }
     }
@@ -59,11 +56,11 @@ public abstract class ConstraintTracker<T extends ConstraintListener> extends Br
     /**
      * Remove the given listener from tracking.
      *
-     * @param listener The listener to unregister
+     * @param listener The listener to stopTracking
      */
     public void removeListener(T listener) {
         if (mListeners.remove(listener) && mListeners.isEmpty()) {
-            unregisterReceiver();
+            stopTracking();
         }
     }
 
@@ -75,23 +72,12 @@ public abstract class ConstraintTracker<T extends ConstraintListener> extends Br
     public abstract void setUpInitialState(T listener);
 
     /**
-     * @return The {@link IntentFilter} associated with this tracker.
+     * Start tracking for constraint state changes.
      */
-    public abstract IntentFilter getIntentFilter();
+    public abstract void startTracking();
 
     /**
-     * Registers this {@link BroadcastReceiver} with the application context.
+     * Stop tracking for constraint state changes.
      */
-    public void registerReceiver() {
-        Log.d(TAG, getClass().getName() + ": registering receiver");
-        mAppContext.registerReceiver(this, getIntentFilter());
-    }
-
-    /**
-     * Unregisters this {@link BroadcastReceiver} with the application context.
-     */
-    public void unregisterReceiver() {
-        Log.d(TAG, getClass().getName() + ": unregistering receiver");
-        mAppContext.unregisterReceiver(this);
-    }
+    public abstract void stopTracking();
 }

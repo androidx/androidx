@@ -22,8 +22,6 @@ import static org.mockito.Mockito.mock;
 
 import android.arch.background.workmanager.constraints.listeners.ConstraintListener;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -47,7 +45,7 @@ public class ConstraintTrackerTest {
     @After
     public void tearDown() {
         try {
-            mTracker.unregisterReceiver();
+            mTracker.stopTracking();
         } catch (IllegalArgumentException e) {
             // Ignore any exceptions if the receiver isn't registered.
         }
@@ -64,13 +62,13 @@ public class ConstraintTrackerTest {
     public void testTracking_registersOnSizeEqualsOne() {
         ConstraintListener constraintListener1 = mock(ConstraintListener.class);
         mTracker.addListener(constraintListener1);
-        assertThat(mTracker.mRegistered, is(true));
-        assertThat(mTracker.mRegisterCount, is(1));
+        assertThat(mTracker.mIsTracking, is(true));
+        assertThat(mTracker.mStartTrackingCount, is(1));
 
         ConstraintListener constraintListener2 = mock(ConstraintListener.class);
         mTracker.addListener(constraintListener2);
-        assertThat(mTracker.mRegistered, is(true));
-        assertThat(mTracker.mRegisterCount, is(1));
+        assertThat(mTracker.mIsTracking, is(true));
+        assertThat(mTracker.mStartTrackingCount, is(1));
     }
 
     @Test
@@ -81,11 +79,11 @@ public class ConstraintTrackerTest {
         mTracker.addListener(constraintListener2);
 
         mTracker.removeListener(constraintListener1);
-        assertThat(mTracker.mRegistered, is(true));
-        assertThat(mTracker.mUnregisterCount, is(0));
+        assertThat(mTracker.mIsTracking, is(true));
+        assertThat(mTracker.mStopTrackingCount, is(0));
         mTracker.removeListener(constraintListener2);
-        assertThat(mTracker.mRegistered, is(false));
-        assertThat(mTracker.mUnregisterCount, is(1));
+        assertThat(mTracker.mIsTracking, is(false));
+        assertThat(mTracker.mStopTrackingCount, is(1));
     }
 
     @Test
@@ -100,10 +98,10 @@ public class ConstraintTrackerTest {
 
     private static class TestConstraintTracker extends ConstraintTracker<ConstraintListener> {
 
-        private boolean mSetupInitialState;
-        private boolean mRegistered;
-        private int mRegisterCount;
-        private int mUnregisterCount;
+        boolean mSetupInitialState;
+        boolean mIsTracking;
+        int mStartTrackingCount;
+        int mStopTrackingCount;
 
         TestConstraintTracker(Context context) {
             super(context);
@@ -115,27 +113,15 @@ public class ConstraintTrackerTest {
         }
 
         @Override
-        public IntentFilter getIntentFilter() {
-            return new IntentFilter();
+        public void startTracking() {
+            mIsTracking = true;
+            mStartTrackingCount++;
         }
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            // Do nothing.
+        public void stopTracking() {
+            mIsTracking = false;
+            mStopTrackingCount++;
         }
-
-        @Override
-        public void registerReceiver() {
-            super.registerReceiver();
-            mRegistered = true;
-            ++mRegisterCount;
-        }
-
-        @Override
-        public void unregisterReceiver() {
-            super.unregisterReceiver();
-            mRegistered = false;
-            ++mUnregisterCount;
-        }
-    };
+    }
 }

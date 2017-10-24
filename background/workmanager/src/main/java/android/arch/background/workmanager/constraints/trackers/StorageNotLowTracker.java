@@ -16,18 +16,19 @@
 package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.listeners.StorageNotLowListener;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 /**
- * A {@link BroadcastReceiver} for storage level.
+ * Tracks whether or not the device's storage is low.
  */
 
-public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListener> {
+public class StorageNotLowTracker
+        extends BroadcastReceiverConstraintTracker<StorageNotLowListener> {
 
     private static final String TAG = "StorageNotLowTracker";
 
@@ -75,8 +76,8 @@ public class StorageNotLowTracker extends ConstraintTracker<StorageNotLowListene
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        if (intent == null || intent.getAction() == null) {
+    public void onBroadcastReceive(Context context, @NonNull Intent intent) {
+        if (intent.getAction() == null) {
             return; // Should never happen since the IntentFilter was configured.
         }
 

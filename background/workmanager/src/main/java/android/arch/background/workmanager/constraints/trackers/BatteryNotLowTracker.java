@@ -16,18 +16,19 @@
 package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.listeners.BatteryNotLowListener;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 /**
- * A {@link BroadcastReceiver} for battery okay or low broadcasts.
+ * Tracks whether or not the device's battery level is low.
  */
 
-public class BatteryNotLowTracker extends ConstraintTracker<BatteryNotLowListener> {
+public class BatteryNotLowTracker
+        extends BroadcastReceiverConstraintTracker<BatteryNotLowListener> {
 
     private static final String TAG = "BatteryNotLowTracker";
 
@@ -73,8 +74,8 @@ public class BatteryNotLowTracker extends ConstraintTracker<BatteryNotLowListene
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        if (intent == null || intent.getAction() == null) {
+    public void onBroadcastReceive(Context context, @NonNull Intent intent) {
+        if (intent.getAction() == null) {
             return;
         }
 
