@@ -1356,7 +1356,7 @@ public class ViewCompat {
                 // after applying the tint
                 Drawable background = view.getBackground();
                 boolean hasTint = (view.getBackgroundTintList() != null)
-                        && (view.getBackgroundTintMode() != null);
+                        || (view.getBackgroundTintMode() != null);
                 if ((background != null) && hasTint) {
                     if (background.isStateful()) {
                         background.setState(view.getDrawableState());
@@ -1375,7 +1375,7 @@ public class ViewCompat {
                 // after applying the tint
                 Drawable background = view.getBackground();
                 boolean hasTint = (view.getBackgroundTintList() != null)
-                        && (view.getBackgroundTintMode() != null);
+                        || (view.getBackgroundTintMode() != null);
                 if ((background != null) && hasTint) {
                     if (background.isStateful()) {
                         background.setState(view.getDrawableState());
