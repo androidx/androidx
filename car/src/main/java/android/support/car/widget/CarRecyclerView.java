@@ -18,17 +18,12 @@ package android.support.car.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Custom {@link RecyclerView} that helps {@link CarLayoutManager} properly fling and paginate.
@@ -37,11 +32,7 @@ import java.lang.reflect.InvocationTargetException;
  * #setFadeLastItem(boolean)}.
  */
 public class CarRecyclerView extends RecyclerView {
-    private static final String PARCEL_CLASS = "android.os.Parcel";
-    private static final String SAVED_STATE_CLASS =
-            "android.support.v7.widget.RecyclerView.SavedState";
     private boolean mFadeLastItem;
-    private Constructor<?> mSavedStateConstructor;
     /**
      * If the user releases the list with a velocity of 0, {@link #fling(int, int)} will not be
      * called. However, we want to make sure that the list still snaps to the next page when this
@@ -61,30 +52,6 @@ public class CarRecyclerView extends RecyclerView {
         super(context, attrs, defStyle);
         setFocusableInTouchMode(false);
         setFocusable(false);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        if (state.getClass().getClassLoader() != getClass().getClassLoader()) {
-            if (mSavedStateConstructor == null) {
-                mSavedStateConstructor = getSavedStateConstructor();
-            }
-            // Class loader mismatch, recreate from parcel.
-            Parcel obtain = Parcel.obtain();
-            state.writeToParcel(obtain, 0);
-            try {
-                Parcelable newState = (Parcelable) mSavedStateConstructor.newInstance(obtain);
-                super.onRestoreInstanceState(newState);
-            } catch (InstantiationException
-                    | IllegalAccessException
-                    | IllegalArgumentException
-                    | InvocationTargetException e) {
-                // Fail loudy here.
-                throw new RuntimeException(e);
-            }
-        } else {
-            super.onRestoreInstanceState(state);
-        }
     }
 
     @Override
@@ -156,35 +123,6 @@ public class CarRecyclerView extends RecyclerView {
         }
 
         smoothScrollToPosition(pageDownPosition);
-    }
-
-    /** Sets {@link #mSavedStateConstructor} to private SavedState constructor. */
-    private Constructor<?> getSavedStateConstructor() {
-        Class<?> savedStateClass = null;
-        // Find package private subclass RecyclerView$SavedState.
-        for (Class<?> c : RecyclerView.class.getDeclaredClasses()) {
-            if (c.getCanonicalName().equals(SAVED_STATE_CLASS)) {
-                savedStateClass = c;
-                break;
-            }
-        }
-        if (savedStateClass == null) {
-            throw new RuntimeException("RecyclerView$SavedState not found!");
-        }
-        // Find constructor that takes a {@link Parcel}.
-        for (Constructor<?> c : savedStateClass.getDeclaredConstructors()) {
-            Class<?>[] parameterTypes = c.getParameterTypes();
-            if (parameterTypes.length == 1
-                    && parameterTypes[0].getCanonicalName().equals(PARCEL_CLASS)) {
-                mSavedStateConstructor = c;
-                mSavedStateConstructor.setAccessible(true);
-                break;
-            }
-        }
-        if (mSavedStateConstructor == null) {
-            throw new RuntimeException("RecyclerView$SavedState constructor not found!");
-        }
-        return mSavedStateConstructor;
     }
 
     /**
