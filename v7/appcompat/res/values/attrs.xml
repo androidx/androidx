@@ -1140,6 +1140,7 @@
         <attr name="singleChoiceItemLayout" format="reference" />
         <attr name="listItemLayout" format="reference" />
         <attr name="showTitle" format="boolean" />
+        <attr name="buttonIconDimen" format="dimension" />
     </declare-styleable>
 
     <!-- @hide -->

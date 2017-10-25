@@ -17,6 +17,7 @@
 package com.example.android.support.wear.app;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -55,10 +56,12 @@ public class AlertDialogDemo extends Activity {
     }
 
     private AlertDialog createV7Dialog() {
+        Drawable drawable = getDrawable(R.drawable.app_sample_code);
         return new AlertDialog.Builder(this)
                 .setTitle("AppCompatDialog")
                 .setMessage("Lorem ipsum dolor...")
                 .setPositiveButton("Ok", null)
+                .setPositiveButtonIcon(drawable)
                 .setNegativeButton("Cancel", null)
                 .create();
     }
