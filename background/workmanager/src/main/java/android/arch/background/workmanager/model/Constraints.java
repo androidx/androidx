@@ -19,6 +19,7 @@ package android.arch.background.workmanager.model;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.persistence.room.ColumnInfo;
+import android.net.Uri;
 import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
@@ -56,6 +57,9 @@ public class Constraints {
     @ColumnInfo(name = "requires_storage_not_low")
     boolean mRequiresStorageNotLow;
 
+    @ColumnInfo(name = "content_uri_triggers")
+    ContentUriTriggers mContentUriTriggers;
+
     public Constraints() { // stub required for room
     }
 
@@ -65,6 +69,7 @@ public class Constraints {
         mRequiredNetworkType = builder.mRequiredNetworkType;
         mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
+        mContentUriTriggers = builder.mContentUriTriggers;
     }
 
     public int getRequiredNetworkType() {
@@ -119,6 +124,14 @@ public class Constraints {
         mRequiresStorageNotLow = requiresStorageNotLow;
     }
 
+    public void setContentUriTriggers(ContentUriTriggers mContentUriTriggers) {
+        this.mContentUriTriggers = mContentUriTriggers;
+    }
+
+    public ContentUriTriggers getContentUriTriggers() {
+        return mContentUriTriggers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -132,7 +145,9 @@ public class Constraints {
                 && mRequiresCharging == other.mRequiresCharging
                 && mRequiresDeviceIdle == other.mRequiresDeviceIdle
                 && mRequiresBatteryNotLow == other.mRequiresBatteryNotLow
-                && mRequiresStorageNotLow == other.mRequiresStorageNotLow;
+                && mRequiresStorageNotLow == other.mRequiresStorageNotLow
+                && (mContentUriTriggers != null ? mContentUriTriggers.equals(
+                        other.mContentUriTriggers) : other.mContentUriTriggers == null);
     }
 
     @Override
@@ -142,6 +157,7 @@ public class Constraints {
         result = 31 * result + (mRequiresDeviceIdle ? 1 : 0);
         result = 31 * result + (mRequiresBatteryNotLow ? 1 : 0);
         result = 31 * result + (mRequiresStorageNotLow ? 1 : 0);
+        result = 31 * result + (mContentUriTriggers != null ? mContentUriTriggers.hashCode() : 0);
         return result;
     }
 
@@ -154,6 +170,7 @@ public class Constraints {
         private int mRequiredNetworkType = NETWORK_TYPE_NONE;
         private boolean mRequiresBatteryNotLow = false;
         private boolean mRequiresStorageNotLow = false;
+        private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
         /**
          * Specify whether device should be plugged in for {@link WorkSpec} to run.
@@ -213,6 +230,19 @@ public class Constraints {
          */
         public Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
             this.mRequiresStorageNotLow = requiresStorageNotLow;
+            return this;
+        }
+
+        /**
+         * Specify whether {@link WorkSpec} should run when a content {@link android.net.Uri} is
+         * updated
+         * @param uri {@link android.net.Uri} to observe
+         * @param triggerForDescendants {@code true} if any changes in descendants cause this
+         *                              {@link WorkSpec} to run
+         * @return The current {@link Builder}
+         */
+        public Builder addContentUriTrigger(Uri uri, boolean triggerForDescendants) {
+            mContentUriTriggers.add(uri, triggerForDescendants);
             return this;
         }
 

@@ -28,7 +28,7 @@ import android.support.annotation.NonNull;
  * Stores information about a logical unit of work.
  */
 @Entity
-@TypeConverters(Arguments.class)
+@TypeConverters(value = {Arguments.class, ContentUriTriggers.class})
 public class WorkSpec {
     private static final String TAG = "WorkSpec";
 
