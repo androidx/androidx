@@ -3907,6 +3907,94 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testRestoreIndexAndAddItemsSelect1() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.horizontal_item);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 4);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPosition(1);
+            }
+
+        });
+        assertEquals(mGridView.getSelectedPosition(), 1);
+        final SparseArray<Parcelable> states = new SparseArray<>();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.saveHierarchyState(states);
+                mGridView.setAdapter(null);
+            }
+
+        });
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.restoreHierarchyState(states);
+                mActivity.attachToNewAdapter(new int[0]);
+                mActivity.addItems(0, new int[]{100, 100, 100, 100});
+            }
+
+        });
+        assertEquals(mGridView.getSelectedPosition(), 1);
+    }
+
+    @Test
+    public void testRestoreStateAfterAdapterChange() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_CHILD_LAYOUT_ID, R.layout.selectable_text_view);
+        intent.putExtra(GridActivity.EXTRA_ITEMS, new int[]{50, 50, 50, 50});
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPosition(1);
+                mGridView.setSaveChildrenPolicy(VerticalGridView.SAVE_ALL_CHILD);
+            }
+
+        });
+        assertEquals(mGridView.getSelectedPosition(), 1);
+        final SparseArray<Parcelable> states = new SparseArray<>();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Selection.setSelection((Spannable) (((TextView) mGridView.getChildAt(0))
+                        .getText()), 1, 2);
+                Selection.setSelection((Spannable) (((TextView) mGridView.getChildAt(1))
+                        .getText()), 0, 1);
+                mGridView.saveHierarchyState(states);
+                mGridView.setAdapter(null);
+            }
+
+        });
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.restoreHierarchyState(states);
+                mActivity.attachToNewAdapter(new int[]{50, 50, 50, 50});
+            }
+
+        });
+        assertEquals(mGridView.getSelectedPosition(), 1);
+        assertEquals(1, ((TextView) mGridView.getChildAt(0)).getSelectionStart());
+        assertEquals(2, ((TextView) mGridView.getChildAt(0)).getSelectionEnd());
+        assertEquals(0, ((TextView) mGridView.getChildAt(1)).getSelectionStart());
+        assertEquals(1, ((TextView) mGridView.getChildAt(1)).getSelectionEnd());
+    }
+
+    @Test
     public void test27766012() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
