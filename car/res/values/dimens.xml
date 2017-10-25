@@ -16,11 +16,20 @@ limitations under the License.
 <resources>
     <!-- Keylines for content. -->
     <dimen name="car_keyline_1">24dp</dimen>
+    <dimen name="car_keyline_2">96dp</dimen>
+    <dimen name="car_keyline_3">24dp</dimen>
+    <dimen name="car_keyline_4">148dp</dimen>
 
     <!-- Various text stylings. -->
     <dimen name="car_title_size">26sp</dimen>
+    <dimen name="car_headline1_size">45sp</dimen>
+    <dimen name="car_headline2_size">36sp</dimen>
+    <dimen name="car_headline3_size">24sp</dimen>
+    <dimen name="car_headline4_size">20sp</dimen>
     <dimen name="car_body1_size">32sp</dimen>
     <dimen name="car_body2_size">26sp</dimen>
+    <dimen name="car_body3_size">16sp</dimen>
+    <dimen name="car_body4_size">14sp</dimen>
 
     <!-- The margin on both sides of the screen before the contents of the PagedListView. -->
     <dimen name="car_card_margin">96dp</dimen>
