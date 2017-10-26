@@ -18,7 +18,6 @@ package android.arch.paging;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import java.util.List;
@@ -38,10 +37,8 @@ import java.util.List;
  * backend or data store doesn't require
  * <p>
  * @param <Value> Value type of items being loaded by the DataSource.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class PositionalDataSource<Value> extends ContiguousDataSource<Integer, Value> {
+abstract class PositionalDataSource<Value> extends ContiguousDataSource<Integer, Value> {
 
     /**
      * Number of items that this DataSource can provide in total, or COUNT_UNDEFINED.
@@ -66,13 +63,10 @@ public abstract class PositionalDataSource<Value> extends ContiguousDataSource<I
         return loadBefore(currentBeginIndex - 1, pageSize);
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @WorkerThread
-    @Nullable
     @Override
-    public NullPaddedList<Value> loadInitial(
-            Integer position, int initialLoadSize, boolean enablePlaceholders) {
+    void loadInitial(Integer position, int initialLoadSize, boolean enablePlaceholders,
+            @NonNull PageResult.Receiver<Integer, Value> receiver) {
+
         final int convertPosition = position == null ? 0 : position;
         final int loadPosition = Math.max(0, (convertPosition - initialLoadSize / 2));
 
@@ -81,11 +75,23 @@ public abstract class PositionalDataSource<Value> extends ContiguousDataSource<I
             count = countItems();
         }
         List<Value> data = loadAfter(loadPosition, initialLoadSize);
-        if (count == COUNT_UNDEFINED) {
-            return new NullPaddedList<>(loadPosition, data);
-        } else {
-            return new NullPaddedList<>(loadPosition, count, data);
+
+        if (data == null) {
+            receiver.onPageResult(new PageResult<Integer, Value>(PageResult.INIT));
+            return;
         }
+
+        final boolean uncounted = count == COUNT_UNDEFINED;
+        int leadingNullCount = uncounted ? 0 : loadPosition;
+        int trailingNullCount = uncounted ? 0 : count - leadingNullCount - data.size();
+        int positionOffset = uncounted ? loadPosition : 0;
+
+        receiver.onPageResult(new PageResult<>(
+                PageResult.INIT,
+                new Page<Integer, Value>(data),
+                leadingNullCount,
+                trailingNullCount,
+                positionOffset));
     }
 
     /**

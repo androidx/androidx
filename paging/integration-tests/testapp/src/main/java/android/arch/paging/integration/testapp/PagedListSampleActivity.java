@@ -16,7 +16,6 @@
 
 package android.arch.paging.integration.testapp;
 
-import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.paging.PagedList;
@@ -28,7 +27,7 @@ import android.view.View;
 import android.widget.Button;
 
 /**
- * Sample NullPaddedList activity with artificial data source.
+ * Sample PagedList activity with artificial data source.
  */
 public class PagedListSampleActivity extends AppCompatActivity {
 
@@ -55,12 +54,5 @@ public class PagedListSampleActivity extends AppCompatActivity {
                 viewModel.invalidateList();
             }
         });
-    }
-
-    private LifecycleRegistry  mLifecycleRegistry = new LifecycleRegistry(this);
-
-    @Override
-    public LifecycleRegistry getLifecycle() {
-        return mLifecycleRegistry;
     }
 }
