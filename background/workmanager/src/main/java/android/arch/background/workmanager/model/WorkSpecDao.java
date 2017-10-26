@@ -165,6 +165,16 @@ public interface WorkSpecDao {
     LiveData<List<String>> getEnqueuedOrRunningWorkSpecIdsWithStorageNotLowConstraint();
 
     /**
+     * Returns ids for enqueued work items that have the required {@code networkType} constraint.
+     *
+     * @return A list of {@link WorkSpec} ids that have the {@code networkType} constraint.
+     */
+    @Query("SELECT id FROM workspec WHERE (status=" + STATUS_ENQUEUED
+            + " OR status=" + STATUS_RUNNING + ") AND required_network_type=:networkType")
+    LiveData<List<String>> getEnqueuedOrRunningWorkSpecIdsWithRequiredNetworkType(
+            @Constraints.NetworkType int networkType);
+
+    /**
      * Clears all work.
      */
     @Query("DELETE FROM workspec")
