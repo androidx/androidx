@@ -40,10 +40,10 @@ public class BatteryNotLowController extends ConstraintController<BatteryNotLowL
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedListener onConstraintUpdatedListener) {
+            OnConstraintUpdatedListener onConstraintUpdatedListener,
+            boolean allowPeriodic) {
         super(
-                workDatabase.workSpecDao()
-                        .getEnqueuedOrRunningWorkSpecIdsWithBatteryNotLowConstraint(),
+                workDatabase.workSpecDao().getIdsForBatteryNotLowController(allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getBatteryNotLowTracker(),
                 onConstraintUpdatedListener);

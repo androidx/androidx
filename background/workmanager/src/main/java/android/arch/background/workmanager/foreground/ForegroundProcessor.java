@@ -77,7 +77,8 @@ public class ForegroundProcessor extends Processor
                 mAppContext,
                 mLifecycleOwner,
                 mWorkDatabase,
-                this);
+                this,
+                false);
         mWorkDatabase.workSpecDao().getForegroundEligibleWorkSpecs().observe(mLifecycleOwner, this);
     }
 

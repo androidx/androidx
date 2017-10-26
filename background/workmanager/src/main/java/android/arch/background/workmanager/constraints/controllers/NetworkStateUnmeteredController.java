@@ -44,10 +44,12 @@ public class NetworkStateUnmeteredController extends ConstraintController<Networ
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedListener onConstraintUpdatedListener) {
+            OnConstraintUpdatedListener onConstraintUpdatedListener,
+            boolean allowPeriodic) {
         super(
-                workDatabase.workSpecDao().getEnqueuedOrRunningWorkSpecIdsWithRequiredNetworkType(
-                        Constraints.NETWORK_TYPE_UNMETERED),
+                workDatabase.workSpecDao().getIdsForNetworkTypeController(
+                        Constraints.NETWORK_TYPE_UNMETERED,
+                        allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getNetworkStateTracker(),
                 onConstraintUpdatedListener
