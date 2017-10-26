@@ -23,12 +23,14 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import android.arch.background.workmanager.model.Arguments;
 import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.DependencyDao;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.arch.background.workmanager.model.WorkSpecDao;
 import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
+import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -127,6 +129,9 @@ public class WorkManagerTest {
 
     @Test
     public void testEnqueue_insertWorkConstraints() throws InterruptedException {
+        Uri testUri1 = Uri.parse("TEST_URI_1");
+        Uri testUri2 = Uri.parse("TEST_URI_2");
+
         Work work0 = new Work.Builder(TestWorker.class)
                 .withConstraints(
                         new Constraints.Builder()
@@ -135,6 +140,8 @@ public class WorkManagerTest {
                                 .setRequiredNetworkType(Constraints.NETWORK_TYPE_METERED)
                                 .setRequiresBatteryNotLow(true)
                                 .setRequiresStorageNotLow(true)
+                                .addContentUriTrigger(testUri1, true)
+                                .addContentUriTrigger(testUri2, false)
                                 .build())
                 .build();
         Work work1 = new Work.Builder(TestWorker.class).build();
@@ -144,6 +151,10 @@ public class WorkManagerTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getId());
 
+        ContentUriTriggers expectedTriggers = new ContentUriTriggers();
+        expectedTriggers.add(testUri1, true);
+        expectedTriggers.add(testUri2, false);
+
         Constraints constraints = workSpec0.getConstraints();
         assertThat(constraints, is(notNullValue()));
         assertThat(constraints.requiresCharging(), is(true));
@@ -151,6 +162,7 @@ public class WorkManagerTest {
         assertThat(constraints.requiresBatteryNotLow(), is(true));
         assertThat(constraints.requiresStorageNotLow(), is(true));
         assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_METERED));
+        assertThat(constraints.getContentUriTriggers(), is(expectedTriggers));
 
         constraints = workSpec1.getConstraints();
         assertThat(constraints, is(notNullValue()));
@@ -159,6 +171,7 @@ public class WorkManagerTest {
         assertThat(constraints.requiresBatteryNotLow(), is(false));
         assertThat(constraints.requiresStorageNotLow(), is(false));
         assertThat(constraints.getRequiredNetworkType(), is(Constraints.NETWORK_TYPE_NONE));
+        assertThat(constraints.getContentUriTriggers().size(), is(0));
     }
 
     @Test
