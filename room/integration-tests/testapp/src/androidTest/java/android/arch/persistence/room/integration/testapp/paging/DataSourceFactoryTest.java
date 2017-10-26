@@ -28,6 +28,7 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
 import android.arch.persistence.room.integration.testapp.test.TestDatabaseTest;
 import android.arch.persistence.room.integration.testapp.test.TestUtil;
@@ -46,14 +47,53 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@LargeTest
 @RunWith(AndroidJUnit4.class)
-public class LivePagedListProviderTest extends TestDatabaseTest {
+public class DataSourceFactoryTest extends TestDatabaseTest {
     @Rule
     public CountingTaskExecutorRule mExecutorRule = new CountingTaskExecutorRule();
 
+    private interface LivePagedListFactory {
+        LiveData<PagedList<User>> create();
+    }
+
     @Test
-    @LargeTest
     public void getUsersAsPagedList()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        validateUsersAsPagedList(new LivePagedListFactory() {
+            @Override
+            public LiveData<PagedList<User>> create() {
+                return new LivePagedListBuilder<Integer, User>()
+                        .setPagingConfig(new PagedList.Config.Builder()
+                                .setPageSize(10)
+                                .setPrefetchDistance(1)
+                                .setInitialLoadSizeHint(10).build())
+                        .setDataSourceFactory(mUserDao.loadPagedByAge(3))
+                        .build();
+            }
+        });
+    }
+
+
+    // TODO: delete this and factory abstraction when LivePagedListProvider is removed
+    @Test
+    public void getUsersAsPagedList_legacyLivePagedListProvider()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        validateUsersAsPagedList(new LivePagedListFactory() {
+            @Override
+            public LiveData<PagedList<User>> create() {
+                return mUserDao.loadPagedByAge_legacy(3).create(
+                        0,
+                        new PagedList.Config.Builder()
+                                .setPageSize(10)
+                                .setPrefetchDistance(1)
+                                .setInitialLoadSizeHint(10)
+                                .build());
+            }
+        });
+    }
+
+    private void validateUsersAsPagedList(LivePagedListFactory factory)
             throws InterruptedException, ExecutionException, TimeoutException {
         mDatabase.beginTransaction();
         try {
@@ -67,12 +107,8 @@ public class LivePagedListProviderTest extends TestDatabaseTest {
             mDatabase.endTransaction();
         }
         assertThat(mUserDao.count(), is(100));
-        final LiveData<PagedList<User>> livePagedUsers = mUserDao.loadPagedByAge(3).create(
-                0,
-                new PagedList.Config.Builder()
-                        .setPageSize(10)
-                        .setPrefetchDistance(1)
-                        .setInitialLoadSizeHint(10).build());
+
+        final LiveData<PagedList<User>> livePagedUsers = factory.create();
 
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();
         testOwner.handleEvent(Lifecycle.Event.ON_CREATE);

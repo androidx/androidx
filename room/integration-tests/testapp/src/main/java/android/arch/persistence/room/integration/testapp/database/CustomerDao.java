@@ -16,7 +16,7 @@
 
 package android.arch.persistence.room.integration.testapp.database;
 
-import android.arch.paging.LivePagedListProvider;
+import android.arch.paging.DataSource;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
@@ -44,12 +44,11 @@ public interface CustomerDao {
     void insertAll(Customer[] customers);
 
     /**
-     * @return LivePagedListProvider of customers, ordered by last name. Call
-     * {@link LivePagedListProvider#create(Object, android.arch.paging.PagedList.Config)} to
-     * get a LiveData of PagedLists.
+     * @return DataSource.Factory of customers, ordered by last name. Use
+     * {@link android.arch.paging.LivePagedListBuilder} to get a LiveData of PagedLists.
      */
     @Query("SELECT * FROM customer ORDER BY mLastName ASC")
-    LivePagedListProvider<Integer, Customer> loadPagedAgeOrder();
+    DataSource.Factory<Integer, Customer> loadPagedAgeOrder();
 
     /**
      * @return number of customers

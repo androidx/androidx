@@ -48,6 +48,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @SuppressWarnings("unused") // suppress warning to remove Key/Value, needed for subclass type safety
 public abstract class DataSource<Key, Value> {
 
+    public interface Factory<Key, Value> {
+        DataSource<Key, Value> create();
+    }
+
     // Since we currently rely on implementation details of two implementations,
     // prevent external subclassing, except through exposed subclasses
     DataSource() {

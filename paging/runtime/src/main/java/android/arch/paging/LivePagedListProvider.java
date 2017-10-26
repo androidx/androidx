@@ -16,8 +16,6 @@
 
 package android.arch.paging;
 
-import android.arch.core.executor.ArchTaskExecutor;
-import android.arch.lifecycle.ComputableLiveData;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.AnyThread;
 import android.support.annotation.NonNull;
@@ -53,8 +51,23 @@ import android.support.annotation.WorkerThread;
  * @see PagedListAdapter
  * @see DataSource
  * @see PagedList
+ *
+ * @deprecated To construct a {@code LiveData<PagedList>}, use {@link LivePagedListBuilder}, which
+ * provides the same construction capability with more customization, and better defaults. The role
+ * of DataSource construction has been separated out to {@link DataSource.Factory} to access or
+ * provide a self-invalidating sequence of DataSources. If you were acquiring this from Room, you
+ * can switch to having your Dao return a {@link DataSource.Factory} instead, and create a LiveData
+ * of PagedList with a {@link LivePagedListBuilder}.
  */
-public abstract class LivePagedListProvider<Key, Value> {
+// NOTE: Room 1.0 depends on this class, so it should not be removed
+// until Room switches to using DataSource.Factory directly
+@Deprecated
+public abstract class LivePagedListProvider<Key, Value> implements DataSource.Factory<Key, Value> {
+
+    @Override
+    public DataSource<Key, Value> create() {
+        return createDataSource();
+    }
 
     /**
      * Construct a new data source to be wrapped in a new PagedList, which will be returned
@@ -80,10 +93,11 @@ public abstract class LivePagedListProvider<Key, Value> {
     @AnyThread
     @NonNull
     public LiveData<PagedList<Value>> create(@Nullable Key initialLoadKey, int pageSize) {
-        return create(initialLoadKey,
-                new PagedList.Config.Builder()
-                        .setPageSize(pageSize)
-                        .build());
+        return new LivePagedListBuilder<Key, Value>()
+                .setInitialLoadKey(initialLoadKey)
+                .setPagingConfig(pageSize)
+                .setDataSourceFactory(this)
+                .build();
     }
 
     /**
@@ -100,49 +114,12 @@ public abstract class LivePagedListProvider<Key, Value> {
      */
     @AnyThread
     @NonNull
-    public LiveData<PagedList<Value>> create(@Nullable final Key initialLoadKey,
-            final PagedList.Config config) {
-        return new ComputableLiveData<PagedList<Value>>() {
-            @Nullable
-            private PagedList<Value> mList;
-            @Nullable
-            private DataSource<Key, Value> mDataSource;
-
-            private final DataSource.InvalidatedCallback mCallback =
-                    new DataSource.InvalidatedCallback() {
-                @Override
-                public void onInvalidated() {
-                    invalidate();
-                }
-            };
-
-            @Override
-            protected PagedList<Value> compute() {
-                @Nullable Key initializeKey = initialLoadKey;
-                if (mList != null) {
-                    //noinspection unchecked
-                    initializeKey = (Key) mList.getLastKey();
-                }
-
-                do {
-                    if (mDataSource != null) {
-                        mDataSource.removeInvalidatedCallback(mCallback);
-                    }
-
-                    mDataSource = createDataSource();
-                    mDataSource.addInvalidatedCallback(mCallback);
-
-                    mList = new PagedList.Builder<Key, Value>()
-                            .setDataSource(mDataSource)
-                            .setMainThreadExecutor(ArchTaskExecutor.getMainThreadExecutor())
-                            .setBackgroundThreadExecutor(
-                                    ArchTaskExecutor.getIOThreadExecutor())
-                            .setConfig(config)
-                            .setInitialKey(initializeKey)
-                            .build();
-                } while (mList.isDetached());
-                return mList;
-            }
-        }.getLiveData();
+    public LiveData<PagedList<Value>> create(@Nullable Key initialLoadKey,
+            @NonNull PagedList.Config config) {
+        return new LivePagedListBuilder<Key, Value>()
+                .setInitialLoadKey(initialLoadKey)
+                .setPagingConfig(config)
+                .setDataSourceFactory(this)
+                .build();
     }
 }
