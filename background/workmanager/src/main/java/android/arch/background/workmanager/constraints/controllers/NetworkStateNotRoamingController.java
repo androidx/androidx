@@ -45,10 +45,12 @@ public class NetworkStateNotRoamingController extends ConstraintController<Netwo
             Context context,
             WorkDatabase workDatabase,
             LifecycleOwner lifecycleOwner,
-            OnConstraintUpdatedListener onConstraintUpdatedListener) {
+            OnConstraintUpdatedListener onConstraintUpdatedListener,
+            boolean allowPeriodic) {
         super(
-                workDatabase.workSpecDao().getEnqueuedOrRunningWorkSpecIdsWithRequiredNetworkType(
-                        Constraints.NETWORK_TYPE_NOT_ROAMING),
+                workDatabase.workSpecDao().getIdsForNetworkTypeController(
+                        Constraints.NETWORK_TYPE_NOT_ROAMING,
+                        allowPeriodic),
                 lifecycleOwner,
                 Trackers.getInstance(context).getNetworkStateTracker(),
                 onConstraintUpdatedListener

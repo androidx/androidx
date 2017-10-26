@@ -48,7 +48,8 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
             Context context,
             LifecycleOwner lifecycleOwner,
             WorkDatabase workDatabase,
-            Processor processor) {
+            Processor processor,
+            boolean allowPeriodic) {
         Context appContext = context.getApplicationContext();
         mProcessor = processor;
 
@@ -57,21 +58,24 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
                         appContext,
                         workDatabase,
                         lifecycleOwner,
-                        this));
+                        this,
+                        allowPeriodic));
 
         mConstraintControllers.add(
                 new BatteryNotLowController(
                         appContext,
                         workDatabase,
                         lifecycleOwner,
-                        this));
+                        this,
+                        allowPeriodic));
 
         mConstraintControllers.add(
                 new StorageNotLowController(
                         appContext,
                         workDatabase,
                         lifecycleOwner,
-                        this));
+                        this,
+                        allowPeriodic));
 
         // TODO(janclarin): Remove check when network state trackers are added for 24-.
         if (Build.VERSION.SDK_INT >= 24) {
@@ -80,28 +84,32 @@ public class ConstraintsTracker implements ConstraintController.OnConstraintUpda
                             appContext,
                             workDatabase,
                             lifecycleOwner,
-                            this));
+                            this,
+                            allowPeriodic));
 
             mConstraintControllers.add(
                     new NetworkStateMeteredController(
                             appContext,
                             workDatabase,
                             lifecycleOwner,
-                            this));
+                            this,
+                            allowPeriodic));
 
             mConstraintControllers.add(
                     new NetworkStateNotRoamingController(
                             appContext,
                             workDatabase,
                             lifecycleOwner,
-                            this));
+                            this,
+                            allowPeriodic));
 
             mConstraintControllers.add(
                     new NetworkStateUnmeteredController(
                             appContext,
                             workDatabase,
                             lifecycleOwner,
-                            this));
+                            this,
+                            allowPeriodic));
         }
     }
 

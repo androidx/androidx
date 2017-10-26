@@ -87,7 +87,8 @@ public class ConstraintsTrackerTest {
                     public void onExecuted(String workSpecId, int result) {
                         super.onExecuted(workSpecId, result);
                     }
-                }
+                },
+                false
         );
         drain();
     }
