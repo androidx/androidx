@@ -679,7 +679,6 @@ public class BrowseSupportFragment extends BaseSupportFragment {
 
     private ObjectAdapter mAdapter;
     private PresenterSelector mAdapterPresenter;
-    private PresenterSelector mWrappingPresenterSelector;
 
     private int mHeadersState = HEADERS_ENABLED;
     private int mBrandColor = Color.TRANSPARENT;
@@ -764,7 +763,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      * Wrapping app provided PresenterSelector to support InvisibleRowPresenter for SectionRow
      * DividerRow and PageRow.
      */
-    private void createAndSetWrapperPresenter() {
+    private void updateWrapperPresenter() {
+        if (mAdapter == null) {
+            mAdapterPresenter = null;
+            return;
+        }
         final PresenterSelector adapterPresenter = mAdapter.getPresenterSelector();
         if (adapterPresenter == null) {
             throw new IllegalArgumentException("Adapter.getPresenterSelector() is null");
@@ -809,18 +812,16 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      */
     public void setAdapter(ObjectAdapter adapter) {
         mAdapter = adapter;
-        createAndSetWrapperPresenter();
+        updateWrapperPresenter();
         if (getView() == null) {
             return;
         }
-        replaceMainFragment(mSelectedPosition);
 
-        if (adapter != null) {
-            if (mMainFragmentRowsAdapter != null) {
-                mMainFragmentRowsAdapter.setAdapter(new ListRowDataAdapter(adapter));
-            }
-            mHeadersSupportFragment.setAdapter(adapter);
+        if (mMainFragmentRowsAdapter != null) {
+            mMainFragmentRowsAdapter.setAdapter(
+                    adapter == null ? null : new ListRowDataAdapter(adapter));
         }
+        mHeadersSupportFragment.setAdapter(adapter);
     }
 
     public final MainFragmentAdapterRegistry getMainFragmentRegistry() {
