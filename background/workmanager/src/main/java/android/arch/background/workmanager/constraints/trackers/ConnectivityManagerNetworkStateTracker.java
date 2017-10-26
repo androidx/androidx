@@ -40,7 +40,8 @@ import android.util.Log;
  * </p>
  */
 @RequiresApi(24)
-public class ConnectivityManagerNetworkStateTracker extends NetworkStateTracker {
+public class ConnectivityManagerNetworkStateTracker
+        extends ConstraintTracker<NetworkStateListener> {
     private static final String TAG = "ConnManagerNetwrkTrcker";
 
     private final ConnectivityManager mConnectivityManager;
@@ -50,16 +51,19 @@ public class ConnectivityManagerNetworkStateTracker extends NetworkStateTracker 
             Log.d(TAG, "Network connection capability changed to: " + capabilities);
             // ConnectivityManager.getActiveNetworkInfo() is used instead of getNetworkInfo(network)
             // because the network parameter may not be usable when a VPN app is running.
-            final NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
-            setNetworkStateAndNotify(NetworkState.create(info, capabilities));
+            NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
+            NetworkState updatedState = NetworkState.create(info, capabilities);
+            mNetworkStateContainer.setStateAndNotify(updatedState, mListeners);
         }
 
         @Override
         public void onLost(Network network) {
             Log.d(TAG, "Network connection lost.");
-            setNetworkStateAndNotify(getActiveNetworkState());
+            mNetworkStateContainer.setStateAndNotify(getActiveNetworkState(), mListeners);
         }
     };
+
+    private NetworkStateContainer mNetworkStateContainer;
 
     ConnectivityManagerNetworkStateTracker(Context context) {
         super(context);
@@ -68,11 +72,12 @@ public class ConnectivityManagerNetworkStateTracker extends NetworkStateTracker 
 
     @Override
     public void setUpInitialState(NetworkStateListener listener) {
-        if (mCurrentNetworkState == null) {
-            mCurrentNetworkState = getActiveNetworkState();
+        if (mNetworkStateContainer == null) {
+            mNetworkStateContainer = new NetworkStateContainer(getActiveNetworkState());
         }
-        if (mCurrentNetworkState != null) {
-            listener.setNetworkState(mCurrentNetworkState);
+        NetworkState currentState = mNetworkStateContainer.getState();
+        if (currentState != null) {
+            listener.setNetworkState(currentState);
         }
     }
 

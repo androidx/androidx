@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,30 @@ package android.arch.background.workmanager.constraints.trackers;
 
 import android.arch.background.workmanager.constraints.NetworkState;
 import android.arch.background.workmanager.constraints.listeners.NetworkStateListener;
-import android.content.Context;
 import android.support.annotation.NonNull;
 
 /**
- * A base {@link ConstraintTracker} for monitoring network state.
+ * Manages a {@link NetworkState} with helper functions for notifying {@link NetworkStateListener}s
+ * if the {@link NetworkStateContainer#mState} is updated.
  */
 
-public abstract class NetworkStateTracker extends ConstraintTracker<NetworkStateListener> {
+class NetworkStateContainer {
+    private NetworkState mState;
 
-    NetworkState mCurrentNetworkState;
-
-    NetworkStateTracker(Context context) {
-        super(context);
+    NetworkStateContainer(@NonNull NetworkState networkState) {
+        mState = networkState;
     }
 
-    void setNetworkStateAndNotify(@NonNull NetworkState networkState) {
-        if (mCurrentNetworkState == null || !mCurrentNetworkState.equals(networkState)) {
-            mCurrentNetworkState = networkState;
-            for (NetworkStateListener listener : mListeners) {
-                listener.setNetworkState(mCurrentNetworkState);
+    NetworkState getState() {
+        return mState;
+    }
+
+    void setStateAndNotify(@NonNull NetworkState networkState,
+                           @NonNull Iterable<NetworkStateListener> listeners) {
+        if (mState == null || !mState.equals(networkState)) {
+            mState = networkState;
+            for (NetworkStateListener listener : listeners) {
+                listener.setNetworkState(mState);
             }
         }
     }
