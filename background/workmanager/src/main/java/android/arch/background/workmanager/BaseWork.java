@@ -18,8 +18,10 @@ package android.arch.background.workmanager;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.arch.background.workmanager.model.Arguments;
+import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -121,6 +123,17 @@ public abstract class BaseWork {
             }
             mWorkSpec.setBackoffPolicy(backoffPolicy);
             mWorkSpec.setBackoffDelayDuration(backoffDelayDuration);
+            return getThis();
+        }
+
+        /**
+         * Add constraints to the {@link Work}.
+         *
+         * @param constraints The constraints for the {@link Work}
+         * @return The current {@link Work.Builder}.
+         */
+        public B withConstraints(@NonNull Constraints constraints) {
+            mWorkSpec.setConstraints(constraints);
             return getThis();
         }
 

@@ -56,6 +56,17 @@ public class SystemJobService extends JobService implements ExecutionListener {
             Log.e(TAG, "WorkSpec id not found!");
             return false;
         }
+
+        boolean isPeriodic = params.getExtras().getBoolean(SystemJobInfoConverter.EXTRA_IS_PERIODIC,
+                false);
+        if (isPeriodic && params.isOverrideDeadlineExpired()) {
+            Log.d(TAG,
+                    "Override deadling expired for id " + workSpecId
+                            + "; asking system to retry");
+            jobFinished(params, true);
+            return false;
+        }
+
         Log.d(TAG, workSpecId + " started on JobScheduler");
         mJobParameters.put(workSpecId, params);
 

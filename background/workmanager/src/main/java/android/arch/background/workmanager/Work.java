@@ -16,9 +16,7 @@
 
 package android.arch.background.workmanager;
 
-import android.arch.background.workmanager.model.Constraints;
 import android.arch.background.workmanager.model.WorkSpec;
-import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 
 /**
@@ -50,17 +48,6 @@ public class Work extends BaseWork {
         @VisibleForTesting
         Builder withInitialRunAttemptCount(int runAttemptCount) {
             mWorkSpec.setRunAttemptCount(runAttemptCount);
-            return this;
-        }
-
-        /**
-         * Add constraints to the {@link Work}.
-         *
-         * @param constraints The constraints for the {@link Work}
-         * @return The current {@link Builder}.
-         */
-        public Builder withConstraints(@NonNull Constraints constraints) {
-            mWorkSpec.setConstraints(constraints);
             return this;
         }
 

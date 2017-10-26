@@ -140,10 +140,6 @@ public class WorkSpec {
         mBackoffDelayDuration = backoffDelayDuration;
     }
 
-    public boolean hasInitialDelay() {
-        return mInitialDelay != 0L;
-    }
-
     public long getInitialDelay() {
         return mInitialDelay;
     }
