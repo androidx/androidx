@@ -412,7 +412,6 @@ public class WearableActionDrawerView extends WearableDrawerView {
                 CharSequence title = mActionMenu.getItem(titleAwarePosition).getTitle();
                 holder.textView.setText(title);
                 holder.textView.setContentDescription(title);
-                holder.iconView.setContentDescription(title);
                 holder.iconView.setImageDrawable(icon);
             } else if (viewHolder instanceof TitleViewHolder) {
                 TitleViewHolder holder = (TitleViewHolder) viewHolder;
