@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package android.support.mediacompat.client.util;
+package android.support.mediacompat.service.util;
 
 import static android.support.mediacompat.testlib.IntentConstants
-        .ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD;
-import static android.support.mediacompat.testlib.IntentConstants.ACTION_CALL_MEDIA_SESSION_METHOD;
+        .ACTION_CALL_MEDIA_CONTROLLER_METHOD;
+import static android.support.mediacompat.testlib.IntentConstants
+        .ACTION_CALL_TRANSPORT_CONTROLS_METHOD;
 import static android.support.mediacompat.testlib.IntentConstants.KEY_ARGUMENT;
 import static android.support.mediacompat.testlib.IntentConstants.KEY_METHOD_ID;
+import static android.support.mediacompat.testlib.IntentConstants.KEY_SESSION_TOKEN;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -31,24 +36,39 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-public class IntentUtil {
+public final class TestUtil {
 
-    public static final ComponentName SERVICE_RECEIVER_COMPONENT_NAME = new ComponentName(
-            "android.support.mediacompat.service.test",
-            "android.support.mediacompat.service.ServiceBroadcastReceiver");
+    public static final ComponentName CLIENT_RECEIVER_COMPONENT_NAME = new ComponentName(
+            "android.support.mediacompat.client.test",
+            "android.support.mediacompat.client.ClientBroadcastReceiver");
 
-    public static void callMediaBrowserServiceMethod(int methodId, Object arg, Context context) {
-        Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
-        intent.setAction(ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD);
+    public static void assertBundleEquals(Bundle expected, Bundle observed) {
+        if (expected == null || observed == null) {
+            assertTrue(expected == observed);
+            return;
+        }
+        assertEquals(expected.size(), observed.size());
+        for (String key : expected.keySet()) {
+            assertEquals(expected.get(key), observed.get(key));
+        }
+    }
+
+    public static void callMediaControllerMethod(
+            int methodId, Object arg, Context context, Parcelable token) {
+        Intent intent = createIntent(CLIENT_RECEIVER_COMPONENT_NAME, methodId, arg);
+        intent.setAction(ACTION_CALL_MEDIA_CONTROLLER_METHOD);
+        intent.putExtra(KEY_SESSION_TOKEN, token);
         if (Build.VERSION.SDK_INT >= 16) {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }
         context.sendBroadcast(intent);
     }
 
-    public static void callMediaSessionMethod(int methodId, Object arg, Context context) {
-        Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
-        intent.setAction(ACTION_CALL_MEDIA_SESSION_METHOD);
+    public static void callTransportControlsMethod(
+            int methodId, Object arg, Context context, Parcelable token) {
+        Intent intent = createIntent(CLIENT_RECEIVER_COMPONENT_NAME, methodId, arg);
+        intent.setAction(ACTION_CALL_TRANSPORT_CONTROLS_METHOD);
+        intent.putExtra(KEY_SESSION_TOKEN, token);
         if (Build.VERSION.SDK_INT >= 16) {
             intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
         }
