@@ -47,6 +47,14 @@ class PageResult<K, V> {
         this.positionOffset = positionOffset;
     }
 
+    PageResult(int type) {
+        this.type = type;
+        this.page = null;
+        this.leadingNulls = 0;
+        this.trailingNulls = 0;
+        this.positionOffset = 0;
+    }
+
     interface Receiver<K, V> {
         @AnyThread
         void postOnPageResult(@NonNull PageResult<K, V> pageResult);
