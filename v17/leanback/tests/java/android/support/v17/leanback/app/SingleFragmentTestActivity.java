@@ -33,10 +33,26 @@ public class SingleFragmentTestActivity extends Activity {
     public static final String EXTRA_ACTIVITY_LAYOUT = "activityLayout";
 
     public static final String EXTRA_UI_VISIBILITY = "uiVisibility";
+
+    public static final String EXTRA_OVERRIDDEN_SAVED_INSTANCE_STATE =
+            "overriddenSavedInstanceState";
+
     private static final String TAG = "TestActivity";
+
+    private Bundle overrideSavedInstance(Bundle savedInstance) {
+        Intent intent = getIntent();
+        if (intent != null) {
+            Bundle b = intent.getBundleExtra(EXTRA_OVERRIDDEN_SAVED_INSTANCE_STATE);
+            if (b != null) {
+                return b;
+            }
+        }
+        return savedInstance;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        savedInstanceState = overrideSavedInstance(savedInstanceState);
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate " + this);
         Intent intent = getIntent();
@@ -59,6 +75,17 @@ public class SingleFragmentTestActivity extends Activity {
                 finish();
             }
         }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(overrideSavedInstance(savedInstanceState));
+    }
+
+    public Bundle performSaveInstanceState() {
+        Bundle state = new Bundle();
+        onSaveInstanceState(state);
+        return state;
     }
 
     public Fragment getTestFragment() {

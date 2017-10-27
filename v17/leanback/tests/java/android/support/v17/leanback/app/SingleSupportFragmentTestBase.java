@@ -19,6 +19,7 @@
 package android.support.v17.leanback.app;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
@@ -50,6 +51,7 @@ public class SingleSupportFragmentTestBase {
     public static class Options {
         int mActivityLayoutId;
         int mUiVisibility;
+        Bundle mSavedInstance;
 
         public Options() {
         }
@@ -64,6 +66,11 @@ public class SingleSupportFragmentTestBase {
             return this;
         }
 
+        public Options savedInstance(Bundle savedInstance) {
+            mSavedInstance = savedInstance;
+            return this;
+        }
+
         public void collect(Intent intent) {
             if (mActivityLayoutId != 0) {
                 intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_ACTIVITY_LAYOUT,
@@ -71,6 +78,10 @@ public class SingleSupportFragmentTestBase {
             }
             if (mUiVisibility != 0) {
                 intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_UI_VISIBILITY, mUiVisibility);
+            }
+            if (mSavedInstance != null) {
+                intent.putExtra(SingleSupportFragmentTestActivity.EXTRA_OVERRIDDEN_SAVED_INSTANCE_STATE,
+                        mSavedInstance);
             }
         }
     }
