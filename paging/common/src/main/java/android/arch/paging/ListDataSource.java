@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package android.arch.paging
+package android.arch.paging;
 
-class ListDataSource<T> constructor(private val list: List<T>) : TiledDataSource<T>() {
+import java.util.ArrayList;
+import java.util.List;
 
-    override fun countItems(): Int {
-        return list.size
+public class ListDataSource<T> extends TiledDataSource<T> {
+    private final List<T> mList;
+
+    public ListDataSource(List<T> list) {
+        mList = new ArrayList<>(list);
     }
 
-    override fun loadRange(startPosition: Int, count: Int): List<T> {
-        val endExclusive = Math.min(list.size, startPosition + count)
-        return list.subList(startPosition, endExclusive)
+    @Override
+    public int countItems() {
+        return mList.size();
+    }
+
+    @Override
+    public List<T> loadRange(int startPosition, int count) {
+        int endExclusive = Math.min(mList.size(), startPosition + count);
+        return mList.subList(startPosition, endExclusive);
     }
 }

@@ -123,6 +123,14 @@ public class PagedListAdapterHelper<T> {
     private final ListUpdateCallback mUpdateCallback;
     private final ListAdapterConfig<T> mConfig;
 
+    // TODO: REAL API
+    interface PagedListListener<T> {
+        void onCurrentListChanged(@Nullable PagedList<T> currentList);
+    }
+
+    @Nullable
+    PagedListListener<T> mListener;
+
     private boolean mIsContiguous;
 
     private PagedList<T> mPagedList;
@@ -247,6 +255,9 @@ public class PagedListAdapterHelper<T> {
             }
             // dispatch update callback after updating mPagedList/mSnapshot
             mUpdateCallback.onRemoved(0, removedCount);
+            if (mListener != null) {
+                mListener.onCurrentListChanged(null);
+            }
             return;
         }
 
@@ -257,6 +268,10 @@ public class PagedListAdapterHelper<T> {
 
             // dispatch update callback after updating mPagedList/mSnapshot
             mUpdateCallback.onInserted(0, pagedList.size());
+
+            if (mListener != null) {
+                mListener.onCurrentListChanged(pagedList);
+            }
             return;
         }
 
@@ -311,6 +326,9 @@ public class PagedListAdapterHelper<T> {
                 previousSnapshot.mStorage, newList.mStorage, diffResult);
 
         newList.addWeakCallback(diffSnapshot, mPagedListCallback);
+        if (mListener != null) {
+            mListener.onCurrentListChanged(mPagedList);
+        }
     }
 
     /**
