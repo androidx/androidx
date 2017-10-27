@@ -124,7 +124,8 @@ public interface WorkSpecDao {
      */
     @Query("SELECT * FROM workspec WHERE status=" + STATUS_ENQUEUED + " AND "
             + " requires_charging=0 AND requires_device_idle=0 AND requires_battery_not_low=0 AND "
-            + " requires_storage_not_low=0 AND required_network_type=0 AND interval_duration=0")
+            + " requires_storage_not_low=0 AND required_network_type=0 AND interval_duration=0 AND"
+            + " content_uri_triggers IS NULL")
     LiveData<List<WorkSpec>> getForegroundEligibleWorkSpecs();
 
     /**

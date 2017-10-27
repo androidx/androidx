@@ -31,6 +31,7 @@ import android.arch.background.workmanager.worker.TestWorker;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -129,8 +130,8 @@ public class WorkManagerTest {
 
     @Test
     public void testEnqueue_insertWorkConstraints() throws InterruptedException {
-        Uri testUri1 = Uri.parse("TEST_URI_1");
-        Uri testUri2 = Uri.parse("TEST_URI_2");
+        Uri testUri1 = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Uri testUri2 = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
         Work work0 = new Work.Builder(TestWorker.class)
                 .withConstraints(

@@ -132,6 +132,13 @@ public class Constraints {
         return mContentUriTriggers;
     }
 
+    /**
+     * @return {@code true} if {@link ContentUriTriggers} is not empty
+     */
+    public boolean hasContentUriTriggers() {
+        return mContentUriTriggers.size() > 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

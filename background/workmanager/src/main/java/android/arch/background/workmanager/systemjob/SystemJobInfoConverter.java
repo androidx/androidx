@@ -21,6 +21,7 @@ import static android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import android.app.job.JobInfo;
 import android.arch.background.workmanager.Work;
 import android.arch.background.workmanager.model.Constraints;
+import android.arch.background.workmanager.model.ContentUriTriggers;
 import android.arch.background.workmanager.model.WorkSpec;
 import android.content.ComponentName;
 import android.content.Context;
@@ -75,7 +76,6 @@ class SystemJobInfoConverter {
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.getId());
         JobInfo.Builder builder = new JobInfo.Builder(jobId, mWorkServiceComponent)
-                .setPersisted(true)
                 .setRequiredNetworkType(jobInfoNetworkType)
                 .setExtras(extras);
 
@@ -94,6 +94,15 @@ class SystemJobInfoConverter {
             builder.setMinimumLatency(workSpec.getInitialDelay());
         }
 
+        if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
+            for (ContentUriTriggers.Trigger trigger : constraints.getContentUriTriggers()) {
+                builder.addTriggerContentUri(convertContentUriTrigger(trigger));
+            }
+        } else {
+            // Jobs with Content Uri Triggers cannot be persisted
+            builder.setPersisted(true);
+        }
+
         // TODO(janclarin): Support requiresCharging/requiresDeviceIdle for versions older than 24.
         if (Build.VERSION.SDK_INT >= 24) {
             builder.setRequiresCharging(constraints.requiresCharging());
@@ -106,6 +115,14 @@ class SystemJobInfoConverter {
             builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());
         }
         return builder.build();
+    }
+
+    @RequiresApi(24)
+    private static JobInfo.TriggerContentUri convertContentUriTrigger(
+            ContentUriTriggers.Trigger trigger) {
+        int flag = trigger.shouldTriggerForDescendants()
+                ? JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS : 0;
+        return new JobInfo.TriggerContentUri(trigger.getUri(), flag);
     }
 
     /**
